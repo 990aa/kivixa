@@ -1,11 +1,16 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QTextEdit, QProgressBar, QDialogButtonBox
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
+import os
 
 class UpdateNotificationDialog(QDialog):
     def __init__(self, changelog, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Update Available")
         self.setMinimumSize(400, 300)
+        icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../build/icon.ico'))
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
         layout = QVBoxLayout(self)
         label = QLabel("A new update is available!")
         label.setAlignment(Qt.AlignCenter)
@@ -24,6 +29,9 @@ class UpdateProgressDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setMinimumSize(350, 120)
+        icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../build/icon.ico'))
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
         layout = QVBoxLayout(self)
         self.label = QLabel("Starting...")
         layout.addWidget(self.label)
@@ -39,6 +47,9 @@ class UpdateHistoryDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Update History & Version Info")
         self.setMinimumSize(500, 400)
+        icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../build/icon.ico'))
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
         layout = QVBoxLayout(self)
         label = QLabel("<b>Update History</b>")
         layout.addWidget(label)

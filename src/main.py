@@ -188,9 +188,12 @@ class MainWindow(QMainWindow):
                 pass
     def __init__(self):
         super().__init__()
-
+        icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../build/icon.ico'))
         self.setWindowTitle("Kivixa")
         self.setGeometry(100, 100, 1200, 800)
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
+        self.icon_path = icon_path
         self.project_manager = ProjectManager()
         self.current_folder_id = None  # Root
         self.canvas_view = None
@@ -199,9 +202,15 @@ class MainWindow(QMainWindow):
         self._setup_styles()
         self._setup_ui()
         self._create_drawing_toolbar()
+        self.refresh_card_view()
+        self._setup_update_menu()
 
-    self.refresh_card_view()
-    self._setup_update_menu()
+    def show_loading_dialog(self, message="Loading...", timeout=10000):
+        from widgets.loading_widget import LoadingDialog
+        dlg = LoadingDialog(message, self, icon_path=self.icon_path)
+        dlg.show_with_timeout(timeout)
+        QApplication.processEvents()
+        return dlg
 
     def _setup_styles(self):
         try:
