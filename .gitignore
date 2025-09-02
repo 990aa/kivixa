@@ -4,5 +4,4 @@ logs/
 TODO
 dist/
 .venv/
-
 *__pycache__/
