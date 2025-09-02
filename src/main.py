@@ -32,9 +32,6 @@ class MainWindow(QMainWindow):
         settings_action = QAction("Update Preferences", self)
         settings_action.triggered.connect(self.show_update_settings)
         update_menu.addAction(settings_action)
-        history_action = QAction("Update History", self)
-        history_action.triggered.connect(self.show_update_history)
-        update_menu.addAction(history_action)
         version_action = QAction("Version Info", self)
         version_action.triggered.connect(self.show_version_info)
         update_menu.addAction(version_action)
@@ -95,15 +92,7 @@ class MainWindow(QMainWindow):
             with open(prefs_path, 'w', encoding='utf-8') as f:
                 json.dump(new_prefs, f, indent=2)
 
-    def show_update_history(self):
-        # Simulate update history
-        history_html = """
-        <b>v2.0.0</b> - 2025-09-01<br>Major update.<br><br>
-        <b>v1.5.0</b> - 2025-06-10<br>Performance improvements.<br><br>
-        <b>v1.0.0</b> - 2025-01-01<br>Initial release.<br>
-        """
-        dlg = UpdateHistoryDialog(history_html, self)
-        dlg.exec()
+    # show_update_history removed to disable update history display
 
     def show_version_info(self):
         from PySide6.QtWidgets import QMessageBox
