@@ -17,6 +17,66 @@ from widgets.canvas import CanvasView, CanvasScene
 
 
 class MainWindow(QMainWindow):
+
+    def handle_export_note(self, note_id):
+        """
+        Export the note's canvas to a PDF file using vector graphics.
+        Disable export for infinite canvas (if implemented).
+        """
+        from PySide6.QtPrintSupport import QPrinter
+        from PySide6.QtWidgets import QFileDialog, QMessageBox
+        # Find the note model by id
+        note = self.project_manager.find_note_by_id(note_id)
+        if not note:
+            QMessageBox.warning(self, "Export Error", "Note not found.")
+            return
+
+        # Check for infinite canvas (if your NoteModel or CanvasScene has such a property)
+        # Here, we assume page_size == 'Infinite' means infinite canvas
+        if hasattr(note, 'page_size') and str(note.page_size).lower() == 'infinite':
+            QMessageBox.information(self, "Export Disabled", "Export to PDF is not available for infinite canvas notes.")
+            return
+
+        # Ask user for PDF file path
+        file_path, _ = QFileDialog.getSaveFileName(self, "Export Note as PDF", note.name + ".pdf", "PDF Files (*.pdf)")
+        if not file_path:
+            return
+
+        # Create a QPrinter for PDF output
+        printer = QPrinter(QPrinter.HighResolution)
+        printer.setOutputFormat(QPrinter.PdfFormat)
+        printer.setOutputFileName(file_path)
+
+        # Set page size if available
+        if hasattr(note, 'page_size') and str(note.page_size).upper() in ["A4", "LETTER", "LEGAL"]:
+            from PySide6.QtPrintSupport import QPageSize
+            size_map = {"A4": QPageSize.A4, "LETTER": QPageSize.Letter, "LEGAL": QPageSize.Legal}
+            printer.setPageSize(QPageSize(size_map.get(str(note.page_size).upper(), QPageSize.A4)))
+
+        # Find the canvas for this note (if open)
+        # If the note is currently open, use self.canvas_view; otherwise, load from storage if possible
+        canvas_view = None
+        if self.canvas_view and hasattr(self.canvas_view, 'scene') and self.canvas_scene:
+            # Check if the open note matches
+            if hasattr(self.canvas_scene, 'note_model') and str(self.canvas_scene.note_model.id) == note_id:
+                canvas_view = self.canvas_view
+        # Fallback: try to open the note in a temporary CanvasView/Scene (not implemented here)
+        if not canvas_view:
+            QMessageBox.warning(self, "Export Error", "Please open the note to export it.")
+            return
+
+        # Render the scene to the printer (vector)
+        painter = None
+        try:
+            from PySide6.QtGui import QPainter
+            painter = QPainter(printer)
+            # Render the scene (vector)
+            canvas_view.scene().render(painter)
+        finally:
+            if painter:
+                painter.end()
+
+        QMessageBox.information(self, "Export Complete", f"Note exported to {file_path}")
     def __init__(self):
         super().__init__()
 

@@ -58,6 +58,7 @@ class CardView(QScrollArea):
         elif isinstance(card, NoteCard):
             # Use a lambda with a default argument to capture the correct model
             card.double_clicked.connect(lambda model=card.note_model: self.note_opened.emit(model))
+            card.export_requested.connect(self.main_window.handle_export_note)
 
     def clear_view(self):
         while self.layout.count():

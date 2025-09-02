@@ -9,6 +9,7 @@ class NoteCard(QFrame):
     rename_requested = Signal(str, str)
     duplicate_requested = Signal(str)
     move_requested = Signal(str)
+    export_requested = Signal(str)
 
     def __init__(self, note_model, parent=None):
         super().__init__(parent)
@@ -77,9 +78,14 @@ class NoteCard(QFrame):
         move_action.triggered.connect(self._on_move_action)
         menu.addAction(move_action)
 
-        menu.addAction(QAction("Export", self))
+        export_action = QAction("Export", self)
+        export_action.triggered.connect(self._on_export_action)
+        menu.addAction(export_action)
 
         self.menu_button.setMenu(menu)
+
+    def _on_export_action(self):
+        self.export_requested.emit(str(self.note_model.id))
 
     def _on_delete_action(self):
         self.delete_requested.emit(str(self.note_model.id))
