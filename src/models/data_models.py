@@ -60,14 +60,14 @@ class NoteModel(QObject):
     name_changed = Signal()
     property_changed = Signal(str)
 
-    def __init__(self, name='Untitled', parent_id=None):
+    def __init__(self, name='Untitled', parent_id=None, page_size='A4', page_design='Blank', page_color='#FFFFFF'):
         super().__init__()
         self._id = uuid.uuid4()
         self._name = name
         self._parent_id = parent_id
-        self._page_size = 'A4'
-        self._page_design = 'blank'
-        self._page_color = '#FFFFFF'
+        self._page_size = page_size
+        self._page_design = page_design
+        self._page_color = page_color
         self._creation_date = ''
         self._modification_date = ''
 

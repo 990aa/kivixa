@@ -128,10 +128,10 @@ class ProjectManager(QObject):
             return folder
         return None
 
-    def create_note(self, name, parent_id=None):
+    def create_note(self, name, parent_id=None, page_size='A4', page_design='Blank', page_color='#FFFFFF'):
         parent_folder = self.find_item(parent_id) if parent_id else self._root_folder
         if parent_folder and isinstance(parent_folder, FolderModel):
-            note = NoteModel(name=name, parent_id=parent_folder.id)
+            note = NoteModel(name=name, parent_id=parent_folder.id, page_size=page_size, page_design=page_design, page_color=page_color)
             parent_folder.add_note(note)
             self.save()
             return note
