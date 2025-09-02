@@ -1,8 +1,11 @@
 import os
 import json
 import uuid
+import logging
 from PySide6.QtCore import QObject, QStandardPaths, QDir
 from models.data_models import FolderModel, NoteModel
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ProjectManager(QObject):
     _instance = None
@@ -21,7 +24,10 @@ class ProjectManager(QObject):
         self._root_folder = None
         app_data_path = QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
         self._save_path = os.path.join(app_data_path, 'kivixa', self.DATA_FILE_NAME)
-        QDir().mkpath(os.path.dirname(self._save_path))
+        try:
+            QDir().mkpath(os.path.dirname(self._save_path))
+        except Exception as e:
+            logging.error(f"Failed to create data directory: {e}")
         self.load()
         self._initialized = True
 
@@ -79,19 +85,24 @@ class ProjectManager(QObject):
                 with open(self._save_path, 'r') as f:
                     data = json.load(f)
                     self._root_folder = self._dict_to_model(data)
+                    logging.info("Project data loaded successfully.")
             else:
                 self._root_folder = FolderModel(name='Root')
-                self.save() # Create the file if it doesn't exist
-        except (FileNotFoundError, json.JSONDecodeError) as e:
-            print(f"Error loading data: {e}. Starting with a new root folder.")
+                self.save()
+        except (FileNotFoundError, json.JSONDecodeError, TypeError) as e:
+            logging.error(f"Error loading data: {e}. Starting with a new root folder.")
             self._root_folder = FolderModel(name='Root')
 
     def save(self):
         """Saves the project data to the JSON file."""
         if self._root_folder:
-            data = self._model_to_dict(self._root_folder)
-            with open(self._save_path, 'w') as f:
-                json.dump(data, f, indent=4)
+            try:
+                data = self._model_to_dict(self._root_folder)
+                with open(self._save_path, 'w') as f:
+                    json.dump(data, f, indent=4)
+                logging.info("Project data saved successfully.")
+            except (IOError, TypeError) as e:
+                logging.error(f"Error saving data: {e}")
 
     def find_item(self, item_id, folder=None):
         if folder is None:

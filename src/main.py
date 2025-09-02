@@ -34,53 +34,11 @@ class MainWindow(QMainWindow):
         self.refresh_card_view()
 
     def _setup_styles(self):
-        self.setStyleSheet("""
-            QWidget {
-                background-color: #2e2e2e;
-                color: #ffffff;
-                font-family: "Segoe UI";
-                font-size: 14px;
-            }
-            QMainWindow {
-                background-color: #1e1e1e;
-            }
-            QScrollArea, QGraphicsView {
-                border: none;
-            }
-            QPushButton#fab {
-                border-radius: 28px;
-                background-color: #DA4453;
-                color: white;
-                font-size: 24px;
-                font-weight: bold;
-                padding: 0px;
-            }
-            QPushButton#fab:hover {
-                background-color: #E74C3C;
-            }
-            QToolBar {
-                background-color: #333;
-                border: none;
-                spacing: 5px;
-                padding: 5px;
-            }
-            QToolButton, QPushButton#colorPickerButton {
-                background-color: #444;
-                border: 1px solid #555;
-                border-radius: 4px;
-                padding: 5px;
-            }
-            QToolButton:checked, QPushButton#colorPickerButton:pressed {
-                background-color: #5a5a5a;
-                border-color: #777;
-            }
-            QComboBox {
-                background-color: #444;
-                border: 1px solid #555;
-                border-radius: 4px;
-                padding: 3px;
-            }
-        """)
+        try:
+            with open("resources/styles.qss", "r") as f:
+                self.setStyleSheet(f.read())
+        except FileNotFoundError:
+            print("Stylesheet not found.")
 
     def _setup_ui(self):
         central_widget = QWidget()
@@ -111,7 +69,7 @@ class MainWindow(QMainWindow):
         self.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.drawing_toolbar)
 
         # Back Action
-        back_action = QAction(self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowBack), "Back", self)
+        back_action = QAction(QIcon("resources/icons/arrow-left.svg"), "Back", self)
         back_action.triggered.connect(self.close_note_editor)
         self.drawing_toolbar.addAction(back_action)
         self.drawing_toolbar.addSeparator()
@@ -119,14 +77,14 @@ class MainWindow(QMainWindow):
         # Tool Actions (Pen, Highlighter, Eraser)
         tools_group = QActionGroup(self)
         tools_group.setExclusive(True)
-        pen_action = QAction(QIcon(':/icons/pen.png'), "Pen", self)
+        pen_action = QAction(QIcon('resources/icons/pen.svg'), "Pen", self)
         pen_action.setCheckable(True)
         pen_action.setChecked(True)
         pen_action.triggered.connect(lambda: self.canvas_scene.set_tool('pen'))
-        highlighter_action = QAction(QIcon(':/icons/highlighter.png'), "Highlighter", self)
+        highlighter_action = QAction(QIcon('resources/icons/highlighter.svg'), "Highlighter", self)
         highlighter_action.setCheckable(True)
         highlighter_action.triggered.connect(lambda: self.canvas_scene.set_tool('highlighter'))
-        eraser_action = QAction(QIcon(':/icons/eraser.png'), "Eraser", self)
+        eraser_action = QAction(QIcon('resources/icons/eraser.svg'), "Eraser", self)
         eraser_action.setCheckable(True)
         eraser_action.triggered.connect(lambda: self.canvas_scene.set_tool('eraser'))
         
@@ -137,13 +95,13 @@ class MainWindow(QMainWindow):
         self.drawing_toolbar.addSeparator()
 
         # Insert Image Action
-        insert_image_action = QAction(QIcon(':/icons/insert_image.png'), "Insert Image", self)
+        insert_image_action = QAction(QIcon('resources/icons/image.svg'), "Insert Image", self)
         insert_image_action.triggered.connect(lambda: self.canvas_scene.insert_image())
         self.drawing_toolbar.addAction(insert_image_action)
         self.drawing_toolbar.addSeparator()
         
         # Clear Canvas Action
-        clear_canvas_action = QAction(self.style().standardIcon(QStyle.StandardPixmap.SP_TrashIcon), "Clear Canvas", self)
+        clear_canvas_action = QAction(QIcon('resources/icons/trash.svg'), "Clear Canvas", self)
         clear_canvas_action.triggered.connect(lambda: self.canvas_scene.clear_canvas())
         self.drawing_toolbar.addAction(clear_canvas_action)
         self.drawing_toolbar.addSeparator()
@@ -164,10 +122,10 @@ class MainWindow(QMainWindow):
         self.drawing_toolbar.addSeparator()
 
         # Undo/Redo
-        undo_action = QAction(self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowBack), "Undo", self)
+        undo_action = QAction(QIcon('resources/icons/undo.svg'), "Undo", self)
         undo_action.triggered.connect(lambda: self.canvas_scene.undo_stack.undo())
         self.drawing_toolbar.addAction(undo_action)
-        redo_action = QAction(self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowForward), "Redo", self)
+        redo_action = QAction(QIcon('resources/icons/redo.svg'), "Redo", self)
         redo_action.triggered.connect(lambda: self.canvas_scene.undo_stack.redo())
         self.drawing_toolbar.addAction(redo_action)
 

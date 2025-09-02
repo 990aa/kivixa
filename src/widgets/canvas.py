@@ -1,7 +1,18 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPainter, QPainterPath, QPen, QColor, QWheelEvent, QUndoStack, QPixmap
-from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsSceneMouseEvent, QFileDialog, \
-    QGraphicsPixmapItem, QGraphicsProxyWidget, QPushButton, QWidget, QVBoxLayout, QGraphicsItem
+from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsSceneMouseEvent, QFileDialog, QGraphicsPixmapItem, QGraphicsProxyWidget, QPushButton, QWidget, QVBoxLayout, QGraphicsItem
+
+
+class StrokedPathItem(QGraphicsPathItem):
+    def __init__(self, path, pen, parent=None):
+        super().__init__(path, parent)
+        self.setPen(pen)
+
+    def boundingRect(self):
+        return self.path().controlPointRect()
+
+    def shape(self):
+        return self.path()
 
 
 class EditablePixmapItem(QGraphicsPixmapItem):
@@ -86,7 +97,8 @@ class CanvasScene(QGraphicsScene):
             self.current_path = QPainterPath()
             self.current_path.moveTo(event.scenePos())
             pen = self._get_current_pen()
-            self.current_path_item = self.addPath(self.current_path, pen)
+            self.current_path_item = StrokedPathItem(self.current_path, pen)
+            self.addItem(self.current_path_item)
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
         if event.buttons() & Qt.MouseButton.LeftButton and self.current_path_item:
@@ -96,6 +108,7 @@ class CanvasScene(QGraphicsScene):
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton and self.current_path_item:
             # Create and push the DrawCommand onto the undo stack
+            from widgets.undo_commands import DrawCommand
             command = DrawCommand(self, self.current_path_item)
             self.undo_stack.push(command)
 
