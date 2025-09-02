@@ -199,6 +199,15 @@ class MainWindow(QMainWindow):
         self.canvas_view = None
         self.canvas_scene = None
 
+        # Delete all previous log files
+        logs_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../build/logs'))
+        if os.path.exists(logs_dir):
+            for f in os.listdir(logs_dir):
+                if f.endswith('.txt') or f.endswith('.log'):
+                    try:
+                        os.remove(os.path.join(logs_dir, f))
+                    except Exception:
+                        pass
         self._setup_styles()
         self._setup_ui()
         self._create_drawing_toolbar()
@@ -226,13 +235,21 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # Top bar with help button
+        # Top bar with persistent back button and help button
         top_bar = QHBoxLayout()
-        help_btn = QPushButton("?")
+        self.back_btn = QPushButton()
+        self.back_btn.setIcon(QIcon('resources/icons/arrow-left.svg'))
+        self.back_btn.setIconSize(QSize(28, 28))
+        self.back_btn.setFixedSize(40, 40)
+        self.back_btn.setToolTip("Back")
+        self.back_btn.clicked.connect(self._handle_back)
+        top_bar.addWidget(self.back_btn)
+        top_bar.addStretch()
+        help_btn = QPushButton()
+        help_btn.setIcon(QIcon('resources/icons/help.svg') if os.path.exists('resources/icons/help.svg') else QIcon())
         help_btn.setToolTip("Open Help & User Manual")
         help_btn.setFixedSize(32, 32)
         help_btn.clicked.connect(self.show_help_dialog)
-        top_bar.addStretch()
         top_bar.addWidget(help_btn)
         main_layout.addLayout(top_bar)
 
@@ -267,34 +284,34 @@ class MainWindow(QMainWindow):
         self.drawing_toolbar.addAction(back_action)
         self.drawing_toolbar.addSeparator()
 
-        # Tool Actions (Pen, Highlighter, Eraser)
+        # Tool Actions (Pen, Highlighter, Eraser) - icons only
         tools_group = QActionGroup(self)
         tools_group.setExclusive(True)
-        pen_action = QAction(QIcon('resources/icons/pen.svg'), "Pen", self)
+        pen_action = QAction(QIcon('resources/icons/pen.svg'), "", self)
         pen_action.setCheckable(True)
         pen_action.setChecked(True)
         pen_action.triggered.connect(lambda: self.canvas_scene.set_tool('pen'))
-        highlighter_action = QAction(QIcon('resources/icons/highlighter.svg'), "Highlighter", self)
+        highlighter_action = QAction(QIcon('resources/icons/highlighter.svg'), "", self)
         highlighter_action.setCheckable(True)
         highlighter_action.triggered.connect(lambda: self.canvas_scene.set_tool('highlighter'))
-        eraser_action = QAction(QIcon('resources/icons/eraser.svg'), "Eraser", self)
+        eraser_action = QAction(QIcon('resources/icons/eraser.svg'), "", self)
         eraser_action.setCheckable(True)
         eraser_action.triggered.connect(lambda: self.canvas_scene.set_tool('eraser'))
-        
         tools_group.addAction(pen_action)
         tools_group.addAction(highlighter_action)
         tools_group.addAction(eraser_action)
+        for action in tools_group.actions():
+            action.setIconVisibleInMenu(True)
         self.drawing_toolbar.addActions(tools_group.actions())
         self.drawing_toolbar.addSeparator()
 
         # Insert Image Action
-        insert_image_action = QAction(QIcon('resources/icons/image.svg'), "Insert Image", self)
+        insert_image_action = QAction(QIcon('resources/icons/image.svg'), "", self)
         insert_image_action.triggered.connect(lambda: self.canvas_scene.insert_image())
         self.drawing_toolbar.addAction(insert_image_action)
         self.drawing_toolbar.addSeparator()
-        
         # Clear Canvas Action
-        clear_canvas_action = QAction(QIcon('resources/icons/trash.svg'), "Clear Canvas", self)
+        clear_canvas_action = QAction(QIcon('resources/icons/trash.svg'), "", self)
         clear_canvas_action.triggered.connect(lambda: self.canvas_scene.clear_canvas())
         self.drawing_toolbar.addAction(clear_canvas_action)
         self.drawing_toolbar.addSeparator()
@@ -315,12 +332,17 @@ class MainWindow(QMainWindow):
         self.drawing_toolbar.addSeparator()
 
         # Undo/Redo
-        undo_action = QAction(QIcon('resources/icons/undo.svg'), "Undo", self)
+        undo_action = QAction(QIcon('resources/icons/undo.svg'), "", self)
         undo_action.triggered.connect(lambda: self.canvas_scene.undo_stack.undo())
         self.drawing_toolbar.addAction(undo_action)
-        redo_action = QAction(QIcon('resources/icons/redo.svg'), "Redo", self)
+        redo_action = QAction(QIcon('resources/icons/redo.svg'), "", self)
         redo_action.triggered.connect(lambda: self.canvas_scene.undo_stack.redo())
         self.drawing_toolbar.addAction(redo_action)
+    def _handle_back(self):
+        # If in note editor, go back to card view; else, do nothing or implement further stack logic
+        if self.main_stack.currentWidget() == self.canvas_view:
+            self.close_note_editor()
+        # Optionally, add more navigation stack logic here
 
         self.drawing_toolbar.hide()
 

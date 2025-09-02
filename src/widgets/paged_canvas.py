@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsRectItem, QToolBar, QAction, QVBoxLayout, QWidget
-from PySide6.QtGui import QIcon, QPainter, QWheelEvent, QMouseEvent, QTouchEvent
+from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsRectItem, QToolBar, QVBoxLayout, QWidget
+from PySide6.QtGui import QIcon, QPainter, QWheelEvent, QMouseEvent, QTouchEvent, QAction, QColor
 from PySide6.QtCore import Qt, QRectF, QSizeF
 import os
 
@@ -10,11 +10,103 @@ class PagedCanvasScene(QGraphicsScene):
         self.page_size = page_size
         self.current_page_index = 0
         self.add_page()
+        self._tool = 'pen'
+        self._pen_color = QColor(Qt.black)
+        self._pen_width = 2
+        self._highlighter_color = QColor(255, 255, 0, 128)
+        self._eraser_width = 20
+        self._drawing = False
+        self._last_point = None
+        self._current_stroke = None
+        self._strokes = [[] for _ in self.pages]
+        self._undo_stack = []
+
+    @property
+    def pen_color(self):
+        return self._pen_color
+
+    def set_tool(self, tool):
+        self._tool = tool
+
+    def set_pen_width(self, width):
+        self._pen_width = width
+
+    def set_pen_color(self, color):
+        self._pen_color = color
+
+    def clear_canvas(self):
+        for item in self.items():
+            if hasattr(item, 'is_stroke') and item.is_stroke:
+                self.removeItem(item)
+        self._strokes[self.current_page_index] = []
+
+    @property
+    def undo_stack(self):
+        class Undo:
+            def __init__(self, scene):
+                self.scene = scene
+            def undo(self):
+                if self.scene._strokes[self.scene.current_page_index]:
+                    item = self.scene._strokes[self.scene.current_page_index].pop()
+                    self.scene.removeItem(item)
+            def redo(self):
+                pass  # Not implemented
+        return Undo(self)
+
+    def insert_image(self):
+        pass  # Not implemented
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self._drawing = True
+            self._last_point = event.scenePos()
+            if self._tool == 'pen' or self._tool == 'highlighter':
+                from PySide6.QtGui import QPen, QPainterPath
+                path = QPainterPath(self._last_point)
+                color = self._pen_color if self._tool == 'pen' else self._highlighter_color
+                pen = QPen(color, self._pen_width if self._tool == 'pen' else 15, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+                stroke = self.addPath(path, pen)
+                stroke.is_stroke = True
+                self._current_stroke = stroke
+                self._strokes[self.current_page_index].append(stroke)
+            elif self._tool == 'eraser':
+                self.erase_at(event.scenePos())
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self._drawing and (self._tool == 'pen' or self._tool == 'highlighter') and self._current_stroke:
+            from PySide6.QtGui import QPainterPath
+            path = self._current_stroke.path()
+            path.lineTo(event.scenePos())
+            self._current_stroke.setPath(path)
+            self._last_point = event.scenePos()
+        elif self._drawing and self._tool == 'eraser':
+            self.erase_at(event.scenePos())
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self._drawing = False
+        self._current_stroke = None
+        self._last_point = None
+        super().mouseReleaseEvent(event)
+
+    def erase_at(self, pos):
+        for item in self.items(pos):
+            if hasattr(item, 'is_stroke') and item.is_stroke:
+                self.removeItem(item)
+                if item in self._strokes[self.current_page_index]:
+                    self._strokes[self.current_page_index].remove(item)
+    def __init__(self, page_size=QSizeF(210*4, 297*4), parent=None):
+        super().__init__(parent)
+        self.pages = []
+        self.page_size = page_size
+        self.current_page_index = 0
+        self.add_page()
 
     def add_page(self):
         rect = QGraphicsRectItem(0, 0, self.page_size.width(), self.page_size.height())
-        rect.setBrush(Qt.white)
-        rect.setPen(Qt.gray)
+        rect.setBrush(QColor(Qt.white))
+        rect.setPen(QColor(Qt.gray))
         self.addItem(rect)
         self.pages.append(rect)
         self.set_current_page(len(self.pages)-1)
@@ -53,27 +145,36 @@ class PagedCanvasView(QGraphicsView):
         self._last_touch_points = None
 
     def wheelEvent(self, event: QWheelEvent):
-        zoom_in_factor = 1.15
-        zoom_out_factor = 1 / zoom_in_factor
-        if event.angleDelta().y() > 0:
-            self.scale(zoom_in_factor, zoom_in_factor)
+        # Only zoom if Ctrl is pressed, otherwise scroll vertically
+        if event.modifiers() & Qt.ControlModifier:
+            zoom_in_factor = 1.15
+            zoom_out_factor = 1 / zoom_in_factor
+            if event.angleDelta().y() > 0:
+                self.scale(zoom_in_factor, zoom_in_factor)
+            else:
+                self.scale(zoom_out_factor, zoom_out_factor)
         else:
-            self.scale(zoom_out_factor, zoom_out_factor)
+            # Scroll vertically
+            self.verticalScrollBar().setValue(self.verticalScrollBar().value() - event.angleDelta().y())
 
     def touchEvent(self, event: QTouchEvent):
         points = event.touchPoints()
         if len(points) == 2:
-            # Pinch to zoom
             p1, p2 = points[0].pos(), points[1].pos()
             last_p1, last_p2 = points[0].lastPos(), points[1].lastPos()
             old_dist = (last_p1 - last_p2).manhattanLength()
             new_dist = (p1 - p2).manhattanLength()
-            if old_dist != 0:
-                scale_factor = new_dist / old_dist
-                self.scale(scale_factor, scale_factor)
-            # Two-finger pan
-            delta = (p1 + p2 - last_p1 - last_p2) / 2
-            self.translate(delta.x(), delta.y())
+            # Pinch to zoom
+            if abs(new_dist - old_dist) > 2:  # threshold to avoid accidental zoom
+                if old_dist != 0:
+                    scale_factor = new_dist / old_dist
+                    self.scale(scale_factor, scale_factor)
+            else:
+                # Two-finger vertical scroll
+                avg_y = (p1.y() + p2.y()) / 2
+                last_avg_y = (last_p1.y() + last_p2.y()) / 2
+                delta_y = avg_y - last_avg_y
+                self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta_y)
             event.accept()
         else:
             super().touchEvent(event)
