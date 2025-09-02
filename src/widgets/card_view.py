@@ -41,6 +41,8 @@ class CardView(QScrollArea):
         if isinstance(card, (FolderCard, NoteCard)):
             card.delete_requested.connect(self.parent().handle_delete_item)
             card.rename_requested.connect(self.parent().handle_rename_item)
+            card.duplicate_requested.connect(self.parent().handle_duplicate_item)
+            card.move_requested.connect(self.parent().handle_move_item)
             if isinstance(card, FolderCard):
                 card.clicked.connect(lambda: self.parent().open_folder(card.folder_model.id))
             else:

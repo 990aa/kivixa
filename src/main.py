@@ -8,6 +8,7 @@ from src.widgets.card_view import CardView
 from src.utils.project_manager import ProjectManager
 from src.models.data_models import FolderModel, NoteModel
 from src.widgets.new_note_dialog import NewNoteDialog
+from src.widgets.move_dialog import MoveDialog
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -101,6 +102,18 @@ class MainWindow(QMainWindow):
     def handle_rename_item(self, item_id, new_name):
         self.project_manager.rename_item(item_id, new_name)
         self.refresh_card_view()
+
+    def handle_duplicate_item(self, item_id):
+        self.project_manager.duplicate_item(item_id)
+        self.refresh_card_view()
+
+    def handle_move_item(self, item_id):
+        dialog = MoveDialog(self.project_manager.root_folder, item_id, self)
+        if dialog.exec():
+            new_parent_id = dialog.get_selected_folder_id()
+            if new_parent_id:
+                self.project_manager.move_item(item_id, new_parent_id)
+                self.refresh_card_view()
 
     def handle_new_folder(self):
         name, ok = QInputDialog.getText(self, "New Folder", "Enter folder name:")

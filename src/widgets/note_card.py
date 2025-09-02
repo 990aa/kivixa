@@ -6,6 +6,8 @@ class NoteCard(QFrame):
     clicked = Signal()
     delete_requested = Signal(str)
     rename_requested = Signal(str, str)
+    duplicate_requested = Signal(str)
+    move_requested = Signal(str)
 
     def __init__(self, note_model, parent=None):
         super().__init__(parent)
@@ -66,8 +68,14 @@ class NoteCard(QFrame):
         rename_action.triggered.connect(self._on_rename_action)
         menu.addAction(rename_action)
 
-        menu.addAction(QAction("Move", self))
-        menu.addAction(QAction("Duplicate", self))
+        duplicate_action = QAction("Duplicate", self)
+        duplicate_action.triggered.connect(self._on_duplicate_action)
+        menu.addAction(duplicate_action)
+
+        move_action = QAction("Move", self)
+        move_action.triggered.connect(self._on_move_action)
+        menu.addAction(move_action)
+
         menu.addAction(QAction("Export", self))
 
         self.menu_button.setMenu(menu)
@@ -79,6 +87,12 @@ class NoteCard(QFrame):
         new_name, ok = QInputDialog.getText(self, "Rename Note", "Enter new name:", text=self.note_model.name)
         if ok and new_name:
             self.rename_requested.emit(str(self.note_model.id), new_name)
+
+    def _on_duplicate_action(self):
+        self.duplicate_requested.emit(str(self.note_model.id))
+
+    def _on_move_action(self):
+        self.move_requested.emit(str(self.note_model.id))
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton and not self.menu_button.geometry().contains(event.pos()):

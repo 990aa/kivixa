@@ -158,8 +158,81 @@ class ProjectManager(QObject):
             return True
         return False
 
+    def duplicate_item(self, item_id):
+        item = self.find_item(item_id)
+        if not item:
+            return None
+
+        parent_folder = self.find_item(str(item.parent_id))
+        if not parent_folder or not isinstance(parent_folder, FolderModel):
+            return None
+
+        if isinstance(item, NoteModel):
+            new_note = NoteModel(
+                name=f"{item.name} (Copy)",
+                parent_id=item.parent_id,
+                page_size=item.page_size,
+                page_design=item.page_design,
+                page_color=item.page_color
+            )
+            parent_folder.add_note(new_note)
+            self.save()
+            return new_note
+
+        if isinstance(item, FolderModel):
+            new_folder = self._deep_copy_folder(item, parent_folder.id)
+            new_folder.name = f"{item.name} (Copy)"
+            parent_folder.add_child_folder(new_folder)
+            self.save()
+            return new_folder
+
+        return None
+
+    def _deep_copy_folder(self, folder_to_copy, new_parent_id):
+        new_folder = FolderModel(name=folder_to_copy.name, parent_id=new_parent_id)
+
+        for note_to_copy in folder_to_copy.notes:
+            new_note = NoteModel(
+                name=note_to_copy.name,
+                parent_id=new_folder.id,
+                page_size=note_to_copy.page_size,
+                page_design=note_to_copy.page_design,
+                page_color=note_to_copy.page_color
+            )
+            new_folder.add_note(new_note)
+
+        for sub_folder_to_copy in folder_to_copy.children_folders:
+            new_sub_folder = self._deep_copy_folder(sub_folder_to_copy, new_folder.id)
+            new_folder.add_child_folder(new_sub_folder)
+
+        return new_folder
+
     def move_item(self, item_id, new_parent_id):
-        pass
+        item = self.find_item(item_id)
+        if not item:
+            return False
+
+        old_parent_folder = self.find_item(str(item.parent_id))
+        new_parent_folder = self.find_item(new_parent_id)
+
+        if not old_parent_folder or not new_parent_folder or not isinstance(old_parent_folder, FolderModel) or not isinstance(new_parent_folder, FolderModel):
+            return False
+
+        # Remove from old parent
+        if isinstance(item, FolderModel):
+            old_parent_folder.children_folders.remove(item)
+        elif isinstance(item, NoteModel):
+            old_parent_folder.notes.remove(item)
+
+        # Add to new parent
+        item._parent_id = new_parent_folder.id
+        if isinstance(item, FolderModel):
+            new_parent_folder.add_child_folder(item)
+        elif isinstance(item, NoteModel):
+            new_parent_folder.add_note(item)
+
+        self.save()
+        return True
 
     @property
     def root_folder(self):
