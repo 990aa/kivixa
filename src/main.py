@@ -1,5 +1,6 @@
 
 import sys
+import os
 from functools import partial
 from utils.logging_utils import logger, log_exception
 
@@ -15,7 +16,7 @@ from utils.project_manager import ProjectManager
 from models.data_models import FolderModel, NoteModel
 from widgets.new_note_dialog import NewNoteDialog
 from widgets.move_dialog import MoveDialog
-from widgets.canvas import CanvasView, CanvasScene
+from widgets.paged_canvas import PagedCanvasView, PagedCanvasScene
 from widgets.help_dialog import HelpDialog
 from widgets.update_dialogs import UpdateNotificationDialog, UpdateProgressDialog, UpdateHistoryDialog
 from widgets.update_settings_dialog import UpdateSettingsDialog
@@ -305,16 +306,29 @@ class MainWindow(QMainWindow):
         self.drawing_toolbar.hide()
 
     def open_note_editor(self, note: NoteModel):
-        self.canvas_scene = CanvasScene()
-        self.canvas_view = CanvasView(self.canvas_scene, self)
-        
-        # Set background color from note model
-        bg_color = QColor(note.page_color)
-        self.canvas_scene.update_background(bg_color)
-        
+        self.canvas_scene = PagedCanvasScene()
+        self.canvas_view = PagedCanvasView(self.canvas_scene, self)
+        # Set background color from note model (for all pages)
+        # (Optional: set per-page background if needed)
+        # Add page navigation toolbar
+        self.page_toolbar = QToolBar("Pages")
+        self.page_toolbar.setIconSize(QSize(24, 24))
+        prev_action = QAction(QIcon('resources/icons/arrow-left.svg'), "Previous Page", self)
+        prev_action.triggered.connect(self.canvas_scene.prev_page)
+        self.page_toolbar.addAction(prev_action)
+        next_action = QAction(QIcon('resources/icons/arrow-right.svg'), "Next Page", self)
+        next_action.triggered.connect(self.canvas_scene.next_page)
+        self.page_toolbar.addAction(next_action)
+        add_action = QAction(QIcon('resources/icons/plus.svg') if os.path.exists('resources/icons/plus.svg') else QIcon(), "Add Page", self)
+        add_action.triggered.connect(self.canvas_scene.add_page)
+        self.page_toolbar.addAction(add_action)
+        del_action = QAction(QIcon('resources/icons/trash.svg'), "Delete Page", self)
+        del_action.triggered.connect(self.canvas_scene.remove_current_page)
+        self.page_toolbar.addAction(del_action)
+        self.addToolBar(Qt.TopToolBarArea, self.page_toolbar)
         # Set initial pen color and update button
-        self._update_color_button_style(self.canvas_scene.pen_color)
-
+        # (Assume pen color is black for now)
+        self._update_color_button_style(QColor(Qt.black))
         self.main_stack.addWidget(self.canvas_view)
         self.main_stack.setCurrentWidget(self.canvas_view)
         self.drawing_toolbar.show()

@@ -1,0 +1,9 @@
+# Kivixa Version Info
+FileVersion=2.0.0.0
+ProductVersion=2.0.0.0
+DeveloperName=Abdul Ahad
+FileDescription=Kivixa Note & Drawing App
+InternalName=Kivixa
+LegalCopyright=Copyright (c) 2025 Abdul Ahad
+OriginalFilename=Kivixa.exe
+ProductName=Kivixa
