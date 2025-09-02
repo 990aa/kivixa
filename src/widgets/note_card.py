@@ -36,18 +36,21 @@ class NoteCard(QFrame):
         layout = QVBoxLayout(self)
         self.name_label = QLabel(note_model.name)
         self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.name_label.setToolTip("Note name. Double-click to open.")
         font = QFont("Arial", 11)
         self.name_label.setFont(font)
         layout.addWidget(self.name_label)
 
         self.page_style_label = QLabel(f"{note_model.page_size} - {note_model.page_design}")
         self.page_style_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.page_style_label.setToolTip("Page size and design")
         font = QFont("Arial", 8)
         self.page_style_label.setFont(font)
         layout.addWidget(self.page_style_label)
 
         self.menu_button = QToolButton(self)
         self.menu_button.setText("...")
+        self.menu_button.setToolTip("More actions (delete, rename, export, etc.)")
         self.menu_button.setStyleSheet("""
             QToolButton {
                 border: none;

@@ -16,9 +16,96 @@ from models.data_models import FolderModel, NoteModel
 from widgets.new_note_dialog import NewNoteDialog
 from widgets.move_dialog import MoveDialog
 from widgets.canvas import CanvasView, CanvasScene
+from widgets.help_dialog import HelpDialog
+from widgets.update_dialogs import UpdateNotificationDialog, UpdateProgressDialog, UpdateHistoryDialog
+from widgets.update_settings_dialog import UpdateSettingsDialog
 
 
 class MainWindow(QMainWindow):
+    def _setup_update_menu(self):
+        # Add update actions to the menu bar
+        update_menu = self.menuBar().addMenu("Updates")
+        check_action = QAction("Check for Updates", self)
+        check_action.triggered.connect(self.manual_check_for_updates)
+        update_menu.addAction(check_action)
+        settings_action = QAction("Update Preferences", self)
+        settings_action.triggered.connect(self.show_update_settings)
+        update_menu.addAction(settings_action)
+        history_action = QAction("Update History", self)
+        history_action.triggered.connect(self.show_update_history)
+        update_menu.addAction(history_action)
+        version_action = QAction("Version Info", self)
+        version_action.triggered.connect(self.show_version_info)
+        update_menu.addAction(version_action)
+
+    def manual_check_for_updates(self):
+        # Simulate network check and update available
+        if not self.check_network_connectivity():
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "No Internet", "Network connectivity is required to check for updates.")
+            return
+        changelog = "<b>v2.0.0</b><br>- New features!<br>- Bug fixes.<br>- Performance improvements."
+        dlg = UpdateNotificationDialog(changelog, self)
+        if dlg.exec():
+            self.download_and_install_update()
+
+    def download_and_install_update(self):
+        progress = UpdateProgressDialog(parent=self)
+        progress.label.setText("Downloading update...")
+        progress.progress.setValue(0)
+        progress.show()
+        # Simulate download
+        import time
+        for i in range(1, 101, 10):
+            QApplication.processEvents()
+            time.sleep(0.05)
+            progress.progress.setValue(i)
+        progress.label.setText("Installing update...")
+        for i in range(1, 101, 20):
+            QApplication.processEvents()
+            time.sleep(0.05)
+            progress.progress.setValue(i)
+        progress.accept()
+        from PySide6.QtWidgets import QMessageBox
+        QMessageBox.information(self, "Update Complete", "The application was updated successfully.")
+
+    def show_update_settings(self):
+        # Load current prefs from file or defaults
+        import os, json
+        prefs_path = os.path.join(os.path.dirname(__file__), '..', 'build', 'update_prefs.json')
+        try:
+            with open(prefs_path, 'r', encoding='utf-8') as f:
+                prefs = json.load(f)
+        except Exception:
+            prefs = {}
+        dlg = UpdateSettingsDialog(prefs, self)
+        if dlg.exec():
+            new_prefs = dlg.get_prefs()
+            with open(prefs_path, 'w', encoding='utf-8') as f:
+                json.dump(new_prefs, f, indent=2)
+
+    def show_update_history(self):
+        # Simulate update history
+        history_html = """
+        <b>v2.0.0</b> - 2025-09-01<br>Major update.<br><br>
+        <b>v1.5.0</b> - 2025-06-10<br>Performance improvements.<br><br>
+        <b>v1.0.0</b> - 2025-01-01<br>Initial release.<br>
+        """
+        dlg = UpdateHistoryDialog(history_html, self)
+        dlg.exec()
+
+    def show_version_info(self):
+        from PySide6.QtWidgets import QMessageBox
+        QMessageBox.information(self, "Version Info", "Kivixa v2.0.0\nBuild date: 2025-09-02")
+
+    def check_network_connectivity(self):
+        import socket
+        try:
+            # Try to connect to a public DNS server
+            socket.create_connection(("8.8.8.8", 53), timeout=2)
+            return True
+        except Exception:
+            return False
 
     def handle_export_note(self, note_id):
         """
@@ -102,7 +189,8 @@ class MainWindow(QMainWindow):
         self._setup_ui()
         self._create_drawing_toolbar()
 
-        self.refresh_card_view()
+    self.refresh_card_view()
+    self._setup_update_menu()
 
     def _setup_styles(self):
         try:
@@ -118,6 +206,16 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
+        # Top bar with help button
+        top_bar = QHBoxLayout()
+        help_btn = QPushButton("?")
+        help_btn.setToolTip("Open Help & User Manual")
+        help_btn.setFixedSize(32, 32)
+        help_btn.clicked.connect(self.show_help_dialog)
+        top_bar.addStretch()
+        top_bar.addWidget(help_btn)
+        main_layout.addLayout(top_bar)
+
         # Main content area with stacked widget for view switching
         self.main_stack = QStackedWidget()
         main_layout.addWidget(self.main_stack)
@@ -132,7 +230,11 @@ class MainWindow(QMainWindow):
         self.fab.setObjectName("fab")
         self.fab.setFixedSize(56, 56)
         self.fab.setIconSize(QSize(24, 24))
+        self.fab.setToolTip("Create a new note or folder")
         self.fab.clicked.connect(self.handle_new_note)
+    def show_help_dialog(self):
+        dlg = HelpDialog(self)
+        dlg.exec()
 
     def _create_drawing_toolbar(self):
         self.drawing_toolbar = QToolBar("Drawing")
