@@ -1,7 +1,45 @@
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QPainter, QPainterPath, QPen, QColor, QWheelEvent, QUndoStack
-from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsSceneMouseEvent
-from widgets.undo_commands import DrawCommand
+from PySide6.QtGui import QPainter, QPainterPath, QPen, QColor, QWheelEvent, QUndoStack, QPixmap
+from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsSceneMouseEvent, QFileDialog, \
+    QGraphicsPixmapItem, QGraphicsProxyWidget, QPushButton, QWidget, QVBoxLayout, QGraphicsItem
+
+
+class EditablePixmapItem(QGraphicsPixmapItem):
+    def __init__(self, pixmap, parent=None):
+        super().__init__(pixmap, parent)
+        self.setFlag(QGraphicsItem.ItemIsMovable, True)
+        self.setFlag(QGraphicsItem.ItemIsSelectable, True)
+        self.delete_button_proxy = None
+
+    def mouseDoubleClickEvent(self, event):
+        if not self.delete_button_proxy:
+            # Create a delete button
+            delete_button = QPushButton("X")
+            delete_button.setFixedSize(20, 20)
+            delete_button.clicked.connect(self.delete_item)
+
+            # Create a widget to hold the button
+            container = QWidget()
+            layout = QVBoxLayout(container)
+            layout.addWidget(delete_button)
+            layout.setContentsMargins(0, 0, 0, 0)
+            container.setLayout(layout)
+
+            # Create a proxy widget to embed the button in the scene
+            self.delete_button_proxy = QGraphicsProxyWidget(self)
+            self.delete_button_proxy.setWidget(container)
+
+            # Position the button at the top-right corner of the pixmap item
+            self.delete_button_proxy.setPos(self.boundingRect().topRight().x() - 25, self.boundingRect().topRight().y())
+        else:
+            self.delete_button_proxy.setVisible(not self.delete_button_proxy.isVisible())
+
+    def delete_item(self):
+        if self.scene():
+            self.scene().removeItem(self)
+            if self.delete_button_proxy:
+                self.scene().removeItem(self.delete_button_proxy)
+                self.delete_button_proxy = None
 
 
 class CanvasScene(QGraphicsScene):
@@ -79,6 +117,19 @@ class CanvasScene(QGraphicsScene):
     def clear_canvas(self):
         self.clear()
         self.undo_stack.clear()
+
+    def insert_image(self):
+        file_path, _ = QFileDialog.getOpenFileName(None, "Open Image", "",
+                                                     "Image Files (*.png *.jpg *.jpeg *.bmp)")
+        if file_path:
+            pixmap = QPixmap(file_path)
+            if not pixmap.isNull():
+                item = EditablePixmapItem(pixmap)
+                # Center the item in the current view
+                view = self.views()[0]
+                center_point = view.mapToScene(view.viewport().rect().center())
+                item.setPos(center_point)
+                self.addItem(item)
 
 
 class CanvasView(QGraphicsView):

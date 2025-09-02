@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.main_stack)
 
         # Card View (initial view)
-        self.card_view = CardView(self)
+        self.card_view = CardView(self, self)
         self.main_stack.addWidget(self.card_view)
         self.card_view.note_opened.connect(self.open_note_editor)
 
@@ -136,6 +136,18 @@ class MainWindow(QMainWindow):
         self.drawing_toolbar.addActions(tools_group.actions())
         self.drawing_toolbar.addSeparator()
 
+        # Insert Image Action
+        insert_image_action = QAction(QIcon(':/icons/insert_image.png'), "Insert Image", self)
+        insert_image_action.triggered.connect(lambda: self.canvas_scene.insert_image())
+        self.drawing_toolbar.addAction(insert_image_action)
+        self.drawing_toolbar.addSeparator()
+        
+        # Clear Canvas Action
+        clear_canvas_action = QAction(self.style().standardIcon(QStyle.StandardPixmap.SP_TrashIcon), "Clear Canvas", self)
+        clear_canvas_action.triggered.connect(lambda: self.canvas_scene.clear_canvas())
+        self.drawing_toolbar.addAction(clear_canvas_action)
+        self.drawing_toolbar.addSeparator()
+
         # Size Selector
         self.size_combo = QComboBox()
         pen_sizes = ['2', '3', '5', '8', '13', '21']
@@ -152,11 +164,11 @@ class MainWindow(QMainWindow):
         self.drawing_toolbar.addSeparator()
 
         # Undo/Redo
-        undo_action = QAction(self.style().standardIcon(QStyle.StandardPixmap.SP_DialogUndoButton), "Undo", self)
-        undo_action.triggered.connect(lambda: self.canvas_scene.undo())
+        undo_action = QAction(self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowBack), "Undo", self)
+        undo_action.triggered.connect(lambda: self.canvas_scene.undo_stack.undo())
         self.drawing_toolbar.addAction(undo_action)
-        redo_action = QAction(self.style().standardIcon(QStyle.StandardPixmap.SP_DialogRedoButton), "Redo", self)
-        redo_action.triggered.connect(lambda: self.canvas_scene.redo())
+        redo_action = QAction(self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowForward), "Redo", self)
+        redo_action.triggered.connect(lambda: self.canvas_scene.undo_stack.redo())
         self.drawing_toolbar.addAction(redo_action)
 
         self.drawing_toolbar.hide()

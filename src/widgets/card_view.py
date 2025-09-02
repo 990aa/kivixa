@@ -7,8 +7,9 @@ from models.data_models import FolderModel, NoteModel
 class CardView(QScrollArea):
     note_opened = Signal(NoteModel)
 
-    def __init__(self, parent=None):
+    def __init__(self, main_window, parent=None):
         super().__init__(parent)
+        self.main_window = main_window
         self.setWidgetResizable(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
@@ -46,14 +47,14 @@ class CardView(QScrollArea):
 
     def _connect_card_signals(self, card):
         # Connect signals common to all cards
-        card.delete_requested.connect(self.parent().handle_delete_item)
-        card.rename_requested.connect(self.parent().handle_rename_item)
-        card.duplicate_requested.connect(self.parent().handle_duplicate_item)
-        card.move_requested.connect(self.parent().handle_move_item)
+        card.delete_requested.connect(self.main_window.handle_delete_item)
+        card.rename_requested.connect(self.main_window.handle_rename_item)
+        card.duplicate_requested.connect(self.main_window.handle_duplicate_item)
+        card.move_requested.connect(self.main_window.handle_move_item)
 
         # Connect type-specific signals
         if isinstance(card, FolderCard):
-            card.clicked.connect(lambda: self.parent().open_folder(card.folder_model.id))
+            card.clicked.connect(lambda: self.main_window.open_folder(card.folder_model.id))
         elif isinstance(card, NoteCard):
             # Use a lambda with a default argument to capture the correct model
             card.double_clicked.connect(lambda model=card.note_model: self.note_opened.emit(model))
