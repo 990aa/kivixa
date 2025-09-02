@@ -4,6 +4,49 @@ from PySide6.QtCore import Qt, QRectF, QSizeF
 import os
 
 class PagedCanvasScene(QGraphicsScene):
+    def set_page_design(self, design):
+        self._page_design = design
+        self.update()
+
+    def set_page_color(self, color):
+        self._page_color = QColor(color)
+        self.update()
+
+    def drawBackground(self, painter, rect):
+        # Draw the page background (color, lines, grid, etc.)
+        page_rect = QRectF(0, 0, self.page_size.width(), self.page_size.height())
+        color = getattr(self, '_page_color', QColor(Qt.white))
+        painter.fillRect(page_rect, color)
+        design = getattr(self, '_page_design', 'Blank')
+        if design == 'Lined':
+            # Draw horizontal lines
+            spacing = 32
+            pen = QPainter().pen()
+            pen.setColor(QColor('#B0B0B0'))
+            pen.setWidth(1)
+            painter.setPen(pen)
+            y = spacing
+            while y < self.page_size.height():
+                painter.drawLine(0, y, self.page_size.width(), y)
+                y += spacing
+        elif design == 'Grid':
+            # Draw grid lines
+            spacing = 32
+            pen = QPainter().pen()
+            pen.setColor(QColor('#B0B0B0'))
+            pen.setWidth(1)
+            painter.setPen(pen)
+            x = spacing
+            while x < self.page_size.width():
+                painter.drawLine(x, 0, x, self.page_size.height())
+                x += spacing
+            y = spacing
+            while y < self.page_size.height():
+                painter.drawLine(0, y, self.page_size.width(), y)
+                y += spacing
+        # else: Blank (just color)
+        # Call base class
+        super().drawBackground(painter, rect)
     def __init__(self, page_size=QSizeF(210*4, 297*4), parent=None):
         super().__init__(parent)
         self.pages = []

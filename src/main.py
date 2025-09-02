@@ -285,24 +285,24 @@ class MainWindow(QMainWindow):
         self.drawing_toolbar.addSeparator()
 
         # Tool Actions (Pen, Highlighter, Eraser) - icons only
-        tools_group = QActionGroup(self)
-        tools_group.setExclusive(True)
-        pen_action = QAction(QIcon('resources/icons/pen.svg'), "", self)
-        pen_action.setCheckable(True)
-        pen_action.setChecked(True)
-        pen_action.triggered.connect(lambda: self.canvas_scene.set_tool('pen'))
-        highlighter_action = QAction(QIcon('resources/icons/highlighter.svg'), "", self)
-        highlighter_action.setCheckable(True)
-        highlighter_action.triggered.connect(lambda: self.canvas_scene.set_tool('highlighter'))
-        eraser_action = QAction(QIcon('resources/icons/eraser.svg'), "", self)
-        eraser_action.setCheckable(True)
-        eraser_action.triggered.connect(lambda: self.canvas_scene.set_tool('eraser'))
-        tools_group.addAction(pen_action)
-        tools_group.addAction(highlighter_action)
-        tools_group.addAction(eraser_action)
-        for action in tools_group.actions():
+        self.tools_group = QActionGroup(self)
+        self.tools_group.setExclusive(True)
+        self.pen_action = QAction(QIcon('resources/icons/pen.svg'), "", self)
+        self.pen_action.setCheckable(True)
+        self.pen_action.setChecked(True)
+        self.pen_action.triggered.connect(lambda: self._set_active_tool('pen'))
+        self.highlighter_action = QAction(QIcon('resources/icons/highlighter.svg'), "", self)
+        self.highlighter_action.setCheckable(True)
+        self.highlighter_action.triggered.connect(lambda: self._set_active_tool('highlighter'))
+        self.eraser_action = QAction(QIcon('resources/icons/eraser.svg'), "", self)
+        self.eraser_action.setCheckable(True)
+        self.eraser_action.triggered.connect(lambda: self._set_active_tool('eraser'))
+        self.tools_group.addAction(self.pen_action)
+        self.tools_group.addAction(self.highlighter_action)
+        self.tools_group.addAction(self.eraser_action)
+        for action in self.tools_group.actions():
             action.setIconVisibleInMenu(True)
-        self.drawing_toolbar.addActions(tools_group.actions())
+        self.drawing_toolbar.addActions(self.tools_group.actions())
         self.drawing_toolbar.addSeparator()
 
         # Insert Image Action
@@ -316,12 +316,17 @@ class MainWindow(QMainWindow):
         self.drawing_toolbar.addAction(clear_canvas_action)
         self.drawing_toolbar.addSeparator()
 
-        # Size Selector
-        self.size_combo = QComboBox()
-        pen_sizes = ['2', '3', '5', '8', '13', '21']
-        self.size_combo.addItems(pen_sizes)
-        self.size_combo.currentTextChanged.connect(lambda w: self.canvas_scene.set_pen_width(int(w)))
-        self.drawing_toolbar.addWidget(self.size_combo)
+        # Thickness Slider
+        from PySide6.QtWidgets import QSlider, QLabel
+        self.thickness_slider = QSlider(Qt.Horizontal)
+        self.thickness_slider.setMinimum(1)
+        self.thickness_slider.setMaximum(40)
+        self.thickness_slider.setValue(2)
+        self.thickness_slider.setFixedWidth(100)
+        self.thickness_slider.valueChanged.connect(self._handle_thickness_change)
+        self.thickness_label = QLabel("Thickness: 2")
+        self.drawing_toolbar.addWidget(self.thickness_label)
+        self.drawing_toolbar.addWidget(self.thickness_slider)
 
         # Color Picker
         self.color_button = QPushButton()
@@ -338,6 +343,22 @@ class MainWindow(QMainWindow):
         redo_action = QAction(QIcon('resources/icons/redo.svg'), "", self)
         redo_action.triggered.connect(lambda: self.canvas_scene.undo_stack.redo())
         self.drawing_toolbar.addAction(redo_action)
+
+    def _set_active_tool(self, tool):
+        self.canvas_scene.set_tool(tool)
+        # Visual feedback for active tool
+        for action, name in zip([self.pen_action, self.highlighter_action, self.eraser_action], ['pen', 'highlighter', 'eraser']):
+            if tool == name:
+                action.setChecked(True)
+                action.setStyleSheet("background-color: #d3d3d3;")
+            else:
+                action.setChecked(False)
+                action.setStyleSheet("")
+
+    def _handle_thickness_change(self, value):
+        self.thickness_label.setText(f"Thickness: {value}")
+        self.canvas_scene.set_pen_width(value)
+
     def _handle_back(self):
         # If in note editor, go back to card view; else, do nothing or implement further stack logic
         if self.main_stack.currentWidget() == self.canvas_view:
@@ -347,10 +368,13 @@ class MainWindow(QMainWindow):
         self.drawing_toolbar.hide()
 
     def open_note_editor(self, note: NoteModel):
+        from widgets.paged_canvas import PagedCanvasScene
         self.canvas_scene = PagedCanvasScene()
+        self.canvas_scene.note_model = note
+        # Set initial page design and color
+        self.canvas_scene.set_page_design(getattr(note, 'page_design', 'Blank'))
+        self.canvas_scene.set_page_color(getattr(note, 'page_color', '#FFFFFF'))
         self.canvas_view = PagedCanvasView(self.canvas_scene, self)
-        # Set background color from note model (for all pages)
-        # (Optional: set per-page background if needed)
         # Add page navigation toolbar
         self.page_toolbar = QToolBar("Pages")
         self.page_toolbar.setIconSize(QSize(24, 24))
@@ -360,7 +384,8 @@ class MainWindow(QMainWindow):
         next_action = QAction(QIcon('resources/icons/arrow-right.svg'), "Next Page", self)
         next_action.triggered.connect(self.canvas_scene.next_page)
         self.page_toolbar.addAction(next_action)
-        add_action = QAction(QIcon('resources/icons/plus.svg') if os.path.exists('resources/icons/plus.svg') else QIcon(), "Add Page", self)
+        # Add Page (no plus.svg fallback)
+        add_action = QAction(QIcon(), "Add Page", self)
         add_action.triggered.connect(self.canvas_scene.add_page)
         self.page_toolbar.addAction(add_action)
         del_action = QAction(QIcon('resources/icons/trash.svg'), "Delete Page", self)
@@ -368,7 +393,6 @@ class MainWindow(QMainWindow):
         self.page_toolbar.addAction(del_action)
         self.addToolBar(Qt.TopToolBarArea, self.page_toolbar)
         # Set initial pen color and update button
-        # (Assume pen color is black for now)
         self._update_color_button_style(QColor(Qt.black))
         self.main_stack.addWidget(self.canvas_view)
         self.main_stack.setCurrentWidget(self.canvas_view)
