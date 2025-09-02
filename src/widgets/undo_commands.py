@@ -1,19 +1,19 @@
-from PySide6.QtGui import QUndoCommand
-
+from PyQt5.QtWidgets import QUndoCommand
+from PyQt5.QtGui import QPainterPath, QColor
 
 class DrawCommand(QUndoCommand):
-    """An undo command for adding or removing a QGraphicsPathItem from the scene."""
-
-    def __init__(self, scene, item, parent=None):
-        super().__init__(parent)
-        self.scene = scene
-        self.item = item
-        self.setText("Draw Item")
+    def __init__(self, canvas_scene, path, path_properties, description="Draw"): # Added description parameter
+        super().__init__(description)
+        self.canvas_scene = canvas_scene
+        self.path = path
+        self.path_properties = path_properties
 
     def undo(self):
-        """Removes the item from the scene."""
-        self.scene.removeItem(self.item)
+        if self.path in self.canvas_scene.permanent_paths:
+            self.canvas_scene.permanent_paths.remove(self.path)
+            self.canvas_scene.update()
 
     def redo(self):
-        """Adds the item back to the scene."""
-        self.scene.addItem(self.item)
+        if self.path not in self.canvas_scene.permanent_paths:
+            self.canvas_scene.permanent_paths.append(self.path)
+            self.canvas_scene.update()

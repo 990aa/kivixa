@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPainter, QPainterPath, QPen, QColor, QWheelEvent, QUndoStack
 from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsSceneMouseEvent
-from src.widgets.undo_commands import DrawCommand
+from widgets.undo_commands import DrawCommand
 
 
 class CanvasScene(QGraphicsScene):

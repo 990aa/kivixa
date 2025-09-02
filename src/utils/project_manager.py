@@ -2,7 +2,7 @@ import os
 import json
 import uuid
 from PySide6.QtCore import QObject, QStandardPaths, QDir
-from src.models.data_models import FolderModel, NoteModel
+from models.data_models import FolderModel, NoteModel
 
 class ProjectManager(QObject):
     _instance = None

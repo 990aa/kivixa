@@ -8,12 +8,12 @@ from PySide6.QtWidgets import (
     QFrame, QHBoxLayout, QStackedWidget, QToolBar, QColorDialog, QComboBox, QStyle
 )
 
-from src.widgets.card_view import CardView
-from src.utils.project_manager import ProjectManager
-from src.models.data_models import FolderModel, NoteModel
-from src.widgets.new_note_dialog import NewNoteDialog
-from src.widgets.move_dialog import MoveDialog
-from src.widgets.canvas import CanvasView, CanvasScene
+from widgets.card_view import CardView
+from utils.project_manager import ProjectManager
+from models.data_models import FolderModel, NoteModel
+from widgets.new_note_dialog import NewNoteDialog
+from widgets.move_dialog import MoveDialog
+from widgets.canvas import CanvasView, CanvasScene
 
 
 class MainWindow(QMainWindow):

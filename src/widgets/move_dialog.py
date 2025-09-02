@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QTreeView, QDialogButtonBox
 from PySide6.QtGui import QStandardItemModel, QStandardItem
-from src.models.data_models import FolderModel
+from models.data_models import FolderModel
 
 class MoveDialog(QDialog):
     def __init__(self, root_folder, item_to_move_id, parent=None):

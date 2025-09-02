@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import QScrollArea, QWidget, QGridLayout
 from PySide6.QtCore import Qt, Signal
-from src.widgets.folder_card import FolderCard
-from src.widgets.note_card import NoteCard
-from src.models.data_models import FolderModel, NoteModel
+from widgets.folder_card import FolderCard
+from widgets.note_card import NoteCard
+from models.data_models import FolderModel, NoteModel
 
 class CardView(QScrollArea):
     note_opened = Signal(NoteModel)
