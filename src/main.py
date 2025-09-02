@@ -40,35 +40,45 @@ class MainWindow(QMainWindow):
         update_menu.addAction(version_action)
 
     def manual_check_for_updates(self):
-        # Simulate network check and update available
-        if not self.check_network_connectivity():
-            from PySide6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "No Internet", "Network connectivity is required to check for updates.")
-            return
-        changelog = "<b>v2.0.0</b><br>- New features!<br>- Bug fixes.<br>- Performance improvements."
-        dlg = UpdateNotificationDialog(changelog, self)
-        if dlg.exec():
-            self.download_and_install_update()
+        # Load update config
+        import json
+        config_path = os.path.join(os.path.dirname(__file__), '..', 'build', 'update_config.json')
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+        except Exception:
+            config = {"update_channel": "stable", "offline_mode": False}
+        channel = config.get("update_channel", "stable")
+        offline = config.get("offline_mode", False)
+        # Get current version
+        version_path = os.path.join(os.path.dirname(__file__), '..', 'build', 'version.txt')
+        try:
+            with open(version_path, 'r', encoding='utf-8') as f:
+                current_version = f.read().strip()
+        except Exception:
+            current_version = "0.0.0"
+        # Start update check
+        from utils.github_updater import GitHubUpdater
+        self.update_progress = UpdateProgressDialog(parent=self)
+        self.update_progress.label.setText("Checking for updates...")
+        self.update_progress.progress.setValue(0)
+        self.update_progress.show()
+        self.updater_thread = GitHubUpdater(current_version, channel=channel, offline=offline)
+        self.updater_thread.signals.progress.connect(self.update_progress.progress.setValue)
+        self.updater_thread.signals.status.connect(self.update_progress.label.setText)
+        self.updater_thread.signals.finished.connect(self._on_update_finished)
+        self.update_progress.cancel_btn.clicked.connect(self.updater_thread.terminate)
+        self.updater_thread.start()
 
-    def download_and_install_update(self):
-        progress = UpdateProgressDialog(parent=self)
-        progress.label.setText("Downloading update...")
-        progress.progress.setValue(0)
-        progress.show()
-        # Simulate download
-        import time
-        for i in range(1, 101, 10):
-            QApplication.processEvents()
-            time.sleep(0.05)
-            progress.progress.setValue(i)
-        progress.label.setText("Installing update...")
-        for i in range(1, 101, 20):
-            QApplication.processEvents()
-            time.sleep(0.05)
-            progress.progress.setValue(i)
-        progress.accept()
+    def _on_update_finished(self, success, msg):
+        self.update_progress.accept()
         from PySide6.QtWidgets import QMessageBox
-        QMessageBox.information(self, "Update Complete", "The application was updated successfully.")
+        if success and msg == "Update installed":
+            QMessageBox.information(self, "Update Complete", "The application was updated and will now restart.")
+        elif success:
+            QMessageBox.information(self, "No Update", "You are already on the latest version.")
+        else:
+            QMessageBox.critical(self, "Update Error", msg)
 
     def show_update_settings(self):
         # Load current prefs from file or defaults
