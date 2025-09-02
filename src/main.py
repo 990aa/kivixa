@@ -1,5 +1,7 @@
+
 import sys
 from functools import partial
+from utils.logging_utils import logger, log_exception
 
 from PySide6.QtCore import Qt, QSize, Signal
 from PySide6.QtGui import QIcon, QAction, QActionGroup, QColor
@@ -23,60 +25,69 @@ class MainWindow(QMainWindow):
         Export the note's canvas to a PDF file using vector graphics.
         Disable export for infinite canvas (if implemented).
         """
-        from PySide6.QtPrintSupport import QPrinter
-        from PySide6.QtWidgets import QFileDialog, QMessageBox
-        # Find the note model by id
-        note = self.project_manager.find_note_by_id(note_id)
-        if not note:
-            QMessageBox.warning(self, "Export Error", "Note not found.")
-            return
-
-        # Check for infinite canvas (if your NoteModel or CanvasScene has such a property)
-        # Here, we assume page_size == 'Infinite' means infinite canvas
-        if hasattr(note, 'page_size') and str(note.page_size).lower() == 'infinite':
-            QMessageBox.information(self, "Export Disabled", "Export to PDF is not available for infinite canvas notes.")
-            return
-
-        # Ask user for PDF file path
-        file_path, _ = QFileDialog.getSaveFileName(self, "Export Note as PDF", note.name + ".pdf", "PDF Files (*.pdf)")
-        if not file_path:
-            return
-
-        # Create a QPrinter for PDF output
-        printer = QPrinter(QPrinter.HighResolution)
-        printer.setOutputFormat(QPrinter.PdfFormat)
-        printer.setOutputFileName(file_path)
-
-        # Set page size if available
-        if hasattr(note, 'page_size') and str(note.page_size).upper() in ["A4", "LETTER", "LEGAL"]:
-            from PySide6.QtPrintSupport import QPageSize
-            size_map = {"A4": QPageSize.A4, "LETTER": QPageSize.Letter, "LEGAL": QPageSize.Legal}
-            printer.setPageSize(QPageSize(size_map.get(str(note.page_size).upper(), QPageSize.A4)))
-
-        # Find the canvas for this note (if open)
-        # If the note is currently open, use self.canvas_view; otherwise, load from storage if possible
-        canvas_view = None
-        if self.canvas_view and hasattr(self.canvas_view, 'scene') and self.canvas_scene:
-            # Check if the open note matches
-            if hasattr(self.canvas_scene, 'note_model') and str(self.canvas_scene.note_model.id) == note_id:
-                canvas_view = self.canvas_view
-        # Fallback: try to open the note in a temporary CanvasView/Scene (not implemented here)
-        if not canvas_view:
-            QMessageBox.warning(self, "Export Error", "Please open the note to export it.")
-            return
-
-        # Render the scene to the printer (vector)
-        painter = None
+        from utils.logging_utils import logger
         try:
-            from PySide6.QtGui import QPainter
-            painter = QPainter(printer)
-            # Render the scene (vector)
-            canvas_view.scene().render(painter)
-        finally:
-            if painter:
-                painter.end()
+            from PySide6.QtPrintSupport import QPrinter
+            from PySide6.QtWidgets import QFileDialog, QMessageBox
+            # Find the note model by id
+            note = self.project_manager.find_note_by_id(note_id)
+            if not note:
+                QMessageBox.warning(self, "Export Error", "Note not found.")
+                return
 
-        QMessageBox.information(self, "Export Complete", f"Note exported to {file_path}")
+            # Check for infinite canvas (if your NoteModel or CanvasScene has such a property)
+            # Here, we assume page_size == 'Infinite' means infinite canvas
+            if hasattr(note, 'page_size') and str(note.page_size).lower() == 'infinite':
+                QMessageBox.information(self, "Export Disabled", "Export to PDF is not available for infinite canvas notes.")
+                return
+
+            # Ask user for PDF file path
+            file_path, _ = QFileDialog.getSaveFileName(self, "Export Note as PDF", note.name + ".pdf", "PDF Files (*.pdf)")
+            if not file_path:
+                return
+
+            # Create a QPrinter for PDF output
+            printer = QPrinter(QPrinter.HighResolution)
+            printer.setOutputFormat(QPrinter.PdfFormat)
+            printer.setOutputFileName(file_path)
+
+            # Set page size if available
+            if hasattr(note, 'page_size') and str(note.page_size).upper() in ["A4", "LETTER", "LEGAL"]:
+                from PySide6.QtPrintSupport import QPageSize
+                size_map = {"A4": QPageSize.A4, "LETTER": QPageSize.Letter, "LEGAL": QPageSize.Legal}
+                printer.setPageSize(QPageSize(size_map.get(str(note.page_size).upper(), QPageSize.A4)))
+
+            # Find the canvas for this note (if open)
+            # If the note is currently open, use self.canvas_view; otherwise, load from storage if possible
+            canvas_view = None
+            if self.canvas_view and hasattr(self.canvas_view, 'scene') and self.canvas_scene:
+                # Check if the open note matches
+                if hasattr(self.canvas_scene, 'note_model') and str(self.canvas_scene.note_model.id) == note_id:
+                    canvas_view = self.canvas_view
+            # Fallback: try to open the note in a temporary CanvasView/Scene (not implemented here)
+            if not canvas_view:
+                QMessageBox.warning(self, "Export Error", "Please open the note to export it.")
+                return
+
+            # Render the scene to the printer (vector)
+            painter = None
+            try:
+                from PySide6.QtGui import QPainter
+                painter = QPainter(printer)
+                # Render the scene (vector)
+                canvas_view.scene().render(painter)
+            finally:
+                if painter:
+                    painter.end()
+
+            QMessageBox.information(self, "Export Complete", f"Note exported to {file_path}")
+        except Exception as e:
+            logger.error(f"Export to PDF failed: {e}", exc_info=True)
+            try:
+                from PySide6.QtWidgets import QMessageBox
+                QMessageBox.critical(self, "Export Error", f"Export failed: {e}")
+            except Exception:
+                pass
     def __init__(self):
         super().__init__()
 
@@ -284,11 +295,32 @@ class MainWindow(QMainWindow):
             )
             self.refresh_card_view()
 
+
 def main():
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.showMaximized()
-    sys.exit(app.exec())
+    import traceback
+    import gc
+    import threading
+    import time
+    sys.excepthook = log_exception
+    try:
+        app = QApplication(sys.argv)
+        window = MainWindow()
+        window.showMaximized()
+        exit_code = app.exec()
+        logger.info("Application exited with code %s", exit_code)
+        # Memory cleanup and leak detection
+        gc.collect()
+        logger.info("Memory usage after exit: %s objects", len(gc.get_objects()))
+        sys.exit(exit_code)
+    except Exception as e:
+        logger.critical("Fatal error in main loop", exc_info=True)
+        # Optionally, show user-friendly message
+        try:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.critical(None, "Fatal Error", f"A fatal error occurred: {e}\nSee log for details.")
+        except Exception:
+            pass
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

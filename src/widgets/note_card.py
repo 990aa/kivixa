@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QFrame, QLabel, QToolButton, QVBoxLayout, QMenu, QInputDialog
+from utils.logging_utils import logger
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtGui import QFont, QAction, QMouseEvent
 
@@ -85,21 +86,36 @@ class NoteCard(QFrame):
         self.menu_button.setMenu(menu)
 
     def _on_export_action(self):
-        self.export_requested.emit(str(self.note_model.id))
+        try:
+            self.export_requested.emit(str(self.note_model.id))
+        except Exception as e:
+            logger.error(f"Export action failed: {e}", exc_info=True)
 
     def _on_delete_action(self):
-        self.delete_requested.emit(str(self.note_model.id))
+        try:
+            self.delete_requested.emit(str(self.note_model.id))
+        except Exception as e:
+            logger.error(f"Delete action failed: {e}", exc_info=True)
 
     def _on_rename_action(self):
-        new_name, ok = QInputDialog.getText(self, "Rename Note", "Enter new name:", text=self.note_model.name)
-        if ok and new_name:
-            self.rename_requested.emit(str(self.note_model.id), new_name)
+        try:
+            new_name, ok = QInputDialog.getText(self, "Rename Note", "Enter new name:", text=self.note_model.name)
+            if ok and new_name:
+                self.rename_requested.emit(str(self.note_model.id), new_name)
+        except Exception as e:
+            logger.error(f"Rename action failed: {e}", exc_info=True)
 
     def _on_duplicate_action(self):
-        self.duplicate_requested.emit(str(self.note_model.id))
+        try:
+            self.duplicate_requested.emit(str(self.note_model.id))
+        except Exception as e:
+            logger.error(f"Duplicate action failed: {e}", exc_info=True)
 
     def _on_move_action(self):
-        self.move_requested.emit(str(self.note_model.id))
+        try:
+            self.move_requested.emit(str(self.note_model.id))
+        except Exception as e:
+            logger.error(f"Move action failed: {e}", exc_info=True)
 
     def mousePressEvent(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton and not self.menu_button.geometry().contains(event.pos()):

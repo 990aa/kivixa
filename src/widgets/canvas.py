@@ -1,6 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPainter, QPainterPath, QPen, QColor, QWheelEvent, QUndoStack, QPixmap
 from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsSceneMouseEvent, QFileDialog, QGraphicsPixmapItem, QGraphicsProxyWidget, QPushButton, QWidget, QVBoxLayout, QGraphicsItem
+from utils.logging_utils import logger
 
 
 class StrokedPathItem(QGraphicsPathItem):
@@ -132,17 +133,31 @@ class CanvasScene(QGraphicsScene):
         self.undo_stack.clear()
 
     def insert_image(self):
-        file_path, _ = QFileDialog.getOpenFileName(None, "Open Image", "",
+        try:
+            file_path, _ = QFileDialog.getOpenFileName(None, "Open Image", "",
                                                      "Image Files (*.png *.jpg *.jpeg *.bmp)")
-        if file_path:
-            pixmap = QPixmap(file_path)
-            if not pixmap.isNull():
-                item = EditablePixmapItem(pixmap)
-                # Center the item in the current view
-                view = self.views()[0]
-                center_point = view.mapToScene(view.viewport().rect().center())
-                item.setPos(center_point)
-                self.addItem(item)
+            if file_path:
+                pixmap = QPixmap(file_path)
+                if not pixmap.isNull():
+                    item = EditablePixmapItem(pixmap)
+                    # Center the item in the current view
+                    view = self.views()[0]
+                    center_point = view.mapToScene(view.viewport().rect().center())
+                    item.setPos(center_point)
+                    self.addItem(item)
+                else:
+                    logger.warning(f"Failed to load image: {file_path}")
+        except Exception as e:
+            logger.error(f"Error inserting image: {e}", exc_info=True)
+            try:
+                from PySide6.QtWidgets import QMessageBox
+                QMessageBox.critical(None, "Image Error", f"Could not insert image: {e}")
+            except Exception:
+                pass
+    # --- Dirty rectangle optimization stub for future performance ---
+    def invalidate_dirty_rect(self, rect):
+        # Invalidate only the changed region for redraw (future optimization)
+        self.invalidate(rect)
 
 
 class CanvasView(QGraphicsView):

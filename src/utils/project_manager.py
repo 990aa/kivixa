@@ -1,11 +1,9 @@
 import os
 import json
 import uuid
-import logging
+from utils.logging_utils import logger
 from PySide6.QtCore import QObject, QStandardPaths, QDir
 from models.data_models import FolderModel, NoteModel
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ProjectManager(QObject):
     _instance = None
@@ -27,8 +25,13 @@ class ProjectManager(QObject):
         try:
             QDir().mkpath(os.path.dirname(self._save_path))
         except Exception as e:
-            logging.error(f"Failed to create data directory: {e}")
-        self.load()
+            logger.error(f"Failed to create data directory: {e}")
+        try:
+            self.load()
+        except Exception as e:
+            logger.error(f"Failed to load project data: {e}", exc_info=True)
+            self._show_file_error(f"Could not load project data: {e}")
+            self._root_folder = FolderModel(name='Root')
         self._initialized = True
 
     def _model_to_dict(self, item):
@@ -82,15 +85,16 @@ class ProjectManager(QObject):
         """Loads the project data from the JSON file."""
         try:
             if os.path.exists(self._save_path):
-                with open(self._save_path, 'r') as f:
+                with open(self._save_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     self._root_folder = self._dict_to_model(data)
-                    logging.info("Project data loaded successfully.")
+                    logger.info("Project data loaded successfully.")
             else:
                 self._root_folder = FolderModel(name='Root')
                 self.save()
         except (FileNotFoundError, json.JSONDecodeError, TypeError) as e:
-            logging.error(f"Error loading data: {e}. Starting with a new root folder.")
+            logger.error(f"Error loading data: {e}. Starting with a new root folder.")
+            self._show_file_error(f"Could not load project data: {e}")
             self._root_folder = FolderModel(name='Root')
 
     def save(self):
@@ -98,11 +102,18 @@ class ProjectManager(QObject):
         if self._root_folder:
             try:
                 data = self._model_to_dict(self._root_folder)
-                with open(self._save_path, 'w') as f:
+                with open(self._save_path, 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=4)
-                logging.info("Project data saved successfully.")
+                logger.info("Project data saved successfully.")
             except (IOError, TypeError) as e:
-                logging.error(f"Error saving data: {e}")
+                logger.error(f"Error saving data: {e}")
+                self._show_file_error(f"Could not save project data: {e}")
+    def _show_file_error(self, msg):
+        try:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.critical(None, "File Error", msg)
+        except Exception:
+            logger.error(f"Failed to show file error dialog: {msg}")
 
     def find_item(self, item_id, folder=None):
         if folder is None:
