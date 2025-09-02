@@ -128,7 +128,7 @@ class MainWindow(QMainWindow):
             from PySide6.QtPrintSupport import QPrinter
             from PySide6.QtWidgets import QFileDialog, QMessageBox
             # Find the note model by id
-            note = self.project_manager.find_note_by_id(note_id)
+            note = self.project_manager.find_item(note_id)
             if not note:
                 QMessageBox.warning(self, "Export Error", "Note not found.")
                 return
@@ -348,12 +348,7 @@ class MainWindow(QMainWindow):
         self.canvas_scene.set_tool(tool)
         # Visual feedback for active tool
         for action, name in zip([self.pen_action, self.highlighter_action, self.eraser_action], ['pen', 'highlighter', 'eraser']):
-            if tool == name:
-                action.setChecked(True)
-                action.setStyleSheet("background-color: #d3d3d3;")
-            else:
-                action.setChecked(False)
-                action.setStyleSheet("")
+            action.setChecked(tool == name)
 
     def _handle_thickness_change(self, value):
         self.thickness_label.setText(f"Thickness: {value}")

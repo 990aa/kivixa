@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QTreeView, QDialogButtonBox
 from PySide6.QtGui import QStandardItemModel, QStandardItem
+from PySide6.QtCore import Qt
 from models.data_models import FolderModel
 
 class MoveDialog(QDialog):

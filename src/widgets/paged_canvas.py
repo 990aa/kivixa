@@ -47,12 +47,7 @@ class PagedCanvasScene(QGraphicsScene):
         # else: Blank (just color)
         # Call base class
         super().drawBackground(painter, rect)
-    def __init__(self, page_size=QSizeF(210*4, 297*4), parent=None):
-        super().__init__(parent)
-        self.pages = []
-        self.page_size = page_size
-        self.current_page_index = 0
-        self.add_page()
+    # Duplicate __init__ removed. Only the first __init__ is used.
         self._tool = 'pen'
         self._pen_color = QColor(Qt.black)
         self._pen_width = 2
