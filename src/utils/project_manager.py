@@ -1,0 +1,119 @@
+import os
+import json
+import uuid
+from PySide6.QtCore import QObject, QStandardPaths, QDir
+from src.models.data_models import FolderModel, NoteModel
+
+class ProjectManager(QObject):
+    _instance = None
+    DATA_FILE_NAME = "kivixa_data.json"
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(ProjectManager, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
+    def __init__(self):
+        if self._initialized:
+            return
+        super().__init__()
+        self._root_folder = None
+        app_data_path = QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
+        self._save_path = os.path.join(app_data_path, 'kivixa', self.DATA_FILE_NAME)
+        QDir().mkpath(os.path.dirname(self._save_path))
+        self._initialized = True
+
+    def _model_to_dict(self, item):
+        if isinstance(item, FolderModel):
+            return {
+                'type': 'folder',
+                'id': str(item.id),
+                'name': item.name,
+                'parent_id': str(item.parent_id) if item.parent_id else None,
+                'children_folders': [self._model_to_dict(child) for child in item.children_folders],
+                'notes': [self._model_to_dict(note) for note in item.notes]
+            }
+        elif isinstance(item, NoteModel):
+            return {
+                'type': 'note',
+                'id': str(item.id),
+                'name': item.name,
+                'parent_id': str(item.parent_id),
+                'page_size': item.page_size,
+                'page_design': item.page_design,
+                'page_color': item.page_color,
+                'creation_date': item.creation_date,
+                'modification_date': item.modification_date
+            }
+        return None
+
+    def _dict_to_model(self, data, parent_id=None):
+        if not data:
+            return None
+        item_type = data.get('type')
+        if item_type == 'folder':
+            folder = FolderModel(name=data['name'], parent_id=uuid.UUID(data['parent_id']) if data['parent_id'] else None)
+            folder._id = uuid.UUID(data['id'])
+            for child_data in data.get('children_folders', []):
+                folder.add_child_folder(self._dict_to_model(child_data, folder.id))
+            for note_data in data.get('notes', []):
+                folder.add_note(self._dict_to_model(note_data, folder.id))
+            return folder
+        elif item_type == 'note':
+            note = NoteModel(name=data['name'], parent_id=uuid.UUID(data['parent_id']))
+            note._id = uuid.UUID(data['id'])
+            note._page_size = data['page_size']
+            note._page_design = data['page_design']
+            note._page_color = data['page_color']
+            note._creation_date = data['creation_date']
+            note._modification_date = data['modification_date']
+            return note
+        return None
+
+    def load(self):
+        """Loads the project data from the JSON file."""
+        try:
+            if os.path.exists(self._save_path):
+                with open(self._save_path, 'r') as f:
+                    data = json.load(f)
+                    self._root_folder = self._dict_to_model(data)
+            else:
+                self._root_folder = FolderModel(name='Root')
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"Error loading data: {e}. Starting with a new root folder.")
+            self._root_folder = FolderModel(name='Root')
+
+    def save(self):
+        """Saves the project data to the JSON file."""
+        if self._root_folder:
+            data = self._model_to_dict(self._root_folder)
+            with open(self._save_path, 'w') as f:
+                json.dump(data, f, indent=4)
+
+    def create_folder(self, name, parent_folder):
+        if parent_folder:
+            folder = FolderModel(name=name, parent_id=parent_folder.id)
+            parent_folder.add_child_folder(folder)
+            return folder
+        return None
+
+    def create_note(self, name, parent_folder):
+        if parent_folder:
+            note = NoteModel(name=name, parent_id=parent_folder.id)
+            parent_folder.add_note(note)
+            return note
+        return None
+
+    def delete_item(self, item_id):
+        pass
+
+    def move_item(self, item_id, new_parent_id):
+        pass
+
+    @property
+    def root_folder(self):
+        return self._root_folder
+
+def project_manager():
+    return ProjectManager()

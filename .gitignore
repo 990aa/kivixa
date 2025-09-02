@@ -1,9 +1,8 @@
-# Electron log files
 logs/
 *.log
 .env
-node_modules/
 TODO
 dist/
+.venv/
 
-
+*__pycache__/
