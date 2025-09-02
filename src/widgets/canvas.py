@@ -1,100 +1,102 @@
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtGui import QPainter, QPen, QColor, QPainterPath
-from PyQt5.QtCore import Qt, QPoint
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPainter, QPainterPath, QPen, QColor, QWheelEvent, QUndoStack
+from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsSceneMouseEvent
+from src.widgets.undo_commands import DrawCommand
 
-class Canvas(QWidget):
+
+class CanvasScene(QGraphicsScene):
+    """
+    A QGraphicsScene for drawing, supporting a pen, highlighter, and eraser.
+    It manages all the drawn items as QGraphicsPathItems and supports undo/redo.
+    """
+
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setSceneRect(0, 0, 3000, 2000)
+        self.setBackgroundBrush(QColor(Qt.GlobalColor.white))
+
+        # --- Drawing Properties ---
         self.tool = 'pen'
-        self.pen_color = QColor(Qt.black)
+        self.pen_color = QColor(Qt.GlobalColor.black)
         self.pen_width = 3
         self.highlighter_color = QColor(255, 255, 0, 150)
+        self.highlighter_width = 15
         self.eraser_width = 20
 
-        self.permanent_paths = []
-        self.current_path_data = None
+        # --- Drawing State ---
+        self.current_path_item = None
+        self.current_path = None
 
-        self.background_color = QColor(Qt.white)
-        self.setMouseTracking(True)
+        # --- Undo/Redo Stack ---
+        self.undo_stack = QUndoStack(self)
+        self.undo_stack.setUndoLimit(5)
 
-    def set_tool(self, tool):
+    def set_tool(self, tool: str):
         self.tool = tool
 
-    def set_pen_color(self, color):
+    def set_pen_color(self, color: QColor):
         self.pen_color = color
 
-    def set_pen_width(self, width):
+    def set_pen_width(self, width: int):
         self.pen_width = width
 
-    def set_highlighter_color(self, color):
-        self.highlighter_color = color
-    
-    def set_eraser_width(self, width):
-        self.eraser_width = width
+    def update_background(self, color: QColor):
+        self.setBackgroundBrush(color)
 
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            path = QPainterPath()
-            path.moveTo(event.pos())
-            
-            if self.tool == 'pen':
-                color = self.pen_color
-                width = self.pen_width
-            elif self.tool == 'highlighter':
-                color = self.highlighter_color
-                width = 20  # Fixed width for highlighter
-            elif self.tool == 'eraser':
-                color = self.background_color 
-                width = self.eraser_width
-            else:
-                return
+    def mousePressEvent(self, event: QGraphicsSceneMouseEvent):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.current_path = QPainterPath()
+            self.current_path.moveTo(event.scenePos())
+            pen = self._get_current_pen()
+            self.current_path_item = self.addPath(self.current_path, pen)
 
-            self.current_path_data = {
-                'path': path,
-                'tool': self.tool,
-                'color': color,
-                'width': width
-            }
-            self.update()
+    def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
+        if event.buttons() & Qt.MouseButton.LeftButton and self.current_path_item:
+            self.current_path.lineTo(event.scenePos())
+            self.current_path_item.setPath(self.current_path)
 
-    def mouseMoveEvent(self, event):
-        if event.buttons() & Qt.LeftButton and self.current_path_data:
-            self.current_path_data['path'].lineTo(event.pos())
-            self.update()
+    def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent):
+        if event.button() == Qt.MouseButton.LeftButton and self.current_path_item:
+            # Create and push the DrawCommand onto the undo stack
+            command = DrawCommand(self, self.current_path_item)
+            self.undo_stack.push(command)
 
-    def mouseReleaseEvent(self, event):
-        if event.button() == Qt.LeftButton and self.current_path_data:
-            self.permanent_paths.append(self.current_path_data)
-            self.current_path_data = None
-            self.update()
+            self.current_path_item = None
+            self.current_path = None
 
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+    def _get_current_pen(self):
+        if self.tool == 'pen':
+            return QPen(self.pen_color, self.pen_width, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap,
+                        Qt.PenJoinStyle.RoundJoin)
+        elif self.tool == 'highlighter':
+            return QPen(self.highlighter_color, self.highlighter_width, Qt.PenStyle.SolidLine,
+                        Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin)
+        elif self.tool == 'eraser':
+            return QPen(self.backgroundBrush().color(), self.eraser_width, Qt.PenStyle.SolidLine,
+                        Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin)
+        return QPen()
 
-        # Draw background
-        painter.fillRect(self.rect(), self.background_color)
+    def clear_canvas(self):
+        self.clear()
+        self.undo_stack.clear()
 
-        # Draw permanent paths
-        for path_data in self.permanent_paths:
-            self.draw_path(painter, path_data)
 
-        # Draw current path
-        if self.current_path_data:
-            self.draw_path(painter, self.current_path_data)
+class CanvasView(QGraphicsView):
+    """
+    A QGraphicsView that displays the CanvasScene, providing zoom and pan functionality.
+    """
 
-    def draw_path(self, painter, path_data):
-        path = path_data['path']
-        color = path_data['color']
-        width = path_data['width']
-        tool = path_data['tool']
+    def __init__(self, scene: CanvasScene, parent=None):
+        super().__init__(scene, parent)
+        self.setRenderHint(QPainter.RenderHint.Antialiasing)
+        self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
+        self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
+        self.setResizeAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
 
-        pen = QPen(color, width, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
-        painter.setPen(pen)
-        
-        if tool == 'highlighter':
-            painter.setCompositionMode(QPainter.CompositionMode_Multiply)
+    def wheelEvent(self, event: QWheelEvent):
+        zoom_in_factor = 1.15
+        zoom_out_factor = 1 / zoom_in_factor
+        if event.angleDelta().y() > 0:
+            self.scale(zoom_in_factor, zoom_in_factor)
         else:
-            painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-
-        painter.drawPath(path)
+            self.scale(zoom_out_factor, zoom_out_factor)

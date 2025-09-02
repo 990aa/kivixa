@@ -1,9 +1,10 @@
 from PySide6.QtWidgets import QFrame, QLabel, QToolButton, QVBoxLayout, QMenu, QInputDialog
 from PySide6.QtCore import Signal, Qt
-from PySide6.QtGui import QFont, QAction
+from PySide6.QtGui import QFont, QAction, QMouseEvent
 
 class NoteCard(QFrame):
     clicked = Signal()
+    double_clicked = Signal()
     delete_requested = Signal(str)
     rename_requested = Signal(str, str)
     duplicate_requested = Signal(str)
@@ -13,9 +14,9 @@ class NoteCard(QFrame):
         super().__init__(parent)
         self.note_model = note_model
 
-        self.setFrameShape(QFrame.StyledPanel)
-        self.setFrameShadow(QFrame.Raised)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setFrameShape(QFrame.Shape.StyledPanel)
+        self.setFrameShadow(QFrame.Shadow.Raised)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
 
         self.setStyleSheet("""
             NoteCard {
@@ -32,13 +33,13 @@ class NoteCard(QFrame):
 
         layout = QVBoxLayout(self)
         self.name_label = QLabel(note_model.name)
-        self.name_label.setAlignment(Qt.AlignCenter)
+        self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         font = QFont("Arial", 11)
         self.name_label.setFont(font)
         layout.addWidget(self.name_label)
 
         self.page_style_label = QLabel(f"{note_model.page_size} - {note_model.page_design}")
-        self.page_style_label.setAlignment(Qt.AlignCenter)
+        self.page_style_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         font = QFont("Arial", 8)
         self.page_style_label.setFont(font)
         layout.addWidget(self.page_style_label)
@@ -53,7 +54,7 @@ class NoteCard(QFrame):
                 padding: 5px;
             }
         """)
-        self.menu_button.setPopupMode(QToolButton.InstantPopup)
+        self.menu_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self.menu_button.move(self.width() - self.menu_button.width() - 5, 5)
 
         self.create_menu()
@@ -94,10 +95,15 @@ class NoteCard(QFrame):
     def _on_move_action(self):
         self.move_requested.emit(str(self.note_model.id))
 
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and not self.menu_button.geometry().contains(event.pos()):
+    def mousePressEvent(self, event: QMouseEvent):
+        if event.button() == Qt.MouseButton.LeftButton and not self.menu_button.geometry().contains(event.pos()):
             self.clicked.emit()
         super().mousePressEvent(event)
+
+    def mouseDoubleClickEvent(self, event: QMouseEvent):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.double_clicked.emit()
+        super().mouseDoubleClickEvent(event)
 
     def resizeEvent(self, event):
         self.menu_button.move(self.width() - self.menu_button.width() - 10, 5)
