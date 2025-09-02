@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QScrollArea, QWidget, QGridLayout, QFrame
+from PySide6.QtWidgets import QScrollArea, QWidget, QGridLayout
 from PySide6.QtCore import Qt
 from src.widgets.folder_card import FolderCard
 from src.widgets.note_card import NoteCard
@@ -16,17 +16,9 @@ class CardView(QScrollArea):
         self.layout = QGridLayout(self.container)
         self.layout.setAlignment(Qt.AlignTop | Qt.AlignLeft)
 
-    def populate_view(self, items):
-        # Clear existing items
-        for i in reversed(range(self.layout.count())):
-            widget = self.layout.itemAt(i).widget()
-            if widget is not None:
-                widget.deleteLater()
-
-        # Calculate number of columns based on width
-        col_count = max(1, self.width() // 200) # Assuming card width of ~200px
-
-        # Add new items
+    def populate_and_connect(self, items):
+        self.clear_view()
+        col_count = max(1, self.width() // 200)
         row, col = 0, 0
         for item in items:
             if isinstance(item, FolderModel):
@@ -38,18 +30,29 @@ class CardView(QScrollArea):
 
             card.setMinimumSize(180, 120)
             self.layout.addWidget(card, row, col)
+            self.connect_card_signals(card)
 
             col += 1
             if col >= col_count:
                 col = 0
                 row += 1
 
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        if self.layout.count() > 0:
-            items = []
-            for i in range(self.layout.count()):
-                widget = self.layout.itemAt(i).widget()
-                if isinstance(widget, (FolderCard, NoteCard)):
-                    items.append(widget.folder_model if isinstance(widget, FolderCard) else widget.note_model)
-            self.populate_view(items)
+    def connect_card_signals(self, card):
+        if isinstance(card, (FolderCard, NoteCard)):
+            card.delete_requested.connect(self.parent().handle_delete_item)
+            card.rename_requested.connect(self.parent().handle_rename_item)
+            if isinstance(card, FolderCard):
+                card.clicked.connect(lambda: self.parent().open_folder(card.folder_model.id))
+            else:
+                # Assuming NoteCard has a similar clicked signal for opening the note
+                pass
+
+    def repopulate_cards(self, items):
+        self.clear_view()
+        self.populate_and_connect(items)
+
+    def clear_view(self):
+        while self.layout.count():
+            child = self.layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()

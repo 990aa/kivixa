@@ -22,6 +22,7 @@ class ProjectManager(QObject):
         app_data_path = QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
         self._save_path = os.path.join(app_data_path, 'kivixa', self.DATA_FILE_NAME)
         QDir().mkpath(os.path.dirname(self._save_path))
+        self.load()
         self._initialized = True
 
     def _model_to_dict(self, item):
@@ -80,6 +81,7 @@ class ProjectManager(QObject):
                     self._root_folder = self._dict_to_model(data)
             else:
                 self._root_folder = FolderModel(name='Root')
+                self.save() # Create the file if it doesn't exist
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Error loading data: {e}. Starting with a new root folder.")
             self._root_folder = FolderModel(name='Root')
@@ -91,22 +93,70 @@ class ProjectManager(QObject):
             with open(self._save_path, 'w') as f:
                 json.dump(data, f, indent=4)
 
-    def create_folder(self, name, parent_folder):
-        if parent_folder:
+    def find_item(self, item_id, folder=None):
+        if folder is None:
+            folder = self._root_folder
+
+        if str(folder.id) == item_id:
+            return folder
+
+        for note in folder.notes:
+            if str(note.id) == item_id:
+                return note
+
+        for sub_folder in folder.children_folders:
+            found = self.find_item(item_id, sub_folder)
+            if found:
+                return found
+        return None
+
+    def get_items_in_folder(self, folder_id):
+        if folder_id is None:
+            return self._root_folder.children_folders + self._root_folder.notes
+        else:
+            folder = self.find_item(folder_id)
+            if folder and isinstance(folder, FolderModel):
+                return folder.children_folders + folder.notes
+        return []
+
+    def create_folder(self, name, parent_id=None):
+        parent_folder = self.find_item(parent_id) if parent_id else self._root_folder
+        if parent_folder and isinstance(parent_folder, FolderModel):
             folder = FolderModel(name=name, parent_id=parent_folder.id)
             parent_folder.add_child_folder(folder)
+            self.save()
             return folder
         return None
 
-    def create_note(self, name, parent_folder):
-        if parent_folder:
+    def create_note(self, name, parent_id=None):
+        parent_folder = self.find_item(parent_id) if parent_id else self._root_folder
+        if parent_folder and isinstance(parent_folder, FolderModel):
             note = NoteModel(name=name, parent_id=parent_folder.id)
             parent_folder.add_note(note)
+            self.save()
             return note
         return None
 
     def delete_item(self, item_id):
-        pass
+        item = self.find_item(item_id)
+        if item:
+            parent_folder = self.find_item(str(item.parent_id))
+            if parent_folder and isinstance(parent_folder, FolderModel):
+                if isinstance(item, FolderModel):
+                    parent_folder.children_folders.remove(item)
+                elif isinstance(item, NoteModel):
+                    parent_folder.notes.remove(item)
+                self.save()
+                return True
+        return False
+
+    def rename_item(self, item_id, new_name):
+        item = self.find_item(item_id)
+        if item:
+            item.name = new_name
+            self.save()
+            return True
+        return False
 
     def move_item(self, item_id, new_parent_id):
         pass
@@ -114,6 +164,3 @@ class ProjectManager(QObject):
     @property
     def root_folder(self):
         return self._root_folder
-
-def project_manager():
-    return ProjectManager()

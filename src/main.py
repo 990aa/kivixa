@@ -1,16 +1,10 @@
 
 import sys
-from PySide6.QtWidgets import (
-    QApplication,
-    QMainWindow,
-    QWidget,
-    QVBoxLayout,
-    QScrollArea,
-    QGridLayout,
-    QLabel,
-)
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout
 from PySide6.QtCore import Qt
-
+from src.widgets.card_view import CardView
+from src.utils.project_manager import ProjectManager
+from src.models.data_models import FolderModel, NoteModel
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -18,6 +12,9 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Kivixa")
         self.setGeometry(100, 100, 1200, 800)
+        
+        self.project_manager = ProjectManager('projects') # Or your desired project root
+        self.current_folder_id = None # Root
 
         # Modern QSS Stylesheet
         self.setStyleSheet("""
@@ -33,31 +30,6 @@ class MainWindow(QMainWindow):
             QScrollArea {
                 border: none;
             }
-            .card {
-                background-color: #3c3c3c;
-                border-radius: 10px;
-                padding: 15px;
-                margin: 10px;
-                min-height: 150px;
-                min-width: 200px;
-                box-shadow: 5px 5px 10px #1e1e1e;
-            }
-            .card QLabel {
-                font-size: 16px;
-                font-weight: bold;
-            }
-            QPushButton {
-                background-color: #5a5a5a;
-                border: 1px solid #76797c;
-                border-radius: 5px;
-                padding: 5px 10px;
-            }
-            QPushButton:hover {
-                background-color: #6a6a6a;
-            }
-            QPushButton:pressed {
-                background-color: #7a7a7a;
-            }
         """)
 
         # Central Widget and Layout
@@ -67,35 +39,27 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # Scroll Area for the Card Grid
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        main_layout.addWidget(scroll_area)
+        # Card View
+        self.card_view = CardView(self)
+        main_layout.addWidget(self.card_view)
 
-        # Grid Widget and Layout
-        grid_widget = QWidget()
-        scroll_area.setWidget(grid_widget)
-        self.grid_layout = QGridLayout(grid_widget)
-        self.grid_layout.setSpacing(10)
-        self.grid_layout.setContentsMargins(20, 20, 20, 20)
+        self.refresh_card_view()
 
-        self.populate_cards()
+    def refresh_card_view(self):
+        items = self.project_manager.get_items_in_folder(self.current_folder_id)
+        self.card_view.repopulate_cards(items)
 
-    def populate_cards(self):
-        """Populates the grid with placeholder cards."""
-        for i in range(20):  # Create 20 placeholder cards
-            card = QWidget()
-            card.setObjectName("card")
-            card.setProperty("class", "card")
-            
-            card_layout = QVBoxLayout(card)
-            card_layout.addWidget(QLabel(f"Card {i + 1}"))
-            card_layout.addStretch()
+    def open_folder(self, folder_id):
+        self.current_folder_id = folder_id
+        self.refresh_card_view()
 
-            row = i // 4
-            col = i % 4
-            self.grid_layout.addWidget(card, row, col)
+    def handle_delete_item(self, item_id):
+        self.project_manager.delete_item(item_id)
+        self.refresh_card_view()
+
+    def handle_rename_item(self, item_id, new_name):
+        self.project_manager.rename_item(item_id, new_name)
+        self.refresh_card_view()
 
 
 def main():
