@@ -1,0 +1,279 @@
+/* Sidebar for folders/notes */
+#sidebar {
+    width: 240px;
+    height: 100vh;
+    background: #23272b;
+    color: #fff;
+    padding: 18px 12px 12px 12px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    flex-shrink: 0;
+    border-right: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+#sidebar h3 {
+    margin-top: 0;
+    font-size: 1.1em;
+    color: #00aaff;
+}
+#folder-list, #note-list {
+    margin-bottom: 10px;
+}
+#folder-list button, #note-list button {
+    width: 100%;
+    background: #333;
+    color: #fff;
+    border: none;
+    padding: 8px 6px;
+    margin-bottom: 4px;
+    border-radius: 4px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+#folder-list button:hover, #note-list button:hover {
+    background: #007bff;
+}
+
+#toolbar {
+    display: none;
+}
+/* Window Controls */
+#window-controls {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 1001;
+    display: flex;
+    gap: 0;
+    background: #222;
+    border-bottom-left-radius: 8px;
+    box-shadow: 0 2px 8px #0002;
+}
+#window-controls button {
+    width: 44px;
+    height: 36px;
+    border: none;
+    background: none;
+    color: #fff;
+    font-size: 1.3em;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.2s;
+}
+#window-controls button:hover {
+    background: #444;
+}
+#window-controls #close-btn:hover {
+    background: #c0392b;
+    color: #fff;
+}
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: sans-serif;
+    background-color: #2c2c2c;
+    display: flex;
+}
+
+#toolbar {
+    width: 220px;
+    height: 100vh;
+    background-color: #333;
+    color: white;
+    padding: 15px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.tool-section {
+    border-top: 1px solid #555;
+    padding-top: 15px;
+    margin-top: 15px;
+}
+
+.tool-section:first-child {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+#toolbar h3, #toolbar h4 {
+    margin-top: 0;
+    color: #00aaff;
+}
+
+#toolbar .control-group {
+    margin-bottom: 15px;
+}
+
+#toolbar label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+#toolbar select, #toolbar input[type="number"], #toolbar input[type="color"], #toolbar button {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #444;
+    color: white;
+    box-sizing: border-box;
+}
+
+#toolbar button {
+    background-color: #007bff;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+#toolbar button:hover {
+    background-color: #0056b3;
+}
+
+#tool-selector {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.tool-btn {
+    flex: 1;
+    margin: 0 2px;
+    background-color: #555;
+}
+
+.tool-btn.active {
+    background-color: #0056b3;
+    font-weight: bold;
+}
+
+.tool-options {
+    display: none;
+    padding: 10px;
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+.tool-options.active {
+    display: block;
+}
+
+#canvas-container {
+    position: relative;
+    flex-grow: 1;
+    height: 100vh;
+}
+
+.grid-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+#commit-shape-btn {
+    width: 100%;
+    background-color: #28a745 !important;
+}
+
+#commit-shape-btn:hover {
+    background-color: #218838 !important;
+}
+
+#canvas-container canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: transparent;
+}
+
+#pages-canvas {
+    background-color: #444; /* The background behind the pages */
+    z-index: 1;
+}
+
+#drawing-canvas {
+    z-index: 2;
+}
+
+#live-canvas {
+    z-index: 3;
+}
+
+#main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#tabs {
+    display: flex;
+    background-color: #2a2a2a;
+}
+
+.tab-link {
+    padding: 10px 15px;
+    cursor: pointer;
+    background-color: #333;
+    border: none;
+    color: white;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-link.active {
+    background-color: #444;
+    border-bottom: 3px solid #00aaff;
+}
+
+.tab-content {
+    display: none;
+    flex-grow: 1;
+    background-color: #444;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+#canvas-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#help-view {
+    padding: 20px;
+    color: #ddd;
+    overflow-y: auto;
+    height: calc(100vh - 45px); /* Adjust based on tab height */
+}
+
+#help-view h1, #help-view h2, #help-view h3 {
+    color: #00aaff;
+    border-bottom: 1px solid #555;
+    padding-bottom: 5px;
+}
+
+#help-view code {
+    background-color: #2a2a2a;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+#help-view blockquote {
+    border-left: 4px solid #555;
+    padding-left: 15px;
+    color: #aaa;
+}
+
+#tool-overlay-canvas {
+    z-index: 4;
+    pointer-events: auto; /* Make sure this canvas receives events */
+}

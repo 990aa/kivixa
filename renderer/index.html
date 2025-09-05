@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Kivixa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="window-controls">
+        <button id="min-btn" title="Minimize">&#x2013;</button>
+        <button id="max-btn" title="Maximize/Restore">&#x25A1;</button>
+        <button id="close-btn" title="Close">&#x2715;</button>
+    </div>
+    <div id="sidebar">
+        <h3>Your Folders & Notes</h3>
+        <div id="folder-list"></div>
+        <div id="note-list"></div>
+    </div>
+    <div id="toolbar" style="display:none;">
+        <div class="tool-section">
+            <h3>Pages</h3>
+            <button id="insert-page-btn">Insert Page</button>
+            <button id="tear-page-btn">Tear Page</button>
+            <div class="control-group">
+                <label for="page-size-select">Page Size:</label>
+                <select id="page-size-select">
+                    <option value="a4">A4</option>
+                    <option value="a3">A3</option>
+                    <option value="letter">Letter</option>
+                    <option value="custom">Custom</option>
+                </select>
+            </div>
+            <div id="custom-size-inputs" style="display: none;">
+                <input type="number" id="custom-width-input" placeholder="Width (px)">
+                <input type="number" id="custom-height-input" placeholder="Height (px)">
+            </div>
+            <div class="control-group">
+                <label for="page-type-select">Page Type:</label>
+                <select id="page-type-select">
+                    <option value="blank">Blank</option>
+                    <option value="lined">Lined</option>
+                    <option value="dotted">Dotted</option>
+                    <option value="grid">Grid</option>
+                    <option value="graph">Graph</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="page-color-picker">Page Color:</label>
+                <input type="color" id="page-color-picker" value="#f0f0f0">
+            </div>
+        </div>
+
+        <div class="tool-section">
+            <h3>Geometry</h3>
+            <div id="geometry-tool-selector" class="grid-buttons">
+                <button id="ruler-tool-btn" class="tool-btn">Ruler</button>
+                <button id="protractor-tool-btn" class="tool-btn">Protractor</button>
+                <button id="compass-tool-btn" class="tool-btn">Compass</button>
+                <button id="shape-tool-btn" class="tool-btn">Shapes</button>
+            </div>
+            <div id="shape-options" class="tool-options">
+                <h4>Shape Type</h4>
+                <div class="grid-buttons">
+                    <button class="shape-type-btn" data-shape="rectangle">Rect</button>
+                    <button class="shape-type-btn" data-shape="circle">Circle</button>
+                    <button class="shape-type-btn" data-shape="ellipse">Ellipse</button>
+                    <button class="shape-type-btn" data-shape="parallelogram">Para</button>
+                </div>
+                <button id="commit-shape-btn">Commit Shape</button>
+            </div>
+        </div>
+
+        <div class="tool-section">
+            <h3>Export</h3>
+            <button id="export-pdf-btn">Export to PDF</button>
+        </div>
+
+        <div class="tool-section">
+            <h3>Tools</h3>
+            <button id="add-image-btn">Add Image</button>
+            <input type="file" id="image-upload-input" accept="image/*" style="display:none;" />
+            <div id="tool-selector">
+                <button id="pen-tool-btn" class="tool-btn active">Pen</button>
+                <button id="eraser-tool-btn" class="tool-btn">Eraser</button>
+                <button id="laser-tool-btn" class="tool-btn">Laser</button>
+            </div>
+        </div>
+
+        <div id="pen-options" class="tool-options active">
+            <h4>Pen Options</h4>
+            <div class="control-group">
+                <label for="pen-color-picker">Pen Color:</label>
+                <input type="color" id="pen-color-picker" value="#000000">
+            </div>
+            <div class="control-group">
+                <label for="pen-style-select">Pen Style:</label>
+                <select id="pen-style-select">
+                    <option value="fine-liner">Fine Liner</option>
+                    <option value="brush">Brush</option>
+                    <option value="marker">Marker</option>
+                    <option value="calligraphy">Calligraphy</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="pen-thickness-slider">Thickness:</label>
+                <input type="range" id="pen-thickness-slider" min="1" max="50" value="5">
+            </div>
+            <div class="control-group">
+                <label for="pen-opacity-slider">Opacity:</label>
+                <input type="range" id="pen-opacity-slider" min="0" max="1" step="0.1" value="1">
+            </div>
+        </div>
+
+        <div id="eraser-options" class="tool-options">
+            <h4>Eraser Options</h4>
+            <div class="control-group">
+                <label for="eraser-size-slider">Size:</label>
+                <input type="range" id="eraser-size-slider" min="1" max="100" value="20">
+            </div>
+            <div class="control-group">
+                <label for="eraser-style-select">Style:</label>
+                <select id="eraser-style-select">
+                    <option value="pixel">Pixel</option>
+                    <option value="stroke">Stroke</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div id="update-message" style="background:#222;color:#fff;padding:8px 16px;margin:8px 0;display:none;border-radius:4px;"></div>
+    <!-- About info moved to help tab -->
+        <div id="main-content">
+        <div id="tabs">
+            <button class="tab-link active" data-tab="notebook-view">Notebook</button>
+            <button class="tab-link" data-tab="help-view">Help</button>
+        </div>
+
+        <div id="notebook-view" class="tab-content active">
+            <div id="canvas-container">
+                <canvas id="pages-canvas"></canvas>
+                <canvas id="drawing-canvas"></canvas>
+                <canvas id="live-canvas"></canvas>
+                <canvas id="tool-overlay-canvas"></canvas>
+            </div>
+        </div>
+
+        <div id="help-view" class.="tab-content">
+            <div id="about-section" style="background:#f8f8f8;border-bottom:1px solid #ddd;padding:12px 20px 8px 20px;font-size:15px;display:flex;align-items:center;gap:18px;">
+                <span><b>Kivixa</b> v<span id="about-version">1.0.0</span></span>
+                <span>License: <a href="https://opensource.org/licenses/MIT" target="_blank">MIT</a></span>
+                <a href="https://github.com/990aa/kivixa" target="_blank">GitHub</a>
+                <a href="https://github.com/990aa/kivixa/issues" target="_blank">Report Issue</a>
+            </div>
+            <!-- Documentation will be loaded here -->
+        </div>
+    </div>
+    <script src="renderer.js"></script>
+</body>
+</html>
