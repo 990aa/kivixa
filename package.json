@@ -1,69 +1,12 @@
 {
   "name": "kivixa",
-  "version": "1.0.2",
-  "description": "A powerful and intuitive application for managing your notes and ideas.",
-  "main": "main.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron .",
-  "prebuild": "node check-build-files.js",
-  "dist": "npm run prebuild && electron-builder"
+    "bootstrap": "pnpm install",
+    "build:all": "pnpm -r build",
+    "test:all": "pnpm -r test"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/990aa/kivixa.git"
-  },
-  "keywords": [],
-  "author": "990aa",
-  "license": "MIT",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/990aa/kivixa/issues"
-  },
-  "homepage": "https://github.com/990aa/kivixa#readme",
   "devDependencies": {
-    "electron": "^37.3.1",
-    "electron-builder": "^26.0.12"
-  },
-  "dependencies": {
-    "electron-log": "^5.4.3",
-    "electron-updater": "^6.1.7",
-    "jspdf": "^3.0.1",
-    "showdown": "^2.1.0",
-    "sqlite3": "^5.1.7"
-  },
-  "build": {
-    "publish": [
-      "github"
-    ],
-    "appId": "com.kivixa.app",
-    "productName": "Kivixa",
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "main.js",
-      "preload.js",
-      "renderer/",
-      "database/",
-      "node_modules/"
-    ],
-    "win": {
-      "target": "nsis",
-      "icon": "build/icon.ico"
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "installerIcon": "build/icon.ico",
-      "uninstallerIcon": "build/icon.ico",
-      "installerHeaderIcon": "build/icon.ico",
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "deleteAppDataOnUninstall": true,
-      "include": "build/installer.nsh"
-    },
-    "copyright": "Copyright © 2025 990aa"
+    "typescript": "^5.0.0"
   }
 }

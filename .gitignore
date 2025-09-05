@@ -1,9 +1,1 @@
-# Electron log files
-logs/
-*.log
-.env
-node_modules/
-TODO
-dist/
-
-
+node_modules

@@ -1,6 +1,6 @@
 
 <p align="center">
-	<img src="../build/icon.ico" alt="Kivixa App Icon" width="96" height="96">
+	<img src="../assets/icon.ico" alt="Kivixa App Icon" width="96" height="96">
 </p>
 
 # Kivixa
