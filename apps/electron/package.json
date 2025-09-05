@@ -6,10 +6,33 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
   },
   "devDependencies": {
     "electron": "^28.0.0",
     "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.example.electron-app",
+    "productName": "Electron App",
+    "files": [
+      "main.js",
+      "preload.js",
+      "dist/",
+      "node_modules/",
+      "../../web/out"
+    ],
+    "win": {
+      "target": [
+        "msi",
+        "nsis"
+      ],
+      "icon": "../../assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }
