@@ -1,3 +1,7 @@
+<p align="center">
+   <img src="../assets/icon.png" alt = "kivixa icon" height="100", width = "100">
+</p>
+
 # Kivixa
 
 This repo contains the Kivixa application, with a web frontend, a mobile app, and a desktop app.
@@ -11,6 +15,7 @@ This repo contains the Kivixa application, with a web frontend, a mobile app, an
 ## Getting Started
 
 1. **Install Dependencies:**
+
    ```bash
    pnpm install
    ```
