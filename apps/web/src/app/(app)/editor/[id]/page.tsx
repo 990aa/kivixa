@@ -1,6 +1,7 @@
 'use client';
 
 import { Icon } from "@/components/icons";
+import { PageThumbnails } from "@/components/PageThumbnails";
 import { useState, useRef } from "react";
 import { motion, PanInfo } from "framer-motion";
 import Link from "next/link";
@@ -60,7 +61,7 @@ function RightSidebar() {
         <button onClick={() => setActiveTab("notes")} className={`px-4 py-2 ${activeTab === "notes" ? "border-b-2 border-primary" : ""}`}>Notes</button>
       </div>
       <div className="flex-grow overflow-y-auto p-4">
-        {activeTab === "thumbnails" && <div>Page Thumbnails</div>}
+        {activeTab === "thumbnails" && <PageThumbnails />}
         {activeTab === "outline" && <div>Outline</div>}
         {activeTab === "notes" && <div>Notes/Comments</div>}
       </div>
