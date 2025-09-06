@@ -24,7 +24,17 @@ function EditorView({ noteId }: { noteId: string }) {
           <Icon name="gripVertical" className="cursor-move" />
           <button className="p-2"><Icon name="bold" className="h-5 w-5" /></button>
           <button className="p-2"><Icon name="italic" className="h-5 w-5" /></button>
-          <button className="p-2"><Icon name="underline" className="h-5 w-5" /></button>
+          'use client';
+
+import { InfiniteCanvas } from "@/components/InfiniteCanvas";
+
+export default function EditorPage({ params }: { params: { id: string } }) {
+  return (
+    <div className="h-full w-full">
+      <InfiniteCanvas />
+    </div>
+  );
+}
           <button className="p-2"><Icon name="strikethrough" className="h-5 w-5" /></button>
           <button className="p-2"><Icon name="code" className="h-5 w-5" /></button>
         </div>

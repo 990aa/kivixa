@@ -84,6 +84,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@kivixa/canvas':
+        specifier: workspace:*
+        version: link:../../packages/canvas
       '@radix-ui/react-slot':
         specifier: ^1.2.3
         version: 1.2.3(@types/react@19.1.12)(react@19.1.0)
@@ -144,6 +147,12 @@ importers:
         version: 1.0.7(tailwindcss@4.1.13)
       typescript:
         specifier: ^5
+        version: 5.9.2
+
+  packages/canvas:
+    devDependencies:
+      typescript:
+        specifier: ^5.0.4
         version: 5.9.2
 
 packages:
