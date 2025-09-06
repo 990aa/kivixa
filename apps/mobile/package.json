@@ -4,7 +4,12 @@
   "description": "Mobile application",
   "scripts": {
     "init": "capacitor init",
-    "android": "capacitor add android"
+    "android": "capacitor add android",
+    "sync": "capacitor sync",
+    "copy": "capacitor copy",
+    "open": "capacitor open",
+    "build": "pnpm run build:web && capacitor sync",
+    "build:web": "pnpm --filter web build"
   },
   "devDependencies": {
     "@capacitor/cli": "^5.7.8"
