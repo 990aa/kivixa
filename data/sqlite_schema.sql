@@ -1,0 +1,2 @@
+-- SQLite schema for kivixa project
+-- Add your CREATE TABLE statements here

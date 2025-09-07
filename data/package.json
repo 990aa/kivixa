@@ -1,0 +1,21 @@
+{
+  "name": "kivixa-data",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "bootstrap": "ts-node bootstrap.ts",
+    "cli": "ts-node cli.ts"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.0.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.0.0",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
