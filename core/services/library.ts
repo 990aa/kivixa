@@ -28,6 +28,7 @@ export class LibraryService {
    */
   async listNotebooks(page: number, pageSize: number): Promise<PaginatedResult<Notebook>> {
     // This is a simplified pagination.
+    
     const notebooks = await this.db.documents.find({ notebook_id: page });
     return {
       items: notebooks as unknown as Notebook[],

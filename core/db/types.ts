@@ -103,3 +103,14 @@ export interface Asset {
     created_at: string;
     updated_at: string;
 }
+
+export interface SplitLayout {
+    id: number;
+    user_id: string;
+    orientation: 'horizontal' | 'vertical';
+    divider_position: number;
+    pane1_document_id?: number;
+    pane2_document_id?: number;
+    created_at: string;
+    updated_at: string;
+}
