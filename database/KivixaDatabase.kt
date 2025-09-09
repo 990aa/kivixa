@@ -36,7 +36,7 @@ import com.kivixa.database.model.*
         UserSetting::class,
         SplitLayoutState::class
     ],
-    version = 5,
+    version = 7,
     exportSchema = false
 )
 abstract class KivixaDatabase : RoomDatabase() {
@@ -72,6 +72,27 @@ abstract class KivixaDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE documents ADD COLUMN pageFlowMode TEXT NOT NULL DEFAULT 'SWIPE_UP_TO_ADD'")
+            }
+        }
+
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE templates ADD COLUMN orientation TEXT NOT NULL DEFAULT 'PORTRAIT'")
+                database.execSQL("ALTER TABLE templates ADD COLUMN pageSize TEXT NOT NULL DEFAULT 'A4'")
+                database.execSQL("ALTER TABLE templates ADD COLUMN backgroundColor TEXT NOT NULL DEFAULT '#FFFFFF'")
+                database.execSQL("ALTER TABLE templates ADD COLUMN gridType TEXT NOT NULL DEFAULT 'NONE'")
+                database.execSQL("ALTER TABLE templates ADD COLUMN gridColor TEXT NOT NULL DEFAULT '#E0E0E0'")
+                database.execSQL("ALTER TABLE templates ADD COLUMN spacing REAL NOT NULL DEFAULT 10.0")
+                database.execSQL("ALTER TABLE templates ADD COLUMN columns INTEGER NOT NULL DEFAULT 1")
+                database.execSQL("ALTER TABLE templates ADD COLUMN templateType TEXT NOT NULL DEFAULT 'NOTE'")
+                database.execSQL("ALTER TABLE templates ADD COLUMN isCover INTEGER NOT NULL DEFAULT 0")
+                database.execSQL("ALTER TABLE templates ADD COLUMN isQuickNote INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         private val FTS_CALLBACK = object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
@@ -93,7 +114,7 @@ abstract class KivixaDatabase : RoomDatabase() {
                     context.applicationContext,
                     KivixaDatabase::class.java,
                     "kivixa_database"
-                ).addMigrations(MIGRATION_4_5).addCallback(FTS_CALLBACK).build()
+                ).addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7).addCallback(FTS_CALLBACK).build()
                 INSTANCE = instance
                 instance
             }

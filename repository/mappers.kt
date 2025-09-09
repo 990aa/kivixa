@@ -10,6 +10,7 @@ import com.kivixa.domain.Comment as CommentDomain
 import com.kivixa.domain.Document as DocumentDomain
 import com.kivixa.domain.Orientation
 import com.kivixa.domain.Outline as OutlineDomain
+import com.kivixa.domain.PageFlowMode
 import com.kivixa.domain.PaneState
 import com.kivixa.domain.SplitLayoutState as SplitLayoutStateDomain
 import com.kivixa.domain.StrokeChunk as StrokeChunkDomain
@@ -19,6 +20,7 @@ fun DocumentEntity.toDomain() = DocumentDomain(
     id = id,
     notebookId = notebookId,
     name = name,
+    pageFlowMode = PageFlowMode.valueOf(pageFlowMode),
     createdAt = createdAt,
     updatedAt = updatedAt
 )
@@ -27,6 +29,7 @@ fun DocumentDomain.toEntity() = DocumentEntity(
     id = id,
     notebookId = notebookId,
     name = name,
+    pageFlowMode = pageFlowMode.name,
     createdAt = createdAt,
     updatedAt = updatedAt
 )

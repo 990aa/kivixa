@@ -22,6 +22,7 @@ data class Document(
     val id: Long = 0,
     val notebookId: Long,
     val name: String,
+    val pageFlowMode: String = "SWIPE_UP_TO_ADD",
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )
