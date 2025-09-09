@@ -1,17 +1,24 @@
 # Kivixa: Developer Guide
 
-Welcome to the developer guide for Kivixa. This document provides a technical overview of the project's architecture and a guide for setting up your development environment and contributing to the codebase.
+Welcome to the developer guide for Kivixa. This document provides a technical overview of the project's modern architecture and a guide for setting up your development environment and contributing to the codebase.
 
 ## 1. Philosophy
 
-Kivixa is built on the principle of a clean separation between the application's backend logic (window management, database operations) and its frontend rendering and user interaction. It uses a state-driven, multi-layered canvas system for a responsive and extensible user experience.
+Kivixa is built with a strong emphasis on performance, scalability, and maintainability. Our core principles include:
+
+*   **Kotlin-first:** Leveraging Kotlin's modern features, conciseness, and safety.
+*   **Structured Concurrency:** Utilizing Kotlin Coroutines for asynchronous operations, ensuring responsiveness and efficient resource management.
+*   **Robust Data Layer:** Employing Room Persistence Library for SQLite database management, providing an abstraction layer over raw SQL and ensuring data integrity.
+*   **Clear Separation of Concerns:** A well-defined layered architecture separates UI logic from business logic and data persistence.
+*   **Testability:** Designing components to be easily testable, promoting a stable and reliable codebase.
 
 ## 2. Getting Started: Development Environment
 
 ### Prerequisites
 
-*   [Node.js](https://nodejs.org/) (LTS version recommended)
-*   A text editor (e.g., VS Code)
+*   [Java Development Kit (JDK) 11 or higher](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
+*   [Android Studio](https://developer.android.com/studio) or [IntelliJ IDEA](https://www.jetbrains.com/idea/)
+*   Git
 
 ### Setup
 
@@ -21,92 +28,93 @@ Kivixa is built on the principle of a clean separation between the application's
     cd kivixa
     ```
 
-2.  **Install dependencies:** This will install Electron, electron-builder, and all other necessary packages.
-    ```bash
-    npm install
-    ```
+2.  **Open in IDE:** Open the `kivixa` project in Android Studio or IntelliJ IDEA.
 
-3.  **Run the application in development mode:** This will launch the app with developer tools enabled.
+3.  **Sync Gradle:** Allow Gradle to sync and download all necessary dependencies.
+
+4.  **Run Tests:** To verify your setup, run the existing unit and integration tests.
     ```bash
-    npm start
+    # Depending on your build system, e.g., Gradle command
+    ./gradlew test
     ```
 
 ## 3. Project Architecture
 
-Kivixa follows the standard Electron architecture with a Main process and a Renderer process.
+Kivixa follows a layered architecture, primarily implemented in Kotlin, to ensure modularity, testability, and scalability.
 
-### Core Concepts
+### Core Layers
 
-*   **Main Process:** A single Node.js environment responsible for creating and managing application windows, handling native OS interactions, and performing all backend operations like database access. It is the entry point of the application (`main.js`).
-*   **Renderer Process:** A sandboxed Chromium browser environment responsible for rendering the user interface (HTML/CSS) and handling all user interaction on the canvas (`renderer/`). It cannot directly access Node.js modules or the file system.
+*   **Domain Layer (`domain/`):**
+    *   Contains pure Kotlin data classes representing the core business entities (e.g., `Document`, `Page`, `StrokeChunk`).
+    *   UI-agnostic and framework-independent.
+    *   Includes sealed `Result` types for consistent error handling across the application.
 
-### Main Process (`main.js`)
+*   **Data Layer (`database/`, `filestore/`):**
+    *   **Room Database:** Manages the application's SQLite database (`KivixaDatabase`). Defines entities (`@Entity`) and Data Access Objects (`@Dao`).
+    *   **DAOs (`database/dao/`):** Interfaces or abstract classes that provide methods for interacting with the database. They include:
+        *   Standard CRUD operations.
+        *   Batched operations for high-throughput writes (e.g., `StrokeChunkDao`, `MinimapTileDao`).
+        *   Full-Text Search (FTS5) capabilities for `TextBlock` and `Comment` content.
+    *   **FileStore (`filestore/`):** Handles persistence of large binary assets (e.g., page thumbnails) to the device's file system, including hashing and de-duplication.
 
-*   **Responsibilities:**
-    *   Creates the `BrowserWindow`.
-    *   Initializes the SQLite database connection.
-    *   Listens for and responds to IPC (Inter-Process Communication) messages from the renderer.
-    *   Handles all `CRUD` operations for the database.
+*   **Repository Layer (`repository/`):**
+    *   Acts as a single source of truth for data, abstracting the underlying data sources (Room, FileStore).
+    *   Orchestrates operations from multiple DAOs and the `FileStore` to fulfill complex use cases (e.g., Document CRUD, Page Flow management, Template operations).
+    *   Returns domain models, ensuring the UI interacts with a clean, consistent data representation.
+    *   All expensive operations run on `Dispatchers.IO` using Kotlin Coroutines.
 
-### Renderer Process (`renderer/`)
+*   **Manager/Service Classes (`settings/`, `strokes/`, `pageflow/`, `templates/`):**
+    *   These are specialized classes that encapsulate specific business logic or manage particular aspects of the application's state or behavior.
+    *   Examples include `SettingsManager` (debounced persistence of UI state), `StrokeAppendManager` (batched stroke writes), `ReplayEngine` (efficient stroke rendering), `PageFlowManager` (page creation logic), and `TemplatesService` (template management with caching).
 
-*   **`index.html`:** The main HTML file for the user interface.
-*   **`style.css`:** Styles for the UI.
-*   **`renderer.js`:** The core of the application's interactivity. Its responsibilities include:
-    *   **State Management:** A central `state` object tracks the current tool, active objects, canvas properties, etc.
-    *   **Multi-Layer Canvas:** Uses four stacked canvases for high performance:
-        1.  `pages-canvas`: Renders the static page backgrounds (color, lines, grid).
-        2.  `drawing-canvas`: Renders all committed, permanent content (strokes, shapes, images).
-        3.  `live-canvas`: A temporary layer for rendering in-progress freehand strokes.
-        4.  `tool-overlay-canvas`: A temporary layer for rendering interactive guides (ruler, compass) and shape manipulation handles.
-    *   **Tool Handlers (State Pattern):** A `toolHandlers` object manages the application's current mode (e.g., drawing with a pen, defining a shape, manipulating an object). This keeps the event-handling logic clean and modular.
+### Concurrency and Data Flow
 
-### Inter-Process Communication (IPC)
-
-*   **`preload.js`:** This script acts as a secure bridge between the Main and Renderer processes.
-*   It uses Electron's `contextBridge` to expose specific main process functionalities (e.g., `window.electron.getNote()`) to the renderer.
-*   This prevents the renderer from having full access to the `ipcRenderer` object, which is a security best practice.
+*   **Kotlin Coroutines:** Used extensively for asynchronous programming. Operations that involve I/O (database, file system) are executed on `Dispatchers.IO` to prevent blocking the main thread.
+*   **Kotlin Flow:** Used for reactive data streams, allowing UI components to observe changes in the database or other data sources and react efficiently.
 
 ## 4. Database Schema
 
-The application uses a SQLite database (`notebook.db`) managed by the `main.js` process. The key table is `notes`.
+The application's database schema is defined by the Room `@Entity` classes in `database/model/`. Key entities include:
 
-*   **`notes` table:**
-    *   `id`: The primary key for the note.
-    *   `title`: The title of the note.
-    *   `content`: A `TEXT` column that stores the **entire state of the canvas notebook as a JSON string**. This includes all pages, objects, strokes, images, and their properties.
-    *   `folder_id`, `created_at`, `updated_at`: For organization and metadata.
+*   `Document`: Represents a user document, including its `pageFlowMode`.
+*   `Page`: Individual pages within a document.
+*   `Layer`: Layers within a page, containing content.
+*   `StrokeChunk`: Binary blobs of vector stroke data, now including `tileX` and `tileY` for infinite canvas support.
+*   `TextBlock`: Text content, also with `tileX` and `tileY`.
+*   `Template`: Defines page styles, backgrounds, grids, and template types.
+*   `UserSetting`: Stores user preferences and application settings, including editor UI state and edge offsets.
+*   `SplitLayoutState`: Persists the state of split-screen layouts.
+*   `PageThumbnail`: Stores metadata for cached page thumbnails.
+*   `Comment`, `Outline`, `Link`, `Favorite`, `JobQueue`, `MinimapTile`, etc.
+
+### Full-Text Search (FTS5)
+
+FTS5 virtual tables are used for efficient full-text search on `TextBlock` content (`text_blocks_fts`) and `Comment` content (`comments_fts`). Triggers ensure these FTS tables are kept in sync with their respective content tables.
+
+### Database Migrations
+
+Schema evolution is handled via Room's `Migration` classes within `KivixaDatabase.kt`. Each migration ensures safe and consistent updates to the database schema as new features are introduced.
 
 ## 5. How to Contribute
 
-### Modifying an Existing Feature
+When contributing, please consider the layered architecture:
 
-1.  Identify which process is responsible for the feature (Main for data, Renderer for UI/interaction).
-2.  Locate the relevant code (`main.js` for IPC, `renderer.js` for canvas logic).
-3.  For UI changes, look for the relevant `ToolHandler` in `renderer.js`.
-4.  Make your changes, following the existing coding patterns.
+*   **New Data Entity/Table:** Define a new `@Entity` in `database/model/`, create a corresponding `@Dao` in `database/dao/`, and add it to `KivixaDatabase.kt` (including a `Migration` if necessary).
+*   **New Domain Model:** Create a data class in `domain/`.
+*   **New Use Case:** Implement the logic in the `Repository` layer, orchestrating calls to DAOs and `FileStore`.
+*   **Specialized Logic/State Management:** Create a new Manager/Service class (e.g., in `settings/`, `strokes/`) if the logic is complex or manages its own state.
+*   **UI Changes:** Interact with the `Repository` or Manager/Service classes to fetch and update data.
 
-### Adding a New Feature (e.g., a New Tool)
+Always ensure your changes are covered by tests and adhere to the existing coding patterns and conventions.
 
-Here is the standard workflow for adding a new interactive tool:
+## 6. Code Style and Conventions
 
-1.  **Create a Class (if needed):** In `renderer.js`, create a new class for your tool (e.g., `class MyNewTool extends BaseTool`). Implement its `draw()` method.
-2.  **Add UI:** Add a button for your new tool to `renderer/index.html`.
-3.  **Create a Tool Handler:** In `renderer.js`, add a new entry to the `toolHandlers` object. Implement its `onActivate`, `onPointerDown`, `onPointerMove`, and `onPointerUp` methods.
-4.  **Wire it Up:** In `setupEventListeners()`, add a click listener to your new button that calls `switchTool(toolHandlers.myNewTool)`.
+*   Follow standard Kotlin coding conventions.
+*   Prioritize immutability for data classes.
+*   Use `val` over `var` where possible.
+*   Ensure proper use of coroutine scopes and dispatchers.
+*   Write clear, concise, and self-documenting code.
 
-### Code Style and Conventions
+## 7. Building the Application
 
-*   Please follow the existing code style (indentation, naming conventions).
-*   Use the state-driven `toolHandlers` pattern for any new interactive modes.
-*   Keep direct DOM manipulation to a minimum. Let the `render()` loop handle drawing based on the current state.
-
-## 6. Building the Application
-
-This project uses `electron-builder` to create distributable installers.
-
-1.  **Add an Icon:** Before building, you must create an application icon at `build/icon.ico`.
-2.  **Run the build script:** The following command will package the application and create a Windows installer in the `/dist` directory.
-    ```bash
-    npm run dist
-    ```
+Refer to the `README.md` for general build instructions. For platform-specific build details, consult the `apps/<platform>/README.md` files.

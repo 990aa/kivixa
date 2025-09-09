@@ -6,6 +6,8 @@
 
 This repo contains the Kivixa application, with a web frontend, a mobile app, and a desktop app.
 
+Kivixa is built with a robust and scalable data layer using Kotlin, Room, and Coroutines, focusing on high-performance data operations, efficient UI state management, and a flexible content model.
+
 ## Packages
 
 - `apps/web`: The Next.js web application.
