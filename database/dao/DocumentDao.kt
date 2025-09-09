@@ -13,4 +13,10 @@ interface DocumentDao : BaseDao<Document> {
 
     @Query("SELECT * FROM documents WHERE notebookId = :notebookId ORDER BY updatedAt DESC")
     fun getDocumentsForNotebook(notebookId: Long): Flow<List<Document>>
+
+    @Query("SELECT * FROM documents WHERE id = :id")
+    suspend fun getDocumentById(id: Long): Document?
+
+    @Query("SELECT * FROM documents WHERE notebookId = :notebookId ORDER BY updatedAt DESC LIMIT :limit OFFSET :offset")
+    suspend fun getDocumentsForNotebookPaginated(notebookId: Long, limit: Int, offset: Int): List<Document>
 }
