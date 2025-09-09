@@ -1,11 +1,17 @@
 package com.kivixa.repository
 
+import com.kivixa.database.model.Comment as CommentEntity
 import com.kivixa.database.model.Document as DocumentEntity
+import com.kivixa.database.model.Outline as OutlineEntity
 import com.kivixa.database.model.SplitLayoutState as SplitLayoutStateEntity
+import com.kivixa.database.model.TextBlock as TextBlockEntity
+import com.kivixa.domain.Comment as CommentDomain
 import com.kivixa.domain.Document as DocumentDomain
 import com.kivixa.domain.Orientation
+import com.kivixa.domain.Outline as OutlineDomain
 import com.kivixa.domain.PaneState
 import com.kivixa.domain.SplitLayoutState as SplitLayoutStateDomain
+import com.kivixa.domain.TextBlock as TextBlockDomain
 
 fun DocumentEntity.toDomain() = DocumentDomain(
     id = id,
@@ -37,4 +43,72 @@ fun SplitLayoutStateDomain.toEntity() = SplitLayoutStateEntity(
     pane1_pageId = pane1.pageId,
     pane2_docId = pane2.documentId,
     pane2_pageId = pane2.pageId
+)
+
+fun OutlineEntity.toDomain() = OutlineDomain(
+    id = id,
+    documentId = documentId,
+    title = title,
+    pageId = pageId,
+    parentId = parentId,
+    displayOrder = displayOrder,
+    createdAt = createdAt
+)
+
+fun OutlineDomain.toEntity() = OutlineEntity(
+    id = id,
+    documentId = documentId,
+    title = title,
+    pageId = pageId,
+    parentId = parentId,
+    displayOrder = displayOrder,
+    createdAt = createdAt
+)
+
+fun CommentEntity.toDomain() = CommentDomain(
+    id = id,
+    pageId = pageId,
+    userId = userId,
+    content = content,
+    x = x,
+    y = y,
+    createdAt = createdAt,
+    updatedAt = updatedAt
+)
+
+fun CommentDomain.toEntity() = CommentEntity(
+    id = id,
+    pageId = pageId,
+    userId = userId,
+    content = content,
+    x = x,
+    y = y,
+    createdAt = createdAt,
+    updatedAt = updatedAt
+)
+
+fun TextBlockEntity.toDomain() = TextBlockDomain(
+    id = id,
+    layerId = layerId,
+    styledJson = styledJson,
+    plainText = plainText,
+    x = x,
+    y = y,
+    width = width,
+    height = height,
+    createdAt = createdAt,
+    updatedAt = updatedAt
+)
+
+fun TextBlockDomain.toEntity() = TextBlockEntity(
+    id = id,
+    layerId = layerId,
+    styledJson = styledJson,
+    plainText = plainText,
+    x = x,
+    y = y,
+    width = width,
+    height = height,
+    createdAt = createdAt,
+    updatedAt = updatedAt
 )

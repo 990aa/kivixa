@@ -13,4 +13,7 @@ interface PageDao : BaseDao<Page> {
 
     @Query("SELECT * FROM pages WHERE documentId = :documentId ORDER BY pageNumber ASC")
     fun getPagesForDocument(documentId: Long): Flow<List<Page>>
+
+    @Query("DELETE FROM pages WHERE id = :pageId")
+    suspend fun deletePageById(pageId: Long)
 }

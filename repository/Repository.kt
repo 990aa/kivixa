@@ -1,14 +1,19 @@
 package com.kivixa.repository
 
 import com.kivixa.database.dao.*
+import com.kivixa.domain.Comment
 import com.kivixa.domain.Document
+import com.kivixa.domain.Outline
 import com.kivixa.domain.Result
 import com.kivixa.domain.SplitLayoutState
+import com.kivixa.domain.TextBlock
 import com.kivixa.filestore.FileStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayInputStream
 
 class Repository(
     private val assetDao: AssetDao,
@@ -27,6 +32,7 @@ class Repository(
     private val minimapTileDao: MinimapTileDao,
     private val userSettingDao: UserSettingDao,
     private val splitLayoutStateDao: SplitLayoutStateDao,
+    private val pageThumbnailDao: PageThumbnailDao,
     private val fileStore: FileStore
 ) {
 
@@ -141,6 +147,91 @@ class Repository(
         withContext(Dispatchers.IO) {
             splitLayoutStateDao.insert(state.toEntity())
         }
+    }
+
+    // --- Outline Service ---
+    fun getOutlinesForDocumentDesc(documentId: Long): Flow<List<Outline>> {
+        return outlineDao.getOutlinesForDocumentDesc(documentId).map { list -> list.map { it.toDomain() } }
+    }
+
+    suspend fun insertAllOutlines(outlines: List<Outline>) = withContext(Dispatchers.IO) {
+        outlineDao.insertAll(outlines.map { it.toEntity() })
+    }
+
+    suspend fun deleteAllOutlines(outlines: List<Outline>) = withContext(Dispatchers.IO) {
+        outlineDao.deleteAll(outlines.map { it.toEntity() })
+    }
+
+    // --- Comment Service ---
+    fun getCommentsForPageDesc(pageId: Long): Flow<List<Comment>> {
+        return commentDao.getCommentsForPageDesc(pageId).map { list -> list.map { it.toDomain() } }
+    }
+
+    suspend fun searchComments(query: String): List<Comment> = withContext(Dispatchers.IO) {
+        commentDao.searchComments(query).map { it.toDomain() }
+    }
+
+    suspend fun insertAllComments(comments: List<Comment>) = withContext(Dispatchers.IO) {
+        commentDao.insertAll(comments.map { it.toEntity() })
+    }
+
+    suspend fun deleteAllComments(comments: List<Comment>) = withContext(Dispatchers.IO) {
+        commentDao.deleteAll(comments.map { it.toEntity() })
+    }
+
+    // --- TextBlock Service ---
+    suspend fun searchTextBlocks(query: String): List<TextBlock> = withContext(Dispatchers.IO) {
+        textBlockDao.searchTextBlocks(query).map { it.toDomain() }
+    }
+
+    // --- TiledThumbnails Backend ---
+
+    suspend fun generateThumbnail(pageId: Long): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            // 1. Invalidate old thumbnail
+            invalidateThumbnail(pageId)
+
+            // 2. Simulate thumbnail generation
+            val dummyThumbnailData = "dummy thumbnail for page $pageId".toByteArray()
+            val inputStream = ByteArrayInputStream(dummyThumbnailData)
+
+            // 3. Save to FileStore
+            val result = fileStore.saveFile(inputStream, FileStore.Subfolder.THUMBNAILS)
+
+            if (result is FileStore.FileStoreResult.Success) {
+                // 4. Save metadata to database
+                val thumbnail = com.kivixa.database.model.PageThumbnail(
+                    pageId = pageId,
+                    filePath = result.data.absolutePath,
+                    hash = result.data.name // Hash is the filename in our FileStore
+                )
+                pageThumbnailDao.insert(thumbnail)
+                Result.Success(Unit)
+            } else {
+                Result.Error(Exception("Failed to save thumbnail file."))
+            }
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
+
+    suspend fun invalidateThumbnail(pageId: Long) = withContext(Dispatchers.IO) {
+        val thumbnail = pageThumbnailDao.getThumbnailForPage(pageId)
+        if (thumbnail != null) {
+            fileStore.deleteFile(thumbnail.hash, FileStore.Subfolder.THUMBNAILS)
+            pageThumbnailDao.delete(thumbnail)
+        }
+    }
+
+    suspend fun updatePageContent(pageId: Long) = withContext(Dispatchers.IO) {
+        // This is a placeholder for when page content is updated.
+        // For example, after adding a stroke or a text block.
+        invalidateThumbnail(pageId)
+    }
+
+    suspend fun deletePage(pageId: Long) = withContext(Dispatchers.IO) {
+        invalidateThumbnail(pageId)
+        pageDao.deletePageById(pageId) // Assuming this method exists
     }
 
     // Other use cases will be implemented here
