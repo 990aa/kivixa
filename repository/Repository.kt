@@ -3,6 +3,7 @@ package com.kivixa.repository
 import com.kivixa.database.dao.*
 import com.kivixa.domain.Document
 import com.kivixa.domain.Result
+import com.kivixa.domain.SplitLayoutState
 import com.kivixa.filestore.FileStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +26,7 @@ class Repository(
     private val textBlockDao: TextBlockDao,
     private val minimapTileDao: MinimapTileDao,
     private val userSettingDao: UserSettingDao,
+    private val splitLayoutStateDao: SplitLayoutStateDao,
     private val fileStore: FileStore
 ) {
 
@@ -53,6 +55,24 @@ class Repository(
     }
 
     suspend fun deleteDocument(document: Document) = withContext(Dispatchers.IO) {
+        // Clean up split layout state
+        val splitState = splitLayoutStateDao.getSplitLayoutState().firstOrNull()
+        if (splitState != null) {
+            var changed = false
+            var newSplitState = splitState
+            if (splitState.pane1_docId == document.id) {
+                newSplitState = newSplitState.copy(pane1_docId = null, pane1_pageId = null)
+                changed = true
+            }
+            if (splitState.pane2_docId == document.id) {
+                newSplitState = newSplitState.copy(pane2_docId = null, pane2_pageId = null)
+                changed = true
+            }
+            if (changed) {
+                splitLayoutStateDao.insert(newSplitState)
+            }
+        }
+
         documentDao.delete(document.toEntity())
     }
 
@@ -108,6 +128,18 @@ class Repository(
             } catch (e: Exception) {
                 Result.Error(e)
             }
+        }
+    }
+
+    // --- Split Layout State ---
+
+    fun getSplitLayoutState(): Flow<SplitLayoutState?> {
+        return splitLayoutStateDao.getSplitLayoutState().map { it?.toDomain() }
+    }
+
+    suspend fun saveSplitLayoutState(state: SplitLayoutState) {
+        withContext(Dispatchers.IO) {
+            splitLayoutStateDao.insert(state.toEntity())
         }
     }
 

@@ -30,9 +30,10 @@ import com.kivixa.database.model.*
         StrokeChunk::class,
         Template::class,
         TextBlock::class,
-        UserSetting::class
+        UserSetting::class,
+        SplitLayoutState::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class KivixaDatabase : RoomDatabase() {
@@ -52,6 +53,7 @@ abstract class KivixaDatabase : RoomDatabase() {
     abstract fun textBlockDao(): TextBlockDao
     abstract fun minimapTileDao(): MinimapTileDao
     abstract fun userSettingDao(): UserSettingDao
+    abstract fun splitLayoutStateDao(): SplitLayoutStateDao
 
     companion object {
         @Volatile

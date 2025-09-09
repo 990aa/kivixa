@@ -8,4 +8,7 @@ import com.kivixa.database.model.UserSetting
 interface UserSettingDao : BaseDao<UserSetting> {
     @Query("SELECT * FROM user_settings WHERE key = :key")
     suspend fun getSetting(key: String): UserSetting?
+
+    @Query("SELECT * FROM user_settings")
+    suspend fun getAllSettings(): List<UserSetting>
 }
