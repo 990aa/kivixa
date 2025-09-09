@@ -15,12 +15,14 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["layerId"])]
+    indices = [Index(value = ["layerId", "tileX", "tileY"])]
 )
 data class TextBlock(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val layerId: Long,
+    val tileX: Int,
+    val tileY: Int,
     val styledJson: String,
     val plainText: String,
     val x: Float,

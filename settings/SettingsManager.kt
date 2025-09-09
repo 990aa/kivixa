@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.kivixa.database.dao.UserSettingDao
 import com.kivixa.database.model.UserSetting
 import com.kivixa.domain.EditorState
+import com.kivixa.domain.EdgeOffset
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,6 +54,27 @@ class SettingsManager(
         val json = gson.toJson(newEditorState)
         settingsCache[EDITOR_STATE_KEY] = json
         saveRequests.value = UserSetting(EDITOR_STATE_KEY, json)
+    }
+
+    fun saveEdgeOffset(pageId: Long, deviceId: String, offset: EdgeOffset) {
+        val key = getEdgeOffsetKey(pageId, deviceId)
+        val json = gson.toJson(offset)
+        settingsCache[key] = json
+        saveRequests.value = UserSetting(key, json)
+    }
+
+    fun getEdgeOffset(pageId: Long, deviceId: String): EdgeOffset? {
+        val key = getEdgeOffsetKey(pageId, deviceId)
+        val json = settingsCache[key]
+        return if (json != null) {
+            gson.fromJson(json, EdgeOffset::class.java)
+        } else {
+            null
+        }
+    }
+
+    private fun getEdgeOffsetKey(pageId: Long, deviceId: String): String {
+        return "edge_offset_page_${pageId}_device_${deviceId}"
     }
 
     companion object {

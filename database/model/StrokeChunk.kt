@@ -15,12 +15,14 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["layerId"])]
+    indices = [Index(value = ["layerId", "tileX", "tileY"])]
 )
 data class StrokeChunk(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val layerId: Long,
+    val tileX: Int,
+    val tileY: Int,
     val chunkIndex: Int,
     val strokeData: ByteArray,
     val startTime: Long,

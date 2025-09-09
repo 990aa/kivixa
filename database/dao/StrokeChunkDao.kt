@@ -37,18 +37,26 @@ abstract class StrokeChunkDao(private val db: KivixaDatabase) {
      */
     @Transaction
     open fun insertAll(chunks: List<StrokeChunk>) {
-        val sql = "INSERT INTO stroke_chunks (layerId, chunkIndex, strokeData, startTime, endTime) VALUES (?, ?, ?, ?, ?)"
+        val sql = "INSERT INTO stroke_chunks (layerId, tileX, tileY, chunkIndex, strokeData, startTime, endTime) VALUES (?, ?, ?, ?, ?, ?, ?)"
         val statement = db.openHelper.writableDatabase.compileStatement(sql)
         db.runInTransaction {
             chunks.forEach { chunk ->
                 statement.bindLong(1, chunk.layerId)
-                statement.bindLong(2, chunk.chunkIndex.toLong())
-                statement.bindBlob(3, chunk.strokeData)
-                statement.bindLong(4, chunk.startTime)
-                statement.bindLong(5, chunk.endTime)
+                statement.bindLong(2, chunk.tileX.toLong())
+                statement.bindLong(3, chunk.tileY.toLong())
+                statement.bindLong(4, chunk.chunkIndex.toLong())
+                statement.bindBlob(5, chunk.strokeData)
+                statement.bindLong(6, chunk.startTime)
+                statement.bindLong(7, chunk.endTime)
                 statement.executeInsert()
                 statement.clearBindings()
             }
         }
     }
+
+    @Query("SELECT * FROM stroke_chunks WHERE layerId = :layerId AND tileX IN (:tileXs) AND tileY IN (:tileYs)")
+    abstract suspend fun getStrokeChunksForTiles(layerId: Long, tileXs: List<Int>, tileYs: List<Int>): List<StrokeChunk>
+
+    @Query("SELECT * FROM stroke_chunks WHERE layerId = :layerId ORDER BY chunkIndex ASC LIMIT :limit OFFSET :offset")
+    abstract suspend fun getStrokeChunksForLayerPaginated(layerId: Long, limit: Int, offset: Int): List<StrokeChunk>
 }

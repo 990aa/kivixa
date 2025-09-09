@@ -4,6 +4,7 @@ import com.kivixa.database.model.Comment as CommentEntity
 import com.kivixa.database.model.Document as DocumentEntity
 import com.kivixa.database.model.Outline as OutlineEntity
 import com.kivixa.database.model.SplitLayoutState as SplitLayoutStateEntity
+import com.kivixa.database.model.StrokeChunk as StrokeChunkEntity
 import com.kivixa.database.model.TextBlock as TextBlockEntity
 import com.kivixa.domain.Comment as CommentDomain
 import com.kivixa.domain.Document as DocumentDomain
@@ -11,6 +12,7 @@ import com.kivixa.domain.Orientation
 import com.kivixa.domain.Outline as OutlineDomain
 import com.kivixa.domain.PaneState
 import com.kivixa.domain.SplitLayoutState as SplitLayoutStateDomain
+import com.kivixa.domain.StrokeChunk as StrokeChunkDomain
 import com.kivixa.domain.TextBlock as TextBlockDomain
 
 fun DocumentEntity.toDomain() = DocumentDomain(
@@ -90,6 +92,8 @@ fun CommentDomain.toEntity() = CommentEntity(
 fun TextBlockEntity.toDomain() = TextBlockDomain(
     id = id,
     layerId = layerId,
+    tileX = tileX,
+    tileY = tileY,
     styledJson = styledJson,
     plainText = plainText,
     x = x,
@@ -103,6 +107,8 @@ fun TextBlockEntity.toDomain() = TextBlockDomain(
 fun TextBlockDomain.toEntity() = TextBlockEntity(
     id = id,
     layerId = layerId,
+    tileX = tileX,
+    tileY = tileY,
     styledJson = styledJson,
     plainText = plainText,
     x = x,
@@ -111,4 +117,26 @@ fun TextBlockDomain.toEntity() = TextBlockEntity(
     height = height,
     createdAt = createdAt,
     updatedAt = updatedAt
+)
+
+fun StrokeChunkEntity.toDomain() = StrokeChunkDomain(
+    id = id,
+    layerId = layerId,
+    tileX = tileX,
+    tileY = tileY,
+    chunkIndex = chunkIndex,
+    strokeData = strokeData,
+    startTime = startTime,
+    endTime = endTime
+)
+
+fun StrokeChunkDomain.toEntity() = StrokeChunkEntity(
+    id = id,
+    layerId = layerId,
+    tileX = tileX,
+    tileY = tileY,
+    chunkIndex = chunkIndex,
+    strokeData = strokeData,
+    startTime = startTime,
+    endTime = endTime
 )
