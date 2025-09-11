@@ -38,9 +38,10 @@ import com.kivixa.database.model.*
         UserSetting::class,
         SplitLayoutState::class,
         ToolPreset::class,
-        ColorPalette::class
+        ColorPalette::class,
+        ShapePreset::class
     ],
-    version = 9,
+    version = 10,
     exportSchema = false
 )
 @TypeConverters(ListFloatConverter::class, ListStringConverter::class)
@@ -65,14 +66,15 @@ abstract class KivixaDatabase : RoomDatabase() {
     abstract fun pageThumbnailDao(): PageThumbnailDao
     abstract fun toolPresetDao(): ToolPresetDao
     abstract fun colorPaletteDao(): ColorPaletteDao
+    abstract fun shapePresetDao(): ShapePresetDao
 
     companion object {
         @Volatile
         private var INSTANCE: KivixaDatabase? = null
 
-        private val MIGRATION_8_9 = object : Migration(8, 9) {
+        private val MIGRATION_9_10 = object : Migration(9, 10) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("CREATE TABLE IF NOT EXISTS `color_palettes` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `colors` TEXT NOT NULL, `toolId` TEXT, `isFavorite` INTEGER NOT NULL)")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `shape_presets` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `parameters` TEXT NOT NULL)")
             }
         }
 
@@ -97,7 +99,7 @@ abstract class KivixaDatabase : RoomDatabase() {
                     context.applicationContext,
                     KivixaDatabase::class.java,
                     "kivixa_database"
-                ).addMigrations(MIGRATION_8_9).addCallback(FTS_CALLBACK).build()
+                ).addMigrations(MIGRATION_9_10).addCallback(FTS_CALLBACK).build()
                 INSTANCE = instance
                 instance
             }
