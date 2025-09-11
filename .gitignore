@@ -14,27 +14,27 @@
 # Production
 /build
 
-# Flutter/Dart
-.dart_tool/
-.packages
-pubspec.lock
-build/
-ios/
-macos/
-linux/
-windows/
-android/.gradle/
-android/.idea/
-android/local.properties
-android/key.properties
-android/app/key.jks
-test/
+# # Flutter/Dart
+# .dart_tool/
+# .packages
+# pubspec.lock
+# build/
+# ios/
+# macos/
+# linux/
+# windows/
+# android/.gradle/
+# android/.idea/
+# android/local.properties
+# android/key.properties
+# android/app/key.jks
+# test/
 
-# Custom project folders
-native/
-platform_channels/
-python_services/
-web_components/
+# # Custom project folders
+# native/
+# platform_channels/
+# python_services/
+# web_components/
 
 # Misc
 .DS_Store
@@ -51,8 +51,8 @@ lerna-debug.log*
 .env*.local
 
 # IDEs
-.idea/
-.vscode/
+# .idea/
+# .vscode/
 *.suo
 *.ntvs*
 *.njsproj
@@ -63,3 +63,8 @@ lerna-debug.log*
 __pycache__/
 *.pyc
 .venv/
+
+
+#already added but has to be removed
+.flutter-plugins-dependencies
+.dart_tool/
