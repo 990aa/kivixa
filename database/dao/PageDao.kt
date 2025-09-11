@@ -11,6 +11,9 @@ interface PageDao : BaseDao<Page> {
     @Query("SELECT * FROM pages WHERE id = :id")
     fun getPage(id: Long): Flow<Page>
 
+    @Query("SELECT * FROM pages WHERE documentId = :documentId AND pageNumber = :pageNumber")
+    suspend fun getPageByNumber(documentId: Long, pageNumber: Int): Page?
+
     @Query("SELECT * FROM pages WHERE documentId = :documentId ORDER BY pageNumber ASC")
     fun getPagesForDocument(documentId: Long): Flow<List<Page>>
 
