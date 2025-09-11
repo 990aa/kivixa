@@ -15,7 +15,7 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["documentId"])]
+    indices = [Index(value = ["documentId", "pageNumber"], unique = true)]
 )
 data class Page(
     @PrimaryKey(autoGenerate = true)
