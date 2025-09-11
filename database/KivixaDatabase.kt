@@ -8,6 +8,7 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.kivixa.database.converters.ListFloatConverter
+import com.kivixa.database.converters.ListStringConverter
 import com.kivixa.database.dao.*
 import com.kivixa.database.model.*
 
@@ -36,12 +37,13 @@ import com.kivixa.database.model.*
         TextBlock::class,
         UserSetting::class,
         SplitLayoutState::class,
-        ToolPreset::class
+        ToolPreset::class,
+        ColorPalette::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
-@TypeConverters(ListFloatConverter::class)
+@TypeConverters(ListFloatConverter::class, ListStringConverter::class)
 abstract class KivixaDatabase : RoomDatabase() {
 
     abstract fun assetDao(): AssetDao
@@ -62,15 +64,15 @@ abstract class KivixaDatabase : RoomDatabase() {
     abstract fun splitLayoutStateDao(): SplitLayoutStateDao
     abstract fun pageThumbnailDao(): PageThumbnailDao
     abstract fun toolPresetDao(): ToolPresetDao
+    abstract fun colorPaletteDao(): ColorPaletteDao
 
     companion object {
         @Volatile
         private var INSTANCE: KivixaDatabase? = null
 
-        private val MIGRATION_7_8 = object : Migration(7, 8) {
+        private val MIGRATION_8_9 = object : Migration(8, 9) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("CREATE TABLE IF NOT EXISTS `tool_presets` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `toolId` TEXT NOT NULL, `name` TEXT NOT NULL, `settings` TEXT NOT NULL, `isLastUsed` INTEGER NOT NULL, `pressureSensitivity` REAL, `inkFlow` REAL, `opacity` REAL, `widthPresets` TEXT, `eraserMode` TEXT, `eraserPressure` REAL)")
-                database.execSQL("CREATE INDEX IF NOT EXISTS `index_tool_presets_toolId` ON `tool_presets` (`toolId`)")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `color_palettes` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `colors` TEXT NOT NULL, `toolId` TEXT, `isFavorite` INTEGER NOT NULL)")
             }
         }
 
@@ -95,7 +97,7 @@ abstract class KivixaDatabase : RoomDatabase() {
                     context.applicationContext,
                     KivixaDatabase::class.java,
                     "kivixa_database"
-                ).addMigrations(MIGRATION_7_8).addCallback(FTS_CALLBACK).build()
+                ).addMigrations(MIGRATION_8_9).addCallback(FTS_CALLBACK).build()
                 INSTANCE = instance
                 instance
             }
