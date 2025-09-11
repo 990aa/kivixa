@@ -4,15 +4,9 @@
 
 # Kivixa
 
-This repo contains the Kivixa application, with a web frontend, a mobile app, and a desktop app.
+This repo contains the Kivixa application created using Kotlin.
 
 Kivixa is built with a robust and scalable data layer using Kotlin, Room, and Coroutines, focusing on high-performance data operations, efficient UI state management, and a flexible content model.
-
-## Packages
-
-- `apps/web`: The Next.js web application.
-- `apps/mobile`: The Capacitor-based mobile application.
-- `apps/electron`: The Electron-based desktop application.
 
 ## Getting Started
 
@@ -26,9 +20,9 @@ Kivixa is built with a robust and scalable data layer using Kotlin, Room, and Co
    - **Web:** `pnpm --filter web dev`
    - **Mobile:** See `apps/mobile/README.md`
    - **Electron:** See `apps/electron/README.md`
+   - **Kotlin App:**  <!-- Add instructions here, e.g., Open in Android Studio/IntelliJ and run the main configuration -->
+
+## Kotlin App Features
+- ...
 
 ## Building
-
-- **Web:** `pnpm --filter web build`
-- **Mobile:** `pnpm --filter mobile-app build`
-- **Electron:** `pnpm --filter electron-app build`

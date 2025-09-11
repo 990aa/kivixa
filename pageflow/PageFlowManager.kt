@@ -1,28 +1,42 @@
 package com.kivixa.pageflow
 
+import androidx.room.withTransaction
+import com.kivixa.database.KivixaDatabase
 import com.kivixa.database.dao.DocumentDao
 import com.kivixa.database.dao.PageDao
+import com.kivixa.database.dao.UserSettingDao
 import com.kivixa.database.model.Page
-import com.kivixa.domain.Document
+import com.kivixa.database.model.UserSetting
 import com.kivixa.domain.PageFlowMode
-import com.kivixa.settings.SettingsManager
+import com.kivixa.templates.TemplatesService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+data class PageMetadata(
+    val id: Long,
+    val documentId: Long,
+    val pageNumber: Int
+)
+
 class PageFlowManager(
-    private val documentDao: DocumentDao,
+    private val db: KivixaDatabase,
     private val pageDao: PageDao,
-    private val settingsManager: SettingsManager
+    private val documentDao: DocumentDao,
+    private val userSettingDao: UserSettingDao,
+    private val templatesService: TemplatesService
 ) {
 
-    suspend fun getUserDefaultPageFlowMode(): PageFlowMode {
-        // Implementation detail: get from SettingsManager
-        // For now, return a default
-        return PageFlowMode.SWIPE_UP_TO_ADD
+    suspend fun getUserDefaultPageFlowMode(): PageFlowMode = withContext(Dispatchers.IO) {
+        val setting = userSettingDao.getSetting(USER_DEFAULT_PAGE_FLOW_MODE_KEY)
+        return@withContext if (setting != null) {
+            PageFlowMode.valueOf(setting.value)
+        } else {
+            PageFlowMode.SWIPE_UP_TO_ADD
+        }
     }
 
-    suspend fun setUserDefaultPageFlowMode(mode: PageFlowMode) {
-        // Implementation detail: save to SettingsManager
+    suspend fun setUserDefaultPageFlowMode(mode: PageFlowMode) = withContext(Dispatchers.IO) {
+        userSettingDao.insert(UserSetting(USER_DEFAULT_PAGE_FLOW_MODE_KEY, mode.name))
     }
 
     suspend fun getDocumentPageFlowMode(documentId: Long): PageFlowMode? = withContext(Dispatchers.IO) {
@@ -36,28 +50,28 @@ class PageFlowManager(
         }
     }
 
-    suspend fun addPage(documentId: Long, pageNumber: Int): Page = withContext(Dispatchers.IO) {
+    suspend fun addPageWithTemplate(documentId: Long, pageNumber: Int, templateId: Long?): PageMetadata = db.withTransaction {
+        val template = templateId?.let { templatesService.getTemplate(it) }
+
         val newPage = Page(
             documentId = documentId,
-            pageNumber = pageNumber
+            pageNumber = pageNumber,
+            orientation = template?.orientation,
+            pageSize = template?.pageSize,
+            hasBorder = template?.hasBorder ?: true,
+            backgroundColor = template?.backgroundColor,
+            gridType = template?.gridType,
+            gridColor = template?.gridColor,
+            spacing = template?.spacing,
+            columns = template?.columns
         )
+
         val newPageId = pageDao.insert(newPage)
-        return@withContext newPage.copy(id = newPageId)
+
+        PageMetadata(newPageId, documentId, pageNumber)
     }
 
-    suspend fun addPageWithTemplate(documentId: Long, pageNumber: Int, templateId: Long?): Page = withContext(Dispatchers.IO) {
-        // 1. Create a new page
-        val newPage = Page(
-            documentId = documentId,
-            pageNumber = pageNumber
-        )
-        val newPageId = pageDao.insert(newPage)
-
-        // 2. Apply template (placeholder)
-        if (templateId != null) {
-            // TODO: Get template from TemplatesService and apply it
-        }
-
-        return@withContext newPage.copy(id = newPageId)
+    companion object {
+        const val USER_DEFAULT_PAGE_FLOW_MODE_KEY = "user_default_page_flow_mode"
     }
 }

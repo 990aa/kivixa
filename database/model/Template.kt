@@ -12,6 +12,7 @@ data class Template(
     val previewImagePath: String?,
     val orientation: String = "PORTRAIT", // PORTRAIT, LANDSCAPE
     val pageSize: String = "A4", // A4, LETTER, etc.
+    val hasBorder: Boolean = true,
     val backgroundColor: String = "#FFFFFF",
     val gridType: String = "NONE", // NONE, DOT, LINE
     val gridColor: String = "#E0E0E0",
