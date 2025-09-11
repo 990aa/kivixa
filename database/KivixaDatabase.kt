@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.kivixa.database.converters.ListOfListsFloatConverter
 import com.kivixa.database.converters.ListFloatConverter
 import com.kivixa.database.converters.ListStringConverter
 import com.kivixa.database.dao.*
@@ -41,12 +42,13 @@ import com.kivixa.database.model.*
         ColorPalette::class,
         ShapePreset::class,
         HotkeyMap::class,
-        ViewportState::class
+        ViewportState::class,
+        PdfAnnotation::class
     ],
-    version = 13,
+    version = 14,
     exportSchema = false
 )
-@TypeConverters(ListFloatConverter::class, ListStringConverter::class)
+@TypeConverters(ListFloatConverter::class, ListStringConverter::class, ListOfListsFloatConverter::class)
 abstract class KivixaDatabase : RoomDatabase() {
 
     abstract fun assetDao(): AssetDao
@@ -72,14 +74,15 @@ abstract class KivixaDatabase : RoomDatabase() {
     abstract fun favoriteDao(): FavoriteDao
     abstract fun hotkeyMapDao(): HotkeyMapDao
     abstract fun viewportStateDao(): ViewportStateDao
+    abstract fun pdfAnnotationDao(): PdfAnnotationDao
 
     companion object {
         @Volatile
         private var INSTANCE: KivixaDatabase? = null
 
-        private val MIGRATION_12_13 = object : Migration(12, 13) {
+        private val MIGRATION_13_14 = object : Migration(13, 14) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE images ADD COLUMN transformMatrix TEXT")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `pdf_annotations` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `pageId` INTEGER NOT NULL, `type` TEXT NOT NULL, `rects` TEXT NOT NULL, `color` TEXT NOT NULL, `comment` TEXT, `provenance` TEXT)")
             }
         }
 
@@ -104,7 +107,7 @@ abstract class KivixaDatabase : RoomDatabase() {
                     context.applicationContext,
                     KivixaDatabase::class.java,
                     "kivixa_database"
-                ).addMigrations(MIGRATION_12_13).addCallback(FTS_CALLBACK).build()
+                ).addMigrations(MIGRATION_13_14).addCallback(FTS_CALLBACK).build()
                 INSTANCE = instance
                 instance
             }
