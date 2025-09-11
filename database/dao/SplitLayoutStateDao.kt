@@ -9,4 +9,7 @@ import kotlinx.coroutines.flow.Flow
 interface SplitLayoutStateDao : BaseDao<SplitLayoutState> {
     @Query("SELECT * FROM split_layout_state WHERE id = 1")
     fun getSplitLayoutState(): Flow<SplitLayoutState?>
+
+    @Query("SELECT * FROM split_layout_state WHERE id = 1")
+    suspend fun getSplitLayoutStateOnce(): SplitLayoutState?
 }

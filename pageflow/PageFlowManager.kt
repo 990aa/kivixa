@@ -10,6 +10,8 @@ import com.kivixa.database.model.UserSetting
 import com.kivixa.domain.PageFlowMode
 import com.kivixa.templates.TemplatesService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 
 data class PageMetadata(
@@ -18,6 +20,11 @@ data class PageMetadata(
     val pageNumber: Int
 )
 
+enum class SwipeUpState {
+    IDLE,
+    READY_TO_ADD
+}
+
 class PageFlowManager(
     private val db: KivixaDatabase,
     private val pageDao: PageDao,
@@ -25,6 +32,13 @@ class PageFlowManager(
     private val userSettingDao: UserSettingDao,
     private val templatesService: TemplatesService
 ) {
+
+    private val _swipeUpState = MutableStateFlow(SwipeUpState.IDLE)
+    val swipeUpState: StateFlow<SwipeUpState> = _swipeUpState
+
+    fun setSwipeUpState(state: SwipeUpState) {
+        _swipeUpState.value = state
+    }
 
     suspend fun getUserDefaultPageFlowMode(): PageFlowMode = withContext(Dispatchers.IO) {
         val setting = userSettingDao.getSetting(USER_DEFAULT_PAGE_FLOW_MODE_KEY)
@@ -69,6 +83,10 @@ class PageFlowManager(
         val newPageId = pageDao.insert(newPage)
 
         PageMetadata(newPageId, documentId, pageNumber)
+    }
+
+    suspend fun getNextPage(documentId: Long, currentPageNumber: Int): Page? {
+        return pageDao.getPageByNumber(documentId, currentPageNumber + 1)
     }
 
     companion object {
