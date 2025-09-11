@@ -15,7 +15,10 @@ interface OutlineDao : BaseDao<Outline> {
     fun getOutlinesForDocument(documentId: Long): Flow<List<Outline>>
 
     @Query("SELECT * FROM outlines WHERE documentId = :documentId ORDER BY createdAt DESC")
-    fun getOutlinesForDocumentDesc(documentId: Long): Flow<List<Outline>>
+    suspend fun getOutlinesForDocumentDesc(documentId: Long): List<Outline>
+
+    @Query("DELETE FROM outlines WHERE documentId = :documentId")
+    suspend fun deleteOutlinesForDocument(documentId: Long)
 
     @Transaction
     suspend fun insertAll(outlines: List<Outline>) {
