@@ -29,6 +29,26 @@ class ToolPresetsService @Inject constructor(
         return toolPresetDao.getLastUsedPreset(toolId)
     }
 
+    suspend fun getEffectiveToolPreset(toolId: String, liveAdjustments: ToolPreset?): ToolPreset? {
+        val lastUsedPreset = getLastUsedPreset(toolId)
+        // Start with the last used preset as the base
+        var effectivePreset = lastUsedPreset
+
+        // If there are live adjustments, merge them
+        if (liveAdjustments != null) {
+            effectivePreset = effectivePreset?.copy(
+                pressureSensitivity = liveAdjustments.pressureSensitivity ?: effectivePreset.pressureSensitivity,
+                inkFlow = liveAdjustments.inkFlow ?: effectivePreset.inkFlow,
+                opacity = liveAdjustments.opacity ?: effectivePreset.opacity,
+                widthPresets = liveAdjustments.widthPresets ?: effectivePreset.widthPresets,
+                eraserMode = liveAdjustments.eraserMode ?: effectivePreset.eraserMode,
+                eraserPressure = liveAdjustments.eraserPressure ?: effectivePreset.eraserPressure
+            ) ?: liveAdjustments
+        }
+
+        return effectivePreset
+    }
+
     suspend fun exportPresets(): String {
         val presets = toolPresetDao.getAllPresets()
         return gson.toJson(presets)

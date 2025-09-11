@@ -4,9 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.kivixa.database.converters.ListFloatConverter
 import com.kivixa.database.dao.*
 import com.kivixa.database.model.*
 
@@ -34,11 +35,13 @@ import com.kivixa.database.model.*
         Template::class,
         TextBlock::class,
         UserSetting::class,
-        SplitLayoutState::class
+        SplitLayoutState::class,
+        ToolPreset::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
+@TypeConverters(ListFloatConverter::class)
 abstract class KivixaDatabase : RoomDatabase() {
 
     abstract fun assetDao(): AssetDao
@@ -58,38 +61,16 @@ abstract class KivixaDatabase : RoomDatabase() {
     abstract fun userSettingDao(): UserSettingDao
     abstract fun splitLayoutStateDao(): SplitLayoutStateDao
     abstract fun pageThumbnailDao(): PageThumbnailDao
+    abstract fun toolPresetDao(): ToolPresetDao
 
     companion object {
         @Volatile
         private var INSTANCE: KivixaDatabase? = null
 
-        private val MIGRATION_4_5 = object : Migration(4, 5) {
+        private val MIGRATION_7_8 = object : Migration(7, 8) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE stroke_chunks ADD COLUMN tileX INTEGER NOT NULL DEFAULT 0")
-                database.execSQL("ALTER TABLE stroke_chunks ADD COLUMN tileY INTEGER NOT NULL DEFAULT 0")
-                database.execSQL("ALTER TABLE text_blocks ADD COLUMN tileX INTEGER NOT NULL DEFAULT 0")
-                database.execSQL("ALTER TABLE text_blocks ADD COLUMN tileY INTEGER NOT NULL DEFAULT 0")
-            }
-        }
-
-        private val MIGRATION_5_6 = object : Migration(5, 6) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE documents ADD COLUMN pageFlowMode TEXT NOT NULL DEFAULT 'SWIPE_UP_TO_ADD'")
-            }
-        }
-
-        private val MIGRATION_6_7 = object : Migration(6, 7) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE templates ADD COLUMN orientation TEXT NOT NULL DEFAULT 'PORTRAIT'")
-                database.execSQL("ALTER TABLE templates ADD COLUMN pageSize TEXT NOT NULL DEFAULT 'A4'")
-                database.execSQL("ALTER TABLE templates ADD COLUMN backgroundColor TEXT NOT NULL DEFAULT '#FFFFFF'")
-                database.execSQL("ALTER TABLE templates ADD COLUMN gridType TEXT NOT NULL DEFAULT 'NONE'")
-                database.execSQL("ALTER TABLE templates ADD COLUMN gridColor TEXT NOT NULL DEFAULT '#E0E0E0'")
-                database.execSQL("ALTER TABLE templates ADD COLUMN spacing REAL NOT NULL DEFAULT 10.0")
-                database.execSQL("ALTER TABLE templates ADD COLUMN columns INTEGER NOT NULL DEFAULT 1")
-                database.execSQL("ALTER TABLE templates ADD COLUMN templateType TEXT NOT NULL DEFAULT 'NOTE'")
-                database.execSQL("ALTER TABLE templates ADD COLUMN isCover INTEGER NOT NULL DEFAULT 0")
-                database.execSQL("ALTER TABLE templates ADD COLUMN isQuickNote INTEGER NOT NULL DEFAULT 0")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `tool_presets` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `toolId` TEXT NOT NULL, `name` TEXT NOT NULL, `settings` TEXT NOT NULL, `isLastUsed` INTEGER NOT NULL, `pressureSensitivity` REAL, `inkFlow` REAL, `opacity` REAL, `widthPresets` TEXT, `eraserMode` TEXT, `eraserPressure` REAL)")
+                database.execSQL("CREATE INDEX IF NOT EXISTS `index_tool_presets_toolId` ON `tool_presets` (`toolId`)")
             }
         }
 
@@ -114,7 +95,7 @@ abstract class KivixaDatabase : RoomDatabase() {
                     context.applicationContext,
                     KivixaDatabase::class.java,
                     "kivixa_database"
-                ).addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7).addCallback(FTS_CALLBACK).build()
+                ).addMigrations(MIGRATION_7_8).addCallback(FTS_CALLBACK).build()
                 INSTANCE = instance
                 instance
             }
