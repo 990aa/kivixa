@@ -252,3 +252,99 @@ final DetectDeviceCapabilities detectDeviceCapabilities = gesturesLib
       'detect_device_capabilities',
     )
     .asFunction();
+
+// ---- images_ffi (images.dll/so) ----
+final DynamicLibrary imagesLib = Platform.isWindows
+    ? DynamicLibrary.open('images.dll')
+    : DynamicLibrary.process();
+
+typedef ComputeImageHashNative = Uint64 Function(Pointer<Uint8>, Int32);
+typedef ComputeImageHash = int Function(Pointer<Uint8>, int);
+final ComputeImageHash computeImageHash = imagesLib
+    .lookup<NativeFunction<ComputeImageHashNative>>('compute_image_hash')
+    .asFunction();
+
+typedef GenerateThumbnailNative =
+    Pointer<Void> Function(
+      Pointer<Uint8>,
+      Int32,
+      Int32,
+      Int32,
+      Int32,
+      Pointer<Int32>,
+    );
+typedef GenerateThumbnail =
+    Pointer<Void> Function(Pointer<Uint8>, int, int, int, int, Pointer<Int32>);
+final GenerateThumbnail generateThumbnail = imagesLib
+    .lookup<NativeFunction<GenerateThumbnailNative>>('generate_thumbnail')
+    .asFunction();
+
+typedef TransformImageNative =
+    Pointer<Void> Function(
+      Pointer<Uint8>,
+      Int32,
+      Int32,
+      Pointer<Float>,
+      Pointer<Int32>,
+    );
+typedef TransformImage =
+    Pointer<Void> Function(
+      Pointer<Uint8>,
+      int,
+      int,
+      Pointer<Float>,
+      Pointer<Int32>,
+    );
+final TransformImage transformImage = imagesLib
+    .lookup<NativeFunction<TransformImageNative>>('transform_image')
+    .asFunction();
+
+// ---- pdf_ffi (pdf.dll/so) ----
+final DynamicLibrary pdfLib = Platform.isWindows
+    ? DynamicLibrary.open('pdf.dll')
+    : DynamicLibrary.process();
+
+typedef ExtractPdfTextSelectionNative =
+    Pointer<Void> Function(
+      Pointer<Uint8>,
+      Int32,
+      Int32,
+      Float,
+      Float,
+      Float,
+      Float,
+      Pointer<Int32>,
+    );
+typedef ExtractPdfTextSelection =
+    Pointer<Void> Function(
+      Pointer<Uint8>,
+      int,
+      int,
+      double,
+      double,
+      double,
+      double,
+      Pointer<Int32>,
+    );
+final ExtractPdfTextSelection extractPdfTextSelection = pdfLib
+    .lookup<NativeFunction<ExtractPdfTextSelectionNative>>(
+      'extract_pdf_text_selection',
+    )
+    .asFunction();
+
+typedef AnnotatePdfNative =
+    Int32 Function(
+      Pointer<Uint8>,
+      Int32,
+      Int32,
+      Float,
+      Float,
+      Float,
+      Float,
+      Int32,
+    );
+typedef AnnotatePdf =
+    int Function(Pointer<Uint8>, int, int, double, double, double, double, int);
+final AnnotatePdf annotatePdf = pdfLib
+    .lookup<NativeFunction<AnnotatePdfNative>>('annotate_pdf')
+    .asFunction();
