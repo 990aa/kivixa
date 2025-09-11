@@ -14,6 +14,28 @@
 # Production
 /build
 
+# Flutter/Dart
+.dart_tool/
+.packages
+pubspec.lock
+build/
+ios/
+macos/
+linux/
+windows/
+android/.gradle/
+android/.idea/
+android/local.properties
+android/key.properties
+android/app/key.jks
+test/
+
+# Custom project folders
+native/
+platform_channels/
+python_services/
+web_components/
+
 # Misc
 .DS_Store
 *.pem
