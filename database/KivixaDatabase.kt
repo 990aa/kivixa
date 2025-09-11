@@ -43,7 +43,7 @@ import com.kivixa.database.model.*
         HotkeyMap::class,
         ViewportState::class
     ],
-    version = 12,
+    version = 13,
     exportSchema = false
 )
 @TypeConverters(ListFloatConverter::class, ListStringConverter::class)
@@ -77,9 +77,9 @@ abstract class KivixaDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: KivixaDatabase? = null
 
-        private val MIGRATION_11_12 = object : Migration(11, 12) {
+        private val MIGRATION_12_13 = object : Migration(12, 13) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("CREATE TABLE IF NOT EXISTS `viewport_states` (`pageId` INTEGER NOT NULL, `scrollX` REAL NOT NULL, `scrollY` REAL NOT NULL, `zoom` REAL NOT NULL, PRIMARY KEY(`pageId`))")
+                database.execSQL("ALTER TABLE images ADD COLUMN transformMatrix TEXT")
             }
         }
 
@@ -104,7 +104,7 @@ abstract class KivixaDatabase : RoomDatabase() {
                     context.applicationContext,
                     KivixaDatabase::class.java,
                     "kivixa_database"
-                ).addMigrations(MIGRATION_11_12).addCallback(FTS_CALLBACK).build()
+                ).addMigrations(MIGRATION_12_13).addCallback(FTS_CALLBACK).build()
                 INSTANCE = instance
                 instance
             }

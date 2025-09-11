@@ -27,6 +27,7 @@ data class Image(
     val width: Float,
     val height: Float,
     val rotation: Float,
+    val transformMatrix: List<Float>? = null, // For lasso transforms
     val metadata: String, // JSON for metadata
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
