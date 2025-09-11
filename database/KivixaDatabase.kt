@@ -40,9 +40,10 @@ import com.kivixa.database.model.*
         ToolPreset::class,
         ColorPalette::class,
         ShapePreset::class,
-        HotkeyMap::class
+        HotkeyMap::class,
+        ViewportState::class
     ],
-    version = 11,
+    version = 12,
     exportSchema = false
 )
 @TypeConverters(ListFloatConverter::class, ListStringConverter::class)
@@ -70,15 +71,15 @@ abstract class KivixaDatabase : RoomDatabase() {
     abstract fun shapePresetDao(): ShapePresetDao
     abstract fun favoriteDao(): FavoriteDao
     abstract fun hotkeyMapDao(): HotkeyMapDao
+    abstract fun viewportStateDao(): ViewportStateDao
 
     companion object {
         @Volatile
         private var INSTANCE: KivixaDatabase? = null
 
-        private val MIGRATION_10_11 = object : Migration(10, 11) {
+        private val MIGRATION_11_12 = object : Migration(11, 12) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("CREATE TABLE IF NOT EXISTS `favorites` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `type` TEXT NOT NULL, `value` TEXT NOT NULL, `sortOrder` INTEGER NOT NULL)")
-                database.execSQL("CREATE TABLE IF NOT EXISTS `hotkey_map` (`hotkey` TEXT NOT NULL, `favoriteId` INTEGER NOT NULL, PRIMARY KEY(`hotkey`))")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `viewport_states` (`pageId` INTEGER NOT NULL, `scrollX` REAL NOT NULL, `scrollY` REAL NOT NULL, `zoom` REAL NOT NULL, PRIMARY KEY(`pageId`))")
             }
         }
 
@@ -103,7 +104,7 @@ abstract class KivixaDatabase : RoomDatabase() {
                     context.applicationContext,
                     KivixaDatabase::class.java,
                     "kivixa_database"
-                ).addMigrations(MIGRATION_10_11).addCallback(FTS_CALLBACK).build()
+                ).addMigrations(MIGRATION_11_12).addCallback(FTS_CALLBACK).build()
                 INSTANCE = instance
                 instance
             }

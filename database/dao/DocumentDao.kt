@@ -12,7 +12,10 @@ interface DocumentDao : BaseDao<Document> {
     fun getDocument(id: Long): Flow<Document>
 
     @Query("SELECT * FROM documents WHERE notebookId = :notebookId ORDER BY updatedAt DESC")
-    fun getDocumentsForNotebook(notebookId: Long): Flow<List<Document>>
+    fun getDocumentsForNotebookFlow(notebookId: Long): Flow<List<Document>>
+
+    @Query("SELECT * FROM documents WHERE notebookId = :notebookId ORDER BY updatedAt DESC")
+    suspend fun getDocumentsForNotebook(notebookId: Long): List<Document>
 
     @Query("SELECT * FROM documents WHERE id = :id")
     suspend fun getDocumentById(id: Long): Document?
