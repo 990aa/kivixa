@@ -39,9 +39,10 @@ import com.kivixa.database.model.*
         SplitLayoutState::class,
         ToolPreset::class,
         ColorPalette::class,
-        ShapePreset::class
+        ShapePreset::class,
+        HotkeyMap::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 @TypeConverters(ListFloatConverter::class, ListStringConverter::class)
@@ -67,14 +68,17 @@ abstract class KivixaDatabase : RoomDatabase() {
     abstract fun toolPresetDao(): ToolPresetDao
     abstract fun colorPaletteDao(): ColorPaletteDao
     abstract fun shapePresetDao(): ShapePresetDao
+    abstract fun favoriteDao(): FavoriteDao
+    abstract fun hotkeyMapDao(): HotkeyMapDao
 
     companion object {
         @Volatile
         private var INSTANCE: KivixaDatabase? = null
 
-        private val MIGRATION_9_10 = object : Migration(9, 10) {
+        private val MIGRATION_10_11 = object : Migration(10, 11) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("CREATE TABLE IF NOT EXISTS `shape_presets` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `parameters` TEXT NOT NULL)")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `favorites` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `type` TEXT NOT NULL, `value` TEXT NOT NULL, `sortOrder` INTEGER NOT NULL)")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `hotkey_map` (`hotkey` TEXT NOT NULL, `favoriteId` INTEGER NOT NULL, PRIMARY KEY(`hotkey`))")
             }
         }
 
@@ -99,7 +103,7 @@ abstract class KivixaDatabase : RoomDatabase() {
                     context.applicationContext,
                     KivixaDatabase::class.java,
                     "kivixa_database"
-                ).addMigrations(MIGRATION_9_10).addCallback(FTS_CALLBACK).build()
+                ).addMigrations(MIGRATION_10_11).addCallback(FTS_CALLBACK).build()
                 INSTANCE = instance
                 instance
             }

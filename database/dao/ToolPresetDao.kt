@@ -8,6 +8,9 @@ import com.kivixa.database.model.ToolPreset
 @Dao
 interface ToolPresetDao : BaseDao<ToolPreset> {
 
+    @Query("SELECT * FROM tool_presets WHERE id = :id")
+    suspend fun getPreset(id: Long): ToolPreset?
+
     @Query("SELECT * FROM tool_presets WHERE toolId = :toolId")
     suspend fun getPresetsForTool(toolId: String): List<ToolPreset>
 
