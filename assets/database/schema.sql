@@ -216,3 +216,35 @@ CREATE INDEX IF NOT EXISTS idx_links_to_page_id ON links(to_page_id);
 CREATE INDEX IF NOT EXISTS idx_audio_clips_page_id ON audio_clips(page_id);
 CREATE INDEX IF NOT EXISTS idx_page_thumbnails_page_id ON page_thumbnails(page_id);
 CREATE INDEX IF NOT EXISTS idx_minimap_tiles_page_id ON minimap_tiles(page_id);
+
+
+-- Tool presets for ToolPresetsManager
+CREATE TABLE IF NOT EXISTS tool_presets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tool TEXT NOT NULL,
+    config TEXT NOT NULL
+);
+
+-- Brush parameters for per-tool granularity
+CREATE TABLE IF NOT EXISTS brush_parameters (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tool TEXT NOT NULL,
+    pressure_sensitivity REAL,
+    ink_flow REAL,
+    opacity REAL,
+    width REAL
+);
+
+-- Color palettes for ColorPalettesService
+CREATE TABLE IF NOT EXISTS color_palettes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    colors TEXT NOT NULL,
+    starred INTEGER DEFAULT 0
+);
+
+-- Eraser mode for EraserModeManager
+CREATE TABLE IF NOT EXISTS eraser_mode (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    mode TEXT NOT NULL
+);

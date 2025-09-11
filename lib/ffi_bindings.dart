@@ -123,3 +123,132 @@ final ComputeOptimalOffset computeOptimalOffset = freePaperLib
       'compute_optimal_offset',
     )
     .asFunction();
+
+// ---- stroke_engine: pressure interpolation ----
+typedef FfiInterpolatePressureNative =
+    Float Function(Pointer<Float>, Int32, Float);
+typedef FfiInterpolatePressure = double Function(Pointer<Float>, int, double);
+final FfiInterpolatePressure ffiInterpolatePressure = strokeEngineLib
+    .lookup<NativeFunction<FfiInterpolatePressureNative>>(
+      'ffi_interpolate_pressure',
+    )
+    .asFunction();
+
+// ---- stroke_engine: eraser algorithms ----
+typedef FfiErasePixelsNative =
+    Void Function(Pointer<Uint8>, Int32, Int32, Int32, Int32, Int32);
+typedef FfiErasePixels = void Function(Pointer<Uint8>, int, int, int, int, int);
+final FfiErasePixels ffiErasePixels = strokeEngineLib
+    .lookup<NativeFunction<FfiErasePixelsNative>>('ffi_erase_pixels')
+    .asFunction();
+
+typedef FfiEraseStrokeNative = Void Function(Pointer<Int32>, Int32, Int32);
+typedef FfiEraseStroke = void Function(Pointer<Int32>, int, int);
+final FfiEraseStroke ffiEraseStroke = strokeEngineLib
+    .lookup<NativeFunction<FfiEraseStrokeNative>>('ffi_erase_stroke')
+    .asFunction();
+
+// ---- thumbnail_service: color conversion ----
+typedef FfiRgbToLabNative =
+    Void Function(
+      Float,
+      Float,
+      Float,
+      Pointer<Float>,
+      Pointer<Float>,
+      Pointer<Float>,
+    );
+typedef FfiRgbToLab =
+    void Function(
+      double,
+      double,
+      double,
+      Pointer<Float>,
+      Pointer<Float>,
+      Pointer<Float>,
+    );
+final FfiRgbToLab ffiRgbToLab = strokeEngineLib
+    .lookup<NativeFunction<FfiRgbToLabNative>>('ffi_rgb_to_lab')
+    .asFunction();
+
+typedef FfiLabToRgbNative =
+    Void Function(
+      Float,
+      Float,
+      Float,
+      Pointer<Float>,
+      Pointer<Float>,
+      Pointer<Float>,
+    );
+typedef FfiLabToRgb =
+    void Function(
+      double,
+      double,
+      double,
+      Pointer<Float>,
+      Pointer<Float>,
+      Pointer<Float>,
+    );
+final FfiLabToRgb ffiLabToRgb = strokeEngineLib
+    .lookup<NativeFunction<FfiLabToRgbNative>>('ffi_lab_to_rgb')
+    .asFunction();
+
+// ---- shapes_recognition (shapes.dll/so) ----
+final DynamicLibrary shapesLib = Platform.isWindows
+    ? DynamicLibrary.open('shapes.dll')
+    : DynamicLibrary.process();
+
+typedef RecognizeShapeNative = Int32 Function(Pointer<Float>, Int32);
+typedef RecognizeShape = int Function(Pointer<Float>, int);
+final RecognizeShape recognizeShape = shapesLib
+    .lookup<NativeFunction<RecognizeShapeNative>>('recognize_shape')
+    .asFunction();
+
+typedef GeneratePrimitiveGeometryNative =
+    Pointer<Void> Function(
+      Pointer<Utf8>,
+      Pointer<Float>,
+      Int32,
+      Pointer<Int32>,
+    );
+typedef GeneratePrimitiveGeometry =
+    Pointer<Void> Function(Pointer<Utf8>, Pointer<Float>, int, Pointer<Int32>);
+final GeneratePrimitiveGeometry generatePrimitiveGeometry = shapesLib
+    .lookup<NativeFunction<GeneratePrimitiveGeometryNative>>(
+      'generate_primitive_geometry',
+    )
+    .asFunction();
+
+typedef CreateParameterizedShapeNative =
+    Pointer<Void> Function(
+      Pointer<Utf8>,
+      Pointer<Float>,
+      Int32,
+      Pointer<Int32>,
+    );
+typedef CreateParameterizedShape =
+    Pointer<Void> Function(Pointer<Utf8>, Pointer<Float>, int, Pointer<Int32>);
+final CreateParameterizedShape createParameterizedShape = shapesLib
+    .lookup<NativeFunction<CreateParameterizedShapeNative>>(
+      'create_parameterized_shape',
+    )
+    .asFunction();
+
+// ---- gestures_recognition (gestures.dll/so) ----
+final DynamicLibrary gesturesLib = Platform.isWindows
+    ? DynamicLibrary.open('gestures.dll')
+    : DynamicLibrary.process();
+
+typedef RecognizeGestureNative = Int32 Function(Pointer<Float>, Int32, Int32);
+typedef RecognizeGesture = int Function(Pointer<Float>, int, int);
+final RecognizeGesture recognizeGesture = gesturesLib
+    .lookup<NativeFunction<RecognizeGestureNative>>('recognize_gesture')
+    .asFunction();
+
+typedef DetectDeviceCapabilitiesNative = Int32 Function();
+typedef DetectDeviceCapabilities = int Function();
+final DetectDeviceCapabilities detectDeviceCapabilities = gesturesLib
+    .lookup<NativeFunction<DetectDeviceCapabilitiesNative>>(
+      'detect_device_capabilities',
+    )
+    .asFunction();
