@@ -13,6 +13,7 @@ class PdfAnnotation {
   final List<Rect> rects;
   final AnnotationType type;
   final String text;
+  final List<String> provenance;
 
   PdfAnnotation({
     this.id,
@@ -21,6 +22,7 @@ class PdfAnnotation {
     required this.rects,
     required this.type,
     required this.text,
+    this.provenance = const [],
   });
 
   Map<String, dynamic> toMap() {
@@ -31,6 +33,7 @@ class PdfAnnotation {
       'rects': jsonEncode(rects.map((r) => {'left': r.left, 'top': r.top, 'right': r.right, 'bottom': r.bottom}).toList()),
       'type': type.index,
       'text': text,
+      'provenance': jsonEncode(provenance),
     };
   }
 
@@ -42,6 +45,7 @@ class PdfAnnotation {
       rects: (jsonDecode(map['rects']) as List).map((r) => Rect.fromLTRB(r['left'], r['top'], r['right'], r['bottom'])).toList(),
       type: AnnotationType.values[map['type']],
       text: map['text'],
+      provenance: map['provenance'] != null ? (jsonDecode(map['provenance']) as List).cast<String>() : [],
     );
   }
 }

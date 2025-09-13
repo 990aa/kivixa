@@ -242,6 +242,10 @@ abstract class Repository {
   Future<Map<String, dynamic>?> getDocumentLock(int documentId);
   Future<void> deleteDocumentLock(int documentId);
 
+  // Pdf Page Cache
+  Future<int> createPdfPageCache(Map<String, dynamic> data);
+  Future<Map<String, dynamic>?> getPdfPageCache(String pdfPath, int pageNumber);
+
   // Batch operations
   Future<void> batchWrite(List<Function()> operations);
 }
