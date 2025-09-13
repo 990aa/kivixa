@@ -1,4 +1,4 @@
-import 'package_stream/stream.dart';
+import 'dart:async';
 import 'package:kivixa/data/database.dart';
 
 class DocumentRepository {
@@ -10,7 +10,19 @@ class DocumentRepository {
     return _db.select(_db.documents).watch();
   }
 
+  Future<DocumentData> getDocument(int id) {
+    return (_db.select(_db.documents)..where((tbl) => tbl.id.equals(id))).getSingle();
+  }
+
   Future<int> createDocument(String title) {
     return _db.into(_db.documents).insert(DocumentsCompanion.insert(title: title));
+  }
+
+  Future<bool> updateDocument(DocumentData entry) {
+    return _db.update(_db.documents).replace(entry);
+  }
+
+  Future<int> deleteDocument(int id) {
+    return (_db.delete(_db.documents)..where((tbl) => tbl.id.equals(id))).go();
   }
 }
