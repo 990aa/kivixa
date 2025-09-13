@@ -1,45 +1,4 @@
 import 'package:flutter/material.dart';
-
-import '../data/repository.dart';
-
-class LongPressActionsService {
-  final Repository _repository;
-
-  LongPressActionsService(this._repository);
-
-  /// Re-edits a text element.
-  Future<void> reEditText(String documentId, String textId) async {
-    // TODO: Implement re-edit text logic
-  }
-
-  /// Re-edits an image element.
-  Future<void> reEditImage(String documentId, String imageId) async {
-    // TODO: Implement re-edit image logic
-  }
-
-  /// Re-edits a shape element.
-  Future<void> reEditShape(String documentId, String shapeId) async {
-    // TODO: Implement re-edit shape logic
-  }
-
-  /// Pastes content at the given coordinates.
-  Future<void> pasteAtCoordinates(String documentId, Offset coordinates) async {
-    // TODO: Implement paste at coordinates logic
-  }
-
-  /// Reorders documents.
-  Future<void> reorderDocuments(int documentId, int newIndex) async {
-    final documents = await _repository.listDocuments(orderBy: 'display_order ASC');
-    final docIndex = documents.indexWhere((d) => d['id'] == documentId);
-
-    if (docIndex == -1) {
-      throw Exception('Document not found');
-    }
-
-    final doc = documents.removeAt(docIndex);
-    documents.insert(newIndex, doc);
-
-    import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../data/repository.dart';
@@ -118,22 +77,6 @@ class LongPressActionsService {
       for (var i = 0; i < documents.length; i++)
         () => _repository.updateDocument(documents[i]['id'], {'display_order': i})
     ]);
-  }
-
-  /// Moves a document to a folder.
-  Future<void> moveToFolder(int documentId, int folderId) async {
-    await _repository.updateDocument(documentId, {'parent_id': folderId});
-  }
-
-  /// Creates a nested outline item.
-  Future<void> createNestedOutlineItem(int documentId, int parentItemId) async {
-    await _repository.createOutline({
-      'document_id': documentId,
-      'parent_id': parentItemId,
-      'title': 'New Item',
-    });
-  }
-}
   }
 
   /// Moves a document to a folder.
