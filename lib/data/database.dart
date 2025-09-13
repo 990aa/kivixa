@@ -70,7 +70,17 @@ class TextBlocks extends Table {
   TextColumn get content => text()();
 }
 
-@DriftDatabase(tables: [ProviderConfigs, JobQueues, DocProvenance, Links, Documents, Outlines, Comments, TextBlocks])
+@DataClassName('RedoLogData')
+class RedoLog extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get entityType => text()();
+  IntColumn get entityId => integer()();
+  TextColumn get action => text()();
+  TextColumn get data => text().nullable()();
+  IntColumn get ts => integer()();
+}
+
+@DriftDatabase(tables: [ProviderConfigs, JobQueues, DocProvenance, Links, Documents, Outlines, Comments, TextBlocks, RedoLog])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
