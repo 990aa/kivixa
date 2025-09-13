@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'tile.dart';
 import 'tile_manager.dart';
+import 'minimap.dart';
 import 'dart:math';
 
 class InfiniteCanvas extends StatefulWidget {
@@ -13,16 +14,19 @@ class InfiniteCanvas extends StatefulWidget {
 class _InfiniteCanvasState extends State<InfiniteCanvas> {
   final TransformationController _transformationController = TransformationController();
   final TileManager _tileManager = TileManager();
+  final Size _canvasSize = const Size(20000, 20000);
 
   @override
   void initState() {
     super.initState();
     _tileManager.addListener(_onTilesChanged);
+    _transformationController.addListener(_onTransformChanged);
   }
 
   @override
   void dispose() {
     _tileManager.removeListener(_onTilesChanged);
+    _transformationController.removeListener(_onTransformChanged);
     _tileManager.dispose();
     super.dispose();
   }
@@ -31,32 +35,44 @@ class _InfiniteCanvasState extends State<InfiniteCanvas> {
     setState(() {});
   }
 
+  void _onTransformChanged() {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
-    return InteractiveViewer(
-      transformationController: _transformationController,
-      minScale: 0.1,
-      maxScale: 4.0,
-      boundaryMargin: const EdgeInsets.all(double.infinity),
-      onInteractionUpdate: (details) {
-        final viewport = _getViewport();
-        _tileManager.updateVisibleTiles(viewport);
-      },
-      child: Stack(
-        children: [
-          CustomPaint(
-            size: const Size(20000, 20000), // Large canvas size
-            painter: _InfiniteCanvasPainter(),
+    return Stack(
+      children: [
+        InteractiveViewer(
+          transformationController: _transformationController,
+          minScale: 0.1,
+          maxScale: 4.0,
+          boundaryMargin: const EdgeInsets.all(double.infinity),
+          onInteractionUpdate: (details) {
+            final viewport = _getViewport();
+            _tileManager.updateVisibleTiles(viewport);
+          },
+          child: Stack(
+            children: [
+              CustomPaint(
+                size: _canvasSize,
+                painter: _InfiniteCanvasPainter(),
+              ),
+              ..._tileManager.visibleTiles.map((tile) {
+                return Tile(
+                  size: _tileManager.tileSize,
+                  x: tile.x,
+                  y: tile.y,
+                );
+              }),
+            ],
           ),
-          ..._tileManager.visibleTiles.map((tile) {
-            return Tile(
-              size: _tileManager.tileSize,
-              x: tile.x,
-              y: tile.y,
-            );
-          }),
-        ],
-      ),
+        ),
+        Minimap(
+          transformationController: _transformationController,
+          canvasSize: _canvasSize,
+        ),
+      ],
     );
   }
 
