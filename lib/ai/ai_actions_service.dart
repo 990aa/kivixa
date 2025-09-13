@@ -9,9 +9,7 @@ class AIActionsService {
   AIActionsService(this._provider);
 
   Stream<String> summarizeSelection(String text) {
-    final controller = StreamController<String>();
-    _executeWithRetries(() => _provider.summarize(text), controller);
-    return controller.stream;
+    return _executeWithRetries(() => _provider.summarize(text));
   }
 
   Stream<String> outlinePage(String text) {
@@ -20,35 +18,43 @@ class AIActionsService {
   }
 
   Stream<String> translate(String text, String targetLanguage) {
-    final controller = StreamController<String>();
-    _executeWithRetries(() => _provider.translate(text, targetLanguage), controller);
-    return controller.stream;
+    return _executeWithRetries(() => _provider.translate(text, targetLanguage));
   }
 
   Stream<String> handwritingToText(List<int> imageData) {
-    final controller = StreamController<String>();
-    _executeWithRetries(() => _provider.ocrHandwriting(imageData), controller);
-    return controller.stream;
+    return _executeWithRetries(() => _provider.ocrHandwriting(imageData));
   }
 
-  void _executeWithRetries<T>(
-    Future<T> Function() execution,
-    StreamController<T> controller,
-  ) async {
-    for (var i = 0; i < retries; i++) {
-      try {
-        final result = await execution();
-        controller.add(result);
-        await controller.close();
-        return;
-      } catch (e) {
-        if (i == retries - 1) {
-          controller.addError(e);
-          await controller.close();
-        }
-        // In a real-world scenario, you would implement exponential backoff here.
-        await Future.delayed(const Duration(seconds: 1));
-      }
+  Stream<T> _executeWithRetries<T>(
+    Stream<T> Function() execution, {
+    int retries = 3,
+  }) {
+    late StreamController<T> controller;
+    StreamSubscription<T>? subscription;
+    var attempt = 0;
+
+    void start() {
+      attempt++;
+      subscription = execution().listen(
+        controller.add,
+        onError: (e) {
+          if (attempt >= retries) {
+            controller.addError(e);
+            controller.close();
+          } else {
+            // In a real-world scenario, you would implement exponential backoff here.
+            Future.delayed(const Duration(seconds: 1), start);
+          }
+        },
+        onDone: controller.close,
+      );
     }
+
+    controller = StreamController<T>(
+      onListen: start,
+      onCancel: () => subscription?.cancel(),
+    );
+
+    return controller.stream;
   }
 }

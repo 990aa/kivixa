@@ -76,6 +76,8 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^5.0.0
+  drift_dev: ^2.28.2
+  build_runner: ^2.7.2
 
 # No symlinks, no Git hooks, no build-time hooks
 dependency_overrides: {}
