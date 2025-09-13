@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shimmer/shimmer.dart';
 
 enum KivixaButtonType {
   primary,
@@ -34,7 +35,6 @@ class _KivixaButtonState extends State<KivixaButton> {
     final colorScheme = theme.colorScheme;
 
     ButtonStyle style;
-    Widget content = widget.child;
 
     switch (widget.buttonType) {
       case KivixaButtonType.primary:
@@ -81,26 +81,27 @@ class _KivixaButtonState extends State<KivixaButton> {
           onPressed: _handlePressed,
           elevation: 6,
           highlightElevation: 12,
-          child: _buildContent(),
+          child: _buildContent(context),
         );
     }
 
     return ElevatedButton(
       style: style,
       onPressed: _handlePressed,
-      child: _buildContent(),
+      child: _buildContent(context),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final onPrimary = colorScheme.onPrimary;
+
     if (widget.isLoading) {
-      return const SizedBox(
-        width: 24,
-        height: 24,
-        child: CircularProgressIndicator(
-          strokeWidth: 2.5,
-          color: Colors.white, // This should be themed
-        ),
+      return Shimmer.fromColors(
+        baseColor: onPrimary.withOpacity(0.5),
+        highlightColor: onPrimary.withOpacity(0.9),
+        child: widget.child,
       );
     }
     return widget.child;

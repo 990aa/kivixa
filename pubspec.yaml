@@ -76,6 +76,7 @@ dependencies:
   dynamic_color: ^1.8.1
   phosphor_flutter: ^2.1.0
   shared_preferences: ^2.5.3
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:
