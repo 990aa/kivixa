@@ -26,12 +26,21 @@ class JobQueues extends Table {
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-@DriftDatabase(tables: [ProviderConfigs, JobQueues])
+@DataClassName('DocProvenanceData')
+class DocProvenance extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get newDocumentId => text()();
+  TextColumn get type => text()(); // merge, split, raster
+  TextColumn get sourceDocumentIds => text()(); // comma-separated list
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@DriftDatabase(tables: [ProviderConfigs, JobQueues, DocProvenance])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 }
 
 LazyDatabase _openConnection() {
