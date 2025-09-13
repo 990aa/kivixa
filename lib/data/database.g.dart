@@ -1413,6 +1413,944 @@ class LinksCompanion extends UpdateCompanion<LinkData> {
   }
 }
 
+class $DocumentsTable extends Documents
+    with TableInfo<$DocumentsTable, DocumentData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DocumentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, title];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'documents';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DocumentData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DocumentData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DocumentData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+    );
+  }
+
+  @override
+  $DocumentsTable createAlias(String alias) {
+    return $DocumentsTable(attachedDatabase, alias);
+  }
+}
+
+class DocumentData extends DataClass implements Insertable<DocumentData> {
+  final int id;
+  final String title;
+  const DocumentData({required this.id, required this.title});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['title'] = Variable<String>(title);
+    return map;
+  }
+
+  DocumentsCompanion toCompanion(bool nullToAbsent) {
+    return DocumentsCompanion(id: Value(id), title: Value(title));
+  }
+
+  factory DocumentData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DocumentData(
+      id: serializer.fromJson<int>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'title': serializer.toJson<String>(title),
+    };
+  }
+
+  DocumentData copyWith({int? id, String? title}) =>
+      DocumentData(id: id ?? this.id, title: title ?? this.title);
+  DocumentData copyWithCompanion(DocumentsCompanion data) {
+    return DocumentData(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DocumentData(')
+          ..write('id: $id, ')
+          ..write('title: $title')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, title);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DocumentData &&
+          other.id == this.id &&
+          other.title == this.title);
+}
+
+class DocumentsCompanion extends UpdateCompanion<DocumentData> {
+  final Value<int> id;
+  final Value<String> title;
+  const DocumentsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+  });
+  DocumentsCompanion.insert({
+    this.id = const Value.absent(),
+    required String title,
+  }) : title = Value(title);
+  static Insertable<DocumentData> custom({
+    Expression<int>? id,
+    Expression<String>? title,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+    });
+  }
+
+  DocumentsCompanion copyWith({Value<int>? id, Value<String>? title}) {
+    return DocumentsCompanion(id: id ?? this.id, title: title ?? this.title);
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DocumentsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $OutlinesTable extends Outlines
+    with TableInfo<$OutlinesTable, OutlineData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OutlinesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _documentIdMeta = const VerificationMeta(
+    'documentId',
+  );
+  @override
+  late final GeneratedColumn<int> documentId = GeneratedColumn<int>(
+    'document_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+    'data',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, documentId, data];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'outlines';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<OutlineData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('document_id')) {
+      context.handle(
+        _documentIdMeta,
+        documentId.isAcceptableOrUnknown(data['document_id']!, _documentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_documentIdMeta);
+    }
+    if (data.containsKey('data')) {
+      context.handle(
+        _dataMeta,
+        this.data.isAcceptableOrUnknown(data['data']!, _dataMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dataMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  OutlineData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OutlineData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      documentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}document_id'],
+      )!,
+      data: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}data'],
+      )!,
+    );
+  }
+
+  @override
+  $OutlinesTable createAlias(String alias) {
+    return $OutlinesTable(attachedDatabase, alias);
+  }
+}
+
+class OutlineData extends DataClass implements Insertable<OutlineData> {
+  final int id;
+  final int documentId;
+  final String data;
+  const OutlineData({
+    required this.id,
+    required this.documentId,
+    required this.data,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['document_id'] = Variable<int>(documentId);
+    map['data'] = Variable<String>(data);
+    return map;
+  }
+
+  OutlinesCompanion toCompanion(bool nullToAbsent) {
+    return OutlinesCompanion(
+      id: Value(id),
+      documentId: Value(documentId),
+      data: Value(data),
+    );
+  }
+
+  factory OutlineData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OutlineData(
+      id: serializer.fromJson<int>(json['id']),
+      documentId: serializer.fromJson<int>(json['documentId']),
+      data: serializer.fromJson<String>(json['data']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'documentId': serializer.toJson<int>(documentId),
+      'data': serializer.toJson<String>(data),
+    };
+  }
+
+  OutlineData copyWith({int? id, int? documentId, String? data}) => OutlineData(
+    id: id ?? this.id,
+    documentId: documentId ?? this.documentId,
+    data: data ?? this.data,
+  );
+  OutlineData copyWithCompanion(OutlinesCompanion data) {
+    return OutlineData(
+      id: data.id.present ? data.id.value : this.id,
+      documentId: data.documentId.present
+          ? data.documentId.value
+          : this.documentId,
+      data: data.data.present ? data.data.value : this.data,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OutlineData(')
+          ..write('id: $id, ')
+          ..write('documentId: $documentId, ')
+          ..write('data: $data')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, documentId, data);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OutlineData &&
+          other.id == this.id &&
+          other.documentId == this.documentId &&
+          other.data == this.data);
+}
+
+class OutlinesCompanion extends UpdateCompanion<OutlineData> {
+  final Value<int> id;
+  final Value<int> documentId;
+  final Value<String> data;
+  const OutlinesCompanion({
+    this.id = const Value.absent(),
+    this.documentId = const Value.absent(),
+    this.data = const Value.absent(),
+  });
+  OutlinesCompanion.insert({
+    this.id = const Value.absent(),
+    required int documentId,
+    required String data,
+  }) : documentId = Value(documentId),
+       data = Value(data);
+  static Insertable<OutlineData> custom({
+    Expression<int>? id,
+    Expression<int>? documentId,
+    Expression<String>? data,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (documentId != null) 'document_id': documentId,
+      if (data != null) 'data': data,
+    });
+  }
+
+  OutlinesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? documentId,
+    Value<String>? data,
+  }) {
+    return OutlinesCompanion(
+      id: id ?? this.id,
+      documentId: documentId ?? this.documentId,
+      data: data ?? this.data,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (documentId.present) {
+      map['document_id'] = Variable<int>(documentId.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OutlinesCompanion(')
+          ..write('id: $id, ')
+          ..write('documentId: $documentId, ')
+          ..write('data: $data')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CommentsTable extends Comments
+    with TableInfo<$CommentsTable, CommentData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CommentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _pageIdMeta = const VerificationMeta('pageId');
+  @override
+  late final GeneratedColumn<int> pageId = GeneratedColumn<int>(
+    'page_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, pageId, content];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'comments';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CommentData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('page_id')) {
+      context.handle(
+        _pageIdMeta,
+        pageId.isAcceptableOrUnknown(data['page_id']!, _pageIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pageIdMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CommentData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CommentData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      pageId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}page_id'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+    );
+  }
+
+  @override
+  $CommentsTable createAlias(String alias) {
+    return $CommentsTable(attachedDatabase, alias);
+  }
+}
+
+class CommentData extends DataClass implements Insertable<CommentData> {
+  final int id;
+  final int pageId;
+  final String content;
+  const CommentData({
+    required this.id,
+    required this.pageId,
+    required this.content,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['page_id'] = Variable<int>(pageId);
+    map['content'] = Variable<String>(content);
+    return map;
+  }
+
+  CommentsCompanion toCompanion(bool nullToAbsent) {
+    return CommentsCompanion(
+      id: Value(id),
+      pageId: Value(pageId),
+      content: Value(content),
+    );
+  }
+
+  factory CommentData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CommentData(
+      id: serializer.fromJson<int>(json['id']),
+      pageId: serializer.fromJson<int>(json['pageId']),
+      content: serializer.fromJson<String>(json['content']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'pageId': serializer.toJson<int>(pageId),
+      'content': serializer.toJson<String>(content),
+    };
+  }
+
+  CommentData copyWith({int? id, int? pageId, String? content}) => CommentData(
+    id: id ?? this.id,
+    pageId: pageId ?? this.pageId,
+    content: content ?? this.content,
+  );
+  CommentData copyWithCompanion(CommentsCompanion data) {
+    return CommentData(
+      id: data.id.present ? data.id.value : this.id,
+      pageId: data.pageId.present ? data.pageId.value : this.pageId,
+      content: data.content.present ? data.content.value : this.content,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CommentData(')
+          ..write('id: $id, ')
+          ..write('pageId: $pageId, ')
+          ..write('content: $content')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, pageId, content);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CommentData &&
+          other.id == this.id &&
+          other.pageId == this.pageId &&
+          other.content == this.content);
+}
+
+class CommentsCompanion extends UpdateCompanion<CommentData> {
+  final Value<int> id;
+  final Value<int> pageId;
+  final Value<String> content;
+  const CommentsCompanion({
+    this.id = const Value.absent(),
+    this.pageId = const Value.absent(),
+    this.content = const Value.absent(),
+  });
+  CommentsCompanion.insert({
+    this.id = const Value.absent(),
+    required int pageId,
+    required String content,
+  }) : pageId = Value(pageId),
+       content = Value(content);
+  static Insertable<CommentData> custom({
+    Expression<int>? id,
+    Expression<int>? pageId,
+    Expression<String>? content,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (pageId != null) 'page_id': pageId,
+      if (content != null) 'content': content,
+    });
+  }
+
+  CommentsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? pageId,
+    Value<String>? content,
+  }) {
+    return CommentsCompanion(
+      id: id ?? this.id,
+      pageId: pageId ?? this.pageId,
+      content: content ?? this.content,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (pageId.present) {
+      map['page_id'] = Variable<int>(pageId.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CommentsCompanion(')
+          ..write('id: $id, ')
+          ..write('pageId: $pageId, ')
+          ..write('content: $content')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TextBlocksTable extends TextBlocks
+    with TableInfo<$TextBlocksTable, TextBlockData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TextBlocksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _layerIdMeta = const VerificationMeta(
+    'layerId',
+  );
+  @override
+  late final GeneratedColumn<int> layerId = GeneratedColumn<int>(
+    'layer_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, layerId, content];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'text_blocks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TextBlockData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('layer_id')) {
+      context.handle(
+        _layerIdMeta,
+        layerId.isAcceptableOrUnknown(data['layer_id']!, _layerIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_layerIdMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TextBlockData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TextBlockData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      layerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}layer_id'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+    );
+  }
+
+  @override
+  $TextBlocksTable createAlias(String alias) {
+    return $TextBlocksTable(attachedDatabase, alias);
+  }
+}
+
+class TextBlockData extends DataClass implements Insertable<TextBlockData> {
+  final int id;
+  final int layerId;
+  final String content;
+  const TextBlockData({
+    required this.id,
+    required this.layerId,
+    required this.content,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['layer_id'] = Variable<int>(layerId);
+    map['content'] = Variable<String>(content);
+    return map;
+  }
+
+  TextBlocksCompanion toCompanion(bool nullToAbsent) {
+    return TextBlocksCompanion(
+      id: Value(id),
+      layerId: Value(layerId),
+      content: Value(content),
+    );
+  }
+
+  factory TextBlockData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TextBlockData(
+      id: serializer.fromJson<int>(json['id']),
+      layerId: serializer.fromJson<int>(json['layerId']),
+      content: serializer.fromJson<String>(json['content']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'layerId': serializer.toJson<int>(layerId),
+      'content': serializer.toJson<String>(content),
+    };
+  }
+
+  TextBlockData copyWith({int? id, int? layerId, String? content}) =>
+      TextBlockData(
+        id: id ?? this.id,
+        layerId: layerId ?? this.layerId,
+        content: content ?? this.content,
+      );
+  TextBlockData copyWithCompanion(TextBlocksCompanion data) {
+    return TextBlockData(
+      id: data.id.present ? data.id.value : this.id,
+      layerId: data.layerId.present ? data.layerId.value : this.layerId,
+      content: data.content.present ? data.content.value : this.content,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TextBlockData(')
+          ..write('id: $id, ')
+          ..write('layerId: $layerId, ')
+          ..write('content: $content')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, layerId, content);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TextBlockData &&
+          other.id == this.id &&
+          other.layerId == this.layerId &&
+          other.content == this.content);
+}
+
+class TextBlocksCompanion extends UpdateCompanion<TextBlockData> {
+  final Value<int> id;
+  final Value<int> layerId;
+  final Value<String> content;
+  const TextBlocksCompanion({
+    this.id = const Value.absent(),
+    this.layerId = const Value.absent(),
+    this.content = const Value.absent(),
+  });
+  TextBlocksCompanion.insert({
+    this.id = const Value.absent(),
+    required int layerId,
+    required String content,
+  }) : layerId = Value(layerId),
+       content = Value(content);
+  static Insertable<TextBlockData> custom({
+    Expression<int>? id,
+    Expression<int>? layerId,
+    Expression<String>? content,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (layerId != null) 'layer_id': layerId,
+      if (content != null) 'content': content,
+    });
+  }
+
+  TextBlocksCompanion copyWith({
+    Value<int>? id,
+    Value<int>? layerId,
+    Value<String>? content,
+  }) {
+    return TextBlocksCompanion(
+      id: id ?? this.id,
+      layerId: layerId ?? this.layerId,
+      content: content ?? this.content,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (layerId.present) {
+      map['layer_id'] = Variable<int>(layerId.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TextBlocksCompanion(')
+          ..write('id: $id, ')
+          ..write('layerId: $layerId, ')
+          ..write('content: $content')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1422,6 +2360,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $JobQueuesTable jobQueues = $JobQueuesTable(this);
   late final $DocProvenanceTable docProvenance = $DocProvenanceTable(this);
   late final $LinksTable links = $LinksTable(this);
+  late final $DocumentsTable documents = $DocumentsTable(this);
+  late final $OutlinesTable outlines = $OutlinesTable(this);
+  late final $CommentsTable comments = $CommentsTable(this);
+  late final $TextBlocksTable textBlocks = $TextBlocksTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1431,6 +2373,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     jobQueues,
     docProvenance,
     links,
+    documents,
+    outlines,
+    comments,
+    textBlocks,
   ];
 }
 
@@ -2215,6 +3161,586 @@ typedef $$LinksTableProcessedTableManager =
       LinkData,
       PrefetchHooks Function()
     >;
+typedef $$DocumentsTableCreateCompanionBuilder =
+    DocumentsCompanion Function({Value<int> id, required String title});
+typedef $$DocumentsTableUpdateCompanionBuilder =
+    DocumentsCompanion Function({Value<int> id, Value<String> title});
+
+class $$DocumentsTableFilterComposer
+    extends Composer<_$AppDatabase, $DocumentsTable> {
+  $$DocumentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DocumentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DocumentsTable> {
+  $$DocumentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DocumentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DocumentsTable> {
+  $$DocumentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+}
+
+class $$DocumentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DocumentsTable,
+          DocumentData,
+          $$DocumentsTableFilterComposer,
+          $$DocumentsTableOrderingComposer,
+          $$DocumentsTableAnnotationComposer,
+          $$DocumentsTableCreateCompanionBuilder,
+          $$DocumentsTableUpdateCompanionBuilder,
+          (
+            DocumentData,
+            BaseReferences<_$AppDatabase, $DocumentsTable, DocumentData>,
+          ),
+          DocumentData,
+          PrefetchHooks Function()
+        > {
+  $$DocumentsTableTableManager(_$AppDatabase db, $DocumentsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DocumentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DocumentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DocumentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+              }) => DocumentsCompanion(id: id, title: title),
+          createCompanionCallback:
+              ({Value<int> id = const Value.absent(), required String title}) =>
+                  DocumentsCompanion.insert(id: id, title: title),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DocumentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DocumentsTable,
+      DocumentData,
+      $$DocumentsTableFilterComposer,
+      $$DocumentsTableOrderingComposer,
+      $$DocumentsTableAnnotationComposer,
+      $$DocumentsTableCreateCompanionBuilder,
+      $$DocumentsTableUpdateCompanionBuilder,
+      (
+        DocumentData,
+        BaseReferences<_$AppDatabase, $DocumentsTable, DocumentData>,
+      ),
+      DocumentData,
+      PrefetchHooks Function()
+    >;
+typedef $$OutlinesTableCreateCompanionBuilder =
+    OutlinesCompanion Function({
+      Value<int> id,
+      required int documentId,
+      required String data,
+    });
+typedef $$OutlinesTableUpdateCompanionBuilder =
+    OutlinesCompanion Function({
+      Value<int> id,
+      Value<int> documentId,
+      Value<String> data,
+    });
+
+class $$OutlinesTableFilterComposer
+    extends Composer<_$AppDatabase, $OutlinesTable> {
+  $$OutlinesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get documentId => $composableBuilder(
+    column: $table.documentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get data => $composableBuilder(
+    column: $table.data,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$OutlinesTableOrderingComposer
+    extends Composer<_$AppDatabase, $OutlinesTable> {
+  $$OutlinesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get documentId => $composableBuilder(
+    column: $table.documentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get data => $composableBuilder(
+    column: $table.data,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$OutlinesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OutlinesTable> {
+  $$OutlinesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get documentId => $composableBuilder(
+    column: $table.documentId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => column);
+}
+
+class $$OutlinesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $OutlinesTable,
+          OutlineData,
+          $$OutlinesTableFilterComposer,
+          $$OutlinesTableOrderingComposer,
+          $$OutlinesTableAnnotationComposer,
+          $$OutlinesTableCreateCompanionBuilder,
+          $$OutlinesTableUpdateCompanionBuilder,
+          (
+            OutlineData,
+            BaseReferences<_$AppDatabase, $OutlinesTable, OutlineData>,
+          ),
+          OutlineData,
+          PrefetchHooks Function()
+        > {
+  $$OutlinesTableTableManager(_$AppDatabase db, $OutlinesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OutlinesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OutlinesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OutlinesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> documentId = const Value.absent(),
+                Value<String> data = const Value.absent(),
+              }) =>
+                  OutlinesCompanion(id: id, documentId: documentId, data: data),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int documentId,
+                required String data,
+              }) => OutlinesCompanion.insert(
+                id: id,
+                documentId: documentId,
+                data: data,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$OutlinesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $OutlinesTable,
+      OutlineData,
+      $$OutlinesTableFilterComposer,
+      $$OutlinesTableOrderingComposer,
+      $$OutlinesTableAnnotationComposer,
+      $$OutlinesTableCreateCompanionBuilder,
+      $$OutlinesTableUpdateCompanionBuilder,
+      (OutlineData, BaseReferences<_$AppDatabase, $OutlinesTable, OutlineData>),
+      OutlineData,
+      PrefetchHooks Function()
+    >;
+typedef $$CommentsTableCreateCompanionBuilder =
+    CommentsCompanion Function({
+      Value<int> id,
+      required int pageId,
+      required String content,
+    });
+typedef $$CommentsTableUpdateCompanionBuilder =
+    CommentsCompanion Function({
+      Value<int> id,
+      Value<int> pageId,
+      Value<String> content,
+    });
+
+class $$CommentsTableFilterComposer
+    extends Composer<_$AppDatabase, $CommentsTable> {
+  $$CommentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pageId => $composableBuilder(
+    column: $table.pageId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CommentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CommentsTable> {
+  $$CommentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pageId => $composableBuilder(
+    column: $table.pageId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CommentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CommentsTable> {
+  $$CommentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get pageId =>
+      $composableBuilder(column: $table.pageId, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+}
+
+class $$CommentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CommentsTable,
+          CommentData,
+          $$CommentsTableFilterComposer,
+          $$CommentsTableOrderingComposer,
+          $$CommentsTableAnnotationComposer,
+          $$CommentsTableCreateCompanionBuilder,
+          $$CommentsTableUpdateCompanionBuilder,
+          (
+            CommentData,
+            BaseReferences<_$AppDatabase, $CommentsTable, CommentData>,
+          ),
+          CommentData,
+          PrefetchHooks Function()
+        > {
+  $$CommentsTableTableManager(_$AppDatabase db, $CommentsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CommentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CommentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CommentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> pageId = const Value.absent(),
+                Value<String> content = const Value.absent(),
+              }) => CommentsCompanion(id: id, pageId: pageId, content: content),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int pageId,
+                required String content,
+              }) => CommentsCompanion.insert(
+                id: id,
+                pageId: pageId,
+                content: content,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CommentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CommentsTable,
+      CommentData,
+      $$CommentsTableFilterComposer,
+      $$CommentsTableOrderingComposer,
+      $$CommentsTableAnnotationComposer,
+      $$CommentsTableCreateCompanionBuilder,
+      $$CommentsTableUpdateCompanionBuilder,
+      (CommentData, BaseReferences<_$AppDatabase, $CommentsTable, CommentData>),
+      CommentData,
+      PrefetchHooks Function()
+    >;
+typedef $$TextBlocksTableCreateCompanionBuilder =
+    TextBlocksCompanion Function({
+      Value<int> id,
+      required int layerId,
+      required String content,
+    });
+typedef $$TextBlocksTableUpdateCompanionBuilder =
+    TextBlocksCompanion Function({
+      Value<int> id,
+      Value<int> layerId,
+      Value<String> content,
+    });
+
+class $$TextBlocksTableFilterComposer
+    extends Composer<_$AppDatabase, $TextBlocksTable> {
+  $$TextBlocksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get layerId => $composableBuilder(
+    column: $table.layerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TextBlocksTableOrderingComposer
+    extends Composer<_$AppDatabase, $TextBlocksTable> {
+  $$TextBlocksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get layerId => $composableBuilder(
+    column: $table.layerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TextBlocksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TextBlocksTable> {
+  $$TextBlocksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get layerId =>
+      $composableBuilder(column: $table.layerId, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+}
+
+class $$TextBlocksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TextBlocksTable,
+          TextBlockData,
+          $$TextBlocksTableFilterComposer,
+          $$TextBlocksTableOrderingComposer,
+          $$TextBlocksTableAnnotationComposer,
+          $$TextBlocksTableCreateCompanionBuilder,
+          $$TextBlocksTableUpdateCompanionBuilder,
+          (
+            TextBlockData,
+            BaseReferences<_$AppDatabase, $TextBlocksTable, TextBlockData>,
+          ),
+          TextBlockData,
+          PrefetchHooks Function()
+        > {
+  $$TextBlocksTableTableManager(_$AppDatabase db, $TextBlocksTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TextBlocksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TextBlocksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TextBlocksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> layerId = const Value.absent(),
+                Value<String> content = const Value.absent(),
+              }) => TextBlocksCompanion(
+                id: id,
+                layerId: layerId,
+                content: content,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int layerId,
+                required String content,
+              }) => TextBlocksCompanion.insert(
+                id: id,
+                layerId: layerId,
+                content: content,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TextBlocksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TextBlocksTable,
+      TextBlockData,
+      $$TextBlocksTableFilterComposer,
+      $$TextBlocksTableOrderingComposer,
+      $$TextBlocksTableAnnotationComposer,
+      $$TextBlocksTableCreateCompanionBuilder,
+      $$TextBlocksTableUpdateCompanionBuilder,
+      (
+        TextBlockData,
+        BaseReferences<_$AppDatabase, $TextBlocksTable, TextBlockData>,
+      ),
+      TextBlockData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2227,4 +3753,12 @@ class $AppDatabaseManager {
       $$DocProvenanceTableTableManager(_db, _db.docProvenance);
   $$LinksTableTableManager get links =>
       $$LinksTableTableManager(_db, _db.links);
+  $$DocumentsTableTableManager get documents =>
+      $$DocumentsTableTableManager(_db, _db.documents);
+  $$OutlinesTableTableManager get outlines =>
+      $$OutlinesTableTableManager(_db, _db.outlines);
+  $$CommentsTableTableManager get comments =>
+      $$CommentsTableTableManager(_db, _db.comments);
+  $$TextBlocksTableTableManager get textBlocks =>
+      $$TextBlocksTableTableManager(_db, _db.textBlocks);
 }
