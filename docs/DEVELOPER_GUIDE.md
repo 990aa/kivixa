@@ -1,135 +1,156 @@
-# Kivixa: Developer Guide
 
-Welcome to the developer guide for Kivixa. This document provides a technical overview of the project's modern architecture and a guide for setting up your development environment and contributing to the codebase.
+# Kivixa Developer Guide (Flutter Edition)
 
-## 1. Philosophy
+Welcome to the Kivixa developer guide. This document provides a comprehensive overview of the architecture, backend-first philosophy, and step-by-step instructions for building, running, and contributing to the Kivixa app (now built with Flutter for Windows and Android).
 
-Kivixa is built with a strong emphasis on performance, scalability, and maintainability. Our core principles include:
+---
 
-*   **Kotlin-first:** Leveraging Kotlin's modern features, conciseness, and safety.
-*   **Structured Concurrency:** Utilizing Kotlin Coroutines for asynchronous operations, ensuring responsiveness and efficient resource management.
-*   **Robust Data Layer:** Employing Room Persistence Library for SQLite database management, providing an abstraction layer over raw SQL and ensuring data integrity.
-*   **Clear Separation of Concerns:** A well-defined layered architecture separates UI logic from business logic and data persistence.
-*   **Testability:** Designing components to be easily testable, promoting a stable and reliable codebase.
+## 1. Philosophy & Overview
+
+Kivixa is a **backend-first, performance-oriented Flutter application** designed for both Windows and Android. The project emphasizes:
+
+- **Backend-first architecture:** All business logic, data persistence, and core services are implemented independently of the UI, ensuring testability and maintainability.
+- **Performance:** Optimized for low-end devices, with careful use of SQLite, caching, and background isolates.
+- **Modularity:** Features are organized in a scalable, modular structure.
+- **Provider-agnostic AI:** Flexible AI integration via adapters for OpenAI, Google, Ollama, and more.
+
+---
 
 ## 2. Getting Started: Development Environment
 
 ### Prerequisites
 
-*   [Java Development Kit (JDK) 11 or higher](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
-*   [Android Studio](https://developer.android.com/studio) or [IntelliJ IDEA](https://www.jetbrains.com/idea/)
-*   Git
+- [Flutter SDK (3.9+ recommended)](https://docs.flutter.dev/get-started/install)
+- [Dart SDK] (comes with Flutter)
+- [Android Studio](https://developer.android.com/studio) (for Android builds)
+- [Visual Studio (with Desktop development workload)](https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio) (for Windows builds)
+- Git
 
 ### Setup
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository_url>
-    cd kivixa
-    ```
+1. **Clone the repository:**
+     ```bash
+     git clone https://github.com/990aa/kivixa.git
+     cd kivixa
+     ```
+2. **Install dependencies:**
+     ```bash
+     flutter pub get
+     ```
+3. **(Optional) Run tests:**
+     ```bash
+     flutter test
+     ```
+4. **Open in your preferred IDE:**
+     - Android Studio, VS Code, or IntelliJ IDEA
 
-2.  **Open in IDE:** Open the `kivixa` project in Android Studio or IntelliJ IDEA.
-
-3.  **Sync Gradle:** Allow Gradle to sync and download all necessary dependencies.
-
-4.  **Run Tests:** To verify your setup, run the existing unit and integration tests.
-    ```bash
-    # Depending on your build system, e.g., Gradle command
-    ./gradlew test
-    ```
+---
 
 ## 3. Project Architecture
 
-Kivixa follows a layered architecture, primarily implemented in Kotlin, to ensure modularity, testability, and scalability. For a detailed breakdown of the architecture, performance considerations, and AI integration, please see:
+Kivixa is organized into clear layers and feature modules. For deep dives, see:
+- [Architecture Deep Dive](./architecture.md)
+- [Performance Guide](./performance.md)
+- [AI Setup](./ai-setup.md)
 
-*   [**Architecture Deep Dive**](./architecture.md)
-*   [**Performance Guide**](./performance.md)
-*   [**AI Setup**](./ai-setup.md)
+### Key Layers
 
-### Core Layers
+- **Data Layer (`lib/data/`):**
+    - SQLite database (via Drift and sqflite/sqlite3) for all persistent data.
+    - Repository pattern for data access and abstraction.
+    - Handles migrations, schema, and DAOs.
+- **Domain Layer (`lib/domain/`):**
+    - Pure Dart models and business logic (e.g., infinite canvas, render plans).
+- **Services Layer (`lib/services/`):**
+    - High-level business logic, orchestration, and background tasks (e.g., ExportManager, BackupManager, LibraryService, AI actions).
+- **Features Layer (`lib/features/`):**
+    - Modular UI and logic for each app feature (library, editor, PDF, AI, export, templates, etc.).
+- **Platform Layer (`lib/platform/`):**
+    - Platform-specific code (paths, secure storage, OS integration).
+- **Widgets Layer (`lib/widgets/`):**
+    - Reusable UI components.
 
-*   **Domain Layer (`domain/`):**
-    *   Contains pure Kotlin data classes representing the core business entities (e.g., `Document`, `Page`, `StrokeChunk`).
-    *   UI-agnostic and framework-independent.
-    *   Includes sealed `Result` types for consistent error handling across the application.
+### Backend-First Approach
 
-*   **Data Layer (`database/`, `filestore/`):**
-    *   **Room Database:** Manages the application's SQLite database (`KivixaDatabase`). Defines entities (`@Entity`) and Data Access Objects (`@Dao`).
-    *   **DAOs (`database/dao/`):** Interfaces or abstract classes that provide methods for interacting with the aatabase. They include:
-        *   Standard CRUD operations.
-        *   Batched operations for high-throughput writes (e.g., `StrokeChunkDao`, `MinimapTileDao`).
-        *   Full-Text Search (FTS5) capabilities for `TextBlock` and `Comment` content.
-    *   **FileStore (`filestore/`):** Handles persistence of large binary assets (e.g., page thumbnails) to the device's file system, including hashing and de-duplication.
+- All core logic and data flows are implemented and tested independently of the UI.
+- The UI layer consumes services and models exposed by the backend.
+- This enables robust testing, easier maintenance, and future platform expansion.
 
-*   **Repository Layer (`repository/`):**
-    *   Acts as a single source of truth for data, abstracting the underlying data sources (Room, FileStore).
-    *   Orchestrates operations from multiple DAOs and the `FileStore` to fulfill complex use cases (e.g., Document CRUD, Page Flow management, Template operations).
-    *   Returns domain models, ensuring the UI interacts with a clean, consistent data representation.
-    *   All expensive operations run on `Dispatchers.IO` using Kotlin Coroutines.
+---
 
-*   **Manager/Service Classes (`settings/`, `strokes/`, `pageflow/`, `templates/`):**
-    *   These are specialized classes that encapsulate specific business logic or manage particular aspects of the application's state or behavior.
-    *   Examples include `SettingsManager` (debounced persistence of UI state), `StrokeAppendManager` (batched stroke writes), `ReplayEngine` (efficient stroke rendering), `PageFlowManager` (page creation logic), and `TemplatesService` (template management with caching).
+## 4. Database & Storage
 
-### Concurrency and Data Flow
+- **SQLite** is the single source of truth for all structured data.
+- **Drift** is used for schema, migrations, and typed DAOs.
+- **Assets** (images, PDFs, audio) are stored in the local file system, referenced by the database.
+- **Performance:** WAL mode, cache tuning, and background isolates are used for optimal speed (see [Performance Guide](./performance.md)).
 
-*   **Kotlin Coroutines:** Used extensively for asynchronous programming. Operations that involve I/O (database, file system) are executed on `Dispatchers.IO` to prevent blocking the main thread.
-*   **Kotlin Flow:** Used for reactive data streams, allowing UI components to observe changes in the database or other data sources and react efficiently.
+---
 
-## 4. Database Schema
+## 5. AI Integration
 
-The application's database schema is defined by the Room `@Entity` classes in `database/model/`. Key entities include:
+- **Provider-agnostic:** The AI layer uses adapters for OpenAI, Google, Ollama, and more.
+- **Secure key storage:** API keys are stored using platform-native secure storage (see [AI Setup](./ai-setup.md)).
+- **Local AI:** You can use local endpoints (e.g., Ollama) for privacy and cost savings.
 
-*   `Document`: Represents a user document, including its `pageFlowMode`.
-*   `Page`: Individual pages within a document.
-*   `Layer`: Layers within a page, containing content.
-*   `StrokeChunk`: Binary blobs of vector stroke data, now including `tileX` and `tileY` for infinite canvas support.
-*   `TextBlock`: Text content, also with `tileX` and `tileY`.
-*   `Template`: Defines page styles, backgrounds, grids, and template types.
-*   `UserSetting`: Stores user preferences and application settings, including editor UI state and edge offsets.
-*   `SplitLayoutState`: Persists the state of split-screen layouts.
-*   `PageThumbnail`: Stores metadata for cached page thumbnails.
-*   `Comment`, `Outline`, `Link`, `Favorite`, `JobQueue`, `MinimapTile`, etc.
+---
 
-### Full-Text Search (FTS5)
+## 6. Building the Application (EXE & APK)
 
-FTS5 virtual tables are used for efficient full-text search on `TextBlock` content (`text_blocks_fts`) and `Comment` content (`comments_fts`). Triggers ensure these FTS tables are kept in sync with their respective content tables.
+You can build Kivixa for Windows (EXE) and Android (APK) using either the provided build script or manual Flutter commands.
 
-### Database Migrations
+### Automated Build (Recommended)
 
-Schema evolution is handled via Room's `Migration` classes within `KivixaDatabase.kt`. Each migration ensures safe and consistent updates to the database schema as new features are introduced.
+From the project root, run:
 
-## 5. Feature Parity
+```bash
+dart build.dart
+```
 
-To track our progress towards a full-featured release, we maintain several parity checklists. These documents outline the current status of core features compared to our target functionality.
+This will build:
+- **Windows EXE:** Output in `build/windows/runner/Release/`
+- **Android APK:** Output in `build/app/outputs/flutter-apk/`
 
-*   [Gestures Parity](./parity/gestures_parity.md)
-*   [Infinite Canvas Parity](./parity/infinite_canvas_parity.md)
-*   [Outline & Comment Parity](./parity/outline_comment_parity.md)
-*   [Page Flow Parity](./parity/page_flow_parity.md)
-*   [Split Screen Parity](./parity/split_screen_parity.md)
-*   [Toolbar Parity](./parity/toolbar_parity.md)
+### Manual Build
 
-## 6. How to Contribute
+- **Windows:**
+    ```bash
+    flutter build windows --release
+    ```
+- **Android:**
+    ```bash
+    flutter build apk --release
+    ```
 
-When contributing, please consider the layered architecture:
+---
 
-*   **New Data Entity/Table:** Define a new `@Entity` in `database/model/`, create a corresponding `@Dao` in `database/dao/`, and add it to `KivixaDatabase.kt` (including a `Migration` if necessary).
-*   **New Domain Model:** Create a data class in `domain/`.
-*   **New Use Case:** Implement the logic in the `Repository` layer, orchestrating calls to DAOs and `FileStore`.
-*   **Specialized Logic/State Management:** Create a new Manager/Service class (e.g., in `settings/`, `strokes/`) if the logic is complex or manages its own state.
-*   **UI Changes:** Interact with the `Repository` or Manager/Service classes to fetch and update data.
+## 7. Contributing
 
-**Next Steps:** With the backend and data layers now robustly implemented, the next phase of development will focus on UI integration. Prompts and tasks related to building the modern Flutter UI will be provided next.
+- Follow the backend-first philosophy: implement business logic and data flows in the backend/services before UI.
+- Add new features as modular packages in `lib/features/`.
+- Use the repository and service patterns for all data access and business logic.
+- Write tests for new backend logic in `test/`.
+- For UI, use Riverpod for state management and keep widgets modular.
 
-## 7. Code Style and Conventions
+---
 
-*   Follow standard Kotlin coding conventions.
-*   Prioritize immutability for data classes.
-*   Use `val` over `var` where possible.
-*   Ensure proper use of coroutine scopes and dispatchers.
-*   Write clear, concise, and self-documenting code.
+## 8. Code Style & Best Practices
 
-## 8. Building the Application
+- Follow Dart and Flutter best practices.
+- Use immutable data models where possible.
+- Keep business logic out of widgets.
+- Use async/await and isolates for heavy tasks.
+- Write clear, concise, and well-documented code.
 
-Refer to the `README.md` for general build instructions. For platform-specific build details, consult the `apps/<platform>/README.md` files.
+---
+
+## 9. Further Reading
+
+- [Architecture Deep Dive](./architecture.md)
+- [Performance Guide](./performance.md)
+- [AI Setup](./ai-setup.md)
+- [Feature Parity Checklists](./parity/)
+
+---
+
+**Kivixa is designed for maximum control, performance, and maintainability.**
