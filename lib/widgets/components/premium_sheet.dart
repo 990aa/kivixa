@@ -143,25 +143,25 @@ class PremiumSheetWrapper extends StatefulWidget {
 }
 
 class _PremiumSheetWrapperState extends State<PremiumSheetWrapper> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Offset> _offsetAnimation;
+  late AnimationController controller;
+  late Animation<Offset> offsetAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _offsetAnimation = Tween<Offset>(
+    offsetAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: const Offset(0, 1),
-    ).animate(_controller);
+    ).animate(controller);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -170,17 +170,17 @@ class _PremiumSheetWrapperState extends State<PremiumSheetWrapper> with SingleTi
     return GestureDetector(
       onVerticalDragUpdate: (details) {
         final progress = details.primaryDelta! / context.size!.height;
-        _controller.value += progress;
+        controller.value += progress;
       },
       onVerticalDragEnd: (details) {
-        if (_controller.value > 0.5) {
-          _controller.forward().then((_) => Navigator.of(context).pop());
+        if (controller.value > 0.5) {
+          controller.forward().then((_) => Navigator.of(context).pop());
         } else {
-          _controller.reverse();
+          controller.reverse();
         }
       },
       child: SlideTransition(
-        position: _offsetAnimation,
+        position: offsetAnimation,
         child: SlideTransition(
           position: Tween<Offset>(
             begin: const Offset(0, 1),

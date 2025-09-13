@@ -34,7 +34,7 @@ class KeyVault {
     final cipher = GCMBlockCipher(AESFastEngine())
       ..init(true, AEADParameters(KeyParameter(key), 128, iv, Uint8List(0)));
 
-    final encrypted = cipher.process(utf8.encode(apiKey) as Uint8List);
+    final encrypted = cipher.process(utf8.encode(apiKey));
 
     await file.writeAsBytes(salt + iv + encrypted);
   }
@@ -65,7 +65,7 @@ class KeyVault {
 
   Future<File> _getEncryptedFile(String provider) async {
     final directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/api_key_${provider}.enc');
+    return File('${directory.path}/api_key_$provider.enc');
   }
 
   Future<Uint8List> _getKey(Uint8List salt) async {
@@ -73,7 +73,7 @@ class KeyVault {
     final deviceId = await _getDeviceId();
     final pbkdf2 = PBKDF2KeyDerivator(HMac(SHA256Digest()))
       ..init(Pbkdf2Parameters(salt, 1000, 32));
-    return pbkdf2.process(utf8.encode(deviceId) as Uint8List);
+    return pbkdf2.process(utf8.encode(deviceId));
   }
 
   Uint8List _generateSalt() {

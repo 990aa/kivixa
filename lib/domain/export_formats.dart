@@ -25,14 +25,12 @@ class ImageExportOptions extends ExportOptions {
   final int quality;
 
   ImageExportOptions({
-    required String documentId,
-    required String destination,
+    required super.documentId,
+    required super.destination,
     this.dpi = 300,
     this.quality = 90,
   }) : super(
           format: ExportFormat.images,
-          documentId: documentId,
-          destination: destination,
         );
 }
 

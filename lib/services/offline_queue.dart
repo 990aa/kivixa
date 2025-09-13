@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:kivixa/ai/provider_config_service.dart';
-import 'package:kivixa/ai/database.dart';
 import 'package:drift/drift.dart';
 
 class OfflineQueue {

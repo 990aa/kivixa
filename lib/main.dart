@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kivixa/core/theme/theme.dart';
 import 'package:kivixa/features/library/library_screen.dart';
 import 'package:kivixa/providers.dart';
-import 'core/theme/theme_service.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));

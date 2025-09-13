@@ -3,7 +3,6 @@ import 'tile.dart';
 import 'tile_manager.dart';
 import 'minimap.dart';
 import 'animated_background.dart';
-import 'dart:math';
 
 class InfiniteCanvas extends StatefulWidget {
   const InfiniteCanvas({super.key});

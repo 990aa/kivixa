@@ -1,6 +1,5 @@
 // Dart migration for initial schema: notebooks, documents, pages, layers, strokes (chunked), text_blocks, images, shapes, assets, outlines, comments, links, templates, favorites, audio_clips, user_settings, ai_providers, ai_keys, page_thumbnails, redo_log, job_queue, minimap_tiles
 
-import 'package:drift/drift.dart';
 
 // This file is intended for use with Drift migrations or as a reference for raw SQL migrations.
 final String migration001 = '''

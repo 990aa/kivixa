@@ -18,7 +18,7 @@ class FastNavigationService {
   final Repository _repo;
 
   int? _currentDocumentId;
-  Map<int, int> _pageNumberToIdCache = {};
+  final Map<int, int> _pageNumberToIdCache = {};
 
   // This stream would be used to notify the UI to navigate to a page.
   final _navigationController = StreamController<int>.broadcast();

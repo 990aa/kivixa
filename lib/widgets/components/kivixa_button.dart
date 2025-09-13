@@ -43,9 +43,9 @@ class _KivixaButtonState extends State<KivixaButton> {
           foregroundColor: colorScheme.onPrimary,
           elevation: 2,
         ).copyWith(
-          elevation: MaterialStateProperty.resolveWith<double>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed)) return 8.0;
+          elevation: WidgetStateProperty.resolveWith<double>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.pressed)) return 8.0;
               return 2.0;
             },
           ),
@@ -57,9 +57,9 @@ class _KivixaButtonState extends State<KivixaButton> {
           foregroundColor: colorScheme.onSecondaryContainer,
           elevation: 2,
         ).copyWith(
-          elevation: MaterialStateProperty.resolveWith<double>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed)) return 8.0;
+          elevation: WidgetStateProperty.resolveWith<double>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.pressed)) return 8.0;
               return 2.0;
             },
           ),

@@ -1,5 +1,4 @@
 import 'package:kivixa/data/database.dart';
-import 'package:drift/drift.dart';
 
 enum ProvenanceType {
   merge,

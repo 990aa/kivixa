@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:typed_data';
 
 import 'package:sqflite/sqflite.dart';
 

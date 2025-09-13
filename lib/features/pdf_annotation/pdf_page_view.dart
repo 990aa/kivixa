@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:path/path.dart' as p;
-import 'package:flutter/physics.dart';
 
 class PdfPageView extends StatefulWidget {
   final String pdfPath;

@@ -1,3 +1,3 @@
-library kivixa_icons;
+library;
 
 export 'package:phosphor_flutter/phosphor_flutter.dart';

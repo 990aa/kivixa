@@ -1,9 +1,6 @@
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:desktop_drop/desktop_drop.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
 import 'package:kivixa/services/export_manager.dart';
 import 'package:kivixa/services/import_manager.dart';
 
@@ -212,7 +209,6 @@ class _FileTransferViewState extends State<FileTransferView>
     );
   }
 }
-import 'package:kivixa/services/import_manager.dart';
 
 class FileTransferView extends StatefulWidget {
   final ImportManager importManager;
