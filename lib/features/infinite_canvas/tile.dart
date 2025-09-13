@@ -21,6 +21,7 @@ class Tile extends StatefulWidget {
 class _TileState extends State<Tile> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -30,7 +31,17 @@ class _TileState extends State<Tile> with SingleTickerProviderStateMixin {
       duration: const Duration(milliseconds: 300),
     );
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
-    _controller.forward();
+    _loadTile();
+  }
+
+  Future<void> _loadTile() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+      _controller.forward();
+    }
   }
 
   @override
@@ -52,14 +63,16 @@ class _TileState extends State<Tile> with SingleTickerProviderStateMixin {
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey[400]!),
           ),
-          child: Center(
-            child: Text(
-              '${widget.x}, ${widget.y}',
-              style: TextStyle(
-                color: widget.scale > 1.0 ? Colors.red : Colors.black,
-              ),
-            ),
-          ),
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Center(
+                  child: Text(
+                    '${widget.x}, ${widget.y}',
+                    style: TextStyle(
+                      color: widget.scale > 1.0 ? Colors.red : Colors.black,
+                    ),
+                  ),
+                ),
         ),
       ),
     );
