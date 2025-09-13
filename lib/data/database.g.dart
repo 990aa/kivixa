@@ -1115,6 +1115,304 @@ class DocProvenanceCompanion extends UpdateCompanion<DocProvenanceData> {
   }
 }
 
+class $LinksTable extends Links with TableInfo<$LinksTable, LinkData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LinksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _fromPageIdMeta = const VerificationMeta(
+    'fromPageId',
+  );
+  @override
+  late final GeneratedColumn<int> fromPageId = GeneratedColumn<int>(
+    'from_page_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _toPageIdMeta = const VerificationMeta(
+    'toPageId',
+  );
+  @override
+  late final GeneratedColumn<int> toPageId = GeneratedColumn<int>(
+    'to_page_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, fromPageId, toPageId, type];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'links';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LinkData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('from_page_id')) {
+      context.handle(
+        _fromPageIdMeta,
+        fromPageId.isAcceptableOrUnknown(
+          data['from_page_id']!,
+          _fromPageIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_fromPageIdMeta);
+    }
+    if (data.containsKey('to_page_id')) {
+      context.handle(
+        _toPageIdMeta,
+        toPageId.isAcceptableOrUnknown(data['to_page_id']!, _toPageIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_toPageIdMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LinkData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LinkData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      fromPageId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}from_page_id'],
+      )!,
+      toPageId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}to_page_id'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+    );
+  }
+
+  @override
+  $LinksTable createAlias(String alias) {
+    return $LinksTable(attachedDatabase, alias);
+  }
+}
+
+class LinkData extends DataClass implements Insertable<LinkData> {
+  final int id;
+  final int fromPageId;
+  final int toPageId;
+  final String type;
+  const LinkData({
+    required this.id,
+    required this.fromPageId,
+    required this.toPageId,
+    required this.type,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['from_page_id'] = Variable<int>(fromPageId);
+    map['to_page_id'] = Variable<int>(toPageId);
+    map['type'] = Variable<String>(type);
+    return map;
+  }
+
+  LinksCompanion toCompanion(bool nullToAbsent) {
+    return LinksCompanion(
+      id: Value(id),
+      fromPageId: Value(fromPageId),
+      toPageId: Value(toPageId),
+      type: Value(type),
+    );
+  }
+
+  factory LinkData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LinkData(
+      id: serializer.fromJson<int>(json['id']),
+      fromPageId: serializer.fromJson<int>(json['fromPageId']),
+      toPageId: serializer.fromJson<int>(json['toPageId']),
+      type: serializer.fromJson<String>(json['type']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'fromPageId': serializer.toJson<int>(fromPageId),
+      'toPageId': serializer.toJson<int>(toPageId),
+      'type': serializer.toJson<String>(type),
+    };
+  }
+
+  LinkData copyWith({int? id, int? fromPageId, int? toPageId, String? type}) =>
+      LinkData(
+        id: id ?? this.id,
+        fromPageId: fromPageId ?? this.fromPageId,
+        toPageId: toPageId ?? this.toPageId,
+        type: type ?? this.type,
+      );
+  LinkData copyWithCompanion(LinksCompanion data) {
+    return LinkData(
+      id: data.id.present ? data.id.value : this.id,
+      fromPageId: data.fromPageId.present
+          ? data.fromPageId.value
+          : this.fromPageId,
+      toPageId: data.toPageId.present ? data.toPageId.value : this.toPageId,
+      type: data.type.present ? data.type.value : this.type,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LinkData(')
+          ..write('id: $id, ')
+          ..write('fromPageId: $fromPageId, ')
+          ..write('toPageId: $toPageId, ')
+          ..write('type: $type')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, fromPageId, toPageId, type);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LinkData &&
+          other.id == this.id &&
+          other.fromPageId == this.fromPageId &&
+          other.toPageId == this.toPageId &&
+          other.type == this.type);
+}
+
+class LinksCompanion extends UpdateCompanion<LinkData> {
+  final Value<int> id;
+  final Value<int> fromPageId;
+  final Value<int> toPageId;
+  final Value<String> type;
+  const LinksCompanion({
+    this.id = const Value.absent(),
+    this.fromPageId = const Value.absent(),
+    this.toPageId = const Value.absent(),
+    this.type = const Value.absent(),
+  });
+  LinksCompanion.insert({
+    this.id = const Value.absent(),
+    required int fromPageId,
+    required int toPageId,
+    required String type,
+  }) : fromPageId = Value(fromPageId),
+       toPageId = Value(toPageId),
+       type = Value(type);
+  static Insertable<LinkData> custom({
+    Expression<int>? id,
+    Expression<int>? fromPageId,
+    Expression<int>? toPageId,
+    Expression<String>? type,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (fromPageId != null) 'from_page_id': fromPageId,
+      if (toPageId != null) 'to_page_id': toPageId,
+      if (type != null) 'type': type,
+    });
+  }
+
+  LinksCompanion copyWith({
+    Value<int>? id,
+    Value<int>? fromPageId,
+    Value<int>? toPageId,
+    Value<String>? type,
+  }) {
+    return LinksCompanion(
+      id: id ?? this.id,
+      fromPageId: fromPageId ?? this.fromPageId,
+      toPageId: toPageId ?? this.toPageId,
+      type: type ?? this.type,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (fromPageId.present) {
+      map['from_page_id'] = Variable<int>(fromPageId.value);
+    }
+    if (toPageId.present) {
+      map['to_page_id'] = Variable<int>(toPageId.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LinksCompanion(')
+          ..write('id: $id, ')
+          ..write('fromPageId: $fromPageId, ')
+          ..write('toPageId: $toPageId, ')
+          ..write('type: $type')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1123,6 +1421,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $JobQueuesTable jobQueues = $JobQueuesTable(this);
   late final $DocProvenanceTable docProvenance = $DocProvenanceTable(this);
+  late final $LinksTable links = $LinksTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1131,6 +1430,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     providerConfigs,
     jobQueues,
     docProvenance,
+    links,
   ];
 }
 
@@ -1745,6 +2045,176 @@ typedef $$DocProvenanceTableProcessedTableManager =
       DocProvenanceData,
       PrefetchHooks Function()
     >;
+typedef $$LinksTableCreateCompanionBuilder =
+    LinksCompanion Function({
+      Value<int> id,
+      required int fromPageId,
+      required int toPageId,
+      required String type,
+    });
+typedef $$LinksTableUpdateCompanionBuilder =
+    LinksCompanion Function({
+      Value<int> id,
+      Value<int> fromPageId,
+      Value<int> toPageId,
+      Value<String> type,
+    });
+
+class $$LinksTableFilterComposer extends Composer<_$AppDatabase, $LinksTable> {
+  $$LinksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get fromPageId => $composableBuilder(
+    column: $table.fromPageId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get toPageId => $composableBuilder(
+    column: $table.toPageId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LinksTableOrderingComposer
+    extends Composer<_$AppDatabase, $LinksTable> {
+  $$LinksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get fromPageId => $composableBuilder(
+    column: $table.fromPageId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get toPageId => $composableBuilder(
+    column: $table.toPageId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LinksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LinksTable> {
+  $$LinksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get fromPageId => $composableBuilder(
+    column: $table.fromPageId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get toPageId =>
+      $composableBuilder(column: $table.toPageId, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+}
+
+class $$LinksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LinksTable,
+          LinkData,
+          $$LinksTableFilterComposer,
+          $$LinksTableOrderingComposer,
+          $$LinksTableAnnotationComposer,
+          $$LinksTableCreateCompanionBuilder,
+          $$LinksTableUpdateCompanionBuilder,
+          (LinkData, BaseReferences<_$AppDatabase, $LinksTable, LinkData>),
+          LinkData,
+          PrefetchHooks Function()
+        > {
+  $$LinksTableTableManager(_$AppDatabase db, $LinksTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LinksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LinksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LinksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> fromPageId = const Value.absent(),
+                Value<int> toPageId = const Value.absent(),
+                Value<String> type = const Value.absent(),
+              }) => LinksCompanion(
+                id: id,
+                fromPageId: fromPageId,
+                toPageId: toPageId,
+                type: type,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int fromPageId,
+                required int toPageId,
+                required String type,
+              }) => LinksCompanion.insert(
+                id: id,
+                fromPageId: fromPageId,
+                toPageId: toPageId,
+                type: type,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LinksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LinksTable,
+      LinkData,
+      $$LinksTableFilterComposer,
+      $$LinksTableOrderingComposer,
+      $$LinksTableAnnotationComposer,
+      $$LinksTableCreateCompanionBuilder,
+      $$LinksTableUpdateCompanionBuilder,
+      (LinkData, BaseReferences<_$AppDatabase, $LinksTable, LinkData>),
+      LinkData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1755,4 +2225,6 @@ class $AppDatabaseManager {
       $$JobQueuesTableTableManager(_db, _db.jobQueues);
   $$DocProvenanceTableTableManager get docProvenance =>
       $$DocProvenanceTableTableManager(_db, _db.docProvenance);
+  $$LinksTableTableManager get links =>
+      $$LinksTableTableManager(_db, _db.links);
 }
