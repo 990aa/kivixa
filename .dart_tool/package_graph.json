@@ -298,10 +298,11 @@
     },
     {
       "name": "archive",
-      "version": "3.6.1",
+      "version": "4.0.7",
       "dependencies": [
         "crypto",
-        "path"
+        "path",
+        "posix"
       ]
     },
     {
@@ -1063,6 +1064,15 @@
       "name": "ffi",
       "version": "2.1.4",
       "dependencies": []
+    },
+    {
+      "name": "posix",
+      "version": "6.0.3",
+      "dependencies": [
+        "ffi",
+        "meta",
+        "path"
+      ]
     },
     {
       "name": "flutter_secure_storage_platform_interface",

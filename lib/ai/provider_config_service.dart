@@ -7,7 +7,7 @@ import 'database.dart';
 
 part 'provider_config_service.g.dart';
 
-@DriftDatabase(tables: [ProviderConfigs])
+@DriftDatabase(tables: [ProviderConfigs, JobQueue])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 

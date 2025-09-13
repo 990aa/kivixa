@@ -46,12 +46,12 @@ dependencies:
   path_provider: ^2.1.5
 
   # Security and crypto
-  crypto: ^3.0.3
+  crypto: ^3.0.6
   flutter_secure_storage: ^9.2.4
   flutter_secure_storage_windows: ^3.1.2
 
   # PDF and archive
-  archive: ^3.4.10
+  archive: ^4.0.7
   package_info_plus: ^8.0.0
   pdf_render: ^1.4.12
   pdfx: ^2.9.2
@@ -68,7 +68,7 @@ dependencies:
   flutter_riverpod: ^2.5.1
   bloc: ^8.1.3
   flutter_bloc: ^8.1.4
-  uuid: ^4.4.0
+  uuid: ^4.5.1
   path: ^1.9.1
   http: ^1.5.0
   encrypt: ^5.0.3

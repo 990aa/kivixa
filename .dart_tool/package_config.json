@@ -15,7 +15,7 @@
     },
     {
       "name": "archive",
-      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/archive-3.6.1",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/archive-4.0.7",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -552,6 +552,12 @@
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/pool-1.5.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "posix",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/posix-6.0.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
     },
     {
       "name": "provider",

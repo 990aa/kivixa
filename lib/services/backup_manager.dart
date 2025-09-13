@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:archive/archive_io.dart';
@@ -6,153 +5,84 @@ import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
-enum BackupFrequency { daily, weekly, monthly }
-
 class BackupManager {
-  static final BackupManager _instance = BackupManager._internal();
-  factory BackupManager() => _instance;
-  BackupManager._internal();
+  Future<void> createBackup(String destinationPath) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final dbFile = File(p.join(appDir.path, 'db.sqlite'));
+    final assetsDir = Directory(p.join(appDir.path, 'assets'));
 
-  late final Directory _backupDir;
-  bool _isInitialized = false;
-  Timer? _scheduledBackupTimer;
-
-  Future<void> initialize() async {
-    if (_isInitialized) return;
-    final documentsDir = await getApplicationDocumentsDirectory();
-    _backupDir = Directory(p.join(documentsDir.path, 'backups'));
-    if (!await _backupDir.exists()) {
-      await _backupDir.create(recursive: true);
-    }
-    _isInitialized = true;
-  }
-
-  Future<File> createBackup() async {
-    if (!_isInitialized) await initialize();
-
-    final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-    final backupFile = File(p.join(_backupDir.path, 'kivixa_backup_$timestamp.kivixa.zip'));
+    final manifest = {
+      'createdAt': DateTime.now().toIso8601String(),
+      'files': [],
+    };
 
     final encoder = ZipFileEncoder();
-    encoder.create(backupFile.path);
+    encoder.create(destinationPath);
 
-    // Add SQLite database
-    final dbPath = await _getDbPath();
-    encoder.addFile(File(dbPath));
+    // Add database
+    final dbBytes = await dbFile.readAsBytes();
+    final dbHash = sha256.convert(dbBytes).toString();
+    manifest['files'].add({'path': 'db.sqlite', 'hash': dbHash});
+    encoder.addArchiveFile(ArchiveFile('db.sqlite', dbBytes.length, dbBytes));
 
     // Add assets
-    final assetsPath = await _getAssetsPath();
-    encoder.addDirectory(Directory(assetsPath));
+    if (await assetsDir.exists()) {
+      final files = await assetsDir.list(recursive: true).toList();
+      for (final file in files) {
+        if (file is File) {
+          final relativePath = p.relative(file.path, from: appDir.path);
+          final fileBytes = await file.readAsBytes();
+          final fileHash = sha256.convert(fileBytes).toString();
+          manifest['files'].add({'path': relativePath, 'hash': fileHash});
+          encoder.addArchiveFile(ArchiveFile(relativePath, fileBytes.length, fileBytes));
+        }
+      }
+    }
 
-    // Create manifest
-    final manifest = await _createManifest();
-    encoder.addArchiveFile(ArchiveFile('manifest.json', utf8.encode(jsonEncode(manifest)).length, utf8.encode(jsonEncode(manifest))));
-
-    // Create hash file
-    final backupHash = await _calculateFileHash(backupFile);
-    encoder.addArchiveFile(ArchiveFile('backup.sha256', backupHash.length, utf8.encode(backupHash)));
+    // Add manifest
+    final manifestBytes = utf8.encode(jsonEncode(manifest));
+    encoder.addArchiveFile(ArchiveFile('manifest.json', manifestBytes.length, manifestBytes));
 
     encoder.close();
-    return backupFile;
   }
 
-  Future<bool> validateBackup(File backupFile) async {
-    final archive = ZipDecoder().decodeBytes(backupFile.readAsBytesSync());
+  Future<bool> validateBackup(String backupPath) async {
+    final archive = ZipDecoder().decodeBytes(await File(backupPath).readAsBytes());
     final manifestFile = archive.findFile('manifest.json');
-    final hashFile = archive.findFile('backup.sha256');
+    if (manifestFile == null) {
+      return false;
+    }
 
-    if (manifestFile == null || hashFile == null) return false;
+    final manifest = jsonDecode(utf8.decode(manifestFile.content));
+    for (final fileEntry in manifest['files']) {
+      final file = archive.findFile(fileEntry['path']);
+      if (file == null) {
+        return false;
+      }
+      final hash = sha256.convert(file.content).toString();
+      if (hash != fileEntry['hash']) {
+        return false;
+      }
+    }
 
-    // Validate hash
-    final storedHash = utf8.decode(hashFile.content);
-    final actualHash = await _calculateFileHash(backupFile, skipHashFile: true);
-    if (storedHash != actualHash) return false;
-
-    // Further validation can be done against the manifest
     return true;
   }
 
-  Future<void> restoreBackup(File backupFile) async {
-    if (!await validateBackup(backupFile)) {
-      throw Exception('Backup validation failed. Restore aborted.');
+  Future<void> restoreBackup(String backupPath) async {
+    if (!await validateBackup(backupPath)) {
+      throw Exception('Backup is invalid');
     }
 
-    final archive = ZipDecoder().decodeBytes(backupFile.readAsBytesSync());
-    final dbPath = await _getDbPath();
-    final assetsPath = await _getAssetsPath();
+    final appDir = await getApplicationDocumentsDirectory();
+    final archive = ZipDecoder().decodeBytes(await File(backupPath).readAsBytes());
 
     for (final file in archive) {
-      final filename = file.name;
-      if (file.isFile) {
-        final data = file.content as List<int>;
-        final restoredFile = File(p.join(p.dirname(dbPath), '..', filename));
-        await restoredFile.create(recursive: true);
-        await restoredFile.writeAsBytes(data);
+      if (file.name != 'manifest.json') {
+        final path = p.join(appDir.path, file.name);
+        final outFile = File(path);
+        await outFile.create(recursive: true);
+        await outFile.writeAsBytes(file.content);
       }
     }
-  }
-
-  void scheduleBackups(BackupFrequency frequency, int retainN) {
-    _scheduledBackupTimer?.cancel();
-    Duration interval;
-    switch (frequency) {
-      case BackupFrequency.daily:
-        interval = const Duration(days: 1);
-        break;
-      case BackupFrequency.weekly:
-        interval = const Duration(days: 7);
-        break;
-      case BackupFrequency.monthly:
-        // This is a simplification. A real implementation would handle month ends.
-        interval = const Duration(days: 30);
-        break;
-    }
-
-    _scheduledBackupTimer = Timer.periodic(interval, (timer) {
-      createBackup().then((_) => _applyRetentionPolicy(frequency, retainN));
-    });
-  }
-
-  void _applyRetentionPolicy(BackupFrequency frequency, int retainN) {
-    final backups = _backupDir.listSync()
-      ..sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
-
-    if (backups.length > retainN) {
-      for (int i = retainN; i < backups.length; i++) {
-        backups[i].delete();
-      }
-    }
-  }
-
-  Future<String> _getDbPath() async {
-    final dbFolder = await getApplicationSupportDirectory();
-    return p.join(dbFolder.path, 'app.db');
-  }
-
-  Future<String> _getAssetsPath() async {
-    final assetsFolder = await getApplicationSupportDirectory();
-    return p.join(assetsFolder.path, 'assets_original');
-  }
-
-  Future<Map<String, dynamic>> _createManifest() async {
-    return {
-      'createdAt': DateTime.now().toIso8601String(),
-      'version': '1.0.0', // App version
-      'files': [
-        'app.db',
-        'assets_original/'
-      ]
-    };
-  }
-
-  Future<String> _calculateFileHash(File file, {bool skipHashFile = false}) async {
-    final archive = ZipDecoder().decodeBytes(file.readAsBytesSync());
-    final digest = sha256.newInstance();
-
-    for (final file in archive) {
-      if (skipHashFile && file.name == 'backup.sha256') continue;
-      digest.add(file.content);
-    }
-    return digest.close().toString();
   }
 }

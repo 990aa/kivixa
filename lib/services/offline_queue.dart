@@ -1,137 +1,89 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
+import 'package:kivixa/ai/provider_config_service.dart';
+import 'package:kivixa/ai/database.dart';
+import 'package:drift/drift.dart';
 
-enum JobStatus { queued, running, completed, failed }
+class OfflineQueue {
+  final AppDatabase _db;
+  final _controller = StreamController<Job>.broadcast();
 
-class QueuedJob {
-  final String id;
-  final String task;
-  final Map<String, dynamic> payload;
-  JobStatus status;
-  int attempts;
+  OfflineQueue(this._db);
 
-  QueuedJob({
-    required this.id,
-    required this.task,
-    required this.payload,
-    this.status = JobStatus.queued,
-    this.attempts = 0,
-  });
+  Stream<Job> get jobUpdates => _controller.stream;
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'task': task,
-    'payload': payload,
-    'status': status.toString(),
-    'attempts': attempts,
-  };
+  Future<void> enqueue(String jobType, Map<String, dynamic> payload) async {
+    final companion = JobQueueCompanion.insert(
+      jobType: jobType,
+      payload: jsonEncode(payload),
+    );
+    final newId = await _db.into(_db.jobQueue).insert(companion);
+    _controller.add(Job.fromCompanion(newId, companion));
+  }
 
-  factory QueuedJob.fromJson(Map<String, dynamic> json) => QueuedJob(
-    id: json['id'],
-    task: json['task'],
-    payload: json['payload'],
-    status: JobStatus.values.firstWhere((e) => e.toString() == json['status']),
-    attempts: json['attempts'],
-  );
+  Future<void> processQueue() async {
+    final jobs = await (_db.select(_db.jobQueue)..orderBy([(t) => t.createdAt.asc()])).get();
+    for (final jobData in jobs) {
+      final job = Job.fromData(jobData);
+      try {
+        await _processJob(job);
+        await (_db.delete(_db.jobQueue)..where((tbl) => tbl.id.equals(job.id!))).go();
+      } catch (e) {
+        final updatedJob = job.copyWith(attempts: job.attempts + 1);
+        await (_db.update(_db.jobQueue)..where((tbl) => tbl.id.equals(job.id!))).write(updatedJob.toCompanion());
+        _controller.add(updatedJob);
+      }
+    }
+  }
+
+  Future<void> _processJob(Job job) async {
+    // In a real app, you would have a switch statement or a map of handlers
+    // to process different job types.
+    print('Processing job ${job.id}: ${job.jobType}');
+    await Future.delayed(const Duration(seconds: 2)); // Simulate work
+  }
 }
 
-class OfflineQueue extends ChangeNotifier {
-  static final OfflineQueue _instance = OfflineQueue._internal();
-  factory OfflineQueue() => _instance;
-  OfflineQueue._internal();
+class Job {
+  final int? id;
+  final String jobType;
+  final String payload;
+  final int attempts;
+  final DateTime createdAt;
 
-  List<QueuedJob> _jobs = [];
-  bool _isProcessing = false;
-  late final File _queueFile;
-  bool _isInitialized = false;
+  Job({this.id, required this.jobType, required this.payload, required this.attempts, required this.createdAt});
 
-  List<QueuedJob> get jobs => _jobs;
+  Job.fromData(JobQueueData data)
+      : id = data.id,
+        jobType = data.jobType,
+        payload = data.payload,
+        attempts = data.attempts,
+        createdAt = data.createdAt;
 
-  Future<void> initialize() async {
-    if (_isInitialized) return;
-    final appSupportDir = await getApplicationSupportDirectory();
-    _queueFile = File(p.join(appSupportDir.path, 'offline_queue.json'));
-    await _loadQueue();
-    _isInitialized = true;
-    _startProcessing();
-  }
+  Job.fromCompanion(int id, JobQueueCompanion companion)
+      : id = id,
+        jobType = companion.jobType.value,
+        payload = companion.payload.value,
+        attempts = companion.attempts.value,
+        createdAt = companion.createdAt.value;
 
-  Future<void> _loadQueue() async {
-    if (await _queueFile.exists()) {
-      final content = await _queueFile.readAsString();
-      final List<dynamic> jsonJobs = jsonDecode(content);
-      _jobs = jsonJobs.map((json) => QueuedJob.fromJson(json)).toList();
-    }
-  }
-
-  Future<void> _persistQueue() async {
-    final jsonJobs = _jobs.map((job) => job.toJson()).toList();
-    await _queueFile.writeAsString(jsonEncode(jsonJobs));
-  }
-
-  void enqueue(String task, Map<String, dynamic> payload) {
-    final job = QueuedJob(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      task: task,
+  Job copyWith({int? id, int? attempts}) {
+    return Job(
+      id: id ?? this.id,
+      jobType: jobType,
       payload: payload,
+      attempts: attempts ?? this.attempts,
+      createdAt: createdAt,
     );
-    _jobs.add(job);
-    _persistQueue();
-    notifyListeners();
-    _startProcessing();
   }
 
-  void _startProcessing() {
-    if (_isProcessing) return;
-    _isProcessing = true;
-    Timer.periodic(const Duration(seconds: 5), (timer) {
-      _processNextJob();
-      if (_jobs.where((j) => j.status == JobStatus.queued || j.status == JobStatus.failed).isEmpty) {
-        timer.cancel();
-        _isProcessing = false;
-      }
-    });
-  }
-
-  Future<void> _processNextJob() async {
-    final job = _jobs.firstWhere(
-      (j) => j.status == Job.queued || (j.status == JobStatus.failed && j.attempts < 5),
-      orElse: () => null,
+  JobQueueCompanion toCompanion() {
+    return JobQueueCompanion(
+      id: Value(id),
+      jobType: Value(jobType),
+      payload: Value(payload),
+      attempts: Value(attempts),
+      createdAt: Value(createdAt),
     );
-
-    if (job == null) return;
-
-    job.status = JobStatus.running;
-    job.attempts++;
-    notifyListeners();
-
-    try {
-      // Simulate network operation
-      await _executeTask(job.task, job.payload);
-      job.status = JobStatus.completed;
-    } catch (e) {
-      job.status = JobStatus.failed;
-      // Exponential backoff
-      await Future.delayed(Duration(seconds: pow(2, job.attempts).toInt()));
-    }
-
-    _persistQueue();
-    notifyListeners();
-  }
-
-  Future<void> _executeTask(String task, Map<String, dynamic> payload) async {
-    // This is where the actual job logic would go.
-    // For example, an export job.
-    print('Executing task: $task with payload: $payload');
-    // Simulate a failure 30% of the time
-    if (Random().nextDouble() < 0.3) {
-      throw Exception('Simulated network failure');
-    }
-    await Future.delayed(const Duration(seconds: 2));
   }
 }
