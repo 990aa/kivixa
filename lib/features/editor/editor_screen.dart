@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kivixa/features/editor/floating_toolbar.dart';
+import 'package:kivixa/features/editor/split_screen.dart';
 
 class EditorScreen extends StatefulWidget {
   const EditorScreen({
@@ -18,19 +19,6 @@ class EditorScreen extends StatefulWidget {
 
 class _EditorScreenState extends State<EditorScreen> {
   bool _isImmersiveMode = false;
-  late TransformationController _transformationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _transformationController = TransformationController();
-  }
-
-  @override
-  void dispose() {
-    _transformationController.dispose();
-    super.dispose();
-  }
 
   void _toggleImmersiveMode() {
     setState(() {
@@ -57,28 +45,7 @@ class _EditorScreenState extends State<EditorScreen> {
                 ),
               ],
             ),
-      body: Stack(
-        children: [
-          InteractiveViewer(
-            transformationController: _transformationController,
-            minScale: 0.1,
-            maxScale: 4.0,
-            child: Hero(
-              tag: 'template_card_${widget.templateName}',
-              child: Container(
-                color: widget.templateColor,
-                child: Center(
-                  child: Text(
-                    'This is the ${widget.templateName} template.',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const FloatingToolbar(),
-        ],
-      ),
+      body: const SplitScreen(),
     );
   }
 }
