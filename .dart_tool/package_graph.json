@@ -18,6 +18,7 @@
         "encrypt",
         "flutter",
         "flutter_bloc",
+        "flutter_pdfview",
         "flutter_riverpod",
         "flutter_secure_storage",
         "flutter_secure_storage_windows",
@@ -28,6 +29,7 @@
         "package_info_plus",
         "path",
         "path_provider",
+        "pdf",
         "pdf_render",
         "pdfx",
         "phosphor_flutter",
@@ -136,6 +138,21 @@
         "stream_channel",
         "test_api",
         "vector_math"
+      ]
+    },
+    {
+      "name": "pdf",
+      "version": "3.11.3",
+      "dependencies": [
+        "archive",
+        "barcode",
+        "bidi",
+        "crypto",
+        "image",
+        "meta",
+        "path_parsing",
+        "vector_math",
+        "xml"
       ]
     },
     {
@@ -1467,6 +1484,67 @@
       "name": "vm_service",
       "version": "15.0.2",
       "dependencies": []
+    },
+    {
+      "name": "flutter_pdfview",
+      "version": "1.4.1+1",
+      "dependencies": [
+        "flutter"
+      ]
+    },
+    {
+      "name": "bidi",
+      "version": "2.0.13",
+      "dependencies": []
+    },
+    {
+      "name": "xml",
+      "version": "6.6.1",
+      "dependencies": [
+        "collection",
+        "meta",
+        "petitparser"
+      ]
+    },
+    {
+      "name": "petitparser",
+      "version": "7.0.1",
+      "dependencies": [
+        "collection",
+        "meta"
+      ]
+    },
+    {
+      "name": "path_parsing",
+      "version": "1.1.0",
+      "dependencies": [
+        "meta",
+        "vector_math"
+      ]
+    },
+    {
+      "name": "barcode",
+      "version": "2.2.9",
+      "dependencies": [
+        "meta",
+        "qr"
+      ]
+    },
+    {
+      "name": "qr",
+      "version": "3.0.2",
+      "dependencies": [
+        "meta"
+      ]
+    },
+    {
+      "name": "image",
+      "version": "4.5.4",
+      "dependencies": [
+        "archive",
+        "meta",
+        "xml"
+      ]
     }
   ],
   "configVersion": 1

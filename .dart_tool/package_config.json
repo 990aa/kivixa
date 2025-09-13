@@ -38,6 +38,18 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "barcode",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/barcode-2.2.9",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "bidi",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/bidi-2.0.13",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "bloc",
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/bloc-8.1.4",
       "packageUri": "lib/",
@@ -254,6 +266,12 @@
       "languageVersion": "3.5"
     },
     {
+      "name": "flutter_pdfview",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_pdfview-1.4.1+1",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
       "name": "flutter_riverpod",
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_riverpod-2.6.1",
       "packageUri": "lib/",
@@ -380,6 +398,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "image",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/image-4.5.4",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "io",
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/io-1.0.5",
       "packageUri": "lib/",
@@ -488,6 +512,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "path_parsing",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/path_parsing-1.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "path_provider",
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider-2.1.5",
       "packageUri": "lib/",
@@ -524,6 +554,12 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "pdf",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/pdf-3.11.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
       "name": "pdf_render",
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/pdf_render-1.4.12",
       "packageUri": "lib/",
@@ -534,6 +570,12 @@
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/pdfx-2.9.2",
       "packageUri": "lib/",
       "languageVersion": "3.3"
+    },
+    {
+      "name": "petitparser",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/petitparser-7.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.8"
     },
     {
       "name": "phosphor_flutter",
@@ -594,6 +636,12 @@
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/pubspec_parse-1.5.0",
       "packageUri": "lib/",
       "languageVersion": "3.6"
+    },
+    {
+      "name": "qr",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/qr-3.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
     },
     {
       "name": "recase",
@@ -912,6 +960,12 @@
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/xdg_directories-1.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.3"
+    },
+    {
+      "name": "xml",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/xml-6.6.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.8"
     },
     {
       "name": "yaml",
