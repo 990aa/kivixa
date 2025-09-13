@@ -49,6 +49,7 @@
         "build_runner",
         "drift_dev",
         "flutter_lints",
+        "flutter_native_splash",
         "flutter_test"
       ]
     },
@@ -275,6 +276,19 @@
         "fixnum",
         "meta",
         "sprintf"
+      ]
+    },
+    {
+      "name": "connectivity_plus",
+      "version": "6.1.5",
+      "dependencies": [
+        "collection",
+        "connectivity_plus_platform_interface",
+        "flutter",
+        "flutter_web_plugins",
+        "meta",
+        "nm",
+        "web"
       ]
     },
     {
@@ -1144,6 +1158,22 @@
       "dependencies": []
     },
     {
+      "name": "nm",
+      "version": "0.5.0",
+      "dependencies": [
+        "dbus"
+      ]
+    },
+    {
+      "name": "connectivity_plus_platform_interface",
+      "version": "2.0.1",
+      "dependencies": [
+        "flutter",
+        "meta",
+        "plugin_platform_interface"
+      ]
+    },
+    {
       "name": "state_notifier",
       "version": "1.0.0",
       "dependencies": [
@@ -1566,32 +1596,49 @@
       "dependencies": []
     },
     {
-      "name": "connectivity_plus",
-      "version": "6.1.5",
+      "name": "flutter_native_splash",
+      "version": "2.4.6",
       "dependencies": [
-        "collection",
-        "connectivity_plus_platform_interface",
+        "ansicolor",
+        "args",
         "flutter",
         "flutter_web_plugins",
+        "html",
+        "image",
         "meta",
-        "nm",
-        "web"
+        "path",
+        "universal_io",
+        "xml",
+        "yaml"
       ]
     },
     {
-      "name": "nm",
-      "version": "0.5.0",
+      "name": "universal_io",
+      "version": "2.2.2",
       "dependencies": [
-        "dbus"
+        "collection",
+        "meta",
+        "typed_data"
       ]
     },
     {
-      "name": "connectivity_plus_platform_interface",
-      "version": "2.0.1",
+      "name": "ansicolor",
+      "version": "2.0.3",
+      "dependencies": []
+    },
+    {
+      "name": "html",
+      "version": "0.15.6",
       "dependencies": [
-        "flutter",
-        "meta",
-        "plugin_platform_interface"
+        "csslib",
+        "source_span"
+      ]
+    },
+    {
+      "name": "csslib",
+      "version": "1.0.2",
+      "dependencies": [
+        "source_span"
       ]
     }
   ],
