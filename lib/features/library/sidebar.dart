@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:kivixa/services/export_manager.dart';
+import 'package:kivixa/services/import_manager.dart';
+import 'package:kivixa/widgets/file_transfer_view.dart';
 import 'package:shimmer/shimmer.dart';
 
 class Sidebar extends StatefulWidget {
@@ -65,24 +68,45 @@ class _SidebarState extends State<Sidebar> {
   }
 
   Widget _buildContent() {
-    return GridView.builder(
-      padding: const EdgeInsets.all(16.0),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16.0,
-        mainAxisSpacing: 16.0,
-      ),
-      itemCount: 20, // Dummy data
-      itemBuilder: (context, index) {
-        return GridTile(
-          child: Container(
-            color: Colors.blue.shade100,
-            child: Center(
-              child: Text('Item $index'),
+    return Column(
+      children: [
+        ListTile(
+          leading: const Icon(Icons.import_export),
+          title: const Text('Import/Export'),
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => FileTransferView(
+                  importManager: ImportManager(),
+                  exportManager: ExportManager(),
+                ),
+              ),
+            );
+          },
+        ),
+        const Divider(),
+        Expanded(
+          child: GridView.builder(
+            padding: const EdgeInsets.all(16.0),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16.0,
+              mainAxisSpacing: 16.0,
             ),
+            itemCount: 20, // Dummy data
+            itemBuilder: (context, index) {
+              return GridTile(
+                child: Container(
+                  color: Colors.blue.shade100,
+                  child: Center(
+                    child: Text('Item $index'),
+                  ),
+                ),
+              );
+            },
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 }
