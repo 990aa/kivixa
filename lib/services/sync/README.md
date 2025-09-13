@@ -1,28 +1,15 @@
-# Kivixa Sync Adapters
+# Sync Provider Integration
 
-This directory contains the interfaces and stubs for cloud sync providers.
+This directory contains the integration points for cloud sync providers like Google Drive and OneDrive.
 
-## Contributor's Note
+## For Contributors
 
-Sync functionality is disabled by default to ensure the app is fully functional offline without requiring API keys.
+The sync adapters (`GoogleDriveSyncAdapter`, `OneDriveSyncAdapter`, etc.) are disabled by default because they require API keys to function. To enable them for local development, you will need to:
 
-To enable sync with a provider for local development:
+1.  **Obtain API Keys**: Follow the developer documentation for the respective cloud provider to create a project and get API credentials (e.g., client ID, client secret).
 
-1.  **Obtain API Keys**: Follow the developer documentation for the desired cloud service (e.g., Google Drive, OneDrive) to get your own API keys for a test application.
-2.  **Configure Locally**: Create a `sync_config.dart` file in this directory (which is git-ignored) and add your keys:
+2.  **Local Configuration**: Store these keys in a local configuration file that is **not** checked into version control (e.g., using a `.env` file and `flutter_dotenv`).
 
-    ```dart
-    const Map<String, String> googleDriveKeys = {
-      'apiKey': 'YOUR_API_KEY',
-      'apiSecret': 'YOUR_API_SECRET',
-    };
+3.  **Enable the Adapter**: In the `sync_adapter.dart` file, modify the `isEnabled` getter for the desired adapter to return `true` when the necessary keys are present in your local configuration.
 
-    const Map<String, String> oneDriveKeys = {
-      'apiKey': 'YOUR_API_KEY',
-      'apiSecret': 'YOUR_API_SECRET',
-    };
-    ```
-
-3.  **Enable in Code**: In the main application setup, you can then conditionally enable a sync provider with these keys.
-
-**Important**: Do not commit your API keys or the `sync_config.dart` file to the repository.
+This approach ensures that the app remains fully functional for all users out-of-the-box (offline-first) and that no secret keys are committed to the repository, while still allowing developers to test and contribute to sync functionality.
