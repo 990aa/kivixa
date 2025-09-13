@@ -18,15 +18,28 @@ class EditorScreen extends StatefulWidget {
 
 class _EditorScreenState extends State<EditorScreen> {
   bool _isImmersiveMode = false;
+  late TransformationController _transformationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _transformationController = TransformationController();
+  }
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    super.dispose();
+  }
 
   void _toggleImmersiveMode() {
     setState(() {
       _isImmersiveMode = !_isImmersiveMode;
     });
     if (_isImmersiveMode) {
-      SystemChrome.setEnabledSystemU-I-Mode(SystemUiMode.immersive);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     } else {
-      SystemChrome.setEnabledSystemU-I-Mode(SystemUiMode.edgeToEdge);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     }
   }
 
@@ -46,8 +59,10 @@ class _EditorScreenState extends State<EditorScreen> {
             ),
       body: Stack(
         children: [
-          GestureDetector(
-            onTap: _isImmersiveMode ? _toggleImmersiveMode : null,
+          InteractiveViewer(
+            transformationController: _transformationController,
+            minScale: 0.1,
+            maxScale: 4.0,
             child: Hero(
               tag: 'template_card_${widget.templateName}',
               child: Container(
