@@ -158,6 +158,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "cross_file",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/cross_file-0.3.4+2",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "crypto",
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/crypto-3.0.6",
       "packageUri": "lib/",
@@ -174,6 +180,12 @@
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/dart_style-3.1.2",
       "packageUri": "lib/",
       "languageVersion": "3.7"
+    },
+    {
+      "name": "dbus",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/dbus-0.7.11",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
     },
     {
       "name": "device_info_plus",
@@ -242,6 +254,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "file_picker",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/file_picker-10.3.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "fixnum",
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/fixnum-1.1.1",
       "packageUri": "lib/",
@@ -270,6 +288,12 @@
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_pdfview-1.4.1+1",
       "packageUri": "lib/",
       "languageVersion": "2.17"
+    },
+    {
+      "name": "flutter_plugin_android_lifecycle",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.30",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
     },
     {
       "name": "flutter_riverpod",
