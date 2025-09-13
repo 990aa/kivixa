@@ -30,3 +30,7 @@ This repo contains the Kivixa application, with a web frontend, a mobile app, an
 - **Web:** `pnpm --filter web build`
 - **Mobile:** `pnpm --filter mobile-app build`
 - **Electron:** `pnpm --filter electron-app build`
+
+## Android Adaptive Icons
+
+See [Generating Adaptive Icons for Android](../../docs/AdaptiveIcons.md) for instructions on how to generate adaptive icons for the Android app.
