@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:file_picker/file_picker.dart';
+import 'pdf_text_selector.dart';
 
 class PdfViewer extends StatefulWidget {
   const PdfViewer({super.key});
@@ -12,6 +13,8 @@ class PdfViewer extends StatefulWidget {
 
 class _PdfViewerState extends State<PdfViewer> {
   String? _pdfPath;
+  PDFViewController? _pdfViewController;
+  Size? _pageSize;
 
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
@@ -36,8 +39,27 @@ class _PdfViewerState extends State<PdfViewer> {
           ? const Center(
               child: Text('No PDF selected'),
             )
-          : PDFView(
-              filePath: _pdfPath!,
+          : Stack(
+              children: [
+                PDFView(
+                  filePath: _pdfPath!,
+                  onViewCreated: (controller) {
+                    _pdfViewController = controller;
+                  },
+                  onPageChanged: (page, total) {
+                    _pdfViewController?.getPageSize(page ?? 0).then((size) {
+                      setState(() {
+                        _pageSize = size;
+                      });
+                    });
+                  },
+                ),
+                if (_pageSize != null)
+                  PdfTextSelector(
+                    pdfPath: _pdfPath!,
+                    pageSize: _pageSize!,
+                  ),
+              ],
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: _pickFile,
