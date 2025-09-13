@@ -164,6 +164,18 @@
       "languageVersion": "3.7"
     },
     {
+      "name": "device_info_plus",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/device_info_plus-12.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
+    },
+    {
+      "name": "device_info_plus_platform_interface",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/device_info_plus_platform_interface-7.0.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
+    },
+    {
       "name": "drift",
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/drift-2.28.1",
       "packageUri": "lib/",
@@ -444,6 +456,18 @@
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/package_config-2.2.0",
       "packageUri": "lib/",
       "languageVersion": "3.4"
+    },
+    {
+      "name": "package_info_plus",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/package_info_plus-8.3.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "package_info_plus_platform_interface",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/package_info_plus_platform_interface-3.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
     },
     {
       "name": "path",
@@ -804,6 +828,12 @@
       "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.14.0",
       "packageUri": "lib/",
       "languageVersion": "3.8"
+    },
+    {
+      "name": "win32_registry",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/win32_registry-2.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
     },
     {
       "name": "xdg_directories",
