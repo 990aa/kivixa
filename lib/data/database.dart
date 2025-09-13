@@ -43,7 +43,34 @@ class Links extends Table {
   TextColumn get type => text()();
 }
 
-@DriftDatabase(tables: [ProviderConfigs, JobQueues, DocProvenance, Links])
+@DataClassName('DocumentData')
+class Documents extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get title => text()();
+}
+
+@DataClassName('OutlineData')
+class Outlines extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get documentId => integer()();
+  TextColumn get data => text()();
+}
+
+@DataClassName('CommentData')
+class Comments extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get pageId => integer()();
+  TextColumn get content => text()();
+}
+
+@DataClassName('TextBlockData')
+class TextBlocks extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get layerId => integer()();
+  TextColumn get content => text()();
+}
+
+@DriftDatabase(tables: [ProviderConfigs, JobQueues, DocProvenance, Links, Documents, Outlines, Comments, TextBlocks])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
