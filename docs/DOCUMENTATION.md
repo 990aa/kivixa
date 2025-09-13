@@ -100,3 +100,7 @@ For precise drawings, use the Geometry tools. When a guide is active, select the
 *   Place a **Ruler** or **Set Square** on your canvas to quickly create tables, charts, or diagrams with straight lines.
 *   Drop images onto the canvas and use the **Pen** tool to annotate them directly for quick feedback or analysis.
 *   Organize your projects into **Folders** to keep your workspace clean and your documents easy to find.
+
+## 8. What's Next?
+
+Kivixa is currently undergoing a major update to a modern Flutter-based UI. We have focused on building a robust and performant backend first to ensure a solid foundation. This documentation reflects the functionality of the backend. The next stage of development will focus on integrating these powerful features into a new, intuitive, and beautiful user interface. Stay tuned for updates!
