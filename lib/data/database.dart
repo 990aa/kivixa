@@ -80,7 +80,18 @@ class RedoLog extends Table {
   IntColumn get ts => integer()();
 }
 
-@DriftDatabase(tables: [ProviderConfigs, JobQueues, DocProvenance, Links, Documents, Outlines, Comments, TextBlocks, RedoLog])
+@DataClassName('AssetData')
+class Assets extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get path => text()();
+  IntColumn get size => integer()();
+  TextColumn get hash => text()();
+  TextColumn get mime => text()();
+  TextColumn get sourceUri => text().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@DriftDatabase(tables: [ProviderConfigs, JobQueues, DocProvenance, Links, Documents, Outlines, Comments, TextBlocks, RedoLog, Assets])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
