@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path/path.dart' as p;
+import 'annotation_toolbar.dart';
 
 class PdfTextSelector extends StatefulWidget {
   final String pdfPath;
@@ -22,6 +23,7 @@ class _PdfTextSelectorState extends State<PdfTextSelector> {
   Offset? _startHandlePosition;
   Offset? _endHandlePosition;
   List<_TextLine> _textLines = [];
+  Rect? _selectionRect;
 
   @override
   void initState() {
@@ -63,6 +65,11 @@ class _PdfTextSelectorState extends State<PdfTextSelector> {
           _endHandlePosition = details.localPosition;
         });
       },
+      onLongPressEnd: (details) {
+        setState(() {
+          _selectionRect = Rect.fromPoints(_startHandlePosition!, _endHandlePosition!)
+        });
+      },
       child: Stack(
         children: [
           if (_startHandlePosition != null && _endHandlePosition != null)
@@ -72,6 +79,13 @@ class _PdfTextSelectorState extends State<PdfTextSelector> {
                 endHandlePosition: _endHandlePosition!,
                 textLines: _textLines,
               ),
+            ),
+          if (_selectionRect != null)
+            AnnotationToolbar(
+              selectionRect: _selectionRect!,
+              onHighlight: () {},
+              onUnderline: () {},
+              onAddNote: () {},
             ),
         ],
       ),
