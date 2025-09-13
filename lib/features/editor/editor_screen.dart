@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:kivixa/features/editor/floating_toolbar.dart';
+import 'package:kivixa/features/editor/glassmorphism_toolbar.dart';
 import 'package:kivixa/features/editor/split_screen.dart';
 
 class EditorScreen extends StatefulWidget {
@@ -45,7 +45,12 @@ class _EditorScreenState extends State<EditorScreen> {
                 ),
               ],
             ),
-      body: const SplitScreen(),
+      body: const Stack(
+        children: [
+          SplitScreen(),
+          GlassmorphismToolbar(),
+        ],
+      ),
     );
   }
 }
