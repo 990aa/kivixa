@@ -13,5 +13,6 @@ class JobQueue extends Table {
   TextColumn get jobType => text()();
   TextColumn get payload => text()();
   IntColumn get attempts => integer().withDefault(const Constant(0))();
-  DateTimeColumn get createdAt => dateTime().withDefault(const Constant(DateTime.now()))();
+  DateTimeColumn get createdAt => dateTime().withDefault(Constant(DateTime.now()))();
 }
+
