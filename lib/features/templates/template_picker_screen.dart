@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kivixa/features/editor/editor_screen.dart';
 import 'package:kivixa/features/templates/template_card.dart';
 
 class _Template {
@@ -86,6 +87,16 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
               name: template.name,
               color: template.color,
               onTap: () => _showCustomizationSheet(template),
+              onSelect: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => EditorScreen(
+                      templateName: template.name,
+                      templateColor: template.color,
+                    ),
+                  ),
+                );
+              },
             );
           },
         ),
