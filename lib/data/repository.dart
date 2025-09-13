@@ -188,6 +188,8 @@ abstract class Repository {
   Future<void> updatePageThumbnail(int id, Map<String, dynamic> data);
   Future<void> deletePageThumbnail(int id);
 
+  Future<void> updatePageThumbnailMetadata(int pageId, Map<String, dynamic> metadata);
+
   // Redo Log
   Future<int> createRedoLog(Map<String, dynamic> data);
   Future<Map<String, dynamic>?> getRedoLog(int id);
