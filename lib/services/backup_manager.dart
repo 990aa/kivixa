@@ -22,7 +22,7 @@ class BackupManager {
     // Add database
     final dbBytes = await dbFile.readAsBytes();
     final dbHash = sha256.convert(dbBytes).toString();
-    manifest['files'].add({'path': 'db.sqlite', 'hash': dbHash});
+    (manifest['files'] as List).add({'path': 'db.sqlite', 'hash': dbHash});
     encoder.addArchiveFile(ArchiveFile('db.sqlite', dbBytes.length, dbBytes));
 
     // Add assets
@@ -33,7 +33,7 @@ class BackupManager {
           final relativePath = p.relative(file.path, from: appDir.path);
           final fileBytes = await file.readAsBytes();
           final fileHash = sha256.convert(fileBytes).toString();
-          manifest['files'].add({'path': relativePath, 'hash': fileHash});
+          (manifest['files'] as List).add({'path': relativePath, 'hash': fileHash});
           encoder.addArchiveFile(ArchiveFile(relativePath, fileBytes.length, fileBytes));
         }
       }

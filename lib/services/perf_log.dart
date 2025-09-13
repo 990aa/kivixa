@@ -81,7 +81,6 @@ class PerfLog {
     final file = File('${perfDir.path}/perf_report_$timestamp.json');
     await file.writeAsString(report);
 
-    print('Performance report exported to: ${file.path}');
     return file.path;
   }
 

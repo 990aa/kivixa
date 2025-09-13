@@ -99,8 +99,8 @@ class _KivixaButtonState extends State<KivixaButton> {
 
     if (widget.isLoading) {
       return Shimmer.fromColors(
-        baseColor: onPrimary.withOpacity(0.5),
-        highlightColor: onPrimary.withOpacity(0.9),
+        baseColor: onPrimary.withAlpha((0.5 * 255).round()),
+        highlightColor: onPrimary.withAlpha((0.9 * 255).round()),
         child: widget.child,
       );
     }

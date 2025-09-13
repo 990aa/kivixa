@@ -40,7 +40,7 @@ class ExportService {
   ExportService(this._exportManager, this._offlineQueue);
 
   Future<int> export(ExportOptions options) async {
-    final payload = {
+    final payload = <String, dynamic>{
       'documentId': options.documentId,
       'destination': options.destination,
     };

@@ -49,7 +49,7 @@ class DragDropDesktopService {
     for (final file in files) {
       try {
         final f = File(file.path);
-        await _importManager.importFile(f);
+        await _importManager.importFile(f.path);
         onStatus(DragDropStatus('Successfully imported ${file.name}'));
       } catch (e, st) {
         _log.severe('Failed to import dropped file: ${file.path}', e, st);

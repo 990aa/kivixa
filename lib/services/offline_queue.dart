@@ -38,7 +38,6 @@ class OfflineQueue {
   Future<void> _processJob(Job job) async {
     // In a real app, you would have a switch statement or a map of handlers
     // to process different job types.
-    print('Processing job ${job.id}: ${job.jobType}');
     await Future.delayed(const Duration(seconds: 2)); // Simulate work
   }
 }
@@ -78,7 +77,7 @@ class Job {
 
   JobQueueCompanion toCompanion() {
     return JobQueueCompanion(
-      id: Value(id),
+      id: id == null ? const Value.absent() : Value(id!),
       jobType: Value(jobType),
       payload: Value(payload),
       attempts: Value(attempts),

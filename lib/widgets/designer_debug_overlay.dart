@@ -25,7 +25,7 @@ class DesignerDebugOverlay extends StatelessWidget {
           ),
         if (showColors)
           IgnorePointer(
-            child: Container(color: Colors.purple.withOpacity(0.05)),
+            child: Container(color: Colors.purple.withAlpha((0.05 * 255).round())),
           ),
         if (showAnimationTimings)
           Positioned(
@@ -33,7 +33,7 @@ class DesignerDebugOverlay extends StatelessWidget {
             right: 16,
             child: Container(
               padding: const EdgeInsets.all(8),
-              color: Colors.black.withOpacity(0.7),
+              color: Colors.black.withAlpha((0.7 * 255).round()),
               child: const Text(
                 'Animation: 400ms',
                 style: TextStyle(color: Colors.white),
@@ -49,7 +49,7 @@ class _SpacingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.red.withOpacity(0.2)
+      ..color = Colors.red.withAlpha((0.2 * 255).round())
       ..strokeWidth = 1;
     for (double x = 0; x < size.width; x += 16) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);

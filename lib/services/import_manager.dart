@@ -39,6 +39,5 @@ class ImportManager {
 
   void _processImport(String path, String documentId) {
     // This is a placeholder for background processing.
-    print('Processing import for $documentId at $path');
   }
 }

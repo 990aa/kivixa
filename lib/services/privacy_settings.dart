@@ -45,7 +45,6 @@ and personal data are stored locally on your device.
     // In a real implementation, this change would be persisted.
     // For example:
     // _settingsStore.setBool('telemetryEnabled', enabled);
-    print("Telemetry enabled status set to: $_telemetryEnabled");
   }
 
   /// Generates a local diagnostics report without any network calls.
@@ -56,7 +55,6 @@ and personal data are stored locally on your device.
   ///
   /// Returns the file path of the generated zip file.
   Future<String> generateLocalDiagnosticsExport() async {
-    print("Generating local diagnostics export. No network calls will be made.");
     return _diagnosticsService.exportDiagnostics();
   }
 }

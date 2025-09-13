@@ -71,7 +71,7 @@ class KeyVault {
   Future<Uint8List> _getKey(Uint8List salt) async {
     // In a real app, use a more secure way to get a device-scoped key
     final deviceId = await _getDeviceId();
-    final pbkdf2 = PBKDF2KeyDerivator(HMac(SHA256Digest()))
+    final pbkdf2 = PBKDF2KeyDerivator(HMac(SHA256Digest(), KeyParameter(Uint8List(0))))
       ..init(Pbkdf2Parameters(salt, 1000, 32));
     return pbkdf2.process(utf8.encode(deviceId));
   }

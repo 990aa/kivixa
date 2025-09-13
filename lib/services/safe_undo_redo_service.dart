@@ -16,7 +16,6 @@ class SafeUndoRedoService {
       // This is a placeholder for the undo logic.
       // A real implementation would have a switch statement or a map of handlers
       // to reverse different actions.
-      print('Undoing action ${lastAction.action} for ${lastAction.entityType} ${lastAction.entityId}');
 
       await (_db.delete(_db.redoLog)..where((tbl) => tbl.id.equals(lastAction.id))).go();
     });
@@ -25,7 +24,6 @@ class SafeUndoRedoService {
   Future<void> redo() async {
     // Redo requires a separate log of undone actions, which is not implemented here.
     // This is a placeholder.
-    print('Redo is not implemented.');
   }
 
   Future<void> logAction({

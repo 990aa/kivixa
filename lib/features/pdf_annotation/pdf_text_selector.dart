@@ -66,7 +66,7 @@ class _PdfTextSelectorState extends State<PdfTextSelector> {
       },
       onLongPressEnd: (details) {
         setState(() {
-          _selectionRect = Rect.fromPoints(_startHandlePosition!, _endHandlePosition!)
+          _selectionRect = Rect.fromPoints(_startHandlePosition!, _endHandlePosition!);
         });
       },
       child: Stack(
@@ -106,7 +106,7 @@ class _TextSelectionPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.blue.withOpacity(0.5)
+      ..color = Colors.blue.withAlpha((0.5 * 255).round()) // Replaced withOpacity
       ..style = PaintingStyle.fill;
 
     final selectionRect = Rect.fromPoints(startHandlePosition, endHandlePosition);

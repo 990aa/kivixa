@@ -48,7 +48,6 @@ class ModifyTemplateService {
   ) async {
     // 1. Persist the template changes.
     // In a real implementation, this would update the page models in the database.
-    print("Updating template for pages: $pageIds with properties: ${newProperties.linePattern}");
 
     // 2. Invalidate the thumbnail cache for the affected pages.
     final invalidated = <String>[];
@@ -58,7 +57,6 @@ class ModifyTemplateService {
         invalidated.add(pageId);
       }
     }
-    print("Invalidated thumbnails for pages: $invalidated");
 
 
     // 3. Return a minimal re-render plan.
