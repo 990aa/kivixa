@@ -360,17 +360,415 @@ class ProviderConfigsCompanion extends UpdateCompanion<ProviderConfig> {
   }
 }
 
+class $JobQueuesTable extends JobQueues
+    with TableInfo<$JobQueuesTable, JobQueue> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $JobQueuesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _jobTypeMeta = const VerificationMeta(
+    'jobType',
+  );
+  @override
+  late final GeneratedColumn<String> jobType = GeneratedColumn<String>(
+    'job_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _payloadMeta = const VerificationMeta(
+    'payload',
+  );
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+    'payload',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    jobType,
+    status,
+    payload,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'job_queues';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<JobQueue> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('job_type')) {
+      context.handle(
+        _jobTypeMeta,
+        jobType.isAcceptableOrUnknown(data['job_type']!, _jobTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_jobTypeMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(
+        _payloadMeta,
+        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  JobQueue map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return JobQueue(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      jobType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}job_type'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      payload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $JobQueuesTable createAlias(String alias) {
+    return $JobQueuesTable(attachedDatabase, alias);
+  }
+}
+
+class JobQueue extends DataClass implements Insertable<JobQueue> {
+  final int id;
+  final String jobType;
+  final String status;
+  final String payload;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const JobQueue({
+    required this.id,
+    required this.jobType,
+    required this.status,
+    required this.payload,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['job_type'] = Variable<String>(jobType);
+    map['status'] = Variable<String>(status);
+    map['payload'] = Variable<String>(payload);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  JobQueuesCompanion toCompanion(bool nullToAbsent) {
+    return JobQueuesCompanion(
+      id: Value(id),
+      jobType: Value(jobType),
+      status: Value(status),
+      payload: Value(payload),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory JobQueue.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return JobQueue(
+      id: serializer.fromJson<int>(json['id']),
+      jobType: serializer.fromJson<String>(json['jobType']),
+      status: serializer.fromJson<String>(json['status']),
+      payload: serializer.fromJson<String>(json['payload']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'jobType': serializer.toJson<String>(jobType),
+      'status': serializer.toJson<String>(status),
+      'payload': serializer.toJson<String>(payload),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  JobQueue copyWith({
+    int? id,
+    String? jobType,
+    String? status,
+    String? payload,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => JobQueue(
+    id: id ?? this.id,
+    jobType: jobType ?? this.jobType,
+    status: status ?? this.status,
+    payload: payload ?? this.payload,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  JobQueue copyWithCompanion(JobQueuesCompanion data) {
+    return JobQueue(
+      id: data.id.present ? data.id.value : this.id,
+      jobType: data.jobType.present ? data.jobType.value : this.jobType,
+      status: data.status.present ? data.status.value : this.status,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JobQueue(')
+          ..write('id: $id, ')
+          ..write('jobType: $jobType, ')
+          ..write('status: $status, ')
+          ..write('payload: $payload, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, jobType, status, payload, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is JobQueue &&
+          other.id == this.id &&
+          other.jobType == this.jobType &&
+          other.status == this.status &&
+          other.payload == this.payload &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class JobQueuesCompanion extends UpdateCompanion<JobQueue> {
+  final Value<int> id;
+  final Value<String> jobType;
+  final Value<String> status;
+  final Value<String> payload;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const JobQueuesCompanion({
+    this.id = const Value.absent(),
+    this.jobType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  JobQueuesCompanion.insert({
+    this.id = const Value.absent(),
+    required String jobType,
+    required String status,
+    required String payload,
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : jobType = Value(jobType),
+       status = Value(status),
+       payload = Value(payload);
+  static Insertable<JobQueue> custom({
+    Expression<int>? id,
+    Expression<String>? jobType,
+    Expression<String>? status,
+    Expression<String>? payload,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (jobType != null) 'job_type': jobType,
+      if (status != null) 'status': status,
+      if (payload != null) 'payload': payload,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  JobQueuesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? jobType,
+    Value<String>? status,
+    Value<String>? payload,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return JobQueuesCompanion(
+      id: id ?? this.id,
+      jobType: jobType ?? this.jobType,
+      status: status ?? this.status,
+      payload: payload ?? this.payload,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (jobType.present) {
+      map['job_type'] = Variable<String>(jobType.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JobQueuesCompanion(')
+          ..write('id: $id, ')
+          ..write('jobType: $jobType, ')
+          ..write('status: $status, ')
+          ..write('payload: $payload, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ProviderConfigsTable providerConfigs = $ProviderConfigsTable(
     this,
   );
+  late final $JobQueuesTable jobQueues = $JobQueuesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [providerConfigs];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    providerConfigs,
+    jobQueues,
+  ];
 }
 
 typedef $$ProviderConfigsTableCreateCompanionBuilder =
@@ -575,10 +973,219 @@ typedef $$ProviderConfigsTableProcessedTableManager =
       ProviderConfig,
       PrefetchHooks Function()
     >;
+typedef $$JobQueuesTableCreateCompanionBuilder =
+    JobQueuesCompanion Function({
+      Value<int> id,
+      required String jobType,
+      required String status,
+      required String payload,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$JobQueuesTableUpdateCompanionBuilder =
+    JobQueuesCompanion Function({
+      Value<int> id,
+      Value<String> jobType,
+      Value<String> status,
+      Value<String> payload,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+class $$JobQueuesTableFilterComposer
+    extends Composer<_$AppDatabase, $JobQueuesTable> {
+  $$JobQueuesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get jobType => $composableBuilder(
+    column: $table.jobType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$JobQueuesTableOrderingComposer
+    extends Composer<_$AppDatabase, $JobQueuesTable> {
+  $$JobQueuesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get jobType => $composableBuilder(
+    column: $table.jobType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$JobQueuesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $JobQueuesTable> {
+  $$JobQueuesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get jobType =>
+      $composableBuilder(column: $table.jobType, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$JobQueuesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $JobQueuesTable,
+          JobQueue,
+          $$JobQueuesTableFilterComposer,
+          $$JobQueuesTableOrderingComposer,
+          $$JobQueuesTableAnnotationComposer,
+          $$JobQueuesTableCreateCompanionBuilder,
+          $$JobQueuesTableUpdateCompanionBuilder,
+          (JobQueue, BaseReferences<_$AppDatabase, $JobQueuesTable, JobQueue>),
+          JobQueue,
+          PrefetchHooks Function()
+        > {
+  $$JobQueuesTableTableManager(_$AppDatabase db, $JobQueuesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$JobQueuesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$JobQueuesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$JobQueuesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> jobType = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> payload = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => JobQueuesCompanion(
+                id: id,
+                jobType: jobType,
+                status: status,
+                payload: payload,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String jobType,
+                required String status,
+                required String payload,
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => JobQueuesCompanion.insert(
+                id: id,
+                jobType: jobType,
+                status: status,
+                payload: payload,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$JobQueuesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $JobQueuesTable,
+      JobQueue,
+      $$JobQueuesTableFilterComposer,
+      $$JobQueuesTableOrderingComposer,
+      $$JobQueuesTableAnnotationComposer,
+      $$JobQueuesTableCreateCompanionBuilder,
+      $$JobQueuesTableUpdateCompanionBuilder,
+      (JobQueue, BaseReferences<_$AppDatabase, $JobQueuesTable, JobQueue>),
+      JobQueue,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
   $$ProviderConfigsTableTableManager get providerConfigs =>
       $$ProviderConfigsTableTableManager(_db, _db.providerConfigs);
+  $$JobQueuesTableTableManager get jobQueues =>
+      $$JobQueuesTableTableManager(_db, _db.jobQueues);
 }
