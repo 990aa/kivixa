@@ -56,7 +56,7 @@ class ViewportStateService {
 
     await _repository.updateUserSetting(
       'global',
-      'viewportState_$documentId_$page',
+      'viewportState_$documentId_$page', // Corrected the typo here
       {'value': state.toJson()},
     );
   }

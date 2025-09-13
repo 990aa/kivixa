@@ -111,8 +111,13 @@ class SQLiteRepository implements Repository {
     );
   }
 
-
-  // ... Implement all other methods similarly ...
+  @override
+  Future<List<Map<String, dynamic>>> listPages({required int documentId, int? limit, int? offset}) async {
+    // TODO: Implement actual database logic to list pages for a document.
+    // Example: await db.query('pages', where: 'document_id = ?', whereArgs: [documentId], limit: limit, offset: offset);
+    print('SQLiteRepository.listPages called for documentId: $documentId, limit: $limit, offset: $offset - Needs implementation');
+    return []; // Placeholder
+  }
 
   @override
   Future<void> batchWrite(List<Function()> operations) async {
@@ -126,9 +131,26 @@ class SQLiteRepository implements Repository {
   @override
   Future<void> updatePageThumbnailMetadata(int pageId, Map<String, dynamic> metadata) async {
     // TODO: Implement actual database logic to update thumbnail metadata for a page.
-    // This would likely involve an UPDATE query on a 'pages' or 'thumbnails' table.
     // Example: await db.update('pages', {'thumbnail_metadata': jsonEncode(metadata)}, where: 'id = ?', whereArgs: [pageId]);
     print('SQLiteRepository.updatePageThumbnailMetadata called for pageId: $pageId with metadata $metadata - Needs implementation');
-    // For now, this is a no-op.
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getPageThumbnail(int pageId) async {
+    // TODO: Implement actual database logic to get page thumbnail data.
+    // This would likely involve a SELECT query on a 'pages' or 'thumbnails' table.
+    // Example: final res = await db.query('pages', columns: ['thumbnail_asset_id', 'other_thumbnail_info'], where: 'id = ?', whereArgs: [pageId]);
+    // if (res.isNotEmpty) return {'asset_id': res.first['thumbnail_asset_id'], ...other_thumbnail_info...};
+    print('SQLiteRepository.getPageThumbnail called for pageId: $pageId - Needs implementation');
+    return null; // Placeholder
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getAsset(int assetId) async {
+    // TODO: Implement actual database logic to get asset data.
+    // Example: final res = await db.query('assets', where: 'id = ?', whereArgs: [assetId]);
+    // if (res.isNotEmpty) return res.first;
+    print('SQLiteRepository.getAsset called for assetId: $assetId - Needs implementation');
+    return null; // Placeholder
   }
 }

@@ -135,5 +135,8 @@ abstract class Repository {
 
   Future<void> updatePageThumbnailMetadata(int pageId, Map<String, dynamic> metadata);
 
-  Future<List<Map<String, dynamic>>> listPages({required int documentId, int? limit, int? offset}); // Added this line
+  Future<List<Map<String, dynamic>>> listPages({required int documentId, int? limit, int? offset});
+
+  Future<Map<String, dynamic>?> getPageThumbnail(int pageId); // Added this line
+  Future<Map<String, dynamic>?> getAsset(int assetId); // Added this line
 }
