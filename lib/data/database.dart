@@ -35,7 +35,15 @@ class DocProvenance extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-@DriftDatabase(tables: [ProviderConfigs, JobQueues, DocProvenance])
+@DataClassName('LinkData')
+class Links extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get fromPageId => integer()();
+  IntColumn get toPageId => integer()();
+  TextColumn get type => text()();
+}
+
+@DriftDatabase(tables: [ProviderConfigs, JobQueues, DocProvenance, Links])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
