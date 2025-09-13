@@ -1,6 +1,5 @@
 import 'package:kivixa/services/export_manager.dart';
 import 'package:kivixa/services/offline_queue.dart';
-import 'package:kivixa/data/database.dart';
 
 enum ExportFormat {
   nativeZip,

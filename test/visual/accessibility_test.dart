@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/main.dart';
-import 'package:flutter/material.dart';
 
 void main() {
   testWidgets('App meets accessibility guidelines', (
