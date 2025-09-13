@@ -19,21 +19,83 @@ Future<T?> showPremiumDialog<T>({
     transitionBuilder: (context, animation, secondaryAnimation, child) {
       return BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10 * animation.value, sigmaY: 10 * animation.value),
-        child: ScaleTransition(
-          scale: Tween<double>(begin: 1.1, end: 1.0).animate(
-            CurvedAnimation(
-              parent: animation,
-              curve: const SpringCurve(),
-            ),
-          ),
-          child: FadeTransition(
-            opacity: animation,
-            child: child,
-          ),
+        child: PremiumDialogWrapper(
+          animation: animation,
+          child: child,
         ),
       );
     },
   );
+}
+
+class PremiumDialogWrapper extends StatefulWidget {
+  const PremiumDialogWrapper({
+    super.key,
+    required this.animation,
+    required this.child,
+  });
+
+  final Animation<double> animation;
+  final Widget child;
+
+  @override
+  State<PremiumDialogWrapper> createState() => _PremiumDialogWrapperState();
+}
+
+class _PremiumDialogWrapperState extends State<PremiumDialogWrapper> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _offsetAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _offsetAnimation = Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(0, 1),
+    ).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onVerticalDragUpdate: (details) {
+        final progress = details.primaryDelta! / context.size!.height;
+        _controller.value += progress;
+      },
+      onVerticalDragEnd: (details) {
+        if (_controller.value > 0.5) {
+          _controller.forward().then((_) => Navigator.of(context).pop());
+        } else {
+          _controller.reverse();
+        }
+      },
+      child: SlideTransition(
+        position: _offsetAnimation,
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 1.1, end: 1.0).animate(
+            CurvedAnimation(
+              parent: widget.animation,
+              curve: const SpringCurve(),
+            ),
+          ),
+          child: FadeTransition(
+            opacity: widget.animation,
+            child: widget.child,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// A custom curve that uses a spring simulation.
