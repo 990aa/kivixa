@@ -8,13 +8,19 @@ import 'package:flutter/physics.dart';
 Future<T?> showPremiumDialog<T>({
   required BuildContext context,
   required WidgetBuilder builder,
+  Size? dialogSize,
 }) {
   return showGeneralDialog<T>(
     context: context,
     barrierDismissible: true,
     barrierLabel: 'Dismiss',
     pageBuilder: (context, animation, secondaryAnimation) {
-      return builder(context);
+      return Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints.tight(dialogSize ?? const Size(300, 400)),
+          child: builder(context),
+        ),
+      );
     },
     transitionBuilder: (context, animation, secondaryAnimation, child) {
       return BackdropFilter(
