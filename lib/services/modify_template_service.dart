@@ -1,71 +1,72 @@
-/// Represents the minimal set of instructions the UI needs to re-render.
-class ReRenderPlan {
-  /// List of page IDs whose content needs a full redraw.
-  final List<String> pagesToRedraw;
+import 'package:flutter/painting.dart';
 
-  /// List of thumbnail IDs that need to be regenerated.
-  final List<String> thumbnailsToInvalidate;
-
-  ReRenderPlan({
-    required this.pagesToRedraw,
-    required this.thumbnailsToInvalidate,
-  });
-
-  bool get isEmpty => pagesToRedraw.isEmpty && thumbnailsToInvalidate.isEmpty;
-}
-
-/// Represents the properties of a page template that can be modified.
+/// Represents the visual properties of a page template.
 class TemplateProperties {
-  final String? backgroundColor;
-  final String? linePattern; // e.g., 'dotted', 'lined', 'grid'
+  final Color? backgroundColor;
+  final String? linePattern; // e.g., 'dotted', 'ruled', 'grid'
+  final Color? lineColor;
   final double? lineSpacing;
 
-  TemplateProperties({this.backgroundColor, this.linePattern, this.lineSpacing});
+  TemplateProperties({
+    this.backgroundColor,
+    this.linePattern,
+    this.lineColor,
+    this.lineSpacing,
+  });
 }
 
-// Assume a service exists for managing thumbnail caches.
-class _ThumbnailCacheService {
-  void invalidate(List<String> thumbnailIds) {
-    print('Invalidating thumbnails: $thumbnailIds');
-  }
+/// Describes the minimal set of UI updates required after a template change.
+///
+/// This allows the UI to avoid a full document re-render.
+class ReRenderPlan {
+  /// The list of page IDs whose thumbnails need to be redrawn.
+  final List<String> invalidatedThumbnails;
+
+  /// The list of page IDs whose main canvas needs a background redraw.
+  final List<String> pagesToRedraw;
+
+  ReRenderPlan({
+    required this.invalidatedThumbnails,
+    required this.pagesToRedraw,
+  });
 }
 
+/// A service for modifying page templates and calculating the necessary UI updates.
 class ModifyTemplateService {
-  static final ModifyTemplateService _instance = ModifyTemplateService._internal();
-  factory ModifyTemplateService() => _instance;
-  ModifyTemplateService._internal();
 
-  final _ThumbnailCacheService _thumbnailCache = _ThumbnailCacheService();
+  // A stub for a thumbnail cache. In a real app, this would be a more
+  // sophisticated cache management system.
+  final Set<String> _thumbnailCache = {'page1', 'page2', 'page3'};
 
-  /// Updates the properties of a template and returns a plan for the UI to re-render.
+  /// Updates the template properties for a given set of pages.
   ///
-  /// [templateId] The ID of the template to modify.
-  /// [affectedPageIds] A list of all page IDs that use this template.
-  /// [newProperties] The new properties to apply to the template.
-  Future<ReRenderPlan> updateTemplate({
-    required String templateId,
-    required List<String> affectedPageIds,
-    required TemplateProperties newProperties,
-  }) async {
-    // 1. Persist the template property changes to the database (simulated).
-    await _updateTemplateInDatabase(templateId, newProperties);
+  /// This invalidates the thumbnail cache for the affected pages and returns
+  /// a minimal re-render plan for the UI to apply.
+  Future<ReRenderPlan> updateTemplateProperties(
+    List<String> pageIds,
+    TemplateProperties newProperties,
+  ) async {
+    // 1. Persist the template changes.
+    // In a real implementation, this would update the page models in the database.
+    print("Updating template for pages: $pageIds with properties: ${newProperties.linePattern}");
 
-    // 2. Invalidate the thumbnail cache for all affected pages.
-    // We assume a naming convention or mapping from page ID to thumbnail ID.
-    final thumbnailIdsToInvalidate = affectedPageIds.map((id) => 'thumb_$id').toList();
-    _thumbnailCache.invalidate(thumbnailIdsToInvalidate);
+    // 2. Invalidate the thumbnail cache for the affected pages.
+    final invalidated = <String>[];
+    for (final pageId in pageIds) {
+      if (_thumbnailCache.contains(pageId)) {
+        _thumbnailCache.remove(pageId);
+        invalidated.add(pageId);
+      }
+    }
+    print("Invalidated thumbnails for pages: $invalidated");
 
-    // 3. Return a re-render plan.
-    // For a template change, all pages using it need to be redrawn.
+
+    // 3. Return a minimal re-render plan.
+    // For this stub, we'll just assume the currently visible pages need a full redraw.
+    // A more complex implementation would check which of the pageIds are visible.
     return ReRenderPlan(
-      pagesToRedraw: affectedPageIds,
-      thumbnailsToInvalidate: thumbnailIdsToInvalidate,
+      invalidatedThumbnails: invalidated,
+      pagesToRedraw: pageIds,
     );
-  }
-
-  Future<void> _updateTemplateInDatabase(String templateId, TemplateProperties properties) async {
-    // Simulate a database update.
-    await Future.delayed(const Duration(milliseconds: 150));
-    print('Updated template $templateId in database.');
   }
 }
