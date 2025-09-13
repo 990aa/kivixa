@@ -22,7 +22,7 @@ abstract class Repository {
   Future<void> updateDocument(int id, Map<String, dynamic> data);
   Future<void> deleteDocument(int id);
 
-  // Pages
+  // Pages (with provenance)
   Future<int> createPage(Map<String, dynamic> data);
   Future<Map<String, dynamic>?> getPage(int id);
   Future<List<Map<String, dynamic>>> listPages({
