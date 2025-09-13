@@ -13,19 +13,24 @@ class CanvasInitializationResult {
 }
 
 class InfiniteCanvasCreation {
-  final Repository _repo;
+  final DocumentRepository _repo; // Changed from Repository
 
   InfiniteCanvasCreation(this._repo);
 
   Future<CanvasInitializationResult> create(String name, {int? templateId}) async {
     // 1. Create the document
-    final documentId = await _repo.createDocument({
-      'name': name,
-      'is_infinite': true, // Assuming a flag for infinite canvas
-    });
+    // Adjusted to call createDocument with the name. 
+    // Handling of 'is_infinite' might need to be done in a subsequent update call
+    // or by modifying DocumentRepository.createDocument if schema supports it directly.
+    final documentData = await _repo.createDocument(name);
+    final documentId = documentData.id; // Assuming DocumentData has an id field
+
+    // TODO: If 'is_infinite' needs to be set, you might need an update method:
+    // await _repo.updateDocument(documentData.copyWith(isInfinite: true)); 
 
     // 2. Apply template if provided
     if (templateId != null) {
+      // This method will need to be added to DocumentRepository
       final template = await _repo.getTemplate(templateId);
       if (template != null) {
         // Apply template data to the document.
@@ -46,7 +51,8 @@ class InfiniteCanvasCreation {
           'y': y,
           'data': {}, // Empty data for now
         };
-        await _repo.createMinimapTile(tile); // Assuming createMinimapTile can be used for this
+        // This method will need to be added to DocumentRepository
+        await _repo.createMinimapTile(tile);
         initialTiles.add(tile);
       }
     }

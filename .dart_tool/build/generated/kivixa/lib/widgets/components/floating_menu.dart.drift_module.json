@@ -1,0 +1,7 @@
+{
+  "elements": {},
+  "imports": [
+    "package:flutter/material.dart",
+    "package:kivixa/widgets/components/custom_popup_menu.dart"
+  ]
+}

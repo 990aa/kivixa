@@ -421,7 +421,7 @@ class $JobQueueTable extends JobQueue
     false,
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
-    defaultValue: const Constant(DateTime.now()),
+    defaultValue: Constant(DateTime.now()),
   );
   @override
   List<GeneratedColumn> get $columns => [

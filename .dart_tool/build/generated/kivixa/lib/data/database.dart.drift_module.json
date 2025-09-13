@@ -1,0 +1,1411 @@
+{
+  "elements": {
+    "AppDatabase": {
+      "id": {
+        "library_uri": "package:kivixa/data/database.dart",
+        "name": "AppDatabase"
+      },
+      "declaration": {
+        "source_uri": "package:kivixa/data/database.dart",
+        "offset": 3384,
+        "name": "AppDatabase"
+      },
+      "references": [
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "provider_configs"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "job_queues"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "doc_provenance"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "links"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "documents"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "outlines"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "comments"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "text_blocks"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "redo_log"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "assets"
+        },
+        {
+          "library_uri": "package:kivixa/data/schema/custom_tables.dart",
+          "name": "checklist_items"
+        },
+        {
+          "library_uri": "package:kivixa/data/schema/custom_tables.dart",
+          "name": "calendar_events"
+        }
+      ],
+      "type": "database",
+      "tables": [
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "provider_configs"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "job_queues"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "doc_provenance"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "links"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "documents"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "outlines"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "comments"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "text_blocks"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "redo_log"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "assets"
+        },
+        {
+          "library_uri": "package:kivixa/data/schema/custom_tables.dart",
+          "name": "checklist_items"
+        },
+        {
+          "library_uri": "package:kivixa/data/schema/custom_tables.dart",
+          "name": "calendar_events"
+        }
+      ],
+      "views": [],
+      "includes": [],
+      "queries": [],
+      "schema_version": 2,
+      "daos": [],
+      "has_constructor_arg": false
+    },
+    "provider_configs": {
+      "id": {
+        "library_uri": "package:kivixa/data/database.dart",
+        "name": "provider_configs"
+      },
+      "declaration": {
+        "source_uri": "package:kivixa/data/database.dart",
+        "offset": 299,
+        "name": "ProviderConfigs"
+      },
+      "references": [],
+      "type": "table",
+      "columns": [
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "id",
+          "nameInDart": "id",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 347,
+            "name": "id"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [
+            {
+              "type": "primary",
+              "is_auto_increment": true
+            }
+          ],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "provider_id",
+          "nameInDart": "providerId",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 399,
+            "name": "providerId"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": true,
+          "nameInSql": "base_url",
+          "nameInDart": "baseUrl",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 440,
+            "name": "baseUrl"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": true,
+          "nameInSql": "model_name",
+          "nameInDart": "modelName",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 489,
+            "name": "modelName"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": true,
+          "nameInSql": "options",
+          "nameInDart": "options",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 540,
+            "name": "options"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        }
+      ],
+      "existing_data_class": null,
+      "table_constraints": [],
+      "custom_parent_class": null,
+      "interfaces_for_row_class": [],
+      "fixed_entity_info_name": null,
+      "base_dart_name": "ProviderConfigs",
+      "row_class_name": "ProviderConfig",
+      "companion_class_name": null,
+      "without_rowid": false,
+      "strict": false,
+      "write_default_constraints": true,
+      "custom_constraints": [],
+      "attached_indices": []
+    },
+    "job_queues": {
+      "id": {
+        "library_uri": "package:kivixa/data/database.dart",
+        "name": "job_queues"
+      },
+      "declaration": {
+        "source_uri": "package:kivixa/data/database.dart",
+        "offset": 632,
+        "name": "JobQueues"
+      },
+      "references": [],
+      "type": "table",
+      "columns": [
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "id",
+          "nameInDart": "id",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 674,
+            "name": "id"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [
+            {
+              "type": "primary",
+              "is_auto_increment": true
+            }
+          ],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "job_type",
+          "nameInDart": "jobType",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 726,
+            "name": "jobType"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "status",
+          "nameInDart": "status",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 803,
+            "name": "status"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "payload",
+          "nameInDart": "payload",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 903,
+            "name": "payload"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "dateTime"
+          },
+          "nullable": false,
+          "nameInSql": "created_at",
+          "nameInDart": "createdAt",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 969,
+            "name": "createdAt"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": {
+            "elements": [
+              {
+                "lexeme": "currentDateAndTime",
+                "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+              }
+            ]
+          },
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "dateTime"
+          },
+          "nullable": false,
+          "nameInSql": "updated_at",
+          "nameInDart": "updatedAt",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 1049,
+            "name": "updatedAt"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": {
+            "elements": [
+              {
+                "lexeme": "currentDateAndTime",
+                "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+              }
+            ]
+          },
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        }
+      ],
+      "existing_data_class": null,
+      "table_constraints": [],
+      "custom_parent_class": null,
+      "interfaces_for_row_class": [],
+      "fixed_entity_info_name": null,
+      "base_dart_name": "JobQueues",
+      "row_class_name": "JobQueue",
+      "companion_class_name": null,
+      "without_rowid": false,
+      "strict": false,
+      "write_default_constraints": true,
+      "custom_constraints": [],
+      "attached_indices": []
+    },
+    "doc_provenance": {
+      "id": {
+        "library_uri": "package:kivixa/data/database.dart",
+        "name": "doc_provenance"
+      },
+      "declaration": {
+        "source_uri": "package:kivixa/data/database.dart",
+        "offset": 1153,
+        "name": "DocProvenance"
+      },
+      "references": [],
+      "type": "table",
+      "columns": [
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "id",
+          "nameInDart": "id",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 1199,
+            "name": "id"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [
+            {
+              "type": "primary",
+              "is_auto_increment": true
+            }
+          ],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "new_document_id",
+          "nameInDart": "newDocumentId",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 1251,
+            "name": "newDocumentId"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "type",
+          "nameInDart": "type",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 1295,
+            "name": "type"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "source_document_ids",
+          "nameInDart": "sourceDocumentIds",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 1354,
+            "name": "sourceDocumentIds"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "dateTime"
+          },
+          "nullable": false,
+          "nameInSql": "created_at",
+          "nameInDart": "createdAt",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 1430,
+            "name": "createdAt"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": {
+            "elements": [
+              {
+                "lexeme": "currentDateAndTime",
+                "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+              }
+            ]
+          },
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        }
+      ],
+      "existing_data_class": null,
+      "table_constraints": [],
+      "custom_parent_class": null,
+      "interfaces_for_row_class": [],
+      "fixed_entity_info_name": null,
+      "base_dart_name": "DocProvenance",
+      "row_class_name": "DocProvenanceData",
+      "companion_class_name": null,
+      "without_rowid": false,
+      "strict": false,
+      "write_default_constraints": true,
+      "custom_constraints": [],
+      "attached_indices": []
+    },
+    "links": {
+      "id": {
+        "library_uri": "package:kivixa/data/database.dart",
+        "name": "links"
+      },
+      "declaration": {
+        "source_uri": "package:kivixa/data/database.dart",
+        "offset": 1525,
+        "name": "Links"
+      },
+      "references": [],
+      "type": "table",
+      "columns": [
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "id",
+          "nameInDart": "id",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 1563,
+            "name": "id"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [
+            {
+              "type": "primary",
+              "is_auto_increment": true
+            }
+          ],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "from_page_id",
+          "nameInDart": "fromPageId",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 1614,
+            "name": "fromPageId"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "to_page_id",
+          "nameInDart": "toPageId",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 1657,
+            "name": "toPageId"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "type",
+          "nameInDart": "type",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 1699,
+            "name": "type"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        }
+      ],
+      "existing_data_class": null,
+      "table_constraints": [],
+      "custom_parent_class": null,
+      "interfaces_for_row_class": [],
+      "fixed_entity_info_name": null,
+      "base_dart_name": "Links",
+      "row_class_name": "LinkData",
+      "companion_class_name": null,
+      "without_rowid": false,
+      "strict": false,
+      "write_default_constraints": true,
+      "custom_constraints": [],
+      "attached_indices": []
+    },
+    "documents": {
+      "id": {
+        "library_uri": "package:kivixa/data/database.dart",
+        "name": "documents"
+      },
+      "declaration": {
+        "source_uri": "package:kivixa/data/database.dart",
+        "offset": 1757,
+        "name": "Documents"
+      },
+      "references": [],
+      "type": "table",
+      "columns": [
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "id",
+          "nameInDart": "id",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 1799,
+            "name": "id"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [
+            {
+              "type": "primary",
+              "is_auto_increment": true
+            }
+          ],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "title",
+          "nameInDart": "title",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 1851,
+            "name": "title"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        }
+      ],
+      "existing_data_class": null,
+      "table_constraints": [],
+      "custom_parent_class": null,
+      "interfaces_for_row_class": [],
+      "fixed_entity_info_name": null,
+      "base_dart_name": "Documents",
+      "row_class_name": "DocumentData",
+      "companion_class_name": null,
+      "without_rowid": false,
+      "strict": false,
+      "write_default_constraints": true,
+      "custom_constraints": [],
+      "attached_indices": []
+    },
+    "outlines": {
+      "id": {
+        "library_uri": "package:kivixa/data/database.dart",
+        "name": "outlines"
+      },
+      "declaration": {
+        "source_uri": "package:kivixa/data/database.dart",
+        "offset": 1909,
+        "name": "Outlines"
+      },
+      "references": [],
+      "type": "table",
+      "columns": [
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "id",
+          "nameInDart": "id",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 1950,
+            "name": "id"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [
+            {
+              "type": "primary",
+              "is_auto_increment": true
+            }
+          ],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "document_id",
+          "nameInDart": "documentId",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2001,
+            "name": "documentId"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "data",
+          "nameInDart": "data",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2045,
+            "name": "data"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        }
+      ],
+      "existing_data_class": null,
+      "table_constraints": [],
+      "custom_parent_class": null,
+      "interfaces_for_row_class": [],
+      "fixed_entity_info_name": null,
+      "base_dart_name": "Outlines",
+      "row_class_name": "OutlineData",
+      "companion_class_name": null,
+      "without_rowid": false,
+      "strict": false,
+      "write_default_constraints": true,
+      "custom_constraints": [],
+      "attached_indices": []
+    },
+    "comments": {
+      "id": {
+        "library_uri": "package:kivixa/data/database.dart",
+        "name": "comments"
+      },
+      "declaration": {
+        "source_uri": "package:kivixa/data/database.dart",
+        "offset": 2102,
+        "name": "Comments"
+      },
+      "references": [],
+      "type": "table",
+      "columns": [
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "id",
+          "nameInDart": "id",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2143,
+            "name": "id"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [
+            {
+              "type": "primary",
+              "is_auto_increment": true
+            }
+          ],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "page_id",
+          "nameInDart": "pageId",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2194,
+            "name": "pageId"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "content",
+          "nameInDart": "content",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2234,
+            "name": "content"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        }
+      ],
+      "existing_data_class": null,
+      "table_constraints": [],
+      "custom_parent_class": null,
+      "interfaces_for_row_class": [],
+      "fixed_entity_info_name": null,
+      "base_dart_name": "Comments",
+      "row_class_name": "CommentData",
+      "companion_class_name": null,
+      "without_rowid": false,
+      "strict": false,
+      "write_default_constraints": true,
+      "custom_constraints": [],
+      "attached_indices": []
+    },
+    "text_blocks": {
+      "id": {
+        "library_uri": "package:kivixa/data/database.dart",
+        "name": "text_blocks"
+      },
+      "declaration": {
+        "source_uri": "package:kivixa/data/database.dart",
+        "offset": 2296,
+        "name": "TextBlocks"
+      },
+      "references": [],
+      "type": "table",
+      "columns": [
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "id",
+          "nameInDart": "id",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2339,
+            "name": "id"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [
+            {
+              "type": "primary",
+              "is_auto_increment": true
+            }
+          ],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "layer_id",
+          "nameInDart": "layerId",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2390,
+            "name": "layerId"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "content",
+          "nameInDart": "content",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2431,
+            "name": "content"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        }
+      ],
+      "existing_data_class": null,
+      "table_constraints": [],
+      "custom_parent_class": null,
+      "interfaces_for_row_class": [],
+      "fixed_entity_info_name": null,
+      "base_dart_name": "TextBlocks",
+      "row_class_name": "TextBlockData",
+      "companion_class_name": null,
+      "without_rowid": false,
+      "strict": false,
+      "write_default_constraints": true,
+      "custom_constraints": [],
+      "attached_indices": []
+    },
+    "redo_log": {
+      "id": {
+        "library_uri": "package:kivixa/data/database.dart",
+        "name": "redo_log"
+      },
+      "declaration": {
+        "source_uri": "package:kivixa/data/database.dart",
+        "offset": 2491,
+        "name": "RedoLog"
+      },
+      "references": [],
+      "type": "table",
+      "columns": [
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "id",
+          "nameInDart": "id",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2531,
+            "name": "id"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [
+            {
+              "type": "primary",
+              "is_auto_increment": true
+            }
+          ],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "entity_type",
+          "nameInDart": "entityType",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2583,
+            "name": "entityType"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "entity_id",
+          "nameInDart": "entityId",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2623,
+            "name": "entityId"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "action",
+          "nameInDart": "action",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2665,
+            "name": "action"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": true,
+          "nameInSql": "data",
+          "nameInDart": "data",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2702,
+            "name": "data"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "ts",
+          "nameInDart": "ts",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2747,
+            "name": "ts"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        }
+      ],
+      "existing_data_class": null,
+      "table_constraints": [],
+      "custom_parent_class": null,
+      "interfaces_for_row_class": [],
+      "fixed_entity_info_name": null,
+      "base_dart_name": "RedoLog",
+      "row_class_name": "RedoLogData",
+      "companion_class_name": null,
+      "without_rowid": false,
+      "strict": false,
+      "write_default_constraints": true,
+      "custom_constraints": [],
+      "attached_indices": []
+    },
+    "assets": {
+      "id": {
+        "library_uri": "package:kivixa/data/database.dart",
+        "name": "assets"
+      },
+      "declaration": {
+        "source_uri": "package:kivixa/data/database.dart",
+        "offset": 2803,
+        "name": "Assets"
+      },
+      "references": [],
+      "type": "table",
+      "columns": [
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "id",
+          "nameInDart": "id",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2842,
+            "name": "id"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [
+            {
+              "type": "primary",
+              "is_auto_increment": true
+            }
+          ],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "path",
+          "nameInDart": "path",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2894,
+            "name": "path"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "size",
+          "nameInDart": "size",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2928,
+            "name": "size"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "hash",
+          "nameInDart": "hash",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 2966,
+            "name": "hash"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "mime",
+          "nameInDart": "mime",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 3001,
+            "name": "mime"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": true,
+          "nameInSql": "source_uri",
+          "nameInDart": "sourceUri",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 3036,
+            "name": "sourceUri"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "dateTime"
+          },
+          "nullable": false,
+          "nameInSql": "created_at",
+          "nameInDart": "createdAt",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 3091,
+            "name": "createdAt"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": {
+            "elements": [
+              {
+                "lexeme": "currentDateAndTime",
+                "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+              }
+            ]
+          },
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        }
+      ],
+      "existing_data_class": null,
+      "table_constraints": [],
+      "custom_parent_class": null,
+      "interfaces_for_row_class": [],
+      "fixed_entity_info_name": null,
+      "base_dart_name": "Assets",
+      "row_class_name": "AssetData",
+      "companion_class_name": null,
+      "without_rowid": false,
+      "strict": false,
+      "write_default_constraints": true,
+      "custom_constraints": [],
+      "attached_indices": []
+    }
+  },
+  "imports": [
+    "package:drift/drift.dart",
+    "package:kivixa/data/schema/custom_tables.dart",
+    "package:drift/native.dart",
+    "package:path_provider/path_provider.dart",
+    "package:path/path.dart"
+  ]
+}

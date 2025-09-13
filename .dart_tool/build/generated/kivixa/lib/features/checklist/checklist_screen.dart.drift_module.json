@@ -1,0 +1,7 @@
+{
+  "elements": {},
+  "imports": [
+    "package:flutter/material.dart",
+    "package:kivixa/widgets/checklist_interactive.dart"
+  ]
+}

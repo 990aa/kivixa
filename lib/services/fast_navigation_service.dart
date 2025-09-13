@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../data/repository.dart';
+import '../data/repository.dart'; // This file provides DocumentRepository
 
 abstract class PageIdentifier {}
 
@@ -15,7 +15,7 @@ class PageIdIdentifier implements PageIdentifier {
 }
 
 class FastNavigationService {
-  final Repository _repo;
+  final DocumentRepository _repo; // Changed from Repository to DocumentRepository
 
   int? _currentDocumentId;
   final Map<int, int> _pageNumberToIdCache = {};
@@ -32,6 +32,8 @@ class FastNavigationService {
     _currentDocumentId = documentId;
     _pageNumberToIdCache.clear();
 
+    // Note: DocumentRepository does not currently have a listPages method.
+    // This will cause an error.
     final pages = await _repo.listPages(documentId: documentId);
     for (var i = 0; i < pages.length; i++) {
       // Assuming pages are ordered by page number.

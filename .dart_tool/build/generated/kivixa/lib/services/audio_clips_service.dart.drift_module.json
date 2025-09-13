@@ -1,0 +1,8 @@
+{
+  "elements": {},
+  "imports": [
+    "package:path/path.dart",
+    "package:path_provider/path_provider.dart",
+    "package:kivixa/data/repository.dart"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "elements": {},
+  "imports": [
+    "package:flutter/foundation.dart",
+    "package:flutter/services.dart",
+    "package:kivixa/services/import_manager.dart",
+    "package:kivixa/platform/storage_paths.dart",
+    "package:logging/logging.dart",
+    "package:path/path.dart",
+    "package:uri_to_file/uri_to_file.dart"
+  ]
+}

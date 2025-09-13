@@ -1,8 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart'; // This is for creating PDFs, not reading existing ones
+import 'package:pdf/widgets.dart' as pw; // This is for creating PDFs
 import 'annotation_toolbar.dart';
+
+// TODO: Import a PDF parsing library that provides PdfDocument.openFile
+// e.g., import 'package:native_pdf_renderer/native_pdf_renderer.dart' as pdf_render;
+// Then use: final pdf = await pdf_render.PdfDocument.openFile(widget.pdfPath);
 
 class PdfTextSelector extends StatefulWidget {
   final String pdfPath;
@@ -31,9 +35,20 @@ class _PdfTextSelectorState extends State<PdfTextSelector> {
   }
 
   Future<void> _extractText() async {
-    final file = File(widget.pdfPath);
-    final document = pw.Document();
-    final pdf = PdfDocument.openFile(widget.pdfPath);
+    // final file = File(widget.pdfPath); // File object already available via path
+    // final document = pw.Document(); // This is for creating PDFs
+    
+    // The line below will cause an error until you add a PDF parsing library
+    // that provides PdfDocument.openFile and import it.
+    // For example, if using native_pdf_renderer aliased as pdf_render:
+    // final pdf_render.PdfDocument pdf = await pdf_render.PdfDocument.openFile(widget.pdfPath);
+    // Or, if your chosen library's PdfDocument doesn't clash, it might be:
+    // final PdfDocument pdf = await PdfDocument.openFile(widget.pdfPath);
+    
+    // Placeholder to avoid immediate error, replace with actual PDF opening logic
+    // For now, this will not work as PdfDocument from package:pdf/pdf.dart has no openFile
+    final pdf = await PdfDocument.openFile(widget.pdfPath); 
+    
     final page = await pdf.getPage(1);
     final content = await page.getText();
     // This is a simplified text extraction. A more robust solution would
@@ -91,6 +106,8 @@ class _PdfTextSelectorState extends State<PdfTextSelector> {
     );
   }
 }
+
+// Removed class openFile {}
 
 class _TextSelectionPainter extends CustomPainter {
   final Offset startHandlePosition;

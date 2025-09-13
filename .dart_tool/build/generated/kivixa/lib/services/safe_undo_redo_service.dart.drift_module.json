@@ -1,0 +1,7 @@
+{
+  "elements": {},
+  "imports": [
+    "package:kivixa/data/database.dart",
+    "package:drift/drift.dart"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "elements": {},
+  "imports": [
+    "package:kivixa/data/repository.dart",
+    "package:kivixa/services/pdf_annotation_service.dart"
+  ]
+}

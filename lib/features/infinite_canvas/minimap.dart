@@ -1,4 +1,4 @@
-import 'package.flutter.com/material.dart';
+import 'package:flutter/material.dart';
 
 class Minimap extends StatelessWidget {
   final TransformationController transformationController;
@@ -22,7 +22,7 @@ class Minimap extends StatelessWidget {
         height: minimapSize.height,
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey[400]!),
-          color: Colors.grey[200]!.withOpacity(0.8),
+          color: Colors.grey[200]!.withAlpha((0.8 * 255).round()),
         ),
         child: CustomPaint(
           painter: _MinimapPainter(
@@ -55,7 +55,7 @@ class _MinimapPainter extends CustomPainter {
     final viewport = invMatrix.transformRect(Offset.zero & size);
 
     final paint = Paint()
-      ..color = Colors.blue.withOpacity(0.5)
+      ..color = Colors.blue.withAlpha((0.5 * 255).round())
       ..style = PaintingStyle.fill;
 
     canvas.drawRect(

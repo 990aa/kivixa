@@ -1,0 +1,9 @@
+{
+  "elements": {},
+  "imports": [
+    "package:flutter/material.dart",
+    "package:pdf/pdf.dart",
+    "package:pdf/widgets.dart",
+    "package:kivixa/features/pdf_annotation/annotation_toolbar.dart"
+  ]
+}

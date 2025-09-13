@@ -1,0 +1,49 @@
+{
+  "elements": {
+    "AppDatabase": {
+      "id": {
+        "library_uri": "package:kivixa/ai/provider_config_service.dart",
+        "name": "AppDatabase"
+      },
+      "declaration": {
+        "source_uri": "package:kivixa/ai/provider_config_service.dart",
+        "offset": 301,
+        "name": "AppDatabase"
+      },
+      "references": [
+        {
+          "library_uri": "package:kivixa/ai/database.dart",
+          "name": "provider_configs"
+        },
+        {
+          "library_uri": "package:kivixa/ai/database.dart",
+          "name": "job_queue"
+        }
+      ],
+      "type": "database",
+      "tables": [
+        {
+          "library_uri": "package:kivixa/ai/database.dart",
+          "name": "provider_configs"
+        },
+        {
+          "library_uri": "package:kivixa/ai/database.dart",
+          "name": "job_queue"
+        }
+      ],
+      "views": [],
+      "includes": [],
+      "queries": [],
+      "schema_version": 1,
+      "daos": [],
+      "has_constructor_arg": false
+    }
+  },
+  "imports": [
+    "package:drift/drift.dart",
+    "package:drift/native.dart",
+    "package:path_provider/path_provider.dart",
+    "package:path/path.dart",
+    "package:kivixa/ai/database.dart"
+  ]
+}

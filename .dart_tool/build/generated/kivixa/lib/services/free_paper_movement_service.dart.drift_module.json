@@ -1,0 +1,6 @@
+{
+  "elements": {},
+  "imports": [
+    "package:sqflite/sqflite.dart"
+  ]
+}

@@ -20,7 +20,7 @@ class PdfTextSearch {
 
     for (var i = 1; i <= doc.pagesCount; i++) {
       final page = await doc.getPage(i);
-      final pageText = await page.getText();
+      final pageText = await page.readText(); // Changed from getText to readText
       
       if (pageText.contains(query)) {
         // This is a simplified implementation. A real implementation would

@@ -1,0 +1,11 @@
+{
+  "elements": {},
+  "imports": [
+    "package:flutter/widgets.dart",
+    "package:kivixa/services/package_files/desktop_drop.dart",
+    "package:flutter/foundation.dart",
+    "package:kivixa/services/import_manager.dart",
+    "package:logging/logging.dart",
+    "package:cross_file/cross_file.dart"
+  ]
+}

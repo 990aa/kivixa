@@ -1,0 +1,8 @@
+{
+  "elements": {},
+  "imports": [
+    "package:flutter_test/flutter_test.dart",
+    "package:kivixa/features/splash/splash_screen.dart",
+    "package:flutter/material.dart"
+  ]
+}

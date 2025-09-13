@@ -1,0 +1,9 @@
+{
+  "elements": {},
+  "imports": [
+    "package:flutter/material.dart",
+    "package:flutter_pdfview/flutter_pdfview.dart",
+    "package:file_picker/file_picker.dart",
+    "package:kivixa/features/pdf_annotation/pdf_text_selector.dart"
+  ]
+}

@@ -1,0 +1,1 @@
+{"valid_import":true,"imports":[{"uri":"package:flutter/material.dart","transitive":false},{"uri":"package:shared_preferences/shared_preferences.dart","transitive":false},{"uri":"package:flutter_riverpod/flutter_riverpod.dart","transitive":false}],"elements":[]}

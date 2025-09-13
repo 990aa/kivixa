@@ -5,19 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="49a8958b-8c8d-458b-9c1b-10ca97c96ca1" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ai/key_vault.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ai/key_vault.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/domain/export_formats.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/domain/export_formats.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/domain/replay_engine.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/domain/replay_engine.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ai/provider_config_service.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ai/provider_config_service.g.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/pdf_annotation/pdf_text_selector.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/pdf_annotation/pdf_text_selector.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/backup_manager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/backup_manager.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/drag_drop_desktop_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/drag_drop_desktop_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/offline_queue.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/offline_queue.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/widgets/components/kivixa_button.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/components/kivixa_button.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/widgets/components/premium_sheet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/components/premium_sheet.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/widgets/designer_debug_overlay.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/designer_debug_overlay.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/widgets/file_transfer_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/file_transfer_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tool/load_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/tool/load_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,7 +33,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,

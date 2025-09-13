@@ -1,0 +1,11 @@
+{
+  "elements": {},
+  "imports": [
+    "package:kivixa/widgets/rough_notepad_popup.dart",
+    "package:flutter/material.dart",
+    "package:kivixa/services/export_manager.dart",
+    "package:kivixa/services/import_manager.dart",
+    "package:kivixa/widgets/file_transfer_view.dart",
+    "package:shimmer/shimmer.dart"
+  ]
+}

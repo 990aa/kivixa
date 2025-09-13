@@ -1,0 +1,7 @@
+{
+  "elements": {},
+  "imports": [
+    "package:kivixa/ai/provider_config_service.dart",
+    "package:drift/drift.dart"
+  ]
+}

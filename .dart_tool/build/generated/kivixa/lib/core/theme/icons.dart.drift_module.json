@@ -1,0 +1,6 @@
+{
+  "elements": {},
+  "imports": [
+    "package:phosphor_flutter/phosphor_flutter.dart"
+  ]
+}
