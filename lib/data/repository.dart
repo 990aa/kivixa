@@ -221,6 +221,18 @@ abstract class Repository {
   Future<void> updateMinimapTile(int id, Map<String, dynamic> data);
   Future<void> deleteMinimapTile(int id);
 
+  // Pdf Annotations
+  Future<int> createPdfAnnotation(Map<String, dynamic> data);
+  Future<Map<String, dynamic>?> getPdfAnnotation(int id);
+  Future<List<Map<String, dynamic>>> listPdfAnnotations({
+    int? documentId,
+    int? pageNumber,
+    int? limit,
+    int? offset,
+  });
+  Future<void> updatePdfAnnotation(int id, Map<String, dynamic> data);
+  Future<void> deletePdfAnnotation(int id);
+
   // Batch operations
   Future<void> batchWrite(List<Function()> operations);
 }
