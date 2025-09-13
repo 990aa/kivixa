@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'custom_popup_menu.dart';
 
 /// Shows a floating menu with a shadow/elevation animation.
 ///
@@ -6,12 +7,12 @@ import 'package:flutter/material.dart';
 void showFloatingMenu({
   required BuildContext context,
   required Offset position,
-  required List<Widget> items,
+  required List<PopupMenuEntry> items,
 }) {
   final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
   final screenSize = overlay.size;
 
-  showMenu(
+  showCustomMenu(
     context: context,
     position: RelativeRect.fromLTRB(
       position.dx,
@@ -19,14 +20,7 @@ void showFloatingMenu({
       screenSize.width - position.dx,
       screenSize.height - position.dy,
     ),
-    items: items.map((item) {
-      return PopupMenuItem(
-        child: item,
-      );
-    }).toList(),
+    items: items,
     elevation: 8.0,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12.0),
-    ),
   );
 }
