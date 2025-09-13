@@ -8,9 +8,9 @@ import 'package:meta/meta.dart';
 abstract class AIProvider {
   Future<List<String>> listModels();
   Stream<String> streamCompletion(String prompt);
-  Future<String> summarize(String text);
-  Future<String> translate(String text, String targetLanguage);
-  Future<String> ocrHandwriting(List<int> imageData);
+  Stream<String> summarize(String text);
+  Stream<String> translate(String text, String targetLanguage);
+  Stream<String> ocrHandwriting(List<int> imageData);
 }
 
 // OpenAI-Compatible Provider
@@ -74,19 +74,19 @@ class OpenAIProvider implements AIProvider {
   }
 
   @override
-  Future<String> summarize(String text) async {
+  Stream<String> summarize(String text) {
     // Implementation for summarization
     throw UnimplementedError();
   }
 
   @override
-  Future<String> translate(String text, String targetLanguage) async {
+  Stream<String> translate(String text, String targetLanguage) {
     // Implementation for translation
     throw UnimplementedError();
   }
 
   @override
-  Future<String> ocrHandwriting(List<int> imageData) async {
+  Stream<String> ocrHandwriting(List<int> imageData) {
     throw UnsupportedError('OCR handwriting is not supported by this provider.');
   }
 }
@@ -119,19 +119,19 @@ class GeminiProvider implements AIProvider {
     }
 
     @override
-    Future<String> summarize(String text) {
+    Stream<String> summarize(String text) {
         // Implementation for summarization
         throw UnimplementedError();
     }
 
     @override
-    Future<String> translate(String text, String targetLanguage) {
+    Stream<String> translate(String text, String targetLanguage) {
         // Implementation for translation
         throw UnimplementedError();
     }
 
     @override
-    Future<String> ocrHandwriting(List<int> imageData) {
+    Stream<String> ocrHandwriting(List<int> imageData) {
         throw UnsupportedError('OCR handwriting is not supported by this provider.');
     }
 }
@@ -156,19 +156,19 @@ class AnthropicProvider implements AIProvider {
     }
 
     @override
-    Future<String> summarize(String text) {
+    Stream<String> summarize(String text) {
         // Implementation for summarization
         throw UnimplementedError();
     }
 
     @override
-    Future<String> translate(String text, String targetLanguage) {
+    Stream<String> translate(String text, String targetLanguage) {
         // Implementation for translation
         throw UnimplementedError();
     }
 
     @override
-    Future<String> ocrHandwriting(List<int> imageData) {
+    Stream<String> ocrHandwriting(List<int> imageData) {
         throw UnsupportedError('OCR handwriting is not supported by this provider.');
     }
 }
@@ -197,19 +197,19 @@ class LocalOllamaProvider implements AIProvider {
     }
 
     @override
-    Future<String> summarize(String text) {
+    Stream<String> summarize(String text) {
         // Implementation for summarization
         throw UnimplementedError();
     }
 
     @override
-    Future<String> translate(String text, String targetLanguage) {
+    Stream<String> translate(String text, String targetLanguage) {
         // Implementation for translation
         throw UnimplementedError();
     }
 
     @override
-    Future<String> ocrHandwriting(List<int> imageData) {
+    Stream<String> ocrHandwriting(List<int> imageData) {
         throw UnsupportedError('OCR handwriting is not supported by this provider.');
     }
 }
