@@ -1,92 +1,94 @@
-
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:crypto/crypto.dart';
-import 'package:encrypt/encrypt.dart' as enc;
 import 'package:path_provider/path_provider.dart';
+import 'package:pointycastle/export.dart';
 
 class KeyVault {
-  final _storage = const FlutterSecureStorage();
+  final _secureStorage = const FlutterSecureStorage();
 
   Future<void> setApiKey(String provider, String apiKey) async {
-    await _storage.write(key: 'api_key_$provider', value: apiKey);
-  }
-
-  Future<String?> getApiKey(String provider) async {
-    return await _storage.read(key: 'api_key_$provider');
-  }
-
-  Future<void> deleteApiKey(String provider) async {
-    await _storage.delete(key: 'api_key_$provider');
-  }
-
-  // Fallback for Windows if flutter_secure_storage fails.
-  // This is a simplified example. In a real-world scenario, you would need
-  // a more robust way to handle the key and salt.
-  Future<void> _setApiKeyFallback(String provider, String apiKey) async {
-    if (!Platform.isWindows) return;
-
-    final key = await _getDeviceScopedKey();
-    final iv = enc.IV.fromLength(16);
-    final encrypter = enc.Encrypter(enc.AES(key));
-
-    final encrypted = encrypter.encrypt(apiKey, iv: iv);
-    final file = await _getEncryptedStoreFile();
-    final storedData = await _readEncryptedStore(file);
-
-    storedData['api_key_$provider'] = {
-      'iv': iv.base64,
-      'data': encrypted.base64,
-    };
-
-    await file.writeAsString(jsonEncode(storedData));
-  }
-
-  Future<String?> _getApiKeyFallback(String provider) async {
-    if (!Platform.isWindows) return null;
-
-    final file = await _getEncryptedStoreFile();
-    if (!await file.exists()) return null;
-
-    final storedData = await _readEncryptedStore(file);
-    final providerData = storedData['api_key_$provider'];
-    if (providerData == null) return null;
-
-    final key = await _getDeviceScopedKey();
-    final iv = enc.IV.fromBase64(providerData['iv']);
-    final encrypter = enc.Encrypter(enc.AES(key));
-
-    final encrypted = enc.Encrypted.fromBase64(providerData['data']);
-    return encrypter.decrypt(encrypted, iv: iv);
-  }
-
-  Future<Map<String, dynamic>> _readEncryptedStore(File file) async {
-    if (!await file.exists()) return {};
-    try {
-      return jsonDecode(await file.readAsString());
-    } catch (e) {
-      return {};
+    if (Platform.isAndroid || Platform.isWindows) {
+      await _secureStorage.write(key: 'api_key_$provider', value: apiKey);
+    } else {
+      await _setApiKeyEncryptedFile(provider, apiKey);
     }
   }
 
-  Future<File> _getEncryptedStoreFile() async {
-    final directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/.kv');
+  Future<String?> getApiKey(String provider) async {
+    if (Platform.isAndroid || Platform.isWindows) {
+      return await _secureStorage.read(key: 'api_key_$provider');
+    } else {
+      return await _getApiKeyEncryptedFile(provider);
+    }
   }
 
-  Future<enc.Key> _getDeviceScopedKey() async {
-    // This is a simplified example. In a real-world scenario, you would want
-    // to use a more secure, device-specific salt.
-    const salt = 'a-very-salty-salt';
+  Future<void> _setApiKeyEncryptedFile(String provider, String apiKey) async {
+    final file = await _getEncryptedFile(provider);
+    final salt = _generateSalt();
+    final key = await _getKey(salt);
+    final iv = _generateIv();
+
+    final cipher = GCMBlockCipher(AESFastEngine())
+      ..init(true, AEADParameters(KeyParameter(key), 128, iv, Uint8List(0)));
+
+    final encrypted = cipher.process(utf8.encode(apiKey) as Uint8List);
+
+    await file.writeAsBytes(salt + iv + encrypted);
+  }
+
+  Future<String?> _getApiKeyEncryptedFile(String provider) async {
+    try {
+      final file = await _getEncryptedFile(provider);
+      if (!await file.exists()) {
+        return null;
+      }
+
+      final contents = await file.readAsBytes();
+      final salt = contents.sublist(0, 16);
+      final iv = contents.sublist(16, 28);
+      final encrypted = contents.sublist(28);
+
+      final key = await _getKey(salt);
+      final cipher = GCMBlockCipher(AESFastEngine())
+        ..init(false, AEADParameters(KeyParameter(key), 128, iv, Uint8List(0)));
+
+      final decrypted = cipher.process(encrypted);
+      return utf8.decode(decrypted);
+    } catch (e) {
+      // Handle decryption errors, e.g., by deleting the file
+      return null;
+    }
+  }
+
+  Future<File> _getEncryptedFile(String provider) async {
+    final directory = await getApplicationDocumentsDirectory();
+    return File('${directory.path}/api_key_${provider}.enc');
+  }
+
+  Future<Uint8List> _getKey(Uint8List salt) async {
+    // In a real app, use a more secure way to get a device-scoped key
     final deviceId = await _getDeviceId();
-    final key = sha256.convert(utf8.encode('$deviceId$salt')).bytes;
-    return enc.Key.fromBase64(base64Url.encode(key).substring(0, 32));
+    final pbkdf2 = PBKDF2KeyDerivator(HMac(SHA256Digest()))
+      ..init(Pbkdf2Parameters(salt, 1000, 32));
+    return pbkdf2.process(utf8.encode(deviceId) as Uint8List);
+  }
+
+  Uint8List _generateSalt() {
+    final random = Random.secure();
+    return Uint8List.fromList(List<int>.generate(16, (_) => random.nextInt(256)));
+  }
+
+  Uint8List _generateIv() {
+    final random = Random.secure();
+    return Uint8List.fromList(List<int>.generate(12, (_) => random.nextInt(256)));
   }
 
   Future<String> _getDeviceId() async {
-    // This is not a reliable way to get a unique device ID.
-    // A better approach would be to use a library that provides a stable device ID.
-    return Platform.localHostname;
+    // This is a placeholder. In a real app, use a more robust method
+    // to get a unique and stable device ID.
+    return 'some_unique_device_id';
   }
 }

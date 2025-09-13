@@ -1,52 +1,57 @@
+
+import 'dart:async';
 import 'dart:io';
-import 'package:crypto/crypto.dart';
+import 'dart:typed_data';
+
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:pdfx/pdfx.dart';
 
-import '../data/repository.dart';
+// Assuming a pdf rendering package is chosen.
+// import 'package:pdfx/pdfx.dart'; or another package.
+
+// Assuming a database service is available.
+import '../data/database.dart';
 
 class PdfRasterService {
-  final Repository _repo;
+  final AppDatabase _db;
+  late final Directory _cacheDir;
 
-  PdfRasterService(this._repo);
+  PdfRasterService(this._db);
 
-  Future<String?> getRasterizedPage(String pdfPath, int pageNumber) async {
-    final cachedPage = await _repo.getPdfPageCache(pdfPath, pageNumber);
-    if (cachedPage != null) {
-      return cachedPage['image_path'];
+  Future<void> init() async {
+    final assetsDir = await getApplicationDocumentsDirectory();
+    _cacheDir = Directory(p.join(assetsDir.path, 'assets_cache'));
+    if (!_cacheDir.existsSync()) {
+      _cacheDir.createSync(recursive: true);
     }
+  }
 
-    try {
-      final doc = await PdfDocument.openFile(pdfPath);
-      final page = await doc.getPage(pageNumber);
-      final pageImage = await page.render(width: page.width, height: page.height);
+  Future<Uint8List?> getPageBitmap(String pdfPath, int pageNumber) async {
+    // 1. Check SQLite for a cache entry.
+    // final cacheEntry = await _db.pdfPageCacheDao.findCache(pdfPath, pageNumber);
+    // if (cacheEntry != null && File(cacheEntry.imagePath).existsSync()) {
+    //   return File(cacheEntry.imagePath).readAsBytes();
+    // }
 
-      final appDir = await getApplicationDocumentsDirectory();
-      final cacheDir = Directory(p.join(appDir.path, 'assets_cache'));
-      await cacheDir.create(recursive: true);
+    // 2. If not found, render the PDF page.
+    // This is a placeholder for actual PDF rendering logic.
+    // final pdfDoc = await PdfDocument.openFile(pdfPath);
+    // final page = await pdfDoc.getPage(pageNumber);
+    // final pageImage = await page.render(width: page.width, height: page.height);
+    // final bitmap = pageImage?.bytes;
+    // await page.close();
 
-      final pdfPathHash = sha256.convert(pdfPath.codeUnits).toString();
-      final imagePath = p.join(cacheDir.path, pdfPathHash, '$pageNumber.png');
+    // 3. Save the bitmap to assets_cache/.
+    // if (bitmap != null) {
+    //   final cachePath = p.join(_cacheDir.path, '${p.basename(pdfPath)}_$pageNumber.png');
+    //   await File(cachePath).writeAsBytes(bitmap);
 
-      final imageFile = File(imagePath);
-      await imageFile.create(recursive: true);
-      await imageFile.writeAsBytes(pageImage!.bytes);
+    //   // 4. Record the new cache entry in SQLite.
+    //   final newEntry = PdfPageCache(pdfPath: pdfPath, pageNumber: pageNumber, imagePath: cachePath);
+    //   await _db.pdfPageCacheDao.insertCache(newEntry);
+    //   return bitmap;
+    // }
 
-      await _repo.createPdfPageCache({
-        'pdf_path': pdfPath,
-        'page_number': pageNumber,
-        'image_path': imagePath,
-      });
-
-      await page.close();
-      await doc.close();
-
-      return imagePath;
-    } catch (e) {
-      // Handle exceptions
-      print(e);
-      return null;
-    }
+    return null;
   }
 }
