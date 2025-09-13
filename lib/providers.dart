@@ -23,7 +23,4 @@ final documentRepositoryProvider = Provider<DocumentRepository>((ref) {
   return DocumentRepository(db);
 });
 
-final documentsProvider = StreamProvider<List<DocumentData>>((ref) {
-  final repository = ref.watch(documentRepositoryProvider);
-  return repository.watchDocuments();
-});
+

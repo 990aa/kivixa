@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kivixa/features/library/documents_notifier.dart';
 import 'package:kivixa/features/library/sidebar.dart';
-import 'package:kivixa/providers.dart';
 import 'package:kivixa/widgets/components/kivixa_button.dart';
 
 class LibraryScreen extends ConsumerWidget {
@@ -10,7 +10,7 @@ class LibraryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
-    final documents = ref.watch(documentsProvider);
+    final documents = ref.watch(documentsNotifierProvider);
 
     return Scaffold(
       key: scaffoldKey,
@@ -46,7 +46,19 @@ class LibraryScreen extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(
-          child: Text('Error: $error'),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Error: $error'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  ref.invalidate(documentsNotifierProvider);
+                },
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: Hero(
@@ -82,7 +94,7 @@ class LibraryScreen extends ConsumerWidget {
               onPressed: () {
                 final title = titleController.text;
                 if (title.isNotEmpty) {
-                  ref.read(documentRepositoryProvider).createDocument(title);
+                  ref.read(documentsNotifierProvider.notifier).createDocument(title);
                   Navigator.of(context).pop();
                 }
               },
