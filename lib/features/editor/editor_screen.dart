@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class EditorScreen extends StatelessWidget {
+class EditorScreen extends StatefulWidget {
   const EditorScreen({
     super.key,
     required this.templateName,
@@ -11,19 +12,48 @@ class EditorScreen extends StatelessWidget {
   final Color templateColor;
 
   @override
+  State<EditorScreen> createState() => _EditorScreenState();
+}
+
+class _EditorScreenState extends State<EditorScreen> {
+  bool _isImmersiveMode = false;
+
+  void _toggleImmersiveMode() {
+    setState(() {
+      _isImmersiveMode = !_isImmersiveMode;
+    });
+    if (_isImmersiveMode) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    } else {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Editing $templateName'),
-      ),
-      body: Hero(
-        tag: 'template_card_$templateName', // Unique tag
-        child: Container(
-          color: templateColor,
-          child: Center(
-            child: Text(
-              'This is the $templateName template.',
-              style: Theme.of(context).textTheme.headlineMedium,
+      appBar: _isImmersiveMode
+          ? null
+          : AppBar(
+              title: Text('Editing ${widget.templateName}'),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.fullscreen),
+                  onPressed: _toggleImmersiveMode,
+                ),
+              ],
+            ),
+      body: GestureDetector(
+        onTap: _isImmersiveMode ? _toggleImmersiveMode : null,
+        child: Hero(
+          tag: 'template_card_${widget.templateName}',
+          child: Container(
+            color: widget.templateColor,
+            child: Center(
+              child: Text(
+                'This is the ${widget.templateName} template.',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
             ),
           ),
         ),
