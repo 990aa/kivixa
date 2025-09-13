@@ -1,5 +1,5 @@
-
 import 'package:drift/drift.dart';
+import 'package:kivixa/data/schema/custom_tables.dart';
 import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
@@ -20,7 +20,8 @@ class ProviderConfigs extends Table {
 class JobQueues extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get jobType => text()(); // e.g., 'export_kivixa', 'export_pdf'
-  TextColumn get status => text()(); // e.g., 'pending', 'in_progress', 'completed', 'failed'
+  TextColumn get status =>
+      text()(); // e.g., 'pending', 'in_progress', 'completed', 'failed'
   TextColumn get payload => text()(); // JSON encoded payload
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
@@ -91,7 +92,22 @@ class Assets extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-@DriftDatabase(tables: [ProviderConfigs, JobQueues, DocProvenance, Links, Documents, Outlines, Comments, TextBlocks, RedoLog, Assets])
+@DriftDatabase(
+  tables: [
+    ProviderConfigs,
+    JobQueues,
+    DocProvenance,
+    Links,
+    Documents,
+    Outlines,
+    Comments,
+    TextBlocks,
+    RedoLog,
+    Assets,
+    ChecklistItems,
+    CalendarEvents,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
