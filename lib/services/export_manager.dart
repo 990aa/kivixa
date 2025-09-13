@@ -3,17 +3,37 @@ import 'package:archive/archive_io.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
+typedef ExportProgressCallback = void Function(double progress);
+
 class ExportManager {
-  Future<void> exportToKivixaZip(String documentId, String destinationPath) async {
+  Future<void> exportToKivixaZip(String documentId, String destinationPath, {ExportProgressCallback? onProgress}) async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final dbFile = File(p.join(dbFolder.path, 'db.sqlite'));
     final assetsDir = Directory(p.join(dbFolder.path, 'assets', documentId));
 
     final encoder = ZipFileEncoder();
     encoder.create(destinationPath);
-    await encoder.addFile(dbFile);
+    
+    // For simplicity, we'll report progress based on the number of files added.
+    // A more accurate progress would be based on file sizes.
+    int filesAdded = 0;
+    int totalFiles = 1; // Start with 1 for the db file
     if (await assetsDir.exists()) {
-      await encoder.addDirectory(assetsDir);
+      totalFiles += await assetsDir.list().length;
+    }
+
+    await encoder.addFile(dbFile);
+    filesAdded++;
+    onProgress?.call(filesAdded / totalFiles);
+
+    if (await assetsDir.exists()) {
+      await for (final file in assetsDir.list()) {
+        if (file is File) {
+          await encoder.addFile(file);
+          filesAdded++;
+          onProgress?.call(filesAdded / totalFiles);
+        }
+      }
     }
     encoder.close();
   }
