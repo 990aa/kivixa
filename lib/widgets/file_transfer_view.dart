@@ -1,11 +1,18 @@
 import 'package:desktop_drop/desktop_drop.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:kivixa/services/export_manager.dart';
 import 'package:kivixa/services/import_manager.dart';
 
 class FileTransferView extends StatefulWidget {
   final ImportManager importManager;
+  final ExportManager exportManager;
 
-  const FileTransferView({super.key, required this.importManager});
+  const FileTransferView({
+    super.key,
+    required this.importManager,
+    required this.exportManager,
+  });
 
   @override
   State<FileTransferView> createState() => _FileTransferViewState();
@@ -13,8 +20,8 @@ class FileTransferView extends StatefulWidget {
 
 class _FileTransferViewState extends State<FileTransferView> {
   bool _isDragOver = false;
-  double _importProgress = 0.0;
-  String _importStatus = '';
+  double _progress = 0.0;
+  String _status = '';
 
   @override
   Widget build(BuildContext context) {
@@ -33,26 +40,26 @@ class _FileTransferViewState extends State<FileTransferView> {
                   final files = details.files;
                   if (files.isNotEmpty) {
                     setState(() {
-                      _importStatus = 'Importing ${files.first.name}...';
-                      _importProgress = 0.0;
+                      _status = 'Importing ${files.first.name}...';
+                      _progress = 0.0;
                     });
                     try {
                       await widget.importManager.importFile(
                         files.first.path,
                         onProgress: (progress) {
                           setState(() {
-                            _importProgress = progress;
+                            _progress = progress;
                           });
                         },
                       );
                       setState(() {
-                        _importStatus = 'Successfully imported ${files.first.name}';
-                        _importProgress = 1.0;
+                        _status = 'Successfully imported ${files.first.name}';
+                        _progress = 1.0;
                       });
                     } catch (e) {
                       setState(() {
-                        _importStatus = 'Error importing ${files.first.name}';
-                        _importProgress = 0.0;
+                        _status = 'Error importing ${files.first.name}';
+                        _progress = 0.0;
                       });
                     }
                   }
@@ -91,15 +98,44 @@ class _FileTransferViewState extends State<FileTransferView> {
             const SizedBox(height: 24),
             // Export button
             ElevatedButton(
-              onPressed: () {
-                // TODO: Implement export functionality
+              onPressed: () async {
+                final result = await FilePicker.platform.saveFile(
+                  dialogTitle: 'Save Kivixa Export',
+                  fileName: 'export.kivixa',
+                );
+                if (result != null) {
+                  setState(() {
+                    _status = 'Exporting...';
+                    _progress = 0.0;
+                  });
+                  try {
+                    await widget.exportManager.exportToKivixaZip(
+                      'dummy_document_id', // Replace with actual document ID
+                      result,
+                      onProgress: (progress) {
+                        setState(() {
+                          _progress = progress;
+                        });
+                      },
+                    );
+                    setState(() {
+                      _status = 'Successfully exported to $result';
+                      _progress = 1.0;
+                    });
+                  } catch (e) {
+                    setState(() {
+                      _status = 'Error exporting document';
+                      _progress = 0.0;
+                    });
+                  }
+                }
               },
               child: const Text('Export Documents'),
             ),
             const SizedBox(height: 24),
             // Progress indicator section
-            Text(_importStatus),
-            LinearProgressIndicator(value: _importProgress),
+            Text(_status),
+            LinearProgressIndicator(value: _progress),
           ],
         ),
       ),
