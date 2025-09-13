@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'tile.dart';
 import 'tile_manager.dart';
 import 'minimap.dart';
+import 'animated_background.dart';
 import 'dart:math';
 
 class InfiniteCanvas extends StatefulWidget {
@@ -54,10 +55,7 @@ class _InfiniteCanvasState extends State<InfiniteCanvas> {
           },
           child: Stack(
             children: [
-              CustomPaint(
-                size: _canvasSize,
-                painter: _InfiniteCanvasPainter(),
-              ),
+              const AnimatedBackground(),
               ..._tileManager.visibleTiles.map((tile) {
                 return Tile(
                   size: _tileManager.tileSize,
@@ -81,28 +79,5 @@ class _InfiniteCanvasState extends State<InfiniteCanvas> {
     final invMatrix = Matrix4.inverted(matrix);
     final viewport = invMatrix.transformRect(Offset.zero & context.size!);
     return viewport;
-  }
-}
-
-class _InfiniteCanvasPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.grey[300]!
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
-
-    // Draw a grid
-    for (var i = 0; i < size.width; i += 50) {
-      canvas.drawLine(Offset(i.toDouble(), 0), Offset(i.toDouble(), size.height), paint);
-    }
-    for (var i = 0; i < size.height; i += 50) {
-      canvas.drawLine(Offset(0, i.toDouble()), Offset(size.width, i.toDouble()), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
   }
 }
