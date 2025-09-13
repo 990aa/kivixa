@@ -1,3 +1,4 @@
+import 'package:kivixa/widgets/rough_notepad_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:kivixa/services/export_manager.dart';
 import 'package:kivixa/services/import_manager.dart';
@@ -47,18 +48,9 @@ class _SidebarState extends State<Sidebar> {
             padding: const EdgeInsets.only(bottom: 16.0),
             child: Row(
               children: [
-                Container(
-                  width: 48.0,
-                  height: 48.0,
-                  color: Colors.white,
-                ),
+                Container(width: 48.0, height: 48.0, color: Colors.white),
                 const SizedBox(width: 16),
-                Expanded(
-                  child: Container(
-                    height: 24.0,
-                    color: Colors.white,
-                  ),
-                ),
+                Expanded(child: Container(height: 24.0, color: Colors.white)),
               ],
             ),
           );
@@ -84,6 +76,16 @@ class _SidebarState extends State<Sidebar> {
             );
           },
         ),
+        ListTile(
+          leading: const Icon(Icons.sticky_note_2_outlined),
+          title: const Text('Rough Notepad'),
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => const RoughNotepadPopup(),
+            );
+          },
+        ),
         const Divider(),
         Expanded(
           child: GridView.builder(
@@ -98,9 +100,7 @@ class _SidebarState extends State<Sidebar> {
               return GridTile(
                 child: Container(
                   color: Colors.blue.shade100,
-                  child: Center(
-                    child: Text('Item $index'),
-                  ),
+                  child: Center(child: Text('Item $index')),
                 ),
               );
             },
