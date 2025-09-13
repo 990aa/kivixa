@@ -223,6 +223,8 @@ abstract class Repository {
   Future<void> updateMinimapTile(int id, Map<String, dynamic> data);
   Future<void> deleteMinimapTile(int id);
 
+  Future<void> updateMinimapTileIndex(int tileId, Map<String, dynamic> indexData);
+
   // Pdf Annotations
   Future<int> createPdfAnnotation(Map<String, dynamic> data);
   Future<Map<String, dynamic>?> getPdfAnnotation(int id);
@@ -234,6 +236,11 @@ abstract class Repository {
   });
   Future<void> updatePdfAnnotation(int id, Map<String, dynamic> data);
   Future<void> deletePdfAnnotation(int id);
+
+  // Document Locks
+  Future<int> createDocumentLock(Map<String, dynamic> data);
+  Future<Map<String, dynamic>?> getDocumentLock(int documentId);
+  Future<void> deleteDocumentLock(int documentId);
 
   // Batch operations
   Future<void> batchWrite(List<Function()> operations);
