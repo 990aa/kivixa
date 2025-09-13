@@ -1,4 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:path/path.dart' as p;
 
 class PdfTextSelector extends StatefulWidget {
   final String pdfPath;
@@ -17,6 +21,33 @@ class PdfTextSelector extends StatefulWidget {
 class _PdfTextSelectorState extends State<PdfTextSelector> {
   Offset? _startHandlePosition;
   Offset? _endHandlePosition;
+  List<_TextLine> _textLines = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _extractText();
+  }
+
+  Future<void> _extractText() async {
+    final file = File(widget.pdfPath);
+    final document = pw.Document();
+    final pdf = PdfDocument.openFile(widget.pdfPath);
+    final page = await pdf.getPage(1);
+    final content = await page.getText();
+    // This is a simplified text extraction. A more robust solution would
+    // involve a more sophisticated PDF parsing library.
+    final lines = content.split('\n');
+    final textLines = <_TextLine>[];
+    double y = 0;
+    for (final line in lines) {
+      textLines.add(_TextLine(line, Rect.fromLTWH(0, y, widget.pageSize.width, 20)));
+      y += 20;
+    }
+    setState(() {
+      _textLines = textLines;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +70,7 @@ class _PdfTextSelectorState extends State<PdfTextSelector> {
               painter: _TextSelectionPainter(
                 startHandlePosition: _startHandlePosition!,
                 endHandlePosition: _endHandlePosition!,
+                textLines: _textLines,
               ),
             ),
         ],
@@ -50,10 +82,12 @@ class _PdfTextSelectorState extends State<PdfTextSelector> {
 class _TextSelectionPainter extends CustomPainter {
   final Offset startHandlePosition;
   final Offset endHandlePosition;
+  final List<_TextLine> textLines;
 
   _TextSelectionPainter({
     required this.startHandlePosition,
     required this.endHandlePosition,
+    required this.textLines,
   });
 
   @override
@@ -62,10 +96,13 @@ class _TextSelectionPainter extends CustomPainter {
       ..color = Colors.blue.withOpacity(0.5)
       ..style = PaintingStyle.fill;
 
-    canvas.drawRect(
-      Rect.fromPoints(startHandlePosition, endHandlePosition),
-      paint,
-    );
+    final selectionRect = Rect.fromPoints(startHandlePosition, endHandlePosition);
+
+    for (final line in textLines) {
+      if (line.bounds.overlaps(selectionRect)) {
+        canvas.drawRect(line.bounds, paint);
+      }
+    }
 
     final handlePaint = Paint()
       ..color = Colors.blue
@@ -79,4 +116,11 @@ class _TextSelectionPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return true;
   }
+}
+
+class _TextLine {
+  final String text;
+  final Rect bounds;
+
+  _TextLine(this.text, this.bounds);
 }
