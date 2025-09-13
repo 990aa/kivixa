@@ -6,11 +6,13 @@ class Tile extends StatefulWidget {
     required this.size,
     required this.x,
     required this.y,
+    required this.scale,
   });
 
   final double size;
   final int x;
   final int y;
+  final double scale;
 
   @override
   State<Tile> createState() => _TileState();
@@ -51,7 +53,12 @@ class _TileState extends State<Tile> with SingleTickerProviderStateMixin {
             border: Border.all(color: Colors.grey[400]!),
           ),
           child: Center(
-            child: Text('${widget.x}, ${widget.y}'),
+            child: Text(
+              '${widget.x}, ${widget.y}',
+              style: TextStyle(
+                color: widget.scale > 1.0 ? Colors.red : Colors.black,
+              ),
+            ),
           ),
         ),
       ),
