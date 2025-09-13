@@ -68,6 +68,13 @@ class _InfiniteCanvasState extends State<InfiniteCanvas> {
                   scale: _tileManager.scale,
                 );
               }),
+              CustomPaint(
+                size: _canvasSize,
+                painter: _BoundaryPainter(
+                  viewport: _getViewport(),
+                  canvasSize: _canvasSize,
+                ),
+              ),
             ],
           ),
         ),
@@ -84,5 +91,49 @@ class _InfiniteCanvasState extends State<InfiniteCanvas> {
     final invMatrix = Matrix4.inverted(matrix);
     final viewport = invMatrix.transformRect(Offset.zero & context.size!);
     return viewport;
+  }
+}
+
+class _BoundaryPainter extends CustomPainter {
+  final Rect viewport;
+  final Size canvasSize;
+
+  _BoundaryPainter({
+    required this.viewport,
+    required this.canvasSize,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.stroke;
+
+    final double leftProximity = (viewport.left / 1000).clamp(0.0, 1.0);
+    final double topProximity = (viewport.top / 1000).clamp(0.0, 1.0);
+    final double rightProximity = ((canvasSize.width - viewport.right) / 1000).clamp(0.0, 1.0);
+    final double bottomProximity = ((canvasSize.height - viewport.bottom) / 1000).clamp(0.0, 1.0);
+
+    if (viewport.left < 1000) {
+      paint.strokeWidth = 5 * (1 - leftProximity);
+      canvas.drawLine(const Offset(0, 0), Offset(0, canvasSize.height), paint);
+    }
+    if (viewport.top < 1000) {
+      paint.strokeWidth = 5 * (1 - topProximity);
+      canvas.drawLine(const Offset(0, 0), Offset(canvasSize.width, 0), paint);
+    }
+    if (viewport.right > canvasSize.width - 1000) {
+      paint.strokeWidth = 5 * (1 - rightProximity);
+      canvas.drawLine(Offset(canvasSize.width, 0), Offset(canvasSize.width, canvasSize.height), paint);
+    }
+    if (viewport.bottom > canvasSize.height - 1000) {
+      paint.strokeWidth = 5 * (1 - bottomProximity);
+      canvas.drawLine(Offset(0, canvasSize.height), Offset(canvasSize.width, canvasSize.height), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }
