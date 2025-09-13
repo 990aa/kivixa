@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/services/modify_template_service.dart';
+import 'package:flutter/painting.dart'; // Added this import
 
 void main() {
   group('ModifyTemplateService', () {

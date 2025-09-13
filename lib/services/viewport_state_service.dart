@@ -1,4 +1,5 @@
 import 'package:flutter/animation.dart';
+import 'package:collection/collection.dart'; // Added import
 
 import '../data/repository.dart';
 
@@ -23,15 +24,27 @@ class ViewportStateService {
     }
 
     final settings = await _repository.listUserSettings(userId: 'global');
-    final viewportState = settings.firstWhere(
-      (s) => s['key'] == 'viewportState_$documentId_$page',
-      orElse: () => null,
+    // Changed to use firstWhereOrNull and removed orElse
+    final viewportState = settings.firstWhereOrNull(
+      (s) => s['key'] == 'viewportState_${documentId}_$page',
     );
 
     if (viewportState != null) {
-      final state = ViewportState.fromJson(viewportState['value']);
-      _viewportStates.putIfAbsent(documentId, () => {})[page] = state;
-      return state;
+      // viewportState['value'] needs to be cast to Map<String, dynamic>
+      // if it's not already guaranteed by the type from listUserSettings.
+      // Assuming listUserSettings returns List<Map<String, dynamic>> where 'value' is Map<String, dynamic>.
+      // If 'value' can be other types, a more robust check or cast is needed.
+      final dynamic value = viewportState['value'];
+      if (value is Map<String, dynamic>) {
+        final state = ViewportState.fromJson(value);
+        _viewportStates.putIfAbsent(documentId, () => {})[page] = state;
+        return state;
+      } else {
+        // Handle cases where 'value' is not a Map<String, dynamic> or is null
+        // This might involve logging an error or returning null
+        print('ViewportStateService: viewportState["value"] is not a Map<String, dynamic> or is null. Value: $value');
+        return null;
+      }
     }
 
     return null;

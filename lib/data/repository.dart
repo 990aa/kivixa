@@ -100,3 +100,40 @@ class DocumentRepository {
     print('DocumentRepository.createMinimapTile called with data: $tileData - Needs actual implementation!');
   }
 }
+
+// Added Repository interface based on SQLiteRepository methods
+abstract class Repository {
+  Future<int> createNotebook(Map<String, dynamic> data);
+  Future<Map<String, dynamic>?> getNotebook(int id);
+  Future<List<Map<String, dynamic>>> listNotebooks({
+    int? limit,
+    int? offset,
+  });
+  Future<void> updateNotebook(int id, Map<String, dynamic> data);
+  Future<void> deleteNotebook(int id);
+
+  Future<int> createDocument(Map<String, dynamic> data);
+  Future<Map<String, dynamic>?> getDocument(int id);
+  Future<List<Map<String, dynamic>>> listDocuments({
+    int? notebookId,
+    int? parentId,
+    String? orderBy,
+    int? limit,
+    int? offset,
+  });
+  Future<void> updateDocument(int id, Map<String, dynamic> data);
+  Future<void> deleteDocument(int id);
+
+  Future<void> updateUserSetting(String userId, String key, Map<String, dynamic> data);
+  Future<List<Map<String, dynamic>>> listUserSettings({
+    String? userId,
+    int? limit,
+    int? offset,
+  });
+
+  Future<void> batchWrite(List<Function()> operations);
+
+  Future<void> updatePageThumbnailMetadata(int pageId, Map<String, dynamic> metadata);
+
+  Future<List<Map<String, dynamic>>> listPages({required int documentId, int? limit, int? offset}); // Added this line
+}

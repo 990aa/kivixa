@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="49a8958b-8c8d-458b-9c1b-10ca97c96ca1" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/lib/services/pdf_text_search.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/pdf_text_search.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/repository.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/services/modify_template_service_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/test/services/modify_template_service_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
