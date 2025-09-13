@@ -1,107 +1,126 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 
-// Enum of all possible actions that can be mapped to a shortcut.
+/// Enum of all possible actions that can be mapped to a shortcut.
 enum ShortcutAction {
   undo,
   redo,
   nextLayer,
   previousLayer,
   toggleLayerVisibility,
-  cycleTool,
+  cycleToolForward,
+  cycleToolBackward,
   recallFavorite1,
   recallFavorite2,
   recallFavorite3,
 }
 
-class ShortcutMapping {
-  final ShortcutAction action;
-  final Set<LogicalKeyboardKey> keys;
+/// Represents a keyboard shortcut combination.
+class AppShortcut {
+  final LogicalKeyboardKey trigger;
+  final bool ctrl;
+  final bool alt;
+  final bool shift;
 
-  ShortcutMapping({required this.action, required this.keys});
+  AppShortcut(this.trigger, {this.ctrl = false, this.alt = false, this.shift = false});
+
+  /// Creates a unique key for use in a Map.
+  String get mapKey => '${trigger.keyId}:${ctrl ? 1:0}:${alt ? 1:0}:${shift ? 1:0}';
 
   Map<String, dynamic> toJson() => {
-        'action': action.name,
-        'keys': keys.map((k) => k.keyId).toList(),
-      };
+    'trigger': trigger.keyId,
+    'ctrl': ctrl,
+    'alt': alt,
+    'shift': shift,
+  };
 
-  factory ShortcutMapping.fromJson(Map<String, dynamic> json) {
-    return ShortcutMapping(
-      action: ShortcutAction.values.firstWhere((e) => e.name == json['action']),
-      keys: (json['keys'] as List).map((id) => LogicalKeyboardKey(id)).toSet(),
+  factory AppShortcut.fromJson(Map<String, dynamic> json) {
+    return AppShortcut(
+      LogicalKeyboardKey(json['trigger']),
+      ctrl: json['ctrl'] ?? false,
+      alt: json['alt'] ?? false,
+      shift: json['shift'] ?? false,
     );
   }
 }
 
+/// Manages keyboard shortcuts for desktop and tablet.
 class ShortcutsService {
-  static final ShortcutsService _instance = ShortcutsService._internal();
-  factory ShortcutsService() => _instance;
-  ShortcutsService._internal();
+  Map<String, ShortcutAction> _shortcuts = {};
 
-  Map<ShortcutAction, ShortcutMapping> _shortcuts = {};
-  bool _isInitialized = false;
-  late final File _shortcutsFile;
-
-  Map<ShortcutAction, ShortcutMapping> get shortcuts => _shortcuts;
-
-  Future<void> initialize() async {
-    if (_isInitialized) return;
-    final appSupportDir = await getApplicationSupportDirectory();
-    _shortcutsFile = File(p.join(appSupportDir.path, 'shortcuts.json'));
-    await loadShortcuts();
-    _isInitialized = true;
+  ShortcutsService() {
+    _loadDefaultShortcuts();
   }
 
-  Future<void> loadShortcuts() async {
-    if (await _shortcutsFile.exists()) {
-      final content = await _shortcutsFile.readAsString();
-      final List<dynamic> jsonList = jsonDecode(content);
-      _shortcuts = {
-        for (var mapping in jsonList.map((json) => ShortcutMapping.fromJson(json)))
-          mapping.action: mapping
-      };
-    } else {
-      _loadDefaultShortcuts();
-    }
-  }
+  /// The current map of shortcuts.
+  Map<String, ShortcutAction> get shortcuts => Map.unmodifiable(_shortcuts);
 
   void _loadDefaultShortcuts() {
     _shortcuts = {
-      ShortcutAction.undo: ShortcutMapping(
-        action: ShortcutAction.undo,
-        keys: {LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ},
-      ),
-      ShortcutAction.redo: ShortcutMapping(
-        action: ShortcutAction.redo,
-        keys: {LogicalKeyboardKey.control, LogicalKeyboardKey.keyY},
-      ),
+      AppShortcut(LogicalKeyboardKey.keyZ, ctrl: true).mapKey: ShortcutAction.undo,
+      AppShortcut(LogicalKeyboardKey.keyY, ctrl: true).mapKey: ShortcutAction.redo,
+      AppShortcut(LogicalKeyboardKey.pageUp, ctrl: true).mapKey: ShortcutAction.nextLayer,
+      AppShortcut(LogicalKeyboardKey.pageDown, ctrl: true).mapKey: ShortcutAction.previousLayer,
+      AppShortcut(LogicalKeyboardKey.keyT, ctrl: true).mapKey: ShortcutAction.cycleToolForward,
     };
   }
 
-  Future<void> _persistShortcuts() async {
-    final jsonList = _shortcuts.values.map((m) => m.toJson()).toList();
-    await _shortcutsFile.writeAsString(jsonEncode(jsonList));
+  /// Updates a shortcut for a given action.
+  void setShortcut(ShortcutAction action, AppShortcut shortcut) {
+    // Remove any existing shortcut for this action
+    _shortcuts.removeWhere((key, value) => value == action);
+    _shortcuts[shortcut.mapKey] = action;
+    // In a real app, this would be persisted.
   }
 
-  Future<void> updateShortcut(ShortcutAction action, Set<LogicalKeyboardKey> keys) async {
-    _shortcuts[action] = ShortcutMapping(action: action, keys: keys);
-    await _persistShortcuts();
+  /// Exports the current shortcuts to a JSON string.
+  String exportShortcutsAsJson() {
+    final data = _shortcuts.entries.map((entry) {
+      // This is a bit complex because the key is a stringified AppShortcut
+      final shortcutParts = entry.key.split(':');
+      final triggerId = int.parse(shortcutParts[0]);
+      final ctrl = shortcutParts[1] == '1';
+      final alt = shortcutParts[2] == '1';
+      final shift = shortcutParts[3] == '1';
+
+      return {
+        'action': entry.value.name,
+        'shortcut': AppShortcut(LogicalKeyboardKey(triggerId), ctrl: ctrl, alt: alt, shift: shift).toJson(),
+      };
+    }).toList();
+
+    return jsonEncode(data);
   }
 
-  Future<String> exportShortcutsAsJson() async {
-    final jsonList = _shortcuts.values.map((m) => m.toJson()).toList();
-    return jsonEncode(jsonList);
+  /// Imports shortcuts from a JSON string, overwriting existing shortcuts.
+  void importShortcutsFromJson(String jsonString) {
+    final List<dynamic> data = jsonDecode(jsonString);
+    final newShortcuts = <String, ShortcutAction>{};
+
+    for (final item in data) {
+      final action = ShortcutAction.values.firstWhere((e) => e.name == item['action']);
+      final shortcut = AppShortcut.fromJson(item['shortcut']);
+      newShortcuts[shortcut.mapKey] = action;
+    }
+
+    _shortcuts = newShortcuts;
+    // In a real app, this would be persisted.
   }
 
-  Future<void> importShortcutsFromJson(String jsonString) async {
-    final List<dynamic> jsonList = jsonDecode(jsonString);
-    _shortcuts = {
-      for (var mapping in jsonList.map((json) => ShortcutMapping.fromJson(json)))
-        mapping.action: mapping
-    };
-    await _persistShortcuts();
+  /// Returns the action associated with a given key event, or null if none.
+  ///
+  /// This would be called by the UI layer when a key event is received.
+  /// No global hooks are used by this service itself.
+  ShortcutAction? getActionForEvent(RawKeyEvent event) {
+    if (event is! RawKeyDownEvent) return null;
+
+    final shortcut = AppShortcut(
+      event.logicalKey,
+      ctrl: event.isControlPressed,
+      alt: event.isAltPressed,
+      shift: event.isShiftPressed,
+    );
+
+    return _shortcuts[shortcut.mapKey];
   }
 }
