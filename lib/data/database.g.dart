@@ -754,6 +754,367 @@ class JobQueuesCompanion extends UpdateCompanion<JobQueue> {
   }
 }
 
+class $DocProvenanceTable extends DocProvenance
+    with TableInfo<$DocProvenanceTable, DocProvenanceData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DocProvenanceTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _newDocumentIdMeta = const VerificationMeta(
+    'newDocumentId',
+  );
+  @override
+  late final GeneratedColumn<String> newDocumentId = GeneratedColumn<String>(
+    'new_document_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceDocumentIdsMeta = const VerificationMeta(
+    'sourceDocumentIds',
+  );
+  @override
+  late final GeneratedColumn<String> sourceDocumentIds =
+      GeneratedColumn<String>(
+        'source_document_ids',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    newDocumentId,
+    type,
+    sourceDocumentIds,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'doc_provenance';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DocProvenanceData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('new_document_id')) {
+      context.handle(
+        _newDocumentIdMeta,
+        newDocumentId.isAcceptableOrUnknown(
+          data['new_document_id']!,
+          _newDocumentIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_newDocumentIdMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('source_document_ids')) {
+      context.handle(
+        _sourceDocumentIdsMeta,
+        sourceDocumentIds.isAcceptableOrUnknown(
+          data['source_document_ids']!,
+          _sourceDocumentIdsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceDocumentIdsMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DocProvenanceData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DocProvenanceData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      newDocumentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}new_document_id'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      sourceDocumentIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_document_ids'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $DocProvenanceTable createAlias(String alias) {
+    return $DocProvenanceTable(attachedDatabase, alias);
+  }
+}
+
+class DocProvenanceData extends DataClass
+    implements Insertable<DocProvenanceData> {
+  final int id;
+  final String newDocumentId;
+  final String type;
+  final String sourceDocumentIds;
+  final DateTime createdAt;
+  const DocProvenanceData({
+    required this.id,
+    required this.newDocumentId,
+    required this.type,
+    required this.sourceDocumentIds,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['new_document_id'] = Variable<String>(newDocumentId);
+    map['type'] = Variable<String>(type);
+    map['source_document_ids'] = Variable<String>(sourceDocumentIds);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  DocProvenanceCompanion toCompanion(bool nullToAbsent) {
+    return DocProvenanceCompanion(
+      id: Value(id),
+      newDocumentId: Value(newDocumentId),
+      type: Value(type),
+      sourceDocumentIds: Value(sourceDocumentIds),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory DocProvenanceData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DocProvenanceData(
+      id: serializer.fromJson<int>(json['id']),
+      newDocumentId: serializer.fromJson<String>(json['newDocumentId']),
+      type: serializer.fromJson<String>(json['type']),
+      sourceDocumentIds: serializer.fromJson<String>(json['sourceDocumentIds']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'newDocumentId': serializer.toJson<String>(newDocumentId),
+      'type': serializer.toJson<String>(type),
+      'sourceDocumentIds': serializer.toJson<String>(sourceDocumentIds),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  DocProvenanceData copyWith({
+    int? id,
+    String? newDocumentId,
+    String? type,
+    String? sourceDocumentIds,
+    DateTime? createdAt,
+  }) => DocProvenanceData(
+    id: id ?? this.id,
+    newDocumentId: newDocumentId ?? this.newDocumentId,
+    type: type ?? this.type,
+    sourceDocumentIds: sourceDocumentIds ?? this.sourceDocumentIds,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  DocProvenanceData copyWithCompanion(DocProvenanceCompanion data) {
+    return DocProvenanceData(
+      id: data.id.present ? data.id.value : this.id,
+      newDocumentId: data.newDocumentId.present
+          ? data.newDocumentId.value
+          : this.newDocumentId,
+      type: data.type.present ? data.type.value : this.type,
+      sourceDocumentIds: data.sourceDocumentIds.present
+          ? data.sourceDocumentIds.value
+          : this.sourceDocumentIds,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DocProvenanceData(')
+          ..write('id: $id, ')
+          ..write('newDocumentId: $newDocumentId, ')
+          ..write('type: $type, ')
+          ..write('sourceDocumentIds: $sourceDocumentIds, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, newDocumentId, type, sourceDocumentIds, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DocProvenanceData &&
+          other.id == this.id &&
+          other.newDocumentId == this.newDocumentId &&
+          other.type == this.type &&
+          other.sourceDocumentIds == this.sourceDocumentIds &&
+          other.createdAt == this.createdAt);
+}
+
+class DocProvenanceCompanion extends UpdateCompanion<DocProvenanceData> {
+  final Value<int> id;
+  final Value<String> newDocumentId;
+  final Value<String> type;
+  final Value<String> sourceDocumentIds;
+  final Value<DateTime> createdAt;
+  const DocProvenanceCompanion({
+    this.id = const Value.absent(),
+    this.newDocumentId = const Value.absent(),
+    this.type = const Value.absent(),
+    this.sourceDocumentIds = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  DocProvenanceCompanion.insert({
+    this.id = const Value.absent(),
+    required String newDocumentId,
+    required String type,
+    required String sourceDocumentIds,
+    this.createdAt = const Value.absent(),
+  }) : newDocumentId = Value(newDocumentId),
+       type = Value(type),
+       sourceDocumentIds = Value(sourceDocumentIds);
+  static Insertable<DocProvenanceData> custom({
+    Expression<int>? id,
+    Expression<String>? newDocumentId,
+    Expression<String>? type,
+    Expression<String>? sourceDocumentIds,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (newDocumentId != null) 'new_document_id': newDocumentId,
+      if (type != null) 'type': type,
+      if (sourceDocumentIds != null) 'source_document_ids': sourceDocumentIds,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  DocProvenanceCompanion copyWith({
+    Value<int>? id,
+    Value<String>? newDocumentId,
+    Value<String>? type,
+    Value<String>? sourceDocumentIds,
+    Value<DateTime>? createdAt,
+  }) {
+    return DocProvenanceCompanion(
+      id: id ?? this.id,
+      newDocumentId: newDocumentId ?? this.newDocumentId,
+      type: type ?? this.type,
+      sourceDocumentIds: sourceDocumentIds ?? this.sourceDocumentIds,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (newDocumentId.present) {
+      map['new_document_id'] = Variable<String>(newDocumentId.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (sourceDocumentIds.present) {
+      map['source_document_ids'] = Variable<String>(sourceDocumentIds.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DocProvenanceCompanion(')
+          ..write('id: $id, ')
+          ..write('newDocumentId: $newDocumentId, ')
+          ..write('type: $type, ')
+          ..write('sourceDocumentIds: $sourceDocumentIds, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -761,6 +1122,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $JobQueuesTable jobQueues = $JobQueuesTable(this);
+  late final $DocProvenanceTable docProvenance = $DocProvenanceTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -768,6 +1130,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     providerConfigs,
     jobQueues,
+    docProvenance,
   ];
 }
 
@@ -1180,6 +1543,208 @@ typedef $$JobQueuesTableProcessedTableManager =
       JobQueue,
       PrefetchHooks Function()
     >;
+typedef $$DocProvenanceTableCreateCompanionBuilder =
+    DocProvenanceCompanion Function({
+      Value<int> id,
+      required String newDocumentId,
+      required String type,
+      required String sourceDocumentIds,
+      Value<DateTime> createdAt,
+    });
+typedef $$DocProvenanceTableUpdateCompanionBuilder =
+    DocProvenanceCompanion Function({
+      Value<int> id,
+      Value<String> newDocumentId,
+      Value<String> type,
+      Value<String> sourceDocumentIds,
+      Value<DateTime> createdAt,
+    });
+
+class $$DocProvenanceTableFilterComposer
+    extends Composer<_$AppDatabase, $DocProvenanceTable> {
+  $$DocProvenanceTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get newDocumentId => $composableBuilder(
+    column: $table.newDocumentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceDocumentIds => $composableBuilder(
+    column: $table.sourceDocumentIds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DocProvenanceTableOrderingComposer
+    extends Composer<_$AppDatabase, $DocProvenanceTable> {
+  $$DocProvenanceTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get newDocumentId => $composableBuilder(
+    column: $table.newDocumentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceDocumentIds => $composableBuilder(
+    column: $table.sourceDocumentIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DocProvenanceTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DocProvenanceTable> {
+  $$DocProvenanceTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get newDocumentId => $composableBuilder(
+    column: $table.newDocumentId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceDocumentIds => $composableBuilder(
+    column: $table.sourceDocumentIds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$DocProvenanceTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DocProvenanceTable,
+          DocProvenanceData,
+          $$DocProvenanceTableFilterComposer,
+          $$DocProvenanceTableOrderingComposer,
+          $$DocProvenanceTableAnnotationComposer,
+          $$DocProvenanceTableCreateCompanionBuilder,
+          $$DocProvenanceTableUpdateCompanionBuilder,
+          (
+            DocProvenanceData,
+            BaseReferences<
+              _$AppDatabase,
+              $DocProvenanceTable,
+              DocProvenanceData
+            >,
+          ),
+          DocProvenanceData,
+          PrefetchHooks Function()
+        > {
+  $$DocProvenanceTableTableManager(_$AppDatabase db, $DocProvenanceTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DocProvenanceTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DocProvenanceTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DocProvenanceTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> newDocumentId = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String> sourceDocumentIds = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => DocProvenanceCompanion(
+                id: id,
+                newDocumentId: newDocumentId,
+                type: type,
+                sourceDocumentIds: sourceDocumentIds,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String newDocumentId,
+                required String type,
+                required String sourceDocumentIds,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => DocProvenanceCompanion.insert(
+                id: id,
+                newDocumentId: newDocumentId,
+                type: type,
+                sourceDocumentIds: sourceDocumentIds,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DocProvenanceTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DocProvenanceTable,
+      DocProvenanceData,
+      $$DocProvenanceTableFilterComposer,
+      $$DocProvenanceTableOrderingComposer,
+      $$DocProvenanceTableAnnotationComposer,
+      $$DocProvenanceTableCreateCompanionBuilder,
+      $$DocProvenanceTableUpdateCompanionBuilder,
+      (
+        DocProvenanceData,
+        BaseReferences<_$AppDatabase, $DocProvenanceTable, DocProvenanceData>,
+      ),
+      DocProvenanceData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1188,4 +1753,6 @@ class $AppDatabaseManager {
       $$ProviderConfigsTableTableManager(_db, _db.providerConfigs);
   $$JobQueuesTableTableManager get jobQueues =>
       $$JobQueuesTableTableManager(_db, _db.jobQueues);
+  $$DocProvenanceTableTableManager get docProvenance =>
+      $$DocProvenanceTableTableManager(_db, _db.docProvenance);
 }
