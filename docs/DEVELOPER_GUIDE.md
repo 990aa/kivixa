@@ -40,7 +40,11 @@ Kivixa is built with a strong emphasis on performance, scalability, and maintain
 
 ## 3. Project Architecture
 
-Kivixa follows a layered architecture, primarily implemented in Kotlin, to ensure modularity, testability, and scalability.
+Kivixa follows a layered architecture, primarily implemented in Kotlin, to ensure modularity, testability, and scalability. For a detailed breakdown of the architecture, performance considerations, and AI integration, please see:
+
+*   [**Architecture Deep Dive**](./architecture.md)
+*   [**Performance Guide**](./performance.md)
+*   [**AI Setup**](./ai-setup.md)
 
 ### Core Layers
 
@@ -51,7 +55,7 @@ Kivixa follows a layered architecture, primarily implemented in Kotlin, to ensur
 
 *   **Data Layer (`database/`, `filestore/`):**
     *   **Room Database:** Manages the application's SQLite database (`KivixaDatabase`). Defines entities (`@Entity`) and Data Access Objects (`@Dao`).
-    *   **DAOs (`database/dao/`):** Interfaces or abstract classes that provide methods for interacting with the database. They include:
+    *   **DAOs (`database/dao/`):** Interfaces or abstract classes that provide methods for interacting with the aatabase. They include:
         *   Standard CRUD operations.
         *   Batched operations for high-throughput writes (e.g., `StrokeChunkDao`, `MinimapTileDao`).
         *   Full-Text Search (FTS5) capabilities for `TextBlock` and `Comment` content.
@@ -95,7 +99,18 @@ FTS5 virtual tables are used for efficient full-text search on `TextBlock` conte
 
 Schema evolution is handled via Room's `Migration` classes within `KivixaDatabase.kt`. Each migration ensures safe and consistent updates to the database schema as new features are introduced.
 
-## 5. How to Contribute
+## 5. Feature Parity
+
+To track our progress towards a full-featured release, we maintain several parity checklists. These documents outline the current status of core features compared to our target functionality.
+
+*   [Gestures Parity](./parity/gestures_parity.md)
+*   [Infinite Canvas Parity](./parity/infinite_canvas_parity.md)
+*   [Outline & Comment Parity](./parity/outline_comment_parity.md)
+*   [Page Flow Parity](./parity/page_flow_parity.md)
+*   [Split Screen Parity](./parity/split_screen_parity.md)
+*   [Toolbar Parity](./parity/toolbar_parity.md)
+
+## 6. How to Contribute
 
 When contributing, please consider the layered architecture:
 
@@ -105,9 +120,9 @@ When contributing, please consider the layered architecture:
 *   **Specialized Logic/State Management:** Create a new Manager/Service class (e.g., in `settings/`, `strokes/`) if the logic is complex or manages its own state.
 *   **UI Changes:** Interact with the `Repository` or Manager/Service classes to fetch and update data.
 
-Always ensure your changes are covered by tests and adhere to the existing coding patterns and conventions.
+**Next Steps:** With the backend and data layers now robustly implemented, the next phase of development will focus on UI integration. Prompts and tasks related to building the modern Flutter UI will be provided next.
 
-## 6. Code Style and Conventions
+## 7. Code Style and Conventions
 
 *   Follow standard Kotlin coding conventions.
 *   Prioritize immutability for data classes.
@@ -115,6 +130,6 @@ Always ensure your changes are covered by tests and adhere to the existing codin
 *   Ensure proper use of coroutine scopes and dispatchers.
 *   Write clear, concise, and self-documenting code.
 
-## 7. Building the Application
+## 8. Building the Application
 
 Refer to the `README.md` for general build instructions. For platform-specific build details, consult the `apps/<platform>/README.md` files.
