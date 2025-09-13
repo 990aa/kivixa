@@ -58,9 +58,9 @@ class ShareImportService {
       _log.info('Copied shared file to: ${destinationFile.path}');
 
       // Invoke the import manager.
+      // Removed sourceUri: uri, as it's not a defined parameter in ImportManager.importFile
       await _importManager.importFile(
         destinationFile,
-        sourceUri: uri,
       );
       _log.info('Successfully imported file from URI: $uri');
     } catch (e, st) {

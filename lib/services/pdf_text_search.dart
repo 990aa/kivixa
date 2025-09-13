@@ -20,16 +20,16 @@ class PdfTextSearch {
 
     for (var i = 1; i <= doc.pagesCount; i++) {
       final page = await doc.getPage(i);
-      final pageText = await page.readText(); // Changed from getText to readText
+      final String? pageText = await page.text; // Corrected to use page.text
       
-      if (pageText.contains(query)) {
+      if (pageText != null && pageText.contains(query)) {
         // This is a simplified implementation. A real implementation would
         // need to find the exact position of the query text on the page.
         // The pdfx package does not provide this functionality directly.
         // For now, we return a result for the whole page.
         results.add(PdfSearchResult(
           pageIndex: i,
-          text: pageText,
+          text: pageText, // pageText is confirmed non-null here
           bounds: Rect.zero, // Placeholder
         ));
       }
