@@ -14,8 +14,8 @@ class DocumentRepository {
     return (_db.select(_db.documents)..where((tbl) => tbl.id.equals(id))).getSingle();
   }
 
-  Future<int> createDocument(String title) {
-    return _db.into(_db.documents).insert(DocumentsCompanion.insert(title: title));
+  Future<DocumentData> createDocument(String title) {
+    return _db.into(_db.documents).insertReturning(DocumentsCompanion.insert(title: title));
   }
 
   Future<bool> updateDocument(DocumentData entry) {
