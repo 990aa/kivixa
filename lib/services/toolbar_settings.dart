@@ -1,46 +1,80 @@
 import 'package:flutter/foundation.dart';
 
-enum ToolbarMode { immersive, traditional }
-enum InputBehavior { finger, pen }
+/// Defines the behavior of touch input.
+enum FingerBehavior {
+  /// Finger input pans and zooms the canvas.
+  panAndZoom,
+  /// Finger input draws on the canvas.
+  draw,
+}
 
-class ToolbarSettings extends ChangeNotifier {
-  static final ToolbarSettings _instance = ToolbarSettings._internal();
-  factory ToolbarSettings() => _instance;
-  ToolbarSettings._internal();
+/// Manages the settings for the editor toolbar.
+///
+/// This service provides a fast, in-memory view of toolbar settings
+/// for synchronous UI updates, while handling persistence in the background.
+class ToolbarSettings with ChangeNotifier {
+  // Private in-memory cache for immediate access.
+  bool _immersiveMode = true;
+  FingerBehavior _fingerBehavior = FingerBehavior.panAndZoom;
 
-  // In-memory view for fast UI feedback
-  ToolbarMode _toolbarMode = ToolbarMode.traditional;
-  InputBehavior _inputBehavior = InputBehavior.pen;
+  /// Creates a new instance of [ToolbarSettings].
+  ///
+  /// On creation, it would typically load the persisted settings.
+  ToolbarSettings() {
+    // In a real implementation, you would load persisted settings here.
+    // For example:
+    // _loadSettings();
+  }
 
-  ToolbarMode get toolbarMode => _toolbarMode;
-  InputBehavior get inputBehavior => _inputBehavior;
+  /// Whether the toolbar is in immersive mode (e.g., auto-hiding).
+  bool get isImmersiveMode => _immersiveMode;
 
-  Future<void> loadSettings() async {
-    // In a real app, this would load from a persistent store like SharedPreferences
-    // For now, we just use the default values.
-    await Future.delayed(const Duration(milliseconds: 100)); // Simulate async loading
+  /// The current behavior for finger input.
+  FingerBehavior get fingerBehavior => _fingerBehavior;
+
+  /// Toggles the toolbar's immersive mode.
+  ///
+  /// Updates the in-memory value synchronously and notifies listeners
+  /// for immediate UI feedback.
+  void setImmersiveMode(bool enabled) {
+    if (_immersiveMode == enabled) return;
+
+    _immersiveMode = enabled;
+    // In a real implementation, this would be persisted asynchronously.
+    // _persistSetting('immersiveMode', _immersiveMode);
     notifyListeners();
   }
 
-  Future<void> setToolbarMode(ToolbarMode mode) async {
-    if (_toolbarMode == mode) return;
-    _toolbarMode = mode;
-    // The UI update is synchronous
+  /// Sets the behavior for finger input.
+  ///
+  /// Updates the in-memory value synchronously and notifies listeners
+  /// for immediate UI feedback.
+  void setFingerBehavior(FingerBehavior behavior) {
+    if (_fingerBehavior == behavior) return;
+
+    _fingerBehavior = behavior;
+    // In a real implementation, this would be persisted asynchronously.
+    // _persistSetting('fingerBehavior', _fingerBehavior.index);
     notifyListeners();
-    // The persistence is asynchronous
-    await _persistSettings();
   }
 
-  Future<void> setInputBehavior(InputBehavior behavior) async {
-    if (_inputBehavior == behavior) return;
-    _inputBehavior = behavior;
+  // Example of how persistence might be handled.
+  /*
+  Future<void> _loadSettings() async {
+    // final prefs = await SharedPreferences.getInstance();
+    // _immersiveMode = prefs.getBool('immersiveMode') ?? true;
+    // final fingerBehaviorIndex = prefs.getInt('fingerBehavior') ?? 0;
+    // _fingerBehavior = FingerBehavior.values[fingerBehaviorIndex];
     notifyListeners();
-    await _persistSettings();
   }
 
-  Future<void> _persistSettings() async {
-    // In a real app, this would save to SharedPreferences or a database.
-    await Future.delayed(const Duration(milliseconds: 200)); // Simulate async save
-    print('Toolbar settings persisted: mode=${_toolbarMode.name}, behavior=${_inputBehavior.name}');
+  Future<void> _persistSetting(String key, dynamic value) async {
+    // final prefs = await SharedPreferences.getInstance();
+    // if (value is bool) {
+    //   await prefs.setBool(key, value);
+    // } else if (value is int) {
+    //   await prefs.setInt(key, value);
+    // }
   }
+  */
 }
