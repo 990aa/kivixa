@@ -1,8 +1,11 @@
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
+import 'package:kivixa/services/import_manager.dart';
 
 class FileTransferView extends StatefulWidget {
-  const FileTransferView({super.key});
+  final ImportManager importManager;
+
+  const FileTransferView({super.key, required this.importManager});
 
   @override
   State<FileTransferView> createState() => _FileTransferViewState();
@@ -10,6 +13,8 @@ class FileTransferView extends StatefulWidget {
 
 class _FileTransferViewState extends State<FileTransferView> {
   bool _isDragOver = false;
+  double _importProgress = 0.0;
+  String _importStatus = '';
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +29,33 @@ class _FileTransferViewState extends State<FileTransferView> {
             // Drag and drop import zone
             Expanded(
               child: DropTarget(
-                onDragDone: (details) {
-                  // TODO: Handle file import
-                  print('Files dropped: ${details.files.map((f) => f.path).join(', ')}');
+                onDragDone: (details) async {
+                  final files = details.files;
+                  if (files.isNotEmpty) {
+                    setState(() {
+                      _importStatus = 'Importing ${files.first.name}...';
+                      _importProgress = 0.0;
+                    });
+                    try {
+                      await widget.importManager.importFile(
+                        files.first.path,
+                        onProgress: (progress) {
+                          setState(() {
+                            _importProgress = progress;
+                          });
+                        },
+                      );
+                      setState(() {
+                        _importStatus = 'Successfully imported ${files.first.name}';
+                        _importProgress = 1.0;
+                      });
+                    } catch (e) {
+                      setState(() {
+                        _importStatus = 'Error importing ${files.first.name}';
+                        _importProgress = 0.0;
+                      });
+                    }
+                  }
                 },
                 onDragEntered: (details) {
                   setState(() {
@@ -69,8 +98,8 @@ class _FileTransferViewState extends State<FileTransferView> {
             ),
             const SizedBox(height: 24),
             // Progress indicator section
-            const Text(''),
-            const LinearProgressIndicator(value: 0),
+            Text(_importStatus),
+            LinearProgressIndicator(value: _importProgress),
           ],
         ),
       ),
