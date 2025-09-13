@@ -60,7 +60,7 @@ class _SidebarState extends State<Sidebar> {
   }
 
   Widget _buildContent() {
-    return Column(
+    return ListView(
       children: [
         ListTile(
           leading: const Icon(Icons.import_export),
@@ -86,26 +86,21 @@ class _SidebarState extends State<Sidebar> {
             );
           },
         ),
-        const Divider(),
-        Expanded(
-          child: GridView.builder(
-            padding: const EdgeInsets.all(16.0),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16.0,
-              mainAxisSpacing: 16.0,
-            ),
-            itemCount: 20, // Dummy data
-            itemBuilder: (context, index) {
-              return GridTile(
-                child: Container(
-                  color: Colors.blue.shade100,
-                  child: Center(child: Text('Item $index')),
-                ),
-              );
-            },
-          ),
+        ListTile(
+          leading: const Icon(Icons.check_box_outlined),
+          title: const Text('Interactive Checklist'),
+          onTap: () {
+            Navigator.of(context).pushNamed('/checklist');
+          },
         ),
+        ListTile(
+          leading: const Icon(Icons.calendar_today_outlined),
+          title: const Text('Calendar Scheduling'),
+          onTap: () {
+            Navigator.of(context).pushNamed('/calendar');
+          },
+        ),
+        const Divider(),
       ],
     );
   }

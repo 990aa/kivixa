@@ -9,6 +9,8 @@ import 'package:kivixa/features/onboarding/onboarding_screen.dart';
 import 'package:kivixa/features/about/about_screen.dart';
 import 'package:kivixa/features/changelog/changelog_screen.dart';
 import 'package:kivixa/providers.dart';
+import 'package:kivixa/features/calendar/calendar_screen.dart';
+import 'package:kivixa/features/checklist/checklist_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -34,6 +36,8 @@ class MyApp extends ConsumerWidget {
             '/home': (context) => const LibraryScreen(),
             '/about': (context) => const AboutScreen(),
             '/changelog': (context) => const ChangelogScreen(),
+            '/calendar': (context) => const CalendarScreen(),
+            '/checklist': (context) => const ChecklistScreen(),
           },
           onGenerateRoute: (settings) {
             // Add smooth transitions for deep links and navigation
@@ -43,6 +47,8 @@ class MyApp extends ConsumerWidget {
               '/home': (context) => const LibraryScreen(),
               '/about': (context) => const AboutScreen(),
               '/changelog': (context) => const ChangelogScreen(),
+              '/calendar': (context) => const CalendarScreen(),
+              '/checklist': (context) => const ChecklistScreen(),
             }[settings.name];
             if (builder != null) {
               return PageRouteBuilder(
