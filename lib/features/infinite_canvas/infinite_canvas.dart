@@ -38,6 +38,9 @@ class _InfiniteCanvasState extends State<InfiniteCanvas> {
 
   void _onTransformChanged() {
     setState(() {});
+    final viewport = _getViewport();
+    final scale = _transformationController.value.getMaxScaleOnAxis();
+    _tileManager.updateVisibleTiles(viewport, scale);
   }
 
   @override
@@ -49,9 +52,10 @@ class _InfiniteCanvasState extends State<InfiniteCanvas> {
           minScale: 0.1,
           maxScale: 4.0,
           boundaryMargin: const EdgeInsets.all(double.infinity),
-          onInteractionUpdate: (details) {
+          onInteractionEnd: (details) {
             final viewport = _getViewport();
-            _tileManager.updateVisibleTiles(viewport);
+            final scale = _transformationController.value.getMaxScaleOnAxis();
+            _tileManager.updateVisibleTiles(viewport, scale);
           },
           child: Stack(
             children: [
@@ -61,6 +65,7 @@ class _InfiniteCanvasState extends State<InfiniteCanvas> {
                   size: _tileManager.tileSize,
                   x: tile.x,
                   y: tile.y,
+                  scale: _tileManager.scale,
                 );
               }),
             ],
