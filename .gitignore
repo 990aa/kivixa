@@ -1,4 +1,3 @@
-### must delete commented out folders that are uploaded to private repo
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # Dependencies
@@ -16,28 +15,6 @@
 # Production
 /build
 
-# # Flutter/Dart
-# .dart_tool/
-# .packages
-# pubspec.lock
-# build/
-# ios/
-# macos/
-# linux/
-# windows/
-# android/.gradle/
-# android/.idea/
-# android/local.properties
-# android/key.properties
-# android/app/key.jks
-# test/
-
-# # Custom project folders
-# native/
-# platform_channels/
-# python_services/
-# web_components/
-
 # Misc
 .DS_Store
 *.pem
@@ -53,8 +30,8 @@ lerna-debug.log*
 .env*.local
 
 # IDEs
-# .idea/
-# .vscode/
+.idea/
+.vscode/
 *.suo
 *.ntvs*
 *.njsproj
@@ -66,7 +43,3 @@ __pycache__/
 *.pyc
 .venv/
 
-
-#already added but has to be removed
-.flutter-plugins-dependencies
-.dart_tool/
