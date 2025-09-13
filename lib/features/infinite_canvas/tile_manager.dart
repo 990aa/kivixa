@@ -5,12 +5,15 @@ class TileManager extends ChangeNotifier {
   final double tileSize;
   final int _gridSize = 100;
   final Set<Point<int>> _visibleTiles = {};
+  double _scale = 1.0;
 
   TileManager({this.tileSize = 256.0});
 
   Set<Point<int>> get visibleTiles => _visibleTiles;
+  double get scale => _scale;
 
-  void updateVisibleTiles(Rect visibleRect) {
+  void updateVisibleTiles(Rect visibleRect, double scale) {
+    _scale = scale;
     final int startX = (visibleRect.left / tileSize).floor();
     final int startY = (visibleRect.top / tileSize).floor();
     final int endX = (visibleRect.right / tileSize).ceil();
