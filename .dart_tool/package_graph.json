@@ -22,6 +22,7 @@
         "flutter_secure_storage",
         "flutter_secure_storage_windows",
         "flutter_sound",
+        "flutter_staggered_animations",
         "google_mlkit_text_recognition",
         "http",
         "package_info_plus",
@@ -135,6 +136,13 @@
         "stream_channel",
         "test_api",
         "vector_math"
+      ]
+    },
+    {
+      "name": "flutter_staggered_animations",
+      "version": "1.1.1",
+      "dependencies": [
+        "flutter"
       ]
     },
     {
