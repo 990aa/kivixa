@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kivixa/features/editor/floating_toolbar.dart';
 
 class EditorScreen extends StatefulWidget {
   const EditorScreen({
@@ -23,9 +24,9 @@ class _EditorScreenState extends State<EditorScreen> {
       _isImmersiveMode = !_isImmersiveMode;
     });
     if (_isImmersiveMode) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+      SystemChrome.setEnabledSystemU-I-Mode(SystemUiMode.immersive);
     } else {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      SystemChrome.setEnabledSystemU-I-Mode(SystemUiMode.edgeToEdge);
     }
   }
 
@@ -43,20 +44,25 @@ class _EditorScreenState extends State<EditorScreen> {
                 ),
               ],
             ),
-      body: GestureDetector(
-        onTap: _isImmersiveMode ? _toggleImmersiveMode : null,
-        child: Hero(
-          tag: 'template_card_${widget.templateName}',
-          child: Container(
-            color: widget.templateColor,
-            child: Center(
-              child: Text(
-                'This is the ${widget.templateName} template.',
-                style: Theme.of(context).textTheme.headlineMedium,
+      body: Stack(
+        children: [
+          GestureDetector(
+            onTap: _isImmersiveMode ? _toggleImmersiveMode : null,
+            child: Hero(
+              tag: 'template_card_${widget.templateName}',
+              child: Container(
+                color: widget.templateColor,
+                child: Center(
+                  child: Text(
+                    'This is the ${widget.templateName} template.',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
               ),
             ),
           ),
-        ),
+          const FloatingToolbar(),
+        ],
       ),
     );
   }
