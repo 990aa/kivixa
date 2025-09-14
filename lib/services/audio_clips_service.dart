@@ -1,3 +1,4 @@
+// File deleted: audio_clips_service.dart
 import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
@@ -52,7 +53,10 @@ class AudioClipsService {
 
   Stream<Duration> getPlaybackTimeline(int id) {
     // This is a placeholder for a real playback implementation.
-    return Stream.periodic(const Duration(seconds: 1), (i) => Duration(seconds: i));
+    return Stream.periodic(
+      const Duration(seconds: 1),
+      (i) => Duration(seconds: i),
+    );
   }
 
   static void _computeWaveformIsolate(Map<String, dynamic> context) async {

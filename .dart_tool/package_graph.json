@@ -25,7 +25,6 @@
         "flutter_riverpod",
         "flutter_secure_storage",
         "flutter_secure_storage_windows",
-        "flutter_sound",
         "flutter_staggered_animations",
         "google_mlkit_text_recognition",
         "http",
@@ -38,7 +37,6 @@
         "pdfx",
         "phosphor_flutter",
         "pointycastle",
-        "record",
         "riverpod",
         "shared_preferences",
         "shimmer",
@@ -357,33 +355,6 @@
         "meta",
         "stack_trace",
         "state_notifier"
-      ]
-    },
-    {
-      "name": "flutter_sound",
-      "version": "9.28.0",
-      "dependencies": [
-        "flutter",
-        "flutter_sound_platform_interface",
-        "flutter_sound_web",
-        "logger",
-        "path",
-        "path_provider",
-        "synchronized"
-      ]
-    },
-    {
-      "name": "record",
-      "version": "5.2.1",
-      "dependencies": [
-        "flutter",
-        "record_android",
-        "record_darwin",
-        "record_linux",
-        "record_platform_interface",
-        "record_web",
-        "record_windows",
-        "uuid"
       ]
     },
     {
@@ -1241,88 +1212,6 @@
       ]
     },
     {
-      "name": "flutter_sound_web",
-      "version": "9.28.0",
-      "dependencies": [
-        "flutter",
-        "flutter_sound_platform_interface",
-        "flutter_web_plugins",
-        "logger",
-        "web"
-      ]
-    },
-    {
-      "name": "flutter_sound_platform_interface",
-      "version": "9.28.0",
-      "dependencies": [
-        "flutter",
-        "logger",
-        "plugin_platform_interface"
-      ]
-    },
-    {
-      "name": "logger",
-      "version": "2.6.1",
-      "dependencies": [
-        "meta"
-      ]
-    },
-    {
-      "name": "synchronized",
-      "version": "3.4.0",
-      "dependencies": []
-    },
-    {
-      "name": "record_darwin",
-      "version": "1.2.2",
-      "dependencies": [
-        "flutter",
-        "record_platform_interface"
-      ]
-    },
-    {
-      "name": "record_android",
-      "version": "1.4.2",
-      "dependencies": [
-        "flutter",
-        "record_platform_interface"
-      ]
-    },
-    {
-      "name": "record_linux",
-      "version": "0.7.2",
-      "dependencies": [
-        "flutter",
-        "record_platform_interface"
-      ]
-    },
-    {
-      "name": "record_windows",
-      "version": "1.0.7",
-      "dependencies": [
-        "flutter",
-        "record_platform_interface"
-      ]
-    },
-    {
-      "name": "record_web",
-      "version": "1.2.0",
-      "dependencies": [
-        "flutter",
-        "flutter_web_plugins",
-        "record_platform_interface",
-        "web"
-      ]
-    },
-    {
-      "name": "record_platform_interface",
-      "version": "1.4.0",
-      "dependencies": [
-        "flutter",
-        "plugin_platform_interface"
-      ]
-    },
-    {
       "name": "google_mlkit_commons",
       "version": "0.7.1",
       "dependencies": [
@@ -1339,6 +1228,11 @@
     {
       "name": "universal_platform",
       "version": "1.1.0",
+      "dependencies": []
+    },
+    {
+      "name": "synchronized",
+      "version": "3.4.0",
       "dependencies": []
     },
     {

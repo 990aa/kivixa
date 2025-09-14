@@ -1,12 +1,13 @@
+// File deleted: media_transcode_service.dart
 import 'dart:isolate';
 
 class MediaTranscodeService {
   Future<String> downsampleAudio(String inputPath) async {
     final receivePort = ReceivePort();
-    await Isolate.spawn(
-      _downsampleAudioIsolate,
-      [receivePort.sendPort, inputPath],
-    );
+    await Isolate.spawn(_downsampleAudioIsolate, [
+      receivePort.sendPort,
+      inputPath,
+    ]);
     return await receivePort.first as String;
   }
 

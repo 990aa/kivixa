@@ -61,8 +61,8 @@ dependencies:
   google_mlkit_text_recognition: ^0.12.0
 
   # Audio
-  record: ^5.0.5
-  flutter_sound: ^9.2.13
+  # record: ^5.0.5
+  # flutter_sound: ^9.2.13
 
   # State management (choose one later)
   riverpod: ^2.5.1
