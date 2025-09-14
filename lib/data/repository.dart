@@ -499,9 +499,9 @@ class DocumentRepository implements Repository {
 
   Future<bool> updateDriftDocument(DocumentData entry) {
     final updates = DocumentsCompanion(title: drift.Value(entry.title));
-    return _db
-        .update(_db.documents)
-        .where((tbl) => tbl.id.equals(entry.id))
+    final updateStmt = _db.update(_db.documents);
+    updateStmt.where((tbl) => tbl.id.equals(entry.id));
+    return updateStmt
         .write(updates)
         .then((numberOfAffectedRows) => numberOfAffectedRows > 0);
   }

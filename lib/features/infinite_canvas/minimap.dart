@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 class Minimap extends StatelessWidget {
   final TransformationController transformationController;
@@ -52,15 +53,15 @@ class _MinimapPainter extends CustomPainter {
 
     final matrix = transformationController.value;
     final invMatrix = Matrix4.inverted(matrix);
-    // Assuming context.size is available or passed if needed, 
+    // Assuming context.size is available or passed if needed,
     // but for minimap, it's transforming the InteractiveViewer's viewport
     // which is usually the full screen or available size.
-    // If this 'size' (from paint method) is the minimap's own drawing area, 
+    // If this 'size' (from paint method) is the minimap's own drawing area,
     // then we need to know what rect it's supposed to represent from the main canvas.
     // The original code used Offset.zero & size (of the CustomPaint area for minimap)
     // This seems correct for calculating the visible rect *within the minimap's own coordinate space*,
     // representing what the InteractiveViewer is showing.
-    final viewport = invMatrix.transformRect(Offset.zero & size);
+    final viewport = MatrixUtils.transformRect(invMatrix, Offset.zero & size);
 
     final paint = Paint()
       ..color = Colors.blue.withAlpha((0.5 * 255).round())

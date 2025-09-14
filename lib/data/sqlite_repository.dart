@@ -4,6 +4,19 @@ import 'package:sqflite/sqflite.dart';
 import 'repository.dart';
 
 class SQLiteRepository implements Repository {
+  @override
+  Future<int> createComment(Map<String, dynamic> data) async {
+    throw UnimplementedError(
+      'createComment() has not been implemented in SQLiteRepository.',
+    );
+  }
+
+  @override
+  Future<dynamic> getDocumentLock(int documentId) async {
+    // No locking in SQLiteRepository stub
+    return null;
+  }
+
   final Database db;
   SQLiteRepository(this.db);
 
@@ -93,8 +106,17 @@ class SQLiteRepository implements Repository {
 
   // User Settings
   @override
-  Future<void> updateUserSetting(String userId, String key, Map<String, dynamic> data) async {
-    await db.update('user_settings', data, where: 'user_id = ? AND key = ?', whereArgs: [userId, key]);
+  Future<void> updateUserSetting(
+    String userId,
+    String key,
+    Map<String, dynamic> data,
+  ) async {
+    await db.update(
+      'user_settings',
+      data,
+      where: 'user_id = ? AND key = ?',
+      whereArgs: [userId, key],
+    );
   }
 
   @override
@@ -114,10 +136,14 @@ class SQLiteRepository implements Repository {
 
   // Page methods
   @override
-  Future<List<Map<String, dynamic>>> listPages({required int documentId, int? limit, int? offset}) async {
+  Future<List<Map<String, dynamic>>> listPages({
+    required int documentId,
+    int? limit,
+    int? offset,
+  }) async {
     return await db.query(
-      'pages', 
-      where: 'document_id = ?', 
+      'pages',
+      where: 'document_id = ?',
       whereArgs: [documentId],
       limit: limit,
       offset: offset,
@@ -126,55 +152,77 @@ class SQLiteRepository implements Repository {
 
   @override
   Future<Map<String, dynamic>?> getPage(int pageId) async {
-    throw UnimplementedError('getPage() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'getPage() has not been implemented in SQLiteRepository.',
+    );
   }
 
   @override
   Future<int> createPage(Map<String, dynamic> data) async {
-    throw UnimplementedError('createPage() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'createPage() has not been implemented in SQLiteRepository.',
+    );
   }
 
   @override
   Future<void> updatePage(int pageId, Map<String, dynamic> data) async {
-    throw UnimplementedError('updatePage() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'updatePage() has not been implemented in SQLiteRepository.',
+    );
   }
 
   // Outline methods
   @override
-  Future<List<Map<String, dynamic>>> listOutlines({required int documentId}) async {
-    throw UnimplementedError('listOutlines() has not been implemented in SQLiteRepository.');
+  Future<List<Map<String, dynamic>>> listOutlines({
+    required int documentId,
+  }) async {
+    throw UnimplementedError(
+      'listOutlines() has not been implemented in SQLiteRepository.',
+    );
   }
 
   @override
   Future<int> createOutline(Map<String, dynamic> data) async {
-    throw UnimplementedError('createOutline() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'createOutline() has not been implemented in SQLiteRepository.',
+    );
   }
 
   @override
   Future<void> deleteOutline(int outlineId) async {
-    throw UnimplementedError('deleteOutline() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'deleteOutline() has not been implemented in SQLiteRepository.',
+    );
   }
 
   // Comment methods
   @override
   Future<List<Map<String, dynamic>>> listComments({required int pageId}) async {
-    throw UnimplementedError('listComments() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'listComments() has not been implemented in SQLiteRepository.',
+    );
   }
 
   @override
   Future<void> deleteComment(int commentId) async {
-    throw UnimplementedError('deleteComment() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'deleteComment() has not been implemented in SQLiteRepository.',
+    );
   }
 
   // PDF Annotation methods
   @override
   Future<int> createPdfAnnotation(Map<String, dynamic> annotationData) async {
-    throw UnimplementedError('createPdfAnnotation() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'createPdfAnnotation() has not been implemented in SQLiteRepository.',
+    );
   }
 
   @override
   Future<Map<String, dynamic>?> getPdfAnnotation(int annotationId) async {
-    throw UnimplementedError('getPdfAnnotation() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'getPdfAnnotation() has not been implemented in SQLiteRepository.',
+    );
   }
 
   @override
@@ -182,44 +230,61 @@ class SQLiteRepository implements Repository {
     required int documentId,
     required int pageNumber,
   }) async {
-    throw UnimplementedError('listPdfAnnotations() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'listPdfAnnotations() has not been implemented in SQLiteRepository.',
+    );
   }
 
   @override
   Future<void> deletePdfAnnotation(int annotationId) async {
-    throw UnimplementedError('deletePdfAnnotation() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'deletePdfAnnotation() has not been implemented in SQLiteRepository.',
+    );
   }
 
   // Image methods
   @override
   Future<Map<String, dynamic>?> getImage(int imageId) async {
-    throw UnimplementedError('getImage() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'getImage() has not been implemented in SQLiteRepository.',
+    );
   }
 
   @override
   Future<void> updateImage(int imageId, Map<String, dynamic> data) async {
-    throw UnimplementedError('updateImage() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'updateImage() has not been implemented in SQLiteRepository.',
+    );
   }
 
   // TextBlock methods
   @override
   Future<int> createTextBlock(Map<String, dynamic> data) async {
-    throw UnimplementedError('createTextBlock() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'createTextBlock() has not been implemented in SQLiteRepository.',
+    );
   }
 
   @override
   Future<Map<String, dynamic>?> getTextBlock(int textBlockId) async {
     // This was previously implemented, ensuring it's correctly stubbed here for completeness
     // of the current operation, though ideally it would have its own SQFlite logic.
-    throw UnimplementedError('getTextBlock() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'getTextBlock() has not been implemented in SQLiteRepository.',
+    );
   }
 
   @override
-  Future<void> updateTextBlock(int textBlockId, Map<String, dynamic> data) async {
+  Future<void> updateTextBlock(
+    int textBlockId,
+    Map<String, dynamic> data,
+  ) async {
     // This was previously implemented, ensuring it's correctly stubbed here for completeness.
-    throw UnimplementedError('updateTextBlock() has not been implemented in SQLiteRepository.');
+    throw UnimplementedError(
+      'updateTextBlock() has not been implemented in SQLiteRepository.',
+    );
   }
-  
+
   // Generic/Utility methods
   @override
   Future<void> batchWrite(List<Future<void> Function()> operations) async {
@@ -231,12 +296,15 @@ class SQLiteRepository implements Repository {
   }
 
   @override
-  Future<void> updatePageThumbnailMetadata(int pageId, Map<String, dynamic> metadata) async {
+  Future<void> updatePageThumbnailMetadata(
+    int pageId,
+    Map<String, dynamic> metadata,
+  ) async {
     final String metadataJson = jsonEncode(metadata);
     await db.update(
       'pages',
-      {'thumbnail_metadata': metadataJson}, 
-      where: 'id = ?', 
+      {'thumbnail_metadata': metadataJson},
+      where: 'id = ?',
       whereArgs: [pageId],
     );
   }
@@ -248,7 +316,7 @@ class SQLiteRepository implements Repository {
       columns: ['thumbnail_asset_id', 'thumbnail_metadata'],
       where: 'id = ?',
       whereArgs: [pageId],
-      limit: 1, 
+      limit: 1,
     );
 
     if (results.isNotEmpty) {
@@ -260,30 +328,30 @@ class SQLiteRepository implements Repository {
         try {
           decodedMetadata = jsonDecode(metadataJson) as Map<String, dynamic>;
         } catch (e) {
-          decodedMetadata = null; 
+          decodedMetadata = null;
         }
       }
-      
+
       return {
         'asset_id': pageData['thumbnail_asset_id'],
-        'metadata': decodedMetadata, 
+        'metadata': decodedMetadata,
       };
     }
-    return null; 
+    return null;
   }
 
   @override
   Future<Map<String, dynamic>?> getAsset(int assetId) async {
     final List<Map<String, dynamic>> results = await db.query(
-      'assets', 
-      where: 'id = ?', 
+      'assets',
+      where: 'id = ?',
       whereArgs: [assetId],
-      limit: 1, 
+      limit: 1,
     );
 
     if (results.isNotEmpty) {
-      return results.first; 
+      return results.first;
     }
-    return null; 
+    return null;
   }
 }
