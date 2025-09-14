@@ -26,6 +26,7 @@ abstract class Repository {
 
   // Outline methods
   Future<List<Map<String, dynamic>>> listOutlines({required int documentId});
+  Future<int> createOutline(Map<String, dynamic> data); // Added
   Future<void> deleteOutline(int outlineId);
 
   // Comment methods
@@ -41,11 +42,19 @@ abstract class Repository {
   });
   Future<void> deletePdfAnnotation(int annotationId);
 
+  // Image methods
+  Future<Map<String, dynamic>?> getImage(int imageId);
+  Future<void> updateImage(int imageId, Map<String, dynamic> data);
+
+  // TextBlock methods
+  Future<int> createTextBlock(Map<String, dynamic> data); // Added
+  Future<Map<String, dynamic>?> getTextBlock(int textBlockId);
+  Future<void> updateTextBlock(int textBlockId, Map<String, dynamic> data);
+
   // Generic/Utility methods
   Future<void> batchWrite(List<Future<void> Function()> operations);
 
   // TODO: Review if the following methods are still needed in this generic interface
-  // or should be part of more specific repository interfaces if they are used elsewhere.
   Future<int> createNotebook(Map<String, dynamic> data);
   Future<Map<String, dynamic>?> getNotebook(int id);
   Future<List<Map<String, dynamic>>> listNotebooks({
@@ -65,8 +74,6 @@ abstract class Repository {
   Future<void> updatePageThumbnailMetadata(int pageId, Map<String, dynamic> metadata);
   Future<Map<String, dynamic>?> getPageThumbnail(int pageId);
   Future<Map<String, dynamic>?> getAsset(int assetId);
-  Future<void> updateTextBlock(int textBlockId, Map<String, dynamic> data);
-  Future<Map<String, dynamic>?> getTextBlock(int textBlockId);
 }
 
 // --- Drift Implementation of the Repository ---
@@ -88,18 +95,18 @@ class DocumentRepository implements Repository {
   Future<Map<String, dynamic>?> getDocument(int id) async {
     final docData = await (_db.select(_db.documents)..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
     if (docData != null) {
-      return {'id': docData.id, 'name': docData.title}; // Assuming 'title' is the field name
+      return {'id': docData.id, 'name': docData.title};
     }
     return null;
   }
 
   @override
   Future<List<Map<String, dynamic>>> listDocuments({
-    int? notebookId, // TODO: Implement filtering if needed
-    int? parentId,   // TODO: Implement filtering if needed
-    String? orderBy,  // TODO: Implement ordering if needed
-    int? limit,      // TODO: Implement limit if needed
-    int? offset,     // TODO: Implement offset if needed
+    int? notebookId,
+    int? parentId,
+    String? orderBy,
+    int? limit,
+    int? offset,
   }) async {
     final documentsData = await _db.select(_db.documents).get();
     return documentsData.map((doc) => {'id': doc.id, 'name': doc.title}).toList();
@@ -123,13 +130,11 @@ class DocumentRepository implements Repository {
   @override
   Future<List<Map<String, dynamic>>> listPages({required int documentId, int? limit, int? offset}) async {
     final query = _db.select(_db.pages)..where((tbl) => tbl.documentId.equals(documentId));
-    // TODO: Add limit and offset if provided
     final pageEntries = await query.get();
     return pageEntries.map((entry) {
       return {
         'id': entry.id,
         'document_id': entry.documentId,
-        // Add other relevant page properties from your PageData structure
       };
     }).toList();
   }
@@ -141,7 +146,6 @@ class DocumentRepository implements Repository {
       return {
         'id': pageData.id,
         'document_id': pageData.documentId,
-        // ... other fields from your PageData
       };
     }
     return null;
@@ -150,7 +154,7 @@ class DocumentRepository implements Repository {
   @override
   Future<int> createPage(Map<String, dynamic> data) async {
     final documentId = data['document_id'] as int;
-    final companion = PagesCompanion.insert(documentId: documentId /*, ... other fields */);
+    final companion = PagesCompanion.insert(documentId: documentId);
     final pageData = await _db.into(_db.pages).insertReturning(companion);
     return pageData.id;
   }
@@ -172,9 +176,23 @@ class DocumentRepository implements Repository {
       return {
         'id': entry.id,
         'documentId': entry.documentId,
-        'data': entry.data,
+        'data': entry.data, // This is a JSON string
       };
     }).toList();
+  }
+
+  @override
+  Future<int> createOutline(Map<String, dynamic> data) async {
+    final outlineJsonData = {
+      'title': data['title'],
+      'parent_id': data['parent_id'],
+    };
+    final companion = OutlinesCompanion.insert(
+      documentId: data['document_id'] as int,
+      data: jsonEncode(outlineJsonData),
+    );
+    final outline = await _db.into(_db.outlines).insertReturning(companion);
+    return outline.id;
   }
 
   @override
@@ -204,15 +222,13 @@ class DocumentRepository implements Repository {
   // --- PDF Annotation Methods ---
   @override
   Future<int> createPdfAnnotation(Map<String, dynamic> annotationData) async {
-    // Assuming PdfAnnotationsCompanion is generated from a PdfAnnotations table
-    // and that annotationData fields match the PdfAnnotation.toMap() structure.
     final companion = PdfAnnotationsCompanion.insert(
       documentId: annotationData['document_id'] as int,
       pageNumber: annotationData['page_number'] as int,
-      rects: annotationData['rects'] as String, // This is a JSON string from PdfAnnotation.toMap
-      type: annotationData['type'] as int, // This is an enum index from PdfAnnotation.toMap
+      rects: annotationData['rects'] as String,
+      type: annotationData['type'] as int,
       text: annotationData['text'] as String,
-      provenance: annotationData['provenance'] as String, // JSON string from PdfAnnotation.toMap
+      provenance: annotationData['provenance'] as String,
     );
     final inserted = await _db.into(_db.pdfAnnotations).insertReturning(companion);
     return inserted.id;
@@ -222,15 +238,14 @@ class DocumentRepository implements Repository {
   Future<Map<String, dynamic>?> getPdfAnnotation(int annotationId) async {
     final data = await (_db.select(_db.pdfAnnotations)..where((tbl) => tbl.id.equals(annotationId))).getSingleOrNull();
     if (data != null) {
-      // This map must match the structure expected by PdfAnnotation.fromMap
       return {
         'id': data.id,
         'document_id': data.documentId,
         'page_number': data.pageNumber,
-        'rects': data.rects, // Should be a JSON string
-        'type': data.type,   // Should be an int (enum index)
+        'rects': data.rects,
+        'type': data.type,
         'text': data.text,
-        'provenance': data.provenance, // Should be a JSON string
+        'provenance': data.provenance,
       };
     }
     return null;
@@ -262,6 +277,77 @@ class DocumentRepository implements Repository {
     await (_db.delete(_db.pdfAnnotations)..where((tbl) => tbl.id.equals(annotationId))).go();
   }
 
+  // --- Image Methods ---
+  @override
+  Future<void> updateImage(int imageId, Map<String, dynamic> data) async {
+    final companion = ImagesCompanion(
+      assetPath: data.containsKey('asset_path')
+          ? drift.Value(data['asset_path'] as String)
+          : const drift.Value.absent(),
+      transform: data.containsKey('transform')
+          ? drift.Value(jsonEncode(data['transform']))
+          : const drift.Value.absent(),
+    );
+    await (_db.update(_db.images)..where((tbl) => tbl.id.equals(imageId))).write(companion);
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getImage(int imageId) async {
+    final imageData = await (_db.select(_db.images)..where((tbl) => tbl.id.equals(imageId))).getSingleOrNull();
+    if (imageData != null) {
+      return {
+        'id': imageData.id,
+        'asset_path': imageData.assetPath,
+        'thumbnail_path': imageData.thumbnailPath,
+        'transform': imageData.transform != null
+            ? jsonDecode(imageData.transform!)
+            : null,
+      };
+    }
+    return null;
+  }
+
+  // --- TextBlock Methods ---
+  @override
+  Future<int> createTextBlock(Map<String, dynamic> data) async {
+    final companion = TextBlocksCompanion.insert(
+      layerId: data['layer_id'] as int,
+      content: data['plain_text'] as String? ?? '',
+    );
+    final textBlock = await _db.into(_db.textBlocks).insertReturning(companion);
+    return textBlock.id;
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getTextBlock(int textBlockId) async {
+    final block = await (_db.select(_db.textBlocks)..where((tbl) => tbl.id.equals(textBlockId))).getSingleOrNull();
+    if (block != null) {
+      return {
+        'id': block.id,
+        'layer_id': block.layerId,
+        'plain_text': block.content,
+        'styled_json': null, 
+      };
+    }
+    return null;
+  }
+
+  @override
+  Future<void> updateTextBlock(int textBlockId, Map<String, dynamic> data) async {
+    final String? plainText = data['plain_text'] as String?;
+    drift.Value<String> contentValue = const drift.Value.absent();
+    if (plainText != null) {
+      contentValue = drift.Value(plainText);
+    }
+
+    if (contentValue != const drift.Value.absent()) {
+      final companion = TextBlocksCompanion(
+        content: contentValue,
+      );
+      await (_db.update(_db.textBlocks)..where((tbl) => tbl.id.equals(textBlockId))).write(companion);
+    }
+  }
+
   // --- Generic/Utility Methods ---
   @override
   Future<void> batchWrite(List<Future<void> Function()> operations) async {
@@ -271,8 +357,8 @@ class DocumentRepository implements Repository {
       }
     });
   }
-  
-  // --- Stubs for other Repository methods (ensure these are implemented or removed if not needed) ---
+
+  // --- Stubs for other Repository methods ---
   @override
   Future<int> createNotebook(Map<String, dynamic> data) async {
     throw UnimplementedError('createNotebook not implemented in DocumentRepository');
@@ -322,20 +408,8 @@ class DocumentRepository implements Repository {
   Future<Map<String, dynamic>?> getAsset(int assetId) async {
     throw UnimplementedError('getAsset not implemented in DocumentRepository');
   }
-
-  @override
-  Future<void> updateTextBlock(int textBlockId, Map<String, dynamic> data) async {
-    throw UnimplementedError('updateTextBlock not implemented in DocumentRepository');
-  }
-
-  @override
-  Future<Map<String, dynamic>?> getTextBlock(int textBlockId) async {
-    throw UnimplementedError('getTextBlock not implemented in DocumentRepository');
-  }
   
   // --- Methods from original DocumentRepository that are not part of the refined Repository interface ---
-  // Review if these are needed and how they should be exposed if so.
-
   Stream<List<DocumentData>> watchAllDriftDocuments() {
     return _db.select(_db.documents).watch();
   }
@@ -362,43 +436,8 @@ class DocumentRepository implements Repository {
     return (_db.delete(_db.documents)..where((tbl) => tbl.id.equals(id))).go();
   }
 
-  Future<void> updateImage(int imageId, Map<String, dynamic> data) async {
-    final companion = ImagesCompanion(
-      assetPath: data.containsKey('asset_path') 
-          ? drift.Value(data['asset_path'] as String)
-          : const drift.Value.absent(),
-      transform: data.containsKey('transform') 
-          ? drift.Value(jsonEncode(data['transform'])) 
-          : const drift.Value.absent(),
-    );
-    await (_db.update(_db.images)..where((tbl) => tbl.id.equals(imageId))).write(companion);
-  }
-
-  Future<Map<String, dynamic>?> getImage(int imageId) async {
-    final imageData = await (_db.select(_db.images)..where((tbl) => tbl.id.equals(imageId))).getSingleOrNull();
-    if (imageData != null) {
-      return {
-        'id': imageData.id,
-        'asset_path': imageData.assetPath,
-        'thumbnail_path': imageData.thumbnailPath,
-        'transform': imageData.transform != null 
-            ? jsonDecode(imageData.transform!) 
-            : null,
-      };
-    }
-    return null;
-  }
-
   Future<Map<String, dynamic>?> getTemplate(int templateId) async {
-    final templateData = await (_db.select(_db.templates)..where((tbl) => tbl.id.equals(templateId))).getSingleOrNull();
-    if (templateData != null) {
-      return {
-        'id': templateData.id,
-        'name': templateData.name,
-        'content': templateData.content,
-      };
-    }
-    return null;
+    throw UnimplementedError('getTemplate not implemented. Requires Templates table in DB.');
   }
 
   Future<void> createMinimapTile(Map<String, dynamic> tileData) async {
@@ -408,7 +447,6 @@ class DocumentRepository implements Repository {
     final dynamic rawData = tileData['data'];
 
     if (documentId == null || x == null || y == null || rawData == null) {
-      // print('DocumentRepository.createMinimapTile: Missing required fields. $tileData');
       return;
     }
     final String jsonData = rawData is String ? rawData : jsonEncode(rawData);

@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="49a8958b-8c8d-458b-9c1b-10ca97c96ca1" name="Changes" comment="" />
+    <list default="true" id="49a8958b-8c8d-458b-9c1b-10ca97c96ca1" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/lib/services/infinite_canvas_creation.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/infinite_canvas_creation.dart" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
