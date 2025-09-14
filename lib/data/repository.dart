@@ -243,8 +243,11 @@ class DocumentRepository implements Repository {
     final companion = CommentsCompanion.insert(
       pageId: data['page_id'] as int,
       content: data['content'] as String,
-      author: drift.Value(data['author'] as String?),
-      createdAt: DateTime.fromMillisecondsSinceEpoch(data['created_at'] as int),
+      createdAt: data['created_at'] != null
+          ? drift.Value(
+              DateTime.fromMillisecondsSinceEpoch(data['created_at'] as int),
+            )
+          : const drift.Value.absent(),
     );
     final comment = await _db.into(_db.comments).insertReturning(companion);
     return comment.id;
@@ -275,37 +278,16 @@ class DocumentRepository implements Repository {
   // --- PDF Annotation Methods ---
   @override
   Future<int> createPdfAnnotation(Map<String, dynamic> annotationData) async {
-    final companion = PdfAnnotationsCompanion.insert(
-      documentId: annotationData['document_id'] as int,
-      pageNumber: annotationData['page_number'] as int,
-      rects: annotationData['rects'] as String,
-      type: annotationData['type'] as int,
-      text: annotationData['text'] as String,
-      provenance: annotationData['provenance'] as String,
+    throw UnimplementedError(
+      'PDF annotation support is not implemented: missing PdfAnnotationsCompanion and pdfAnnotations table.',
     );
-    final inserted = await _db
-        .into(_db.pdfAnnotations)
-        .insertReturning(companion);
-    return inserted.id;
   }
 
   @override
   Future<Map<String, dynamic>?> getPdfAnnotation(int annotationId) async {
-    final data = await (_db.select(
-      _db.pdfAnnotations,
-    )..where((tbl) => tbl.id.equals(annotationId))).getSingleOrNull();
-    if (data != null) {
-      return {
-        'id': data.id,
-        'document_id': data.documentId,
-        'page_number': data.pageNumber,
-        'rects': data.rects,
-        'type': data.type,
-        'text': data.text,
-        'provenance': data.provenance,
-      };
-    }
-    return null;
+    throw UnimplementedError(
+      'PDF annotation support is not implemented: missing pdfAnnotations table.',
+    );
   }
 
   @override
@@ -313,31 +295,16 @@ class DocumentRepository implements Repository {
     required int documentId,
     required int pageNumber,
   }) async {
-    final query = _db.select(_db.pdfAnnotations)
-      ..where(
-        (tbl) =>
-            tbl.documentId.equals(documentId) &
-            tbl.pageNumber.equals(pageNumber),
-      );
-    final results = await query.get();
-    return results.map((data) {
-      return {
-        'id': data.id,
-        'document_id': data.documentId,
-        'page_number': data.pageNumber,
-        'rects': data.rects,
-        'type': data.type,
-        'text': data.text,
-        'provenance': data.provenance,
-      };
-    }).toList();
+    throw UnimplementedError(
+      'PDF annotation support is not implemented: missing pdfAnnotations table.',
+    );
   }
 
   @override
   Future<void> deletePdfAnnotation(int annotationId) async {
-    await (_db.delete(
-      _db.pdfAnnotations,
-    )..where((tbl) => tbl.id.equals(annotationId))).go();
+    throw UnimplementedError(
+      'PDF annotation support is not implemented: missing pdfAnnotations table.',
+    );
   }
 
   // --- Image Methods ---
