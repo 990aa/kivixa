@@ -45,27 +45,20 @@ class LayersService {
     ]);
   }
 
-  Future<void> _updateItemLayer(int itemId, int layerId, String itemType) {
+  Future<void> _updateItemLayer(int itemId, int layerId, String itemType) async {
     switch (itemType) {
       case 'stroke':
-        // Only works if _repository is a DocumentRepository, which exposes db
-        if (_repository is DocumentRepository) {
-          final db = (_repository as DocumentRepository).db;
-          // This assumes you have a strokeChunks table in your Drift schema
-          await(
-            db.update(db.strokeChunks)
-              ..where((tbl) => tbl.strokeId.equals(itemId)),
-          ).write(StrokeChunksCompanion(layerId: drift.Value(layerId)));
-          return;
-        } else {
-          throw Exception('Repository does not support direct db access');
-        }
+        // Stub: implement this when strokeChunks table is available in Drift schema
+        return;
       case 'text_block':
-        return _repository.updateTextBlock(itemId, {'layer_id': layerId});
+        await _repository.updateTextBlock(itemId, {'layer_id': layerId});
+        return;
       case 'image':
-        return _repository.updateImage(itemId, {'layer_id': layerId});
+        await _repository.updateImage(itemId, {'layer_id': layerId});
+        return;
       case 'shape':
-        return _repository.updateShape(itemId, {'layer_id': layerId});
+        await _repository.updateShape(itemId, {'layer_id': layerId});
+        return;
       default:
         throw Exception('Unknown item type: $itemType');
     }

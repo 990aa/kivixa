@@ -21,10 +21,9 @@ final _log = Logger('ShareImportService');
 /// processing. The source URI is recorded for traceability.
 class ShareImportService {
   final ImportManager _importManager;
-  final StoragePaths _storagePaths; // This field might be unused now
   static const _channel = MethodChannel('com.kivixa.share/intent');
 
-  ShareImportService(this._importManager, this._storagePaths) {
+  ShareImportService(this._importManager) {
     if (Platform.isAndroid) {
       _channel.setMethodCallHandler(_handleMethod);
     }

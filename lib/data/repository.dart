@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'package:drift/drift.dart' as drift;
 import 'package:kivixa/data/database.dart';
 
+// In-memory document lock map for demonstration (not persistent)
+final Map<int, Map<String, dynamic>> _locks = {};
+
 // --- Interface Definition ---
 abstract class Repository {
   // Minimap tile index methods
@@ -267,14 +270,14 @@ class DocumentRepository implements Repository {
   AppDatabase get db => _db;
   @override
   Future<dynamic> getDocumentLock(int documentId) async {
-  // Simple in-memory lock implementation for demonstration (not persistent)
-  // In production, implement persistent locking in the database.
-  // This is a singleton lock map for demonstration only.
-  // ignore: prefer_collection_literals
-  // ignore: library_private_types_in_public_api
-  // ignore: prefer_final_fields
-  // Moved _locks to be a top-level private variable.
-  return _locks[documentId];
+    // Simple in-memory lock implementation for demonstration (not persistent)
+    // In production, implement persistent locking in the database.
+    // This is a singleton lock map for demonstration only.
+    // ignore: prefer_collection_literals
+    // ignore: library_private_types_in_public_api
+    // ignore: prefer_final_fields
+    // Moved _locks to be a top-level private variable.
+    return _locks[documentId];
   }
 
   DocumentRepository(this._db);

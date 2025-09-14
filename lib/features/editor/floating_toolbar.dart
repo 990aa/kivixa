@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/physics.dart';
 
 class _Tool {
   const _Tool({required this.icon, required this.name});
@@ -17,7 +16,6 @@ class FloatingToolbar extends StatefulWidget {
 class _FloatingToolbarState extends State<FloatingToolbar>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late SpringSimulation _simulation;
   Offset _offset = const Offset(16, 100);
   int _selectedToolIndex = 0;
 
@@ -31,12 +29,7 @@ class _FloatingToolbarState extends State<FloatingToolbar>
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
-    _simulation = SpringSimulation(
-      const SpringDescription(mass: 1, stiffness: 100, damping: 10),
-      0,
-      1,
-      0,
-    );
+      // _simulation was removed
   }
 
   @override
@@ -45,9 +38,6 @@ class _FloatingToolbarState extends State<FloatingToolbar>
     super.dispose();
   }
 
-  void _runAnimation(Offset target) {
-    _controller.animateWith(_simulation);
-  }
 
   @override
   Widget build(BuildContext context) {

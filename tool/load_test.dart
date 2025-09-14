@@ -22,8 +22,6 @@ Future<void> main() async {
     await Future.delayed(Duration(microseconds: random.nextInt(500)));
   }
   stopwatch.stop();
-  final totalInsertTime = stopwatch.elapsedMilliseconds;
-  final avgInsertLatency = totalInsertTime / strokeCount;
   // print("Finished inserting strokes in ${totalInsertTime}ms.");
   // print("Average insert latency: ${avgInsertLatency.toStringAsFixed(2)}ms/stroke");
 
@@ -44,6 +42,5 @@ Future<void> main() async {
 
 
   // --- Generate Report ---
-  final reportPath = await perfLog.exportReportToFile();
   // print("Load test complete. Report saved to $reportPath");
 }

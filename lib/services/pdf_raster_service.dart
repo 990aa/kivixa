@@ -10,13 +10,11 @@ import 'package:path_provider/path_provider.dart';
 // import 'package:pdfx/pdfx.dart'; or another package.
 
 // Assuming a database service is available.
-import '../data/database.dart';
 
 class PdfRasterService {
-  final AppDatabase _db;
   late final Directory _cacheDir;
 
-  PdfRasterService(this._db);
+  PdfRasterService();
 
   Future<void> init() async {
     final assetsDir = await getApplicationDocumentsDirectory();

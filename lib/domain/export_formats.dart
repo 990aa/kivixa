@@ -1,4 +1,3 @@
-import 'package:kivixa/services/export_manager.dart';
 import 'package:kivixa/services/offline_queue.dart';
 
 enum ExportFormat {
@@ -34,10 +33,9 @@ class ImageExportOptions extends ExportOptions {
 }
 
 class ExportService {
-  final ExportManager _exportManager;
   final OfflineQueue _offlineQueue;
 
-  ExportService(this._exportManager, this._offlineQueue);
+  ExportService(this._offlineQueue);
 
   Future<int> export(ExportOptions options) async {
     final payload = <String, dynamic>{

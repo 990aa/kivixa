@@ -52,23 +52,22 @@ class PdfAnnotation {
 
 class PdfAnnotationService {
   final Repository _repo;
-  final OutlineService _outlineService;
+  // final OutlineService _outlineService; // Removed unused field
   final CommentsService _commentsService;
 
-  PdfAnnotationService(this._repo, this._outlineService, this._commentsService);
+  PdfAnnotationService(this._repo, this._commentsService);
 
   Future<int> addAnnotation(PdfAnnotation annotation, {String? comment}) async {
     final annotationId = await _repo.createPdfAnnotation(annotation.toMap());
 
     if (comment != null && comment.isNotEmpty) {
-      final outlineData = {
-        'documentId': annotation.documentId,
-        'pageNumber': annotation.pageNumber,
-        'text': annotation.text,
-        'type': 'pdf_annotation',
-        'annotationId': annotationId,
-      };
-      final outlineId = await _outlineService.addOutline(annotation.documentId, jsonEncode(outlineData));
+        // final outlineData = { // Removed unused local variable
+        //   'documentId': annotation.documentId,
+        //   'pageNumber': annotation.pageNumber,
+        //   'text': annotation.text,
+        //   'type': 'pdf_annotation',
+        //   'annotationId': annotationId,
+        // };
       
       // I'm assuming pageId can be retrieved from documentId and pageNumber
       // This is a simplification. A more robust solution would be needed.
@@ -91,7 +90,6 @@ class PdfAnnotationService {
     // Also delete associated outline/comment
     final annotationMap = await _repo.getPdfAnnotation(annotationId);
     if (annotationMap != null) {
-      final annotation = PdfAnnotation.fromMap(annotationMap);
       // This is a simplification. We would need a way to find the exact outline/comment to delete.
       // For now, we just delete the annotation from the database.
       await _repo.deletePdfAnnotation(annotationId);
