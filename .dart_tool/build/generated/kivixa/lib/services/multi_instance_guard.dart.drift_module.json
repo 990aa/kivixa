@@ -1,7 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:uuid/uuid.dart",
-    "package:kivixa/data/repository.dart"
-  ]
-}

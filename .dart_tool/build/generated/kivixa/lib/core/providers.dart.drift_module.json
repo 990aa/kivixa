@@ -1,7 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:connectivity_plus/connectivity_plus.dart",
-    "package:flutter_riverpod/flutter_riverpod.dart"
-  ]
-}

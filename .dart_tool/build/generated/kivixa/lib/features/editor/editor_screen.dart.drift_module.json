@@ -1,9 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:flutter/material.dart",
-    "package:flutter/services.dart",
-    "package:kivixa/features/editor/glassmorphism_toolbar.dart",
-    "package:kivixa/features/editor/split_screen.dart"
-  ]
-}

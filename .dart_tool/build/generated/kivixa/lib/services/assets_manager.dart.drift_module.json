@@ -1,8 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:crypto/crypto.dart",
-    "package:kivixa/platform/storage_paths.dart",
-    "package:kivixa/data/repository.dart"
-  ]
-}

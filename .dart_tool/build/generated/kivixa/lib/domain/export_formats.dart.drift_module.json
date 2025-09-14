@@ -1,7 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:kivixa/services/export_manager.dart",
-    "package:kivixa/services/offline_queue.dart"
-  ]
-}

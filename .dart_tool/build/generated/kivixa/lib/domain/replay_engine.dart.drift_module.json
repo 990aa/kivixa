@@ -1,7 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:sqflite/sqflite.dart",
-    "package:kivixa/services/stroke_store.dart"
-  ]
-}

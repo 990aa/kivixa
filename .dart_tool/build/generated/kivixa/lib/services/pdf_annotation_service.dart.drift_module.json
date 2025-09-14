@@ -1,7 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:kivixa/data/repository.dart",
-    "package:kivixa/services/outline_comments_service.dart"
-  ]
-}

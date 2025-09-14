@@ -1,7 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:flutter/services.dart",
-    "package:path_provider/path_provider.dart"
-  ]
-}

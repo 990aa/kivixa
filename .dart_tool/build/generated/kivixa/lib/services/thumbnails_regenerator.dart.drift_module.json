@@ -1,8 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:flutter/foundation.dart",
-    "package:kivixa/data/repository.dart",
-    "package:kivixa/services/tiled_thumbnails_service.dart"
-  ]
-}

@@ -1,8 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:flutter/material.dart",
-    "package:kivixa/core/theme/color_schemes.dart",
-    "package:kivixa/core/theme/typography.dart"
-  ]
-}

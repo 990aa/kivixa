@@ -1,6 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:kivixa/data/database.dart"
-  ]
-}

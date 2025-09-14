@@ -1,6 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:kivixa/services/perf_log.dart"
-  ]
-}

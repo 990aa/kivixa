@@ -1,8 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:path_provider/path_provider.dart",
-    "package:path/path.dart",
-    "package:uuid/uuid.dart"
-  ]
-}

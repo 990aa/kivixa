@@ -1,1 +1,0 @@
-{"valid_import":true,"imports":[{"uri":"package:drift/drift.dart","transitive":false}],"elements":[{"kind":"table","name":"checklist_items","dart_name":"ChecklistItems"},{"kind":"table","name":"calendar_events","dart_name":"CalendarEvents"}]}

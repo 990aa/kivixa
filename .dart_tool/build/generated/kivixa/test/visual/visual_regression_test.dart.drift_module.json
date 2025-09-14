@@ -1,8 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:flutter_test/flutter_test.dart",
-    "package:kivixa/main.dart",
-    "package:flutter/material.dart"
-  ]
-}

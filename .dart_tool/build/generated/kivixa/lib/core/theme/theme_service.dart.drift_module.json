@@ -1,8 +1,0 @@
-{
-  "elements": {},
-  "imports": [
-    "package:flutter/material.dart",
-    "package:shared_preferences/shared_preferences.dart",
-    "package:flutter_riverpod/flutter_riverpod.dart"
-  ]
-}
