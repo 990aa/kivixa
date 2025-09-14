@@ -52,7 +52,7 @@ class DocumentRepository {
     //   transform: data.containsKey('transform') ? drift.Value(jsonEncode(data['transform'])) : const drift.Value.absent(),
     // );
     // await (_db.update(_db.images)..where((tbl) => tbl.id.equals(imageId))).write(companion);
-    print('DocumentRepository.updateImage called for imageId: $imageId with data: $data - Needs actual implementation!');
+    // print('DocumentRepository.updateImage called for imageId: $imageId with data: $data - Needs actual implementation!');
   }
 
   Future<Map<String, dynamic>?> getImage(int imageId) async {
@@ -68,7 +68,7 @@ class DocumentRepository {
     //     // 'transform': imageData.transform != null ? jsonDecode(imageData.transform) : null,
     //   };
     // }
-    print('DocumentRepository.getImage called for imageId: $imageId - Needs actual implementation!');
+    // print('DocumentRepository.getImage called for imageId: $imageId - Needs actual implementation!');
     return null; // Placeholder: Returns null until implemented
   }
 

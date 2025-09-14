@@ -31,7 +31,7 @@ class KeyVault {
     final key = await _getKey(salt);
     final iv = _generateIv();
 
-    final cipher = GCMBlockCipher(AESFastEngine())
+    final cipher = GCMBlockCipher(AESEngine()) // Changed from AESFastEngine
       ..init(true, AEADParameters(KeyParameter(key), 128, iv, Uint8List(0)));
 
     final encrypted = cipher.process(utf8.encode(apiKey));
@@ -52,7 +52,7 @@ class KeyVault {
       final encrypted = contents.sublist(28);
 
       final key = await _getKey(salt);
-      final cipher = GCMBlockCipher(AESFastEngine())
+      final cipher = GCMBlockCipher(AESEngine()) // Changed from AESFastEngine
         ..init(false, AEADParameters(KeyParameter(key), 128, iv, Uint8List(0)));
 
       final decrypted = cipher.process(encrypted);

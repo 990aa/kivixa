@@ -31,10 +31,10 @@ class _GlassmorphismToolbarState extends State<GlassmorphismToolbar> {
               width: _isExpanded ? 200 : 56,
               height: 56,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withAlpha(51), // Changed from withOpacity(0.2)
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withAlpha(77), // Changed from withOpacity(0.3)
                 ),
               ),
               child: _isExpanded

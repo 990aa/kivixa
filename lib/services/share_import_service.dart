@@ -60,7 +60,7 @@ class ShareImportService {
       // Invoke the import manager.
       // Removed sourceUri: uri, as it's not a defined parameter in ImportManager.importFile
       await _importManager.importFile(
-        destinationFile,
+        destinationFile.path, // Changed to pass the path string
       );
       _log.info('Successfully imported file from URI: $uri');
     } catch (e, st) {

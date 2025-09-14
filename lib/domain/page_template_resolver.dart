@@ -42,7 +42,7 @@ class PageTemplateResolver {
   RasterizableDescriptor resolve(PageSettings settings) {
     final style = settings.overrideBackground ?? settings.template?.background ?? _defaultBackground();
 
-    final cacheKey = '${style.type}_${style.color.value}_${style.spacing}';
+    final cacheKey = '${style.type}_${style.color.toARGB32()}_${style.spacing}'; // Changed .value to .toARGB32()
 
     return RasterizableDescriptor(cacheKey: cacheKey, style: style);
   }

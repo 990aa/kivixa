@@ -26,7 +26,7 @@ class ViewportStateService {
     final settings = await _repository.listUserSettings(userId: 'global');
     // Changed to use firstWhereOrNull and removed orElse
     final viewportState = settings.firstWhereOrNull(
-      (s) => s['key'] == 'viewportState_${documentId}_$page',
+      (s) => s['key'] == 'viewportState_${documentId}_$page', // Ensure correct interpolation here too
     );
 
     if (viewportState != null) {
@@ -41,7 +41,6 @@ class ViewportStateService {
         return state;
       } else {
         // Handle cases where 'value' is not a Map<String, dynamic> or is null
-        // This might involve logging an error or returning null
         // print('ViewportStateService: viewportState["value"] is not a Map<String, dynamic> or is null. Value: $value');
         return null;
       }
@@ -56,7 +55,7 @@ class ViewportStateService {
 
     await _repository.updateUserSetting(
       'global',
-      'viewportState_$documentId_$page', // Corrected the typo here
+      'viewportState_${documentId}_$page', // Corrected the interpolation
       {'value': state.toJson()},
     );
   }
