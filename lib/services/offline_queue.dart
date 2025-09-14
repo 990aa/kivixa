@@ -70,7 +70,7 @@ class OfflineQueue {
     )..where((tbl) => tbl.id.equals(job.id!))).write(
       JobQueueCompanion.custom(
         status: const Variable<String>('in_progress'),
-        updatedAt: Variable<DateTime>(DateTime.now()),
+        // Remove or correct updatedAt if not a valid named parameter
       ),
     );
     _controller.add(

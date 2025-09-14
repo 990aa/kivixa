@@ -43,7 +43,7 @@ class ShareImportService {
   Future<void> handleSharedUri(Uri uri) async {
     _log.info('Handling shared URI: $uri');
     try {
-      final originalFile = await toFile(uri);
+      final originalFile = await toFile(uri.toString());
       final fileName = p.basename(originalFile.path);
       // Corrected the call to the static method
       final destinationDir = await StoragePaths.getAssetsOriginalDir();
