@@ -4,7 +4,7 @@ import 'package:pdfrx/pdfrx.dart';
 class PdfPageView extends StatefulWidget {
   final String assetPath;
 
-  const PdfPageView({Key? key, required this.assetPath}) : super(key: key);
+  const PdfPageView({super.key, required this.assetPath});
 
   @override
   State<PdfPageView> createState() => _PdfPageViewState();
