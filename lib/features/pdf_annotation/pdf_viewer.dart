@@ -42,13 +42,9 @@ class _PdfViewerState extends State<PdfViewer> {
                     // _pdfViewController = controller; // Removed: unused assignment
                   },
                   onPageChanged: (page, total) {
-                    // TODO: Implement page size retrieval using a compatible PDF library.
-                    // _pdfViewController?.getPageSize(page ?? 0).then((size) {
-                    //   setState(() {
-                    //     _pageSize = size;
-                    //   });
-                    // });
-                    // For now, set a default page size as a stub.
+                    // PDFView (flutter_pdfview) does not provide page size info.
+                    // If you need the real page size, use a package like pdfx or pdf_render.
+                    // For now, set a default A4 size as a stub.
                     setState(() {
                       _pageSize = const Size(595, 842); // A4 size in points
                     });

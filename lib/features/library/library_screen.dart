@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:kivixa/features/library/sidebar.dart';
 import 'package:kivixa/providers.dart'; // Changed this import
+import 'package:kivixa/features/editor/editor_screen.dart';
 import 'package:kivixa/widgets/empty_state_animated.dart';
 import 'package:kivixa/widgets/contextual_help_overlay.dart';
 import 'package:kivixa/widgets/premium_error_dialog.dart';
@@ -65,7 +66,9 @@ class LibraryScreen extends ConsumerWidget {
                     // Preload next items if near end
                     if (scroll.metrics.pixels >
                         scroll.metrics.maxScrollExtent - 200) {
-                      // TODO: Preload more documents if paginated
+                      // If paginated, trigger loading more documents here
+                      // Example: ref.read(documentsNotifierProvider.notifier).loadMore();
+                      // (You must implement loadMore in your DocumentsNotifier)
                     }
                     return false;
                   },
@@ -76,7 +79,15 @@ class LibraryScreen extends ConsumerWidget {
                       return ListTile(
                         title: Text(document.title),
                         onTap: () {
-                          // TODO: Navigate to document editor
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => EditorScreen(
+                                templateName: document.title,
+                                templateColor:
+                                    Colors.blue, // Or use a color from document
+                              ),
+                            ),
+                          );
                         },
                       );
                     },

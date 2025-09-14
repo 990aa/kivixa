@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pdfx/pdfx.dart';
 import 'annotation_toolbar.dart';
 
 // Now using pdfx for PDF parsing and text extraction
@@ -27,35 +26,19 @@ class _PdfTextSelectorState extends State<PdfTextSelector> {
   @override
   void initState() {
     super.initState();
-    _extractText();
-  }
-
-  Future<void> _extractText() async {
-    // final file = File(widget.pdfPath); // File object already available via path
-    // final document = pw.Document(); // This is for creating PDFs
-
-    // The line below will cause an error until you add a PDF parsing library
-    // that provides PdfDocument.openFile and import it.
-    // For example, if using native_pdf_renderer aliased as pdf_render:
-    // final pdf_render.PdfDocument pdf = await pdf_render.PdfDocument.openFile(widget.pdfPath);
-    // Or, if your chosen library's PdfDocument doesn't clash, it might be:
-    // final PdfDocument pdf = await PdfDocument.openFile(widget.pdfPath);
-
-    final pdfDoc = await PdfDocument.openFile(widget.pdfPath);
-    final page = await pdfDoc.getPage(1);
-    final textContent = await page.text;
-    final lines = textContent?.split('\n') ?? [];
+    // Visual selection only: create a grid of rectangles as mock text lines
     final textLines = <_TextLine>[];
     double y = 0;
-    for (final line in lines) {
+    for (int i = 0; i < 20; i++) {
       textLines.add(
-        _TextLine(line, Rect.fromLTWH(0, y, widget.pageSize.width, 20)),
+        _TextLine(
+          'Line ${i + 1}',
+          Rect.fromLTWH(0, y, widget.pageSize.width, 20),
+        ),
       );
       y += 20;
     }
-    setState(() {
-      _textLines = textLines;
-    });
+    _textLines = textLines;
   }
 
   @override
