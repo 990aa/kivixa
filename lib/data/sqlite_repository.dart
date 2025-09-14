@@ -24,6 +24,7 @@ class SQLiteRepository implements Repository {
   Future<int> createAsset(Map<String, dynamic> assetData) async {
     return await db.insert('assets', assetData);
   }
+
   // --- Layer Methods ---
   @override
   Future<int> createLayer(Map<String, dynamic> data) async {

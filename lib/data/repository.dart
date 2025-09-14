@@ -115,14 +115,16 @@ class DocumentRepository implements Repository {
     }
     final results = await query.get();
     return results
-        .map((row) => {
-              'id': row.id,
-              'path': row.path,
-              'size': row.size,
-              'hash': row.hash,
-              'mime': row.mime,
-              'created_at': row.createdAt.millisecondsSinceEpoch,
-            })
+        .map(
+          (row) => {
+            'id': row.id,
+            'path': row.path,
+            'size': row.size,
+            'hash': row.hash,
+            'mime': row.mime,
+            'created_at': row.createdAt.millisecondsSinceEpoch,
+          },
+        )
         .toList();
   }
 
@@ -136,13 +138,15 @@ class DocumentRepository implements Repository {
       mime: assetData['mime'] as String? ?? '',
       createdAt: drift.Value(
         DateTime.fromMillisecondsSinceEpoch(
-          assetData['created_at'] as int? ?? DateTime.now().millisecondsSinceEpoch,
+          assetData['created_at'] as int? ??
+              DateTime.now().millisecondsSinceEpoch,
         ),
       ),
     );
     final row = await _db.into(_db.assets).insertReturning(companion);
     return row.id;
   }
+
   // --- Layer Methods ---
   @override
   Future<int> createLayer(Map<String, dynamic> data) async {

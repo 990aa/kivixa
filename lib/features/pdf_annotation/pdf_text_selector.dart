@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pdf/pdf.dart'; // This is for creating PDFs, not reading existing ones
-import 'package:native_pdf_renderer/native_pdf_renderer.dart' as pdf_render;
+// import 'package:pdf/pdf.dart'; // This is for creating PDFs, not reading existing ones
+// import 'package:native_pdf_renderer/native_pdf_renderer.dart' as pdf_render;
+// TODO: Add a compatible PDF parsing library that provides PdfDocument.openFile and works with your current dependencies.
 // This is for creating PDFs
 import 'annotation_toolbar.dart';
 
@@ -37,27 +38,19 @@ class _PdfTextSelectorState extends State<PdfTextSelector> {
   Future<void> _extractText() async {
     // final file = File(widget.pdfPath); // File object already available via path
     // final document = pw.Document(); // This is for creating PDFs
-    
+
     // The line below will cause an error until you add a PDF parsing library
     // that provides PdfDocument.openFile and import it.
     // For example, if using native_pdf_renderer aliased as pdf_render:
     // final pdf_render.PdfDocument pdf = await pdf_render.PdfDocument.openFile(widget.pdfPath);
     // Or, if your chosen library's PdfDocument doesn't clash, it might be:
     // final PdfDocument pdf = await PdfDocument.openFile(widget.pdfPath);
-    
-    // Use native_pdf_renderer to open the PDF file
-    final pdf = await pdf_render.PdfDocument.openFile(widget.pdfPath);
-    final page = await pdf.getPage(1);
-    final content = await page.text;
-    // This is a simplified text extraction. A more robust solution would
-    // involve a more sophisticated PDF parsing library.
-    final lines = content?.split('\n') ?? [];
+
+    // TODO: Implement PDF opening and text extraction using a compatible library.
+    // Example: final pdf = await SomePdfLibrary.PdfDocument.openFile(widget.pdfPath);
+    // For now, this is a stub to avoid build errors.
     final textLines = <_TextLine>[];
-    double y = 0;
-    for (final line in lines) {
-      textLines.add(_TextLine(line, Rect.fromLTWH(0, y, widget.pageSize.width, 20)));
-      y += 20;
-    }
+    // ...
     setState(() {
       _textLines = textLines;
     });
@@ -79,7 +72,10 @@ class _PdfTextSelectorState extends State<PdfTextSelector> {
       },
       onLongPressEnd: (details) {
         setState(() {
-          _selectionRect = Rect.fromPoints(_startHandlePosition!, _endHandlePosition!);
+          _selectionRect = Rect.fromPoints(
+            _startHandlePosition!,
+            _endHandlePosition!,
+          );
         });
       },
       child: Stack(
@@ -121,10 +117,14 @@ class _TextSelectionPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.blue.withAlpha((0.5 * 255).round()) // Replaced withOpacity
+      ..color = Colors.blue
+          .withAlpha((0.5 * 255).round()) // Replaced withOpacity
       ..style = PaintingStyle.fill;
 
-    final selectionRect = Rect.fromPoints(startHandlePosition, endHandlePosition);
+    final selectionRect = Rect.fromPoints(
+      startHandlePosition,
+      endHandlePosition,
+    );
 
     for (final line in textLines) {
       if (line.bounds.overlaps(selectionRect)) {

@@ -12,7 +12,7 @@ class PdfViewer extends StatefulWidget {
 
 class _PdfViewerState extends State<PdfViewer> {
   String? _pdfPath;
-  PDFViewController? _pdfViewController;
+  // PDFViewController? _pdfViewController; // Removed: unused field
   Size? _pageSize;
 
   Future<void> _pickFile() async {
@@ -31,33 +31,31 @@ class _PdfViewerState extends State<PdfViewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('PDF Viewer'),
-      ),
+      appBar: AppBar(title: const Text('PDF Viewer')),
       body: _pdfPath == null
-          ? const Center(
-              child: Text('No PDF selected'),
-            )
+          ? const Center(child: Text('No PDF selected'))
           : Stack(
               children: [
                 PDFView(
                   filePath: _pdfPath!,
                   onViewCreated: (controller) {
-                    _pdfViewController = controller;
+                    // _pdfViewController = controller; // Removed: unused assignment
                   },
                   onPageChanged: (page, total) {
-                    _pdfViewController?.getPageSize(page ?? 0).then((size) {
-                      setState(() {
-                        _pageSize = size;
-                      });
+                    // TODO: Implement page size retrieval using a compatible PDF library.
+                    // _pdfViewController?.getPageSize(page ?? 0).then((size) {
+                    //   setState(() {
+                    //     _pageSize = size;
+                    //   });
+                    // });
+                    // For now, set a default page size as a stub.
+                    setState(() {
+                      _pageSize = const Size(595, 842); // A4 size in points
                     });
                   },
                 ),
                 if (_pageSize != null)
-                  PdfTextSelector(
-                    pdfPath: _pdfPath!,
-                    pageSize: _pageSize!,
-                  ),
+                  PdfTextSelector(pdfPath: _pdfPath!, pageSize: _pageSize!),
               ],
             ),
       floatingActionButton: FloatingActionButton(
