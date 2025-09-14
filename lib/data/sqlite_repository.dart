@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert'; // For jsonEncode and jsonDecode
 import 'package:sqflite/sqflite.dart';
 import 'repository.dart';
 
@@ -113,10 +114,13 @@ class SQLiteRepository implements Repository {
 
   @override
   Future<List<Map<String, dynamic>>> listPages({required int documentId, int? limit, int? offset}) async {
-    // TODO: Implement actual database logic to list pages for a document.
-    // Example: await db.query('pages', where: 'document_id = ?', whereArgs: [documentId], limit: limit, offset: offset);
-    print('SQLiteRepository.listPages called for documentId: $documentId, limit: $limit, offset: $offset - Needs implementation');
-    return []; // Placeholder
+    return await db.query(
+      'pages', // Assuming the table is named 'pages'
+      where: 'document_id = ?', // Assuming the foreign key column is 'document_id'
+      whereArgs: [documentId],
+      limit: limit,
+      offset: offset,
+    );
   }
 
   @override
@@ -130,27 +134,85 @@ class SQLiteRepository implements Repository {
 
   @override
   Future<void> updatePageThumbnailMetadata(int pageId, Map<String, dynamic> metadata) async {
-    // TODO: Implement actual database logic to update thumbnail metadata for a page.
-    // Example: await db.update('pages', {'thumbnail_metadata': jsonEncode(metadata)}, where: 'id = ?', whereArgs: [pageId]);
-    print('SQLiteRepository.updatePageThumbnailMetadata called for pageId: $pageId with metadata $metadata - Needs implementation');
+    final String metadataJson = jsonEncode(metadata);
+    await db.update(
+      'pages', // Assuming the table is named 'pages'
+      {'thumbnail_metadata': metadataJson}, // Assuming the column is 'thumbnail_metadata'
+      where: 'id = ?', // Assuming the primary key column for pages is 'id'
+      whereArgs: [pageId],
+    );
   }
 
   @override
   Future<Map<String, dynamic>?> getPageThumbnail(int pageId) async {
-    // TODO: Implement actual database logic to get page thumbnail data.
-    // This would likely involve a SELECT query on a 'pages' or 'thumbnails' table.
-    // Example: final res = await db.query('pages', columns: ['thumbnail_asset_id', 'other_thumbnail_info'], where: 'id = ?', whereArgs: [pageId]);
-    // if (res.isNotEmpty) return {'asset_id': res.first['thumbnail_asset_id'], ...other_thumbnail_info...};
-    print('SQLiteRepository.getPageThumbnail called for pageId: $pageId - Needs implementation');
-    return null; // Placeholder
+    final List<Map<String, dynamic>> results = await db.query(
+      'pages',
+      columns: ['thumbnail_asset_id', 'thumbnail_metadata'], // Specify columns
+      where: 'id = ?',
+      whereArgs: [pageId],
+      limit: 1, // Expecting a single page
+    );
+
+    if (results.isNotEmpty) {
+      final pageData = results.first;
+      final String? metadataJson = pageData['thumbnail_metadata'] as String?;
+      Map<String, dynamic>? decodedMetadata;
+
+      if (metadataJson != null && metadataJson.isNotEmpty) {
+        try {
+          decodedMetadata = jsonDecode(metadataJson) as Map<String, dynamic>;
+        } catch (e) {
+          print('Error decoding thumbnail_metadata for pageId $pageId: $e. Setting metadata to null.');
+          decodedMetadata = null; // Explicitly set to null on error
+        }
+      }
+      
+      return {
+        'asset_id': pageData['thumbnail_asset_id'],
+        'metadata': decodedMetadata, // This will be null if JSON was null, empty, or invalid
+      };
+    }
+    return null; // No page found
   }
 
   @override
   Future<Map<String, dynamic>?> getAsset(int assetId) async {
-    // TODO: Implement actual database logic to get asset data.
-    // Example: final res = await db.query('assets', where: 'id = ?', whereArgs: [assetId]);
-    // if (res.isNotEmpty) return res.first;
-    print('SQLiteRepository.getAsset called for assetId: $assetId - Needs implementation');
-    return null; // Placeholder
+    final List<Map<String, dynamic>> results = await db.query(
+      'assets', // Assuming the table is named 'assets'
+      where: 'id = ?', // Assuming the primary key column is 'id'
+      whereArgs: [assetId],
+      limit: 1, // Expecting a single asset
+    );
+
+    if (results.isNotEmpty) {
+      return results.first; // Return the first (and only) asset found
+    }
+    return null; // No asset found with the given id
+  }
+
+  // TextBlocks
+  @override
+  Future<Map<String, dynamic>?> getTextBlock(int textBlockId) async {
+    final List<Map<String, dynamic>> results = await db.query(
+      'text_blocks', // Assuming the table is named 'text_blocks'
+      where: 'id = ?', // Assuming the primary key column is 'id'
+      whereArgs: [textBlockId],
+      limit: 1, // Expecting a single text block
+    );
+
+    if (results.isNotEmpty) {
+      return results.first; // Return the first (and only) text block found
+    }
+    return null; // No text block found with the given id
+  }
+
+  @override
+  Future<void> updateTextBlock(int textBlockId, Map<String, dynamic> data) async {
+    await db.update(
+      'text_blocks', // Assuming the table is named 'text_blocks'
+      data,
+      where: 'id = ?', // Assuming the primary key column is 'id'
+      whereArgs: [textBlockId],
+    );
   }
 }

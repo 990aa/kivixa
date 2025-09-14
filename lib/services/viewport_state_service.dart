@@ -42,7 +42,7 @@ class ViewportStateService {
       } else {
         // Handle cases where 'value' is not a Map<String, dynamic> or is null
         // This might involve logging an error or returning null
-        print('ViewportStateService: viewportState["value"] is not a Map<String, dynamic> or is null. Value: $value');
+        // print('ViewportStateService: viewportState["value"] is not a Map<String, dynamic> or is null. Value: $value');
         return null;
       }
     }

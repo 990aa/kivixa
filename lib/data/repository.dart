@@ -139,4 +139,8 @@ abstract class Repository {
 
   Future<Map<String, dynamic>?> getPageThumbnail(int pageId); // Added this line
   Future<Map<String, dynamic>?> getAsset(int assetId); // Added this line
+
+  // Methods for TextBlocksService
+  Future<void> updateTextBlock(int textBlockId, Map<String, dynamic> data);
+  Future<Map<String, dynamic>?> getTextBlock(int textBlockId);
 }
