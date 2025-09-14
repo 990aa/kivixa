@@ -19,35 +19,44 @@ class OfflineQueue {
       // Assuming 'attempts', 'status', 'createdAt', 'updatedAt' have DB defaults or are handled by Drift
     );
     final newId = await _db.into(_db.jobQueue).insert(companion);
-    
+
     // Fetch the complete job data from the DB to ensure all fields (including DB defaults) are populated
-    final jobData = await (_db.select(_db.jobQueue)..where((tbl) => tbl.id.equals(newId))).getSingle();
+    final jobData = await (_db.select(
+      _db.jobQueue,
+    )..where((tbl) => tbl.id.equals(newId))).getSingle();
     _controller.add(Job.fromData(jobData));
     return newId;
   }
 
   Future<void> processQueue() async {
     // Fetch jobs ordered by creation time
-    final jobsToProcess = await (_db.select(_db.jobQueue)
-          ..where((tbl) => tbl.status.equals('pending')) // Only process pending jobs
-          ..orderBy([(t) => t.createdAt.asc()])
-        ).get();
+    final jobsToProcess =
+        await (_db.select(_db.jobQueue)
+              ..where(
+                (tbl) => tbl.status.equals('pending'),
+              ) // Only process pending jobs
+              ..orderBy([(t) => OrderingTerm(expression: t.createdAt)]))
+            .get();
 
     for (final jobData in jobsToProcess) {
       final job = Job.fromData(jobData);
       try {
         await _processJob(job);
         // If successful, delete the job from the queue
-        await (_db.delete(_db.jobQueue)..where((tbl) => tbl.id.equals(job.id!))).go();
+        await (_db.delete(
+          _db.jobQueue,
+        )..where((tbl) => tbl.id.equals(job.id!))).go();
         // Optionally, notify about successful completion if needed
       } catch (e) {
         // If processing fails, update attempts and reset status if necessary
         final updatedJob = job.copyWith(
           attempts: job.attempts + 1,
-          status: 'pending', // Or a specific 'failed_retry' status if you have one
+          status:
+              'pending', // Or a specific 'failed_retry' status if you have one
           updatedAt: DateTime.now(),
         );
-        await (_db.update(_db.jobQueue)..where((tbl) => tbl.id.equals(job.id!))).write(updatedJob.toCompanion());
+        await (_db.update(_db.jobQueue)..where((tbl) => tbl.id.equals(job.id!)))
+            .write(updatedJob.toCompanion());
         _controller.add(updatedJob); // Notify listeners about the update
         // print('Error processing job ${job.id}: $e. Will retry.');
       }
@@ -56,16 +65,24 @@ class OfflineQueue {
 
   Future<void> _processJob(Job job) async {
     // Update job status to 'in_progress'
-    await (_db.update(_db.jobQueue)..where((tbl) => tbl.id.equals(job.id!)))
-        .write(JobQueueCompanion(status: Value('in_progress'), updatedAt: Value(DateTime.now())));
-    _controller.add(job.copyWith(status: 'in_progress', updatedAt: DateTime.now())); // Notify stream
+    await (_db.update(
+      _db.jobQueue,
+    )..where((tbl) => tbl.id.equals(job.id!))).write(
+      JobQueueCompanion.custom(
+        status: const Variable<String>('in_progress'),
+        updatedAt: Variable<DateTime>(DateTime.now()),
+      ),
+    );
+    _controller.add(
+      job.copyWith(status: 'in_progress', updatedAt: DateTime.now()),
+    ); // Notify stream
 
     // Simulate actual job processing based on job.jobType and job.payload
     // print('Processing job ${job.id} of type ${job.jobType}...');
     await Future.delayed(const Duration(seconds: 2)); // Simulate work
     // print('Finished processing job ${job.id}.');
 
-    // NOTE: In a real app, the deletion or update to 'completed' status 
+    // NOTE: In a real app, the deletion or update to 'completed' status
     // would happen in processQueue after _processJob completes successfully.
     // Here, _processJob is self-contained for simulation.
   }
@@ -91,23 +108,32 @@ class Job {
   });
 
   // Factory constructor from Drift's generated data class
-  Job.fromData(JobQueueData data) // Assuming JobQueueData is your Drift data class for JobQueues table
-      : id = data.id,
-        jobType = data.jobType,
-        payload = data.payload,
-        attempts = data.attempts, // Assuming 'attempts' is a non-nullable column in DB
-        createdAt = data.createdAt,
-        status = data.status, // Assuming 'status' is a non-nullable column in DB
-        updatedAt = data.updatedAt;
+  Job.fromData(
+    JobQueueData data,
+  ) // Assuming JobQueueData is your Drift data class for JobQueues table
+  : id = data.id,
+      jobType = data.jobType,
+      payload = data.payload,
+      attempts =
+          data.attempts, // Assuming 'attempts' is a non-nullable column in DB
+      createdAt = data.createdAt,
+      status = data.status, // Assuming 'status' is a non-nullable column in DB
+      updatedAt = data.updatedAt;
 
   // Constructor from a companion, ensuring defaults for non-nullable fields if companion values are absent
   Job.fromCompanion(this.id, JobQueueCompanion companion)
-      : jobType = companion.jobType.present ? companion.jobType.value : 'unknown_type',
-        payload = companion.payload.present ? companion.payload.value : '{}',
-        attempts = companion.attempts.present ? companion.attempts.value : 0,
-        createdAt = companion.createdAt.present ? companion.createdAt.value : DateTime.now(),
-        status = companion.status.present ? companion.status.value : 'pending',
-        updatedAt = companion.updatedAt.present ? companion.updatedAt.value : DateTime.now();
+    : jobType = companion.jobType.present
+          ? companion.jobType.value
+          : 'unknown_type',
+      payload = companion.payload.present ? companion.payload.value : '{}',
+      attempts = companion.attempts.present ? companion.attempts.value : 0,
+      createdAt = companion.createdAt.present
+          ? companion.createdAt.value
+          : DateTime.now(),
+      status = companion.status.present ? companion.status.value : 'pending',
+      updatedAt = companion.updatedAt.present
+          ? companion.updatedAt.value
+          : DateTime.now();
 
   Job copyWith({
     int? id,

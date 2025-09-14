@@ -4,7 +4,6 @@
     "package:flutter/material.dart",
     "package:flutter_riverpod/flutter_riverpod.dart",
     "package:connectivity_plus/connectivity_plus.dart",
-    "package:kivixa/features/library/documents_notifier.dart",
     "package:kivixa/features/library/sidebar.dart",
     "package:kivixa/providers.dart",
     "package:kivixa/widgets/empty_state_animated.dart",
