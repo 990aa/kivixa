@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart'; // This is for creating PDFs, not reading existing ones
+import 'package:native_pdf_renderer/native_pdf_renderer.dart' as pdf_render;
 // This is for creating PDFs
 import 'annotation_toolbar.dart';
 
@@ -44,15 +45,13 @@ class _PdfTextSelectorState extends State<PdfTextSelector> {
     // Or, if your chosen library's PdfDocument doesn't clash, it might be:
     // final PdfDocument pdf = await PdfDocument.openFile(widget.pdfPath);
     
-    // Placeholder to avoid immediate error, replace with actual PDF opening logic
-    // For now, this will not work as PdfDocument from package:pdf/pdf.dart has no openFile
-    final pdf = await PdfDocument.openFile(widget.pdfPath); 
-    
+    // Use native_pdf_renderer to open the PDF file
+    final pdf = await pdf_render.PdfDocument.openFile(widget.pdfPath);
     final page = await pdf.getPage(1);
-    final content = await page.getText();
+    final content = await page.text;
     // This is a simplified text extraction. A more robust solution would
     // involve a more sophisticated PDF parsing library.
-    final lines = content.split('\n');
+    final lines = content?.split('\n') ?? [];
     final textLines = <_TextLine>[];
     double y = 0;
     for (final line in lines) {

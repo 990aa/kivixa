@@ -5,6 +5,23 @@ import 'package:kivixa/data/database.dart';
 
 // --- Interface Definition ---
 abstract class Repository {
+  /// Returns a list of assets, optionally filtered by hash.
+  Future<List<Map<String, dynamic>>> listAssets({String? hash});
+
+  /// Creates a new asset and returns its id.
+  Future<int> createAsset(Map<String, dynamic> assetData);
+  // Layer methods
+  Future<int> createLayer(Map<String, dynamic> data);
+  Future<void> updateLayer(int layerId, Map<String, dynamic> data);
+  Future<Map<String, dynamic>?> getLayer(int layerId);
+  Future<List<Map<String, dynamic>>> listLayers({
+    required int pageId,
+    String? orderBy,
+  });
+
+  // Shape methods
+  Future<void> updateShape(int shapeId, Map<String, dynamic> data);
+  Future<Map<String, dynamic>?> getShape(int shapeId);
   // Document methods
   Future<int> createDocument(Map<String, dynamic> data);
   Future<Map<String, dynamic>?> getDocument(int id);
@@ -89,6 +106,88 @@ abstract class Repository {
 
 // --- Drift Implementation of the Repository ---
 class DocumentRepository implements Repository {
+  @override
+  Future<List<Map<String, dynamic>>> listAssets({String? hash}) async {
+    // Example implementation: query assets table, filter by hash if provided
+    final query = _db.select(_db.assets);
+    if (hash != null) {
+      query.where((tbl) => tbl.hash.equals(hash));
+    }
+    final results = await query.get();
+    return results
+        .map((row) => {
+              'id': row.id,
+              'path': row.path,
+              'size': row.size,
+              'hash': row.hash,
+              'mime': row.mime,
+              'created_at': row.createdAt.millisecondsSinceEpoch,
+            })
+        .toList();
+  }
+
+  @override
+  Future<int> createAsset(Map<String, dynamic> assetData) async {
+    // Example implementation: insert into assets table
+    final companion = AssetsCompanion.insert(
+      path: assetData['path'] as String,
+      size: assetData['size'] as int,
+      hash: assetData['hash'] as String,
+      mime: assetData['mime'] as String? ?? '',
+      createdAt: drift.Value(
+        DateTime.fromMillisecondsSinceEpoch(
+          assetData['created_at'] as int? ?? DateTime.now().millisecondsSinceEpoch,
+        ),
+      ),
+    );
+    final row = await _db.into(_db.assets).insertReturning(companion);
+    return row.id;
+  }
+  // --- Layer Methods ---
+  @override
+  Future<int> createLayer(Map<String, dynamic> data) async {
+    throw UnimplementedError(
+      'createLayer not implemented in DocumentRepository',
+    );
+  }
+
+  @override
+  Future<void> updateLayer(int layerId, Map<String, dynamic> data) async {
+    throw UnimplementedError(
+      'updateLayer not implemented in DocumentRepository',
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getLayer(int layerId) async {
+    throw UnimplementedError('getLayer not implemented in DocumentRepository');
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> listLayers({
+    required int pageId,
+    String? orderBy,
+  }) async {
+    throw UnimplementedError(
+      'listLayers not implemented in DocumentRepository',
+    );
+  }
+
+  // --- Shape Methods ---
+  @override
+  Future<void> updateShape(int shapeId, Map<String, dynamic> data) async {
+    throw UnimplementedError(
+      'updateShape not implemented in DocumentRepository',
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getShape(int shapeId) async {
+    throw UnimplementedError('getShape not implemented in DocumentRepository');
+  }
+
+  // --- DB getter for compatibility (returns underlying Drift database instance) ---
+  AppDatabase get db => _db;
   @override
   Future<dynamic> getDocumentLock(int documentId) async {
     // TODO: Implement actual locking logic if needed

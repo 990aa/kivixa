@@ -5,6 +5,75 @@ import 'repository.dart';
 
 class SQLiteRepository implements Repository {
   @override
+  Future<List<Map<String, dynamic>>> listAssets({String? hash}) async {
+    String? where;
+    List<Object?>? whereArgs;
+    if (hash != null) {
+      where = 'hash = ?';
+      whereArgs = [hash];
+    }
+    final results = await db.query(
+      'assets',
+      where: where,
+      whereArgs: whereArgs,
+    );
+    return results;
+  }
+
+  @override
+  Future<int> createAsset(Map<String, dynamic> assetData) async {
+    return await db.insert('assets', assetData);
+  }
+  // --- Layer Methods ---
+  @override
+  Future<int> createLayer(Map<String, dynamic> data) async {
+    throw UnimplementedError(
+      'createLayer() has not been implemented in SQLiteRepository.',
+    );
+  }
+
+  @override
+  Future<void> updateLayer(int layerId, Map<String, dynamic> data) async {
+    throw UnimplementedError(
+      'updateLayer() has not been implemented in SQLiteRepository.',
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getLayer(int layerId) async {
+    throw UnimplementedError(
+      'getLayer() has not been implemented in SQLiteRepository.',
+    );
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> listLayers({
+    required int pageId,
+    String? orderBy,
+  }) async {
+    throw UnimplementedError(
+      'listLayers() has not been implemented in SQLiteRepository.',
+    );
+  }
+
+  // --- Shape Methods ---
+  @override
+  Future<void> updateShape(int shapeId, Map<String, dynamic> data) async {
+    throw UnimplementedError(
+      'updateShape() has not been implemented in SQLiteRepository.',
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getShape(int shapeId) async {
+    throw UnimplementedError(
+      'getShape() has not been implemented in SQLiteRepository.',
+    );
+  }
+
+  // --- DB getter for compatibility (returns sqflite Database instance) ---
+  Database get database => db;
+  @override
   Future<int> createComment(Map<String, dynamic> data) async {
     throw UnimplementedError(
       'createComment() has not been implemented in SQLiteRepository.',
