@@ -1,0 +1,14 @@
+# Target labels
+ sqlite3-populate
+# Source files and their labels
+C:/Users/ahada/Documents/abdulahad/kivixa/build/windows/x64/_deps/sqlite3-subbuild/CMakeFiles/sqlite3-populate
+C:/Users/ahada/Documents/abdulahad/kivixa/build/windows/x64/_deps/sqlite3-subbuild/CMakeFiles/0ae46e1ef0d6882d42b35d9d308aaf36/sqlite3-populate.rule
+C:/Users/ahada/Documents/abdulahad/kivixa/build/windows/x64/_deps/sqlite3-subbuild/CMakeFiles/5edb453b340f3386eb795029f0102603/sqlite3-populate-complete.rule
+C:/Users/ahada/Documents/abdulahad/kivixa/build/windows/x64/_deps/sqlite3-subbuild/CMakeFiles/05a312f11ef512ccc22d324b67874cdc/sqlite3-populate-build.rule
+C:/Users/ahada/Documents/abdulahad/kivixa/build/windows/x64/_deps/sqlite3-subbuild/CMakeFiles/05a312f11ef512ccc22d324b67874cdc/sqlite3-populate-configure.rule
+C:/Users/ahada/Documents/abdulahad/kivixa/build/windows/x64/_deps/sqlite3-subbuild/CMakeFiles/05a312f11ef512ccc22d324b67874cdc/sqlite3-populate-download.rule
+C:/Users/ahada/Documents/abdulahad/kivixa/build/windows/x64/_deps/sqlite3-subbuild/CMakeFiles/05a312f11ef512ccc22d324b67874cdc/sqlite3-populate-install.rule
+C:/Users/ahada/Documents/abdulahad/kivixa/build/windows/x64/_deps/sqlite3-subbuild/CMakeFiles/05a312f11ef512ccc22d324b67874cdc/sqlite3-populate-mkdir.rule
+C:/Users/ahada/Documents/abdulahad/kivixa/build/windows/x64/_deps/sqlite3-subbuild/CMakeFiles/05a312f11ef512ccc22d324b67874cdc/sqlite3-populate-patch.rule
+C:/Users/ahada/Documents/abdulahad/kivixa/build/windows/x64/_deps/sqlite3-subbuild/CMakeFiles/05a312f11ef512ccc22d324b67874cdc/sqlite3-populate-test.rule
+C:/Users/ahada/Documents/abdulahad/kivixa/build/windows/x64/_deps/sqlite3-subbuild/CMakeFiles/05a312f11ef512ccc22d324b67874cdc/sqlite3-populate-update.rule
