@@ -6,7 +6,6 @@ import 'dart:io';
 
 import 'package:flutter/widgets.dart'; // Added this import
 import 'package_files/desktop_drop.dart';
-import 'package:flutter/foundation.dart';
 import 'package:kivixa/services/import_manager.dart';
 import 'package:logging/logging.dart';
 import 'package:cross_file/cross_file.dart';

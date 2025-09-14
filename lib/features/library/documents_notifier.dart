@@ -33,7 +33,7 @@ class DocumentsNotifier extends StateNotifier<AsyncValue<List<DocumentData>>> {
     await _loadFromCache();
     // Then subscribe to backend
     _repository
-        .watchDocuments()
+        .watchAllDriftDocuments()
         .listen((documents) {
           // _cache removed
           state = AsyncValue.data(documents);
@@ -55,7 +55,7 @@ class DocumentsNotifier extends StateNotifier<AsyncValue<List<DocumentData>>> {
   Future<void> refreshDocuments() async {
     state = const AsyncValue.loading();
     try {
-      final docs = await _repository.watchDocuments().first;
+      final docs = await _repository.watchAllDriftDocuments().first;
       // _cache removed
       state = AsyncValue.data(docs);
       _saveToCache(docs);
@@ -76,7 +76,7 @@ class DocumentsNotifier extends StateNotifier<AsyncValue<List<DocumentData>>> {
     state = AsyncValue.data([optimisticDocument, ...?state.value]);
 
     try {
-      await _repository.createDocument(title);
+      await _repository.createDocument({'title': title});
     } catch (e) {
       // Revert on error
       state = previousState;
@@ -98,4 +98,3 @@ class DocumentsNotifier extends StateNotifier<AsyncValue<List<DocumentData>>> {
 }
 
 // Provider is defined in providers.dart
-

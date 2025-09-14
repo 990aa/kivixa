@@ -1,7 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart'; // This is for creating PDFs, not reading existing ones
-import 'package:pdf/widgets.dart' as pw; // This is for creating PDFs
+// This is for creating PDFs
 import 'annotation_toolbar.dart';
 
 // TODO: Import a PDF parsing library that provides PdfDocument.openFile
