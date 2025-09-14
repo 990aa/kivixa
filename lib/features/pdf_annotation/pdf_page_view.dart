@@ -11,18 +11,46 @@ class PdfPageView extends StatefulWidget {
 }
 
 class _PdfPageViewState extends State<PdfPageView> {
-  late PdfDocument _pdfDocument;
+  PdfDocument? _pdfDocument;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _pdfDocument = PdfDocument.openFile(widget.pdfPath);
+    _loadPdfDocument();
+  }
+
+  Future<void> _loadPdfDocument() async {
+    try {
+      final document = await PdfDocument.openFile(widget.pdfPath);
+      if (mounted) {
+        setState(() {
+          _pdfDocument = document;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      // Handle errors, e.g., show an error message
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+      // print('Error loading PDF: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_pdfDocument == null) {
+      // This case handles if loading failed
+      return const Center(child: Text('Failed to load PDF.'));
+    }
     return PdfView(
-      document: _pdfDocument,
+      document: _pdfDocument!,
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
     );
@@ -30,7 +58,7 @@ class _PdfPageViewState extends State<PdfPageView> {
 
   @override
   void dispose() {
-    _pdfDocument.dispose();
+    _pdfDocument?.dispose();
     super.dispose();
   }
 }
