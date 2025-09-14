@@ -1,1 +1,1 @@
-{"valid_import":true,"imports":[{"uri":"package:flutter/material.dart","transitive":false},{"uri":"package:pdf/pdf.dart","transitive":false},{"uri":"package:pdf/widgets.dart","transitive":false},{"uri":"package:kivixa/features/pdf_annotation/annotation_toolbar.dart","transitive":false}],"elements":[]}
+{"valid_import":true,"imports":[{"uri":"package:flutter/material.dart","transitive":false},{"uri":"package:pdf/pdf.dart","transitive":false},{"uri":"package:kivixa/features/pdf_annotation/annotation_toolbar.dart","transitive":false}],"elements":[]}

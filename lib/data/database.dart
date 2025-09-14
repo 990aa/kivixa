@@ -50,6 +50,17 @@ class Documents extends Table {
   TextColumn get title => text()();
 }
 
+@DataClassName('PageData')
+class Pages extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get documentId => integer().references(Documents, #id)(); // Foreign key
+  IntColumn get pageNumber => integer().nullable()();
+  TextColumn get title => text().nullable()(); // Optional: if pages can have titles
+  TextColumn get contentPreview => text().nullable()(); // Optional: for a quick preview
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 @DataClassName('OutlineData')
 class Outlines extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -62,6 +73,7 @@ class Comments extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get pageId => integer()();
   TextColumn get content => text()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)(); // Added createdAt
 }
 
 @DataClassName('TextBlockData')
@@ -99,16 +111,6 @@ class MinimapTiles extends Table {
   IntColumn get x => integer()();
   IntColumn get y => integer()();
   TextColumn get data => text()(); // JSON encoded tile data
-
-  // If (documentId, x, y) should uniquely identify a tile, 
-  // you might want a composite primary key or a unique constraint.
-  // For a unique constraint, you could use:
-  // @override
-  // Set<Column> get uniqueKeys => {{documentId, x, y}};
-  // If using (documentId, x, y) as a composite primary key instead of an auto-incrementing id:
-  // @override
-  // Set<Column> get primaryKey => {documentId, x, y};
-  // Then remove `IntColumn get id => integer().autoIncrement()();`
 }
 
 @DriftDatabase(
@@ -118,6 +120,7 @@ class MinimapTiles extends Table {
     DocProvenance,
     Links,
     Documents,
+    Pages,
     Outlines,
     Comments,
     TextBlocks,
@@ -125,16 +128,31 @@ class MinimapTiles extends Table {
     Assets,
     ChecklistItems,
     CalendarEvents,
-    MinimapTiles, // Added MinimapTiles here
+    MinimapTiles,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2; // REMEMBER TO INCREMENT SCHEMA VERSION IF NEEDED
-                            // If this is a new table, you might need to increment this
-                            // and provide a migration strategy, or uninstall/reinstall the app during dev.
+  int get schemaVersion => 4; // Incremented schema version to 4
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (Migrator m) async {
+      await m.createAll();
+    },
+    onUpgrade: (Migrator m, int from, int to) async {
+      if (from < 3) {
+        await m.createTable(pages);
+      }
+      if (from < 4) {
+        // We added the createdAt column to Comments in version 4
+        await m.addColumn(comments, comments.createdAt);
+      }
+      // Add other migration steps for future versions here
+    },
+  );
 }
 
 LazyDatabase _openConnection() {

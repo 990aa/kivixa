@@ -1598,6 +1598,470 @@ class DocumentsCompanion extends UpdateCompanion<DocumentData> {
   }
 }
 
+class $PagesTable extends Pages with TableInfo<$PagesTable, PageData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _documentIdMeta = const VerificationMeta(
+    'documentId',
+  );
+  @override
+  late final GeneratedColumn<int> documentId = GeneratedColumn<int>(
+    'document_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES documents (id)',
+    ),
+  );
+  static const VerificationMeta _pageNumberMeta = const VerificationMeta(
+    'pageNumber',
+  );
+  @override
+  late final GeneratedColumn<int> pageNumber = GeneratedColumn<int>(
+    'page_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _contentPreviewMeta = const VerificationMeta(
+    'contentPreview',
+  );
+  @override
+  late final GeneratedColumn<String> contentPreview = GeneratedColumn<String>(
+    'content_preview',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    documentId,
+    pageNumber,
+    title,
+    contentPreview,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pages';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PageData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('document_id')) {
+      context.handle(
+        _documentIdMeta,
+        documentId.isAcceptableOrUnknown(data['document_id']!, _documentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_documentIdMeta);
+    }
+    if (data.containsKey('page_number')) {
+      context.handle(
+        _pageNumberMeta,
+        pageNumber.isAcceptableOrUnknown(data['page_number']!, _pageNumberMeta),
+      );
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    }
+    if (data.containsKey('content_preview')) {
+      context.handle(
+        _contentPreviewMeta,
+        contentPreview.isAcceptableOrUnknown(
+          data['content_preview']!,
+          _contentPreviewMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PageData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PageData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      documentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}document_id'],
+      )!,
+      pageNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}page_number'],
+      ),
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      ),
+      contentPreview: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content_preview'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $PagesTable createAlias(String alias) {
+    return $PagesTable(attachedDatabase, alias);
+  }
+}
+
+class PageData extends DataClass implements Insertable<PageData> {
+  final int id;
+  final int documentId;
+  final int? pageNumber;
+  final String? title;
+  final String? contentPreview;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const PageData({
+    required this.id,
+    required this.documentId,
+    this.pageNumber,
+    this.title,
+    this.contentPreview,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['document_id'] = Variable<int>(documentId);
+    if (!nullToAbsent || pageNumber != null) {
+      map['page_number'] = Variable<int>(pageNumber);
+    }
+    if (!nullToAbsent || title != null) {
+      map['title'] = Variable<String>(title);
+    }
+    if (!nullToAbsent || contentPreview != null) {
+      map['content_preview'] = Variable<String>(contentPreview);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  PagesCompanion toCompanion(bool nullToAbsent) {
+    return PagesCompanion(
+      id: Value(id),
+      documentId: Value(documentId),
+      pageNumber: pageNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pageNumber),
+      title: title == null && nullToAbsent
+          ? const Value.absent()
+          : Value(title),
+      contentPreview: contentPreview == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contentPreview),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory PageData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PageData(
+      id: serializer.fromJson<int>(json['id']),
+      documentId: serializer.fromJson<int>(json['documentId']),
+      pageNumber: serializer.fromJson<int?>(json['pageNumber']),
+      title: serializer.fromJson<String?>(json['title']),
+      contentPreview: serializer.fromJson<String?>(json['contentPreview']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'documentId': serializer.toJson<int>(documentId),
+      'pageNumber': serializer.toJson<int?>(pageNumber),
+      'title': serializer.toJson<String?>(title),
+      'contentPreview': serializer.toJson<String?>(contentPreview),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  PageData copyWith({
+    int? id,
+    int? documentId,
+    Value<int?> pageNumber = const Value.absent(),
+    Value<String?> title = const Value.absent(),
+    Value<String?> contentPreview = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => PageData(
+    id: id ?? this.id,
+    documentId: documentId ?? this.documentId,
+    pageNumber: pageNumber.present ? pageNumber.value : this.pageNumber,
+    title: title.present ? title.value : this.title,
+    contentPreview: contentPreview.present
+        ? contentPreview.value
+        : this.contentPreview,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  PageData copyWithCompanion(PagesCompanion data) {
+    return PageData(
+      id: data.id.present ? data.id.value : this.id,
+      documentId: data.documentId.present
+          ? data.documentId.value
+          : this.documentId,
+      pageNumber: data.pageNumber.present
+          ? data.pageNumber.value
+          : this.pageNumber,
+      title: data.title.present ? data.title.value : this.title,
+      contentPreview: data.contentPreview.present
+          ? data.contentPreview.value
+          : this.contentPreview,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PageData(')
+          ..write('id: $id, ')
+          ..write('documentId: $documentId, ')
+          ..write('pageNumber: $pageNumber, ')
+          ..write('title: $title, ')
+          ..write('contentPreview: $contentPreview, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    documentId,
+    pageNumber,
+    title,
+    contentPreview,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PageData &&
+          other.id == this.id &&
+          other.documentId == this.documentId &&
+          other.pageNumber == this.pageNumber &&
+          other.title == this.title &&
+          other.contentPreview == this.contentPreview &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class PagesCompanion extends UpdateCompanion<PageData> {
+  final Value<int> id;
+  final Value<int> documentId;
+  final Value<int?> pageNumber;
+  final Value<String?> title;
+  final Value<String?> contentPreview;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const PagesCompanion({
+    this.id = const Value.absent(),
+    this.documentId = const Value.absent(),
+    this.pageNumber = const Value.absent(),
+    this.title = const Value.absent(),
+    this.contentPreview = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  PagesCompanion.insert({
+    this.id = const Value.absent(),
+    required int documentId,
+    this.pageNumber = const Value.absent(),
+    this.title = const Value.absent(),
+    this.contentPreview = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : documentId = Value(documentId);
+  static Insertable<PageData> custom({
+    Expression<int>? id,
+    Expression<int>? documentId,
+    Expression<int>? pageNumber,
+    Expression<String>? title,
+    Expression<String>? contentPreview,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (documentId != null) 'document_id': documentId,
+      if (pageNumber != null) 'page_number': pageNumber,
+      if (title != null) 'title': title,
+      if (contentPreview != null) 'content_preview': contentPreview,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  PagesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? documentId,
+    Value<int?>? pageNumber,
+    Value<String?>? title,
+    Value<String?>? contentPreview,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return PagesCompanion(
+      id: id ?? this.id,
+      documentId: documentId ?? this.documentId,
+      pageNumber: pageNumber ?? this.pageNumber,
+      title: title ?? this.title,
+      contentPreview: contentPreview ?? this.contentPreview,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (documentId.present) {
+      map['document_id'] = Variable<int>(documentId.value);
+    }
+    if (pageNumber.present) {
+      map['page_number'] = Variable<int>(pageNumber.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (contentPreview.present) {
+      map['content_preview'] = Variable<String>(contentPreview.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PagesCompanion(')
+          ..write('id: $id, ')
+          ..write('documentId: $documentId, ')
+          ..write('pageNumber: $pageNumber, ')
+          ..write('title: $title, ')
+          ..write('contentPreview: $contentPreview, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $OutlinesTable extends Outlines
     with TableInfo<$OutlinesTable, OutlineData> {
   @override
@@ -1887,8 +2351,20 @@ class $CommentsTable extends Comments
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, pageId, content];
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, pageId, content, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1920,6 +2396,12 @@ class $CommentsTable extends Comments
     } else if (isInserting) {
       context.missing(_contentMeta);
     }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
     return context;
   }
 
@@ -1941,6 +2423,10 @@ class $CommentsTable extends Comments
         DriftSqlType.string,
         data['${effectivePrefix}content'],
       )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
     );
   }
 
@@ -1954,10 +2440,12 @@ class CommentData extends DataClass implements Insertable<CommentData> {
   final int id;
   final int pageId;
   final String content;
+  final DateTime createdAt;
   const CommentData({
     required this.id,
     required this.pageId,
     required this.content,
+    required this.createdAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1965,6 +2453,7 @@ class CommentData extends DataClass implements Insertable<CommentData> {
     map['id'] = Variable<int>(id);
     map['page_id'] = Variable<int>(pageId);
     map['content'] = Variable<String>(content);
+    map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
 
@@ -1973,6 +2462,7 @@ class CommentData extends DataClass implements Insertable<CommentData> {
       id: Value(id),
       pageId: Value(pageId),
       content: Value(content),
+      createdAt: Value(createdAt),
     );
   }
 
@@ -1985,6 +2475,7 @@ class CommentData extends DataClass implements Insertable<CommentData> {
       id: serializer.fromJson<int>(json['id']),
       pageId: serializer.fromJson<int>(json['pageId']),
       content: serializer.fromJson<String>(json['content']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
   @override
@@ -1994,19 +2485,27 @@ class CommentData extends DataClass implements Insertable<CommentData> {
       'id': serializer.toJson<int>(id),
       'pageId': serializer.toJson<int>(pageId),
       'content': serializer.toJson<String>(content),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
 
-  CommentData copyWith({int? id, int? pageId, String? content}) => CommentData(
+  CommentData copyWith({
+    int? id,
+    int? pageId,
+    String? content,
+    DateTime? createdAt,
+  }) => CommentData(
     id: id ?? this.id,
     pageId: pageId ?? this.pageId,
     content: content ?? this.content,
+    createdAt: createdAt ?? this.createdAt,
   );
   CommentData copyWithCompanion(CommentsCompanion data) {
     return CommentData(
       id: data.id.present ? data.id.value : this.id,
       pageId: data.pageId.present ? data.pageId.value : this.pageId,
       content: data.content.present ? data.content.value : this.content,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
 
@@ -2015,46 +2514,53 @@ class CommentData extends DataClass implements Insertable<CommentData> {
     return (StringBuffer('CommentData(')
           ..write('id: $id, ')
           ..write('pageId: $pageId, ')
-          ..write('content: $content')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, pageId, content);
+  int get hashCode => Object.hash(id, pageId, content, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is CommentData &&
           other.id == this.id &&
           other.pageId == this.pageId &&
-          other.content == this.content);
+          other.content == this.content &&
+          other.createdAt == this.createdAt);
 }
 
 class CommentsCompanion extends UpdateCompanion<CommentData> {
   final Value<int> id;
   final Value<int> pageId;
   final Value<String> content;
+  final Value<DateTime> createdAt;
   const CommentsCompanion({
     this.id = const Value.absent(),
     this.pageId = const Value.absent(),
     this.content = const Value.absent(),
+    this.createdAt = const Value.absent(),
   });
   CommentsCompanion.insert({
     this.id = const Value.absent(),
     required int pageId,
     required String content,
+    this.createdAt = const Value.absent(),
   }) : pageId = Value(pageId),
        content = Value(content);
   static Insertable<CommentData> custom({
     Expression<int>? id,
     Expression<int>? pageId,
     Expression<String>? content,
+    Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (pageId != null) 'page_id': pageId,
       if (content != null) 'content': content,
+      if (createdAt != null) 'created_at': createdAt,
     });
   }
 
@@ -2062,11 +2568,13 @@ class CommentsCompanion extends UpdateCompanion<CommentData> {
     Value<int>? id,
     Value<int>? pageId,
     Value<String>? content,
+    Value<DateTime>? createdAt,
   }) {
     return CommentsCompanion(
       id: id ?? this.id,
       pageId: pageId ?? this.pageId,
       content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
@@ -2082,6 +2590,9 @@ class CommentsCompanion extends UpdateCompanion<CommentData> {
     if (content.present) {
       map['content'] = Variable<String>(content.value);
     }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
     return map;
   }
 
@@ -2090,7 +2601,8 @@ class CommentsCompanion extends UpdateCompanion<CommentData> {
     return (StringBuffer('CommentsCompanion(')
           ..write('id: $id, ')
           ..write('pageId: $pageId, ')
-          ..write('content: $content')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
@@ -4023,6 +4535,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $DocProvenanceTable docProvenance = $DocProvenanceTable(this);
   late final $LinksTable links = $LinksTable(this);
   late final $DocumentsTable documents = $DocumentsTable(this);
+  late final $PagesTable pages = $PagesTable(this);
   late final $OutlinesTable outlines = $OutlinesTable(this);
   late final $CommentsTable comments = $CommentsTable(this);
   late final $TextBlocksTable textBlocks = $TextBlocksTable(this);
@@ -4041,6 +4554,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     docProvenance,
     links,
     documents,
+    pages,
     outlines,
     comments,
     textBlocks,
@@ -4838,6 +5352,30 @@ typedef $$DocumentsTableCreateCompanionBuilder =
 typedef $$DocumentsTableUpdateCompanionBuilder =
     DocumentsCompanion Function({Value<int> id, Value<String> title});
 
+final class $$DocumentsTableReferences
+    extends BaseReferences<_$AppDatabase, $DocumentsTable, DocumentData> {
+  $$DocumentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$PagesTable, List<PageData>> _pagesRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.pages,
+    aliasName: $_aliasNameGenerator(db.documents.id, db.pages.documentId),
+  );
+
+  $$PagesTableProcessedTableManager get pagesRefs {
+    final manager = $$PagesTableTableManager(
+      $_db,
+      $_db.pages,
+    ).filter((f) => f.documentId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_pagesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
 class $$DocumentsTableFilterComposer
     extends Composer<_$AppDatabase, $DocumentsTable> {
   $$DocumentsTableFilterComposer({
@@ -4856,6 +5394,31 @@ class $$DocumentsTableFilterComposer
     column: $table.title,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> pagesRefs(
+    Expression<bool> Function($$PagesTableFilterComposer f) f,
+  ) {
+    final $$PagesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.pages,
+      getReferencedColumn: (t) => t.documentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PagesTableFilterComposer(
+            $db: $db,
+            $table: $db.pages,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$DocumentsTableOrderingComposer
@@ -4892,6 +5455,31 @@ class $$DocumentsTableAnnotationComposer
 
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
+
+  Expression<T> pagesRefs<T extends Object>(
+    Expression<T> Function($$PagesTableAnnotationComposer a) f,
+  ) {
+    final $$PagesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.pages,
+      getReferencedColumn: (t) => t.documentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PagesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.pages,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$DocumentsTableTableManager
@@ -4905,12 +5493,9 @@ class $$DocumentsTableTableManager
           $$DocumentsTableAnnotationComposer,
           $$DocumentsTableCreateCompanionBuilder,
           $$DocumentsTableUpdateCompanionBuilder,
-          (
-            DocumentData,
-            BaseReferences<_$AppDatabase, $DocumentsTable, DocumentData>,
-          ),
+          (DocumentData, $$DocumentsTableReferences),
           DocumentData,
-          PrefetchHooks Function()
+          PrefetchHooks Function({bool pagesRefs})
         > {
   $$DocumentsTableTableManager(_$AppDatabase db, $DocumentsTable table)
     : super(
@@ -4932,9 +5517,39 @@ class $$DocumentsTableTableManager
               ({Value<int> id = const Value.absent(), required String title}) =>
                   DocumentsCompanion.insert(id: id, title: title),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$DocumentsTableReferences(db, table, e),
+                ),
+              )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({pagesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (pagesRefs) db.pages],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (pagesRefs)
+                    await $_getPrefetchedData<
+                      DocumentData,
+                      $DocumentsTable,
+                      PageData
+                    >(
+                      currentTable: table,
+                      referencedTable: $$DocumentsTableReferences
+                          ._pagesRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$DocumentsTableReferences(db, table, p0).pagesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.documentId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
         ),
       );
 }
@@ -4949,12 +5564,359 @@ typedef $$DocumentsTableProcessedTableManager =
       $$DocumentsTableAnnotationComposer,
       $$DocumentsTableCreateCompanionBuilder,
       $$DocumentsTableUpdateCompanionBuilder,
-      (
-        DocumentData,
-        BaseReferences<_$AppDatabase, $DocumentsTable, DocumentData>,
-      ),
+      (DocumentData, $$DocumentsTableReferences),
       DocumentData,
-      PrefetchHooks Function()
+      PrefetchHooks Function({bool pagesRefs})
+    >;
+typedef $$PagesTableCreateCompanionBuilder =
+    PagesCompanion Function({
+      Value<int> id,
+      required int documentId,
+      Value<int?> pageNumber,
+      Value<String?> title,
+      Value<String?> contentPreview,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$PagesTableUpdateCompanionBuilder =
+    PagesCompanion Function({
+      Value<int> id,
+      Value<int> documentId,
+      Value<int?> pageNumber,
+      Value<String?> title,
+      Value<String?> contentPreview,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+final class $$PagesTableReferences
+    extends BaseReferences<_$AppDatabase, $PagesTable, PageData> {
+  $$PagesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $DocumentsTable _documentIdTable(_$AppDatabase db) => db.documents
+      .createAlias($_aliasNameGenerator(db.pages.documentId, db.documents.id));
+
+  $$DocumentsTableProcessedTableManager get documentId {
+    final $_column = $_itemColumn<int>('document_id')!;
+
+    final manager = $$DocumentsTableTableManager(
+      $_db,
+      $_db.documents,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_documentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PagesTableFilterComposer extends Composer<_$AppDatabase, $PagesTable> {
+  $$PagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pageNumber => $composableBuilder(
+    column: $table.pageNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contentPreview => $composableBuilder(
+    column: $table.contentPreview,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$DocumentsTableFilterComposer get documentId {
+    final $$DocumentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.documentId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableFilterComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PagesTable> {
+  $$PagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pageNumber => $composableBuilder(
+    column: $table.pageNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contentPreview => $composableBuilder(
+    column: $table.contentPreview,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$DocumentsTableOrderingComposer get documentId {
+    final $$DocumentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.documentId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PagesTable> {
+  $$PagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get pageNumber => $composableBuilder(
+    column: $table.pageNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get contentPreview => $composableBuilder(
+    column: $table.contentPreview,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$DocumentsTableAnnotationComposer get documentId {
+    final $$DocumentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.documentId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PagesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PagesTable,
+          PageData,
+          $$PagesTableFilterComposer,
+          $$PagesTableOrderingComposer,
+          $$PagesTableAnnotationComposer,
+          $$PagesTableCreateCompanionBuilder,
+          $$PagesTableUpdateCompanionBuilder,
+          (PageData, $$PagesTableReferences),
+          PageData,
+          PrefetchHooks Function({bool documentId})
+        > {
+  $$PagesTableTableManager(_$AppDatabase db, $PagesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PagesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PagesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> documentId = const Value.absent(),
+                Value<int?> pageNumber = const Value.absent(),
+                Value<String?> title = const Value.absent(),
+                Value<String?> contentPreview = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => PagesCompanion(
+                id: id,
+                documentId: documentId,
+                pageNumber: pageNumber,
+                title: title,
+                contentPreview: contentPreview,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int documentId,
+                Value<int?> pageNumber = const Value.absent(),
+                Value<String?> title = const Value.absent(),
+                Value<String?> contentPreview = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => PagesCompanion.insert(
+                id: id,
+                documentId: documentId,
+                pageNumber: pageNumber,
+                title: title,
+                contentPreview: contentPreview,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) =>
+                    (e.readTable(table), $$PagesTableReferences(db, table, e)),
+              )
+              .toList(),
+          prefetchHooksCallback: ({documentId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (documentId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.documentId,
+                                referencedTable: $$PagesTableReferences
+                                    ._documentIdTable(db),
+                                referencedColumn: $$PagesTableReferences
+                                    ._documentIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PagesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PagesTable,
+      PageData,
+      $$PagesTableFilterComposer,
+      $$PagesTableOrderingComposer,
+      $$PagesTableAnnotationComposer,
+      $$PagesTableCreateCompanionBuilder,
+      $$PagesTableUpdateCompanionBuilder,
+      (PageData, $$PagesTableReferences),
+      PageData,
+      PrefetchHooks Function({bool documentId})
     >;
 typedef $$OutlinesTableCreateCompanionBuilder =
     OutlinesCompanion Function({
@@ -5113,12 +6075,14 @@ typedef $$CommentsTableCreateCompanionBuilder =
       Value<int> id,
       required int pageId,
       required String content,
+      Value<DateTime> createdAt,
     });
 typedef $$CommentsTableUpdateCompanionBuilder =
     CommentsCompanion Function({
       Value<int> id,
       Value<int> pageId,
       Value<String> content,
+      Value<DateTime> createdAt,
     });
 
 class $$CommentsTableFilterComposer
@@ -5142,6 +6106,11 @@ class $$CommentsTableFilterComposer
 
   ColumnFilters<String> get content => $composableBuilder(
     column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -5169,6 +6138,11 @@ class $$CommentsTableOrderingComposer
     column: $table.content,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$CommentsTableAnnotationComposer
@@ -5188,6 +6162,9 @@ class $$CommentsTableAnnotationComposer
 
   GeneratedColumn<String> get content =>
       $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
 
 class $$CommentsTableTableManager
@@ -5224,16 +6201,24 @@ class $$CommentsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> pageId = const Value.absent(),
                 Value<String> content = const Value.absent(),
-              }) => CommentsCompanion(id: id, pageId: pageId, content: content),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => CommentsCompanion(
+                id: id,
+                pageId: pageId,
+                content: content,
+                createdAt: createdAt,
+              ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required int pageId,
                 required String content,
+                Value<DateTime> createdAt = const Value.absent(),
               }) => CommentsCompanion.insert(
                 id: id,
                 pageId: pageId,
                 content: content,
+                createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -6385,6 +7370,8 @@ class $AppDatabaseManager {
       $$LinksTableTableManager(_db, _db.links);
   $$DocumentsTableTableManager get documents =>
       $$DocumentsTableTableManager(_db, _db.documents);
+  $$PagesTableTableManager get pages =>
+      $$PagesTableTableManager(_db, _db.pages);
   $$OutlinesTableTableManager get outlines =>
       $$OutlinesTableTableManager(_db, _db.outlines);
   $$CommentsTableTableManager get comments =>
