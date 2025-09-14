@@ -2,6 +2,7 @@
   "elements": {},
   "imports": [
     "package:flutter_test/flutter_test.dart",
-    "package:kivixa/services/modify_template_service.dart"
+    "package:kivixa/services/modify_template_service.dart",
+    "package:flutter/painting.dart"
   ]
 }

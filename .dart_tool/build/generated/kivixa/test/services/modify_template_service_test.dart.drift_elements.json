@@ -1,1 +1,1 @@
-{"valid_import":true,"imports":[{"uri":"package:flutter_test/flutter_test.dart","transitive":false},{"uri":"package:kivixa/services/modify_template_service.dart","transitive":false}],"elements":[]}
+{"valid_import":true,"imports":[{"uri":"package:flutter_test/flutter_test.dart","transitive":false},{"uri":"package:kivixa/services/modify_template_service.dart","transitive":false},{"uri":"package:flutter/painting.dart","transitive":false}],"elements":[]}

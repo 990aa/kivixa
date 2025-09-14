@@ -5,9 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="49a8958b-8c8d-458b-9c1b-10ca97c96ca1" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/safe_undo_redo_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/safe_undo_redo_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dart_tool/build/fcd1995bc647fb959e82ea360c6c2c9a/asset_graph.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/build/fcd1995bc647fb959e82ea360c6c2c9a/asset_graph.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/ai/provider_config_service.dart.drift_module.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/ai/provider_config_service.dart.drift_module.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/data/database.dart.drift_elements.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/data/database.dart.drift_elements.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/data/database.dart.drift_module.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/data/database.dart.drift_module.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/data/database.drift.g.part" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/data/database.drift.g.part" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/data/repository.dart.drift_elements.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/data/repository.dart.drift_elements.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/data/repository.dart.drift_module.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/data/repository.dart.drift_module.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/services/longpress_actions_service.dart.drift_elements.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/services/longpress_actions_service.dart.drift_elements.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/services/longpress_actions_service.dart.drift_module.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/services/longpress_actions_service.dart.drift_module.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/services/viewport_state_service.dart.drift_elements.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/services/viewport_state_service.dart.drift_elements.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/services/viewport_state_service.dart.drift_module.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/lib/services/viewport_state_service.dart.drift_module.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/test/services/modify_template_service_test.dart.drift_elements.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/test/services/modify_template_service_test.dart.drift_elements.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/test/services/modify_template_service_test.dart.drift_module.json" beforeDir="false" afterPath="$PROJECT_DIR$/.dart_tool/build/generated/kivixa/test/services/modify_template_service_test.dart.drift_module.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/database.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/database.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/repository.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/sqlite_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/sqlite_repository.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/infinite_canvas/minimap.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/infinite_canvas/minimap.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/library/library_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/library/library_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/offline_queue.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/offline_queue.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

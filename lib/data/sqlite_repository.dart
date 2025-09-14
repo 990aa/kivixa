@@ -162,7 +162,7 @@ class SQLiteRepository implements Repository {
         try {
           decodedMetadata = jsonDecode(metadataJson) as Map<String, dynamic>;
         } catch (e) {
-          print('Error decoding thumbnail_metadata for pageId $pageId: $e. Setting metadata to null.');
+          // print('Error decoding thumbnail_metadata for pageId $pageId: $e. Setting metadata to null.');
           decodedMetadata = null; // Explicitly set to null on error
         }
       }

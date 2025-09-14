@@ -2,6 +2,7 @@
   "elements": {},
   "imports": [
     "package:flutter/animation.dart",
+    "package:collection/collection.dart",
     "package:kivixa/data/repository.dart"
   ]
 }

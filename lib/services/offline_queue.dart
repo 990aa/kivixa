@@ -49,7 +49,7 @@ class OfflineQueue {
         );
         await (_db.update(_db.jobQueue)..where((tbl) => tbl.id.equals(job.id!))).write(updatedJob.toCompanion());
         _controller.add(updatedJob); // Notify listeners about the update
-        print('Error processing job ${job.id}: $e. Will retry.');
+        // print('Error processing job ${job.id}: $e. Will retry.');
       }
     }
   }
@@ -61,9 +61,9 @@ class OfflineQueue {
     _controller.add(job.copyWith(status: 'in_progress', updatedAt: DateTime.now())); // Notify stream
 
     // Simulate actual job processing based on job.jobType and job.payload
-    print('Processing job ${job.id} of type ${job.jobType}...');
+    // print('Processing job ${job.id} of type ${job.jobType}...');
     await Future.delayed(const Duration(seconds: 2)); // Simulate work
-    print('Finished processing job ${job.id}.');
+    // print('Finished processing job ${job.id}.');
 
     // NOTE: In a real app, the deletion or update to 'completed' status 
     // would happen in processQueue after _processJob completes successfully.

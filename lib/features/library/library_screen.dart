@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:kivixa/features/library/documents_notifier.dart';
 import 'package:kivixa/features/library/sidebar.dart';
-import 'package:kivixa/core/providers.dart';
+import 'package:kivixa/providers.dart'; // Changed this import
 import 'package:kivixa/widgets/empty_state_animated.dart';
 import 'package:kivixa/widgets/contextual_help_overlay.dart';
 import 'package:kivixa/widgets/premium_error_dialog.dart';

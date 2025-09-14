@@ -3677,6 +3677,342 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEventData> {
   }
 }
 
+class $MinimapTilesTable extends MinimapTiles
+    with TableInfo<$MinimapTilesTable, MinimapTile> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MinimapTilesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _documentIdMeta = const VerificationMeta(
+    'documentId',
+  );
+  @override
+  late final GeneratedColumn<int> documentId = GeneratedColumn<int>(
+    'document_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _xMeta = const VerificationMeta('x');
+  @override
+  late final GeneratedColumn<int> x = GeneratedColumn<int>(
+    'x',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _yMeta = const VerificationMeta('y');
+  @override
+  late final GeneratedColumn<int> y = GeneratedColumn<int>(
+    'y',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+    'data',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, documentId, x, y, data];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'minimap_tiles';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MinimapTile> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('document_id')) {
+      context.handle(
+        _documentIdMeta,
+        documentId.isAcceptableOrUnknown(data['document_id']!, _documentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_documentIdMeta);
+    }
+    if (data.containsKey('x')) {
+      context.handle(_xMeta, x.isAcceptableOrUnknown(data['x']!, _xMeta));
+    } else if (isInserting) {
+      context.missing(_xMeta);
+    }
+    if (data.containsKey('y')) {
+      context.handle(_yMeta, y.isAcceptableOrUnknown(data['y']!, _yMeta));
+    } else if (isInserting) {
+      context.missing(_yMeta);
+    }
+    if (data.containsKey('data')) {
+      context.handle(
+        _dataMeta,
+        this.data.isAcceptableOrUnknown(data['data']!, _dataMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dataMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MinimapTile map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MinimapTile(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      documentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}document_id'],
+      )!,
+      x: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}x'],
+      )!,
+      y: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}y'],
+      )!,
+      data: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}data'],
+      )!,
+    );
+  }
+
+  @override
+  $MinimapTilesTable createAlias(String alias) {
+    return $MinimapTilesTable(attachedDatabase, alias);
+  }
+}
+
+class MinimapTile extends DataClass implements Insertable<MinimapTile> {
+  final int id;
+  final int documentId;
+  final int x;
+  final int y;
+  final String data;
+  const MinimapTile({
+    required this.id,
+    required this.documentId,
+    required this.x,
+    required this.y,
+    required this.data,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['document_id'] = Variable<int>(documentId);
+    map['x'] = Variable<int>(x);
+    map['y'] = Variable<int>(y);
+    map['data'] = Variable<String>(data);
+    return map;
+  }
+
+  MinimapTilesCompanion toCompanion(bool nullToAbsent) {
+    return MinimapTilesCompanion(
+      id: Value(id),
+      documentId: Value(documentId),
+      x: Value(x),
+      y: Value(y),
+      data: Value(data),
+    );
+  }
+
+  factory MinimapTile.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MinimapTile(
+      id: serializer.fromJson<int>(json['id']),
+      documentId: serializer.fromJson<int>(json['documentId']),
+      x: serializer.fromJson<int>(json['x']),
+      y: serializer.fromJson<int>(json['y']),
+      data: serializer.fromJson<String>(json['data']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'documentId': serializer.toJson<int>(documentId),
+      'x': serializer.toJson<int>(x),
+      'y': serializer.toJson<int>(y),
+      'data': serializer.toJson<String>(data),
+    };
+  }
+
+  MinimapTile copyWith({
+    int? id,
+    int? documentId,
+    int? x,
+    int? y,
+    String? data,
+  }) => MinimapTile(
+    id: id ?? this.id,
+    documentId: documentId ?? this.documentId,
+    x: x ?? this.x,
+    y: y ?? this.y,
+    data: data ?? this.data,
+  );
+  MinimapTile copyWithCompanion(MinimapTilesCompanion data) {
+    return MinimapTile(
+      id: data.id.present ? data.id.value : this.id,
+      documentId: data.documentId.present
+          ? data.documentId.value
+          : this.documentId,
+      x: data.x.present ? data.x.value : this.x,
+      y: data.y.present ? data.y.value : this.y,
+      data: data.data.present ? data.data.value : this.data,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MinimapTile(')
+          ..write('id: $id, ')
+          ..write('documentId: $documentId, ')
+          ..write('x: $x, ')
+          ..write('y: $y, ')
+          ..write('data: $data')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, documentId, x, y, data);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MinimapTile &&
+          other.id == this.id &&
+          other.documentId == this.documentId &&
+          other.x == this.x &&
+          other.y == this.y &&
+          other.data == this.data);
+}
+
+class MinimapTilesCompanion extends UpdateCompanion<MinimapTile> {
+  final Value<int> id;
+  final Value<int> documentId;
+  final Value<int> x;
+  final Value<int> y;
+  final Value<String> data;
+  const MinimapTilesCompanion({
+    this.id = const Value.absent(),
+    this.documentId = const Value.absent(),
+    this.x = const Value.absent(),
+    this.y = const Value.absent(),
+    this.data = const Value.absent(),
+  });
+  MinimapTilesCompanion.insert({
+    this.id = const Value.absent(),
+    required int documentId,
+    required int x,
+    required int y,
+    required String data,
+  }) : documentId = Value(documentId),
+       x = Value(x),
+       y = Value(y),
+       data = Value(data);
+  static Insertable<MinimapTile> custom({
+    Expression<int>? id,
+    Expression<int>? documentId,
+    Expression<int>? x,
+    Expression<int>? y,
+    Expression<String>? data,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (documentId != null) 'document_id': documentId,
+      if (x != null) 'x': x,
+      if (y != null) 'y': y,
+      if (data != null) 'data': data,
+    });
+  }
+
+  MinimapTilesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? documentId,
+    Value<int>? x,
+    Value<int>? y,
+    Value<String>? data,
+  }) {
+    return MinimapTilesCompanion(
+      id: id ?? this.id,
+      documentId: documentId ?? this.documentId,
+      x: x ?? this.x,
+      y: y ?? this.y,
+      data: data ?? this.data,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (documentId.present) {
+      map['document_id'] = Variable<int>(documentId.value);
+    }
+    if (x.present) {
+      map['x'] = Variable<int>(x.value);
+    }
+    if (y.present) {
+      map['y'] = Variable<int>(y.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MinimapTilesCompanion(')
+          ..write('id: $id, ')
+          ..write('documentId: $documentId, ')
+          ..write('x: $x, ')
+          ..write('y: $y, ')
+          ..write('data: $data')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3694,6 +4030,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AssetsTable assets = $AssetsTable(this);
   late final $ChecklistItemsTable checklistItems = $ChecklistItemsTable(this);
   late final $CalendarEventsTable calendarEvents = $CalendarEventsTable(this);
+  late final $MinimapTilesTable minimapTiles = $MinimapTilesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3711,6 +4048,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     assets,
     checklistItems,
     calendarEvents,
+    minimapTiles,
   ];
 }
 
@@ -5837,6 +6175,202 @@ typedef $$CalendarEventsTableProcessedTableManager =
       CalendarEventData,
       PrefetchHooks Function()
     >;
+typedef $$MinimapTilesTableCreateCompanionBuilder =
+    MinimapTilesCompanion Function({
+      Value<int> id,
+      required int documentId,
+      required int x,
+      required int y,
+      required String data,
+    });
+typedef $$MinimapTilesTableUpdateCompanionBuilder =
+    MinimapTilesCompanion Function({
+      Value<int> id,
+      Value<int> documentId,
+      Value<int> x,
+      Value<int> y,
+      Value<String> data,
+    });
+
+class $$MinimapTilesTableFilterComposer
+    extends Composer<_$AppDatabase, $MinimapTilesTable> {
+  $$MinimapTilesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get documentId => $composableBuilder(
+    column: $table.documentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get x => $composableBuilder(
+    column: $table.x,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get y => $composableBuilder(
+    column: $table.y,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get data => $composableBuilder(
+    column: $table.data,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$MinimapTilesTableOrderingComposer
+    extends Composer<_$AppDatabase, $MinimapTilesTable> {
+  $$MinimapTilesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get documentId => $composableBuilder(
+    column: $table.documentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get x => $composableBuilder(
+    column: $table.x,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get y => $composableBuilder(
+    column: $table.y,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get data => $composableBuilder(
+    column: $table.data,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$MinimapTilesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MinimapTilesTable> {
+  $$MinimapTilesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get documentId => $composableBuilder(
+    column: $table.documentId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get x =>
+      $composableBuilder(column: $table.x, builder: (column) => column);
+
+  GeneratedColumn<int> get y =>
+      $composableBuilder(column: $table.y, builder: (column) => column);
+
+  GeneratedColumn<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => column);
+}
+
+class $$MinimapTilesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $MinimapTilesTable,
+          MinimapTile,
+          $$MinimapTilesTableFilterComposer,
+          $$MinimapTilesTableOrderingComposer,
+          $$MinimapTilesTableAnnotationComposer,
+          $$MinimapTilesTableCreateCompanionBuilder,
+          $$MinimapTilesTableUpdateCompanionBuilder,
+          (
+            MinimapTile,
+            BaseReferences<_$AppDatabase, $MinimapTilesTable, MinimapTile>,
+          ),
+          MinimapTile,
+          PrefetchHooks Function()
+        > {
+  $$MinimapTilesTableTableManager(_$AppDatabase db, $MinimapTilesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MinimapTilesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MinimapTilesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MinimapTilesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> documentId = const Value.absent(),
+                Value<int> x = const Value.absent(),
+                Value<int> y = const Value.absent(),
+                Value<String> data = const Value.absent(),
+              }) => MinimapTilesCompanion(
+                id: id,
+                documentId: documentId,
+                x: x,
+                y: y,
+                data: data,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int documentId,
+                required int x,
+                required int y,
+                required String data,
+              }) => MinimapTilesCompanion.insert(
+                id: id,
+                documentId: documentId,
+                x: x,
+                y: y,
+                data: data,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$MinimapTilesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $MinimapTilesTable,
+      MinimapTile,
+      $$MinimapTilesTableFilterComposer,
+      $$MinimapTilesTableOrderingComposer,
+      $$MinimapTilesTableAnnotationComposer,
+      $$MinimapTilesTableCreateCompanionBuilder,
+      $$MinimapTilesTableUpdateCompanionBuilder,
+      (
+        MinimapTile,
+        BaseReferences<_$AppDatabase, $MinimapTilesTable, MinimapTile>,
+      ),
+      MinimapTile,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5865,4 +6399,6 @@ class $AppDatabaseManager {
       $$ChecklistItemsTableTableManager(_db, _db.checklistItems);
   $$CalendarEventsTableTableManager get calendarEvents =>
       $$CalendarEventsTableTableManager(_db, _db.calendarEvents);
+  $$MinimapTilesTableTableManager get minimapTiles =>
+      $$MinimapTilesTableTableManager(_db, _db.minimapTiles);
 }
