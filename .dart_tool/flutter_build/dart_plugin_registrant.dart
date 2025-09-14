@@ -15,6 +15,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path_provider_foundation/path_provider_foundation.dart';
 import 'package:shared_preferences_foundation/shared_preferences_foundation.dart';
 import 'package:sqflite_darwin/sqflite_darwin.dart';
+import 'package:uri_to_file/uri_to_file.dart';
 import 'package:url_launcher_ios/url_launcher_ios.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -120,6 +121,15 @@ class _PluginRegistrant {
       } catch (err) {
         print(
           '`sqflite_darwin` threw an error: $err. '
+          'The app may not function as expected until you remove this plugin from pubspec.yaml'
+        );
+      }
+
+      try {
+        UriToFilePluginIOS.registerWith();
+      } catch (err) {
+        print(
+          '`uri_to_file` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
       }
