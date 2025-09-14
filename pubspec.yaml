@@ -31,69 +31,59 @@ dependencies:
   flutter:
     sdk: flutter
   table_calendar: ^3.0.9
-
-
-  # Core UI and icons
   cupertino_icons: ^1.0.8
   device_info_plus: ^12.1.0
-
-  # Database and storage
-  sqflite: ^2.3.3 # Android
-  sqlite3: ^2.4.2 # Windows/FFI
+  sqflite: ^2.3.3
+  sqlite3: ^2.4.2
   drift: ^2.28.1
-  drift_sqflite: ^2.0.0 # For Android
-  sqlite3_flutter_libs: ^0.5.39 # Windows
-  sqflite_common_ffi: ^2.3.6 # Windows
+  drift_sqflite: ^2.0.0
+  sqlite3_flutter_libs: ^0.5.39
+  sqflite_common_ffi: ^2.3.6
   path_provider: ^2.1.5
-
-  # Security and crypto
   crypto: ^3.0.6
   flutter_secure_storage: ^9.2.4
   flutter_secure_storage_windows: ^3.1.2
-
-  # PDF and archive
+  flutter_secure_storage_platform_interface: ^1.1.1
+  flutter_secure_storage_linux: ^1.2.3
+  flutter_secure_storage_macos: ^3.1.3
+  flutter_secure_storage_web: ^1.2.1
   archive: ^4.0.7
-  package_info_plus: ^8.0.0
+  package_info_plus: ^9.0.0
   pdf_render: ^1.4.12
-  # pdfx: ^2.8.0
-  pdfrx: ^2.1.14  # Latest stable version
-
-  # ML/OCR (Android)
-  google_mlkit_text_recognition: ^0.12.0
-
-  # Audio
-  # record: ^5.0.5
-  # flutter_sound: ^9.2.13
-
-  # State management (choose one later)
-  riverpod: ^2.5.1
-  flutter_riverpod: ^2.5.1
-  collection: ^1.18.0 # Added collection package
-  connectivity_plus: ^6.0.3
-  cross_file: ^0.3.4+1 # Added cross_file package
+  pdfrx: ^2.1.14
+  google_mlkit_text_recognition: ^0.15.0
+  google_mlkit_commons: ^0.11.0
+  riverpod: ^2.6.1
+  flutter_riverpod: ^2.6.1
+  collection: ^1.18.0
+  connectivity_plus: ^7.0.0
+  cross_file: ^0.3.4+1
   uuid: ^4.5.1
   path: ^1.9.1
   http: ^1.5.0
-  logging: ^1.2.0 # Added logging package
+  logging: ^1.2.0
   encrypt: ^5.0.3
-  pointycastle: ^3.9.1
+  pointycastle: ^3.6.2
   dynamic_color: ^1.8.1
   phosphor_flutter: ^2.1.0
   shared_preferences: ^2.5.3
   shimmer: ^3.0.0
-  uri_to_file: ^0.2.0 # Added uri_to_file package
+  uri_to_file: ^1.0.0
   flutter_staggered_animations: ^1.1.1
   pdf: ^3.11.3
   flutter_pdfview: ^1.4.1+1
   file_picker: ^10.3.3
-  desktop_drop: ^0.4.4
+  desktop_drop: ^0.6.1
+  characters: 1.4.0
+  js: ^0.6.7
+  lints: ^6.0.0
+  material_color_utilities: 0.11.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_native_splash: ^2.4.0
-
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   drift_dev: ^2.28.2
   build_runner: ^2.7.2
 

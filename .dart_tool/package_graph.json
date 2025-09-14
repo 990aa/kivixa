@@ -8,6 +8,7 @@
       "version": "1.0.0+1",
       "dependencies": [
         "archive",
+        "characters",
         "collection",
         "connectivity_plus",
         "cross_file",
@@ -24,11 +25,19 @@
         "flutter_pdfview",
         "flutter_riverpod",
         "flutter_secure_storage",
+        "flutter_secure_storage_linux",
+        "flutter_secure_storage_macos",
+        "flutter_secure_storage_platform_interface",
+        "flutter_secure_storage_web",
         "flutter_secure_storage_windows",
         "flutter_staggered_animations",
+        "google_mlkit_commons",
         "google_mlkit_text_recognition",
         "http",
+        "js",
+        "lints",
         "logging",
+        "material_color_utilities",
         "package_info_plus",
         "path",
         "path_provider",
@@ -122,7 +131,7 @@
     },
     {
       "name": "flutter_lints",
-      "version": "5.0.0",
+      "version": "6.0.0",
       "dependencies": [
         "lints"
       ]
@@ -163,12 +172,38 @@
       ]
     },
     {
+      "name": "material_color_utilities",
+      "version": "0.11.1",
+      "dependencies": [
+        "collection"
+      ]
+    },
+    {
+      "name": "lints",
+      "version": "6.0.0",
+      "dependencies": []
+    },
+    {
+      "name": "js",
+      "version": "0.6.7",
+      "dependencies": [
+        "meta"
+      ]
+    },
+    {
+      "name": "characters",
+      "version": "1.4.0",
+      "dependencies": []
+    },
+    {
       "name": "desktop_drop",
-      "version": "0.4.4",
+      "version": "0.6.1",
       "dependencies": [
         "cross_file",
         "flutter",
-        "flutter_web_plugins"
+        "flutter_web_plugins",
+        "universal_platform",
+        "web"
       ]
     },
     {
@@ -218,9 +253,10 @@
     },
     {
       "name": "uri_to_file",
-      "version": "0.2.0",
+      "version": "1.0.0",
       "dependencies": [
-        "flutter"
+        "flutter",
+        "plugin_platform_interface"
       ]
     },
     {
@@ -320,7 +356,7 @@
     },
     {
       "name": "connectivity_plus",
-      "version": "6.1.5",
+      "version": "7.0.0",
       "dependencies": [
         "collection",
         "connectivity_plus_platform_interface",
@@ -358,8 +394,15 @@
       ]
     },
     {
+      "name": "google_mlkit_commons",
+      "version": "0.11.0",
+      "dependencies": [
+        "flutter"
+      ]
+    },
+    {
       "name": "google_mlkit_text_recognition",
-      "version": "0.12.1",
+      "version": "0.15.0",
       "dependencies": [
         "flutter",
         "google_mlkit_commons"
@@ -399,7 +442,7 @@
     },
     {
       "name": "package_info_plus",
-      "version": "8.3.1",
+      "version": "9.0.0",
       "dependencies": [
         "clock",
         "ffi",
@@ -420,6 +463,40 @@
         "crypto",
         "path",
         "posix"
+      ]
+    },
+    {
+      "name": "flutter_secure_storage_web",
+      "version": "1.2.1",
+      "dependencies": [
+        "flutter",
+        "flutter_secure_storage_platform_interface",
+        "flutter_web_plugins",
+        "js"
+      ]
+    },
+    {
+      "name": "flutter_secure_storage_macos",
+      "version": "3.1.3",
+      "dependencies": [
+        "flutter",
+        "flutter_secure_storage_platform_interface"
+      ]
+    },
+    {
+      "name": "flutter_secure_storage_linux",
+      "version": "1.2.3",
+      "dependencies": [
+        "flutter",
+        "flutter_secure_storage_platform_interface"
+      ]
+    },
+    {
+      "name": "flutter_secure_storage_platform_interface",
+      "version": "1.1.2",
+      "dependencies": [
+        "flutter",
+        "plugin_platform_interface"
       ]
     },
     {
@@ -912,11 +989,6 @@
       "dependencies": []
     },
     {
-      "name": "lints",
-      "version": "5.1.1",
-      "dependencies": []
-    },
-    {
       "name": "ansicolor",
       "version": "2.0.3",
       "dependencies": []
@@ -1026,6 +1098,16 @@
       ]
     },
     {
+      "name": "universal_platform",
+      "version": "1.1.0",
+      "dependencies": []
+    },
+    {
+      "name": "web",
+      "version": "1.1.1",
+      "dependencies": []
+    },
+    {
       "name": "dbus",
       "version": "0.7.11",
       "dependencies": [
@@ -1034,11 +1116,6 @@
         "meta",
         "xml"
       ]
-    },
-    {
-      "name": "web",
-      "version": "1.1.1",
-      "dependencies": []
     },
     {
       "name": "win32",
@@ -1146,20 +1223,6 @@
       ]
     },
     {
-      "name": "material_color_utilities",
-      "version": "0.11.1",
-      "dependencies": [
-        "collection"
-      ]
-    },
-    {
-      "name": "js",
-      "version": "0.6.7",
-      "dependencies": [
-        "meta"
-      ]
-    },
-    {
       "name": "convert",
       "version": "3.1.2",
       "dependencies": [
@@ -1212,13 +1275,6 @@
       "version": "1.0.0",
       "dependencies": [
         "meta"
-      ]
-    },
-    {
-      "name": "google_mlkit_commons",
-      "version": "0.7.1",
-      "dependencies": [
-        "flutter"
       ]
     },
     {
@@ -1287,40 +1343,6 @@
         "ffi",
         "meta",
         "path"
-      ]
-    },
-    {
-      "name": "flutter_secure_storage_platform_interface",
-      "version": "1.1.2",
-      "dependencies": [
-        "flutter",
-        "plugin_platform_interface"
-      ]
-    },
-    {
-      "name": "flutter_secure_storage_web",
-      "version": "1.2.1",
-      "dependencies": [
-        "flutter",
-        "flutter_secure_storage_platform_interface",
-        "flutter_web_plugins",
-        "js"
-      ]
-    },
-    {
-      "name": "flutter_secure_storage_macos",
-      "version": "3.1.3",
-      "dependencies": [
-        "flutter",
-        "flutter_secure_storage_platform_interface"
-      ]
-    },
-    {
-      "name": "flutter_secure_storage_linux",
-      "version": "1.2.3",
-      "dependencies": [
-        "flutter",
-        "flutter_secure_storage_platform_interface"
       ]
     },
     {
@@ -1462,11 +1484,6 @@
     {
       "name": "sky_engine",
       "version": "0.0.0",
-      "dependencies": []
-    },
-    {
-      "name": "characters",
-      "version": "1.4.0",
       "dependencies": []
     },
     {

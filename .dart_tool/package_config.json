@@ -153,7 +153,7 @@
     },
     {
       "name": "connectivity_plus",
-      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/connectivity_plus-6.1.5",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/connectivity_plus-7.0.0",
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
@@ -213,9 +213,9 @@
     },
     {
       "name": "desktop_drop",
-      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/desktop_drop-0.4.4",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/desktop_drop-0.6.1",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "3.4"
     },
     {
       "name": "device_info_plus",
@@ -297,9 +297,9 @@
     },
     {
       "name": "flutter_lints",
-      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_lints-5.0.0",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_lints-6.0.0",
       "packageUri": "lib/",
-      "languageVersion": "3.5"
+      "languageVersion": "3.8"
     },
     {
       "name": "flutter_native_splash",
@@ -393,13 +393,13 @@
     },
     {
       "name": "google_mlkit_commons",
-      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/google_mlkit_commons-0.7.1",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/google_mlkit_commons-0.11.0",
       "packageUri": "lib/",
       "languageVersion": "2.16"
     },
     {
       "name": "google_mlkit_text_recognition",
-      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/google_mlkit_text_recognition-0.12.1",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/google_mlkit_text_recognition-0.15.0",
       "packageUri": "lib/",
       "languageVersion": "2.16"
     },
@@ -483,9 +483,9 @@
     },
     {
       "name": "lints",
-      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/lints-5.1.1",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/lints-6.0.0",
       "packageUri": "lib/",
-      "languageVersion": "3.6"
+      "languageVersion": "3.8"
     },
     {
       "name": "logging",
@@ -531,7 +531,7 @@
     },
     {
       "name": "package_info_plus",
-      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/package_info_plus-8.3.1",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/package_info_plus-9.0.0",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     },
@@ -908,10 +908,16 @@
       "languageVersion": "2.17"
     },
     {
-      "name": "uri_to_file",
-      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/uri_to_file-0.2.0",
+      "name": "universal_platform",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/universal_platform-1.1.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "uri_to_file",
+      "rootUri": "file:///C:/Users/ahada/AppData/Local/Pub/Cache/hosted/pub.dev/uri_to_file-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
     },
     {
       "name": "url_launcher",
