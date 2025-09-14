@@ -5,6 +5,11 @@ import 'package:kivixa/data/database.dart';
 
 // --- Interface Definition ---
 abstract class Repository {
+  Future<Map<String, dynamic>?> getAudioClip(int audioClipId);
+  // Audio Clip methods
+  Future<int> createAudioClip(Map<String, dynamic> data);
+  Future<void> updateAudioClip(int audioClipId, Map<String, dynamic> data);
+
   /// Returns a list of assets, optionally filtered by hash.
   Future<List<Map<String, dynamic>>> listAssets({String? hash});
 
@@ -106,6 +111,35 @@ abstract class Repository {
 
 // --- Drift Implementation of the Repository ---
 class DocumentRepository implements Repository {
+  @override
+  Future<Map<String, dynamic>?> getAudioClip(int audioClipId) async {
+    throw UnimplementedError(
+      'getAudioClip not implemented: requires AudioClips table.',
+    );
+  }
+
+  // --- Audio Clip Methods ---
+  @override
+  Future<int> createAudioClip(Map<String, dynamic> data) async {
+    // You must add an AudioClips table to your database for this to work.
+    // For now, this is a stub that throws if not implemented.
+    throw UnimplementedError(
+      'createAudioClip not implemented: requires AudioClips table.',
+    );
+  }
+
+  @override
+  Future<void> updateAudioClip(
+    int audioClipId,
+    Map<String, dynamic> data,
+  ) async {
+    // You must add an AudioClips table to your database for this to work.
+    // For now, this is a stub that throws if not implemented.
+    throw UnimplementedError(
+      'updateAudioClip not implemented: requires AudioClips table.',
+    );
+  }
+
   @override
   Future<List<Map<String, dynamic>>> listAssets({String? hash}) async {
     // Example implementation: query assets table, filter by hash if provided
