@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert'; // Added for jsonEncode
+import 'package:drift/drift.dart' as drift; // Added for drift.InsertMode
 import 'package:kivixa/data/database.dart';
 
 class DocumentRepository {
@@ -46,8 +48,8 @@ class DocumentRepository {
     // This might involve updating a specific table for images or a field in your documents/pages table.
     // Example (assuming an 'images' table):
     // final companion = ImagesCompanion(
-    //   assetPath: data.containsKey('asset_path') ? Value(data['asset_path']) : const Value.absent(),
-    //   transform: data.containsKey('transform') ? Value(jsonEncode(data['transform'])) : const Value.absent(),
+    //   assetPath: data.containsKey('asset_path') ? drift.Value(data['asset_path']) : const drift.Value.absent(),
+    //   transform: data.containsKey('transform') ? drift.Value(jsonEncode(data['transform'])) : const drift.Value.absent(),
     // );
     // await (_db.update(_db.images)..where((tbl) => tbl.id.equals(imageId))).write(companion);
     print('DocumentRepository.updateImage called for imageId: $imageId with data: $data - Needs actual implementation!');
@@ -87,17 +89,36 @@ class DocumentRepository {
   }
 
   Future<void> createMinimapTile(Map<String, dynamic> tileData) async {
-    // TODO: Implement database logic to create/update a minimap tile.
-    // tileData might contain { 'document_id': ..., 'x': ..., 'y': ..., 'data': ... }
-    // Example (assuming a 'minimap_tiles' table):
-    // final companion = MinimapTilesCompanion.insert(
-    //   documentId: tileData['document_id'],
-    //   x: tileData['x'],
-    //   y: tileData['y'],
-    //   data: jsonEncode(tileData['data']), // Assuming data is stored as JSON
-    // );
-    // await _db.into(_db.minimapTiles).insert(companion);
-    print('DocumentRepository.createMinimapTile called with data: $tileData - Needs actual implementation!');
+    final documentId = tileData['document_id'] as int?;
+    final x = tileData['x'] as int?;
+    final y = tileData['y'] as int?;
+    final dynamic rawData = tileData['data'];
+
+    if (documentId == null || x == null || y == null || rawData == null) {
+      print('DocumentRepository.createMinimapTile: Missing required fields in tileData. $tileData');
+      // Optionally, throw an ArgumentError or handle more gracefully.
+      return;
+    }
+
+    final String jsonData;
+    if (rawData is String) {
+      jsonData = rawData;
+    } else {
+      jsonData = jsonEncode(rawData);
+    }
+
+    // Assuming your Drift table is MinimapTiles and the generated companion is MinimapTilesCompanion
+    // And it has columns: documentId (maps to tileData['document_id']), x, y, data (for jsonData)
+    final companion = MinimapTilesCompanion.insert(
+      documentId: documentId,
+      x: x,
+      y: y,
+      data: jsonData,
+    );
+
+    // Assuming _db.minimapTiles is the accessor for your table
+    await _db.into(_db.minimapTiles).insert(companion, mode: drift.InsertMode.replace);
+    // print('DocumentRepository.createMinimapTile called with data: $tileData - Implementation complete!');
   }
 }
 
