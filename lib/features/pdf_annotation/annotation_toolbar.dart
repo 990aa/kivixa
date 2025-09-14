@@ -29,7 +29,7 @@ class AnnotationToolbar extends StatelessWidget {
               onPressed: onHighlight,
             ),
             IconButton(
-              icon: const Icon(Icons.underline),
+              icon: const Icon(Icons.format_underlined), // Corrected icon name
               onPressed: onUnderline,
             ),
             IconButton(

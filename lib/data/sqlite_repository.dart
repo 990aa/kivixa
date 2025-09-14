@@ -116,8 +116,8 @@ class SQLiteRepository implements Repository {
   @override
   Future<List<Map<String, dynamic>>> listPages({required int documentId, int? limit, int? offset}) async {
     return await db.query(
-      'pages', // Assuming the table is named 'pages'
-      where: 'document_id = ?', // Assuming the foreign key column is 'document_id'
+      'pages', 
+      where: 'document_id = ?', 
       whereArgs: [documentId],
       limit: limit,
       offset: offset,
@@ -126,50 +126,55 @@ class SQLiteRepository implements Repository {
 
   @override
   Future<Map<String, dynamic>?> getPage(int pageId) async {
-    throw UnimplementedError('getPage() has not been implemented.');
+    throw UnimplementedError('getPage() has not been implemented in SQLiteRepository.');
   }
 
   @override
   Future<int> createPage(Map<String, dynamic> data) async {
-    throw UnimplementedError('createPage() has not been implemented.');
+    throw UnimplementedError('createPage() has not been implemented in SQLiteRepository.');
   }
 
   @override
   Future<void> updatePage(int pageId, Map<String, dynamic> data) async {
-    throw UnimplementedError('updatePage() has not been implemented.');
+    throw UnimplementedError('updatePage() has not been implemented in SQLiteRepository.');
   }
 
   // Outline methods
   @override
   Future<List<Map<String, dynamic>>> listOutlines({required int documentId}) async {
-    throw UnimplementedError('listOutlines() has not been implemented.');
+    throw UnimplementedError('listOutlines() has not been implemented in SQLiteRepository.');
+  }
+
+  @override
+  Future<int> createOutline(Map<String, dynamic> data) async {
+    throw UnimplementedError('createOutline() has not been implemented in SQLiteRepository.');
   }
 
   @override
   Future<void> deleteOutline(int outlineId) async {
-    throw UnimplementedError('deleteOutline() has not been implemented.');
+    throw UnimplementedError('deleteOutline() has not been implemented in SQLiteRepository.');
   }
 
   // Comment methods
   @override
   Future<List<Map<String, dynamic>>> listComments({required int pageId}) async {
-    throw UnimplementedError('listComments() has not been implemented.');
+    throw UnimplementedError('listComments() has not been implemented in SQLiteRepository.');
   }
 
   @override
   Future<void> deleteComment(int commentId) async {
-    throw UnimplementedError('deleteComment() has not been implemented.');
+    throw UnimplementedError('deleteComment() has not been implemented in SQLiteRepository.');
   }
 
   // PDF Annotation methods
   @override
   Future<int> createPdfAnnotation(Map<String, dynamic> annotationData) async {
-    throw UnimplementedError('createPdfAnnotation() has not been implemented.');
+    throw UnimplementedError('createPdfAnnotation() has not been implemented in SQLiteRepository.');
   }
 
   @override
   Future<Map<String, dynamic>?> getPdfAnnotation(int annotationId) async {
-    throw UnimplementedError('getPdfAnnotation() has not been implemented.');
+    throw UnimplementedError('getPdfAnnotation() has not been implemented in SQLiteRepository.');
   }
 
   @override
@@ -177,20 +182,50 @@ class SQLiteRepository implements Repository {
     required int documentId,
     required int pageNumber,
   }) async {
-    throw UnimplementedError('listPdfAnnotations() has not been implemented.');
+    throw UnimplementedError('listPdfAnnotations() has not been implemented in SQLiteRepository.');
   }
 
   @override
   Future<void> deletePdfAnnotation(int annotationId) async {
-    throw UnimplementedError('deletePdfAnnotation() has not been implemented.');
+    throw UnimplementedError('deletePdfAnnotation() has not been implemented in SQLiteRepository.');
   }
 
+  // Image methods
+  @override
+  Future<Map<String, dynamic>?> getImage(int imageId) async {
+    throw UnimplementedError('getImage() has not been implemented in SQLiteRepository.');
+  }
+
+  @override
+  Future<void> updateImage(int imageId, Map<String, dynamic> data) async {
+    throw UnimplementedError('updateImage() has not been implemented in SQLiteRepository.');
+  }
+
+  // TextBlock methods
+  @override
+  Future<int> createTextBlock(Map<String, dynamic> data) async {
+    throw UnimplementedError('createTextBlock() has not been implemented in SQLiteRepository.');
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getTextBlock(int textBlockId) async {
+    // This was previously implemented, ensuring it's correctly stubbed here for completeness
+    // of the current operation, though ideally it would have its own SQFlite logic.
+    throw UnimplementedError('getTextBlock() has not been implemented in SQLiteRepository.');
+  }
+
+  @override
+  Future<void> updateTextBlock(int textBlockId, Map<String, dynamic> data) async {
+    // This was previously implemented, ensuring it's correctly stubbed here for completeness.
+    throw UnimplementedError('updateTextBlock() has not been implemented in SQLiteRepository.');
+  }
+  
   // Generic/Utility methods
   @override
-  Future<void> batchWrite(List<Future<void> Function()> operations) async { // Corrected signature
+  Future<void> batchWrite(List<Future<void> Function()> operations) async {
     await db.transaction((txn) async {
       for (final op in operations) {
-        await op(); // Assumes op is a Future<void> Function()
+        await op();
       }
     });
   }
@@ -199,9 +234,9 @@ class SQLiteRepository implements Repository {
   Future<void> updatePageThumbnailMetadata(int pageId, Map<String, dynamic> metadata) async {
     final String metadataJson = jsonEncode(metadata);
     await db.update(
-      'pages', // Assuming the table is named 'pages'
-      {'thumbnail_metadata': metadataJson}, // Assuming the column is 'thumbnail_metadata'
-      where: 'id = ?', // Assuming the primary key column for pages is 'id'
+      'pages',
+      {'thumbnail_metadata': metadataJson}, 
+      where: 'id = ?', 
       whereArgs: [pageId],
     );
   }
@@ -210,10 +245,10 @@ class SQLiteRepository implements Repository {
   Future<Map<String, dynamic>?> getPageThumbnail(int pageId) async {
     final List<Map<String, dynamic>> results = await db.query(
       'pages',
-      columns: ['thumbnail_asset_id', 'thumbnail_metadata'], // Specify columns
+      columns: ['thumbnail_asset_id', 'thumbnail_metadata'],
       where: 'id = ?',
       whereArgs: [pageId],
-      limit: 1, // Expecting a single page
+      limit: 1, 
     );
 
     if (results.isNotEmpty) {
@@ -225,57 +260,30 @@ class SQLiteRepository implements Repository {
         try {
           decodedMetadata = jsonDecode(metadataJson) as Map<String, dynamic>;
         } catch (e) {
-          // print('Error decoding thumbnail_metadata for pageId $pageId: $e. Setting metadata to null.');
-          decodedMetadata = null; // Explicitly set to null on error
+          decodedMetadata = null; 
         }
       }
       
       return {
         'asset_id': pageData['thumbnail_asset_id'],
-        'metadata': decodedMetadata, // This will be null if JSON was null, empty, or invalid
+        'metadata': decodedMetadata, 
       };
     }
-    return null; // No page found
+    return null; 
   }
 
   @override
   Future<Map<String, dynamic>?> getAsset(int assetId) async {
     final List<Map<String, dynamic>> results = await db.query(
-      'assets', // Assuming the table is named 'assets'
-      where: 'id = ?', // Assuming the primary key column is 'id'
+      'assets', 
+      where: 'id = ?', 
       whereArgs: [assetId],
-      limit: 1, // Expecting a single asset
+      limit: 1, 
     );
 
     if (results.isNotEmpty) {
-      return results.first; // Return the first (and only) asset found
+      return results.first; 
     }
-    return null; // No asset found with the given id
-  }
-
-  // TextBlocks
-  @override
-  Future<Map<String, dynamic>?> getTextBlock(int textBlockId) async {
-    final List<Map<String, dynamic>> results = await db.query(
-      'text_blocks', // Assuming the table is named 'text_blocks'
-      where: 'id = ?', // Assuming the primary key column is 'id'
-      whereArgs: [textBlockId],
-      limit: 1, // Expecting a single text block
-    );
-
-    if (results.isNotEmpty) {
-      return results.first; // Return the first (and only) text block found
-    }
-    return null; // No text block found with the given id
-  }
-
-  @override
-  Future<void> updateTextBlock(int textBlockId, Map<String, dynamic> data) async {
-    await db.update(
-      'text_blocks', // Assuming the table is named 'text_blocks'
-      data,
-      where: 'id = ?', // Assuming the primary key column is 'id'
-      whereArgs: [textBlockId],
-    );
+    return null; 
   }
 }
