@@ -1,5 +1,3 @@
-
-
 // Placeholder for an audio processing library
 abstract class AudioProcessingLibrary {
   static Future<List<double>> computeWaveform(String path) async {

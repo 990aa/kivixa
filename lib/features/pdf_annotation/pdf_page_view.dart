@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pdfrx/pdfrx.dart';
+import 'package:pdfrx/pdfrx.dart' show PdfView;
 
 class PdfPageView extends StatefulWidget {
   final String pdfPath;
@@ -13,6 +13,6 @@ class PdfPageView extends StatefulWidget {
 class _PdfPageViewState extends State<PdfPageView> {
   @override
   Widget build(BuildContext context) {
-    return PdfViewer.openFile(widget.pdfPath);
+    return PdfView.openFile(widget.pdfPath);
   }
 }

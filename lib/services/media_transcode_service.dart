@@ -1,5 +1,3 @@
-
-
 class MediaTranscodeService {
   Future<String> downsampleAudio(String inputPath) async {
     final receivePort = ReceivePort();
