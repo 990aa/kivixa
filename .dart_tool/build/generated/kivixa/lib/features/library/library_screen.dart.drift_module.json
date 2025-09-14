@@ -6,7 +6,7 @@
     "package:connectivity_plus/connectivity_plus.dart",
     "package:kivixa/features/library/documents_notifier.dart",
     "package:kivixa/features/library/sidebar.dart",
-    "package:kivixa/core/providers.dart",
+    "package:kivixa/providers.dart",
     "package:kivixa/widgets/empty_state_animated.dart",
     "package:kivixa/widgets/contextual_help_overlay.dart",
     "package:kivixa/widgets/premium_error_dialog.dart"
