@@ -36,7 +36,7 @@ class InfiniteCanvasCreation {
       if (template != null) {
         // Apply template data to the document.
         // This is a simplified representation. A real implementation would be more complex.
-            template['content']; // Assuming content is stored in the template
+        template['content']; // Assuming content is stored in the template
         // Here you would parse the content and create the initial strokes, text blocks, etc.
       }
     }

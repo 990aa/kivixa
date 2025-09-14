@@ -45,7 +45,11 @@ class LayersService {
     ]);
   }
 
-  Future<void> _updateItemLayer(int itemId, int layerId, String itemType) async {
+  Future<void> _updateItemLayer(
+    int itemId,
+    int layerId,
+    String itemType,
+  ) async {
     switch (itemType) {
       case 'stroke':
         // Stub: implement this when strokeChunks table is available in Drift schema

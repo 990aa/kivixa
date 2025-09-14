@@ -16,7 +16,6 @@ class LibraryService {
       case SortBy.name:
         return 'title ASC';
       case SortBy.date:
-      default:
         return 'updated_at DESC';
     }
   }
@@ -28,21 +27,8 @@ class LibraryService {
     SortBy sortBy = SortBy.date,
   }) async {
     final offset = (page - 1) * limit;
-    String? orderBy;
-    switch (sortBy) {
-      case SortBy.name:
-        orderBy = 'title ASC';
-        break;
-      case SortBy.date:
-      default:
-        orderBy = 'updated_at DESC';
-        break;
-    }
-    return await _repo.listNotebooks(
-      limit: limit,
-      offset: offset,
-      orderBy: orderBy,
-    );
+    // orderBy parameter removed: not supported by repository
+    return await _repo.listNotebooks(limit: limit, offset: offset);
   }
 
   // Lists documents and folders within a given parent.

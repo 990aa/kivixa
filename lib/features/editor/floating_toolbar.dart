@@ -28,8 +28,11 @@ class _FloatingToolbarState extends State<FloatingToolbar>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
-      // _simulation was removed
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    // _simulation was removed
   }
 
   @override
@@ -37,7 +40,6 @@ class _FloatingToolbarState extends State<FloatingToolbar>
     _controller.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {

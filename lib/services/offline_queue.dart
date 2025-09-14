@@ -19,11 +19,11 @@ class OfflineQueue {
       payload: jsonEncode(payload),
       // createdAt and updatedAt will use DB defaults
     );
-  final newId = await _db.into(_db.jobQueue).insert(companion);
+    final newId = await _db.into(_db.jobQueues).insert(companion);
 
     // Fetch the complete job data from the DB to ensure all fields (including DB defaults) are populated
     final jobData = await (_db.select(
-      _db.jobQueue,
+      _db.jobQueues,
     )..where((tbl) => tbl.id.equals(newId))).getSingle();
     _controller.add(Job.fromData(jobData));
     return newId;
@@ -32,7 +32,7 @@ class OfflineQueue {
   Future<void> processQueue() async {
     // Fetch jobs ordered by creation time
     final jobsToProcess =
-        await (_db.select(_db.jobQueue)
+        await (_db.select(_db.jobQueues)
               ..where(
                 (tbl) => tbl.status.equals('pending'),
               ) // Only process pending jobs
@@ -45,19 +45,19 @@ class OfflineQueue {
         await _processJob(job);
         // If successful, delete the job from the queue
         await (_db.delete(
-          _db.jobQueue,
+          _db.jobQueues,
         )..where((tbl) => tbl.id.equals(job.id!))).go();
         // Optionally, notify about successful completion if needed
       } catch (e) {
         // If processing fails, update attempts and reset status if necessary
         final updatedJob = job.copyWith(
-          attempts: job.attempts + 1,
           status:
               'pending', // Or a specific 'failed_retry' status if you have one
           updatedAt: DateTime.now(),
         );
-    await (_db.update(_db.jobQueue)..where((tbl) => tbl.id.equals(job.id!)))
-      .write(updatedJob.toCompanion());
+        await (_db.update(_db.jobQueues)
+              ..where((tbl) => tbl.id.equals(job.id!)))
+            .write(updatedJob.toCompanion());
         _controller.add(updatedJob); // Notify listeners about the update
         // print('Error processing job ${job.id}: $e. Will retry.');
       }
@@ -67,7 +67,7 @@ class OfflineQueue {
   Future<void> _processJob(Job job) async {
     // Update job status to 'in_progress'
     await (_db.update(
-      _db.jobQueue,
+      _db.jobQueues,
     )..where((tbl) => tbl.id.equals(job.id!))).write(
       JobQueuesCompanion.custom(
         status: const Variable<String>('in_progress'),
@@ -107,9 +107,8 @@ class Job {
   });
 
   // Factory constructor from Drift's generated data class
-  Job.fromData(
-    JobQueue data,
-  ) : id = data.id,
+  Job.fromData(JobQueue data)
+    : id = data.id,
       jobType = data.jobType,
       payload = data.payload,
       createdAt = data.createdAt,
@@ -118,23 +117,22 @@ class Job {
 
   // Constructor from a companion, ensuring defaults for non-nullable fields if companion values are absent
   Job.fromCompanion(this.id, JobQueuesCompanion companion)
-  : jobType = companion.jobType.present
-      ? companion.jobType.value
-      : 'unknown_type',
-    payload = companion.payload.present ? companion.payload.value : '{}',
-    createdAt = companion.createdAt.present
-      ? companion.createdAt.value
-      : DateTime.now(),
-    status = companion.status.present ? companion.status.value : 'pending',
-    updatedAt = companion.updatedAt.present
-      ? companion.updatedAt.value
-      : DateTime.now();
+    : jobType = companion.jobType.present
+          ? companion.jobType.value
+          : 'unknown_type',
+      payload = companion.payload.present ? companion.payload.value : '{}',
+      createdAt = companion.createdAt.present
+          ? companion.createdAt.value
+          : DateTime.now(),
+      status = companion.status.present ? companion.status.value : 'pending',
+      updatedAt = companion.updatedAt.present
+          ? companion.updatedAt.value
+          : DateTime.now();
 
   Job copyWith({
     int? id,
     String? jobType,
     String? payload,
-    int? attempts,
     DateTime? createdAt,
     String? status,
     DateTime? updatedAt,
@@ -143,7 +141,6 @@ class Job {
       id: id ?? this.id,
       jobType: jobType ?? this.jobType,
       payload: payload ?? this.payload,
-      attempts: attempts ?? this.attempts,
       createdAt: createdAt ?? this.createdAt,
       status: status ?? this.status,
       updatedAt: updatedAt ?? this.updatedAt,

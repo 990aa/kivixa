@@ -1,10 +1,6 @@
 import 'package:kivixa/services/offline_queue.dart';
 
-enum ExportFormat {
-  nativeZip,
-  flatPdf,
-  images,
-}
+enum ExportFormat { nativeZip, flatPdf, images }
 
 class ExportOptions {
   final ExportFormat format;
@@ -27,9 +23,7 @@ class ImageExportOptions extends ExportOptions {
     required super.destination,
     this.dpi = 300,
     this.quality = 90,
-  }) : super(
-          format: ExportFormat.images,
-        );
+  }) : super(format: ExportFormat.images);
 }
 
 class ExportService {
@@ -48,7 +42,10 @@ class ExportService {
       payload['quality'] = options.quality;
     }
 
-    final jobId = await _offlineQueue.enqueue(options.format.toString(), payload);
+    final jobId = await _offlineQueue.enqueue(
+      options.format.toString(),
+      payload,
+    );
     return jobId;
   }
 }

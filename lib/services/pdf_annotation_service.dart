@@ -30,7 +30,18 @@ class PdfAnnotation {
       'id': id,
       'document_id': documentId,
       'page_number': pageNumber,
-      'rects': jsonEncode(rects.map((r) => {'left': r.left, 'top': r.top, 'right': r.right, 'bottom': r.bottom}).toList()),
+      'rects': jsonEncode(
+        rects
+            .map(
+              (r) => {
+                'left': r.left,
+                'top': r.top,
+                'right': r.right,
+                'bottom': r.bottom,
+              },
+            )
+            .toList(),
+      ),
       'type': type.index,
       'text': text,
       'provenance': jsonEncode(provenance),
@@ -42,10 +53,16 @@ class PdfAnnotation {
       id: map['id'],
       documentId: map['document_id'],
       pageNumber: map['page_number'],
-      rects: (jsonDecode(map['rects']) as List).map((r) => Rect.fromLTRB(r['left'], r['top'], r['right'], r['bottom'])).toList(),
+      rects: (jsonDecode(map['rects']) as List)
+          .map(
+            (r) => Rect.fromLTRB(r['left'], r['top'], r['right'], r['bottom']),
+          )
+          .toList(),
       type: AnnotationType.values[map['type']],
       text: map['text'],
-      provenance: map['provenance'] != null ? (jsonDecode(map['provenance']) as List).cast<String>() : [],
+      provenance: map['provenance'] != null
+          ? (jsonDecode(map['provenance']) as List).cast<String>()
+          : [],
     );
   }
 }
@@ -61,17 +78,21 @@ class PdfAnnotationService {
     final annotationId = await _repo.createPdfAnnotation(annotation.toMap());
 
     if (comment != null && comment.isNotEmpty) {
-        // final outlineData = { // Removed unused local variable
-        //   'documentId': annotation.documentId,
-        //   'pageNumber': annotation.pageNumber,
-        //   'text': annotation.text,
-        //   'type': 'pdf_annotation',
-        //   'annotationId': annotationId,
-        // };
-      
+      // final outlineData = { // Removed unused local variable
+      //   'documentId': annotation.documentId,
+      //   'pageNumber': annotation.pageNumber,
+      //   'text': annotation.text,
+      //   'type': 'pdf_annotation',
+      //   'annotationId': annotationId,
+      // };
+
       // I'm assuming pageId can be retrieved from documentId and pageNumber
       // This is a simplification. A more robust solution would be needed.
-      final pages = await _repo.listPages(documentId: annotation.documentId, limit: 1, offset: annotation.pageNumber -1);
+      final pages = await _repo.listPages(
+        documentId: annotation.documentId,
+        limit: 1,
+        offset: annotation.pageNumber - 1,
+      );
       if (pages.isNotEmpty) {
         final pageId = pages.first['id'];
         await _commentsService.addComment(pageId, comment);
@@ -81,8 +102,14 @@ class PdfAnnotationService {
     return annotationId;
   }
 
-  Future<List<PdfAnnotation>> getAnnotationsForPage(int documentId, int pageNumber) async {
-    final maps = await _repo.listPdfAnnotations(documentId: documentId, pageNumber: pageNumber);
+  Future<List<PdfAnnotation>> getAnnotationsForPage(
+    int documentId,
+    int pageNumber,
+  ) async {
+    final maps = await _repo.listPdfAnnotations(
+      documentId: documentId,
+      pageNumber: pageNumber,
+    );
     return maps.map((map) => PdfAnnotation.fromMap(map)).toList();
   }
 
