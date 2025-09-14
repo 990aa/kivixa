@@ -101,9 +101,8 @@ class Job {
         updatedAt = data.updatedAt;
 
   // Constructor from a companion, ensuring defaults for non-nullable fields if companion values are absent
-  Job.fromCompanion(int id, JobQueueCompanion companion)
-      : id = id,
-        jobType = companion.jobType.present ? companion.jobType.value : 'unknown_type',
+  Job.fromCompanion(this.id, JobQueueCompanion companion)
+      : jobType = companion.jobType.present ? companion.jobType.value : 'unknown_type',
         payload = companion.payload.present ? companion.payload.value : '{}',
         attempts = companion.attempts.present ? companion.attempts.value : 0,
         createdAt = companion.createdAt.present ? companion.createdAt.value : DateTime.now(),
