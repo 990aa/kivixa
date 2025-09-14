@@ -7,7 +7,7 @@ class SafeUndoRedoService {
   SafeUndoRedoService(this._db);
 
   Future<void> undo() async {
-    final lastAction = await (_db.select(_db.redoLog)..orderBy([(t) => t.ts.desc()])).getSingleOrNull();
+    final lastAction = await (_db.select(_db.redoLog)..orderBy([(t) => OrderingTerm(expression: t.ts, mode: OrderingMode.desc)])).getSingleOrNull();
     if (lastAction == null) {
       return;
     }

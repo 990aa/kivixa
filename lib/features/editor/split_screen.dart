@@ -44,11 +44,13 @@ class _SplitScreenState extends State<SplitScreen> {
                     _dividerPosition = (details.globalPosition.dx / width).clamp(0.1, 0.9);
                   });
                 },
-                child: Container(
-                  width: 4,
-                  height: constraints.maxHeight,
-                  color: Colors.blue,
+                child: MouseRegion(
                   cursor: SystemMouseCursors.resizeLeftRight,
+                  child: Container(
+                    width: 4,
+                    height: constraints.maxHeight,
+                    color: Colors.blue,
+                  ),
                 ),
               ),
             ),
