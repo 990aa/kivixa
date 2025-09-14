@@ -37,7 +37,7 @@ class SQLiteRepository implements Repository {
     await db.delete('notebooks', where: 'id = ?', whereArgs: [id]);
   }
 
-  // Documents (example)
+  // Documents
   @override
   Future<int> createDocument(Map<String, dynamic> data) async {
     return await db.insert('documents', data);
@@ -112,6 +112,7 @@ class SQLiteRepository implements Repository {
     );
   }
 
+  // Page methods
   @override
   Future<List<Map<String, dynamic>>> listPages({required int documentId, int? limit, int? offset}) async {
     return await db.query(
@@ -124,10 +125,72 @@ class SQLiteRepository implements Repository {
   }
 
   @override
-  Future<void> batchWrite(List<Function()> operations) async {
+  Future<Map<String, dynamic>?> getPage(int pageId) async {
+    throw UnimplementedError('getPage() has not been implemented.');
+  }
+
+  @override
+  Future<int> createPage(Map<String, dynamic> data) async {
+    throw UnimplementedError('createPage() has not been implemented.');
+  }
+
+  @override
+  Future<void> updatePage(int pageId, Map<String, dynamic> data) async {
+    throw UnimplementedError('updatePage() has not been implemented.');
+  }
+
+  // Outline methods
+  @override
+  Future<List<Map<String, dynamic>>> listOutlines({required int documentId}) async {
+    throw UnimplementedError('listOutlines() has not been implemented.');
+  }
+
+  @override
+  Future<void> deleteOutline(int outlineId) async {
+    throw UnimplementedError('deleteOutline() has not been implemented.');
+  }
+
+  // Comment methods
+  @override
+  Future<List<Map<String, dynamic>>> listComments({required int pageId}) async {
+    throw UnimplementedError('listComments() has not been implemented.');
+  }
+
+  @override
+  Future<void> deleteComment(int commentId) async {
+    throw UnimplementedError('deleteComment() has not been implemented.');
+  }
+
+  // PDF Annotation methods
+  @override
+  Future<int> createPdfAnnotation(Map<String, dynamic> annotationData) async {
+    throw UnimplementedError('createPdfAnnotation() has not been implemented.');
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getPdfAnnotation(int annotationId) async {
+    throw UnimplementedError('getPdfAnnotation() has not been implemented.');
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> listPdfAnnotations({
+    required int documentId,
+    required int pageNumber,
+  }) async {
+    throw UnimplementedError('listPdfAnnotations() has not been implemented.');
+  }
+
+  @override
+  Future<void> deletePdfAnnotation(int annotationId) async {
+    throw UnimplementedError('deletePdfAnnotation() has not been implemented.');
+  }
+
+  // Generic/Utility methods
+  @override
+  Future<void> batchWrite(List<Future<void> Function()> operations) async { // Corrected signature
     await db.transaction((txn) async {
       for (final op in operations) {
-        await op();
+        await op(); // Assumes op is a Future<void> Function()
       }
     });
   }
