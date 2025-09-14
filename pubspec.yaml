@@ -55,7 +55,8 @@ dependencies:
   archive: ^4.0.7
   package_info_plus: ^8.0.0
   pdf_render: ^1.4.12
-  pdfx: ^2.8.0
+  # pdfx: ^2.8.0
+  pdfrx: ^2.1.14  # Latest stable version
 
   # ML/OCR (Android)
   google_mlkit_text_recognition: ^0.12.0

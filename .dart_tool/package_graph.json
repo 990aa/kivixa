@@ -34,7 +34,7 @@
         "path_provider",
         "pdf",
         "pdf_render",
-        "pdfx",
+        "pdfrx",
         "phosphor_flutter",
         "pointycastle",
         "riverpod",
@@ -366,18 +366,21 @@
       ]
     },
     {
-      "name": "pdfx",
-      "version": "2.9.2",
+      "name": "pdfrx",
+      "version": "2.1.14",
       "dependencies": [
-        "extension",
+        "collection",
+        "crypto",
+        "dart_pubspec_licenses",
+        "ffi",
         "flutter",
-        "flutter_web_plugins",
-        "meta",
-        "photo_view",
-        "plugin_platform_interface",
+        "http",
+        "path",
+        "path_provider",
+        "pdfrx_engine",
+        "rxdart",
         "synchronized",
-        "universal_platform",
-        "uuid",
+        "url_launcher",
         "vector_math",
         "web"
       ]
@@ -1219,27 +1222,24 @@
       ]
     },
     {
-      "name": "photo_view",
-      "version": "0.15.0",
-      "dependencies": [
-        "flutter"
-      ]
-    },
-    {
-      "name": "universal_platform",
-      "version": "1.1.0",
-      "dependencies": []
-    },
-    {
       "name": "synchronized",
       "version": "3.4.0",
       "dependencies": []
     },
     {
-      "name": "extension",
-      "version": "0.6.0",
+      "name": "pdfrx_engine",
+      "version": "0.1.15",
       "dependencies": [
-        "meta"
+        "archive",
+        "collection",
+        "crypto",
+        "ffi",
+        "http",
+        "image",
+        "path",
+        "rxdart",
+        "synchronized",
+        "vector_math"
       ]
     },
     {
@@ -1570,6 +1570,93 @@
     {
       "name": "vm_service",
       "version": "15.0.2",
+      "dependencies": []
+    },
+    {
+      "name": "url_launcher",
+      "version": "6.3.2",
+      "dependencies": [
+        "flutter",
+        "url_launcher_android",
+        "url_launcher_ios",
+        "url_launcher_linux",
+        "url_launcher_macos",
+        "url_launcher_platform_interface",
+        "url_launcher_web",
+        "url_launcher_windows"
+      ]
+    },
+    {
+      "name": "dart_pubspec_licenses",
+      "version": "3.0.8",
+      "dependencies": [
+        "args",
+        "json_annotation",
+        "path",
+        "yaml"
+      ]
+    },
+    {
+      "name": "url_launcher_platform_interface",
+      "version": "2.3.2",
+      "dependencies": [
+        "flutter",
+        "plugin_platform_interface"
+      ]
+    },
+    {
+      "name": "url_launcher_linux",
+      "version": "3.2.1",
+      "dependencies": [
+        "flutter",
+        "url_launcher_platform_interface"
+      ]
+    },
+    {
+      "name": "url_launcher_windows",
+      "version": "3.1.4",
+      "dependencies": [
+        "flutter",
+        "url_launcher_platform_interface"
+      ]
+    },
+    {
+      "name": "url_launcher_macos",
+      "version": "3.2.3",
+      "dependencies": [
+        "flutter",
+        "url_launcher_platform_interface"
+      ]
+    },
+    {
+      "name": "url_launcher_ios",
+      "version": "6.3.4",
+      "dependencies": [
+        "flutter",
+        "url_launcher_platform_interface"
+      ]
+    },
+    {
+      "name": "url_launcher_web",
+      "version": "2.4.1",
+      "dependencies": [
+        "flutter",
+        "flutter_web_plugins",
+        "url_launcher_platform_interface",
+        "web"
+      ]
+    },
+    {
+      "name": "url_launcher_android",
+      "version": "6.3.21",
+      "dependencies": [
+        "flutter",
+        "url_launcher_platform_interface"
+      ]
+    },
+    {
+      "name": "rxdart",
+      "version": "0.28.0",
       "dependencies": []
     }
   ],
