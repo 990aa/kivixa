@@ -73,7 +73,7 @@ class Comments extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get pageId => integer()();
   TextColumn get content => text()();
-  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)(); // Added createdAt
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 @DataClassName('TextBlockData')
@@ -81,6 +81,16 @@ class TextBlocks extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get layerId => integer()();
   TextColumn get content => text()();
+}
+
+@DataClassName('ImageData')
+class Images extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get assetPath => text()();
+  TextColumn get thumbnailPath => text().nullable()();
+  TextColumn get transform => text().nullable()(); // For JSON encoded transform data
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 @DataClassName('RedoLogData')
@@ -104,13 +114,13 @@ class Assets extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-@DataClassName('MinimapTile') // Added DataClassName for consistency
+@DataClassName('MinimapTile')
 class MinimapTiles extends Table {
-  IntColumn get id => integer().autoIncrement()(); // Primary key for the tile itself
+  IntColumn get id => integer().autoIncrement()();
   IntColumn get documentId => integer()();
   IntColumn get x => integer()();
   IntColumn get y => integer()();
-  TextColumn get data => text()(); // JSON encoded tile data
+  TextColumn get data => text()();
 }
 
 @DriftDatabase(
@@ -124,6 +134,7 @@ class MinimapTiles extends Table {
     Outlines,
     Comments,
     TextBlocks,
+    Images, // Added Images table
     RedoLog,
     Assets,
     ChecklistItems,
@@ -135,7 +146,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4; // Incremented schema version to 4
+  int get schemaVersion => 5; // Incremented schema version to 5
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -147,10 +158,11 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(pages);
       }
       if (from < 4) {
-        // We added the createdAt column to Comments in version 4
         await m.addColumn(comments, comments.createdAt);
       }
-      // Add other migration steps for future versions here
+      if (from < 5) {
+        await m.createTable(images); // images is the auto-generated table object
+      }
     },
   );
 }

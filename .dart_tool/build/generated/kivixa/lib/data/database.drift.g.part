@@ -2859,6 +2859,416 @@ class TextBlocksCompanion extends UpdateCompanion<TextBlockData> {
   }
 }
 
+class $ImagesTable extends Images with TableInfo<$ImagesTable, ImageData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ImagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _assetPathMeta = const VerificationMeta(
+    'assetPath',
+  );
+  @override
+  late final GeneratedColumn<String> assetPath = GeneratedColumn<String>(
+    'asset_path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _thumbnailPathMeta = const VerificationMeta(
+    'thumbnailPath',
+  );
+  @override
+  late final GeneratedColumn<String> thumbnailPath = GeneratedColumn<String>(
+    'thumbnail_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _transformMeta = const VerificationMeta(
+    'transform',
+  );
+  @override
+  late final GeneratedColumn<String> transform = GeneratedColumn<String>(
+    'transform',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    assetPath,
+    thumbnailPath,
+    transform,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'images';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ImageData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('asset_path')) {
+      context.handle(
+        _assetPathMeta,
+        assetPath.isAcceptableOrUnknown(data['asset_path']!, _assetPathMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_assetPathMeta);
+    }
+    if (data.containsKey('thumbnail_path')) {
+      context.handle(
+        _thumbnailPathMeta,
+        thumbnailPath.isAcceptableOrUnknown(
+          data['thumbnail_path']!,
+          _thumbnailPathMeta,
+        ),
+      );
+    }
+    if (data.containsKey('transform')) {
+      context.handle(
+        _transformMeta,
+        transform.isAcceptableOrUnknown(data['transform']!, _transformMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ImageData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ImageData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      assetPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}asset_path'],
+      )!,
+      thumbnailPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}thumbnail_path'],
+      ),
+      transform: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transform'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ImagesTable createAlias(String alias) {
+    return $ImagesTable(attachedDatabase, alias);
+  }
+}
+
+class ImageData extends DataClass implements Insertable<ImageData> {
+  final int id;
+  final String assetPath;
+  final String? thumbnailPath;
+  final String? transform;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const ImageData({
+    required this.id,
+    required this.assetPath,
+    this.thumbnailPath,
+    this.transform,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['asset_path'] = Variable<String>(assetPath);
+    if (!nullToAbsent || thumbnailPath != null) {
+      map['thumbnail_path'] = Variable<String>(thumbnailPath);
+    }
+    if (!nullToAbsent || transform != null) {
+      map['transform'] = Variable<String>(transform);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  ImagesCompanion toCompanion(bool nullToAbsent) {
+    return ImagesCompanion(
+      id: Value(id),
+      assetPath: Value(assetPath),
+      thumbnailPath: thumbnailPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(thumbnailPath),
+      transform: transform == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transform),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory ImageData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ImageData(
+      id: serializer.fromJson<int>(json['id']),
+      assetPath: serializer.fromJson<String>(json['assetPath']),
+      thumbnailPath: serializer.fromJson<String?>(json['thumbnailPath']),
+      transform: serializer.fromJson<String?>(json['transform']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'assetPath': serializer.toJson<String>(assetPath),
+      'thumbnailPath': serializer.toJson<String?>(thumbnailPath),
+      'transform': serializer.toJson<String?>(transform),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  ImageData copyWith({
+    int? id,
+    String? assetPath,
+    Value<String?> thumbnailPath = const Value.absent(),
+    Value<String?> transform = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => ImageData(
+    id: id ?? this.id,
+    assetPath: assetPath ?? this.assetPath,
+    thumbnailPath: thumbnailPath.present
+        ? thumbnailPath.value
+        : this.thumbnailPath,
+    transform: transform.present ? transform.value : this.transform,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  ImageData copyWithCompanion(ImagesCompanion data) {
+    return ImageData(
+      id: data.id.present ? data.id.value : this.id,
+      assetPath: data.assetPath.present ? data.assetPath.value : this.assetPath,
+      thumbnailPath: data.thumbnailPath.present
+          ? data.thumbnailPath.value
+          : this.thumbnailPath,
+      transform: data.transform.present ? data.transform.value : this.transform,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImageData(')
+          ..write('id: $id, ')
+          ..write('assetPath: $assetPath, ')
+          ..write('thumbnailPath: $thumbnailPath, ')
+          ..write('transform: $transform, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    assetPath,
+    thumbnailPath,
+    transform,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ImageData &&
+          other.id == this.id &&
+          other.assetPath == this.assetPath &&
+          other.thumbnailPath == this.thumbnailPath &&
+          other.transform == this.transform &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ImagesCompanion extends UpdateCompanion<ImageData> {
+  final Value<int> id;
+  final Value<String> assetPath;
+  final Value<String?> thumbnailPath;
+  final Value<String?> transform;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const ImagesCompanion({
+    this.id = const Value.absent(),
+    this.assetPath = const Value.absent(),
+    this.thumbnailPath = const Value.absent(),
+    this.transform = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  ImagesCompanion.insert({
+    this.id = const Value.absent(),
+    required String assetPath,
+    this.thumbnailPath = const Value.absent(),
+    this.transform = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : assetPath = Value(assetPath);
+  static Insertable<ImageData> custom({
+    Expression<int>? id,
+    Expression<String>? assetPath,
+    Expression<String>? thumbnailPath,
+    Expression<String>? transform,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (assetPath != null) 'asset_path': assetPath,
+      if (thumbnailPath != null) 'thumbnail_path': thumbnailPath,
+      if (transform != null) 'transform': transform,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  ImagesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? assetPath,
+    Value<String?>? thumbnailPath,
+    Value<String?>? transform,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return ImagesCompanion(
+      id: id ?? this.id,
+      assetPath: assetPath ?? this.assetPath,
+      thumbnailPath: thumbnailPath ?? this.thumbnailPath,
+      transform: transform ?? this.transform,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (assetPath.present) {
+      map['asset_path'] = Variable<String>(assetPath.value);
+    }
+    if (thumbnailPath.present) {
+      map['thumbnail_path'] = Variable<String>(thumbnailPath.value);
+    }
+    if (transform.present) {
+      map['transform'] = Variable<String>(transform.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImagesCompanion(')
+          ..write('id: $id, ')
+          ..write('assetPath: $assetPath, ')
+          ..write('thumbnailPath: $thumbnailPath, ')
+          ..write('transform: $transform, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $RedoLogTable extends RedoLog with TableInfo<$RedoLogTable, RedoLogData> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -4539,6 +4949,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $OutlinesTable outlines = $OutlinesTable(this);
   late final $CommentsTable comments = $CommentsTable(this);
   late final $TextBlocksTable textBlocks = $TextBlocksTable(this);
+  late final $ImagesTable images = $ImagesTable(this);
   late final $RedoLogTable redoLog = $RedoLogTable(this);
   late final $AssetsTable assets = $AssetsTable(this);
   late final $ChecklistItemsTable checklistItems = $ChecklistItemsTable(this);
@@ -4558,6 +4969,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     outlines,
     comments,
     textBlocks,
+    images,
     redoLog,
     assets,
     checklistItems,
@@ -6398,6 +6810,215 @@ typedef $$TextBlocksTableProcessedTableManager =
       TextBlockData,
       PrefetchHooks Function()
     >;
+typedef $$ImagesTableCreateCompanionBuilder =
+    ImagesCompanion Function({
+      Value<int> id,
+      required String assetPath,
+      Value<String?> thumbnailPath,
+      Value<String?> transform,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$ImagesTableUpdateCompanionBuilder =
+    ImagesCompanion Function({
+      Value<int> id,
+      Value<String> assetPath,
+      Value<String?> thumbnailPath,
+      Value<String?> transform,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+class $$ImagesTableFilterComposer
+    extends Composer<_$AppDatabase, $ImagesTable> {
+  $$ImagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get assetPath => $composableBuilder(
+    column: $table.assetPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get thumbnailPath => $composableBuilder(
+    column: $table.thumbnailPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get transform => $composableBuilder(
+    column: $table.transform,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ImagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ImagesTable> {
+  $$ImagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get assetPath => $composableBuilder(
+    column: $table.assetPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get thumbnailPath => $composableBuilder(
+    column: $table.thumbnailPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get transform => $composableBuilder(
+    column: $table.transform,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ImagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ImagesTable> {
+  $$ImagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get assetPath =>
+      $composableBuilder(column: $table.assetPath, builder: (column) => column);
+
+  GeneratedColumn<String> get thumbnailPath => $composableBuilder(
+    column: $table.thumbnailPath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get transform =>
+      $composableBuilder(column: $table.transform, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$ImagesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ImagesTable,
+          ImageData,
+          $$ImagesTableFilterComposer,
+          $$ImagesTableOrderingComposer,
+          $$ImagesTableAnnotationComposer,
+          $$ImagesTableCreateCompanionBuilder,
+          $$ImagesTableUpdateCompanionBuilder,
+          (ImageData, BaseReferences<_$AppDatabase, $ImagesTable, ImageData>),
+          ImageData,
+          PrefetchHooks Function()
+        > {
+  $$ImagesTableTableManager(_$AppDatabase db, $ImagesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ImagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ImagesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ImagesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> assetPath = const Value.absent(),
+                Value<String?> thumbnailPath = const Value.absent(),
+                Value<String?> transform = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => ImagesCompanion(
+                id: id,
+                assetPath: assetPath,
+                thumbnailPath: thumbnailPath,
+                transform: transform,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String assetPath,
+                Value<String?> thumbnailPath = const Value.absent(),
+                Value<String?> transform = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => ImagesCompanion.insert(
+                id: id,
+                assetPath: assetPath,
+                thumbnailPath: thumbnailPath,
+                transform: transform,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ImagesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ImagesTable,
+      ImageData,
+      $$ImagesTableFilterComposer,
+      $$ImagesTableOrderingComposer,
+      $$ImagesTableAnnotationComposer,
+      $$ImagesTableCreateCompanionBuilder,
+      $$ImagesTableUpdateCompanionBuilder,
+      (ImageData, BaseReferences<_$AppDatabase, $ImagesTable, ImageData>),
+      ImageData,
+      PrefetchHooks Function()
+    >;
 typedef $$RedoLogTableCreateCompanionBuilder =
     RedoLogCompanion Function({
       Value<int> id,
@@ -7378,6 +7999,8 @@ class $AppDatabaseManager {
       $$CommentsTableTableManager(_db, _db.comments);
   $$TextBlocksTableTableManager get textBlocks =>
       $$TextBlocksTableTableManager(_db, _db.textBlocks);
+  $$ImagesTableTableManager get images =>
+      $$ImagesTableTableManager(_db, _db.images);
   $$RedoLogTableTableManager get redoLog =>
       $$RedoLogTableTableManager(_db, _db.redoLog);
   $$AssetsTableTableManager get assets =>

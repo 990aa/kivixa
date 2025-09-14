@@ -7,7 +7,7 @@
       },
       "declaration": {
         "source_uri": "package:kivixa/data/database.dart",
-        "offset": 4459,
+        "offset": 4826,
         "name": "AppDatabase"
       },
       "references": [
@@ -46,6 +46,10 @@
         {
           "library_uri": "package:kivixa/data/database.dart",
           "name": "text_blocks"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
+          "name": "images"
         },
         {
           "library_uri": "package:kivixa/data/database.dart",
@@ -108,6 +112,10 @@
         },
         {
           "library_uri": "package:kivixa/data/database.dart",
+          "name": "images"
+        },
+        {
+          "library_uri": "package:kivixa/data/database.dart",
           "name": "redo_log"
         },
         {
@@ -130,7 +138,7 @@
       "views": [],
       "includes": [],
       "queries": [],
-      "schema_version": 4,
+      "schema_version": 5,
       "daos": [],
       "has_constructor_arg": false
     },
@@ -1222,7 +1230,7 @@
       },
       "declaration": {
         "source_uri": "package:kivixa/data/database.dart",
-        "offset": 2977,
+        "offset": 2958,
         "name": "TextBlocks"
       },
       "references": [],
@@ -1237,7 +1245,7 @@
           "nameInDart": "id",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3020,
+            "offset": 3001,
             "name": "id"
           },
           "typeConverter": null,
@@ -1263,7 +1271,7 @@
           "nameInDart": "layerId",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3071,
+            "offset": 3052,
             "name": "layerId"
           },
           "typeConverter": null,
@@ -1284,7 +1292,7 @@
           "nameInDart": "content",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3112,
+            "offset": 3093,
             "name": "content"
           },
           "typeConverter": null,
@@ -1311,6 +1319,179 @@
       "custom_constraints": [],
       "attached_indices": []
     },
+    "images": {
+      "id": {
+        "library_uri": "package:kivixa/data/database.dart",
+        "name": "images"
+      },
+      "declaration": {
+        "source_uri": "package:kivixa/data/database.dart",
+        "offset": 3151,
+        "name": "Images"
+      },
+      "references": [],
+      "type": "table",
+      "columns": [
+        {
+          "sqlType": {
+            "builtin": "int"
+          },
+          "nullable": false,
+          "nameInSql": "id",
+          "nameInDart": "id",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 3190,
+            "name": "id"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [
+            {
+              "type": "primary",
+              "is_auto_increment": true
+            }
+          ],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": false,
+          "nameInSql": "asset_path",
+          "nameInDart": "assetPath",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 3242,
+            "name": "assetPath"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": true,
+          "nameInSql": "thumbnail_path",
+          "nameInDart": "thumbnailPath",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 3282,
+            "name": "thumbnailPath"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "string"
+          },
+          "nullable": true,
+          "nameInSql": "transform",
+          "nameInDart": "transform",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 3337,
+            "name": "transform"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": null,
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "dateTime"
+          },
+          "nullable": false,
+          "nameInSql": "created_at",
+          "nameInDart": "createdAt",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 3427,
+            "name": "createdAt"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": {
+            "elements": [
+              {
+                "lexeme": "currentDateAndTime",
+                "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+              }
+            ]
+          },
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        },
+        {
+          "sqlType": {
+            "builtin": "dateTime"
+          },
+          "nullable": false,
+          "nameInSql": "updated_at",
+          "nameInDart": "updatedAt",
+          "declaration": {
+            "source_uri": "package:kivixa/data/database.dart",
+            "offset": 3507,
+            "name": "updatedAt"
+          },
+          "typeConverter": null,
+          "clientDefaultCode": null,
+          "defaultArgument": {
+            "elements": [
+              {
+                "lexeme": "currentDateAndTime",
+                "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+              }
+            ]
+          },
+          "overriddenJsonName": null,
+          "referenceName": null,
+          "documentationComment": null,
+          "constraints": [],
+          "customConstraints": null
+        }
+      ],
+      "existing_data_class": null,
+      "table_constraints": [],
+      "custom_parent_class": null,
+      "interfaces_for_row_class": [],
+      "fixed_entity_info_name": null,
+      "base_dart_name": "Images",
+      "row_class_name": "ImageData",
+      "companion_class_name": null,
+      "without_rowid": false,
+      "strict": false,
+      "write_default_constraints": true,
+      "custom_constraints": [],
+      "attached_indices": []
+    },
     "redo_log": {
       "id": {
         "library_uri": "package:kivixa/data/database.dart",
@@ -1318,7 +1499,7 @@
       },
       "declaration": {
         "source_uri": "package:kivixa/data/database.dart",
-        "offset": 3172,
+        "offset": 3605,
         "name": "RedoLog"
       },
       "references": [],
@@ -1333,7 +1514,7 @@
           "nameInDart": "id",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3212,
+            "offset": 3645,
             "name": "id"
           },
           "typeConverter": null,
@@ -1359,7 +1540,7 @@
           "nameInDart": "entityType",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3264,
+            "offset": 3697,
             "name": "entityType"
           },
           "typeConverter": null,
@@ -1380,7 +1561,7 @@
           "nameInDart": "entityId",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3304,
+            "offset": 3737,
             "name": "entityId"
           },
           "typeConverter": null,
@@ -1401,7 +1582,7 @@
           "nameInDart": "action",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3346,
+            "offset": 3779,
             "name": "action"
           },
           "typeConverter": null,
@@ -1422,7 +1603,7 @@
           "nameInDart": "data",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3383,
+            "offset": 3816,
             "name": "data"
           },
           "typeConverter": null,
@@ -1443,7 +1624,7 @@
           "nameInDart": "ts",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3428,
+            "offset": 3861,
             "name": "ts"
           },
           "typeConverter": null,
@@ -1477,7 +1658,7 @@
       },
       "declaration": {
         "source_uri": "package:kivixa/data/database.dart",
-        "offset": 3484,
+        "offset": 3917,
         "name": "Assets"
       },
       "references": [],
@@ -1492,7 +1673,7 @@
           "nameInDart": "id",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3523,
+            "offset": 3956,
             "name": "id"
           },
           "typeConverter": null,
@@ -1518,7 +1699,7 @@
           "nameInDart": "path",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3575,
+            "offset": 4008,
             "name": "path"
           },
           "typeConverter": null,
@@ -1539,7 +1720,7 @@
           "nameInDart": "size",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3609,
+            "offset": 4042,
             "name": "size"
           },
           "typeConverter": null,
@@ -1560,7 +1741,7 @@
           "nameInDart": "hash",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3647,
+            "offset": 4080,
             "name": "hash"
           },
           "typeConverter": null,
@@ -1581,7 +1762,7 @@
           "nameInDart": "mime",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3682,
+            "offset": 4115,
             "name": "mime"
           },
           "typeConverter": null,
@@ -1602,7 +1783,7 @@
           "nameInDart": "sourceUri",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3717,
+            "offset": 4150,
             "name": "sourceUri"
           },
           "typeConverter": null,
@@ -1623,7 +1804,7 @@
           "nameInDart": "createdAt",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3772,
+            "offset": 4205,
             "name": "createdAt"
           },
           "typeConverter": null,
@@ -1664,7 +1845,7 @@
       },
       "declaration": {
         "source_uri": "package:kivixa/data/database.dart",
-        "offset": 3909,
+        "offset": 4303,
         "name": "MinimapTiles"
       },
       "references": [],
@@ -1679,7 +1860,7 @@
           "nameInDart": "id",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 3954,
+            "offset": 4348,
             "name": "id"
           },
           "typeConverter": null,
@@ -1705,7 +1886,7 @@
           "nameInDart": "documentId",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 4040,
+            "offset": 4399,
             "name": "documentId"
           },
           "typeConverter": null,
@@ -1726,7 +1907,7 @@
           "nameInDart": "x",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 4083,
+            "offset": 4442,
             "name": "x"
           },
           "typeConverter": null,
@@ -1747,7 +1928,7 @@
           "nameInDart": "y",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 4117,
+            "offset": 4476,
             "name": "y"
           },
           "typeConverter": null,
@@ -1768,7 +1949,7 @@
           "nameInDart": "data",
           "declaration": {
             "source_uri": "package:kivixa/data/database.dart",
-            "offset": 4152,
+            "offset": 4511,
             "name": "data"
           },
           "typeConverter": null,
