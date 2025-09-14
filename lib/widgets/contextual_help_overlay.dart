@@ -17,7 +17,7 @@ class ContextualHelpOverlay extends StatelessWidget {
         GestureDetector(
           onTap: onDismiss ?? () => Navigator.of(context).pop(),
           child: Container(
-            color: Colors.black.withOpacity(0.4),
+            color: Colors.black.withAlpha(102),
             width: double.infinity,
             height: double.infinity,
           ),
@@ -33,7 +33,7 @@ class ContextualHelpOverlay extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withAlpha(26), // Changed from withOpacity(0.1)
                     blurRadius: 16,
                   ),
                 ],

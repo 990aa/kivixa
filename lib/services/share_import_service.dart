@@ -21,7 +21,7 @@ final _log = Logger('ShareImportService');
 /// processing. The source URI is recorded for traceability.
 class ShareImportService {
   final ImportManager _importManager;
-  final StoragePaths _storagePaths;
+  final StoragePaths _storagePaths; // This field might be unused now
   static const _channel = MethodChannel('com.kivixa.share/intent');
 
   ShareImportService(this._importManager, this._storagePaths) {
@@ -45,7 +45,8 @@ class ShareImportService {
     try {
       final originalFile = await toFile(uri);
       final fileName = p.basename(originalFile.path);
-      final destinationDir = await _storagePaths.assetsOriginalDir;
+      // Corrected the call to the static method
+      final destinationDir = await StoragePaths.getAssetsOriginalDir();
       final destinationFile = File(p.join(destinationDir.path, fileName));
 
       // Ensure the destination directory exists.

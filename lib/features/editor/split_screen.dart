@@ -36,7 +36,7 @@ class _SplitScreenState extends State<SplitScreen> {
                 feedback: Container(
                   width: 4,
                   height: constraints.maxHeight,
-                  color: Colors.blue.withOpacity(0.5),
+                  color: Colors.blue.withAlpha(128), // Changed from withOpacity(0.5)
                 ),
                 childWhenDragging: Container(),
                 onDragUpdate: (details) {

@@ -111,14 +111,14 @@ class ShortcutsService {
   ///
   /// This would be called by the UI layer when a key event is received.
   /// No global hooks are used by this service itself.
-  ShortcutAction? getActionForEvent(RawKeyEvent event) {
-    if (event is! RawKeyDownEvent) return null;
+  ShortcutAction? getActionForEvent(KeyEvent event) { // Changed RawKeyEvent to KeyEvent
+    if (event is! KeyDownEvent) return null; // Changed RawKeyDownEvent to KeyDownEvent
 
     final shortcut = AppShortcut(
       event.logicalKey,
-      ctrl: event.isControlPressed,
-      alt: event.isAltPressed,
-      shift: event.isShiftPressed,
+      ctrl: HardwareKeyboard.instance.isControlPressed, // Changed from event.isControlPressed
+      alt: HardwareKeyboard.instance.isAltPressed,
+      shift: HardwareKeyboard.instance.isShiftPressed,
     );
 
     return _shortcuts[shortcut.mapKey];

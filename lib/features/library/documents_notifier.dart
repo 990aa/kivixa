@@ -14,12 +14,16 @@ class DocumentsNotifier extends StateNotifier<AsyncValue<List<DocumentData>>> {
   final DocumentRepository _repository;
   // Removed unused _ref and _cache fields
   bool _isOffline = false;
-  StreamSubscription? _connectivitySub;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySub; // Explicitly typed StreamSubscription
 
   Future<void> _init() async {
     // Listen to connectivity changes
-    _connectivitySub = Connectivity().onConnectivityChanged.listen((result) {
-      _isOffline = result == ConnectivityResult.none;
+    _connectivitySub = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) { // Explicitly typed result
+      // Updated line to correctly check for offline status from List<ConnectivityResult>
+      _isOffline = !(result.contains(ConnectivityResult.mobile) ||
+          result.contains(ConnectivityResult.wifi) ||
+          result.contains(ConnectivityResult.ethernet) ||
+          result.contains(ConnectivityResult.vpn));
       if (!_isOffline) {
         // On reconnect, refresh from backend
         refreshDocuments();
@@ -94,3 +98,4 @@ class DocumentsNotifier extends StateNotifier<AsyncValue<List<DocumentData>>> {
 }
 
 // Provider is defined in providers.dart
+

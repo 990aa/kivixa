@@ -22,6 +22,7 @@ class _SplashScreenState extends State<SplashScreen>
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
     _controller.forward();
     Future.delayed(const Duration(milliseconds: 1800), () {
+      if (!mounted) return; // Check if the widget is still mounted
       Navigator.of(context).pushReplacementNamed('/home');
     });
   }

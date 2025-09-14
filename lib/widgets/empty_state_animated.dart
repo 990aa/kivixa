@@ -21,7 +21,7 @@ class EmptyStateAnimated extends StatelessWidget {
             curve: Curves.easeInOut,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.08),
+              color: Colors.blue.withAlpha(20), // Changed from withOpacity(0.08)
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 64, color: Colors.blueAccent),
