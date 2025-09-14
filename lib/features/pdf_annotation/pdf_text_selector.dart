@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'annotation_toolbar.dart';
 
-// Now using pdfx for PDF parsing and text extraction
+// Now using pdfrx for PDF parsing and text extraction
 
 class PdfTextSelector extends StatefulWidget {
   final String pdfPath;

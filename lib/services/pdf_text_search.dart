@@ -14,8 +14,8 @@ class PdfSearchResult {
 
 class PdfTextSearch {
   Future<List<PdfSearchResult>> search(String pdfPath, String query) async {
-    // PDFx does not support text extraction as of 2025-09-14.
-    // This is a stub implementation. When/if PDFx adds text extraction, implement it here.
+    // pdfrx does not support text extraction as of 2025-09-14.
+    // This is a stub implementation. When/if pdfrx adds text extraction, implement it here.
     return <PdfSearchResult>[];
   }
 }

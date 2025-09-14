@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pdfx/pdfx.dart';
+import 'package:pdfrx/pdfrx.dart';
 
 class PdfPageView extends StatefulWidget {
   final String pdfPath;
@@ -11,20 +11,18 @@ class PdfPageView extends StatefulWidget {
 }
 
 class _PdfPageViewState extends State<PdfPageView> {
-  late PdfController _pdfController;
+  late PdfDocument _pdfDocument;
 
   @override
   void initState() {
     super.initState();
-    _pdfController = PdfController(
-      document: PdfDocument.openFile(widget.pdfPath),
-    );
+    _pdfDocument = PdfDocument.openFile(widget.pdfPath);
   }
 
   @override
   Widget build(BuildContext context) {
     return PdfView(
-      controller: _pdfController,
+      document: _pdfDocument,
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
     );
@@ -32,7 +30,7 @@ class _PdfPageViewState extends State<PdfPageView> {
 
   @override
   void dispose() {
-    _pdfController.dispose();
+    _pdfDocument.dispose();
     super.dispose();
   }
 }

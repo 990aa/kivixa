@@ -6,7 +6,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 // Assuming a pdf rendering package is chosen.
-// import 'package:pdfx/pdfx.dart'; or another package.
+// import 'package:pdfrx/pdfrx.dart'; or another package.
 
 // Assuming a database service is available.
 
