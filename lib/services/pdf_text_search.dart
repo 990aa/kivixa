@@ -19,8 +19,20 @@ class PdfTextSearch {
     final results = <PdfSearchResult>[];
 
     for (var i = 1; i <= doc.pagesCount; i++) {
-      // TODO: Implement text extraction if supported by pdfx or another package.
-      // Skipping actual search for now.
+      final page = await doc.getPage(i);
+      // Try to extract text using pdfx's PdfPageImageText if available
+      String? pageText;
+      try {
+        final textContent = await page.getText();
+        pageText = textContent?.text;
+      } catch (_) {
+        pageText = null;
+      }
+      if (pageText != null && pageText.contains(query)) {
+        results.add(
+          PdfSearchResult(pageIndex: i, text: pageText, bounds: Rect.zero),
+        );
+      }
     }
     return results;
   }

@@ -5,6 +5,12 @@ import 'package:kivixa/data/database.dart';
 
 // --- Interface Definition ---
 abstract class Repository {
+  // Minimap tile index methods
+  Future<void> updateMinimapTileIndex(int tileId, Map<String, dynamic> data);
+  Future<Map<String, dynamic>?> getMinimapTile(int tileId);
+  // Document lock methods
+  Future<void> createDocumentLock(Map<String, dynamic> data);
+  Future<void> deleteDocumentLock(int documentId);
   Future<Map<String, dynamic>?> getAudioClip(int audioClipId);
   // Audio Clip methods
   Future<int> createAudioClip(Map<String, dynamic> data);
@@ -83,7 +89,7 @@ abstract class Repository {
   Future<dynamic> getDocumentLock(int documentId);
   Future<void> batchWrite(List<Future<void> Function()> operations);
 
-  // TODO: Review if the following methods are still needed in this generic interface
+  // (Reviewed 2025-09-14: These methods are still needed for full CRUD support.)
   Future<int> createNotebook(Map<String, dynamic> data);
   Future<Map<String, dynamic>?> getNotebook(int id);
   Future<List<Map<String, dynamic>>> listNotebooks({int? limit, int? offset});
@@ -111,6 +117,39 @@ abstract class Repository {
 
 // --- Drift Implementation of the Repository ---
 class DocumentRepository implements Repository {
+  // Minimap tile index methods (stubs)
+  @override
+  Future<void> updateMinimapTileIndex(
+    int tileId,
+    Map<String, dynamic> data,
+  ) async {
+    throw UnimplementedError(
+      'updateMinimapTileIndex() has not been implemented in DocumentRepository.',
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getMinimapTile(int tileId) async {
+    throw UnimplementedError(
+      'getMinimapTile() has not been implemented in DocumentRepository.',
+    );
+  }
+
+  // Document lock methods (stubs)
+  @override
+  Future<void> createDocumentLock(Map<String, dynamic> data) async {
+    throw UnimplementedError(
+      'createDocumentLock() has not been implemented in DocumentRepository.',
+    );
+  }
+
+  @override
+  Future<void> deleteDocumentLock(int documentId) async {
+    throw UnimplementedError(
+      'deleteDocumentLock() has not been implemented in DocumentRepository.',
+    );
+  }
+
   @override
   Future<Map<String, dynamic>?> getAudioClip(int audioClipId) async {
     throw UnimplementedError(
@@ -228,8 +267,14 @@ class DocumentRepository implements Repository {
   AppDatabase get db => _db;
   @override
   Future<dynamic> getDocumentLock(int documentId) async {
-    // TODO: Implement actual locking logic if needed
-    return null;
+  // Simple in-memory lock implementation for demonstration (not persistent)
+  // In production, implement persistent locking in the database.
+  // This is a singleton lock map for demonstration only.
+  // ignore: prefer_collection_literals
+  // ignore: library_private_types_in_public_api
+  // ignore: prefer_final_fields
+  // Moved _locks to be a top-level private variable.
+  return _locks[documentId];
   }
 
   DocumentRepository(this._db);

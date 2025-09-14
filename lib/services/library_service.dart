@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import '../data/repository.dart';
@@ -29,8 +28,21 @@ class LibraryService {
     SortBy sortBy = SortBy.date,
   }) async {
     final offset = (page - 1) * limit;
-    // TODO: Add sorting to the repository layer for notebooks.
-    return await _repo.listNotebooks(limit: limit, offset: offset);
+    String? orderBy;
+    switch (sortBy) {
+      case SortBy.name:
+        orderBy = 'title ASC';
+        break;
+      case SortBy.date:
+      default:
+        orderBy = 'updated_at DESC';
+        break;
+    }
+    return await _repo.listNotebooks(
+      limit: limit,
+      offset: offset,
+      orderBy: orderBy,
+    );
   }
 
   // Lists documents and folders within a given parent.
@@ -52,7 +64,7 @@ class LibraryService {
   // Moves a document to a new parent folder.
   Future<void> moveDocument(int documentId, int? newParentId) async {
     await _repo.batchWrite([
-      () => _repo.updateDocument(documentId, {'parent_id': newParentId})
+      () => _repo.updateDocument(documentId, {'parent_id': newParentId}),
     ]);
   }
 }

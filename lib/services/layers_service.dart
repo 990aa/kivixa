@@ -50,9 +50,13 @@ class LayersService {
       case 'stroke':
         // Only works if _repository is a DocumentRepository, which exposes db
         if (_repository is DocumentRepository) {
-          // TODO: Implement update for stroke_chunks table using Drift API
-          // This is a stub for now.
-          return Future.value();
+          final db = (_repository as DocumentRepository).db;
+          // This assumes you have a strokeChunks table in your Drift schema
+          await(
+            db.update(db.strokeChunks)
+              ..where((tbl) => tbl.strokeId.equals(itemId)),
+          ).write(StrokeChunksCompanion(layerId: drift.Value(layerId)));
+          return;
         } else {
           throw Exception('Repository does not support direct db access');
         }

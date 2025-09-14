@@ -17,15 +17,17 @@ class InfiniteCanvasCreation {
 
   InfiniteCanvasCreation(this._repo);
 
-  Future<CanvasInitializationResult> create(String name, {int? templateId}) async {
+  Future<CanvasInitializationResult> create(
+    String name, {
+    int? templateId,
+  }) async {
     // 1. Create the document
     // Adjusted to call createDocument with the name.
     // Handling of 'is_infinite' might need to be done in a subsequent update call
     // or by modifying DocumentRepository.createDocument if schema supports it directly.
-    final int documentId = await _repo.createDocument({'name': name}); // Corrected line
-
-    // TODO: If 'is_infinite' needs to be set, you might need an update method:
-    // await _repo.updateDocument(documentData.copyWith(isInfinite: true));
+    final int documentId = await _repo.createDocument({'name': name});
+    // If 'is_infinite' needs to be set, update the document after creation
+    await _repo.updateDocument(documentId, {'is_infinite': true});
 
     // 2. Apply template if provided
     if (templateId != null) {
@@ -34,7 +36,8 @@ class InfiniteCanvasCreation {
       if (template != null) {
         // Apply template data to the document.
         // This is a simplified representation. A real implementation would be more complex.
-        final content = template['content']; // Assuming content is stored in the template
+        final content =
+            template['content']; // Assuming content is stored in the template
         // Here you would parse the content and create the initial strokes, text blocks, etc.
       }
     }

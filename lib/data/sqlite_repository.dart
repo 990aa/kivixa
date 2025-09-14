@@ -4,6 +4,64 @@ import 'package:sqflite/sqflite.dart';
 import 'repository.dart';
 
 class SQLiteRepository implements Repository {
+  // Audio Clip methods (stubs)
+  @override
+  Future<int> createAudioClip(Map<String, dynamic> data) async {
+    throw UnimplementedError(
+      'createAudioClip() has not been implemented in SQLiteRepository.',
+    );
+  }
+
+  @override
+  Future<void> updateAudioClip(
+    int audioClipId,
+    Map<String, dynamic> data,
+  ) async {
+    throw UnimplementedError(
+      'updateAudioClip() has not been implemented in SQLiteRepository.',
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getAudioClip(int audioClipId) async {
+    throw UnimplementedError(
+      'getAudioClip() has not been implemented in SQLiteRepository.',
+    );
+  }
+
+  // Minimap tile index methods (stubs)
+  @override
+  Future<void> updateMinimapTileIndex(
+    int tileId,
+    Map<String, dynamic> data,
+  ) async {
+    throw UnimplementedError(
+      'updateMinimapTileIndex() has not been implemented in SQLiteRepository.',
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getMinimapTile(int tileId) async {
+    throw UnimplementedError(
+      'getMinimapTile() has not been implemented in SQLiteRepository.',
+    );
+  }
+
+  // Document lock methods (stubs)
+  @override
+  Future<void> createDocumentLock(Map<String, dynamic> data) async {
+    throw UnimplementedError(
+      'createDocumentLock() has not been implemented in SQLiteRepository.',
+    );
+  }
+
+  @override
+  Future<void> deleteDocumentLock(int documentId) async {
+    throw UnimplementedError(
+      'deleteDocumentLock() has not been implemented in SQLiteRepository.',
+    );
+  }
+
   @override
   Future<List<Map<String, dynamic>>> listAssets({String? hash}) async {
     String? where;
