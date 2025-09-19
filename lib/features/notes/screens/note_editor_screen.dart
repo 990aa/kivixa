@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kivixa/features/notes/blocs/document_bloc.dart';
 import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
 import 'package:kivixa/features/notes/models/drawing_stroke.dart';
+import 'package:kivixa/features/notes/services/export_service.dart';
 import 'package:kivixa/features/notes/widgets/notes_drawing_canvas.dart';
 
 class NoteEditorScreen extends StatefulWidget {
@@ -15,6 +16,8 @@ class NoteEditorScreen extends StatefulWidget {
 }
 
 class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBindingObserver {
+  final ExportService _exportService = ExportService();
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +49,30 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
     return Scaffold(
       appBar: AppBar(
         title: const Text('Note Editor'),
+        actions: [
+          BlocBuilder<DocumentBloc, DocumentState>(
+            builder: (context, state) {
+              if (state is DocumentLoadSuccess) {
+                return IconButton(
+                  icon: const Icon(Icons.share),
+                  onPressed: () async {
+                    try {
+                      final path = await _exportService.exportToJson(state.document);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Exported to $path')),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Export failed: $e')),
+                      );
+                    }
+                  },
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
       ),
       body: BlocBuilder<DocumentBloc, DocumentState>(
         builder: (context, documentState) {
