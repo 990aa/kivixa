@@ -42,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _nameController = TextEditingController();
   SortType _sortType = SortType.name;
   int? _currentFolderId;
-  List<Folder> _folderPath = [];
+  final List<Folder> _folderPath = [];
 
   @override
   void initState() {
