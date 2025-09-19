@@ -14,27 +14,21 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
     });
 
     on<ToolChanged>((event, emit) {
-      if (state is DrawingState) {
-        final notifier = (state as DrawingState).notifier;
-        notifier.setTool(event.tool);
-        emit(DrawingState(notifier));
-      }
-    });
+      final notifier = (state as DrawingState).notifier;
+      notifier.setTool(event.tool);
+      emit(DrawingState(notifier));
+        });
 
     on<ColorChanged>((event, emit) {
-      if (state is DrawingState) {
-        final notifier = (state as DrawingState).notifier;
-        notifier.setColor(event.color);
-        emit(DrawingState(notifier));
-      }
-    });
+      final notifier = (state as DrawingState).notifier;
+      notifier.setColor(event.color);
+      emit(DrawingState(notifier));
+        });
 
     on<StrokeWidthChanged>((event, emit) {
-      if (state is DrawingState) {
-        final notifier = (state as DrawingState).notifier;
-        notifier.setStrokeWidth(event.width);
-        emit(DrawingState(notifier));
-      }
-    });
+      final notifier = (state as DrawingState).notifier;
+      notifier.setStrokeWidth(event.width);
+      emit(DrawingState(notifier));
+        });
   }
 }

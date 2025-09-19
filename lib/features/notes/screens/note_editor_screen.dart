@@ -57,20 +57,16 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
           } else if (documentState is DocumentLoadSuccess) {
             return BlocBuilder<DrawingBloc, DrawingState>(
               builder: (context, drawingState) {
-                if (drawingState is DrawingState) {
-                  drawingState.notifier.addListener(() {
-                    final updatedDocument = documentState.document.copyWith(
-                      strokes: drawingState.notifier.currentSketch.strokes,
-                    );
-                    context.read<DocumentBloc>().add(DocumentContentChanged(updatedDocument));
-                  });
-                  return NotesDrawingCanvas(
-                    notifier: drawingState.notifier,
+                drawingState.notifier.addListener(() {
+                  final updatedDocument = documentState.document.copyWith(
+                    strokes: drawingState.notifier.currentSketch.strokes,
                   );
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              },
+                  context.read<DocumentBloc>().add(DocumentContentChanged(updatedDocument));
+                });
+                return NotesDrawingCanvas(
+                  notifier: drawingState.notifier,
+                );
+                            },
             );
           } else if (documentState is DocumentLoadFailure) {
             return Center(child: Text(documentState.error));
