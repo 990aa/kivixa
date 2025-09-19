@@ -20,7 +20,7 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'kivixa.db');
-    return await openDatabase(path, version: 2, onCreate: _onCreate, onUpgrade: _onUpgrade);
+    return await openDatabase(path, version: 3, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
   Future _onCreate(Database db, int version) async {
@@ -42,6 +42,7 @@ class DatabaseHelper {
         folderId INTEGER
       )
     ''');
+    await _onUpgrade(db, 0, version);
   }
 
   Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -53,6 +54,34 @@ class DatabaseHelper {
           name TEXT,
           path TEXT,
           folderId INTEGER
+        )
+      ''');
+    }
+    if (oldVersion < 3) {
+      await db.execute('''
+        CREATE TABLE notes_documents(
+          id TEXT PRIMARY KEY,
+          title TEXT,
+          createdAt TEXT,
+          updatedAt TEXT,
+          page_count INTEGER,
+          is_favorited INTEGER
+        )
+      ''');
+      await db.execute('''
+        CREATE TABLE notes_pages(
+          id TEXT PRIMARY KEY,
+          document_id TEXT,
+          page_number INTEGER,
+          paper_type TEXT,
+          drawing_data_json TEXT,
+          background_color INTEGER
+        )
+      ''');
+      await db.execute('''
+        CREATE TABLE notes_settings(
+          setting_key TEXT PRIMARY KEY,
+          setting_value TEXT
         )
       ''');
     }

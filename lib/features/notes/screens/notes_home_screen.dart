@@ -9,9 +9,20 @@ class NotesHomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Notes'),
       ),
-      body: Container(), // TODO: implement document list
+      body: ListView.builder(
+        itemCount: 10, // Placeholder for document list
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text('Note ${index + 1}'),
+            onTap: () {
+              Navigator.pushNamed(context, '/notes/editor', arguments: 'doc-id-${index + 1}');
+            },
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () { // TODO: implement create new document
+        onPressed: () {
+          Navigator.pushNamed(context, '/notes/create');
         },
         child: const Icon(Icons.add),
       ),

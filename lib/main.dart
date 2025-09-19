@@ -352,10 +352,7 @@ class _MyHomePageState extends State<MyHomePage> {
           const SizedBox(width: 10),
           FloatingActionButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const NotesHomeScreen()),
-              );
+              Navigator.pushNamed(context, '/notes');
             },
             heroTag: 'notes',
             child: const Icon(Icons.note_add),
