@@ -1,13 +1,29 @@
 
 import 'dart:convert';
-import 'dart:io';
+import 'dart.io';
 import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../models/note_document.dart';
 
 class ExportService {
+  Future<NoteDocument?> importFromJson() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+
+    if (result != null) {
+      final file = File(result.files.single.path!);
+      final jsonString = await file.readAsString();
+      final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
+      return NoteDocument.fromJson(jsonMap);
+    }
+    return null;
+  }
+
   Future<String> exportToJson(NoteDocument document) async {
     final jsonString = jsonEncode(document.toJson());
     final directory = await getApplicationDocumentsDirectory();
