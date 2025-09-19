@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kivixa/helpers/database_helper.dart';
 import 'package:kivixa/models/folder.dart';
+import 'package:kivixa/helpers/folder_icon.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
@@ -16,9 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Kivixa',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: const MyHomePage(),
     );
   }
@@ -60,10 +59,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _addFolder() async {
     if (_folderNameController.text.isNotEmpty) {
+      final color = getRandomColor();
       final newFolder = Folder(
         name: _folderNameController.text,
-        cover: 'assets/folder.png',
+        cover: '', // Not used for custom icon
         createdAt: DateTime.now(),
+        colorValue: color.value,
       );
       await DatabaseHelper().insertFolder(newFolder);
       _folderNameController.clear();
@@ -180,19 +181,27 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(folder.cover),
-                  fit: BoxFit.cover,
-                ),
+                color: Colors.transparent,
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: Text(
-                folder.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FolderIcon(
+                    folderColor: folder.colorValue != null
+                        ? Color(folder.colorValue!)
+                        : Colors.amber,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    folder.name,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -207,8 +216,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 title: const Text('New Folder'),
                 content: TextField(
                   controller: _folderNameController,
-                  decoration:
-                      const InputDecoration(hintText: 'Enter folder name'),
+                  decoration: const InputDecoration(
+                    hintText: 'Enter folder name',
+                  ),
                 ),
                 actions: [
                   TextButton(

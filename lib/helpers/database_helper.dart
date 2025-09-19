@@ -19,11 +19,7 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'kivixa.db');
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _onCreate,
-    );
+    return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
   Future _onCreate(Database db, int version) async {
@@ -32,7 +28,8 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         cover TEXT,
-        createdAt TEXT
+        createdAt TEXT,
+        colorValue INTEGER
       )
     ''');
   }
@@ -46,20 +43,19 @@ class DatabaseHelper {
     Database db = await database;
     var folders = await db.query('folders');
     List<Folder> folderList = folders.isNotEmpty
-        ? folders.map((c) => Folder(
-              id: c['id'] as int,
-              name: c['name'] as String,
-              cover: c['cover'] as String,
-              createdAt: DateTime.parse(c['createdAt'] as String),
-            )).toList()
+        ? folders.map((c) => Folder.fromMap(c)).toList()
         : [];
     return folderList;
   }
 
   Future<int> updateFolder(Folder folder) async {
     Database db = await database;
-    return await db.update('folders', folder.toMap(),
-        where: 'id = ?', whereArgs: [folder.id]);
+    return await db.update(
+      'folders',
+      folder.toMap(),
+      where: 'id = ?',
+      whereArgs: [folder.id],
+    );
   }
 
   Future<int> deleteFolder(int id) async {
