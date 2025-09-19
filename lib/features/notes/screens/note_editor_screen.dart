@@ -9,6 +9,7 @@ import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
 import 'package:kivixa/features/notes/models/drawing_stroke.dart';
 import 'package:kivixa/features/notes/services/export_service.dart';
 import 'package:kivixa/features/notes/widgets/notes_drawing_canvas.dart';
+import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 
 class NoteEditorScreen extends StatefulWidget {
@@ -139,6 +140,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                           context.read<DocumentBloc>().add(DocumentContentChanged(updatedDocument));
                         }
                         break;
+                      case 'print':
+                        final pdfBytes = await _exportService.exportToPdf(state.document);
+                        await Printing.layoutPdf(onLayout: (_) => File(pdfBytes).readAsBytes());
+                        break;
                     }
                   },
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -161,6 +166,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                     const PopupMenuItem<String>(
                       value: 'import_image',
                       child: Text('Import Image'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'print',
+                      child: Text('Print'),
                     ),
                   ],
                 );
