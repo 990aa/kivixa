@@ -4,22 +4,41 @@ enum PaperType { ruled, grid, plain, dotGrid }
 
 class PaperBackgroundWidget extends StatelessWidget {
   final PaperType paperType;
-  final Color lineColor;
+  final Color? lineColor;
+  final Color? majorLineColor;
+  final Color? minorLineColor;
   final double lineSpacing;
+  final double majorGridSpacing;
+  final double minorGridSpacing;
+  final int majorLineInterval;
   final double margin;
   final Orientation orientation;
+  final String? watermark;
 
   const PaperBackgroundWidget({
     super.key,
     this.paperType = PaperType.plain,
-    this.lineColor = Colors.grey,
+    this.lineColor,
+    this.majorLineColor,
+    this.minorLineColor,
     this.lineSpacing = 20.0,
+    this.majorGridSpacing = 100.0,
+    this.minorGridSpacing = 20.0,
+    this.majorLineInterval = 5,
     this.margin = 20.0,
     this.orientation = Orientation.portrait,
+    this.watermark,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
+    final effectiveLineColor = lineColor ?? (isDarkMode ? Colors.white54 : Colors.black54);
+    final effectiveMajorLineColor = majorLineColor ?? (isDarkMode ? Colors.white38 : Colors.black38);
+    final effectiveMinorLineColor = minorLineColor ?? (isDarkMode ? Colors.white24 : Colors.black26);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final a4AspectRatio = 210 / 297;
@@ -45,36 +64,39 @@ class PaperBackgroundWidget extends StatelessWidget {
         return RepaintBoundary(
           child: CustomPaint(
             size: Size(width, height),
-            painter: _getPainter(paperType),
+            painter: _getPainter(paperType, effectiveLineColor, effectiveMajorLineColor, effectiveMinorLineColor),
           ),
         );
       },
     );
   }
 
-  CustomPainter _getPainter(PaperType type) {
+  CustomPainter _getPainter(PaperType type, Color line, Color major, Color minor) {
     switch (type) {
       case PaperType.ruled:
         return RuledPaperPainter(
-          lineColor: lineColor,
+          lineColor: line,
           lineSpacing: lineSpacing,
           margin: margin,
         );
       case PaperType.grid:
         return GridPaperPainter(
-          lineColor: lineColor,
-          gridSpacing: lineSpacing,
+          majorLineColor: major,
+          minorLineColor: minor,
+          majorGridSpacing: majorGridSpacing,
+          minorGridSpacing: minorGridSpacing,
           margin: margin,
+          majorLineInterval: majorLineInterval,
         );
       case PaperType.dotGrid:
         return DotGridPaperPainter(
-          dotColor: lineColor,
+          dotColor: line,
           dotSpacing: lineSpacing,
           margin: margin,
         );
       case PaperType.plain:
       default:
-        return PlainPaperPainter();
+        return PlainPaperPainter(watermark: watermark);
     }
   }
 }
@@ -191,13 +213,38 @@ class DotGridPaperPainter extends CustomPainter {
 }
 
 class PlainPaperPainter extends CustomPainter {
+  final String? watermark;
+
+  PlainPaperPainter({this.watermark});
+
   @override
   void paint(Canvas canvas, Size size) {
-    // Nothing to paint for a plain background
+    if (watermark != null) {
+      final textStyle = TextStyle(
+        color: Colors.grey.withOpacity(0.1),
+        fontSize: 48,
+        fontWeight: FontWeight.bold,
+      );
+      final textSpan = TextSpan(
+        text: watermark,
+        style: textStyle,
+      );
+      final textPainter = TextPainter(
+        text: textSpan,
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr,
+      );
+      textPainter.layout(minWidth: 0, maxWidth: size.width);
+      final offset = Offset(
+        (size.width - textPainter.width) / 2,
+        (size.height - textPainter.height) / 2,
+      );
+      textPainter.paint(canvas, offset);
+    }
   }
 
   @override
   bool shouldRepaint(PlainPaperPainter oldDelegate) {
-    return false;
+    return oldDelegate.watermark != watermark;
   }
 }
