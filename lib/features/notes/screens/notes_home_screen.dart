@@ -5,9 +5,12 @@ import 'package:kivixa/features/notes/blocs/notes_event.dart';
 import 'package:kivixa/features/notes/blocs/notes_state.dart';
 import 'package:kivixa/features/notes/models/note_document.dart';
 import 'package:kivixa/features/notes/services/export_service.dart';
+import 'package:kivixa/features/notes/services/favorite_documents_service.dart';
 import 'package:kivixa/features/notes/services/recent_documents_service.dart';
 
 import 'package:kivixa/features/notes/screens/notes_settings_screen.dart';
+
+enum FilterType { all, recents, favorites }
 
 class NotesHomeScreen extends StatefulWidget {
   const NotesHomeScreen({super.key});
@@ -19,21 +22,29 @@ class NotesHomeScreen extends StatefulWidget {
 class _NotesHomeScreenState extends State<NotesHomeScreen> {
   final ExportService _exportService = ExportService();
   final RecentDocumentsService _recentDocumentsService = RecentDocumentsService();
+  final FavoriteDocumentsService _favoriteDocumentsService = FavoriteDocumentsService();
   bool _isSearching = false;
   String _searchQuery = '';
   List<NoteDocument> _filteredNotes = [];
-  bool _showRecents = false;
+  FilterType _filterType = FilterType.all;
   List<String> _recentDocumentIds = [];
+  List<String> _favoriteDocumentIds = [];
 
   @override
   void initState() {
     super.initState();
     context.read<NotesBloc>().add(NotesLoaded());
     _getRecentDocuments();
+    _getFavoriteDocuments();
   }
 
   void _getRecentDocuments() async {
     _recentDocumentIds = await _recentDocumentsService.getRecentDocuments();
+    setState(() {});
+  }
+
+  void _getFavoriteDocuments() async {
+    _favoriteDocumentIds = await _favoriteDocumentsService.getFavoriteDocuments();
     setState(() {});
   }
 
@@ -78,10 +89,10 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
             },
           ),
           IconButton(
-            icon: Icon(_showRecents ? Icons.list : Icons.history),
+            icon: Icon(_getFilterIcon()),
             onPressed: () {
               setState(() {
-                _showRecents = !_showRecents;
+                _filterType = FilterType.values[(_filterType.index + 1) % FilterType.values.length];
               });
             },
           ),
@@ -111,12 +122,20 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
             return const Center(child: CircularProgressIndicator());
           } else if (state is NotesLoadSuccess) {
             List<NoteDocument> notes;
-            if (_showRecents) {
-              notes = state.notes
-                  .where((note) => _recentDocumentIds.contains(note.id))
-                  .toList();
-            } else {
-              notes = _isSearching && _searchQuery.isNotEmpty ? _filteredNotes : state.notes;
+            switch (_filterType) {
+              case FilterType.recents:
+                notes = state.notes
+                    .where((note) => _recentDocumentIds.contains(note.id))
+                    .toList();
+                break;
+              case FilterType.favorites:
+                notes = state.notes
+                    .where((note) => _favoriteDocumentIds.contains(note.id))
+                    .toList();
+                break;
+              case FilterType.all:
+              default:
+                notes = _isSearching && _searchQuery.isNotEmpty ? _filteredNotes : state.notes;
             }
             return ListView.builder(
               itemCount: notes.length,
@@ -126,7 +145,10 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                   title: Text(note.title),
                   onTap: () {
                     Navigator.pushNamed(context, '/notes/editor', arguments: note.id)
-                        .then((_) => _getRecentDocuments());
+                        .then((_) {
+                      _getRecentDocuments();
+                      _getFavoriteDocuments();
+                    });
                   },
                 );
               },
@@ -145,5 +167,17 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  IconData _getFilterIcon() {
+    switch (_filterType) {
+      case FilterType.recents:
+        return Icons.history;
+      case FilterType.favorites:
+        return Icons.star;
+      case FilterType.all:
+      default:
+        return Icons.list;
+    }
   }
 }
