@@ -8,6 +8,7 @@ import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
 import 'package:kivixa/features/notes/models/drawing_stroke.dart';
 import 'package:kivixa/features/notes/services/export_service.dart';
 import 'package:kivixa/features/notes/widgets/notes_drawing_canvas.dart';
+import 'package:share_plus/share_plus.dart';
 
 class NoteEditorScreen extends StatefulWidget {
   final String? documentId;
@@ -82,15 +83,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
           BlocBuilder<DocumentBloc, DocumentState>(
             builder: (context, state) {
               if (state is DocumentLoadSuccess) {
-                return Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.image),
-                      onPressed: _exportPageAsPng,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.picture_as_pdf),
-                      onPressed: () async {
+                return PopupMenuButton<String>(
+                  onSelected: (value) async {
+                    switch (value) {
+                      case 'pdf':
                         try {
                           final path = await _exportService.exportToPdf(state.document);
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -101,11 +97,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                             SnackBar(content: Text('Export failed: $e')),
                           );
                         }
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.share),
-                      onPressed: () async {
+                        break;
+                      case 'png':
+                        await _exportPageAsPng();
+                        break;
+                      case 'json':
                         try {
                           final path = await _exportService.exportToJson(state.document);
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -116,7 +112,35 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                             SnackBar(content: Text('Export failed: $e')),
                           );
                         }
-                      },
+                        break;
+                      case 'share':
+                        try {
+                          final path = await _exportService.exportToPdf(state.document);
+                          await Share.shareXFiles([XFile(path)], text: 'Here is my note!');
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Sharing failed: $e')),
+                          );
+                        }
+                        break;
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: 'pdf',
+                      child: Text('Export as PDF'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'png',
+                      child: Text('Export as PNG'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'json',
+                      child: Text('Export as JSON'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'share',
+                      child: Text('Share'),
                     ),
                   ],
                 );
