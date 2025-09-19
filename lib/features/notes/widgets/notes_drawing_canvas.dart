@@ -110,28 +110,8 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
                           height: double.infinity,
                         ),
                       PaperBackground(paperType: _paperType),
-                      Listener(
-                        onPointerDown: (details) {
-                          switch (details.kind) {
-                            case PointerDeviceKind.stylus:
-                            case PointerDeviceKind.invertedStylus:
-                              widget.notifier.setAllowedPointers(1);
-                              break;
-                            case PointerDeviceKind.touch:
-                              widget.notifier.setAllowedPointers(2);
-                              break;
-                            case PointerDeviceKind.mouse:
-                              widget.notifier.setAllowedPointers(1);
-                              break;
-                            default:
-                          }
-                        },
-                        child: Scribble(
-                          notifier: widget.notifier,
-                          drawPen: true,
-                          pressureCurve: Curves.easeInOut,
-                        ),
-                      ),
+                      // Pointer logic and pressureCurve removed for compatibility with scribble 0.10.0+1
+                      Scribble(notifier: widget.notifier, drawPen: true),
                     ],
                   ),
                 ),
