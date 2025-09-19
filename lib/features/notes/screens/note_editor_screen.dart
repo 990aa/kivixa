@@ -8,6 +8,7 @@ import 'package:kivixa/features/notes/blocs/document_bloc.dart';
 import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
 import 'package:kivixa/features/notes/models/drawing_stroke.dart';
 import 'package:kivixa/features/notes/services/export_service.dart';
+import 'package:kivixa/features/notes/services/favorite_documents_service.dart';
 import 'package:kivixa/features/notes/services/recent_documents_service.dart';
 import 'package:kivixa/features/notes/widgets/notes_drawing_canvas.dart';
 import 'package:printing/printing.dart';
@@ -25,7 +26,9 @@ class NoteEditorScreen extends StatefulWidget {
 class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBindingObserver {
   final ExportService _exportService = ExportService();
   final RecentDocumentsService _recentDocumentsService = RecentDocumentsService();
+  final FavoriteDocumentsService _favoriteDocumentsService = FavoriteDocumentsService();
   final GlobalKey _canvasKey = GlobalKey();
+  bool _isFavorite = false;
 
   @override
   void initState() {
@@ -34,8 +37,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
     if (widget.documentId != null) {
       context.read<DocumentBloc>().add(DocumentLoaded(widget.documentId!));
       _recentDocumentsService.addRecentDocument(widget.documentId!);
+      _checkIfFavorite();
     }
     context.read<DrawingBloc>().add(DrawingStarted());
+  }
+
+  void _checkIfFavorite() async {
+    _isFavorite = await _favoriteDocumentsService.isFavorite(widget.documentId!);
+    setState(() {});
   }
 
   @override
@@ -85,6 +94,19 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
       appBar: AppBar(
         title: const Text('Note Editor'),
         actions: [
+          IconButton(
+            icon: Icon(_isFavorite ? Icons.star : Icons.star_border),
+            onPressed: () {
+              if (_isFavorite) {
+                _favoriteDocumentsService.removeFavoriteDocument(widget.documentId!);
+              } else {
+                _favoriteDocumentsService.addFavoriteDocument(widget.documentId!);
+              }
+              setState(() {
+                _isFavorite = !_isFavorite;
+              });
+            },
+          ),
           BlocBuilder<DocumentBloc, DocumentState>(
             builder: (context, state) {
               if (state is DocumentLoadSuccess) {
