@@ -288,14 +288,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  freezed_annotation:
-    dependency: transitive
-    description:
-      name: freezed_annotation
-      sha256: c2e2d632dd9b8a2b7751117abcfc2b4888ecfe181bd9fca7170d9ef02e595fe2
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.4"
   frontend_server_client:
     dependency: transitive
     description:
@@ -544,14 +536,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
-  perfect_freehand:
-    dependency: transitive
-    description:
-      name: perfect_freehand
-      sha256: "399c16dc35a6eb1dee4d9a2c638ff0fe71ebb5e8980ab41261bf4306dafaa4af"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.5.0"
   petitparser:
     dependency: transitive
     description:
@@ -632,14 +616,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
-  scribble:
-    dependency: "direct main"
-    description:
-      name: scribble
-      sha256: bcaffadf6d7a04ee2880f8043351c819f18d339892cd9ea4b8c32423d165d19c
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.10.0+1"
   share_plus:
     dependency: "direct main"
     description:
@@ -925,14 +901,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.1"
-  value_notifier_tools:
-    dependency: transitive
-    description:
-      name: value_notifier_tools
-      sha256: "504f1367a4d4cc55498335950e8c4a131692befbcc413b1bc0f92f6743b710a7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.2"
   vector_math:
     dependency: transitive
     description:
