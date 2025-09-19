@@ -1,4 +1,0 @@
-CMake Warning (dev) at CMakeLists.txt:70 (set):
-  Cannot set "pdfrx_bundled_libraries": current scope has no parent.
-This warning is for project developers.  Use -Wno-dev to suppress it.
-
