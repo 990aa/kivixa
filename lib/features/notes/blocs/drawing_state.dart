@@ -5,8 +5,8 @@ abstract class DrawingState {}
 
 class DrawingInitial extends DrawingState {}
 
-class DrawingState extends DrawingState {
+class DrawingLoadSuccess extends DrawingState {
   final ScribbleNotifier notifier;
 
-  DrawingState(this.notifier);
+  DrawingLoadSuccess(this.notifier);
 }
