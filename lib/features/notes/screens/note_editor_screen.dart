@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class NoteEditorScreen extends StatelessWidget {
-  const NoteEditorScreen({super.key});
+  final String? documentId;
+
+  const NoteEditorScreen({super.key, this.documentId});
 
   @override
   Widget build(BuildContext context) {

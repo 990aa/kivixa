@@ -25,7 +25,29 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Kivixa',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const MyHomePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const MyHomePage(),
+        '/notes': (context) => const NotesHomeScreen(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/notes/editor') {
+          final documentId = settings.arguments as String?;
+          return MaterialPageRoute(
+            builder: (context) {
+              return NoteEditorScreen(documentId: documentId);
+            },
+          );
+        }
+        if (settings.name == '/notes/create') {
+          return MaterialPageRoute(
+            builder: (context) {
+              return const NoteEditorScreen();
+            },
+          );
+        }
+        return null;
+      },
     );
   }
 }
