@@ -5,7 +5,7 @@ import 'drawing_stroke.dart';
 
 part 'note_page.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(converters: [Uint8ListConverter()])
 class NotePage {
   final int pageNumber;
   final String paperType;
@@ -39,5 +39,19 @@ class NotePage {
       backgroundSettings: backgroundSettings ?? this.backgroundSettings,
       backgroundImage: backgroundImage ?? this.backgroundImage,
     );
+  }
+}
+
+class Uint8ListConverter implements JsonConverter<Uint8List?, List<int>?> {
+  const Uint8ListConverter();
+
+  @override
+  Uint8List? fromJson(List<int>? json) {
+    return json == null ? null : Uint8List.fromList(json);
+  }
+
+  @override
+  List<int>? toJson(Uint8List? object) {
+    return object?.toList();
   }
 }
