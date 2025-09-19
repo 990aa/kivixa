@@ -4,10 +4,3 @@
 *.env
 .env*.local
 
-# Android/Windows build and IDE files
-android/.gradle/
-android/.idea/workspace.xml
-android/gradlew
-android/gradlew.bat
-android/local.properties
-windows/flutter/ephemeral/
