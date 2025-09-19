@@ -8,6 +8,7 @@ import 'package:kivixa/features/notes/blocs/document_bloc.dart';
 import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
 import 'package:kivixa/features/notes/models/drawing_stroke.dart';
 import 'package:kivixa/features/notes/services/export_service.dart';
+import 'package:kivixa/features/notes/services/recent_documents_service.dart';
 import 'package:kivixa/features/notes/widgets/notes_drawing_canvas.dart';
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
@@ -23,6 +24,7 @@ class NoteEditorScreen extends StatefulWidget {
 
 class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBindingObserver {
   final ExportService _exportService = ExportService();
+  final RecentDocumentsService _recentDocumentsService = RecentDocumentsService();
   final GlobalKey _canvasKey = GlobalKey();
 
   @override
@@ -31,6 +33,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
     WidgetsBinding.instance.addObserver(this);
     if (widget.documentId != null) {
       context.read<DocumentBloc>().add(DocumentLoaded(widget.documentId!));
+      _recentDocumentsService.addRecentDocument(widget.documentId!);
     }
     context.read<DrawingBloc>().add(DrawingStarted());
   }
