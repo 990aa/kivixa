@@ -20,5 +20,15 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
         emit(NotesLoadFailure(e.toString()));
       }
     });
+
+    on<NoteAdded>((event, emit) async {
+      try {
+        await _notesDatabaseService.saveNote(event.note);
+        final notes = await _notesDatabaseService.getAllNotes();
+        emit(NotesLoadSuccess(notes));
+      } catch (e) {
+        emit(NotesLoadFailure(e.toString()));
+      }
+    });
   }
 }

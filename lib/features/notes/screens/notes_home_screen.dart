@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kivixa/features/notes/blocs/notes_bloc.dart';
 import 'package:kivixa/features/notes/blocs/notes_event.dart';
 import 'package:kivixa/features/notes/blocs/notes_state.dart';
+import 'package:kivixa/features/notes/services/export_service.dart';
 
 import 'package:kivixa/features/notes/screens/notes_settings_screen.dart';
 
@@ -14,6 +15,8 @@ class NotesHomeScreen extends StatefulWidget {
 }
 
 class _NotesHomeScreenState extends State<NotesHomeScreen> {
+  final ExportService _exportService = ExportService();
+
   @override
   void initState() {
     super.initState();
@@ -26,6 +29,15 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
       appBar: AppBar(
         title: const Text('Notes'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.upload_file),
+            onPressed: () async {
+              final note = await _exportService.importFromJson();
+              if (note != null) {
+                context.read<NotesBloc>().add(NoteAdded(note));
+              }
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
