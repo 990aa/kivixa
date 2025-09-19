@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kivixa/features/notes/blocs/document_bloc.dart';
-import 'package:kivixa/features/notes/blocs/document_event.dart';
-import 'package:kivixa/features/notes/blocs/document_state.dart';
 import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
-import 'package:kivixa/features/notes/blocs/drawing_event.dart';
-import 'package:kivixa/features/notes/blocs/drawing_state.dart';
 import 'package:kivixa/features/notes/widgets/notes_drawing_canvas.dart';
 
 class NoteEditorScreen extends StatefulWidget {
@@ -57,16 +53,18 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
           } else if (documentState is DocumentLoadSuccess) {
             return BlocBuilder<DrawingBloc, DrawingState>(
               builder: (context, drawingState) {
-                drawingState.notifier.addListener(() {
-                  final updatedDocument = documentState.document.copyWith(
-                    strokes: drawingState.notifier.currentSketch.strokes,
+                if (drawingState is DrawingLoadSuccess) {
+                  drawingState.notifier.addListener(() {
+                    final updatedDocument = documentState.document;
+                    // updatedDocument.pages.first.drawingData = drawingState.notifier.currentSketch.strokes.map((e) => DrawingStroke.fromSketch(e)).toList();
+                    context.read<DocumentBloc>().add(DocumentContentChanged(updatedDocument));
+                  });
+                  return NotesDrawingCanvas(
+                    notifier: drawingState.notifier,
                   );
-                  context.read<DocumentBloc>().add(DocumentContentChanged(updatedDocument));
-                });
-                return NotesDrawingCanvas(
-                  notifier: drawingState.notifier,
-                );
-                            },
+                }
+                return const Center(child: CircularProgressIndicator());
+              },
             );
           } else if (documentState is DocumentLoadFailure) {
             return Center(child: Text(documentState.error));
