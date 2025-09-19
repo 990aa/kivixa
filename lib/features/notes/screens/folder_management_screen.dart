@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
 import 'package:kivixa/features/notes/widgets/folder_tree_sidebar.dart';
 import 'package:kivixa/features/notes/widgets/notes_grid_view.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
 
 class FolderManagementScreen extends StatefulWidget {
   const FolderManagementScreen({super.key});
@@ -84,9 +83,9 @@ class _FolderManagementScreenState extends State<FolderManagementScreen> {
         ),
         child: NotesGridView(folders: currentFolders),
       ),
-      floatingActionButton: ShadcnButton.primary(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {},
-        text: const Text('Add'),
+        label: const Text('Add'),
         icon: const Icon(Icons.add),
       ),
     );
