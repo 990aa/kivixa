@@ -40,21 +40,27 @@ class ExportService {
         pw.Page(
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
-            return pw.CustomPaint(
-              size: PdfPoint(PdfPageFormat.a4.width, PdfPageFormat.a4.height),
-              painter: (pw.Context context, pw.Canvas canvas, PdfPoint size) {
-                for (final stroke in page.drawingData) {
-                  for (int i = 0; i < stroke.coordinates.length - 1; i++) {
-                    final p1 = stroke.coordinates[i];
-                    final p2 = stroke.coordinates[i + 1];
-                    canvas.setStrokeColor(PdfColor.fromInt(stroke.color));
-                    canvas.setLineWidth(stroke.width);
-                    canvas.moveTo(p1.dx, PdfPageFormat.a4.height - p1.dy);
-                    canvas.lineTo(p2.dx, PdfPageFormat.a4.height - p2.dy);
-                    canvas.strokePath();
-                  }
-                }
-              },
+            return pw.Stack(
+              children: [
+                for (final stroke in page.drawingData)
+                  for (int i = 0; i < stroke.coordinates.length - 1; i++)
+                    pw.Positioned(
+                      left: 0,
+                      top: 0,
+                      child: pw.Container(
+                        width: PdfPageFormat.a4.width,
+                        height: PdfPageFormat.a4.height,
+                        child: pw.Line(
+                          x1: stroke.coordinates[i].dx,
+                          y1: PdfPageFormat.a4.height - stroke.coordinates[i].dy,
+                          x2: stroke.coordinates[i + 1].dx,
+                          y2: PdfPageFormat.a4.height - stroke.coordinates[i + 1].dy,
+                          color: PdfColor.fromInt(stroke.color),
+                          thickness: stroke.width,
+                        ),
+                      ),
+                    ),
+              ],
             );
           },
         ),
@@ -68,15 +74,4 @@ class ExportService {
     return path;
   }
 
-  Future<String> exportToPng(
-    NoteDocument document,
-    Uint8List pngBytes,
-    int pageNumber,
-  ) async {
-    final directory = await getApplicationDocumentsDirectory();
-    final path = '${directory.path}/${document.title}_page_$pageNumber.png';
-    final file = File(path);
-    await file.writeAsBytes(pngBytes);
-    return path;
-  }
 }
