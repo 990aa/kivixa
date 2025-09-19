@@ -110,35 +110,52 @@ class RuledPaperPainter extends CustomPainter {
 }
 
 class GridPaperPainter extends CustomPainter {
-  final Color lineColor;
-  final double gridSpacing;
+  final Color majorLineColor;
+  final Color minorLineColor;
+  final double majorGridSpacing;
+  final double minorGridSpacing;
   final double margin;
+  final int majorLineInterval;
 
   GridPaperPainter({
-    this.lineColor = Colors.grey,
-    this.gridSpacing = 20.0,
+    this.majorLineColor = Colors.grey,
+    this.minorLineColor = Colors.grey,
+    this.majorGridSpacing = 100.0,
+    this.minorGridSpacing = 20.0,
     this.margin = 20.0,
+    this.majorLineInterval = 5,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = lineColor
+    final majorPaint = Paint()
+      ..color = majorLineColor
+      ..strokeWidth = 0.75;
+    final minorPaint = Paint()
+      ..color = minorLineColor
       ..strokeWidth = 0.5;
 
-    for (double x = margin; x < size.width - margin; x += gridSpacing) {
+    for (double x = margin; x < size.width - margin; x += minorGridSpacing) {
+      final paint = ((x - margin) / minorGridSpacing) % majorLineInterval == 0
+          ? majorPaint
+          : minorPaint;
       canvas.drawLine(Offset(x, margin), Offset(x, size.height - margin), paint);
     }
 
-    for (double y = margin; y < size.height - margin; y += gridSpacing) {
+    for (double y = margin; y < size.height - margin; y += minorGridSpacing) {
+      final paint = ((y - margin) / minorGridSpacing) % majorLineInterval == 0
+          ? majorPaint
+          : minorPaint;
       canvas.drawLine(Offset(margin, y), Offset(size.width - margin, y), paint);
     }
   }
 
   @override
   bool shouldRepaint(GridPaperPainter oldDelegate) {
-    return oldDelegate.lineColor != lineColor ||
-        oldDelegate.gridSpacing != gridSpacing ||
+    return oldDelegate.majorLineColor != majorLineColor ||
+        oldDelegate.minorLineColor != minorLineColor ||
+        oldDelegate.majorGridSpacing != majorGridSpacing ||
+        oldDelegate.minorGridSpacing != minorGridSpacing ||
         oldDelegate.margin != margin;
   }
 }
