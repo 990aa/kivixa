@@ -24,4 +24,20 @@ class NoteDocument {
       _$NoteDocumentFromJson(json);
 
   Map<String, dynamic> toJson() => _$NoteDocumentToJson(this);
+
+  NoteDocument copyWith({
+    String? id,
+    String? title,
+    List<NotePage>? pages,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return NoteDocument(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      pages: pages ?? this.pages,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }
