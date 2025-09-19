@@ -1,4 +1,6 @@
 
+import 'dart:typed_data';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,8 +9,9 @@ import 'package:scribble/scribble.dart';
 
 class NotesDrawingCanvas extends StatefulWidget {
   final ScribbleNotifier notifier;
+  final Uint8List? backgroundImage;
 
-  const NotesDrawingCanvas({super.key, required this.notifier});
+  const NotesDrawingCanvas({super.key, required this.notifier, this.backgroundImage});
 
   @override
   State<NotesDrawingCanvas> createState() => _NotesDrawingCanvasState();
@@ -85,6 +88,13 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
                       _showContextMenu(context, details.globalPosition),
                   child: Stack(
                     children: [
+                      if (widget.backgroundImage != null)
+                        Image.memory(
+                          widget.backgroundImage!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                        ),
                       PaperBackground(paperType: _paperType),
                       Listener(
                         onPointerDown: (details) {
