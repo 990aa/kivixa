@@ -12,6 +12,8 @@ class Folder {
   final IconData icon;
   final List<Folder> subFolders;
   final int noteCount;
+  final double size;
+  final double capacity;
 
   Folder({
     String? id,
@@ -23,6 +25,8 @@ class Folder {
     this.icon = Icons.folder,
     this.subFolders = const [],
     this.noteCount = 0,
+    this.size = 0.0,
+    this.capacity = 1.0,
   })  : id = id ?? const Uuid().v4(),
         createdAt = createdAt ?? DateTime.now(),
         lastModified = lastModified ?? DateTime.now();
@@ -37,6 +41,8 @@ class Folder {
     IconData? icon,
     List<Folder>? subFolders,
     int? noteCount,
+    double? size,
+    double? capacity,
   }) {
     return Folder(
       id: id ?? this.id,
@@ -48,6 +54,8 @@ class Folder {
       icon: icon ?? this.icon,
       subFolders: subFolders ?? this.subFolders,
       noteCount: noteCount ?? this.noteCount,
+      size: size ?? this.size,
+      capacity: capacity ?? this.capacity,
     );
   }
 }
