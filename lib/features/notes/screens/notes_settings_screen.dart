@@ -12,21 +12,25 @@ class NotesSettingsScreen extends StatefulWidget {
 
 class _NotesSettingsScreenState extends State<NotesSettingsScreen> {
   final SettingsService _settingsService = SettingsService();
-  late Future<NotesSettings> _settingsFuture;
+  NotesSettings? _settings;
 
   @override
   void initState() {
     super.initState();
-    _settingsFuture = _settingsService.loadSettings();
+    _loadSettings();
   }
 
-  void _updateSetting(Function(NotesSettings) updater) {
+  Future<void> _loadSettings() async {
+    final settings = await _settingsService.loadSettings();
     setState(() {
-      _settingsFuture = _settingsFuture.then((settings) {
-        updater(settings);
-        _settingsService.saveSettings(settings);
-        return settings;
-      });
+      _settings = settings;
+    });
+  }
+
+  void _updateSetting(VoidCallback updater) {
+    setState(() {
+      updater();
+      _settingsService.saveSettings(_settings!);
     });
   }
 
@@ -36,113 +40,103 @@ class _NotesSettingsScreenState extends State<NotesSettingsScreen> {
       appBar: AppBar(
         title: const Text('Notes Settings'),
       ),
-      body: FutureBuilder<NotesSettings>(
-        future: _settingsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error loading settings'));
-          }
-          final settings = snapshot.data!;
-          return ListView(
-            padding: const EdgeInsets.all(16.0),
-            children: [
-              _buildSectionTitle('Note Preferences'),
-              _buildDropdownSetting<PaperType>(
-                title: 'Default Paper Type',
-                value: settings.defaultPaperType,
-                items: PaperType.values,
-                onChanged: (value) => _updateSetting((s) => s.copyWith(defaultPaperType: value)),
-              ),
-              _buildColorPickerSetting(
-                title: 'Default Pen Color',
-                color: settings.defaultPenColor,
-                onColorChanged: (color) => _updateSetting((s) => s.copyWith(defaultPenColor: color)),
-              ),
-              _buildSliderSetting(
-                title: 'Default Stroke Width',
-                value: settings.defaultStrokeWidth,
-                min: 1.0,
-                max: 10.0,
-                divisions: 9,
-                onChanged: (value) => _updateSetting((s) => s.copyWith(defaultStrokeWidth: value)),
-              ),
-              _buildDropdownSetting<AutoSaveFrequency>(
-                title: 'Auto-save Frequency',
-                value: settings.autoSaveFrequency,
-                items: AutoSaveFrequency.values,
-                onChanged: (value) => _updateSetting((s) => s.copyWith(autoSaveFrequency: value)),
-              ),
-              _buildDropdownSetting<PaperSize>(
-                title: 'Paper Size',
-                value: settings.paperSize,
-                items: PaperSize.values,
-                onChanged: (value) => _updateSetting((s) => s.copyWith(paperSize: value)),
-              ),
-              _buildDropdownSetting<ExportQuality>(
-                title: 'Export Quality',
-                value: settings.exportQuality,
-                items: ExportQuality.values,
-                onChanged: (value) => _updateSetting((s) => s.copyWith(exportQuality: value)),
-              ),
-              _buildSectionTitle('Drawing Preferences'),
-              _buildSwitchSetting(
-                title: 'Stylus-only Mode',
-                value: settings.stylusOnlyMode,
-                onChanged: (value) => _updateSetting((s) => s.copyWith(stylusOnlyMode: value)),
-              ),
-              _buildSliderSetting(
-                title: 'Palm Rejection Sensitivity',
-                value: settings.palmRejectionSensitivity,
-                min: 0.0,
-                max: 1.0,
-                divisions: 10,
-                onChanged: (value) => _updateSetting((s) => s.copyWith(palmRejectionSensitivity: value)),
-              ),
-              _buildSliderSetting(
-                title: 'Pressure Sensitivity',
-                value: settings.pressureSensitivity,
-                min: 0.0,
-                max: 1.0,
-                divisions: 10,
-                onChanged: (value) => _updateSetting((s) => s.copyWith(pressureSensitivity: value)),
-              ),
-              _buildSwitchSetting(
-                title: 'Enable Zoom Gestures',
-                value: settings.zoomGestureEnabled,
-                onChanged: (value) => _updateSetting((s) => s.copyWith(zoomGestureEnabled: value)),
-              ),
-              _buildSectionTitle('Storage and Sync'),
-              _buildDropdownSetting<AutoCleanup>(
-                title: 'Auto-cleanup Old Documents',
-                value: settings.autoCleanup,
-                items: AutoCleanup.values,
-                onChanged: (value) => _updateSetting((s) => s.copyWith(autoCleanup: value)),
-              ),
-              _buildSliderSetting(
-                title: 'Max Storage Limit (MB)',
-                value: settings.maxStorageLimit,
-                min: 100.0,
-                max: 2000.0,
-                divisions: 19,
-                onChanged: (value) => _updateSetting((s) => s.copyWith(maxStorageLimit: value)),
-              ),
-              _buildTextFieldSetting(
-                title: 'Export Location',
-                initialValue: settings.exportLocation,
-                onChanged: (value) => _updateSetting((s) => s.copyWith(exportLocation: value)),
-              ),
-              _buildTextFieldSetting(
-                title: 'Document Naming Pattern',
-                initialValue: settings.documentNamePattern,
-                onChanged: (value) => _updateSetting((s) => s.copyWith(documentNamePattern: value)),
-              ),
-            ],
-          );
-        },
-      ),
+      body: _settings == null
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
+              padding: const EdgeInsets.all(16.0),
+              children: [
+                _buildSectionTitle('Note Preferences'),
+                _buildDropdownSetting<PaperType>(
+                  title: 'Default Paper Type',
+                  value: _settings!.defaultPaperType,
+                  items: PaperType.values,
+                  onChanged: (value) => _updateSetting(() => _settings!.defaultPaperType = value!),
+                ),
+                _buildColorPickerSetting(
+                  title: 'Default Pen Color',
+                  color: _settings!.defaultPenColor,
+                  onColorChanged: (color) => _updateSetting(() => _settings!.defaultPenColor = color),
+                ),
+                _buildSliderSetting(
+                  title: 'Default Stroke Width',
+                  value: _settings!.defaultStrokeWidth,
+                  min: 1.0,
+                  max: 10.0,
+                  divisions: 9,
+                  onChanged: (value) => _updateSetting(() => _settings!.defaultStrokeWidth = value),
+                ),
+                _buildDropdownSetting<AutoSaveFrequency>(
+                  title: 'Auto-save Frequency',
+                  value: _settings!.autoSaveFrequency,
+                  items: AutoSaveFrequency.values,
+                  onChanged: (value) => _updateSetting(() => _settings!.autoSaveFrequency = value!),
+                ),
+                _buildDropdownSetting<PaperSize>(
+                  title: 'Paper Size',
+                  value: _settings!.paperSize,
+                  items: PaperSize.values,
+                  onChanged: (value) => _updateSetting(() => _settings!.paperSize = value!),
+                ),
+                _buildDropdownSetting<ExportQuality>(
+                  title: 'Export Quality',
+                  value: _settings!.exportQuality,
+                  items: ExportQuality.values,
+                  onChanged: (value) => _updateSetting(() => _settings!.exportQuality = value!),
+                ),
+                _buildSectionTitle('Drawing Preferences'),
+                _buildSwitchSetting(
+                  title: 'Stylus-only Mode',
+                  value: _settings!.stylusOnlyMode,
+                  onChanged: (value) => _updateSetting(() => _settings!.stylusOnlyMode = value),
+                ),
+                _buildSliderSetting(
+                  title: 'Palm Rejection Sensitivity',
+                  value: _settings!.palmRejectionSensitivity,
+                  min: 0.0,
+                  max: 1.0,
+                  divisions: 10,
+                  onChanged: (value) => _updateSetting(() => _settings!.palmRejectionSensitivity = value),
+                ),
+                _buildSliderSetting(
+                  title: 'Pressure Sensitivity',
+                  value: _settings!.pressureSensitivity,
+                  min: 0.0,
+                  max: 1.0,
+                  divisions: 10,
+                  onChanged: (value) => _updateSetting(() => _settings!.pressureSensitivity = value),
+                ),
+                _buildSwitchSetting(
+                  title: 'Enable Zoom Gestures',
+                  value: _settings!.zoomGestureEnabled,
+                  onChanged: (value) => _updateSetting(() => _settings!.zoomGestureEnabled = value),
+                ),
+                _buildSectionTitle('Storage and Sync'),
+                _buildDropdownSetting<AutoCleanup>(
+                  title: 'Auto-cleanup Old Documents',
+                  value: _settings!.autoCleanup,
+                  items: AutoCleanup.values,
+                  onChanged: (value) => _updateSetting(() => _settings!.autoCleanup = value!),
+                ),
+                _buildSliderSetting(
+                  title: 'Max Storage Limit (MB)',
+                  value: _settings!.maxStorageLimit,
+                  min: 100.0,
+                  max: 2000.0,
+                  divisions: 19,
+                  onChanged: (value) => _updateSetting(() => _settings!.maxStorageLimit = value),
+                ),
+                _buildTextFieldSetting(
+                  title: 'Export Location',
+                  initialValue: _settings!.exportLocation,
+                  onChanged: (value) => _updateSetting(() => _settings!.exportLocation = value),
+                ),
+                _buildTextFieldSetting(
+                  title: 'Document Naming Pattern',
+                  initialValue: _settings!.documentNamePattern,
+                  onChanged: (value) => _updateSetting(() => _settings!.documentNamePattern = value),
+                ),
+              ],
+            ),
     );
   }
 
@@ -258,11 +252,15 @@ class _NotesSettingsScreenState extends State<NotesSettingsScreen> {
     required String initialValue,
     required ValueChanged<String> onChanged,
   }) {
+    final controller = TextEditingController(text: initialValue);
+    controller.addListener(() {
+      onChanged(controller.text);
+    });
+
     return ListTile(
       title: Text(title),
       subtitle: TextFormField(
-        initialValue: initialValue,
-        onChanged: onChanged,
+        controller: controller,
       ),
     );
   }
