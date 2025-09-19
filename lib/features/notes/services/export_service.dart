@@ -32,46 +32,31 @@ class ExportService {
     return path;
   }
 
-  Future<String> exportToPdf(NoteDocument document) async {
-    final pdf = pw.Document();
 
-    for (final page in document.pages) {
+  /// Exports a list of PNG images (one per page) as a PDF.
+  Future<String> exportImagesToPdf(String title, List<Uint8List> pngPages) async {
+    final pdf = pw.Document();
+    for (final pngBytes in pngPages) {
+      final image = pw.MemoryImage(pngBytes);
       pdf.addPage(
         pw.Page(
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
-            return pw.Stack(
-              children: [
-                for (final stroke in page.drawingData)
-                  for (int i = 0; i < stroke.coordinates.length - 1; i++)
-                    pw.Positioned(
-                      left: 0,
-                      top: 0,
-                      child: pw.Container(
-                        width: PdfPageFormat.a4.width,
-                        height: PdfPageFormat.a4.height,
-                        child: pw.Line(
-                          x1: stroke.coordinates[i].dx,
-                          y1: PdfPageFormat.a4.height - stroke.coordinates[i].dy,
-                          x2: stroke.coordinates[i + 1].dx,
-                          y2: PdfPageFormat.a4.height - stroke.coordinates[i + 1].dy,
-                          color: PdfColor.fromInt(stroke.color),
-                          thickness: stroke.width,
-                        ),
-                      ),
-                    ),
-              ],
+            return pw.Center(
+              child: pw.Image(image,
+                fit: pw.BoxFit.contain,
+                width: PdfPageFormat.a4.width,
+                height: PdfPageFormat.a4.height,
+              ),
             );
           },
         ),
       );
     }
-
     final directory = await getApplicationDocumentsDirectory();
-    final path = '${directory.path}/${document.title}.pdf';
+    final path = '${directory.path}/$title.pdf';
     final file = File(path);
     await file.writeAsBytes(await pdf.save());
     return path;
   }
-
 }
