@@ -6,22 +6,17 @@ import 'package:kivixa/features/notes/widgets/paper_background.dart';
 import 'package:scribble/scribble.dart';
 
 class NotesDrawingCanvas extends StatefulWidget {
-  const NotesDrawingCanvas({super.key});
+  final ScribbleNotifier notifier;
+
+  const NotesDrawingCanvas({super.key, required this.notifier});
 
   @override
   State<NotesDrawingCanvas> createState() => _NotesDrawingCanvasState();
 }
 
 class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
-  late ScribbleNotifier notifier;
   PaperType _paperType = PaperType.blank;
   final TransformationController _transformationController = TransformationController();
-
-  @override
-  void initState() {
-    super.initState();
-    notifier = ScribbleNotifier();
-  }
 
   void _showContextMenu(BuildContext context, Offset offset) async {
     final result = await showMenu(
@@ -65,8 +60,8 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
         RedoIntent(),
       },
       actions: {
-        UndoIntent: CallbackAction(onInvoke: (e) => notifier.undo()),
-        RedoIntent: CallbackAction(onInvoke: (e) => notifier.redo()),
+        UndoIntent: CallbackAction(onInvoke: (e) => widget.notifier.undo()),
+        RedoIntent: CallbackAction(onInvoke: (e) => widget.notifier.redo()),
       },
       child: Column(
         children: [
@@ -96,19 +91,19 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
                           switch (details.kind) {
                             case PointerDeviceKind.stylus:
                             case PointerDeviceKind.invertedStylus:
-                              notifier.setAllowedPointers(1);
+                              widget.notifier.setAllowedPointers(1);
                               break;
                             case PointerDeviceKind.touch:
-                              notifier.setAllowedPointers(2);
+                              widget.notifier.setAllowedPointers(2);
                               break;
                             case PointerDeviceKind.mouse:
-                              notifier.setAllowedPointers(1);
+                              widget.notifier.setAllowedPointers(1);
                               break;
                             default:
                           }
                         },
                         child: Scribble(
-                          notifier: notifier,
+                          notifier: widget.notifier,
                           drawPen: true,
                           pressureCurve: Curves.easeInOut,
                         ),
@@ -132,11 +127,11 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
         children: [
           IconButton(
             icon: const Icon(Icons.undo),
-            onPressed: () => notifier.undo(),
+            onPressed: () => widget.notifier.undo(),
           ),
           IconButton(
             icon: const Icon(Icons.redo),
-            onPressed: () => notifier.redo(),
+            onPressed: () => widget.notifier.redo(),
           ),
           _buildToolButton(ScribbleTool.pen),
           _buildToolButton(ScribbleTool.eraser),
@@ -159,7 +154,7 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
 
   Widget _buildToolButton(ScribbleTool tool) {
     return ValueListenableBuilder(
-      valueListenable: notifier,
+      valueListenable: widget.notifier,
       builder: (context, value, child) {
         final isSelected = value.activeTool == tool;
         return IconButton(
@@ -167,7 +162,7 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
             _getIconForTool(tool),
             color: isSelected ? Theme.of(context).colorScheme.secondary : null,
           ),
-          onPressed: () => notifier.setTool(tool),
+          onPressed: () => widget.notifier.setTool(tool),
         );
       },
     );
@@ -188,7 +183,7 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
 
   Widget _buildColorPalette() {
     return ValueListenableBuilder(
-      valueListenable: notifier,
+      valueListenable: widget.notifier,
       builder: (context, value, child) {
         return Row(
           children: [
@@ -204,7 +199,7 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
 
   Widget _buildColorButton(Color color) {
     return GestureDetector(
-      onTap: () => notifier.setColor(color),
+      onTap: () => widget.notifier.setColor(color),
       child: CircleAvatar(
         backgroundColor: color,
         radius: 12,
@@ -214,13 +209,13 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
 
   Widget _buildStrokeWidthSlider() {
     return ValueListenableBuilder(
-      valueListenable: notifier,
+      valueListenable: widget.notifier,
       builder: (context, value, child) {
         return Slider(
           value: value.strokeWidth,
           min: 1,
           max: 10,
-          onChanged: (val) => notifier.setStrokeWidth(val),
+          onChanged: (val) => widget.notifier.setStrokeWidth(val),
         );
       },
     );
