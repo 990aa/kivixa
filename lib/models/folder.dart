@@ -4,6 +4,7 @@ class Folder {
   String cover;
   DateTime createdAt;
   int? colorValue; // Store color as int (nullable for backward compatibility)
+  int? parentId; // Add this line
 
   Folder({
     this.id,
@@ -11,6 +12,7 @@ class Folder {
     required this.cover,
     required this.createdAt,
     this.colorValue,
+    this.parentId, // Add this line
   });
 
   Map<String, dynamic> toMap() {
@@ -20,6 +22,7 @@ class Folder {
       'cover': cover,
       'createdAt': createdAt.toIso8601String(),
       'colorValue': colorValue,
+      'parentId': parentId, // Add this line
     };
   }
 
@@ -30,6 +33,7 @@ class Folder {
       cover: map['cover'] as String,
       createdAt: DateTime.parse(map['createdAt'] as String),
       colorValue: map['colorValue'] as int?,
+      parentId: map['parentId'] as int?, // Add this line
     );
   }
 }
