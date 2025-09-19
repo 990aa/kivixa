@@ -1,4 +1,5 @@
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kivixa/features/notes/widgets/paper_background.dart';
@@ -14,6 +15,7 @@ class NotesDrawingCanvas extends StatefulWidget {
 class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
   late ScribbleNotifier notifier;
   PaperType _paperType = PaperType.blank;
+  final TransformationController _transformationController = TransformationController();
 
   @override
   void initState() {
@@ -35,13 +37,13 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
 
     switch (result) {
       case 'copy':
-        // TODO: Implement copy
+      // TODO: Implement copy
         break;
       case 'cut':
-        // TODO: Implement cut
+      // TODO: Implement cut
         break;
       case 'paste':
-        // TODO: Implement paste
+      // TODO: Implement paste
         break;
       case 'paper':
         setState(() {
@@ -58,9 +60,9 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
       autofocus: true,
       shortcuts: {
         LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ):
-            UndoIntent(),
+        UndoIntent(),
         LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyY):
-            RedoIntent(),
+        RedoIntent(),
       },
       actions: {
         UndoIntent: CallbackAction(onInvoke: (e) => notifier.undo()),
@@ -70,38 +72,49 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
         children: [
           _buildToolbar(),
           Expanded(
-            child: InteractiveViewer(
-              minScale: 0.5,
-              maxScale: 4.0,
-              child: GestureDetector(
-                onSecondaryTapUp: (details) =>
-                    _showContextMenu(context, details.globalPosition),
-                child: Stack(
-                  children: [
-                    PaperBackground(paperType: _paperType),
-                    Listener(
-                      onPointerDown: (details) {
-                        switch (details.kind) {
-                          case PointerDeviceKind.stylus:
-                          case PointerDeviceKind.invertedStylus:
-                            notifier.setAllowedPointers(1);
-                            break;
-                          case PointerDeviceKind.touch:
-                            notifier.setAllowedPointers(2);
-                            break;
-                          case PointerDeviceKind.mouse:
-                            notifier.setAllowedPointers(1);
-                            break;
-                          default:
-                        }
-                      },
-                      child: Scribble(
-                        notifier: notifier,
-                        drawPen: true,
-                        pressureCurve: Curves.easeInOut,
+            child: Listener(
+              onPointerSignal: (pointerSignal) {
+                if (pointerSignal is PointerScrollEvent) {
+                  final scrolled = pointerSignal.scrollDelta.dy;
+                  final currentScale = _transformationController.value.getMaxScaleOnAxis();
+                  final newScale = (currentScale - scrolled / 1000).clamp(0.5, 4.0);
+                  _transformationController.value = Matrix4.identity()..scale(newScale);
+                }
+              },
+              child: InteractiveViewer(
+                transformationController: _transformationController,
+                minScale: 0.5,
+                maxScale: 4.0,
+                child: GestureDetector(
+                  onSecondaryTapUp: (details) =>
+                      _showContextMenu(context, details.globalPosition),
+                  child: Stack(
+                    children: [
+                      PaperBackground(paperType: _paperType),
+                      Listener(
+                        onPointerDown: (details) {
+                          switch (details.kind) {
+                            case PointerDeviceKind.stylus:
+                            case PointerDeviceKind.invertedStylus:
+                              notifier.setAllowedPointers(1);
+                              break;
+                            case PointerDeviceKind.touch:
+                              notifier.setAllowedPointers(2);
+                              break;
+                            case PointerDeviceKind.mouse:
+                              notifier.setAllowedPointers(1);
+                              break;
+                            default:
+                          }
+                        },
+                        child: Scribble(
+                          notifier: notifier,
+                          drawPen: true,
+                          pressureCurve: Curves.easeInOut,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -135,7 +148,7 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
             onPressed: () {
               setState(() {
                 _paperType = PaperType.values[
-                    (_paperType.index + 1) % PaperType.values.length];
+                (_paperType.index + 1) % PaperType.values.length];
               });
             },
           ),
