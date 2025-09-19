@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kivixa/features/notes/widgets/paper_background.dart';
 import 'package:scribble/scribble.dart';
 
 class NotesDrawingCanvas extends StatefulWidget {
@@ -12,6 +13,7 @@ class NotesDrawingCanvas extends StatefulWidget {
 
 class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
   late ScribbleNotifier notifier;
+  PaperType _paperType = PaperType.blank;
 
   @override
   void initState() {
@@ -40,27 +42,32 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
             child: InteractiveViewer(
               minScale: 0.5,
               maxScale: 4.0,
-              child: Listener(
-                onPointerDown: (details) {
-                  switch (details.kind) {
-                    case PointerDeviceKind.stylus:
-                    case PointerDeviceKind.invertedStylus:
-                      notifier.setAllowedPointers(1);
-                      break;
-                    case PointerDeviceKind.touch:
-                      notifier.setAllowedPointers(2);
-                      break;
-                    case PointerDeviceKind.mouse:
-                      notifier.setAllowedPointers(1);
-                      break;
-                    default:
-                  }
-                },
-                child: Scribble(
-                  notifier: notifier,
-                  drawPen: true,
-                  pressureCurve: Curves.easeInOut,
-                ),
+              child: Stack(
+                children: [
+                  PaperBackground(paperType: _paperType),
+                  Listener(
+                    onPointerDown: (details) {
+                      switch (details.kind) {
+                        case PointerDeviceKind.stylus:
+                        case PointerDeviceKind.invertedStylus:
+                          notifier.setAllowedPointers(1);
+                          break;
+                        case PointerDeviceKind.touch:
+                          notifier.setAllowedPointers(2);
+                          break;
+                        case PointerDeviceKind.mouse:
+                          notifier.setAllowedPointers(1);
+                          break;
+                        default:
+                      }
+                    },
+                    child: Scribble(
+                      notifier: notifier,
+                      drawPen: true,
+                      pressureCurve: Curves.easeInOut,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -88,6 +95,15 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
           _buildToolButton(ScribbleTool.highlighter),
           _buildColorPalette(),
           _buildStrokeWidthSlider(),
+          IconButton(
+            icon: const Icon(Icons.layers),
+            onPressed: () {
+              setState(() {
+                _paperType = PaperType.values[
+                    (_paperType.index + 1) % PaperType.values.length];
+              });
+            },
+          ),
         ],
       ),
     );
