@@ -22,6 +22,17 @@ class DrawingStroke {
       _$DrawingStrokeFromJson(json);
 
   Map<String, dynamic> toJson() => _$DrawingStrokeToJson(this);
+
+  factory DrawingStroke.fromScribble(Map<String, dynamic> json) {
+    return DrawingStroke(
+      coordinates: (json['points'] as List)
+          .map((p) => Offset(p['x'] as double, p['y'] as double))
+          .toList(),
+      color: json['color'] as int,
+      width: json['strokeWidth'] as double,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
+    );
+  }
 }
 
 // Since Offset is not directly serializable, we need a custom converter.
