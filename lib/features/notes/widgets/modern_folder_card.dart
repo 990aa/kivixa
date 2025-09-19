@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:intl/intl.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
+import 'package:kivixa/features/notes/widgets/animated_progress_ring.dart';
 import 'package:mix/mix.dart';
 
 class ModernFolderCard extends StatefulWidget {
@@ -144,35 +145,53 @@ class _ModernFolderCardState extends State<ModernFolderCard> {
   }
 
   Widget _buildNoteCountBadge() {
-    return GlassmorphicContainer(
+    final progress = widget.folder.capacity > 0
+        ? widget.folder.size / widget.folder.capacity
+        : 0.0;
+
+    return SizedBox(
       width: 40,
       height: 40,
-      borderRadius: 20,
-      blur: 10,
-      alignment: Alignment.center,
-      border: 0.5,
-      linearGradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Colors.white.withOpacity(0.1),
-          Colors.white.withOpacity(0.05),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          AnimatedProgressRing(
+            progress: progress,
+            progressColor: widget.folder.color,
+            backgroundColor: Colors.white.withOpacity(0.1),
+          ),
+          GlassmorphicContainer(
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            blur: 10,
+            alignment: Alignment.center,
+            border: 0.5,
+            linearGradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withOpacity(0.1),
+                Colors.white.withOpacity(0.05),
+              ],
+            ),
+            borderGradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withOpacity(0.3),
+                Colors.white.withOpacity(0.1),
+              ],
+            ),
+            child: Text(
+              '${widget.folder.noteCount}',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
         ],
-      ),
-      borderGradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Colors.white.withOpacity(0.3),
-          Colors.white.withOpacity(0.1),
-        ],
-      ),
-      child: Text(
-        '${widget.folder.noteCount}',
-        style: TextStyle(
-          color: Colors.white.withOpacity(0.8),
-          fontWeight: FontWeight.bold,
-        ),
       ),
     );
   }
