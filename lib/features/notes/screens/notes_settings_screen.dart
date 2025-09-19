@@ -125,12 +125,12 @@ class _NotesSettingsScreenState extends State<NotesSettingsScreen> {
                   divisions: 19,
                   onChanged: (value) => _updateSetting(() => _settings!.maxStorageLimit = value),
                 ),
-                _buildTextFieldSetting(
+                _TextFieldSetting(
                   title: 'Export Location',
                   initialValue: _settings!.exportLocation,
                   onChanged: (value) => _updateSetting(() => _settings!.exportLocation = value),
                 ),
-                _buildTextFieldSetting(
+                _TextFieldSetting(
                   title: 'Document Naming Pattern',
                   initialValue: _settings!.documentNamePattern,
                   onChanged: (value) => _updateSetting(() => _settings!.documentNamePattern = value),
@@ -246,21 +246,47 @@ class _NotesSettingsScreenState extends State<NotesSettingsScreen> {
       onChanged: onChanged,
     );
   }
+}
 
-  Widget _buildTextFieldSetting({
-    required String title,
-    required String initialValue,
-    required ValueChanged<String> onChanged,
-  }) {
-    final controller = TextEditingController(text: initialValue);
-    controller.addListener(() {
-      onChanged(controller.text);
+class _TextFieldSetting extends StatefulWidget {
+  final String title;
+  final String initialValue;
+  final ValueChanged<String> onChanged;
+
+  const _TextFieldSetting({
+    required this.title,
+    required this.initialValue,
+    required this.onChanged,
+  });
+
+  @override
+  State<_TextFieldSetting> createState() => _TextFieldSettingState();
+}
+
+class _TextFieldSettingState extends State<_TextFieldSetting> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+    _controller.addListener(() {
+      widget.onChanged(_controller.text);
     });
+  }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ListTile(
-      title: Text(title),
+      title: Text(widget.title),
       subtitle: TextFormField(
-        controller: controller,
+        controller: _controller,
       ),
     );
   }
