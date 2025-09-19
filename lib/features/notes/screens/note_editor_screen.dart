@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kivixa/features/notes/blocs/document_bloc.dart';
 import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
+import 'package:kivixa/features/notes/models/drawing_stroke.dart';
 import 'package:kivixa/features/notes/widgets/notes_drawing_canvas.dart';
 
 class NoteEditorScreen extends StatefulWidget {
@@ -56,7 +57,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                 if (drawingState is DrawingLoadSuccess) {
                   drawingState.notifier.addListener(() {
                     final updatedDocument = documentState.document;
-                    // updatedDocument.pages.first.drawingData = drawingState.notifier.currentSketch.strokes.map((e) => DrawingStroke.fromSketch(e)).toList();
+                    final sketch = drawingState.notifier.toJson();
+                    if (sketch['points'] != null) {
+                      updatedDocument.pages.first.drawingData = (sketch['points'] as List)
+                          .map((e) => DrawingStroke.fromScribble(e))
+                          .toList();
+                    }
                     context.read<DocumentBloc>().add(DocumentContentChanged(updatedDocument));
                   });
                   return NotesDrawingCanvas(
