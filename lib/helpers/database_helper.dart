@@ -3,6 +3,9 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/folder.dart';
 import '../models/pdf.dart';
+import '../features/notes/models/note_document.dart';
+import '../features/notes/models/note_page.dart';
+import 'dart:convert';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
