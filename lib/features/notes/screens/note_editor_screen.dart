@@ -53,20 +53,39 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
           BlocBuilder<DocumentBloc, DocumentState>(
             builder: (context, state) {
               if (state is DocumentLoadSuccess) {
-                return IconButton(
-                  icon: const Icon(Icons.share),
-                  onPressed: () async {
-                    try {
-                      final path = await _exportService.exportToJson(state.document);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Exported to $path')),
-                      );
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Export failed: $e')),
-                      );
-                    }
-                  },
+                return Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.picture_as_pdf),
+                      onPressed: () async {
+                        try {
+                          final path = await _exportService.exportToPdf(state.document);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Exported to $path')),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Export failed: $e')),
+                          );
+                        }
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.share),
+                      onPressed: () async {
+                        try {
+                          final path = await _exportService.exportToJson(state.document);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Exported to $path')),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Export failed: $e')),
+                          );
+                        }
+                      },
+                    ),
+                  ],
                 );
               }
               return const SizedBox.shrink();
