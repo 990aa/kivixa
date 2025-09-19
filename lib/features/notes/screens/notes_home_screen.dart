@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kivixa/features/notes/blocs/notes_bloc.dart';
 import 'package:kivixa/features/notes/blocs/notes_event.dart';
 import 'package:kivixa/features/notes/blocs/notes_state.dart';
+import 'package:kivixa/features/notes/models/note_document.dart';
 import 'package:kivixa/features/notes/services/export_service.dart';
 
 import 'package:kivixa/features/notes/screens/notes_settings_screen.dart';
@@ -16,6 +17,9 @@ class NotesHomeScreen extends StatefulWidget {
 
 class _NotesHomeScreenState extends State<NotesHomeScreen> {
   final ExportService _exportService = ExportService();
+  bool _isSearching = false;
+  String _searchQuery = '';
+  List<NoteDocument> _filteredNotes = [];
 
   @override
   void initState() {
@@ -23,12 +27,46 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
     context.read<NotesBloc>().add(NotesLoaded());
   }
 
+  void _filterNotes(String query, List<NoteDocument> notes) {
+    _searchQuery = query;
+    _filteredNotes = notes
+        .where((note) => note.title.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notes'),
+        title: _isSearching
+            ? TextField(
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Search...',
+                  border: InputBorder.none,
+                ),
+                onChanged: (query) {
+                  final state = context.read<NotesBloc>().state;
+                  if (state is NotesLoadSuccess) {
+                    setState(() {
+                      _filterNotes(query, state.notes);
+                    });
+                  }
+                },
+              )
+            : const Text('Notes'),
         actions: [
+          IconButton(
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
+            onPressed: () {
+              setState(() {
+                _isSearching = !_isSearching;
+                if (!_isSearching) {
+                  _searchQuery = '';
+                }
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.upload_file),
             onPressed: () async {
@@ -54,10 +92,11 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
           if (state is NotesLoadInProgress) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is NotesLoadSuccess) {
+            final notes = _isSearching && _searchQuery.isNotEmpty ? _filteredNotes : state.notes;
             return ListView.builder(
-              itemCount: state.notes.length,
+              itemCount: notes.length,
               itemBuilder: (context, index) {
-                final note = state.notes[index];
+                final note = notes[index];
                 return ListTile(
                   title: Text(note.title),
                   onTap: () {
