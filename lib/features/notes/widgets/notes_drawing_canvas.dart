@@ -21,6 +21,37 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
     notifier = ScribbleNotifier();
   }
 
+  void _showContextMenu(BuildContext context, Offset offset) async {
+    final result = await showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(offset.dx, offset.dy, offset.dx, offset.dy),
+      items: [
+        const PopupMenuItem(value: 'copy', child: Text('Copy')),
+        const PopupMenuItem(value: 'cut', child: Text('Cut')),
+        const PopupMenuItem(value: 'paste', child: Text('Paste')),
+        const PopupMenuItem(value: 'paper', child: Text('Change Paper Type')),
+      ],
+    );
+
+    switch (result) {
+      case 'copy':
+        // TODO: Implement copy
+        break;
+      case 'cut':
+        // TODO: Implement cut
+        break;
+      case 'paste':
+        // TODO: Implement paste
+        break;
+      case 'paper':
+        setState(() {
+          _paperType =
+              PaperType.values[(_paperType.index + 1) % PaperType.values.length];
+        });
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FocusableActionDetector(
@@ -42,32 +73,36 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
             child: InteractiveViewer(
               minScale: 0.5,
               maxScale: 4.0,
-              child: Stack(
-                children: [
-                  PaperBackground(paperType: _paperType),
-                  Listener(
-                    onPointerDown: (details) {
-                      switch (details.kind) {
-                        case PointerDeviceKind.stylus:
-                        case PointerDeviceKind.invertedStylus:
-                          notifier.setAllowedPointers(1);
-                          break;
-                        case PointerDeviceKind.touch:
-                          notifier.setAllowedPointers(2);
-                          break;
-                        case PointerDeviceKind.mouse:
-                          notifier.setAllowedPointers(1);
-                          break;
-                        default:
-                      }
-                    },
-                    child: Scribble(
-                      notifier: notifier,
-                      drawPen: true,
-                      pressureCurve: Curves.easeInOut,
+              child: GestureDetector(
+                onSecondaryTapUp: (details) =>
+                    _showContextMenu(context, details.globalPosition),
+                child: Stack(
+                  children: [
+                    PaperBackground(paperType: _paperType),
+                    Listener(
+                      onPointerDown: (details) {
+                        switch (details.kind) {
+                          case PointerDeviceKind.stylus:
+                          case PointerDeviceKind.invertedStylus:
+                            notifier.setAllowedPointers(1);
+                            break;
+                          case PointerDeviceKind.touch:
+                            notifier.setAllowedPointers(2);
+                            break;
+                          case PointerDeviceKind.mouse:
+                            notifier.setAllowedPointers(1);
+                            break;
+                          default:
+                        }
+                      },
+                      child: Scribble(
+                        notifier: notifier,
+                        drawPen: true,
+                        pressureCurve: Curves.easeInOut,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
