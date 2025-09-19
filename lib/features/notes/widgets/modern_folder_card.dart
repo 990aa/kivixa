@@ -32,10 +32,10 @@ class _ModernFolderCardState extends State<ModernFolderCard> {
   bool _isHovered = false;
 
   void _showContextMenu(BuildContext context) {
-  // In a real app, you'd show a more advanced context menu.
-  // For now, we'll just print to the console.
-  HapticFeedback.vibrate();
-  print('Context menu for ${widget.folder.name}');
+    // In a real app, you'd show a more advanced context menu.
+    // For now, we'll just print to the console.
+    HapticFeedback.vibrate();
+    print('Context menu for ${widget.folder.name}');
   }
 
   @override
@@ -134,11 +134,7 @@ class _ModernFolderCardState extends State<ModernFolderCard> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Icon(
-          widget.folder.icon,
-          color: iconColor,
-          size: 40,
-        ),
+        Icon(widget.folder.icon, color: iconColor, size: 40),
         _buildNoteCountBadge(),
       ],
     );

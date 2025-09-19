@@ -1,4 +1,3 @@
-
 import 'package:kivixa/features/notes/models/note_document.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -79,11 +78,7 @@ CREATE TABLE notes (
 
   Future<int> delete(String id) async {
     final db = await instance.database;
-    return await db.delete(
-      'notes',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('notes', where: 'id = ?', whereArgs: [id]);
   }
 
   Future close() async {

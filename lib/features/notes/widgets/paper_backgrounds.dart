@@ -35,9 +35,12 @@ class PaperBackgroundWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
-    final effectiveLineColor = lineColor ?? (isDarkMode ? Colors.white54 : Colors.black54);
-    final effectiveMajorLineColor = majorLineColor ?? (isDarkMode ? Colors.white38 : Colors.black38);
-    final effectiveMinorLineColor = minorLineColor ?? (isDarkMode ? Colors.white24 : Colors.black26);
+    final effectiveLineColor =
+        lineColor ?? (isDarkMode ? Colors.white54 : Colors.black54);
+    final effectiveMajorLineColor =
+        majorLineColor ?? (isDarkMode ? Colors.white38 : Colors.black38);
+    final effectiveMinorLineColor =
+        minorLineColor ?? (isDarkMode ? Colors.white24 : Colors.black26);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -64,14 +67,24 @@ class PaperBackgroundWidget extends StatelessWidget {
         return RepaintBoundary(
           child: CustomPaint(
             size: Size(width, height),
-            painter: _getPainter(paperType, effectiveLineColor, effectiveMajorLineColor, effectiveMinorLineColor),
+            painter: _getPainter(
+              paperType,
+              effectiveLineColor,
+              effectiveMajorLineColor,
+              effectiveMinorLineColor,
+            ),
           ),
         );
       },
     );
   }
 
-  CustomPainter _getPainter(PaperType type, Color line, Color major, Color minor) {
+  CustomPainter _getPainter(
+    PaperType type,
+    Color line,
+    Color major,
+    Color minor,
+  ) {
     switch (type) {
       case PaperType.ruled:
         return RuledPaperPainter(
@@ -160,7 +173,11 @@ class GridPaperPainter extends CustomPainter {
       final paint = ((x - margin) / minorGridSpacing) % majorLineInterval == 0
           ? majorPaint
           : minorPaint;
-      canvas.drawLine(Offset(x, margin), Offset(x, size.height - margin), paint);
+      canvas.drawLine(
+        Offset(x, margin),
+        Offset(x, size.height - margin),
+        paint,
+      );
     }
 
     for (double y = margin; y < size.height - margin; y += minorGridSpacing) {
@@ -224,10 +241,7 @@ class PlainPaperPainter extends CustomPainter {
         fontSize: 48,
         fontWeight: FontWeight.bold,
       );
-      final textSpan = TextSpan(
-        text: watermark,
-        style: textStyle,
-      );
+      final textSpan = TextSpan(text: watermark, style: textStyle);
       final textPainter = TextPainter(
         text: textSpan,
         textAlign: TextAlign.center,
