@@ -1,16 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kivixa/features/notes/blocs/notes_bloc.dart';
-import 'package:kivixa/features/notes/blocs/notes_event.dart';
-import 'package:kivixa/features/notes/blocs/notes_state.dart';
-import 'package:kivixa/features/notes/models/note_document.dart';
-import 'package:kivixa/features/notes/services/export_service.dart';
-import 'package:kivixa/features/notes/services/favorite_documents_service.dart';
-import 'package:kivixa/features/notes/services/recent_documents_service.dart';
-
+import 'package:kivixa/features/notes/models/folder_model.dart';
 import 'package:kivixa/features/notes/screens/notes_settings_screen.dart';
-
-enum FilterType { all, recents, favorites }
+import 'package:kivixa/features/notes/widgets/notes_grid_view.dart';
+import 'package:kivixa/features/notes/widgets/notes_list_view.dart';
 
 class NotesHomeScreen extends StatefulWidget {
   const NotesHomeScreen({super.key});
@@ -20,89 +12,44 @@ class NotesHomeScreen extends StatefulWidget {
 }
 
 class _NotesHomeScreenState extends State<NotesHomeScreen> {
-  final ExportService _exportService = ExportService();
-  final RecentDocumentsService _recentDocumentsService = RecentDocumentsService();
-  final FavoriteDocumentsService _favoriteDocumentsService = FavoriteDocumentsService();
-  bool _isSearching = false;
-  String _searchQuery = '';
-  List<NoteDocument> _filteredNotes = [];
-  FilterType _filterType = FilterType.all;
-  List<String> _recentDocumentIds = [];
-  List<String> _favoriteDocumentIds = [];
+  bool _isGridView = true;
+  bool _isLoading = true;
+  List<Folder> _folders = [];
 
   @override
   void initState() {
     super.initState();
-    context.read<NotesBloc>().add(NotesLoaded());
-    _getRecentDocuments();
-    _getFavoriteDocuments();
+    _loadFolders();
   }
 
-  void _getRecentDocuments() async {
-    _recentDocumentIds = await _recentDocumentsService.getRecentDocuments();
-    setState(() {});
+  Future<void> _loadFolders() async {
+    // Simulate network delay
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      _folders = _getDummyFolders();
+      _isLoading = false;
+    });
   }
 
-  void _getFavoriteDocuments() async {
-    _favoriteDocumentIds = await _favoriteDocumentsService.getFavoriteDocuments();
-    setState(() {});
-  }
-
-  void _filterNotes(String query, List<NoteDocument> notes) {
-    _searchQuery = query;
-    _filteredNotes = notes
-        .where((note) => note.title.toLowerCase().contains(query.toLowerCase()))
-        .toList();
+  Future<void> _refreshFolders() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await _loadFolders();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: _isSearching
-            ? TextField(
-                autofocus: true,
-                decoration: const InputDecoration(
-                  hintText: 'Search...',
-                  border: InputBorder.none,
-                ),
-                onChanged: (query) {
-                  final state = context.read<NotesBloc>().state;
-                  if (state is NotesLoadSuccess) {
-                    setState(() {
-                      _filterNotes(query, state.notes);
-                    });
-                  }
-                },
-              )
-            : const Text('Notes'),
+        title: const Text('Notes'),
         actions: [
           IconButton(
-            icon: Icon(_isSearching ? Icons.close : Icons.search),
+            icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
             onPressed: () {
               setState(() {
-                _isSearching = !_isSearching;
-                if (!_isSearching) {
-                  _searchQuery = '';
-                }
+                _isGridView = !_isGridView;
               });
-            },
-          ),
-          IconButton(
-            icon: Icon(_getFilterIcon()),
-            onPressed: () {
-              setState(() {
-                _filterType = FilterType.values[(_filterType.index + 1) % FilterType.values.length];
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.upload_file),
-            onPressed: () async {
-              final note = await _exportService.importFromJson();
-              if (note != null) {
-                context.read<NotesBloc>().add(NoteAdded(note));
-              }
             },
           ),
           IconButton(
@@ -116,68 +63,81 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
           ),
         ],
       ),
-      body: BlocBuilder<NotesBloc, NotesState>(
-        builder: (context, state) {
-          if (state is NotesLoadInProgress) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is NotesLoadSuccess) {
-            List<NoteDocument> notes;
-            switch (_filterType) {
-              case FilterType.recents:
-                notes = state.notes
-                    .where((note) => _recentDocumentIds.contains(note.id))
-                    .toList();
-                break;
-              case FilterType.favorites:
-                notes = state.notes
-                    .where((note) => _favoriteDocumentIds.contains(note.id))
-                    .toList();
-                break;
-              case FilterType.all:
-              default:
-                notes = _isSearching && _searchQuery.isNotEmpty ? _filteredNotes : state.notes;
-            }
-            return ListView.builder(
-              itemCount: notes.length,
-              itemBuilder: (context, index) {
-                final note = notes[index];
-                return ListTile(
-                  title: Text(note.title),
-                  onTap: () {
-                    Navigator.pushNamed(context, '/notes/editor', arguments: note.id)
-                        .then((_) {
-                      _getRecentDocuments();
-                      _getFavoriteDocuments();
-                    });
-                  },
-                );
-              },
-            );
-          } else if (state is NotesLoadFailure) {
-            return Center(child: Text(state.error));
-          } else {
-            return const Center(child: Text('No notes found.'));
-          }
-        },
+      body: RefreshIndicator(
+        onRefresh: _refreshFolders,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: _isGridView
+              ? NotesGridView(
+                  key: const ValueKey('grid'),
+                  folders: _folders,
+                  isLoading: _isLoading,
+                )
+              : NotesListView(
+                  key: const ValueKey('list'),
+                  folders: _folders,
+                ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/notes/create');
+          // TODO: Implement create new folder
         },
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  IconData _getFilterIcon() {
-    switch (_filterType) {
-      case FilterType.recents:
-        return Icons.history;
-      case FilterType.favorites:
-        return Icons.star;
-      case FilterType.all:
-      default:
-        return Icons.list;
-    }
+  List<Folder> _getDummyFolders() {
+    return [
+      Folder(
+        name: 'Personal',
+        color: Colors.blue,
+        icon: Icons.person,
+        noteCount: 12,
+        size: 3,
+        capacity: 10,
+      ),
+      Folder(
+        name: 'Work',
+        color: Colors.green,
+        icon: Icons.work,
+        noteCount: 8,
+        size: 8,
+        capacity: 10,
+      ),
+      Folder(
+        name: 'Ideas',
+        color: Colors.purple,
+        icon: Icons.lightbulb,
+        noteCount: 23,
+        size: 5,
+        capacity: 10,
+      ),
+      Folder(
+        name: 'Travel',
+        color: Colors.orange,
+        icon: Icons.airplanemode_active,
+        noteCount: 5,
+        size: 2,
+        capacity: 10,
+      ),
+      Folder(
+        name: 'Recipes',
+        color: Colors.red,
+        icon: Icons.restaurant,
+        noteCount: 15,
+        size: 9,
+        capacity: 10,
+      ),
+      Folder(
+        name: 'Projects',
+        color: Colors.teal,
+        icon: Icons.task,
+        noteCount: 7,
+        size: 7,
+        capacity: 10,
+      ),
+    ];
   }
 }
