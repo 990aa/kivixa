@@ -192,6 +192,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                     });
                     return NotesDrawingCanvas(
                       notifier: drawingState.notifier,
+                      backgroundImage: documentState.document.pages.first.backgroundImage,
                     );
                   }
                   return const Center(child: CircularProgressIndicator());
