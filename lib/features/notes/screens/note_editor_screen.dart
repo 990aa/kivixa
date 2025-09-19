@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -123,6 +124,21 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                           );
                         }
                         break;
+                      case 'import_image':
+                        final result = await FilePicker.platform.pickFiles(type: FileType.image);
+                        if (result != null) {
+                          final imageBytes = await result.files.single.bytes;
+                          final updatedDocument = state.document.copyWith(
+                            pages: state.document.pages.map((page) {
+                              if (page.pageNumber == 0) { // Assuming we're on the first page
+                                return page.copyWith(backgroundImage: imageBytes);
+                              }
+                              return page;
+                            }).toList(),
+                          );
+                          context.read<DocumentBloc>().add(DocumentContentChanged(updatedDocument));
+                        }
+                        break;
                     }
                   },
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -141,6 +157,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                     const PopupMenuItem<String>(
                       value: 'share',
                       child: Text('Share'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'import_image',
+                      child: Text('Import Image'),
                     ),
                   ],
                 );
