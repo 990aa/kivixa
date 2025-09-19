@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kivixa/features/notes/blocs/document_bloc.dart';
 import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
@@ -17,6 +20,7 @@ class NoteEditorScreen extends StatefulWidget {
 
 class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBindingObserver {
   final ExportService _exportService = ExportService();
+  final GlobalKey _canvasKey = GlobalKey();
 
   @override
   void initState() {
@@ -44,6 +48,31 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
     }
   }
 
+  Future<void> _exportPageAsPng() async {
+    try {
+      final boundary = _canvasKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      final image = await boundary.toImage();
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData!.buffer.asUint8List();
+
+      final documentState = context.read<DocumentBloc>().state;
+      if (documentState is DocumentLoadSuccess) {
+        final path = await _exportService.exportToPng(
+          documentState.document,
+          pngBytes,
+          0, // Assuming we're exporting the first page
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Exported to $path')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Export failed: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,6 +84,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
               if (state is DocumentLoadSuccess) {
                 return Row(
                   children: [
+                    IconButton(
+                      icon: const Icon(Icons.image),
+                      onPressed: _exportPageAsPng,
+                    ),
                     IconButton(
                       icon: const Icon(Icons.picture_as_pdf),
                       onPressed: () async {
@@ -98,25 +131,28 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
           if (documentState is DocumentLoadInProgress) {
             return const Center(child: CircularProgressIndicator());
           } else if (documentState is DocumentLoadSuccess) {
-            return BlocBuilder<DrawingBloc, DrawingState>(
-              builder: (context, drawingState) {
-                if (drawingState is DrawingLoadSuccess) {
-                  drawingState.notifier.addListener(() {
-                    final updatedDocument = documentState.document;
-                    final sketch = drawingState.notifier.toJson();
-                    if (sketch['points'] != null) {
-                      updatedDocument.pages.first.drawingData = (sketch['points'] as List)
-                          .map((e) => DrawingStroke.fromScribble(e))
-                          .toList();
-                    }
-                    context.read<DocumentBloc>().add(DocumentContentChanged(updatedDocument));
-                  });
-                  return NotesDrawingCanvas(
-                    notifier: drawingState.notifier,
-                  );
-                }
-                return const Center(child: CircularProgressIndicator());
-              },
+            return RepaintBoundary(
+              key: _canvasKey,
+              child: BlocBuilder<DrawingBloc, DrawingState>(
+                builder: (context, drawingState) {
+                  if (drawingState is DrawingLoadSuccess) {
+                    drawingState.notifier.addListener(() {
+                      final updatedDocument = documentState.document;
+                      final sketch = drawingState.notifier.toJson();
+                      if (sketch['points'] != null) {
+                        updatedDocument.pages.first.drawingData = (sketch['points'] as List)
+                            .map((e) => DrawingStroke.fromScribble(e))
+                            .toList();
+                      }
+                      context.read<DocumentBloc>().add(DocumentContentChanged(updatedDocument));
+                    });
+                    return NotesDrawingCanvas(
+                      notifier: drawingState.notifier,
+                    );
+                  }
+                  return const Center(child: CircularProgressIndicator());
+                },
+              ),
             );
           } else if (documentState is DocumentLoadFailure) {
             return Center(child: Text(documentState.error));
