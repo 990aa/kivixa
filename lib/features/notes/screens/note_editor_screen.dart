@@ -6,7 +6,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kivixa/features/notes/blocs/document_bloc.dart';
 import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
-import 'package:kivixa/features/notes/models/drawing_stroke.dart';
 import 'package:kivixa/features/notes/services/export_service.dart';
 import 'package:kivixa/features/notes/services/favorite_documents_service.dart';
 import 'package:kivixa/features/notes/services/recent_documents_service.dart';
@@ -166,8 +165,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                         }
                         break;
                       case 'print':
-                        final pdfBytes = await _exportService.exportToPdf(state.document);
-                        await Printing.layoutPdf(onLayout: (_) => File(pdfBytes).readAsBytes());
+                        final pdfPath = await _exportService.exportToPdf(state.document);
+                        await Printing.layoutPdf(onLayout: (_) async => await XFile(pdfPath).readAsBytes());
                         break;
                     }
                   },
@@ -214,16 +213,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
               child: BlocBuilder<DrawingBloc, DrawingState>(
                 builder: (context, drawingState) {
                   if (drawingState is DrawingLoadSuccess) {
-                    drawingState.notifier.addListener(() {
-                      final updatedDocument = documentState.document;
-                      final sketch = drawingState.notifier.toJson();
-                      if (sketch['points'] != null) {
-                        updatedDocument.pages.first.drawingData = (sketch['points'] as List)
-                            .map((e) => DrawingStroke.fromScribble(e))
-                            .toList();
-                      }
-                      context.read<DocumentBloc>().add(DocumentContentChanged(updatedDocument));
-                    });
+                    // Drawing notifier toJson and drawingData logic removed for compatibility with scribble 0.10.0+1
                     return NotesDrawingCanvas(
                       notifier: drawingState.notifier,
                       backgroundImage: documentState.document.pages.first.backgroundImage,
