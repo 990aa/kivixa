@@ -7,7 +7,6 @@
       "name": "kivixa",
       "version": "1.0.0+1",
       "dependencies": [
-        "cupertino_icons",
         "flutter",
         "path_provider",
         "sqflite",
@@ -77,11 +76,6 @@
         "sqflite_darwin",
         "sqflite_platform_interface"
       ]
-    },
-    {
-      "name": "cupertino_icons",
-      "version": "1.0.8",
-      "dependencies": []
     },
     {
       "name": "flutter",

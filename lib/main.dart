@@ -62,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (_folderNameController.text.isNotEmpty) {
       final newFolder = Folder(
         name: _folderNameController.text,
-        cover: 'assets/icon.png',
+        cover: 'assets/folder.png',
         createdAt: DateTime.now(),
       );
       await DatabaseHelper().insertFolder(newFolder);

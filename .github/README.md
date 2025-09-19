@@ -19,7 +19,7 @@ The project is organized with a clear separation of concerns:
   - `features/`: Will contain UI-related code (widgets, blocs/providers) in the future.
   - `platform/`: Platform-specific implementations (e.g., storage paths).
 - `assets/`: Contains application icons and other static assets.
-  - `icon.png`: The primary application icon (used for Android, etc.).
+  - `icon.png`: The primary application icon.
   - `icon.ico`: The application icon for Windows.
 - `docs/`: Project documentation, including architecture, setup guides, and parity checklists.
 - `android/`: Android-specific project files.
