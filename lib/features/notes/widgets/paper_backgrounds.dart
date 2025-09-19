@@ -95,7 +95,6 @@ class PaperBackgroundWidget extends StatelessWidget {
           margin: margin,
         );
       case PaperType.plain:
-      default:
         return PlainPaperPainter(watermark: watermark);
     }
   }

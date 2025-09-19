@@ -32,9 +32,11 @@ class ExportService {
     return path;
   }
 
-
   /// Exports a list of PNG images (one per page) as a PDF.
-  Future<String> exportImagesToPdf(String title, List<Uint8List> pngPages) async {
+  Future<String> exportImagesToPdf(
+    String title,
+    List<Uint8List> pngPages,
+  ) async {
     final pdf = pw.Document();
     for (final pngBytes in pngPages) {
       final image = pw.MemoryImage(pngBytes);
@@ -43,7 +45,8 @@ class ExportService {
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
             return pw.Center(
-              child: pw.Image(image,
+              child: pw.Image(
+                image,
                 fit: pw.BoxFit.contain,
                 width: PdfPageFormat.a4.width,
                 height: PdfPageFormat.a4.height,

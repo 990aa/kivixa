@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -69,28 +68,24 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   Future<void> _exportPageAsPng() async {
     try {
-      final boundary =
-          _canvasKey.currentContext!.findRenderObject()
-              as RenderRepaintBoundary;
+      final boundary = _canvasKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
       final image = await boundary.toImage();
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
 
       final documentState = context.read<DocumentBloc>().state;
       if (documentState is DocumentLoadSuccess) {
-        final path = await _exportService.exportToPng(
-          documentState.document,
-          pngBytes,
-          0, // Assuming we're exporting the first page
-        );
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Exported to $path')));
+        // Save PNG to file or handle as needed
+        final directory = await FilePicker.platform.getDirectoryPath();
+        if (directory != null) {
+          final path = '$directory/${documentState.document.title}_page_0.png';
+          final file = File(path);
+          await file.writeAsBytes(pngBytes);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Exported to $path')));
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export failed: $e')));
     }
   }
 
@@ -125,8 +120,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                     switch (value) {
                       case 'pdf':
                         try {
-                          final path = await _exportService.exportToPdf(
-                            state.document,
+                          final boundary = _canvasKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+                          final image = await boundary.toImage();
+                          final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+                          final pngBytes = byteData!.buffer.asUint8List();
+                          final path = await _exportService.exportImagesToPdf(
+                            state.document.title,
+                            [pngBytes],
                           );
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Exported to $path')),
@@ -156,8 +156,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                         break;
                       case 'share':
                         try {
-                          final path = await _exportService.exportToPdf(
-                            state.document,
+                          final boundary = _canvasKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+                          final image = await boundary.toImage();
+                          final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+                          final pngBytes = byteData!.buffer.asUint8List();
+                          final path = await _exportService.exportImagesToPdf(
+                            state.document.title,
+                            [pngBytes],
                           );
                           await Share.shareXFiles([
                             XFile(path),
@@ -191,13 +196,23 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                         }
                         break;
                       case 'print':
-                        final pdfPath = await _exportService.exportToPdf(
-                          state.document,
-                        );
-                        await Printing.layoutPdf(
-                          onLayout: (_) async =>
-                              await XFile(pdfPath).readAsBytes(),
-                        );
+                        try {
+                          final boundary = _canvasKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+                          final image = await boundary.toImage();
+                          final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+                          final pngBytes = byteData!.buffer.asUint8List();
+                          final path = await _exportService.exportImagesToPdf(
+                            state.document.title,
+                            [pngBytes],
+                          );
+                          await Printing.layoutPdf(
+                            onLayout: (_) async => await XFile(path).readAsBytes(),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Print failed: $e')),
+                          );
+                        }
                         break;
                     }
                   },

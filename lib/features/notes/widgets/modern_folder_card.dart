@@ -32,10 +32,10 @@ class _ModernFolderCardState extends State<ModernFolderCard> {
   bool _isHovered = false;
 
   void _showContextMenu(BuildContext context) {
-    // In a real app, you'd show a more advanced context menu.
-    // For now, we'll just print to the console.
-    HapticFeedback.longPress();
-    print('Context menu for ${widget.folder.name}');
+  // In a real app, you'd show a more advanced context menu.
+  // For now, we'll just print to the console.
+  HapticFeedback.vibrate();
+  print('Context menu for ${widget.folder.name}');
   }
 
   @override
