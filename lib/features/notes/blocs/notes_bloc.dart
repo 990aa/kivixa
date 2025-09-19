@@ -23,7 +23,12 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
 
     on<NoteAdded>((event, emit) async {
       try {
-        await _notesDatabaseService.saveNote(event.note);
+        // Use create or updateNote depending on whether the note exists
+        if (event.note.id.isEmpty) {
+          await _notesDatabaseService.create(event.note);
+        } else {
+          await _notesDatabaseService.updateNote(event.note);
+        }
         final notes = await _notesDatabaseService.getAllNotes();
         emit(NotesLoadSuccess(notes));
       } catch (e) {
