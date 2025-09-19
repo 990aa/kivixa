@@ -1,6 +1,12 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kivixa/features/notes/blocs/document_bloc.dart';
+import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
+import 'package:kivixa/features/notes/blocs/notes_bloc.dart';
+import 'package:kivixa/features/notes/screens/note_editor_screen.dart';
+import 'package:kivixa/features/notes/services/notes_database_service.dart';
 import 'package:kivixa/helpers/database_helper.dart';
 import 'package:kivixa/models/folder.dart';
 import 'package:kivixa/models/pdf.dart';
@@ -22,32 +28,45 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Kivixa',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const MyHomePage(),
-        '/notes': (context) => const NotesHomeScreen(),
-      },
-      onGenerateRoute: (settings) {
-        if (settings.name == '/notes/editor') {
-          final documentId = settings.arguments as String?;
-          return MaterialPageRoute(
-            builder: (context) {
-              return NoteEditorScreen(documentId: documentId);
-            },
-          );
-        }
-        if (settings.name == '/notes/create') {
-          return MaterialPageRoute(
-            builder: (context) {
-              return const NoteEditorScreen();
-            },
-          );
-        }
-        return null;
-      },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => NotesBloc(NotesDatabaseService.instance),
+        ),
+        BlocProvider(
+          create: (context) => DocumentBloc(NotesDatabaseService.instance),
+        ),
+        BlocProvider(
+          create: (context) => DrawingBloc(),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Kivixa',
+        theme: ThemeData(primarySwatch: Colors.blue),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const MyHomePage(),
+          '/notes': (context) => const NotesHomeScreen(),
+        },
+        onGenerateRoute: (settings) {
+          if (settings.name == '/notes/editor') {
+            final documentId = settings.arguments as String?;
+            return MaterialPageRoute(
+              builder: (context) {
+                return NoteEditorScreen(documentId: documentId);
+              },
+            );
+          }
+          if (settings.name == '/notes/create') {
+            return MaterialPageRoute(
+              builder: (context) {
+                return const NoteEditorScreen();
+              },
+            );
+          }
+          return null;
+        },
+      ),
     );
   }
 }
