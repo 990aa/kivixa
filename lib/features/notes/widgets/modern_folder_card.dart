@@ -10,23 +10,21 @@ class ModernFolderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Mix(
-      height(150),
-      width(150),
-      rounded(12),
-      padding(16),
-      shadow(
+    final style = Style(
+      $box.height(150),
+      $box.width(150),
+      $box.borderRadius.all(12),
+      $box.padding.all(16),
+      $box.shadow(
         color: Colors.black.withOpacity(0.2),
         blurRadius: 10,
       ),
-      border(
+      $box.border(
         color: Colors.white.withOpacity(0.2),
         width: 1,
       ),
-      column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-      ),
+      $flex.mainAxisAlignment.spaceBetween(),
+      $flex.crossAxisAlignment.start(),
     );
 
     return Pressable(
@@ -57,29 +55,25 @@ class ModernFolderCard extends StatelessWidget {
             Colors.white.withOpacity(0.5),
           ],
         ),
-        child: Style(
-          $with: style,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                folder.icon,
-                color: Colors.white,
-                size: 40,
+        child: StyledColumn(
+          style: style,
+          children: [
+            StyledIcon(
+              folder.icon,
+              style: Style($icon.color(Colors.white), $icon.size(40)),
+            ),
+            const Spacer(),
+            StyledText(
+              folder.name,
+              style: Style(
+                $text.style.color(Colors.white),
+                $text.style.fontSize(16),
+                $text.style.fontWeight.bold(),
+                $text.maxLines(2),
+                $text.overflow.ellipsis(),
               ),
-              const Spacer(),
-              Text(
-                folder.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
