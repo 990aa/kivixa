@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kivixa/features/notes/models/drawing_stroke.dart';
 import 'package:scribble/scribble.dart';
 
 @immutable
@@ -8,11 +7,7 @@ abstract class DrawingEvent {}
 
 class DrawingStarted extends DrawingEvent {}
 
-class ToolChanged extends DrawingEvent {
-  final ScribbleTool tool;
-
-  ToolChanged(this.tool);
-}
+// ToolChanged event removed for compatibility with scribble 0.10.0+1
 
 class ColorChanged extends DrawingEvent {
   final Color color;
@@ -44,13 +39,7 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
       emit(DrawingLoadSuccess(notifier));
     });
 
-    on<ToolChanged>((event, emit) {
-      if (state is DrawingLoadSuccess) {
-        final notifier = (state as DrawingLoadSuccess).notifier;
-        notifier.setTool(event.tool);
-        emit(DrawingLoadSuccess(notifier));
-      }
-    });
+    // ToolChanged event handler removed for compatibility with scribble 0.10.0+1
 
     on<ColorChanged>((event, emit) {
       if (state is DrawingLoadSuccess) {
