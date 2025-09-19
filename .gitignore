@@ -4,6 +4,10 @@
 *.env
 .env*.local
 
+
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
 .dart_tool/
 build/
-
