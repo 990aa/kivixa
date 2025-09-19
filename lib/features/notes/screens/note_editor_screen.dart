@@ -17,14 +17,31 @@ class NoteEditorScreen extends StatefulWidget {
   State<NoteEditorScreen> createState() => _NoteEditorScreenState();
 }
 
-class _NoteEditorScreenState extends State<NoteEditorScreen> {
+class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     if (widget.documentId != null) {
       context.read<DocumentBloc>().add(DocumentLoaded(widget.documentId!));
     }
     context.read<DrawingBloc>().add(DrawingStarted());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      final documentState = context.read<DocumentBloc>().state;
+      if (documentState is DocumentLoadSuccess) {
+        context.read<DocumentBloc>().add(DocumentSaved(documentState.document));
+      }
+    }
   }
 
   @override
