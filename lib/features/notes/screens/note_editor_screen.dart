@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kivixa/features/notes/widgets/notes_drawing_canvas.dart';
 
 class NoteEditorScreen extends StatelessWidget {
   final String? documentId;
@@ -11,7 +12,7 @@ class NoteEditorScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Note Editor'),
       ),
-      body: Container(), // TODO: implement note editor
+      body: const NotesDrawingCanvas(),
     );
   }
 }
