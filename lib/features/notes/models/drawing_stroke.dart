@@ -1,8 +1,10 @@
+import 'dart:ui';
+
 import 'package:json_annotation/json_annotation.dart';
 
 part 'drawing_stroke.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(converters: [OffsetConverter()])
 class DrawingStroke {
   final List<Offset> coordinates;
   final int color;

@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:kivixa/features/notes/screens/notes_home_screen.dart';
 
 void main() {
   sqfliteFfiInit();
@@ -326,6 +327,17 @@ class _MyHomePageState extends State<MyHomePage> {
               heroTag: 'importPdf',
               child: const Icon(Icons.picture_as_pdf),
             ),
+          const SizedBox(width: 10),
+          FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NotesHomeScreen()),
+              );
+            },
+            heroTag: 'notes',
+            child: const Icon(Icons.note_add),
+          ),
         ],
       ),
     );
