@@ -8,24 +8,24 @@ enum AutoCleanup { days30, days60, days90, never }
 
 class NotesSettings {
   // Notes-specific settings
-  final PaperType defaultPaperType;
-  final Color defaultPenColor;
-  final double defaultStrokeWidth;
-  final AutoSaveFrequency autoSaveFrequency;
-  final PaperSize paperSize;
-  final ExportQuality exportQuality;
+  PaperType defaultPaperType;
+  Color defaultPenColor;
+  double defaultStrokeWidth;
+  AutoSaveFrequency autoSaveFrequency;
+  PaperSize paperSize;
+  ExportQuality exportQuality;
 
   // Drawing preferences
-  final bool stylusOnlyMode;
-  final double palmRejectionSensitivity;
-  final double pressureSensitivity;
-  final bool zoomGestureEnabled;
+  bool stylusOnlyMode;
+  double palmRejectionSensitivity;
+  double pressureSensitivity;
+  bool zoomGestureEnabled;
 
   // Storage and sync settings
-  final AutoCleanup autoCleanup;
-  final double maxStorageLimit; // in MB
-  final String exportLocation;
-  final String documentNamePattern;
+  AutoCleanup autoCleanup;
+  double maxStorageLimit; // in MB
+  String exportLocation;
+  String documentNamePattern;
 
   NotesSettings({
     this.defaultPaperType = PaperType.plain,
@@ -43,38 +43,4 @@ class NotesSettings {
     this.exportLocation = '',
     this.documentNamePattern = 'Note_{YYYY}-{MM}-{DD}',
   });
-
-  NotesSettings copyWith({
-    PaperType? defaultPaperType,
-    Color? defaultPenColor,
-    double? defaultStrokeWidth,
-    AutoSaveFrequency? autoSaveFrequency,
-    PaperSize? paperSize,
-    ExportQuality? exportQuality,
-    bool? stylusOnlyMode,
-    double? palmRejectionSensitivity,
-    double? pressureSensitivity,
-    bool? zoomGestureEnabled,
-    AutoCleanup? autoCleanup,
-    double? maxStorageLimit,
-    String? exportLocation,
-    String? documentNamePattern,
-  }) {
-    return NotesSettings(
-      defaultPaperType: defaultPaperType ?? this.defaultPaperType,
-      defaultPenColor: defaultPenColor ?? this.defaultPenColor,
-      defaultStrokeWidth: defaultStrokeWidth ?? this.defaultStrokeWidth,
-      autoSaveFrequency: autoSaveFrequency ?? this.autoSaveFrequency,
-      paperSize: paperSize ?? this.paperSize,
-      exportQuality: exportQuality ?? this.exportQuality,
-      stylusOnlyMode: stylusOnlyMode ?? this.stylusOnlyMode,
-      palmRejectionSensitivity: palmRejectionSensitivity ?? this.palmRejectionSensitivity,
-      pressureSensitivity: pressureSensitivity ?? this.pressureSensitivity,
-      zoomGestureEnabled: zoomGestureEnabled ?? this.zoomGestureEnabled,
-      autoCleanup: autoCleanup ?? this.autoCleanup,
-      maxStorageLimit: maxStorageLimit ?? this.maxStorageLimit,
-      exportLocation: exportLocation ?? this.exportLocation,
-      documentNamePattern: documentNamePattern ?? this.documentNamePattern,
-    );
-  }
 }
