@@ -84,18 +84,10 @@ class _FolderManagementScreenState extends State<FolderManagementScreen> {
         ),
         child: NotesGridView(folders: currentFolders),
       ),
-      floatingActionButton: ShadcnButton(
+      floatingActionButton: ShadcnButton.primary(
         onPressed: () {},
         text: const Text('Add'),
         icon: const Icon(Icons.add),
-        shadows: [
-          BoxShadow(
-            color: Colors.blue.withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 1,
-            offset: const Offset(0, 1),
-          ),
-        ],
       ),
     );
   }
