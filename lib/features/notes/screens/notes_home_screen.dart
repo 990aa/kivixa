@@ -4,6 +4,8 @@ import 'package:kivixa/features/notes/blocs/notes_bloc.dart';
 import 'package:kivixa/features/notes/blocs/notes_event.dart';
 import 'package:kivixa/features/notes/blocs/notes_state.dart';
 
+import 'package:kivixa/features/notes/screens/notes_settings_screen.dart';
+
 class NotesHomeScreen extends StatefulWidget {
   const NotesHomeScreen({super.key});
 
@@ -23,6 +25,17 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notes'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NotesSettingsScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: BlocBuilder<NotesBloc, NotesState>(
         builder: (context, state) {
