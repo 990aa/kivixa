@@ -5,6 +5,7 @@ import 'package:kivixa/features/notes/blocs/notes_event.dart';
 import 'package:kivixa/features/notes/blocs/notes_state.dart';
 import 'package:kivixa/features/notes/models/note_document.dart';
 import 'package:kivixa/features/notes/services/export_service.dart';
+import 'package:kivixa/features/notes/services/recent_documents_service.dart';
 
 import 'package:kivixa/features/notes/screens/notes_settings_screen.dart';
 
@@ -17,14 +18,23 @@ class NotesHomeScreen extends StatefulWidget {
 
 class _NotesHomeScreenState extends State<NotesHomeScreen> {
   final ExportService _exportService = ExportService();
+  final RecentDocumentsService _recentDocumentsService = RecentDocumentsService();
   bool _isSearching = false;
   String _searchQuery = '';
   List<NoteDocument> _filteredNotes = [];
+  bool _showRecents = false;
+  List<String> _recentDocumentIds = [];
 
   @override
   void initState() {
     super.initState();
     context.read<NotesBloc>().add(NotesLoaded());
+    _getRecentDocuments();
+  }
+
+  void _getRecentDocuments() async {
+    _recentDocumentIds = await _recentDocumentsService.getRecentDocuments();
+    setState(() {});
   }
 
   void _filterNotes(String query, List<NoteDocument> notes) {
@@ -68,6 +78,14 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
             },
           ),
           IconButton(
+            icon: Icon(_showRecents ? Icons.list : Icons.history),
+            onPressed: () {
+              setState(() {
+                _showRecents = !_showRecents;
+              });
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.upload_file),
             onPressed: () async {
               final note = await _exportService.importFromJson();
@@ -92,7 +110,14 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
           if (state is NotesLoadInProgress) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is NotesLoadSuccess) {
-            final notes = _isSearching && _searchQuery.isNotEmpty ? _filteredNotes : state.notes;
+            List<NoteDocument> notes;
+            if (_showRecents) {
+              notes = state.notes
+                  .where((note) => _recentDocumentIds.contains(note.id))
+                  .toList();
+            } else {
+              notes = _isSearching && _searchQuery.isNotEmpty ? _filteredNotes : state.notes;
+            }
             return ListView.builder(
               itemCount: notes.length,
               itemBuilder: (context, index) {
@@ -100,7 +125,8 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                 return ListTile(
                   title: Text(note.title),
                   onTap: () {
-                    Navigator.pushNamed(context, '/notes/editor', arguments: note.id);
+                    Navigator.pushNamed(context, '/notes/editor', arguments: note.id)
+                        .then((_) => _getRecentDocuments());
                   },
                 );
               },
