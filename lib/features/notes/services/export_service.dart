@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -42,21 +41,18 @@ class ExportService {
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
             return pw.CustomPaint(
-              painter: (canvas, size) {
+              size: PdfPoint(PdfPageFormat.a4.width, PdfPageFormat.a4.height),
+              painter: (pw.Context context, pw.Canvas canvas, PdfPoint size) {
                 for (final stroke in page.drawingData) {
-                  final path = pw.Path()
-                    ..moveTo(stroke.coordinates.first.dx,
-                        size.height - stroke.coordinates.first.dy);
-                  for (final point in stroke.coordinates.skip(1)) {
-                    path.lineTo(point.dx, size.height - point.dy);
+                  for (int i = 0; i < stroke.coordinates.length - 1; i++) {
+                    final p1 = stroke.coordinates[i];
+                    final p2 = stroke.coordinates[i + 1];
+                    canvas.setStrokeColor(PdfColor.fromInt(stroke.color));
+                    canvas.setLineWidth(stroke.width);
+                    canvas.moveTo(p1.dx, PdfPageFormat.a4.height - p1.dy);
+                    canvas.lineTo(p2.dx, PdfPageFormat.a4.height - p2.dy);
+                    canvas.strokePath();
                   }
-                  canvas.drawPath(
-                    path,
-                    pw.Paint()
-                      ..color = PdfColor.fromInt(stroke.color)
-                      ..strokeWidth = stroke.width
-                      ..style = pw.PaintingStyle.stroke,
-                  );
                 }
               },
             );
@@ -73,7 +69,10 @@ class ExportService {
   }
 
   Future<String> exportToPng(
-      NoteDocument document, Uint8List pngBytes, int pageNumber) async {
+    NoteDocument document,
+    Uint8List pngBytes,
+    int pageNumber,
+  ) async {
     final directory = await getApplicationDocumentsDirectory();
     final path = '${directory.path}/${document.title}_page_$pageNumber.png';
     final file = File(path);

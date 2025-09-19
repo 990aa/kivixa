@@ -22,10 +22,13 @@ class NoteEditorScreen extends StatefulWidget {
   State<NoteEditorScreen> createState() => _NoteEditorScreenState();
 }
 
-class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBindingObserver {
+class _NoteEditorScreenState extends State<NoteEditorScreen>
+    with WidgetsBindingObserver {
   final ExportService _exportService = ExportService();
-  final RecentDocumentsService _recentDocumentsService = RecentDocumentsService();
-  final FavoriteDocumentsService _favoriteDocumentsService = FavoriteDocumentsService();
+  final RecentDocumentsService _recentDocumentsService =
+      RecentDocumentsService();
+  final FavoriteDocumentsService _favoriteDocumentsService =
+      FavoriteDocumentsService();
   final GlobalKey _canvasKey = GlobalKey();
   bool _isFavorite = false;
 
@@ -42,7 +45,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
   }
 
   void _checkIfFavorite() async {
-    _isFavorite = await _favoriteDocumentsService.isFavorite(widget.documentId!);
+    _isFavorite = await _favoriteDocumentsService.isFavorite(
+      widget.documentId!,
+    );
     setState(() {});
   }
 
@@ -64,7 +69,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
 
   Future<void> _exportPageAsPng() async {
     try {
-      final boundary = _canvasKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      final boundary =
+          _canvasKey.currentContext!.findRenderObject()
+              as RenderRepaintBoundary;
       final image = await boundary.toImage();
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
@@ -76,14 +83,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
           pngBytes,
           0, // Assuming we're exporting the first page
         );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Exported to $path')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Exported to $path')));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Export failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
     }
   }
 
@@ -97,9 +104,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
             icon: Icon(_isFavorite ? Icons.star : Icons.star_border),
             onPressed: () {
               if (_isFavorite) {
-                _favoriteDocumentsService.removeFavoriteDocument(widget.documentId!);
+                _favoriteDocumentsService.removeFavoriteDocument(
+                  widget.documentId!,
+                );
               } else {
-                _favoriteDocumentsService.addFavoriteDocument(widget.documentId!);
+                _favoriteDocumentsService.addFavoriteDocument(
+                  widget.documentId!,
+                );
               }
               setState(() {
                 _isFavorite = !_isFavorite;
@@ -114,7 +125,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                     switch (value) {
                       case 'pdf':
                         try {
-                          final path = await _exportService.exportToPdf(state.document);
+                          final path = await _exportService.exportToPdf(
+                            state.document,
+                          );
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Exported to $path')),
                           );
@@ -129,7 +142,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                         break;
                       case 'json':
                         try {
-                          final path = await _exportService.exportToJson(state.document);
+                          final path = await _exportService.exportToJson(
+                            state.document,
+                          );
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Exported to $path')),
                           );
@@ -141,8 +156,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                         break;
                       case 'share':
                         try {
-                          final path = await _exportService.exportToPdf(state.document);
-                          await Share.shareXFiles([XFile(path)], text: 'Here is my note!');
+                          final path = await _exportService.exportToPdf(
+                            state.document,
+                          );
+                          await Share.shareXFiles([
+                            XFile(path),
+                          ], text: 'Here is my note!');
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Sharing failed: $e')),
@@ -150,52 +169,65 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                         }
                         break;
                       case 'import_image':
-                        final result = await FilePicker.platform.pickFiles(type: FileType.image);
+                        final result = await FilePicker.platform.pickFiles(
+                          type: FileType.image,
+                        );
                         if (result != null) {
                           final imageBytes = await result.files.single.bytes;
                           final updatedDocument = state.document.copyWith(
                             pages: state.document.pages.map((page) {
-                              if (page.pageNumber == 0) { // Assuming we're on the first page
-                                return page.copyWith(backgroundImage: imageBytes);
+                              if (page.pageNumber == 0) {
+                                // Assuming we're on the first page
+                                return page.copyWith(
+                                  backgroundImage: imageBytes,
+                                );
                               }
                               return page;
                             }).toList(),
                           );
-                          context.read<DocumentBloc>().add(DocumentContentChanged(updatedDocument));
+                          context.read<DocumentBloc>().add(
+                            DocumentContentChanged(updatedDocument),
+                          );
                         }
                         break;
                       case 'print':
-                        final pdfPath = await _exportService.exportToPdf(state.document);
-                        await Printing.layoutPdf(onLayout: (_) async => await XFile(pdfPath).readAsBytes());
+                        final pdfPath = await _exportService.exportToPdf(
+                          state.document,
+                        );
+                        await Printing.layoutPdf(
+                          onLayout: (_) async =>
+                              await XFile(pdfPath).readAsBytes(),
+                        );
                         break;
                     }
                   },
-                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                    const PopupMenuItem<String>(
-                      value: 'pdf',
-                      child: Text('Export as PDF'),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'png',
-                      child: Text('Export as PNG'),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'json',
-                      child: Text('Export as JSON'),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'share',
-                      child: Text('Share'),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'import_image',
-                      child: Text('Import Image'),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'print',
-                      child: Text('Print'),
-                    ),
-                  ],
+                  itemBuilder: (BuildContext context) =>
+                      <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: 'pdf',
+                          child: Text('Export as PDF'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'png',
+                          child: Text('Export as PNG'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'json',
+                          child: Text('Export as JSON'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'share',
+                          child: Text('Share'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'import_image',
+                          child: Text('Import Image'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'print',
+                          child: Text('Print'),
+                        ),
+                      ],
                 );
               }
               return const SizedBox.shrink();
@@ -216,7 +248,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                     // Drawing notifier toJson and drawingData logic removed for compatibility with scribble 0.10.0+1
                     return NotesDrawingCanvas(
                       notifier: drawingState.notifier,
-                      backgroundImage: documentState.document.pages.first.backgroundImage,
+                      backgroundImage:
+                          documentState.document.pages.first.backgroundImage,
                     );
                   }
                   return const Center(child: CircularProgressIndicator());
