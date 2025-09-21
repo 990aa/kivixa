@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
 import 'package:kivixa/features/notes/widgets/modern_folder_card.dart';
+import 'package:kivixa/features/notes/widgets/neumorphic_folder_card.dart';
 
 class FolderGridView extends StatefulWidget {
-  const FolderGridView({super.key});
+  const FolderGridView({super.key, this.isNeumorphic = false});
+
+  final bool isNeumorphic;
 
   @override
   State<FolderGridView> createState() => _FolderGridViewState();
@@ -34,6 +37,20 @@ class _FolderGridViewState extends State<FolderGridView> {
       itemCount: dummyFolders.length,
       itemBuilder: (context, index) {
         final folder = dummyFolders[index];
+        if (widget.isNeumorphic) {
+          return NeumorphicFolderCard(
+            folder: folder,
+            onTap: () {
+              setState(() {
+                if (_selectedFolderId == folder.id) {
+                  _selectedFolderId = null;
+                } else {
+                  _selectedFolderId = folder.id;
+                }
+              });
+            },
+          );
+        }
         return ModernFolderCard(
           folder: folder,
           isSelected: _selectedFolderId == folder.id,
