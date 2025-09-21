@@ -21,7 +21,10 @@ class FilterChips extends StatelessWidget {
               lightSource: LightSource.topLeft,
               color: Colors.grey[850],
             ),
-            child: const Text('Date Range', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Date Range',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
           NeumorphicButton(
             onPressed: () {

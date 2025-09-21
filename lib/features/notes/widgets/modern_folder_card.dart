@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:glassmorphism/glassmorphism.dart';
@@ -43,10 +42,7 @@ class _ModernFolderCardState extends State<ModernFolderCard>
       duration: const Duration(milliseconds: 1500),
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
     if (widget.isSelected) {
       _animationController.repeat(reverse: true);
@@ -170,18 +166,12 @@ class _ModernFolderCardState extends State<ModernFolderCard>
                   linearGradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Colors.transparent,
-                      Colors.transparent,
-                    ],
+                    colors: [Colors.transparent, Colors.transparent],
                   ),
                   borderGradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Colors.transparent,
-                      Colors.transparent,
-                    ],
+                    colors: [Colors.transparent, Colors.transparent],
                   ),
                   child: StyledColumn(
                     style: containerStyle,

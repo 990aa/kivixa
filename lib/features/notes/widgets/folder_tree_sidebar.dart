@@ -16,10 +16,7 @@ class FolderTreeSidebar extends StatelessWidget {
       tree: tree,
       showRootNode: true,
       expansionIndicatorBuilder: (context, node) =>
-          ChevronIndicator.rightDown(
-        tree: node,
-        color: Colors.white,
-      ),
+          ChevronIndicator.rightDown(tree: node, color: Colors.white),
       indentation: const Indentation(width: 20),
       builder: (context, node) => Card(
         color: Colors.white.withOpacity(0.1),
@@ -28,10 +25,7 @@ class FolderTreeSidebar extends StatelessWidget {
             node.data!.name,
             style: const TextStyle(color: Colors.white),
           ),
-          leading: Icon(
-            node.data!.icon,
-            color: Colors.white,
-          ),
+          leading: Icon(node.data!.icon, color: Colors.white),
           onTap: () {
             // Handle folder selection
           },

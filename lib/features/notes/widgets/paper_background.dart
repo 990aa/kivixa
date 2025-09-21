@@ -1,11 +1,6 @@
-
 import 'package:flutter/material.dart';
 
-enum PaperType {
-  blank,
-  lined,
-  grid,
-}
+enum PaperType { blank, lined, grid }
 
 class PaperBackground extends StatelessWidget {
   final PaperType paperType;
@@ -14,10 +9,7 @@ class PaperBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _PaperPainter(paperType),
-      child: Container(),
-    );
+    return CustomPaint(painter: _PaperPainter(paperType), child: Container());
   }
 }
 

@@ -7,11 +7,7 @@ class ContextMenuAction {
   final IconData icon;
   final VoidCallback? onPressed;
 
-  ContextMenuAction({
-    required this.title,
-    required this.icon,
-    this.onPressed,
-  });
+  ContextMenuAction({required this.title, required this.icon, this.onPressed});
 }
 
 void showModernContextMenu({
@@ -122,10 +118,7 @@ class _ContextMenuContent extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: actions.map((action) {
-              return _ContextMenuItem(
-                action: action,
-                height: itemHeight,
-              );
+              return _ContextMenuItem(action: action, height: itemHeight);
             }).toList(),
           ),
         ),
@@ -135,10 +128,7 @@ class _ContextMenuContent extends StatelessWidget {
 }
 
 class _ContextMenuItem extends StatefulWidget {
-  const _ContextMenuItem({
-    required this.action,
-    required this.height,
-  });
+  const _ContextMenuItem({required this.action, required this.height});
 
   final ContextMenuAction action;
   final double height;

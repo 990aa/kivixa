@@ -21,7 +21,8 @@ class NotePage {
     this.backgroundImage,
   });
 
-  factory NotePage.fromJson(Map<String, dynamic> json) => _$NotePageFromJson(json);
+  factory NotePage.fromJson(Map<String, dynamic> json) =>
+      _$NotePageFromJson(json);
 
   Map<String, dynamic> toJson() => _$NotePageToJson(this);
 

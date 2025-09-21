@@ -33,7 +33,7 @@ class PaperGeneratorService {
           },
           onWebResourceError: (WebResourceError error) {
             debugPrint('WebView error: ${error.description}');
-             if (!_webViewReadyCompleter.isCompleted) {
+            if (!_webViewReadyCompleter.isCompleted) {
               _webViewReadyCompleter.completeError(error);
             }
           },
@@ -41,11 +41,16 @@ class PaperGeneratorService {
       );
 
     try {
-      final htmlContent = await rootBundle.loadString('assets/web/paper_generator.html');
-      await _controller!.loadHtmlString(htmlContent, baseUrl: 'https://flutter.dev');
+      final htmlContent = await rootBundle.loadString(
+        'assets/web/paper_generator.html',
+      );
+      await _controller!.loadHtmlString(
+        htmlContent,
+        baseUrl: 'https://flutter.dev',
+      );
     } catch (e) {
       debugPrint('Error loading HTML file: $e');
-       if (!_webViewReadyCompleter.isCompleted) {
+      if (!_webViewReadyCompleter.isCompleted) {
         _webViewReadyCompleter.completeError(e);
       }
     }
@@ -57,7 +62,8 @@ class PaperGeneratorService {
     required PaperOptions options,
     bool useCache = true,
   }) async {
-    final cacheKey = '${paperType.toString()}_${paperSize.width}x${paperSize.height}_${options.hashCode}';
+    final cacheKey =
+        '${paperType.toString()}_${paperSize.width}x${paperSize.height}_${options.hashCode}';
     if (useCache && _cache.containsKey(cacheKey)) {
       return _cache[cacheKey]!;
     }

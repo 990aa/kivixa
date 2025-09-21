@@ -19,7 +19,10 @@ class SearchResultsList extends StatelessWidget {
               verticalOffset: 50.0,
               child: FadeInAnimation(
                 child: ListTile(
-                  title: Text(results[index], style: const TextStyle(color: Colors.white)),
+                  title: Text(
+                    results[index],
+                    style: const TextStyle(color: Colors.white),
+                  ),
                   // TODO: Implement highlighted search terms
                 ),
               ),

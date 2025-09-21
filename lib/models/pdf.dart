@@ -4,15 +4,15 @@ class Pdf {
   String path;
   int folderId;
 
-  Pdf({this.id, required this.name, required this.path, required this.folderId});
+  Pdf({
+    this.id,
+    required this.name,
+    required this.path,
+    required this.folderId,
+  });
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'path': path,
-      'folderId': folderId,
-    };
+    return {'id': id, 'name': name, 'path': path, 'folderId': folderId};
   }
 
   factory Pdf.fromMap(Map<String, dynamic> map) {

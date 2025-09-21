@@ -57,7 +57,9 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const NotesSettingsScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const NotesSettingsScreen(),
+                ),
               );
             },
           ),
@@ -73,10 +75,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                   folders: _folders,
                   isLoading: _isLoading,
                 )
-              : NotesListView(
-                  key: const ValueKey('list'),
-                  folders: _folders,
-                ),
+              : NotesListView(key: const ValueKey('list'), folders: _folders),
         ),
       ),
       floatingActionButton: FloatingActionButton(

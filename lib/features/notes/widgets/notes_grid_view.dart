@@ -7,7 +7,11 @@ import 'package:kivixa/features/notes/widgets/modern_folder_card.dart';
 import 'package:kivixa/features/notes/widgets/modern_folder_card_shimmer.dart';
 
 class NotesGridView extends StatelessWidget {
-  const NotesGridView({super.key, required this.folders, this.isLoading = false});
+  const NotesGridView({
+    super.key,
+    required this.folders,
+    this.isLoading = false,
+  });
 
   final List<Folder> folders;
   final bool isLoading;
@@ -44,7 +48,8 @@ class NotesGridView extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const FolderManagementScreen(),
+                              builder: (context) =>
+                                  const FolderManagementScreen(),
                             ),
                           );
                         },

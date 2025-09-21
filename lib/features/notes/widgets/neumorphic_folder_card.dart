@@ -3,11 +3,7 @@ import 'package:kivixa/features/notes/models/folder_model.dart';
 import 'package:kivixa/features/notes/widgets/neumorphic_card.dart';
 
 class NeumorphicFolderCard extends StatelessWidget {
-  const NeumorphicFolderCard({
-    super.key,
-    required this.folder,
-    this.onTap,
-  });
+  const NeumorphicFolderCard({super.key, required this.folder, this.onTap});
 
   final Folder folder;
   final VoidCallback? onTap;
@@ -24,11 +20,7 @@ class NeumorphicFolderCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              folder.icon,
-              size: 40,
-              color: folder.color,
-            ),
+            Icon(folder.icon, size: 40, color: folder.color),
             const SizedBox(height: 16),
             Text(
               folder.name,

@@ -23,7 +23,12 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'kivixa.db');
-    return await openDatabase(path, version: 3, onCreate: _onCreate, onUpgrade: _onUpgrade);
+    return await openDatabase(
+      path,
+      version: 3,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+    );
   }
 
   Future _onCreate(Database db, int version) async {
@@ -97,7 +102,11 @@ class DatabaseHelper {
 
   Future<List<Folder>> getFolders(int? parentId) async {
     Database db = await database;
-    var folders = await db.query('folders', where: 'parentId = ?', whereArgs: [parentId]);
+    var folders = await db.query(
+      'folders',
+      where: 'parentId = ?',
+      whereArgs: [parentId],
+    );
     List<Folder> folderList = folders.isNotEmpty
         ? folders.map((c) => Folder.fromMap(c)).toList()
         : [];
@@ -126,7 +135,11 @@ class DatabaseHelper {
 
   Future<List<Pdf>> getPdfs(int folderId) async {
     Database db = await database;
-    var pdfs = await db.query('pdfs', where: 'folderId = ?', whereArgs: [folderId]);
+    var pdfs = await db.query(
+      'pdfs',
+      where: 'folderId = ?',
+      whereArgs: [folderId],
+    );
     List<Pdf> pdfList = pdfs.isNotEmpty
         ? pdfs.map((c) => Pdf.fromMap(c)).toList()
         : [];
@@ -207,14 +220,20 @@ class DatabaseHelper {
       'document_id': documentId,
       'page_number': page.pageNumber,
       'paper_type': page.paperType,
-      'drawing_data_json': jsonEncode(page.drawingData.map((s) => s.toJson()).toList()),
+      'drawing_data_json': jsonEncode(
+        page.drawingData.map((s) => s.toJson()).toList(),
+      ),
       'background_color': page.backgroundSettings['color'],
     });
   }
 
   Future<List<NotePage>> getNotePages(String documentId) async {
     Database db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('notes_pages', where: 'document_id = ?', whereArgs: [documentId]);
+    final List<Map<String, dynamic>> maps = await db.query(
+      'notes_pages',
+      where: 'document_id = ?',
+      whereArgs: [documentId],
+    );
 
     return List.generate(maps.length, (i) {
       return NotePage.fromJson(maps[i]);
@@ -228,11 +247,15 @@ class DatabaseHelper {
     return await db.update(
       'notes_pages',
       {
-        'drawing_data_json': jsonEncode(page.drawingData.map((s) => s.toJson()).toList()),
+        'drawing_data_json': jsonEncode(
+          page.drawingData.map((s) => s.toJson()).toList(),
+        ),
         'background_color': page.backgroundSettings['color'],
       },
       where: 'id = ?',
-      whereArgs: [page.pageNumber.toString()], // Placeholder, should be a unique page id
+      whereArgs: [
+        page.pageNumber.toString(),
+      ], // Placeholder, should be a unique page id
     );
   }
 

@@ -27,9 +27,9 @@ class Folder {
     this.noteCount = 0,
     this.size = 0.0,
     this.capacity = 1.0,
-  })  : id = id ?? const Uuid().v4(),
-        createdAt = createdAt ?? DateTime.now(),
-        lastModified = lastModified ?? DateTime.now();
+  }) : id = id ?? const Uuid().v4(),
+       createdAt = createdAt ?? DateTime.now(),
+       lastModified = lastModified ?? DateTime.now();
 
   Folder copyWith({
     String? id,

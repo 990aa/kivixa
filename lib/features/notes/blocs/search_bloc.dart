@@ -17,10 +17,15 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }
 
   EventTransformer<T> _debounce<T>() {
-    return (events, mapper) => events.debounceTime(const Duration(milliseconds: 300)).asyncExpand(mapper);
+    return (events, mapper) => events
+        .debounceTime(const Duration(milliseconds: 300))
+        .asyncExpand(mapper);
   }
 
-  Future<void> _onSearchQueryChanged(SearchQueryChanged event, Emitter<SearchState> emit) async {
+  Future<void> _onSearchQueryChanged(
+    SearchQueryChanged event,
+    Emitter<SearchState> emit,
+  ) async {
     if (event.query.isEmpty) {
       emit(SearchInitial());
       return;
@@ -29,47 +34,65 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     try {
       // Simulate network/database call
       await Future.delayed(const Duration(milliseconds: 500));
-      final suggestions = ['${event.query} suggestion 1', '${event.query} suggestion 2'];
+      final suggestions = [
+        '${event.query} suggestion 1',
+        '${event.query} suggestion 2',
+      ];
       final history = await _getSearchHistory();
-      emit(SearchLoaded(
-        results: [],
-        suggestions: suggestions,
-        history: history,
-        filter: SearchFilter(),
-      ));
+      emit(
+        SearchLoaded(
+          results: [],
+          suggestions: suggestions,
+          history: history,
+          filter: SearchFilter(),
+        ),
+      );
     } catch (e) {
       emit(SearchError(e.toString()));
     }
   }
 
-  Future<void> _onSearchSubmitted(SearchSubmitted event, Emitter<SearchState> emit) async {
+  Future<void> _onSearchSubmitted(
+    SearchSubmitted event,
+    Emitter<SearchState> emit,
+  ) async {
     await _addToSearchHistory(event.query);
     emit(SearchLoading());
     try {
       // Simulate network/database call
       await Future.delayed(const Duration(milliseconds: 500));
-      final results = ['Result for ${event.query} 1', 'Result for ${event.query} 2'];
+      final results = [
+        'Result for ${event.query} 1',
+        'Result for ${event.query} 2',
+      ];
       final history = await _getSearchHistory();
-      emit(SearchLoaded(
-        results: results,
-        suggestions: [],
-        history: history,
-        filter: SearchFilter(),
-      ));
+      emit(
+        SearchLoaded(
+          results: results,
+          suggestions: [],
+          history: history,
+          filter: SearchFilter(),
+        ),
+      );
     } catch (e) {
       emit(SearchError(e.toString()));
     }
   }
 
-  Future<void> _onClearSearchHistory(ClearSearchHistory event, Emitter<SearchState> emit) async {
+  Future<void> _onClearSearchHistory(
+    ClearSearchHistory event,
+    Emitter<SearchState> emit,
+  ) async {
     final prefs = await _prefs;
     await prefs.remove('search_history');
-    emit(SearchLoaded(
-      results: [],
-      suggestions: [],
-      history: [],
-      filter: SearchFilter(),
-    ));
+    emit(
+      SearchLoaded(
+        results: [],
+        suggestions: [],
+        history: [],
+        filter: SearchFilter(),
+      ),
+    );
   }
 
   Future<void> _addToSearchHistory(String query) async {

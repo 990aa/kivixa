@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
 enum PaperType { ruled, grid, plain, dotGrid }
+
 enum PaperSize { a4, letter, custom }
+
 enum ExportQuality { high, medium, low }
+
 enum AutoSaveFrequency { sec15, sec30, min1, manual }
+
 enum AutoCleanup { days30, days60, days90, never }
 
 class NotesSettings {

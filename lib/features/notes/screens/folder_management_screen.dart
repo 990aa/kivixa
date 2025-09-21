@@ -16,9 +16,7 @@ class _FolderManagementScreenState extends State<FolderManagementScreen> {
   Widget build(BuildContext context) {
     return PopupMenuTheme(
       data: PopupMenuThemeData(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         color: Colors.transparent,
         elevation: 0,
       ),
@@ -28,9 +26,7 @@ class _FolderManagementScreenState extends State<FolderManagementScreen> {
           backgroundColor: Colors.black,
           actions: [
             IconButton(
-              icon: Icon(
-                _isNeumorphic ? Icons.view_quilt : Icons.view_agenda,
-              ),
+              icon: Icon(_isNeumorphic ? Icons.view_quilt : Icons.view_agenda),
               onPressed: () {
                 setState(() {
                   _isNeumorphic = !_isNeumorphic;

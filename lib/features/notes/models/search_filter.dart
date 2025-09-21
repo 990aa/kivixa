@@ -28,9 +28,4 @@ class SearchFilter {
   }
 }
 
-enum SortOption {
-  name,
-  date,
-  size,
-  type,
-}
+enum SortOption { name, date, size, type }
