@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
+import 'package:kivixa/features/notes/screens/note_editor_screen.dart';
 import 'package:kivixa/features/notes/screens/notes_settings_screen.dart';
 import 'package:kivixa/features/notes/widgets/notes_grid_view.dart';
 import 'package:kivixa/features/notes/widgets/notes_list_view.dart';
@@ -102,10 +103,83 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Implement create new folder
+          _showCreateOptions(context);
         },
         child: const Icon(Icons.add),
       ),
+    );
+  }
+
+  void _showCreateOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.note_add),
+              title: const Text('New Note'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NoteEditorScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.create_new_folder),
+              title: const Text('New Folder'),
+              onTap: () {
+                Navigator.pop(context);
+                _showCreateFolderDialog(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showCreateFolderDialog(BuildContext context) {
+    final TextEditingController controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('New Folder'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(hintText: 'Folder name'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (controller.text.isNotEmpty) {
+                  setState(() {
+                    _folders.add(
+                      Folder(
+                        id: DateTime.now().toString(),
+                        name: controller.text,
+                        color: Colors.grey,
+                        icon: Icons.folder,
+                      ),
+                    );
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Create'),
+            ),
+          ],
+        );
+      },
     );
   }
 
