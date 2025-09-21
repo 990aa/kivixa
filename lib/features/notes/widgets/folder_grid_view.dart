@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kivixa/features/notes/widgets/context_menu.dart';
 
 class FolderGridView extends StatelessWidget {
   const FolderGridView({super.key});
