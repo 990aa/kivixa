@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:kivixa/features/notes/blocs/search_bloc.dart';
+import 'package:kivixa/features/notes/widgets/filter_chips.dart';
 import 'package:kivixa/features/notes/widgets/search_results_list.dart';
 import 'package:kivixa/features/notes/widgets/search_suggestions.dart';
 
@@ -18,6 +19,7 @@ class SearchScreen extends StatelessWidget {
           child: Column(
             children: [
               const SearchAppBar(),
+              const FilterChips(),
               Expanded(
                 child: BlocBuilder<SearchBloc, SearchState>(
                   builder: (context, state) {
