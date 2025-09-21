@@ -188,7 +188,7 @@ class _NotesSettingsScreenState extends State<NotesSettingsScreen> {
                 child: ColorPicker(
                   pickerColor: color,
                   onColorChanged: onColorChanged,
-                  showLabel: true,
+                  labelTypes: const [], // disables label, replace with desired label types if needed
                   pickerAreaHeightPercent: 0.8,
                 ),
               ),

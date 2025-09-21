@@ -179,9 +179,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                             state.document.title,
                             [pngBytes],
                           );
-                          await Share.shareXFiles([
-                            XFile(path),
-                          ], text: 'Here is my note!');
+                          await Share.shareXFiles(
+                            [XFile(path)],
+                            text: 'Here is my note!',
+                          );
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Sharing failed: $e')),
