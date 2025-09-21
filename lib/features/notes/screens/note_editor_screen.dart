@@ -193,7 +193,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                           type: FileType.image,
                         );
                         if (result != null) {
-                          final imageBytes = await result.files.single.bytes;
+                          final imageBytes = result.files.single.bytes;
                           final updatedDocument = state.document.copyWith(
                             pages: state.document.pages.map((page) {
                               if (page.pageNumber == 0) {
