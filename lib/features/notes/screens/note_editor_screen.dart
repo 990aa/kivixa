@@ -9,6 +9,7 @@ import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
 import 'package:kivixa/features/notes/services/export_service.dart';
 import 'package:kivixa/features/notes/services/favorite_documents_service.dart';
 import 'package:kivixa/features/notes/services/recent_documents_service.dart';
+import 'package:kivixa/features/notes/widgets/drawing_toolbar.dart';
 import 'package:kivixa/features/notes/widgets/notes_drawing_canvas.dart';
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
@@ -285,10 +286,22 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                 builder: (context, drawingState) {
                   if (drawingState is DrawingLoadSuccess) {
                     // Drawing notifier toJson and drawingData logic removed for compatibility with scribble 0.10.0+1
-                    return NotesDrawingCanvas(
-                      notifier: drawingState.notifier,
-                      backgroundImage:
-                          documentState.document.pages.first.backgroundImage,
+                    return Stack(
+                      children: [
+                        NotesDrawingCanvas(
+                          notifier: drawingState.notifier,
+                          backgroundImage: documentState
+                              .document.pages.first.backgroundImage,
+                        ),
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: DrawingToolbar(
+                            drawingBloc: context.read<DrawingBloc>(),
+                          ),
+                        ),
+                      ],
                     );
                   }
                   return const Center(child: CircularProgressIndicator());
