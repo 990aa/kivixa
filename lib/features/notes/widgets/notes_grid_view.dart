@@ -44,7 +44,7 @@ class NotesGridView extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => FolderManagementScreen(folder: folder),
+                              builder: (context) => const FolderManagementScreen(),
                             ),
                           );
                         },
