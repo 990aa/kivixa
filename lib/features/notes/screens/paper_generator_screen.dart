@@ -66,7 +66,6 @@ class _PaperGeneratorScreenState extends State<PaperGeneratorScreen> {
       case PaperType.graph:
         return GraphPaperOptions(watermark: 'Kivixa Graph');
       case PaperType.plain:
-      default:
         return PlainPaperOptions(watermark: 'Kivixa Plain');
     }
   }
@@ -74,9 +73,7 @@ class _PaperGeneratorScreenState extends State<PaperGeneratorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Paper Generator'),
-      ),
+      appBar: AppBar(title: const Text('Paper Generator')),
       body: Column(
         children: [
           _buildControls(),
@@ -85,26 +82,27 @@ class _PaperGeneratorScreenState extends State<PaperGeneratorScreen> {
               child: _isLoading
                   ? const CircularProgressIndicator()
                   : _error.isNotEmpty
-                      ? Text(_error, style: const TextStyle(color: Colors.red))
-                      : _generatedPaperBytes != null
-                          ? AspectRatio(
-                              aspectRatio: _selectedPaperSize.width / _selectedPaperSize.height,
-                              child: Container(
-                                margin: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.shade300),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 5),
-                                    )
-                                  ],
-                                ),
-                                child: Image.memory(_generatedPaperBytes!),
-                              ),
-                            )
-                          : const Text('No paper generated.'),
+                  ? Text(_error, style: const TextStyle(color: Colors.red))
+                  : _generatedPaperBytes != null
+                  ? AspectRatio(
+                      aspectRatio:
+                          _selectedPaperSize.width / _selectedPaperSize.height,
+                      child: Container(
+                        margin: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: Image.memory(_generatedPaperBytes!),
+                      ),
+                    )
+                  : const Text('No paper generated.'),
             ),
           ),
         ],
