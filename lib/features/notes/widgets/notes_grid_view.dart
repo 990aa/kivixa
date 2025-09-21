@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
-import 'package:kivixa/features/notes/screens/folder_management_screen.dart';
+import 'package:kivixa/features/notes/screens/notes_home_screen.dart';
 import 'package:kivixa/features/notes/widgets/modern_folder_card.dart';
 import 'package:kivixa/features/notes/widgets/modern_folder_card_shimmer.dart';
 
@@ -26,44 +25,27 @@ class NotesGridView extends StatelessWidget {
       builder: (context, constraints) {
         final crossAxisCount = _calculateCrossAxisCount(constraints.maxWidth);
 
-        return AnimationLimiter(
-          child: MasonryGridView.count(
-            padding: const EdgeInsets.all(16),
-            crossAxisCount: crossAxisCount,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            itemCount: folders.length,
-            itemBuilder: (context, index) {
-              final folder = folders[index];
-              return AnimationConfiguration.staggeredGrid(
-                position: index,
-                duration: const Duration(milliseconds: 375),
-                columnCount: crossAxisCount,
-                child: ScaleAnimation(
-                  child: FadeInAnimation(
-                    child: Hero(
-                      tag: 'folder_${folder.id}',
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const FolderManagementScreen(),
-                            ),
-                          );
-                        },
-                        child: SizedBox(
-                          height: (index % 2 == 0) ? 200 : 250,
-                          child: ModernFolderCard(folder: folder),
-                        ),
-                      ),
-                    ),
+        return MasonryGridView.count(
+          padding: const EdgeInsets.all(16),
+          crossAxisCount: crossAxisCount,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+          itemCount: folders.length,
+          itemBuilder: (context, index) {
+            final folder = folders[index];
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        NotesHomeScreen(folderId: folder.id),
                   ),
-                ),
-              );
-            },
-          ),
+                );
+              },
+              child: ModernFolderCard(folder: folder),
+            );
+          },
         );
       },
     );
