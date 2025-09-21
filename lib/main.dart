@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kivixa/features/notes/screens/folder_management_screen.dart';
+import 'package:kivixa/features/notes/screens/notes_home_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Kivixa',
       theme: ThemeData.dark(),
-      home: const FolderManagementScreen(),
+      home: const NotesHomeScreen(),
     );
   }
 }
