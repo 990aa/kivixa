@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:kivixa/features/notes/widgets/folder_grid_view.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
-class FolderManagementScreen extends StatelessWidget {
+class FolderManagementScreen extends StatefulWidget {
   const FolderManagementScreen({super.key});
+
+  @override
+  State<FolderManagementScreen> createState() => _FolderManagementScreenState();
+}
+
+class _FolderManagementScreenState extends State<FolderManagementScreen> {
+  bool _isNeumorphic = false;
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +26,21 @@ class FolderManagementScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Folder Management'),
           backgroundColor: Colors.black,
+          actions: [
+            IconButton(
+              icon: Icon(
+                _isNeumorphic ? Icons.view_quilt : Icons.view_agenda,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isNeumorphic = !_isNeumorphic;
+                });
+              },
+            ),
+          ],
         ),
         backgroundColor: Colors.black,
-        body: const FolderGridView(),
+        body: FolderGridView(isNeumorphic: _isNeumorphic),
         floatingActionButton: SpeedDial(
           icon: Icons.add,
           activeIcon: Icons.close,
