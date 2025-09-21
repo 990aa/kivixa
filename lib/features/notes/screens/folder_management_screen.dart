@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:glassmorphism/glassmorphism.dart';
 import 'package:kivixa/features/notes/widgets/folder_grid_view.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
