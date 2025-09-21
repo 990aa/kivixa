@@ -28,43 +28,16 @@ class ModernFolderCard extends StatefulWidget {
   State<ModernFolderCard> createState() => _ModernFolderCardState();
 }
 
-class _ModernFolderCardState extends State<ModernFolderCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
+class _ModernFolderCardState extends State<ModernFolderCard> {
   bool _isHovered = false;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-    if (widget.isSelected) {
-      _animationController.repeat(reverse: true);
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant ModernFolderCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.isSelected != oldWidget.isSelected) {
-      if (widget.isSelected) {
-        _animationController.repeat(reverse: true);
-      } else {
-        _animationController.stop();
-        _animationController.animateTo(0.0);
-      }
-    }
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
     super.dispose();
   }
 
@@ -93,95 +66,87 @@ class _ModernFolderCardState extends State<ModernFolderCard>
       $flex.crossAxisAlignment.start(),
     );
 
-    return ScaleTransition(
-      scale: _scaleAnimation,
-      child: MouseRegion(
-        onEnter: (_) => setState(() => _isHovered = true),
-        onExit: (_) => setState(() => _isHovered = false),
-        child: AnimatedScale(
-          scale: _isHovered ? 1.02 : 1.0,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          child: GestureDetector(
-            onTap: () {
-              HapticFeedback.lightImpact();
-              widget.onTap?.call();
-            },
-            onLongPress: () => _showContextMenu(context),
-            child: Dismissible(
-              key: Key(widget.folder.id),
-              background: _buildDismissibleBackground(
-                context,
-                'Delete',
-                Icons.delete,
-                Colors.red,
-                Alignment.centerLeft,
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          widget.onTap?.call();
+        },
+        onLongPress: () => _showContextMenu(context),
+        child: Dismissible(
+          key: Key(widget.folder.id),
+          background: _buildDismissibleBackground(
+            context,
+            'Delete',
+            Icons.delete,
+            Colors.red,
+            Alignment.centerLeft,
+          ),
+          secondaryBackground: _buildDismissibleBackground(
+            context,
+            'Move',
+            Icons.move_to_inbox,
+            Colors.blue,
+            Alignment.centerRight,
+          ),
+          onDismissed: (direction) {
+            if (direction == DismissDirection.startToEnd) {
+              widget.onDelete?.call();
+            } else {
+              widget.onMove?.call();
+            }
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: _isHovered
+                    ? [
+                        widget.folder.color.withOpacity(0.4),
+                        widget.folder.color.withOpacity(0.3),
+                      ]
+                    : [
+                        widget.folder.color.withOpacity(0.2),
+                        widget.folder.color.withOpacity(0.1),
+                      ],
+                stops: const [0.1, 1],
               ),
-              secondaryBackground: _buildDismissibleBackground(
-                context,
-                'Move',
-                Icons.move_to_inbox,
-                Colors.blue,
-                Alignment.centerRight,
+              border: Border.all(
+                width: 1.5,
+                color: _isHovered
+                    ? Colors.white.withOpacity(0.7)
+                    : Colors.white.withOpacity(0.5),
               ),
-              onDismissed: (direction) {
-                if (direction == DismissDirection.startToEnd) {
-                  widget.onDelete?.call();
-                } else {
-                  widget.onMove?.call();
-                }
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: _isHovered
-                        ? [
-                            widget.folder.color.withOpacity(0.4),
-                            widget.folder.color.withOpacity(0.3),
-                          ]
-                        : [
-                            widget.folder.color.withOpacity(0.2),
-                            widget.folder.color.withOpacity(0.1),
-                          ],
-                    stops: const [0.1, 1],
-                  ),
-                  border: Border.all(
-                    width: 1.5,
-                    color: _isHovered
-                        ? Colors.white.withOpacity(0.7)
-                        : Colors.white.withOpacity(0.5),
-                  ),
-                ),
-                child: GlassmorphicContainer(
-                  width: double.infinity,
-                  height: 180,
-                  borderRadius: 16,
-                  blur: 10,
-                  border: 0, // Border is handled by the AnimatedContainer
-                  linearGradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.transparent, Colors.transparent],
-                  ),
-                  borderGradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.transparent, Colors.transparent],
-                  ),
-                  child: StyledColumn(
-                    style: containerStyle,
-                    children: [
-                      _buildHeader(onPrimaryContainer),
-                      const Spacer(),
-                      _buildFooter(theme, onPrimaryContainer),
-                    ],
-                  ),
-                ),
+            ),
+            child: GlassmorphicContainer(
+              width: double.infinity,
+              height: 90,
+              borderRadius: 16,
+              blur: 10,
+              border: 0, // Border is handled by the AnimatedContainer
+              linearGradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Colors.transparent, Colors.transparent],
+              ),
+              borderGradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Colors.transparent, Colors.transparent],
+              ),
+              child: StyledColumn(
+                style: containerStyle,
+                children: [
+                  _buildHeader(onPrimaryContainer),
+                  const Spacer(),
+                  _buildFooter(theme, onPrimaryContainer),
+                ],
               ),
             ),
           ),
