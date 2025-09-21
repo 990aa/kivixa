@@ -91,22 +91,33 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
   List<Folder> _getDummyFolders() {
     return [
       Folder(
+        id: 'personal',
         name: 'Personal',
         color: Colors.blue,
         icon: Icons.person,
         noteCount: 12,
         size: 3,
         capacity: 10,
+        subFolders: [
+          Folder(id: 'health', name: 'Health', color: Colors.green),
+          Folder(id: 'finance', name: 'Finance', color: Colors.yellow),
+        ],
       ),
       Folder(
+        id: 'work',
         name: 'Work',
         color: Colors.green,
         icon: Icons.work,
         noteCount: 8,
         size: 8,
         capacity: 10,
+        subFolders: [
+          Folder(id: 'projects', name: 'Projects', color: Colors.purple),
+          Folder(id: 'meetings', name: 'Meetings', color: Colors.orange),
+        ],
       ),
       Folder(
+        id: 'ideas',
         name: 'Ideas',
         color: Colors.purple,
         icon: Icons.lightbulb,
@@ -115,6 +126,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
         capacity: 10,
       ),
       Folder(
+        id: 'travel',
         name: 'Travel',
         color: Colors.orange,
         icon: Icons.airplanemode_active,
@@ -123,6 +135,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
         capacity: 10,
       ),
       Folder(
+        id: 'recipes',
         name: 'Recipes',
         color: Colors.red,
         icon: Icons.restaurant,
@@ -131,6 +144,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
         capacity: 10,
       ),
       Folder(
+        id: 'projects_main',
         name: 'Projects',
         color: Colors.teal,
         icon: Icons.task,

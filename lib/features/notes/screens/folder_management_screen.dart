@@ -4,51 +4,23 @@ import 'package:kivixa/features/notes/widgets/folder_tree_sidebar.dart';
 import 'package:kivixa/features/notes/widgets/notes_grid_view.dart';
 
 class FolderManagementScreen extends StatefulWidget {
-  const FolderManagementScreen({super.key});
+  const FolderManagementScreen({super.key, required this.folder});
+
+  final Folder folder;
 
   @override
   State<FolderManagementScreen> createState() => _FolderManagementScreenState();
 }
 
 class _FolderManagementScreenState extends State<FolderManagementScreen> {
-  late final Folder rootFolder;
   late List<Folder> currentFolders;
   List<Folder> breadcrumbs = [];
 
   @override
   void initState() {
     super.initState();
-    _generateMockData();
-    currentFolders = rootFolder.subFolders;
-    breadcrumbs.add(rootFolder);
-  }
-
-  void _generateMockData() {
-    rootFolder = Folder(
-      id: 'root',
-      name: 'Home',
-      subFolders: [
-        Folder(
-          name: 'Personal',
-          color: Colors.blue,
-          icon: Icons.person,
-          subFolders: [
-            Folder(name: 'Health', color: Colors.green),
-            Folder(name: 'Finance', color: Colors.yellow),
-          ],
-        ),
-        Folder(
-          name: 'Work',
-          color: Colors.red,
-          icon: Icons.work,
-          subFolders: [
-            Folder(name: 'Projects', color: Colors.purple),
-            Folder(name: 'Meetings', color: Colors.orange),
-          ],
-        ),
-        Folder(name: 'Ideas', color: Colors.indigo),
-      ],
-    );
+    currentFolders = widget.folder.subFolders;
+    breadcrumbs.add(widget.folder);
   }
 
   @override
@@ -69,19 +41,22 @@ class _FolderManagementScreenState extends State<FolderManagementScreen> {
             ),
           ),
           child: SafeArea(
-            child: FolderTreeSidebar(rootFolder: rootFolder),
+            child: FolderTreeSidebar(rootFolder: widget.folder),
           ),
         ),
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF2c3e50), Color(0xFF4ca1af)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      body: Hero(
+        tag: 'folder_${widget.folder.id}',
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF2c3e50), Color(0xFF4ca1af)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
+          child: NotesGridView(folders: currentFolders),
         ),
-        child: NotesGridView(folders: currentFolders),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {},
