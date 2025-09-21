@@ -13,13 +13,7 @@ class PaperSize {
 }
 
 // 2. Paper Type Enum
-enum PaperType {
-  plain,
-  ruled,
-  grid,
-  dotGrid,
-  graph,
-}
+enum PaperType { plain, ruled, grid, dotGrid, graph }
 
 // 3. Abstract class for paper options
 abstract class PaperOptions {
@@ -37,7 +31,8 @@ class PlainPaperOptions extends PaperOptions {
 
   @override
   Map<String, dynamic> toJson() => {
-    'backgroundColor': '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
+    'backgroundColor':
+        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
     'watermark': watermark,
   };
 }
@@ -59,7 +54,8 @@ class RuledPaperOptions extends PaperOptions {
 
   @override
   Map<String, dynamic> toJson() => {
-    'backgroundColor': '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
+    'backgroundColor':
+        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
     'watermark': watermark,
     'lineSpacing': lineSpacing,
     'marginLeft': marginLeft,
@@ -81,7 +77,8 @@ class GridPaperOptions extends PaperOptions {
 
   @override
   Map<String, dynamic> toJson() => {
-    'backgroundColor': '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
+    'backgroundColor':
+        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
     'watermark': watermark,
     'gridSize': gridSize,
     'color': '#${color.toARGB32().toRadixString(16).substring(2)}',
@@ -103,7 +100,8 @@ class DotGridPaperOptions extends PaperOptions {
 
   @override
   Map<String, dynamic> toJson() => {
-    'backgroundColor': '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
+    'backgroundColor':
+        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
     'watermark': watermark,
     'dotSpacing': dotSpacing,
     'dotSize': dotSize,
@@ -128,7 +126,8 @@ class GraphPaperOptions extends PaperOptions {
 
   @override
   Map<String, dynamic> toJson() => {
-    'backgroundColor': '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
+    'backgroundColor':
+        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
     'watermark': watermark,
     'gridSize': gridSize,
     'majorEvery': majorEvery,

@@ -37,9 +37,7 @@ class _NotesSettingsScreenState extends State<NotesSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Notes Settings'),
-      ),
+      appBar: AppBar(title: const Text('Notes Settings')),
       body: _settings == null
           ? const Center(child: CircularProgressIndicator())
           : ListView(
@@ -50,12 +48,15 @@ class _NotesSettingsScreenState extends State<NotesSettingsScreen> {
                   title: 'Default Paper Type',
                   value: _settings!.defaultPaperType,
                   items: PaperType.values,
-                  onChanged: (value) => _updateSetting(() => _settings!.defaultPaperType = value!),
+                  onChanged: (value) => _updateSetting(
+                    () => _settings!.defaultPaperType = value!,
+                  ),
                 ),
                 _buildColorPickerSetting(
                   title: 'Default Pen Color',
                   color: _settings!.defaultPenColor,
-                  onColorChanged: (color) => _updateSetting(() => _settings!.defaultPenColor = color),
+                  onColorChanged: (color) =>
+                      _updateSetting(() => _settings!.defaultPenColor = color),
                 ),
                 _buildSliderSetting(
                   title: 'Default Stroke Width',
@@ -63,31 +64,38 @@ class _NotesSettingsScreenState extends State<NotesSettingsScreen> {
                   min: 1.0,
                   max: 10.0,
                   divisions: 9,
-                  onChanged: (value) => _updateSetting(() => _settings!.defaultStrokeWidth = value),
+                  onChanged: (value) => _updateSetting(
+                    () => _settings!.defaultStrokeWidth = value,
+                  ),
                 ),
                 _buildDropdownSetting<AutoSaveFrequency>(
                   title: 'Auto-save Frequency',
                   value: _settings!.autoSaveFrequency,
                   items: AutoSaveFrequency.values,
-                  onChanged: (value) => _updateSetting(() => _settings!.autoSaveFrequency = value!),
+                  onChanged: (value) => _updateSetting(
+                    () => _settings!.autoSaveFrequency = value!,
+                  ),
                 ),
                 _buildDropdownSetting<PaperSize>(
                   title: 'Paper Size',
                   value: _settings!.paperSize,
                   items: PaperSize.values,
-                  onChanged: (value) => _updateSetting(() => _settings!.paperSize = value!),
+                  onChanged: (value) =>
+                      _updateSetting(() => _settings!.paperSize = value!),
                 ),
                 _buildDropdownSetting<ExportQuality>(
                   title: 'Export Quality',
                   value: _settings!.exportQuality,
                   items: ExportQuality.values,
-                  onChanged: (value) => _updateSetting(() => _settings!.exportQuality = value!),
+                  onChanged: (value) =>
+                      _updateSetting(() => _settings!.exportQuality = value!),
                 ),
                 _buildSectionTitle('Drawing Preferences'),
                 _buildSwitchSetting(
                   title: 'Stylus-only Mode',
                   value: _settings!.stylusOnlyMode,
-                  onChanged: (value) => _updateSetting(() => _settings!.stylusOnlyMode = value),
+                  onChanged: (value) =>
+                      _updateSetting(() => _settings!.stylusOnlyMode = value),
                 ),
                 _buildSliderSetting(
                   title: 'Palm Rejection Sensitivity',
@@ -95,7 +103,9 @@ class _NotesSettingsScreenState extends State<NotesSettingsScreen> {
                   min: 0.0,
                   max: 1.0,
                   divisions: 10,
-                  onChanged: (value) => _updateSetting(() => _settings!.palmRejectionSensitivity = value),
+                  onChanged: (value) => _updateSetting(
+                    () => _settings!.palmRejectionSensitivity = value,
+                  ),
                 ),
                 _buildSliderSetting(
                   title: 'Pressure Sensitivity',
@@ -103,19 +113,24 @@ class _NotesSettingsScreenState extends State<NotesSettingsScreen> {
                   min: 0.0,
                   max: 1.0,
                   divisions: 10,
-                  onChanged: (value) => _updateSetting(() => _settings!.pressureSensitivity = value),
+                  onChanged: (value) => _updateSetting(
+                    () => _settings!.pressureSensitivity = value,
+                  ),
                 ),
                 _buildSwitchSetting(
                   title: 'Enable Zoom Gestures',
                   value: _settings!.zoomGestureEnabled,
-                  onChanged: (value) => _updateSetting(() => _settings!.zoomGestureEnabled = value),
+                  onChanged: (value) => _updateSetting(
+                    () => _settings!.zoomGestureEnabled = value,
+                  ),
                 ),
                 _buildSectionTitle('Storage and Sync'),
                 _buildDropdownSetting<AutoCleanup>(
                   title: 'Auto-cleanup Old Documents',
                   value: _settings!.autoCleanup,
                   items: AutoCleanup.values,
-                  onChanged: (value) => _updateSetting(() => _settings!.autoCleanup = value!),
+                  onChanged: (value) =>
+                      _updateSetting(() => _settings!.autoCleanup = value!),
                 ),
                 _buildSliderSetting(
                   title: 'Max Storage Limit (MB)',
@@ -123,17 +138,21 @@ class _NotesSettingsScreenState extends State<NotesSettingsScreen> {
                   min: 100.0,
                   max: 2000.0,
                   divisions: 19,
-                  onChanged: (value) => _updateSetting(() => _settings!.maxStorageLimit = value),
+                  onChanged: (value) =>
+                      _updateSetting(() => _settings!.maxStorageLimit = value),
                 ),
                 _TextFieldSetting(
                   title: 'Export Location',
                   initialValue: _settings!.exportLocation,
-                  onChanged: (value) => _updateSetting(() => _settings!.exportLocation = value),
+                  onChanged: (value) =>
+                      _updateSetting(() => _settings!.exportLocation = value),
                 ),
                 _TextFieldSetting(
                   title: 'Document Naming Pattern',
                   initialValue: _settings!.documentNamePattern,
-                  onChanged: (value) => _updateSetting(() => _settings!.documentNamePattern = value),
+                  onChanged: (value) => _updateSetting(
+                    () => _settings!.documentNamePattern = value,
+                  ),
                 ),
               ],
             ),
@@ -143,10 +162,7 @@ class _NotesSettingsScreenState extends State<NotesSettingsScreen> {
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(top: 24.0, bottom: 8.0),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleLarge,
-      ),
+      child: Text(title, style: Theme.of(context).textTheme.titleLarge),
     );
   }
 
@@ -188,7 +204,8 @@ class _NotesSettingsScreenState extends State<NotesSettingsScreen> {
                 child: ColorPicker(
                   pickerColor: color,
                   onColorChanged: onColorChanged,
-                  labelTypes: const [], // disables label, replace with desired label types if needed
+                  labelTypes:
+                      const [], // disables label, replace with desired label types if needed
                   pickerAreaHeightPercent: 0.8,
                 ),
               ),
@@ -285,9 +302,7 @@ class _TextFieldSettingState extends State<_TextFieldSetting> {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(widget.title),
-      subtitle: TextFormField(
-        controller: _controller,
-      ),
+      subtitle: TextFormField(controller: _controller),
     );
   }
 }

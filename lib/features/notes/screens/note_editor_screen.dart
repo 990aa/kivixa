@@ -77,19 +77,23 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       final pngBytes = byteData!.buffer.asUint8List();
 
       final documentState = context.read<DocumentBloc>().state;
+      if (!mounted) return;
       if (documentState is DocumentLoadSuccess) {
         // Save PNG to file or handle as needed
         final directory = await FilePicker.platform.getDirectoryPath();
+        if (!mounted) return;
         if (directory != null) {
           final path = '$directory/${documentState.document.title}_page_0.png';
           final file = File(path);
           await file.writeAsBytes(pngBytes);
+          if (!mounted) return;
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text('Exported to $path')));
         }
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
@@ -179,10 +183,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                             state.document.title,
                             [pngBytes],
                           );
-                          await Share.shareXFiles(
-                            [XFile(path)],
-                            text: 'Here is my note!',
-                          );
+                          await Share.shareXFiles([
+                            XFile(path),
+                          ], text: 'Here is my note!');
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Sharing failed: $e')),
