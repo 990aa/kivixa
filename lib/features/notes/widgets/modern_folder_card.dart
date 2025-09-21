@@ -91,36 +91,62 @@ class _ModernFolderCardState extends State<ModernFolderCard> {
                 widget.onMove?.call();
               }
             },
-            child: GlassmorphicContainer(
-              width: double.infinity,
-              height: 180,
-              borderRadius: 16,
-              blur: 10,
-              border: 1,
-              linearGradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  widget.folder.color.withOpacity(0.2),
-                  widget.folder.color.withOpacity(0.1),
-                ],
-                stops: const [0.1, 1],
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: _isHovered
+                      ? [
+                          widget.folder.color.withOpacity(0.4),
+                          widget.folder.color.withOpacity(0.3),
+                        ]
+                      : [
+                          widget.folder.color.withOpacity(0.2),
+                          widget.folder.color.withOpacity(0.1),
+                        ],
+                  stops: const [0.1, 1],
+                ),
+                border: Border.all(
+                  width: 1.5,
+                  color: _isHovered
+                      ? Colors.white.withOpacity(0.7)
+                      : Colors.white.withOpacity(0.5),
+                ),
               ),
-              borderGradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withOpacity(0.5),
-                  Colors.white.withOpacity(0.2),
-                ],
-              ),
-              child: StyledColumn(
-                style: containerStyle,
-                children: [
-                  _buildHeader(onPrimaryContainer),
-                  const Spacer(),
-                  _buildFooter(theme, onPrimaryContainer),
-                ],
+              child: GlassmorphicContainer(
+                width: double.infinity,
+                height: 180,
+                borderRadius: 16,
+                blur: 10,
+                border: 0, // Border is handled by the AnimatedContainer
+                linearGradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.transparent,
+                    Colors.transparent,
+                  ],
+                ),
+                borderGradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.transparent,
+                    Colors.transparent,
+                  ],
+                ),
+                child: StyledColumn(
+                  style: containerStyle,
+                  children: [
+                    _buildHeader(onPrimaryContainer),
+                    const Spacer(),
+                    _buildFooter(theme, onPrimaryContainer),
+                  ],
+                ),
               ),
             ),
           ),
