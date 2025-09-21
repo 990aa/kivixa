@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
 import 'package:kivixa/features/notes/widgets/modern_folder_card.dart';
 import 'package:kivixa/features/notes/widgets/modern_folder_card_shimmer.dart';
@@ -21,14 +22,11 @@ class NotesGridView extends StatelessWidget {
         final crossAxisCount = _calculateCrossAxisCount(constraints.maxWidth);
 
         return AnimationLimiter(
-          child: GridView.builder(
+          child: MasonryGridView.count(
             padding: const EdgeInsets.all(16),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 1,
-            ),
+            crossAxisCount: crossAxisCount,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
             itemCount: folders.length,
             itemBuilder: (context, index) {
               return AnimationConfiguration.staggeredGrid(
@@ -37,7 +35,10 @@ class NotesGridView extends StatelessWidget {
                 columnCount: crossAxisCount,
                 child: ScaleAnimation(
                   child: FadeInAnimation(
-                    child: ModernFolderCard(folder: folders[index]),
+                    child: SizedBox(
+                      height: (index % 2 == 0) ? 200 : 250,
+                      child: ModernFolderCard(folder: folders[index]),
+                    ),
                   ),
                 ),
               );
