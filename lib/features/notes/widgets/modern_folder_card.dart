@@ -15,6 +15,7 @@ class ModernFolderCard extends StatefulWidget {
     this.onDelete,
     this.onMove,
     this.onFavorite,
+    this.isSelected = false,
   });
 
   final Folder folder;
@@ -22,6 +23,7 @@ class ModernFolderCard extends StatefulWidget {
   final VoidCallback? onDelete;
   final VoidCallback? onMove;
   final VoidCallback? onFavorite;
+  final bool isSelected;
 
   @override
   State<ModernFolderCard> createState() => _ModernFolderCardState();
