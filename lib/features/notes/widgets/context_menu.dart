@@ -19,7 +19,7 @@ void showModernContextMenu({
   required Offset position,
   required List<ContextMenuAction> actions,
 }) {
-  final overlay = Overlay.of(context).findRenderObject() as RenderBox;
+  final overlay = context.findRenderObject() as RenderBox;
   final screenWidth = overlay.size.width;
   final screenHeight = overlay.size.height;
 
