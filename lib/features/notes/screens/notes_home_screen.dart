@@ -5,7 +5,8 @@ import 'package:kivixa/features/notes/widgets/notes_grid_view.dart';
 import 'package:kivixa/features/notes/widgets/notes_list_view.dart';
 
 class NotesHomeScreen extends StatefulWidget {
-  const NotesHomeScreen({super.key});
+  final String? folderId;
+  const NotesHomeScreen({super.key, this.folderId});
 
   @override
   State<NotesHomeScreen> createState() => _NotesHomeScreenState();
@@ -15,6 +16,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
   bool _isGridView = true;
   bool _isLoading = true;
   List<Folder> _folders = [];
+  Folder? _currentFolder;
 
   @override
   void initState() {
@@ -26,9 +28,29 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 2));
     setState(() {
-      _folders = _getDummyFolders();
+      if (widget.folderId == null) {
+        _folders = _getDummyFolders();
+      } else {
+        _currentFolder = _findFolder(_getDummyFolders(), widget.folderId!);
+        _folders = _currentFolder?.subFolders ?? [];
+      }
       _isLoading = false;
     });
+  }
+
+  Folder? _findFolder(List<Folder> folders, String folderId) {
+    for (var folder in folders) {
+      if (folder.id == folderId) {
+        return folder;
+      }
+      if (folder.subFolders.isNotEmpty) {
+        final subFolder = _findFolder(folder.subFolders, folderId);
+        if (subFolder != null) {
+          return subFolder;
+        }
+      }
+    }
+    return null;
   }
 
   Future<void> _refreshFolders() async {
@@ -42,10 +64,10 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notes'),
+        title: Text(_currentFolder?.name ?? 'Notes'),
         actions: [
           IconButton(
-            icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
+            icon: Icon(_isGridView ? Icons.grid_view : Icons.list),
             onPressed: () {
               setState(() {
                 _isGridView = !_isGridView;
