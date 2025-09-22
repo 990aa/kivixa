@@ -111,9 +111,9 @@ class _ContextMenuContent extends StatelessWidget {
         child: Container(
           width: width,
           decoration: BoxDecoration(
-            color: Colors.grey.shade800.withOpacity(0.4),
+            color: Colors.grey.shade800.withAlpha((255 * 0.4).round()),
             borderRadius: BorderRadius.circular(12.0),
-            border: Border.all(color: Colors.white.withOpacity(0.2)),
+            border: Border.all(color: Colors.white.withAlpha((255 * 0.2).round())),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
