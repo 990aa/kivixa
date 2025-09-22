@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
+import 'package:kivixa/features/notes/blocs/drawing_event.dart';
+import 'package:kivixa/features/notes/blocs/drawing_state.dart';
 
 class DrawingToolbar extends StatelessWidget {
   const DrawingToolbar({super.key});
@@ -82,66 +85,6 @@ class DrawingToolbar extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-// A simple block-based color picker.
-class BlockPicker extends StatelessWidget {
-  final Color pickerColor;
-  final ValueChanged<Color> onColorChanged;
-
-  const BlockPicker({
-    super.key,
-    required this.pickerColor,
-    required this.onColorChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8.0,
-      runSpacing: 8.0,
-      children: [
-        Colors.red,
-        Colors.pink,
-        Colors.purple,
-        Colors.deepPurple,
-        Colors.indigo,
-        Colors.blue,
-        Colors.lightBlue,
-        Colors.cyan,
-        Colors.teal,
-        Colors.green,
-        Colors.lightGreen,
-        Colors.lime,
-        Colors.yellow,
-        Colors.amber,
-        Colors.orange,
-        Colors.deepOrange,
-        Colors.brown,
-        Colors.grey,
-        Colors.blueGrey,
-        Colors.black,
-        Colors.white,
-      ]
-          .map((color) => GestureDetector(
-                onTap: () => onColorChanged(color),
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: color,
-                    border: Border.all(
-                      color:
-                          pickerColor == color ? Colors.blue : Colors.transparent,
-                      width: 2.0,
-                    ),
-                    borderRadius: BorderRadius.circular(4.0),
-                  ),
-                ),
-              ))
-          .toList(),
     );
   }
 }
