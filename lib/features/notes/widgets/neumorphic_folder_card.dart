@@ -34,7 +34,7 @@ class NeumorphicFolderCard extends StatelessWidget {
             Text(
               '${folder.noteCount} notes',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: textColor?.withOpacity(0.7),
+                color: textColor?.withAlpha((255 * 0.7).round()),
               ),
             ),
           ],
