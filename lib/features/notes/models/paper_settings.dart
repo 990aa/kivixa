@@ -52,7 +52,7 @@ class PlainPaperOptions extends PaperOptions {
   @override
   Map<String, dynamic> toJson() => {
     'backgroundColor':
-        '#${backgroundColor.value.toRadixString(16).substring(2)}',
+        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
     'watermark': watermark,
   };
 }
@@ -86,12 +86,12 @@ class RuledPaperOptions extends PaperOptions {
   @override
   Map<String, dynamic> toJson() => {
     'backgroundColor':
-        '#${backgroundColor.value.toRadixString(16).substring(2)}',
+        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
     'watermark': watermark,
     'lineSpacing': lineSpacing,
     'marginLeft': marginLeft,
-    'lineColor': '#${lineColor.value.toRadixString(16).substring(2)}',
-    'marginColor': '#${marginColor.value.toRadixString(16).substring(2)}',
+    'lineColor': '#${lineColor.toARGB32().toRadixString(16).substring(2)}',
+    'marginColor': '#${marginColor.toARGB32().toRadixString(16).substring(2)}',
   };
 }
 
@@ -118,10 +118,10 @@ class GridPaperOptions extends PaperOptions {
   @override
   Map<String, dynamic> toJson() => {
     'backgroundColor':
-        '#${backgroundColor.value.toRadixString(16).substring(2)}',
+        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
     'watermark': watermark,
     'gridSize': gridSize,
-    'color': '#${color.value.toRadixString(16).substring(2)}',
+    'color': '#${color.toARGB32().toRadixString(16).substring(2)}',
   };
 }
 
@@ -151,11 +151,11 @@ class DotGridPaperOptions extends PaperOptions {
   @override
   Map<String, dynamic> toJson() => {
     'backgroundColor':
-        '#${backgroundColor.value.toRadixString(16).substring(2)}',
+        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
     'watermark': watermark,
     'dotSpacing': dotSpacing,
     'dotSize': dotSize,
-    'color': '#${color.value.toRadixString(16).substring(2)}',
+    'color': '#${color.toARGB32().toRadixString(16).substring(2)}',
   };
 }
 
@@ -188,11 +188,11 @@ class GraphPaperOptions extends PaperOptions {
   @override
   Map<String, dynamic> toJson() => {
     'backgroundColor':
-        '#${backgroundColor.value.toRadixString(16).substring(2)}',
+        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
     'watermark': watermark,
     'gridSize': gridSize,
     'majorEvery': majorEvery,
-    'minorColor': '#${minorColor.value.toRadixString(16).substring(2)}',
-    'majorColor': '#${majorColor.value.toRadixString(16).substring(2)}',
+    'minorColor': '#${minorColor.toARGB32().toRadixString(16).substring(2)}',
+    'majorColor': '#${majorColor.toARGB32().toRadixString(16).substring(2)}',
   };
 }
