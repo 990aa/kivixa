@@ -23,15 +23,18 @@ class ModernFolderCardShimmer extends StatelessWidget {
         linearGradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.grey.withOpacity(0.2), Colors.grey.withOpacity(0.1)],
+          colors: [
+            Colors.grey.withAlpha((255 * 0.2).round()),
+            Colors.grey.withAlpha((255 * 0.1).round())
+          ],
           stops: const [0.1, 1],
         ),
         borderGradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.white.withOpacity(0.5),
-            Colors.white.withOpacity(0.2),
+            Colors.white.withAlpha((255 * 0.5).round()),
+            Colors.white.withAlpha((255 * 0.2).round()),
           ],
         ),
         child: Padding(
