@@ -24,3 +24,8 @@ class SearchSubmitted extends SearchEvent {
 }
 
 class ClearSearchHistory extends SearchEvent {}
+
+class RemoveSearchHistoryItem extends SearchEvent {
+  final String item;
+  RemoveSearchHistoryItem(this.item);
+}
