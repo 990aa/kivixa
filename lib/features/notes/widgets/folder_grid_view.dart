@@ -4,9 +4,14 @@ import 'package:kivixa/features/notes/widgets/modern_folder_card.dart';
 import 'package:kivixa/features/notes/widgets/neumorphic_folder_card.dart';
 
 class FolderGridView extends StatefulWidget {
-  const FolderGridView({super.key, this.isNeumorphic = false});
+  const FolderGridView({
+    super.key,
+    this.isNeumorphic = false,
+    required this.onFolderCreated,
+  });
 
   final bool isNeumorphic;
+  final Function(Folder) onFolderCreated;
 
   @override
   State<FolderGridView> createState() => _FolderGridViewState();
