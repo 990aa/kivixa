@@ -72,7 +72,8 @@ class _AnimatedProgressRingState extends State<AnimatedProgressRing>
               progress: _animation.value,
               strokeWidth: widget.strokeWidth,
               backgroundColor:
-                  widget.backgroundColor ?? Colors.grey.withOpacity(0.2),
+                  widget.backgroundColor ??
+                      Colors.grey.withAlpha((255 * 0.2).round()),
               progressColor: widget.progressColor,
             ),
           ),
