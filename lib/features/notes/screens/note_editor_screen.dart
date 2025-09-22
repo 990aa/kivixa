@@ -143,10 +143,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                             state.document.title,
                             [pngBytes],
                           );
+                          if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Exported to $path')),
                           );
                         } catch (e) {
+                          if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Export failed: $e')),
                           );
@@ -160,10 +162,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                           final path = await _exportService.exportToJson(
                             state.document,
                           );
+                          if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Exported to $path')),
                           );
                         } catch (e) {
+                          if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Export failed: $e')),
                           );
@@ -187,6 +191,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                             XFile(path),
                           ], text: 'Here is my note!');
                         } catch (e) {
+                          if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Sharing failed: $e')),
                           );
@@ -233,6 +238,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                                 await XFile(path).readAsBytes(),
                           );
                         } catch (e) {
+                          if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Print failed: $e')),
                           );
