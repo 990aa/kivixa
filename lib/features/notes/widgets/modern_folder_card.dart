@@ -55,7 +55,7 @@ class _ModernFolderCardState extends State<ModernFolderCard> {
       $box.borderRadius.all(16),
       $box.padding.all(16),
       $box.shadow(
-        color: widget.folder.color.withOpacity(0.3),
+        color: widget.folder.color.withAlpha((255 * 0.3).round()),
         blurRadius: 20,
         spreadRadius: -5,
         offset: const Offset(0, 8),
