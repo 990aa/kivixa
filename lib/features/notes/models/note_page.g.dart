@@ -8,11 +8,12 @@ part of 'note_page.dart';
 
 NotePage _$NotePageFromJson(Map<String, dynamic> json) => NotePage(
   pageNumber: (json['pageNumber'] as num).toInt(),
-  paperType: json['paperType'] as String,
-  drawingData: (json['drawingData'] as List<dynamic>)
+  strokes: (json['strokes'] as List<dynamic>)
       .map((e) => DrawingStroke.fromJson(e as Map<String, dynamic>))
       .toList(),
-  backgroundSettings: json['backgroundSettings'] as Map<String, dynamic>,
+  paperSettings: const PaperSettingsConverter().fromJson(
+    json['paperSettings'] as Map<String, dynamic>,
+  ),
   backgroundImage: const Uint8ListConverter().fromJson(
     json['backgroundImage'] as List<int>?,
   ),
@@ -20,9 +21,10 @@ NotePage _$NotePageFromJson(Map<String, dynamic> json) => NotePage(
 
 Map<String, dynamic> _$NotePageToJson(NotePage instance) => <String, dynamic>{
   'pageNumber': instance.pageNumber,
-  'paperType': instance.paperType,
-  'drawingData': instance.drawingData,
-  'backgroundSettings': instance.backgroundSettings,
+  'strokes': instance.strokes,
+  'paperSettings': const PaperSettingsConverter().toJson(
+    instance.paperSettings,
+  ),
   'backgroundImage': const Uint8ListConverter().toJson(
     instance.backgroundImage,
   ),
