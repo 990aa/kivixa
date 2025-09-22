@@ -29,10 +29,17 @@ abstract class PaperOptions {
 class PlainPaperOptions extends PaperOptions {
   PlainPaperOptions({super.backgroundColor, super.watermark});
 
+  factory PlainPaperOptions.fromJson(Map<String, dynamic> json) {
+    return PlainPaperOptions(
+      backgroundColor: Color(int.parse(json['backgroundColor'].substring(1, 7), radix: 16) + 0xFF000000),
+      watermark: json['watermark'],
+    );
+  }
+
   @override
   Map<String, dynamic> toJson() => {
     'backgroundColor':
-        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
+        '#${backgroundColor.value.toRadixString(16).substring(2)}',
     'watermark': watermark,
   };
 }
@@ -52,15 +59,26 @@ class RuledPaperOptions extends PaperOptions {
     this.marginColor = Colors.pink,
   });
 
+  factory RuledPaperOptions.fromJson(Map<String, dynamic> json) {
+    return RuledPaperOptions(
+      backgroundColor: Color(int.parse(json['backgroundColor'].substring(1, 7), radix: 16) + 0xFF000000),
+      watermark: json['watermark'],
+      lineSpacing: json['lineSpacing'],
+      marginLeft: json['marginLeft'],
+      lineColor: Color(int.parse(json['lineColor'].substring(1, 7), radix: 16) + 0xFF000000),
+      marginColor: Color(int.parse(json['marginColor'].substring(1, 7), radix: 16) + 0xFF000000),
+    );
+  }
+
   @override
   Map<String, dynamic> toJson() => {
     'backgroundColor':
-        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
+        '#${backgroundColor.value.toRadixString(16).substring(2)}',
     'watermark': watermark,
     'lineSpacing': lineSpacing,
     'marginLeft': marginLeft,
-    'lineColor': '#${lineColor.toARGB32().toRadixString(16).substring(2)}',
-    'marginColor': '#${marginColor.toARGB32().toRadixString(16).substring(2)}',
+    'lineColor': '#${lineColor.value.toRadixString(16).substring(2)}',
+    'marginColor': '#${marginColor.value.toRadixString(16).substring(2)}',
   };
 }
 
@@ -75,13 +93,22 @@ class GridPaperOptions extends PaperOptions {
     this.color = Colors.grey,
   });
 
+  factory GridPaperOptions.fromJson(Map<String, dynamic> json) {
+    return GridPaperOptions(
+      backgroundColor: Color(int.parse(json['backgroundColor'].substring(1, 7), radix: 16) + 0xFF000000),
+      watermark: json['watermark'],
+      gridSize: json['gridSize'],
+      color: Color(int.parse(json['color'].substring(1, 7), radix: 16) + 0xFF000000),
+    );
+  }
+
   @override
   Map<String, dynamic> toJson() => {
     'backgroundColor':
-        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
+        '#${backgroundColor.value.toRadixString(16).substring(2)}',
     'watermark': watermark,
     'gridSize': gridSize,
-    'color': '#${color.toARGB32().toRadixString(16).substring(2)}',
+    'color': '#${color.value.toRadixString(16).substring(2)}',
   };
 }
 
@@ -98,14 +125,24 @@ class DotGridPaperOptions extends PaperOptions {
     this.color = Colors.grey,
   });
 
+  factory DotGridPaperOptions.fromJson(Map<String, dynamic> json) {
+    return DotGridPaperOptions(
+      backgroundColor: Color(int.parse(json['backgroundColor'].substring(1, 7), radix: 16) + 0xFF000000),
+      watermark: json['watermark'],
+      dotSpacing: json['dotSpacing'],
+      dotSize: json['dotSize'],
+      color: Color(int.parse(json['color'].substring(1, 7), radix: 16) + 0xFF000000),
+    );
+  }
+
   @override
   Map<String, dynamic> toJson() => {
     'backgroundColor':
-        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
+        '#${backgroundColor.value.toRadixString(16).substring(2)}',
     'watermark': watermark,
     'dotSpacing': dotSpacing,
     'dotSize': dotSize,
-    'color': '#${color.toARGB32().toRadixString(16).substring(2)}',
+    'color': '#${color.value.toRadixString(16).substring(2)}',
   };
 }
 
@@ -124,14 +161,25 @@ class GraphPaperOptions extends PaperOptions {
     this.majorColor = const Color(0xFFC0C0C0),
   });
 
+  factory GraphPaperOptions.fromJson(Map<String, dynamic> json) {
+    return GraphPaperOptions(
+      backgroundColor: Color(int.parse(json['backgroundColor'].substring(1, 7), radix: 16) + 0xFF000000),
+      watermark: json['watermark'],
+      gridSize: json['gridSize'],
+      majorEvery: json['majorEvery'],
+      minorColor: Color(int.parse(json['minorColor'].substring(1, 7), radix: 16) + 0xFF000000),
+      majorColor: Color(int.parse(json['majorColor'].substring(1, 7), radix: 16) + 0xFF000000),
+    );
+  }
+
   @override
   Map<String, dynamic> toJson() => {
     'backgroundColor':
-        '#${backgroundColor.toARGB32().toRadixString(16).substring(2)}',
+        '#${backgroundColor.value.toRadixString(16).substring(2)}',
     'watermark': watermark,
     'gridSize': gridSize,
     'majorEvery': majorEvery,
-    'minorColor': '#${minorColor.toARGB32().toRadixString(16).substring(2)}',
-    'majorColor': '#${majorColor.toARGB32().toRadixString(16).substring(2)}',
+    'minorColor': '#${minorColor.value.toRadixString(16).substring(2)}',
+    'majorColor': '#${majorColor.value.toRadixString(16).substring(2)}',
   };
 }
