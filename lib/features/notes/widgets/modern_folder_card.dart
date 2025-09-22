@@ -43,9 +43,7 @@ class _ModernFolderCardState extends State<ModernFolderCard> {
 
   void _showContextMenu(BuildContext context) {
     // In a real app, you'd show a more advanced context menu.
-    // For now, we'll just print to the console.
     HapticFeedback.vibrate();
-    print('Context menu for ${widget.folder.name}');
   }
 
   @override
