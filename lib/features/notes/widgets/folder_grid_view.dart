@@ -7,11 +7,11 @@ class FolderGridView extends StatefulWidget {
   const FolderGridView({
     super.key,
     this.isNeumorphic = false,
-    required this.onFolderCreated,
+    required this.folders,
   });
 
   final bool isNeumorphic;
-  final Function(Folder) onFolderCreated;
+  final List<Folder> folders;
 
   @override
   State<FolderGridView> createState() => _FolderGridViewState();
@@ -19,15 +19,6 @@ class FolderGridView extends StatefulWidget {
 
 class _FolderGridViewState extends State<FolderGridView> {
   String? _selectedFolderId;
-
-  final dummyFolders = [
-    Folder(name: 'Personal', color: Colors.blue, noteCount: 12),
-    Folder(name: 'Work', color: Colors.green, noteCount: 8),
-    Folder(name: 'Ideas', color: Colors.purple, noteCount: 23),
-    Folder(name: 'Travel', color: Colors.orange, noteCount: 5),
-    Folder(name: 'Recipes', color: Colors.red, noteCount: 16),
-    Folder(name: 'Projects', color: Colors.teal, noteCount: 9),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +30,9 @@ class _FolderGridViewState extends State<FolderGridView> {
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
       ),
-      itemCount: dummyFolders.length,
+      itemCount: widget.folders.length,
       itemBuilder: (context, index) {
-        final folder = dummyFolders[index];
+        final folder = widget.folders[index];
         if (widget.isNeumorphic) {
           return NeumorphicFolderCard(
             folder: folder,
@@ -49,7 +40,8 @@ class _FolderGridViewState extends State<FolderGridView> {
               setState(() {
                 if (_selectedFolderId == folder.id) {
                   _selectedFolderId = null;
-                } else {
+                }
+                else {
                   _selectedFolderId = folder.id;
                 }
               });
@@ -63,14 +55,15 @@ class _FolderGridViewState extends State<FolderGridView> {
             setState(() {
               if (_selectedFolderId == folder.id) {
                 _selectedFolderId = null;
-              } else {
+              }
+              else {
                 _selectedFolderId = folder.id;
               }
             });
           },
           onDelete: () {
             setState(() {
-              dummyFolders.removeAt(index);
+              widget.folders.removeAt(index);
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('${folder.name} deleted')),
