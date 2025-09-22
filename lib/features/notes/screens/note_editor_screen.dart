@@ -280,33 +280,27 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
           if (documentState is DocumentLoadInProgress) {
             return const Center(child: CircularProgressIndicator());
           } else if (documentState is DocumentLoadSuccess) {
-            return RepaintBoundary(
-              key: _canvasKey,
-              child: BlocBuilder<DrawingBloc, DrawingState>(
-                builder: (context, drawingState) {
-                  if (drawingState is DrawingLoadSuccess) {
-                    // Drawing notifier toJson and drawingData logic removed for compatibility with scribble 0.10.0+1
-                    return Stack(
-                      children: [
-                        NotesDrawingCanvas(
-                          notifier: drawingState.notifier,
-                          backgroundImage: documentState
-                              .document.pages.first.backgroundImage,
-                        ),
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          child: DrawingToolbar(
-                            drawingBloc: context.read<DrawingBloc>(),
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-                  return const Center(child: CircularProgressIndicator());
-                },
-              ),
+            return Column(
+              children: [
+                Expanded(
+                  child: RepaintBoundary(
+                    key: _canvasKey,
+                    child: NotesCanvas(
+                      pages: documentState.document.pages,
+                      onPageAdded: (newPage) {
+                        final updatedDocument = documentState.document.copyWith(
+                          pages: List.from(documentState.document.pages)
+                            ..add(newPage),
+                        );
+                        context
+                            .read<DocumentBloc>()
+                            .add(DocumentContentChanged(updatedDocument));
+                      },
+                    ),
+                  ),
+                ),
+                DrawingToolbar(),
+              ],
             );
           } else if (documentState is DocumentLoadFailure) {
             return Center(child: Text(documentState.error));
