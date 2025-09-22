@@ -87,9 +87,8 @@ class _NotesCanvasState extends State<NotesCanvas> {
               final background = _pageBackgrounds[page.pageNumber];
 
               return AspectRatio(
-                aspectRatio: page.paperSettings?.paperSize.width /
-                        page.paperSettings?.paperSize.height ??
-                    PaperSize.a4.width / PaperSize.a4.height,
+                aspectRatio: page.paperSettings.paperSize.width /
+                    page.paperSettings.paperSize.height,
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
@@ -148,23 +147,6 @@ class _NotesCanvasState extends State<NotesCanvas> {
           ),
         ),
       ],
-    );
-  }
-}
-
-// Helper extension for PaperSettings in NotePage
-extension PaperSettingsExtension on NotePage {
-  PaperSettings? get paperSettings {
-    // This is a placeholder. You need a way to store paper settings per page or per document.
-    // For now, let's return a default.
-    return PaperSettings(
-      paperType: PaperType.ruled,
-      paperSize: PaperSize.a4,
-      options: RuledPaperOptions(
-        backgroundColor: const Color(0xFFFDF9E8),
-        lineColor: Colors.blueGrey.withOpacity(0.5),
-        marginColor: Colors.redAccent.withOpacity(0.5),
-      ),
     );
   }
 }
