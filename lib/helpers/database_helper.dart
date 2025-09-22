@@ -81,9 +81,9 @@ class DatabaseHelper {
           id TEXT PRIMARY KEY,
           document_id TEXT,
           page_number INTEGER,
-          paper_type TEXT,
-          drawing_data_json TEXT,
-          background_color INTEGER
+          paper_settings_json TEXT,
+          strokes_json TEXT,
+          background_image BLOB
         )
       ''');
       await db.execute('''
@@ -167,8 +167,8 @@ class DatabaseHelper {
     return await db.insert('notes_documents', {
       'id': document.id,
       'title': document.title,
-      'createdAt': document.createdAt.toIso8601String(),
-      'updatedAt': document.updatedAt.toIso8601String(),
+      'createdAt': document.createdAt.toIso861String(),
+      'updatedAt': document.updatedAt.toIso861String(),
       'page_count': document.pages.length,
       'is_favorited': 0, // Default value
     });
@@ -195,7 +195,7 @@ class DatabaseHelper {
       'notes_documents',
       {
         'title': document.title,
-        'updatedAt': document.updatedAt.toIso8601String(),
+        'updatedAt': document.updatedAt.toIso861String(),
         'page_count': document.pages.length,
       },
       where: 'id = ?',
@@ -212,18 +212,14 @@ class DatabaseHelper {
   // Notes Page CRUD
   Future<int> insertNotePage(NotePage page, String documentId) async {
     Database db = await database;
-    // Note: You need to generate a unique ID for the page.
-    // Consider using the uuid package.
-    final pageId = page.pageNumber.toString(); // Placeholder, should be unique
+    final pageId = page.pageNumber.toString(); 
     return await db.insert('notes_pages', {
       'id': pageId,
       'document_id': documentId,
       'page_number': page.pageNumber,
-      'paper_type': page.paperType,
-      'drawing_data_json': jsonEncode(
-        page.drawingData.map((s) => s.toJson()).toList(),
-      ),
-      'background_color': page.backgroundSettings['color'],
+      'paper_settings_json': jsonEncode(page.paperSettings.toJson()),
+      'strokes_json': jsonEncode(page.strokes.map((s) => s.toJson()).toList()),
+      'background_image': page.backgroundImage,
     });
   }
 
@@ -236,26 +232,28 @@ class DatabaseHelper {
     );
 
     return List.generate(maps.length, (i) {
-      return NotePage.fromJson(maps[i]);
+      return NotePage.fromJson({
+        'pageNumber': maps[i]['page_number'],
+        'strokes': jsonDecode(maps[i]['strokes_json']),
+        'paperSettings': jsonDecode(maps[i]['paper_settings_json']),
+        'backgroundImage': maps[i]['background_image'],
+      });
     });
   }
 
   Future<int> updateNotePage(NotePage page) async {
     Database db = await database;
-    // Note: This assumes pageNumber is the unique identifier for the page within a document, which is not ideal.
-    // A unique page ID would be better.
     return await db.update(
       'notes_pages',
       {
-        'drawing_data_json': jsonEncode(
-          page.drawingData.map((s) => s.toJson()).toList(),
-        ),
-        'background_color': page.backgroundSettings['color'],
+        'paper_settings_json': jsonEncode(page.paperSettings.toJson()),
+        'strokes_json': jsonEncode(page.strokes.map((s) => s.toJson()).toList()),
+        'background_image': page.backgroundImage,
       },
       where: 'id = ?',
       whereArgs: [
         page.pageNumber.toString(),
-      ], // Placeholder, should be a unique page id
+      ], 
     );
   }
 
