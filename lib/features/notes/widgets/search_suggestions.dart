@@ -30,10 +30,11 @@ class SearchSuggestions extends StatelessWidget {
                 .map(
                   (item) => Chip(
                     label: Text(item),
-                    onDeleted: () {
-                      // TODO: Implement delete history item
-                    },
-                  ),
+                                      onDeleted: () {
+                                        context
+                                            .read<SearchBloc>()
+                                            .add(RemoveSearchHistoryItem(item));
+                                      },                  ),
                 )
                 .toList(),
           ),
