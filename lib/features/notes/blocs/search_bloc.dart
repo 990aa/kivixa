@@ -109,4 +109,22 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     final prefs = await _prefs;
     return prefs.getStringList('search_history') ?? [];
   }
+
+  Future<void> _onRemoveSearchHistoryItem(
+    RemoveSearchHistoryItem event,
+    Emitter<SearchState> emit,
+  ) async {
+    final prefs = await _prefs;
+    final history = prefs.getStringList('search_history') ?? [];
+    history.remove(event.item);
+    await prefs.setStringList('search_history', history);
+    emit(
+      SearchLoaded(
+        results: [],
+        suggestions: [],
+        history: history,
+        filter: SearchFilter(),
+      ),
+    );
+  }
 }
