@@ -155,20 +155,20 @@ class _ContextMenuItemState extends State<_ContextMenuItem> {
           height: widget.height,
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           color: _isHovered
-              ? Colors.white.withOpacity(0.15)
+              ? Colors.white.withAlpha((255 * 0.15).round())
               : Colors.transparent,
           child: Row(
             children: [
               Icon(
                 widget.action.icon,
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withAlpha((255 * 0.9).round()),
                 size: 20,
               ),
               const SizedBox(width: 12),
               Text(
                 widget.action.title,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withAlpha((255 * 0.9).round()),
                   fontSize: 14,
                 ),
               ),
