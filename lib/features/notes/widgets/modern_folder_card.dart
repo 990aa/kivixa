@@ -138,7 +138,7 @@ class _ModernFolderCardState extends State<ModernFolderCard> {
                 end: Alignment.bottomRight,
                 colors: [Colors.transparent, Colors.transparent],
               ),
-              child: StyledColumn(
+              child: VBox(
                 style: containerStyle,
                 children: [
                   _buildHeader(onPrimaryContainer),
