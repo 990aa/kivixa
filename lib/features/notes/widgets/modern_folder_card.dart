@@ -106,20 +106,20 @@ class _ModernFolderCardState extends State<ModernFolderCard> {
                 end: Alignment.bottomRight,
                 colors: _isHovered
                     ? [
-                        widget.folder.color.withOpacity(0.4),
-                        widget.folder.color.withOpacity(0.3),
+                        widget.folder.color.withAlpha((255 * 0.4).round()),
+                        widget.folder.color.withAlpha((255 * 0.3).round()),
                       ]
                     : [
-                        widget.folder.color.withOpacity(0.2),
-                        widget.folder.color.withOpacity(0.1),
+                        widget.folder.color.withAlpha((255 * 0.2).round()),
+                        widget.folder.color.withAlpha((255 * 0.1).round()),
                       ],
                 stops: const [0.1, 1],
               ),
               border: Border.all(
                 width: 1.5,
                 color: _isHovered
-                    ? Colors.white.withOpacity(0.7)
-                    : Colors.white.withOpacity(0.5),
+                    ? Colors.white.withAlpha((255 * 0.7).round())
+                    : Colors.white.withAlpha((255 * 0.5).round()),
               ),
             ),
             child: GlassmorphicContainer(
