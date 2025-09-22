@@ -88,7 +88,7 @@ class _NotesCanvasState extends State<NotesCanvas> {
                   decoration: BoxDecoration(
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withAlpha((255 * 0.2).round()),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
