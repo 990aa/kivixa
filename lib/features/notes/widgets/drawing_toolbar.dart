@@ -40,7 +40,7 @@ class DrawingToolbar extends StatelessWidget {
                         title: const Text('Select Color'),
                         content: SingleChildScrollView(
                           child: ColorPicker(
-                            pickerColor: notifier.value.color,
+                            pickerColor: notifier.value.selectedColor,
                             onColorChanged: (color) {
                               Navigator.of(context).pop(color);
                             },
@@ -61,7 +61,7 @@ class DrawingToolbar extends StatelessWidget {
                       builder: (context) => AlertDialog(
                         title: const Text('Select Stroke Width'),
                         content: Slider(
-                          value: notifier.value.strokeWidth,
+                          value: notifier.value.selectedStrokeWidth,
                           min: 1.0,
                           max: 20.0,
                           onChanged: (value) {
