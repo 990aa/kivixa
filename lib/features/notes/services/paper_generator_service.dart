@@ -42,7 +42,7 @@ class PaperGeneratorService {
 
     try {
       final htmlContent = await rootBundle.loadString(
-        'assets/web/paper_generator.html',
+        'assets/paper.html',
       );
       await _controller!.loadHtmlString(
         htmlContent,
