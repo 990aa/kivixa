@@ -42,13 +42,7 @@ class _NotesCanvasState extends State<NotesCanvas> {
   Future<void> _generatePageBackground(NotePage page) async {
     if (_pageBackgrounds.containsKey(page.pageNumber)) return;
 
-    // Default to A4 Plain White if no settings are provided
-    final paperSettings = page.paperSettings ??
-        PaperSettings(
-          paperType: PaperType.plain,
-          paperSize: PaperSize.a4,
-          options: PlainPaperOptions(backgroundColor: Colors.white),
-        );
+    final paperSettings = page.paperSettings;
 
     final imageBytes = await _paperGeneratorService.generatePaper(
       paperType: paperSettings.paperType,
