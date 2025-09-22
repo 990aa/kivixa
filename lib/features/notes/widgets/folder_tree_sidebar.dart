@@ -19,7 +19,7 @@ class FolderTreeSidebar extends StatelessWidget {
           ChevronIndicator.rightDown(tree: node, color: Colors.white),
       indentation: const Indentation(width: 20),
       builder: (context, node) => Card(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withAlpha((255 * 0.1).round()),
         child: ListTile(
           title: Text(
             node.data!.name,
