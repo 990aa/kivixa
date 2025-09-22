@@ -167,7 +167,7 @@ class DatabaseHelper {
     return await db.insert('notes_documents', {
       'id': document.id,
       'title': document.title,
-      'createdAt': document.createdAt.toIso861String(),
+      'createdAt': document.createdAt.toIso8601String(),
       'updatedAt': document.updatedAt.toIso861String(),
       'page_count': document.pages.length,
       'is_favorited': 0, // Default value
