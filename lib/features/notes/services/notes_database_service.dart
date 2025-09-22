@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:kivixa/features/notes/models/folder_model.dart';
 import 'package:kivixa/features/notes/models/note_document.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -25,6 +28,19 @@ class NotesDatabaseService {
     const idType = 'TEXT PRIMARY KEY';
     const textType = 'TEXT NOT NULL';
     const intType = 'INTEGER NOT NULL';
+    const nullableTextType = 'TEXT';
+
+    await db.execute('''
+CREATE TABLE folders ( 
+  id $idType, 
+  name $textType,
+  parentId $nullableTextType,
+  createdAt $intType,
+  lastModified $intType,
+  color $intType,
+  icon $intType
+  )
+''');
 
     await db.execute('''
 CREATE TABLE notes ( 
@@ -32,9 +48,43 @@ CREATE TABLE notes (
   title $textType,
   pages $textType,
   createdAt $intType,
-  updatedAt $intType
+  updatedAt $intType,
+  folderId $nullableTextType
   )
 ''');
+  }
+
+  Future<Folder> createFolder(Folder folder) async {
+    final db = await instance.database;
+    final Map<String, dynamic> row = {
+      'id': folder.id,
+      'name': folder.name,
+      'parentId': folder.parentId,
+      'createdAt': folder.createdAt.millisecondsSinceEpoch,
+      'lastModified': folder.lastModified.millisecondsSinceEpoch,
+      'color': folder.color.value,
+      'icon': folder.icon.codePoint,
+    };
+    await db.insert('folders', row);
+    return folder;
+  }
+
+  Future<List<Folder>> getAllFolders() async {
+    final db = await instance.database;
+    const orderBy = 'lastModified DESC';
+    final result = await db.query('folders', orderBy: orderBy);
+    return result.map((json) {
+      return Folder(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        parentId: json['parentId'] as String?,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
+        lastModified:
+            DateTime.fromMillisecondsSinceEpoch(json['lastModified'] as int),
+        color: Color(json['color'] as int),
+        icon: IconData(json['icon'] as int, fontFamily: 'MaterialIcons'),
+      );
+    }).toList();
   }
 
   Future<NoteDocument> create(NoteDocument note) async {
@@ -47,7 +97,14 @@ CREATE TABLE notes (
     final db = await instance.database;
     final maps = await db.query(
       'notes',
-      columns: ['id', 'title', 'pages', 'createdAt', 'updatedAt'],
+      columns: [
+        'id',
+        'title',
+        'pages',
+        'createdAt',
+        'updatedAt',
+        'folderId'
+      ],
       where: 'id = ?',
       whereArgs: [id],
     );

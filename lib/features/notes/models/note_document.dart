@@ -10,6 +10,7 @@ class NoteDocument {
   final List<NotePage> pages;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? folderId;
 
   NoteDocument({
     required this.id,
@@ -17,6 +18,7 @@ class NoteDocument {
     required this.pages,
     required this.createdAt,
     required this.updatedAt,
+    this.folderId,
   });
 
   factory NoteDocument.fromJson(Map<String, dynamic> json) =>
@@ -30,6 +32,7 @@ class NoteDocument {
     List<NotePage>? pages,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? folderId,
   }) {
     return NoteDocument(
       id: id ?? this.id,
@@ -37,6 +40,7 @@ class NoteDocument {
       pages: pages ?? this.pages,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      folderId: folderId ?? this.folderId,
     );
   }
 }
