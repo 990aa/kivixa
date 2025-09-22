@@ -10,6 +10,7 @@ import 'package:kivixa/features/notes/services/export_service.dart';
 import 'package:kivixa/features/notes/services/favorite_documents_service.dart';
 import 'package:kivixa/features/notes/services/recent_documents_service.dart';
 import 'package:kivixa/features/notes/widgets/drawing_toolbar.dart';
+import 'package:kivixa/features/notes/widgets/notes_canvas.dart';
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 
