@@ -207,7 +207,7 @@
             }
 
             const base64Image = exportCanvasToBase64();
-            // The 'PaperGeneratorChannel' is what we'll name our JavascriptChannel in Flutter.
+            
             if (window.PaperGeneratorChannel) {
                 window.PaperGeneratorChannel.postMessage(base64Image);
             } else {
