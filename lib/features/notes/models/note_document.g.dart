@@ -14,6 +14,7 @@ NoteDocument _$NoteDocumentFromJson(Map<String, dynamic> json) => NoteDocument(
       .toList(),
   createdAt: DateTime.parse(json['createdAt'] as String),
   updatedAt: DateTime.parse(json['updatedAt'] as String),
+  folderId: json['folderId'] as String?,
 );
 
 Map<String, dynamic> _$NoteDocumentToJson(NoteDocument instance) =>
@@ -23,4 +24,5 @@ Map<String, dynamic> _$NoteDocumentToJson(NoteDocument instance) =>
       'pages': instance.pages,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
+      'folderId': instance.folderId,
     };
