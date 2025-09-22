@@ -25,6 +25,19 @@ abstract class PaperOptions {
   Map<String, dynamic> toJson();
 }
 
+class PaperSettings {
+  final PaperType paperType;
+  final PaperSize paperSize;
+  final PaperOptions options;
+
+  PaperSettings({
+    required this.paperType,
+    required this.paperSize,
+    required this.options,
+  });
+}
+
+
 // 4. Specific implementations for each paper type's options
 class PlainPaperOptions extends PaperOptions {
   PlainPaperOptions({super.backgroundColor, super.watermark});
