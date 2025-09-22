@@ -64,11 +64,18 @@ class _FolderGridViewState extends State<FolderGridView> {
             });
           },
           onDelete: () {
-            // TODO: Handle folder delete
-            // print('${folder.name} deleted');
+            setState(() {
+              dummyFolders.removeAt(index);
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${folder.name} deleted')),
+            );
           },
           onMove: () {
             // TODO: Handle folder move
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Move ${folder.name}')),
+            );
           },
         );
       },
