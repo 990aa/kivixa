@@ -14,6 +14,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<SearchQueryChanged>(_onSearchQueryChanged, transformer: _debounce());
     on<SearchSubmitted>(_onSearchSubmitted);
     on<ClearSearchHistory>(_onClearSearchHistory);
+    on<RemoveSearchHistoryItem>(_onRemoveSearchHistoryItem);
   }
 
   EventTransformer<T> _debounce<T>() {
