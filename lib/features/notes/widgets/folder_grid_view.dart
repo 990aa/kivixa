@@ -65,11 +65,10 @@ class _FolderGridViewState extends State<FolderGridView> {
           },
           onDelete: () {
             // TODO: Handle folder delete
-            print('${folder.name} deleted');
+            // print('${folder.name} deleted');
           },
           onMove: () {
             // TODO: Handle folder move
-            print('${folder.name} moved');
           },
         );
       },

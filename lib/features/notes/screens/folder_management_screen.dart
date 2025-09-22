@@ -22,7 +22,6 @@ class _FolderManagementScreenState extends State<FolderManagementScreen> {
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Folder Management'),
           backgroundColor: Colors.black,
           actions: [
             IconButton(
