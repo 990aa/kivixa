@@ -181,6 +181,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                             state.document.title,
                             [pngBytes],
                           );
+                          // ignore: deprecated_member_use
                           await Share.shareXFiles([
                             XFile(path),
                           ], text: 'Here is my note!');
