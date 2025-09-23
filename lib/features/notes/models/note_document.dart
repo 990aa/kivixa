@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'note_page.dart';
+import 'package:kivixa/features/notes/models/note_page.dart';
+import 'package:uuid/uuid.dart';
 
 part 'note_document.g.dart';
 
@@ -13,13 +14,15 @@ class NoteDocument {
   final String? folderId;
 
   NoteDocument({
-    required this.id,
+    String? id,
     required this.title,
     required this.pages,
-    required this.createdAt,
-    required this.updatedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
     this.folderId,
-  });
+  })  : id = id ?? const Uuid().v4(),
+        createdAt = createdAt ?? DateTime.now(),
+        updatedAt = updatedAt ?? DateTime.now();
 
   factory NoteDocument.fromJson(Map<String, dynamic> json) =>
       _$NoteDocumentFromJson(json);
