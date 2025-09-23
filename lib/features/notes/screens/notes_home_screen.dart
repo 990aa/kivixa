@@ -8,6 +8,9 @@ import 'package:kivixa/features/notes/services/notes_database_service.dart';
 import 'package:kivixa/features/notes/screens/notes_settings_screen.dart';
 import 'package:kivixa/features/notes/widgets/notes_grid_view.dart';
 import 'package:kivixa/features/notes/widgets/notes_list_view.dart';
+import 'package:kivixa/features/notes/screens/a4_drawing_page.dart';
+import 'package:kivixa/features/notes/screens/a3_drawing_page.dart';
+import 'package:kivixa/features/notes/screens/square_drawing_page.dart';
 
 class NotesHomeScreen extends StatefulWidget {
   final String? folderId;
@@ -139,21 +142,39 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.note_add),
-              title: const Text('New Note'),
+              title: const Text('New A4 Drawing'),
               onTap: () {
                 Navigator.pop(context);
-                final newId = UniqueKey().toString();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BlocProvider(
-                      create: (_) =>
-                          DocumentBloc(NotesDatabaseService.instance),
-                      child: BlocProvider(
-                        create: (_) => DrawingBloc(),
-                        child: NoteEditorScreen(documentId: newId),
-                      ),
-                    ),
+                    builder: (context) => const A4DrawingPage(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.note_add),
+              title: const Text('New A3 Drawing'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const A3DrawingPage(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.note_add),
+              title: const Text('New Square Drawing'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SquareDrawingPage(),
                   ),
                 );
               },
