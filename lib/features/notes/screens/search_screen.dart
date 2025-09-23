@@ -32,7 +32,10 @@ class SearchScreen extends StatelessWidget {
                               suggestions: state.suggestions,
                               history: state.history,
                             )
-                          : SearchResultsList(results: state.results);
+                          : SearchResultsList(
+                              results: state.results,
+                              searchQuery: state.query,
+                            );
                     }
                     if (state is SearchError) {
                       return Center(
@@ -82,8 +85,8 @@ class _SearchAppBarState extends State<SearchAppBar> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          const Color(0xFFffffff).withValues(alpha: 0.1),
-          const Color(0xFFFFFFFF).withValues(alpha: 0.05),
+          const Color(0xFFffffff).withOpacity(0.1),
+          const Color(0xFFFFFFFF).withOpacity(0.05),
         ],
         stops: const [0.1, 1],
       ),
@@ -91,8 +94,8 @@ class _SearchAppBarState extends State<SearchAppBar> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          const Color(0xFFffffff).withValues(alpha: 0.5),
-          const Color(0xFFFFFFFF).withValues(alpha: 0.5),
+          const Color(0xFFffffff).withOpacity(0.5),
+          const Color(0xFFFFFFFF).withOpacity(0.5),
         ],
       ),
       child: Padding(
@@ -102,7 +105,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
           style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             hintText: 'Search...',
-            hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+            hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
             prefixIcon: const Icon(Icons.search, color: Colors.white),
             border: InputBorder.none,
           ),
