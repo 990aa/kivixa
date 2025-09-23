@@ -181,7 +181,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                             state.document.title,
                             [pngBytes],
                           );
-                          await Share.shareXFiles([
+                          await SharePlus.shareXFiles([
                             XFile(path),
                           ], text: 'Here is my note!');
                         } catch (e) {
