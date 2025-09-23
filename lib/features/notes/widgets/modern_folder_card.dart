@@ -177,7 +177,7 @@ class _ModernFolderCardState extends State<ModernFolderCard> {
           AnimatedProgressRing(
             progress: progress,
             progressColor: widget.folder.color,
-            backgroundColor: Colors.white.withOpacity(0.1),
+            backgroundColor: Colors.white.withAlpha((255 * 0.1).round()),
           ),
           GlassmorphicContainer(
             width: 40,
