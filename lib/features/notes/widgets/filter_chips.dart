@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:kivixa/features/notes/blocs/search_bloc.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
-import 'package:kivixa/features/notes/models/search_filter.dart';
 
 class FilterChips extends StatelessWidget {
   const FilterChips({super.key});
