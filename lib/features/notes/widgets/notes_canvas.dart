@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
 import 'package:kivixa/features/notes/models/note_page.dart';
-import 'package:kivixa/features/notes/models/paper_settings.dart';
 import 'package:kivixa/features/notes/services/paper_generator_service.dart';
 import 'package:kivixa/features/notes/widgets/notes_drawing_canvas.dart';
 
