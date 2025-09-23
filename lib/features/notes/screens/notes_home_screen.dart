@@ -68,6 +68,22 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: Navigator.of(context).canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  if (_currentFolder?.parentId != null) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => NotesHomeScreen(folderId: _currentFolder!.parentId),
+                      ),
+                    );
+                  } else {
+                    Navigator.of(context).maybePop();
+                  }
+                },
+              )
+            : null,
         title: Text(_currentFolder?.name ?? 'Notes'),
         actions: [
           IconButton(
