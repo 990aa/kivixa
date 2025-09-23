@@ -62,7 +62,7 @@ CREATE TABLE notes (
       'parentId': folder.parentId,
       'createdAt': folder.createdAt.millisecondsSinceEpoch,
       'lastModified': folder.lastModified.millisecondsSinceEpoch,
-      'color': folder.color.alpha << 24 | folder.color.red << 16 | folder.color.green << 8 | folder.color.blue,
+      'color': folder.color.toARGB32(),
       'icon': folder.icon.codePoint,
     };
     await db.insert('folders', row);
