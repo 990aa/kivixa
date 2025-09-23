@@ -6,10 +6,16 @@ class ModernNoteCard extends StatelessWidget {
     super.key,
     required this.note,
     this.onTap,
+    this.onRename,
+    this.onMove,
+    this.onDelete,
   });
 
   final NoteDocument note;
   final VoidCallback? onTap;
+  final VoidCallback? onRename;
+  final VoidCallback? onMove;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +39,47 @@ class ModernNoteCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.note, size: 40),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Icon(Icons.note, size: 40),
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'rename') {
+                        onRename?.call();
+                      } else if (value == 'move') {
+                        onMove?.call();
+                      } else if (value == 'delete') {
+                        onDelete?.call();
+                      }
+                    },
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                        value: 'rename',
+                        child: ListTile(
+                          leading: Icon(Icons.edit),
+                          title: Text('Rename'),
+                        ),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'move',
+                        child: ListTile(
+                          leading: Icon(Icons.drive_file_move),
+                          title: Text('Move'),
+                        ),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'delete',
+                        child: ListTile(
+                          leading: Icon(Icons.delete),
+                          title: Text('Delete'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
               const SizedBox(height: 8),
               Text(
                 note.title,
