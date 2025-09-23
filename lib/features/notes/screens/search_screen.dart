@@ -85,8 +85,8 @@ class _SearchAppBarState extends State<SearchAppBar> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          const Color(0xFFffffff).withOpacity(0.1),
-          const Color(0xFFFFFFFF).withOpacity(0.05),
+          const Color.fromRGBO(255, 255, 255, 0.1),
+          const Color.fromRGBO(255, 255, 255, 0.05),
         ],
         stops: const [0.1, 1],
       ),
