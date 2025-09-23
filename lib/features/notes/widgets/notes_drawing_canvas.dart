@@ -44,20 +44,20 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
 
     switch (result) {
       case 'copy':
-        _copiedSketch = widget.notifier.sketch;
+        _copiedSketch = widget.notifier.value;
         break;
       case 'cut':
-        _copiedSketch = widget.notifier.sketch;
+        _copiedSketch = widget.notifier.value;
         widget.notifier.clear();
         break;
       case 'paste':
         if (_copiedSketch != null) {
-          final currentSketch = widget.notifier.sketch;
+          final currentSketch = widget.notifier.value;
           final newLines = [
             ...currentSketch.lines,
             ..._copiedSketch!.lines,
           ];
-          widget.notifier.sketch = currentSketch.copyWith(lines: newLines);
+          widget.notifier.fromSketch(currentSketch.copyWith(lines: newLines));
         }
         break;
       case 'paper':
@@ -98,7 +98,7 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
                     4.0,
                   );
                   _transformationController.value = Matrix4.identity()
-                    ..scale(newScale, newScale, newScale);
+                    ..scaleByDouble(newScale);
                 }
               },
               child: InteractiveViewer(
