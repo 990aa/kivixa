@@ -232,7 +232,7 @@ class _ModernFolderCardState extends State<ModernFolderCard> {
         Text(
           'Last modified: ${DateFormat.yMMMd().format(widget.folder.lastModified)}',
           style: theme.textTheme.bodySmall?.copyWith(
-            color: textColor.withOpacity(0.7),
+            color: textColor.withAlpha((255 * 0.7).round()),
           ),
         ),
       ],
