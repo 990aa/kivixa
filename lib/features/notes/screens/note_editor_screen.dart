@@ -297,7 +297,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                     ),
                   ),
                 ),
-                DrawingToolbar(),
+                SafeArea(child: DrawingToolbar()),
               ],
             );
           } else if (documentState is DocumentLoadFailure) {
