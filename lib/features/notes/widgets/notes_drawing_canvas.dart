@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package.flutter/services.dart';
 import 'package:kivixa/features/notes/widgets/paper_background.dart';
 import 'package:scribble/scribble.dart';
 
@@ -44,20 +44,20 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
 
     switch (result) {
       case 'copy':
-        _copiedSketch = widget.notifier.sketch;
+        _copiedSketch = widget.notifier.value.sketch;
         break;
       case 'cut':
-        _copiedSketch = widget.notifier.sketch;
+        _copiedSketch = widget.notifier.value.sketch;
         widget.notifier.clear();
         break;
       case 'paste':
         if (_copiedSketch != null) {
-          final currentSketch = widget.notifier.sketch;
-          final newStrokes = [
-            ...currentSketch.strokes,
-            ..._copiedSketch!.strokes,
+          final currentSketch = widget.notifier.value.sketch;
+          final newLines = [
+            ...currentSketch.lines,
+            ..._copiedSketch!.lines,
           ];
-          widget.notifier.sketch = currentSketch.copyWith(strokes: newStrokes);
+          widget.notifier.setSketch(currentSketch.copyWith(lines: newLines));
         }
         break;
       case 'paper':
@@ -98,7 +98,7 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
                     4.0,
                   );
                   _transformationController.value = Matrix4.identity()
-                    ..scale(newScale);
+                    ..scale(newScale, newScale);
                 }
               },
               child: InteractiveViewer(
