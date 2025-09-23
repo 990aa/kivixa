@@ -88,7 +88,7 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
                     4.0,
                   );
                   _transformationController.value = Matrix4.identity()
-                    ..scale(newScale);
+                    ..scale(newScale, newScale, newScale);
                 }
               },
               child: InteractiveViewer(
