@@ -168,7 +168,13 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                     ),
                 ],
               ),
-      );
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showCreateOptions(context);
+        },
+        child: const Icon(Icons.add),
+      ),
 
   Widget _buildBreadcrumb(BuildContext context, Folder folder) {
     List<Folder> path = [];
