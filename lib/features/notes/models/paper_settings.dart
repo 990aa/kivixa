@@ -35,6 +35,43 @@ class PaperSettings {
     required this.paperSize,
     required this.options,
   });
+
+  Map<String, dynamic> toJson() => {
+        'paperType': paperType.toString(),
+        'paperSize': {'width': paperSize.width, 'height': paperSize.height},
+        'options': options.toJson(),
+      };
+
+  factory PaperSettings.fromJson(Map<String, dynamic> json) {
+    final paperType =
+        PaperType.values.firstWhere((e) => e.toString() == json['paperType']);
+    final paperSize =
+        PaperSize(json['paperSize']['width'], json['paperSize']['height']);
+    final optionsJson = json['options'];
+    PaperOptions options;
+    switch (paperType) {
+      case PaperType.plain:
+        options = PlainPaperOptions.fromJson(optionsJson);
+        break;
+      case PaperType.ruled:
+        options = RuledPaperOptions.fromJson(optionsJson);
+        break;
+      case PaperType.grid:
+        options = GridPaperOptions.fromJson(optionsJson);
+        break;
+      case PaperType.dotGrid:
+        options = DotGridPaperOptions.fromJson(optionsJson);
+        break;
+      case PaperType.graph:
+        options = GraphPaperOptions.fromJson(optionsJson);
+        break;
+    }
+    return PaperSettings(
+      paperType: paperType,
+      paperSize: paperSize,
+      options: options,
+    );
+  }
 }
 
 
