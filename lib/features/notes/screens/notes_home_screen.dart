@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
 import 'package:kivixa/features/notes/screens/note_editor_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kivixa/features/notes/blocs/document_bloc.dart';
+import 'package:kivixa/features/notes/services/notes_database_service.dart';
 import 'package:kivixa/features/notes/screens/notes_settings_screen.dart';
 import 'package:kivixa/features/notes/widgets/notes_grid_view.dart';
 import 'package:kivixa/features/notes/widgets/notes_list_view.dart';
@@ -124,7 +127,10 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const NoteEditorScreen(),
+                    builder: (context) => BlocProvider(
+                      create: (_) => DocumentBloc(NotesDatabaseService.instance),
+                      child: const NoteEditorScreen(),
+                    ),
                   ),
                 );
               },
