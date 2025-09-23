@@ -8,11 +8,14 @@ import 'package:kivixa/features/notes/services/notes_database_service.dart';
 import 'package:kivixa/theme.dart';
 
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:flutter/foundation.dart';
 
 void main() {
-  // Initialize FFI for desktop platforms
-  sqfliteFfiInit();
-  databaseFactory = databaseFactoryFfi;
+  // Only initialize FFI for non-web platforms
+  if (!kIsWeb) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
   runApp(const MyApp());
 }
 
