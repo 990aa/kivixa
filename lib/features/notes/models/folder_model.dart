@@ -1,9 +1,7 @@
+// ...existing code...
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-
-@immutable
-import 'note_document.dart';
-
+import '../models/note_document.dart'; // Changed to relative import
 class Folder {
   final String id;
   final String name;
