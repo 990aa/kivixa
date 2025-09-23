@@ -63,7 +63,7 @@ class DrawingToolbar extends StatelessWidget {
                       builder: (context) => AlertDialog(
                         title: const Text('Select Stroke Width'),
                         content: Slider(
-                          value: notifier.value.selectedStrokeWidth,
+                          value: notifier.value.selectedWidth,
                           min: 1.0,
                           max: 20.0,
                           onChanged: (value) {
