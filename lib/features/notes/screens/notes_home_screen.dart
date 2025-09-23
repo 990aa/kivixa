@@ -75,7 +75,8 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                   if (_currentFolder?.parentId != null) {
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder: (context) => NotesHomeScreen(folderId: _currentFolder!.parentId),
+                        builder: (context) =>
+                            NotesHomeScreen(folderId: _currentFolder!.parentId),
                       ),
                     );
                   } else {
