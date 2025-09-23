@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
+import 'package:kivixa/features/notes/screens/notes_home_screen.dart';
 
 class FolderGridView extends StatefulWidget {
   const FolderGridView({
@@ -18,8 +19,6 @@ class FolderGridView extends StatefulWidget {
 }
 
 class _FolderGridViewState extends State<FolderGridView> {
-  String? _selectedFolderId;
-
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
@@ -35,13 +34,12 @@ class _FolderGridViewState extends State<FolderGridView> {
         final folder = widget.folders[index];
         return GestureDetector(
           onTap: () {
-            setState(() {
-              if (_selectedFolderId == folder.id) {
-                _selectedFolderId = null;
-              } else {
-                _selectedFolderId = folder.id;
-              }
-            });
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => NotesHomeScreen(folderId: folder.id),
+              ),
+            );
           },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
