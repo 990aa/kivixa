@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:kivixa/features/notes/blocs/search_bloc.dart';
+import 'package:kivixa/features/notes/models/folder_model.dart';
 import 'package:kivixa/features/notes/models/search_filter.dart';
 
 class FilterChips extends StatelessWidget {
@@ -45,10 +46,7 @@ class FilterChips extends StatelessWidget {
           ),
           NeumorphicButton(
             onPressed: () {
-              // TODO: Implement tag filter
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Tag filter not implemented yet')),
-              );
+              _showTagFilterDialog(context);
             },
             style: NeumorphicStyle(
               shape: NeumorphicShape.concave,
@@ -61,11 +59,7 @@ class FilterChips extends StatelessWidget {
           ),
           NeumorphicButton(
             onPressed: () {
-              // TODO: Implement folder filter
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Folder filter not implemented yet')),
-              );
+              _showFolderFilterDialog(context);
             },
             style: NeumorphicStyle(
               shape: NeumorphicShape.concave,
@@ -79,5 +73,100 @@ class FilterChips extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _showTagFilterDialog(BuildContext context) {
+    final searchBloc = context.read<SearchBloc>();
+    final currentState = searchBloc.state;
+    if (currentState is SearchLoaded) {
+      final availableTags = ['flutter', 'dart', 'kivixa', 'notes'];
+      final selectedTags = currentState.filter.tags.toList();
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Filter by Tags'),
+            content: StatefulBuilder(
+              builder: (context, setState) {
+                return Wrap(
+                  spacing: 8.0,
+                  children: availableTags.map((tag) {
+                    final isSelected = selectedTags.contains(tag);
+                    return FilterChip(
+                      label: Text(tag),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          if (selected) {
+                            selectedTags.add(tag);
+                          } else {
+                            selectedTags.remove(tag);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  final newFilter =
+                      currentState.filter.copyWith(tags: selectedTags);
+                  searchBloc.add(FilterChanged(newFilter));
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Apply'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  void _showFolderFilterDialog(BuildContext context) {
+    final searchBloc = context.read<SearchBloc>();
+    final currentState = searchBloc.state;
+    if (currentState is SearchLoaded) {
+      // In a real app, you would get this from a FoldersBloc or similar
+      final availableFolders = [
+        Folder(id: '1', name: 'Personal'),
+        Folder(id: '2', name: 'Work'),
+        Folder(id: '3', name: 'Ideas'),
+      ];
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Filter by Folder'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: availableFolders.length,
+                itemBuilder: (context, index) {
+                  final folder = availableFolders[index];
+                  return ListTile(
+                    title: Text(folder.name),
+                    onTap: () {
+                      final newFilter =
+                          currentState.filter.copyWith(folderId: folder.id);
+                      searchBloc.add(FilterChanged(newFilter));
+                      Navigator.of(context).pop();
+                    },
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      );
+    }
   }
 }
