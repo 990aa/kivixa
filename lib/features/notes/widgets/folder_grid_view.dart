@@ -62,31 +62,15 @@ class _FolderGridViewState extends State<FolderGridView> {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 300,
-        childAspectRatio: 1.2,
+        maxCrossAxisExtent: 120,
+        childAspectRatio: 0.8,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
       ),
       itemCount: widget.folders.length,
       itemBuilder: (context, index) {
         final folder = widget.folders[index];
-        if (widget.isNeumorphic) {
-          return NeumorphicFolderCard(
-            folder: folder,
-            onTap: () {
-              setState(() {
-                if (_selectedFolderId == folder.id) {
-                  _selectedFolderId = null;
-                } else {
-                  _selectedFolderId = folder.id;
-                }
-              });
-            },
-          );
-        }
-        return ModernFolderCard(
-          folder: folder,
-          isSelected: _selectedFolderId == folder.id,
+        return GestureDetector(
           onTap: () {
             setState(() {
               if (_selectedFolderId == folder.id) {
@@ -96,17 +80,20 @@ class _FolderGridViewState extends State<FolderGridView> {
               }
             });
           },
-          onDelete: () {
-            setState(() {
-              widget.folders.removeAt(index);
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${folder.name} deleted')),
-            );
-          },
-          onMove: () {
-            _showMoveFolderDialog(context, folder);
-          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(folder.icon, size: 48, color: folder.color),
+              const SizedBox(height: 8),
+              Text(
+                folder.name,
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+              ),
+            ],
+          ),
         );
       },
     );
