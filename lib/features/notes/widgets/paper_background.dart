@@ -21,7 +21,7 @@ class _PaperPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.grey.withOpacity(0.5)
+      ..color = Colors.grey.withAlpha((255 * 0.5).round())
       ..strokeWidth = 1.0;
 
     if (paperType == PaperType.lined) {
