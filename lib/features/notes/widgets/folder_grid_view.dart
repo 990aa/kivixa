@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kivixa/features/notes/blocs/folders_bloc.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
-import 'package:kivixa/features/notes/widgets/modern_folder_card.dart';
-import 'package:kivixa/features/notes/widgets/neumorphic_folder_card.dart';
 
 class FolderGridView extends StatefulWidget {
   const FolderGridView({
