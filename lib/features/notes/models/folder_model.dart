@@ -27,9 +27,9 @@ class Folder {
     this.noteCount = 0,
     this.size = 0.0,
     this.capacity = 1.0,
-  }) : id = id ?? const Uuid().v4(),
-       createdAt = createdAt ?? DateTime.now(),
-       lastModified = lastModified ?? DateTime.now();
+  })  : id = id ?? const Uuid().v4(),
+        createdAt = createdAt ?? DateTime.now(),
+        lastModified = lastModified ?? DateTime.now();
 
   Folder copyWith({
     String? id,
@@ -56,6 +56,30 @@ class Folder {
       noteCount: noteCount ?? this.noteCount,
       size: size ?? this.size,
       capacity: capacity ?? this.capacity,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'parentId': parentId,
+      'createdAt': createdAt.millisecondsSinceEpoch,
+      'lastModified': lastModified.millisecondsSinceEpoch,
+      'color': color.value,
+      'icon': icon.codePoint,
+    };
+  }
+
+  factory Folder.fromMap(Map<String, dynamic> map) {
+    return Folder(
+      id: map['id'],
+      name: map['name'],
+      parentId: map['parentId'],
+      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt']),
+      lastModified: DateTime.fromMillisecondsSinceEpoch(map['lastModified']),
+      color: Color(map['color']),
+      icon: IconData(map['icon'], fontFamily: 'MaterialIcons'),
     );
   }
 }
