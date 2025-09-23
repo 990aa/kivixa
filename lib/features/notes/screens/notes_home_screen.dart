@@ -6,6 +6,7 @@ import 'package:kivixa/features/notes/widgets/notes_list_view.dart';
 import 'package:kivixa/features/notes/screens/a4_drawing_page.dart';
 import 'package:kivixa/features/notes/screens/a3_drawing_page.dart';
 import 'package:kivixa/features/notes/screens/square_drawing_page.dart';
+import 'package:kivixa/features/notes/models/note_document.dart';
 
 class NotesHomeScreen extends StatefulWidget {
   final String? folderId;
@@ -84,7 +85,13 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                 },
               )
             : null,
-        title: Text(_currentFolder?.name ?? 'Notes'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (_currentFolder != null) _buildBreadcrumb(_currentFolder!),
+            Text(_currentFolder?.name ?? 'Notes'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: Icon(_isGridView ? Icons.grid_view : Icons.list),
@@ -108,16 +115,101 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
         ],
       ),
       body: RefreshIndicator(
+  Widget _buildBreadcrumb(Folder folder) {
+    List<Folder> path = [];
+    Folder? current = folder;
+    while (current != null) {
+      path.insert(0, current);
+      current = _findFolder(_getDummyFolders(), current.parentId ?? '');
+      if (current?.parentId == null) break;
+    }
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (int i = 0; i < path.length; i++) ...[
+            GestureDetector(
+              onTap: () {
+                if (i == path.length - 1) return;
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => NotesHomeScreen(folderId: path[i].id),
+                  ),
+                );
+              },
+              child: Text(
+                path[i].name,
+                style: TextStyle(
+                  color: i == path.length - 1
+                      ? Colors.white
+                      : Colors.white70,
+                  fontWeight: i == path.length - 1
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
+            ),
+            if (i < path.length - 1)
+              const Icon(Icons.chevron_right, size: 16, color: Colors.white70),
+          ],
+        ],
+      ),
+    );
+  }
         onRefresh: _refreshFolders,
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: _isGridView
-              ? NotesGridView(
-                  key: const ValueKey('grid'),
-                  folders: _folders,
-                  isLoading: _isLoading,
+              ? Column(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: NotesGridView(
+                        key: const ValueKey('grid'),
+                        folders: _folders,
+                        isLoading: _isLoading,
+                      ),
+                    ),
+                    if (_currentFolder != null && _currentFolder!.notes.isNotEmpty)
+                      Expanded(
+                        flex: 3,
+                        child: ListView.builder(
+                          itemCount: _currentFolder!.notes.length,
+                          itemBuilder: (context, index) {
+                            final note = _currentFolder!.notes[index];
+                            return ListTile(
+                              leading: const Icon(Icons.note),
+                              title: Text(note.title),
+                              subtitle: Text('Created: \\${note.createdAt}'),
+                            );
+                          },
+                        ),
+                      ),
+                  ],
                 )
-              : NotesListView(key: const ValueKey('list'), folders: _folders),
+              : Column(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: NotesListView(key: const ValueKey('list'), folders: _folders),
+                    ),
+                    if (_currentFolder != null && _currentFolder!.notes.isNotEmpty)
+                      Expanded(
+                        flex: 3,
+                        child: ListView.builder(
+                          itemCount: _currentFolder!.notes.length,
+                          itemBuilder: (context, index) {
+                            final note = _currentFolder!.notes[index];
+                            return ListTile(
+                              leading: const Icon(Icons.note),
+                              title: Text(note.title),
+                              subtitle: Text('Created: \\${note.createdAt}'),
+                            );
+                          },
+                        ),
+                      ),
+                  ],
+                ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -167,7 +259,21 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
               onPressed: () {
                 if (noteName.trim().isEmpty) return;
                 Navigator.pop(context);
-                final folderId = _currentFolder?.id;
+                final folder = _currentFolder;
+                if (folder != null) {
+                  final newNote = NoteDocument(
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
+                    title: noteName,
+                    pages: [],
+                    createdAt: DateTime.now(),
+                    updatedAt: DateTime.now(),
+                    folderId: folder.id,
+                  );
+                  setState(() {
+                    folder.notes.add(newNote);
+                  });
+                }
+                final folderId = folder?.id;
                 Widget page;
                 if (pageType == 'A4') {
                   page = A4DrawingPage(noteName: noteName, folderId: folderId);
