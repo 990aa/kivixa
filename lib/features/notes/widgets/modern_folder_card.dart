@@ -198,8 +198,8 @@ class _ModernFolderCardState extends State<ModernFolderCard> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.white.withOpacity(0.3),
-                Colors.white.withOpacity(0.1),
+                Colors.white.withAlpha((255 * 0.3).round()),
+                Colors.white.withAlpha((255 * 0.1).round()),
               ],
             ),
             child: Text(
