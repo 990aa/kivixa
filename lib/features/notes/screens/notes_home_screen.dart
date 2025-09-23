@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
-import 'package:kivixa/features/notes/screens/note_editor_screen.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kivixa/features/notes/blocs/document_bloc.dart';
-import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
-import 'package:kivixa/features/notes/services/notes_database_service.dart';
 import 'package:kivixa/features/notes/screens/notes_settings_screen.dart';
 import 'package:kivixa/features/notes/widgets/notes_grid_view.dart';
 import 'package:kivixa/features/notes/widgets/notes_list_view.dart';
@@ -188,46 +183,6 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                   context,
                   MaterialPageRoute(builder: (context) => page),
                 );
-              },
-              child: const Text('Create'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showCreateFolderDialog(BuildContext context) {
-    final TextEditingController controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('New Folder'),
-          content: TextField(
-            controller: controller,
-            decoration: const InputDecoration(hintText: 'Folder name'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (controller.text.isNotEmpty) {
-                  setState(() {
-                    _folders.add(
-                      Folder(
-                        id: DateTime.now().toString(),
-                        name: controller.text,
-                        color: Colors.grey,
-                        icon: Icons.folder,
-                      ),
-                    );
-                  });
-                  Navigator.pop(context);
-                }
               },
               child: const Text('Create'),
             ),

@@ -20,7 +20,6 @@ class FolderGridView extends StatefulWidget {
 class _FolderGridViewState extends State<FolderGridView> {
   String? _selectedFolderId;
 
-
   @override
   Widget build(BuildContext context) {
     return GridView.builder(

@@ -15,7 +15,6 @@ class _A4DrawingPageState extends State<A4DrawingPage> {
   List<Offset?>? _currentPath;
   final TransformationController _transformationController =
       TransformationController();
-  double _currentScale = 1.0;
 
   @override
   void dispose() {
