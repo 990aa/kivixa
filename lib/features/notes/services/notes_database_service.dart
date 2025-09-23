@@ -56,16 +56,7 @@ CREATE TABLE notes (
 
   Future<Folder> createFolder(Folder folder) async {
     final db = await instance.database;
-    final Map<String, dynamic> row = {
-      'id': folder.id,
-      'name': folder.name,
-      'parentId': folder.parentId,
-      'createdAt': folder.createdAt.millisecondsSinceEpoch,
-      'lastModified': folder.lastModified.millisecondsSinceEpoch,
-      'color': folder.color.toARGB32(),
-      'icon': folder.icon.codePoint,
-    };
-    await db.insert('folders', row);
+    await db.insert('folders', folder.toMap());
     return folder;
   }
 
@@ -73,18 +64,7 @@ CREATE TABLE notes (
     final db = await instance.database;
     const orderBy = 'lastModified DESC';
     final result = await db.query('folders', orderBy: orderBy);
-    return result.map((json) {
-      return Folder(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        parentId: json['parentId'] as String?,
-        createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
-        lastModified:
-            DateTime.fromMillisecondsSinceEpoch(json['lastModified'] as int),
-        color: Color(json['color'] as int),
-        icon: IconData(json['icon'] as int, fontFamily: 'MaterialIcons'),
-      );
-    }).toList();
+    return result.map((json) => Folder.fromMap(json)).toList();
   }
 
   Future<int> updateFolder(Folder folder) async {
@@ -94,6 +74,16 @@ CREATE TABLE notes (
       folder.toMap(),
       where: 'id = ?',
       whereArgs: [folder.id],
+    );
+  }
+
+  Future<int> updateFolderParent(String folderId, String? newParentId) async {
+    final db = await instance.database;
+    return db.update(
+      'folders',
+      {'parentId': newParentId},
+      where: 'id = ?',
+      whereArgs: [folderId],
     );
   }
 
