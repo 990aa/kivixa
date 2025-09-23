@@ -15,6 +15,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<SearchSubmitted>(_onSearchSubmitted);
     on<ClearSearchHistory>(_onClearSearchHistory);
     on<RemoveSearchHistoryItem>(_onRemoveSearchHistoryItem);
+    on<FilterChanged>(_onFilterChanged);
   }
 
   EventTransformer<T> _debounce<T>() {
@@ -79,6 +80,35 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       );
     } catch (e) {
       emit(SearchError(e.toString()));
+    }
+  }
+
+  Future<void> _onFilterChanged(
+    FilterChanged event,
+    Emitter<SearchState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is SearchLoaded) {
+      emit(SearchLoading());
+      try {
+        // Simulate network/database call with the new filter
+        await Future.delayed(const Duration(milliseconds: 500));
+        final results = [
+          'Result for ${currentState.query} with filter 1',
+          'Result for ${currentState.query} with filter 2',
+        ];
+        emit(
+          SearchLoaded(
+            query: currentState.query,
+            results: results,
+            suggestions: [],
+            history: currentState.history,
+            filter: event.filter,
+          ),
+        );
+      } catch (e) {
+        emit(SearchError(e.toString()));
+      }
     }
   }
 
