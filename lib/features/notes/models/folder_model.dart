@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 @immutable
+import 'note_document.dart';
+
 class Folder {
   final String id;
   final String name;
@@ -11,6 +13,7 @@ class Folder {
   final Color color;
   final IconData icon;
   final List<Folder> subFolders;
+  final List<NoteDocument> notes;
   final int noteCount;
   final double size;
   final double capacity;
@@ -24,12 +27,13 @@ class Folder {
     this.color = Colors.blue,
     this.icon = Icons.folder,
     this.subFolders = const [],
-    this.noteCount = 0,
+  this.notes = const [],
+  this.noteCount = 0,
     this.size = 0.0,
     this.capacity = 1.0,
   }) : id = id ?? const Uuid().v4(),
-       createdAt = createdAt ?? DateTime.now(),
-       lastModified = lastModified ?? DateTime.now();
+    createdAt = createdAt ?? DateTime.now(),
+    lastModified = lastModified ?? DateTime.now();
 
   Folder copyWith({
     String? id,
@@ -40,6 +44,7 @@ class Folder {
     Color? color,
     IconData? icon,
     List<Folder>? subFolders,
+    List<NoteDocument>? notes,
     int? noteCount,
     double? size,
     double? capacity,
@@ -53,6 +58,7 @@ class Folder {
       color: color ?? this.color,
       icon: icon ?? this.icon,
       subFolders: subFolders ?? this.subFolders,
+      notes: notes ?? this.notes,
       noteCount: noteCount ?? this.noteCount,
       size: size ?? this.size,
       capacity: capacity ?? this.capacity,
