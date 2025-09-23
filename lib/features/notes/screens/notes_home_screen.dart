@@ -88,7 +88,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (_currentFolder != null) _buildBreadcrumb(_currentFolder!),
+            if (_currentFolder != null) _buildBreadcrumb(context, _currentFolder!),
             Text(_currentFolder?.name ?? 'Notes'),
           ],
         ),
@@ -115,13 +115,13 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
         ],
       ),
       body: RefreshIndicator(
-  Widget _buildBreadcrumb(Folder folder) {
+  Widget _buildBreadcrumb(BuildContext context, Folder folder) {
     List<Folder> path = [];
     Folder? current = folder;
     while (current != null) {
       path.insert(0, current);
-      current = _findFolder(_getDummyFolders(), current.parentId ?? '');
-      if (current?.parentId == null) break;
+      if (current.parentId == null) break;
+      current = _findFolder(_getDummyFolders(), current.parentId!);
     }
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
