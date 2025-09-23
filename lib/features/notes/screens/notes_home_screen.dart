@@ -88,7 +88,8 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (_currentFolder != null) _buildBreadcrumb(context, _currentFolder!),
+            if (_currentFolder != null)
+              _buildBreadcrumb(context, _currentFolder!),
             Text(_currentFolder?.name ?? 'Notes'),
           ],
         ),
@@ -114,7 +115,6 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
           ),
         ],
       ),
-
       body: RefreshIndicator(
         onRefresh: _refreshFolders,
         child: _isGridView
@@ -128,7 +128,8 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                       isLoading: _isLoading,
                     ),
                   ),
-                  if (_currentFolder != null && _currentFolder!.notes.isNotEmpty)
+                  if (_currentFolder != null &&
+                      _currentFolder!.notes.isNotEmpty)
                     Expanded(
                       flex: 3,
                       child: ListView.builder(
@@ -138,7 +139,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                           return ListTile(
                             leading: const Icon(Icons.note),
                             title: Text(note.title),
-                            subtitle: Text('Created: \${note.createdAt}'),
+                            subtitle: Text('Created: ${note.createdAt}'),
                           );
                         },
                       ),
@@ -149,9 +150,11 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                 children: [
                   Expanded(
                     flex: 2,
-                    child: NotesListView(key: const ValueKey('list'), folders: _folders),
+                    child: NotesListView(
+                        key: const ValueKey('list'), folders: _folders),
                   ),
-                  if (_currentFolder != null && _currentFolder!.notes.isNotEmpty)
+                  if (_currentFolder != null &&
+                      _currentFolder!.notes.isNotEmpty)
                     Expanded(
                       flex: 3,
                       child: ListView.builder(
@@ -161,7 +164,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                           return ListTile(
                             leading: const Icon(Icons.note),
                             title: Text(note.title),
-                            subtitle: Text('Created: \${note.createdAt}'),
+                            subtitle: Text('Created: ${note.createdAt}'),
                           );
                         },
                       ),
@@ -175,7 +178,8 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
         },
         child: const Icon(Icons.add),
       ),
-
+    );
+  }
 
   Widget _buildBreadcrumb(BuildContext context, Folder folder) {
     List<Folder> path = [];
@@ -202,12 +206,9 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
               child: Text(
                 path[i].name,
                 style: TextStyle(
-                  color: i == path.length - 1
-                      ? Colors.white
-                      : Colors.white70,
-                  fontWeight: i == path.length - 1
-                      ? FontWeight.bold
-                      : FontWeight.normal,
+                  color: i == path.length - 1 ? Colors.white : Colors.white70,
+                  fontWeight:
+                      i == path.length - 1 ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
             ),
@@ -215,119 +216,6 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
               const Icon(Icons.chevron_right, size: 16, color: Colors.white70),
           ],
         ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: Navigator.of(context).canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  if (_currentFolder?.parentId != null) {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            NotesHomeScreen(folderId: _currentFolder!.parentId),
-                      ),
-                    );
-                  } else {
-                    Navigator.of(context).maybePop();
-                  }
-                },
-              )
-            : null,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (_currentFolder != null) _buildBreadcrumb(context, _currentFolder!),
-            Text(_currentFolder?.name ?? 'Notes'),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(_isGridView ? Icons.grid_view : Icons.list),
-            onPressed: () {
-              setState(() {
-                _isGridView = !_isGridView;
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NotesSettingsScreen(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _refreshFolders,
-        child: _isGridView
-            ? Column(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: NotesGridView(
-                      key: const ValueKey('grid'),
-                      folders: _folders,
-                      isLoading: _isLoading,
-                    ),
-                  ),
-                  if (_currentFolder != null && _currentFolder!.notes.isNotEmpty)
-                    Expanded(
-                      flex: 3,
-                      child: ListView.builder(
-                        itemCount: _currentFolder!.notes.length,
-                        itemBuilder: (context, index) {
-                          final note = _currentFolder!.notes[index];
-                          return ListTile(
-                            leading: const Icon(Icons.note),
-                            title: Text(note.title),
-                            subtitle: Text('Created: ${note.createdAt}'),
-                          );
-                        },
-                      ),
-                    ),
-                ],
-              )
-            : Column(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: NotesListView(key: const ValueKey('list'), folders: _folders),
-                  ),
-                  if (_currentFolder != null && _currentFolder!.notes.isNotEmpty)
-                    Expanded(
-                      flex: 3,
-                      child: ListView.builder(
-                        itemCount: _currentFolder!.notes.length,
-                        itemBuilder: (context, index) {
-                          final note = _currentFolder!.notes[index];
-                          return ListTile(
-                            leading: const Icon(Icons.note),
-                            title: Text(note.title),
-                            subtitle: Text('Created: ${note.createdAt}'),
-                          );
-                        },
-                      ),
-                    ),
-                ],
-              ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showCreateOptions(context);
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }
