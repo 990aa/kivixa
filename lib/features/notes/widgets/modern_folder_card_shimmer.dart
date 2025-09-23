@@ -25,7 +25,7 @@ class ModernFolderCardShimmer extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [
             Colors.grey.withAlpha((255 * 0.2).round()),
-            Colors.grey.withAlpha((255 * 0.1).round())
+            Colors.grey.withAlpha((255 * 0.1).round()),
           ],
           stops: const [0.1, 1],
         ),
@@ -39,54 +39,56 @@ class ModernFolderCardShimmer extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: shimmerBaseColor,
-                      borderRadius: BorderRadius.circular(8),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: shimmerBaseColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: shimmerBaseColor,
-                      shape: BoxShape.circle,
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: shimmerBaseColor,
+                        shape: BoxShape.circle,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: theme.textTheme.titleLarge?.fontSize,
-                    decoration: BoxDecoration(
-                      color: shimmerBaseColor,
-                      borderRadius: BorderRadius.circular(4),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: theme.textTheme.titleLarge?.fontSize,
+                      decoration: BoxDecoration(
+                        color: shimmerBaseColor,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    width: 120,
-                    height: theme.textTheme.bodySmall?.fontSize,
-                    decoration: BoxDecoration(
-                      color: shimmerBaseColor,
-                      borderRadius: BorderRadius.circular(4),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: 120,
+                      height: theme.textTheme.bodySmall?.fontSize,
+                      decoration: BoxDecoration(
+                        color: shimmerBaseColor,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
