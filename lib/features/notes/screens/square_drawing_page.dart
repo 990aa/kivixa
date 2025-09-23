@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 
 class SquareDrawingPage extends StatefulWidget {
-  const SquareDrawingPage({super.key});
+  final String noteName;
+  final String? folderId;
+  const SquareDrawingPage({super.key, required this.noteName, this.folderId});
 
   @override
   State<SquareDrawingPage> createState() => _SquareDrawingPageState();
@@ -24,7 +26,7 @@ class _SquareDrawingPageState extends State<SquareDrawingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Square Drawing'),
+        title: Text(widget.noteName.isNotEmpty ? widget.noteName : 'Square Drawing'),
         actions: [
           IconButton(
             icon: const Icon(Icons.clear),

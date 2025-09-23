@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 
 class A3DrawingPage extends StatefulWidget {
-  const A3DrawingPage({super.key});
+  final String noteName;
+  final String? folderId;
+  const A3DrawingPage({super.key, required this.noteName, this.folderId});
 
   @override
   State<A3DrawingPage> createState() => _A3DrawingPageState();
@@ -26,7 +28,7 @@ class _A3DrawingPageState extends State<A3DrawingPage> {
     const double a3Ratio = 297 / 420;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('A3 Paper Drawing'),
+        title: Text(widget.noteName.isNotEmpty ? widget.noteName : 'A3 Paper Drawing'),
         actions: [
           IconButton(
             icon: const Icon(Icons.clear),
