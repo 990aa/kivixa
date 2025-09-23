@@ -176,6 +176,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
         child: const Icon(Icons.add),
       ),
 
+
   Widget _buildBreadcrumb(BuildContext context, Folder folder) {
     List<Folder> path = [];
     Folder? current = folder;
