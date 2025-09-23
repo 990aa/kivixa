@@ -61,14 +61,17 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
-      final documentState = context.read<DocumentBloc>().state;
+      final documentBloc = context.read<DocumentBloc>();
+      final documentState = documentBloc.state;
       if (documentState is DocumentLoadSuccess) {
-        context.read<DocumentBloc>().add(DocumentSaved(documentState.document));
+        documentBloc.add(DocumentSaved(documentState.document));
       }
     }
   }
 
   Future<void> _exportPageAsPng() async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final documentBloc = context.read<DocumentBloc>();
     try {
       final boundary =
           _canvasKey.currentContext!.findRenderObject()
@@ -77,27 +80,19 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
 
-      final documentState = context.read<DocumentBloc>().state;
-      if (!mounted) return;
+      final documentState = documentBloc.state;
       if (documentState is DocumentLoadSuccess) {
         // Save PNG to file or handle as needed
         final directory = await FilePicker.platform.getDirectoryPath();
-        if (!mounted) return;
         if (directory != null) {
           final path = '$directory/${documentState.document.title}_page_0.png';
           final file = File(path);
           await file.writeAsBytes(pngBytes);
-          if (!mounted) return;
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Exported to $path')));
+          scaffoldMessenger.showSnackBar(SnackBar(content: Text('Exported to $path')));
         }
       }
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      scaffoldMessenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
     }
   }
 
@@ -129,6 +124,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
               if (state is DocumentLoadSuccess) {
                 return PopupMenuButton<String>(
                   onSelected: (value) async {
+                    final scaffoldMessenger = ScaffoldMessenger.of(context);
+                    final documentBloc = context.read<DocumentBloc>();
                     switch (value) {
                       case 'pdf':
                         try {
@@ -144,13 +141,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                             state.document.title,
                             [pngBytes],
                           );
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          scaffoldMessenger.showSnackBar(
                             SnackBar(content: Text('Exported to $path')),
                           );
                         } catch (e) {
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          scaffoldMessenger.showSnackBar(
                             SnackBar(content: Text('Export failed: $e')),
                           );
                         }
@@ -163,13 +158,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                           final path = await _exportService.exportToJson(
                             state.document,
                           );
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          scaffoldMessenger.showSnackBar(
                             SnackBar(content: Text('Exported to $path')),
                           );
                         } catch (e) {
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          scaffoldMessenger.showSnackBar(
                             SnackBar(content: Text('Export failed: $e')),
                           );
                         }
@@ -192,8 +185,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                             XFile(path),
                           ], text: 'Here is my note!');
                         } catch (e) {
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          scaffoldMessenger.showSnackBar(
                             SnackBar(content: Text('Sharing failed: $e')),
                           );
                         }
@@ -215,7 +207,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                               return page;
                             }).toList(),
                           );
-                          context.read<DocumentBloc>().add(
+                          documentBloc.add(
                             DocumentContentChanged(updatedDocument),
                           );
                         }
@@ -239,8 +231,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                                 await XFile(path).readAsBytes(),
                           );
                         } catch (e) {
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          scaffoldMessenger.showSnackBar(
                             SnackBar(content: Text('Print failed: $e')),
                           );
                         }
