@@ -1,7 +1,8 @@
-// ...existing code...
+// This file defines the Folder model for the notes app.
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/note_document.dart'; // Changed to relative import
+
 class Folder {
   final String id;
   final String name;
@@ -25,13 +26,13 @@ class Folder {
     this.color = Colors.blue,
     this.icon = Icons.folder,
     this.subFolders = const [],
-  this.notes = const [],
-  this.noteCount = 0,
+    this.notes = const [],
+    this.noteCount = 0,
     this.size = 0.0,
     this.capacity = 1.0,
   }) : id = id ?? const Uuid().v4(),
-    createdAt = createdAt ?? DateTime.now(),
-    lastModified = lastModified ?? DateTime.now();
+       createdAt = createdAt ?? DateTime.now(),
+       lastModified = lastModified ?? DateTime.now();
 
   Folder copyWith({
     String? id,
