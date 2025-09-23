@@ -5,6 +5,8 @@ import 'package:kivixa/features/notes/blocs/folders_bloc.dart';
 import 'package:kivixa/features/notes/screens/folder_management_screen.dart';
 import 'package:kivixa/features/notes/services/notes_database_service.dart';
 
+import 'package:kivixa/theme.dart';
+
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
