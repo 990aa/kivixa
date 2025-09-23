@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 
-class A4DrawingPage extends StatefulWidget {
-  const A4DrawingPage({super.key});
+class A3DrawingPage extends StatefulWidget {
+  const A3DrawingPage({super.key});
 
   @override
-  State<A4DrawingPage> createState() => _A4DrawingPageState();
+  State<A3DrawingPage> createState() => _A3DrawingPageState();
 }
 
-class _A4DrawingPageState extends State<A4DrawingPage> {
+class _A3DrawingPageState extends State<A3DrawingPage> {
   final List<List<Offset?>> _paths = [];
   List<Offset?>? _currentPath;
-  final TransformationController _transformationController =
-      TransformationController();
-  double _currentScale = 1.0;
+  final TransformationController _transformationController = TransformationController();
 
   @override
   void dispose() {
@@ -23,10 +21,11 @@ class _A4DrawingPageState extends State<A4DrawingPage> {
 
   @override
   Widget build(BuildContext context) {
-    const double a4Ratio = 210 / 297;
+    // A3 paper ratio: 297mm x 420mm
+    const double a3Ratio = 297 / 420;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('A4 Paper Drawing'),
+        title: const Text('A3 Paper Drawing'),
         actions: [
           IconButton(
             icon: const Icon(Icons.clear),
@@ -50,7 +49,7 @@ class _A4DrawingPageState extends State<A4DrawingPage> {
       ),
       body: Center(
         child: AspectRatio(
-          aspectRatio: a4Ratio,
+          aspectRatio: a3Ratio,
           child: InteractiveViewer(
             transformationController: _transformationController,
             minScale: 0.5,
@@ -61,8 +60,7 @@ class _A4DrawingPageState extends State<A4DrawingPage> {
               color: Colors.white,
               child: Listener(
                 onPointerDown: (PointerDownEvent event) {
-                  if (event.kind == PointerDeviceKind.stylus ||
-                      event.kind == PointerDeviceKind.mouse) {
+                  if (event.kind == PointerDeviceKind.stylus || event.kind == PointerDeviceKind.mouse) {
                     setState(() {
                       _currentPath = [event.localPosition];
                       _paths.add(_currentPath!);
@@ -70,9 +68,7 @@ class _A4DrawingPageState extends State<A4DrawingPage> {
                   }
                 },
                 onPointerMove: (PointerMoveEvent event) {
-                  if ((event.kind == PointerDeviceKind.stylus ||
-                          event.kind == PointerDeviceKind.mouse) &&
-                      _currentPath != null) {
+                  if ((event.kind == PointerDeviceKind.stylus || event.kind == PointerDeviceKind.mouse) && _currentPath != null) {
                     setState(() {
                       _currentPath!.add(event.localPosition);
                     });
@@ -119,10 +115,7 @@ class _SmoothDrawingPainter extends CustomPainter {
         } else {
           final prev = path[i - 1];
           if (prev != null) {
-            final mid = Offset(
-              (prev.dx + point.dx) / 2,
-              (prev.dy + point.dy) / 2,
-            );
+            final mid = Offset((prev.dx + point.dx) / 2, (prev.dy + point.dy) / 2);
             smoothPath.quadraticBezierTo(prev.dx, prev.dy, mid.dx, mid.dy);
           }
         }
