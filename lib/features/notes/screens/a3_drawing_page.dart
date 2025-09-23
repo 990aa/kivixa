@@ -11,7 +11,8 @@ class A3DrawingPage extends StatefulWidget {
 class _A3DrawingPageState extends State<A3DrawingPage> {
   final List<List<Offset?>> _paths = [];
   List<Offset?>? _currentPath;
-  final TransformationController _transformationController = TransformationController();
+  final TransformationController _transformationController =
+      TransformationController();
 
   @override
   void dispose() {
@@ -60,7 +61,8 @@ class _A3DrawingPageState extends State<A3DrawingPage> {
               color: Colors.white,
               child: Listener(
                 onPointerDown: (PointerDownEvent event) {
-                  if (event.kind == PointerDeviceKind.stylus || event.kind == PointerDeviceKind.mouse) {
+                  if (event.kind == PointerDeviceKind.stylus ||
+                      event.kind == PointerDeviceKind.mouse) {
                     setState(() {
                       _currentPath = [event.localPosition];
                       _paths.add(_currentPath!);
@@ -68,7 +70,9 @@ class _A3DrawingPageState extends State<A3DrawingPage> {
                   }
                 },
                 onPointerMove: (PointerMoveEvent event) {
-                  if ((event.kind == PointerDeviceKind.stylus || event.kind == PointerDeviceKind.mouse) && _currentPath != null) {
+                  if ((event.kind == PointerDeviceKind.stylus ||
+                          event.kind == PointerDeviceKind.mouse) &&
+                      _currentPath != null) {
                     setState(() {
                       _currentPath!.add(event.localPosition);
                     });
@@ -115,7 +119,10 @@ class _SmoothDrawingPainter extends CustomPainter {
         } else {
           final prev = path[i - 1];
           if (prev != null) {
-            final mid = Offset((prev.dx + point.dx) / 2, (prev.dy + point.dy) / 2);
+            final mid = Offset(
+              (prev.dx + point.dx) / 2,
+              (prev.dy + point.dy) / 2,
+            );
             smoothPath.quadraticBezierTo(prev.dx, prev.dy, mid.dx, mid.dy);
           }
         }
