@@ -12,6 +12,7 @@ class ModernFolderCard extends StatefulWidget {
     this.onTap,
     this.onDelete,
     this.onMove,
+    this.onRename,
     this.onFavorite,
     this.isSelected = false,
   });
@@ -20,6 +21,7 @@ class ModernFolderCard extends StatefulWidget {
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
   final VoidCallback? onMove;
+  final VoidCallback? onRename;
   final VoidCallback? onFavorite;
   final bool isSelected;
 
@@ -38,11 +40,6 @@ class _ModernFolderCardState extends State<ModernFolderCard> {
   @override
   void dispose() {
     super.dispose();
-  }
-
-  void _showContextMenu(BuildContext context) {
-    // In a real app, you'd show a more advanced context menu.
-    HapticFeedback.vibrate();
   }
 
   @override
