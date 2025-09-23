@@ -168,7 +168,7 @@ class DatabaseHelper {
       'id': document.id,
       'title': document.title,
       'createdAt': document.createdAt.toIso8601String(),
-      'updatedAt': document.updatedAt.toIso861String(),
+      'updatedAt': document.updatedAt.toIso8601String(),
       'page_count': document.pages.length,
       'is_favorited': 0, // Default value
     });
