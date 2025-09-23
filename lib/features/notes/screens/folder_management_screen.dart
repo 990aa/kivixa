@@ -49,8 +49,8 @@ class _FolderManagementScreenState extends State<FolderManagementScreen> {
                 if (folderNameController.text.isNotEmpty) {
                   final newFolder = Folder(
                     name: folderNameController.text,
-                    color: Colors.primaries[
-                        folders.length % Colors.primaries.length],
+                    color: Colors
+                        .primaries[folders.length % Colors.primaries.length],
                     noteCount: 0,
                   );
                   context.read<FoldersBloc>().add(AddFolder(newFolder));
@@ -106,7 +106,9 @@ class _FolderManagementScreenState extends State<FolderManagementScreen> {
         ),
         floatingActionButton: BlocBuilder<FoldersBloc, FoldersState>(
           builder: (context, state) {
-            final folders = (state is FoldersLoadSuccess) ? state.folders : <Folder>[];
+            final folders = (state is FoldersLoadSuccess)
+                ? state.folders
+                : <Folder>[];
             return SpeedDial(
               icon: Icons.add,
               activeIcon: Icons.close,
@@ -134,8 +136,9 @@ class _FolderManagementScreenState extends State<FolderManagementScreen> {
                           paperSettings: PaperSettings(
                             paperType: PaperType.plain,
                             paperSize: PaperSize.a4,
-                            options:
-                                PlainPaperOptions(backgroundColor: Colors.white),
+                            options: PlainPaperOptions(
+                              backgroundColor: Colors.white,
+                            ),
                           ),
                         ),
                       ],
@@ -145,10 +148,9 @@ class _FolderManagementScreenState extends State<FolderManagementScreen> {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => BlocProvider(
-                          create: (_) => DocumentBloc(NotesDatabaseService.instance),
-                          child: NoteEditorScreen(
-                            documentId: newDocument.id,
-                          ),
+                          create: (_) =>
+                              DocumentBloc(NotesDatabaseService.instance),
+                          child: NoteEditorScreen(documentId: newDocument.id),
                         ),
                       ),
                     );

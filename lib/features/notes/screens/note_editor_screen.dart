@@ -88,11 +88,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
           final path = '$directory/${documentState.document.title}_page_0.png';
           final file = File(path);
           await file.writeAsBytes(pngBytes);
-          scaffoldMessenger.showSnackBar(SnackBar(content: Text('Exported to $path')));
+          scaffoldMessenger.showSnackBar(
+            SnackBar(content: Text('Exported to $path')),
+          );
         }
       }
     } catch (e) {
-      scaffoldMessenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Export failed: $e')),
+      );
     }
   }
 
@@ -290,9 +294,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                           pages: List.from(documentState.document.pages)
                             ..add(newPage),
                         );
-                        context
-                            .read<DocumentBloc>()
-                            .add(DocumentContentChanged(updatedDocument));
+                        context.read<DocumentBloc>().add(
+                          DocumentContentChanged(updatedDocument),
+                        );
                       },
                     ),
                   ),
