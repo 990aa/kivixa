@@ -104,6 +104,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: Navigator.of(context).canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context).maybePop();
+                },
+              )
+            : null,
         title: const Text('Note Editor'),
         actions: [
           IconButton(
