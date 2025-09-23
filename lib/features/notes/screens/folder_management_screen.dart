@@ -4,6 +4,7 @@ import 'package:kivixa/features/notes/blocs/folders_bloc.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
 import 'package:kivixa/features/notes/screens/note_editor_screen.dart';
 import 'package:kivixa/features/notes/blocs/document_bloc.dart';
+import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
 import 'package:kivixa/features/notes/services/notes_database_service.dart';
 import 'package:kivixa/features/notes/widgets/folder_grid_view.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -158,7 +159,10 @@ class _FolderManagementScreenState extends State<FolderManagementScreen> {
                         builder: (context) => BlocProvider(
                           create: (_) =>
                               DocumentBloc(NotesDatabaseService.instance),
-                          child: NoteEditorScreen(documentId: newDocument.id),
+                          child: BlocProvider(
+                            create: (_) => DrawingBloc(),
+                            child: NoteEditorScreen(documentId: newDocument.id),
+                          ),
                         ),
                       ),
                     );
