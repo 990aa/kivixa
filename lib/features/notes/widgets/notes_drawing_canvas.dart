@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package.flutter/services.dart';
+import 'package:flutter/services.dart';
 import 'package:kivixa/features/notes/widgets/paper_background.dart';
 import 'package:scribble/scribble.dart';
 
@@ -53,11 +53,10 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
       case 'paste':
         if (_copiedSketch != null) {
           final currentSketch = widget.notifier.value.sketch;
-          final newLines = [
-            ...currentSketch.lines,
-            ..._copiedSketch!.lines,
-          ];
-          widget.notifier.setSketch(currentSketch.copyWith(lines: newLines));
+          final newLines = [...currentSketch.lines, ..._copiedSketch!.lines];
+          widget.notifier.setSketch(
+            sketch: currentSketch.copyWith(lines: newLines),
+          );
         }
         break;
       case 'paper':
@@ -93,12 +92,17 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
                   final scrolled = pointerSignal.scrollDelta.dy;
                   final currentScale = _transformationController.value
                       .getMaxScaleOnAxis();
+                  // Use scaleByDouble if available, else fallback to scale
                   final newScale = (currentScale - scrolled / 1000).clamp(
                     0.5,
                     4.0,
                   );
+                  // If scaleByDouble is available in your Matrix4, use it:
+                  // _transformationController.value = Matrix4.identity().scaleByDouble(newScale);
+                  // Otherwise, fallback to scale (may show a warning):
                   _transformationController.value = Matrix4.identity()
-                    ..scale(newScale, newScale);
+                    ..setEntry(0, 0, newScale)
+                    ..setEntry(1, 1, newScale);
                 }
               },
               child: InteractiveViewer(
@@ -163,8 +167,6 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
   }
 
   // Tool button logic removed for compatibility with scribble 0.10.0+1
-
-  // Tool icon logic removed for compatibility with scribble 0.10.0+1
 
   Widget _buildColorPalette() {
     return ValueListenableBuilder(
