@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
+import 'package:kivixa/features/notes/models/note_document.dart';
+import 'package:kivixa/features/notes/screens/a4_drawing_page.dart';
 import 'package:kivixa/features/notes/screens/notes_home_screen.dart';
 import 'package:kivixa/features/notes/widgets/modern_folder_card.dart';
 import 'package:kivixa/features/notes/widgets/modern_folder_card_shimmer.dart';
+import 'package:kivixa/features/notes/widgets/modern_note_card.dart';
 
 class NotesGridView extends StatelessWidget {
   const NotesGridView({
     super.key,
-    required this.folders,
+    required this.items,
     this.isLoading = false,
   });
 
-  final List<Folder> folders;
+  final List<dynamic> items;
   final bool isLoading;
 
   @override
@@ -30,21 +33,39 @@ class NotesGridView extends StatelessWidget {
           crossAxisCount: crossAxisCount,
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
-          itemCount: folders.length,
+          itemCount: items.length,
           itemBuilder: (context, index) {
-            final folder = folders[index];
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        NotesHomeScreen(folderId: folder.id),
-                  ),
-                );
-              },
-              child: ModernFolderCard(folder: folder),
-            );
+            final item = items[index];
+            if (item is Folder) {
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          NotesHomeScreen(folderId: item.id),
+                    ),
+                  );
+                },
+                child: ModernFolderCard(folder: item),
+              );
+            } else if (item is NoteDocument) {
+              return ModernNoteCard(
+                note: item,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => A4DrawingPage(
+                        noteName: item.title,
+                        folderId: item.folderId,
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+            return const SizedBox.shrink();
           },
         );
       },
