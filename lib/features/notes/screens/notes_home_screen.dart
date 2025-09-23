@@ -224,74 +224,108 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        String noteName = '';
-        String pageType = 'A4';
-        return AlertDialog(
-          title: const Text('Create New Note'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: const InputDecoration(labelText: 'Note Name'),
-                onChanged: (val) => noteName = val,
-              ),
-              const SizedBox(height: 16),
-              DropdownButton<String>(
-                value: pageType,
-                items: const [
-                  DropdownMenuItem(value: 'A4', child: Text('A4')),
-                  DropdownMenuItem(value: 'A3', child: Text('A3')),
-                  DropdownMenuItem(value: 'Square', child: Text('Square')),
+        String name = '';
+        String type = 'Note'; // 'Note' or 'Folder'
+        String pageType = 'A4'; // For notes
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Create New $type'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButton<String>(
+                    value: type,
+                    items: const [
+                      DropdownMenuItem(value: 'Note', child: Text('Note')),
+                      DropdownMenuItem(value: 'Folder', child: Text('Folder')),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() {
+                          type = val;
+                        });
+                      }
+                    },
+                  ),
+                  TextField(
+                    decoration: InputDecoration(labelText: '$type Name'),
+                    onChanged: (val) => name = val,
+                  ),
+                  if (type == 'Note') ...[
+                    const SizedBox(height: 16),
+                    DropdownButton<String>(
+                      value: pageType,
+                      items: const [
+                        DropdownMenuItem(value: 'A4', child: Text('A4')),
+                        DropdownMenuItem(value: 'A3', child: Text('A3')),
+                        DropdownMenuItem(
+                            value: 'Square', child: Text('Square')),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) {
+                          setState(() {
+                            pageType = val;
+                          });
+                        }
+                      },
+                    ),
+                  ],
                 ],
-                onChanged: (val) {
-                  if (val != null) pageType = val;
-                },
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (noteName.trim().isEmpty) return;
-                Navigator.pop(context);
-                final folder = _currentFolder;
-                if (folder != null) {
-                  final newNote = NoteDocument(
-                    id: DateTime.now().millisecondsSinceEpoch.toString(),
-                    title: noteName,
-                    pages: [],
-                    createdAt: DateTime.now(),
-                    updatedAt: DateTime.now(),
-                    folderId: folder.id,
-                  );
-                  setState(() {
-                    folder.notes.add(newNote);
-                  });
-                }
-                final folderId = folder?.id;
-                Widget page;
-                if (pageType == 'A4') {
-                  page = A4DrawingPage(noteName: noteName, folderId: folderId);
-                } else if (pageType == 'A3') {
-                  page = A3DrawingPage(noteName: noteName, folderId: folderId);
-                } else {
-                  page = SquareDrawingPage(
-                    noteName: noteName,
-                    folderId: folderId,
-                  );
-                }
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => page),
-                );
-              },
-              child: const Text('Create'),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (name.trim().isEmpty) return;
+                    Navigator.pop(context);
+
+                    if (type == 'Folder') {
+                      final newFolder = Folder(
+                        name: name,
+                        parentId: _currentFolder?.id,
+                      );
+                      setState(() {
+                        _folders.add(newFolder);
+                      });
+                    } else {
+                      final newNote = NoteDocument(
+                        title: name,
+                        pages: [],
+                        folderId: _currentFolder?.id,
+                      );
+                      setState(() {
+                        _currentFolder?.notes.add(newNote);
+                      });
+
+                      Widget page;
+                      if (pageType == 'A4') {
+                        page = A4DrawingPage(
+                            noteName: name, folderId: _currentFolder?.id);
+                      } else if (pageType == 'A3') {
+                        page = A3DrawingPage(
+                            noteName: name, folderId: _currentFolder?.id);
+                      } else {
+                        page = SquareDrawingPage(
+                          noteName: name,
+                          folderId: _currentFolder?.id,
+                        );
+                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => page),
+                      );
+                    }
+                  },
+                  child: const Text('Create'),
+                ),
+              ],
+            );
+          },
         );
       },
     );

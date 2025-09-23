@@ -7,13 +7,17 @@ part of 'note_document.dart';
 // **************************************************************************
 
 NoteDocument _$NoteDocumentFromJson(Map<String, dynamic> json) => NoteDocument(
-  id: json['id'] as String,
+  id: json['id'] as String?,
   title: json['title'] as String,
   pages: (json['pages'] as List<dynamic>)
       .map((e) => NotePage.fromJson(e as Map<String, dynamic>))
       .toList(),
-  createdAt: DateTime.parse(json['createdAt'] as String),
-  updatedAt: DateTime.parse(json['updatedAt'] as String),
+  createdAt: json['createdAt'] == null
+      ? null
+      : DateTime.parse(json['createdAt'] as String),
+  updatedAt: json['updatedAt'] == null
+      ? null
+      : DateTime.parse(json['updatedAt'] as String),
   folderId: json['folderId'] as String?,
 );
 
