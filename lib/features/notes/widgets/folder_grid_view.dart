@@ -43,9 +43,9 @@ class _FolderGridViewState extends State<FolderGridView> {
                 return ListTile(
                   title: Text(destinationFolder.name),
                   onTap: () {
-                    BlocProvider.of<FoldersBloc>(context).add(
-                      MoveFolder(folderToMove.id, destinationFolder.id),
-                    );
+                    BlocProvider.of<FoldersBloc>(
+                      context,
+                    ).add(MoveFolder(folderToMove.id, destinationFolder.id));
                     Navigator.of(dialogContext).pop();
                   },
                 );

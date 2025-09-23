@@ -142,6 +142,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
               title: const Text('New Note'),
               onTap: () {
                 Navigator.pop(context);
+                final newId = UniqueKey().toString();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -150,7 +151,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                           DocumentBloc(NotesDatabaseService.instance),
                       child: BlocProvider(
                         create: (_) => DrawingBloc(),
-                        child: const NoteEditorScreen(),
+                        child: NoteEditorScreen(documentId: newId),
                       ),
                     ),
                   ),
