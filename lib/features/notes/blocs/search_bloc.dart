@@ -42,6 +42,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       final history = await _getSearchHistory();
       emit(
         SearchLoaded(
+          query: event.query,
           results: [],
           suggestions: suggestions,
           history: history,
@@ -69,6 +70,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       final history = await _getSearchHistory();
       emit(
         SearchLoaded(
+          query: event.query,
           results: results,
           suggestions: [],
           history: history,
@@ -88,6 +90,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     await prefs.remove('search_history');
     emit(
       SearchLoaded(
+        query: '',
         results: [],
         suggestions: [],
         history: [],
