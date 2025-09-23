@@ -1,4 +1,7 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:kivixa/features/notes/blocs/search_bloc.dart';
+import 'package:kivixa/features/notes/models/search_filter.dart';
 
 class FilterChips extends StatelessWidget {
   const FilterChips({super.key});
@@ -11,8 +14,22 @@ class FilterChips extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           NeumorphicButton(
-            onPressed: () {
-              // TODO: Implement date range picker
+            onPressed: () async {
+              final searchBloc = context.read<SearchBloc>();
+              final currentState = searchBloc.state;
+              if (currentState is SearchLoaded) {
+                final newDateRange = await showDateRangePicker(
+                  context: context,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime.now(),
+                  initialDateRange: currentState.filter.dateRange,
+                );
+                if (newDateRange != null) {
+                  final newFilter =
+                      currentState.filter.copyWith(dateRange: newDateRange);
+                  searchBloc.add(FilterChanged(newFilter));
+                }
+              }
             },
             style: NeumorphicStyle(
               shape: NeumorphicShape.concave,
@@ -29,6 +46,9 @@ class FilterChips extends StatelessWidget {
           NeumorphicButton(
             onPressed: () {
               // TODO: Implement tag filter
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Tag filter not implemented yet')),
+              );
             },
             style: NeumorphicStyle(
               shape: NeumorphicShape.concave,
@@ -42,6 +62,10 @@ class FilterChips extends StatelessWidget {
           NeumorphicButton(
             onPressed: () {
               // TODO: Implement folder filter
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Folder filter not implemented yet')),
+              );
             },
             style: NeumorphicStyle(
               shape: NeumorphicShape.concave,
