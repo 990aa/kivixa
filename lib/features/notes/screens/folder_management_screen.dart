@@ -76,6 +76,14 @@ class _FolderManagementScreenState extends State<FolderManagementScreen> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black,
+          leading: Navigator.of(context).canPop()
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    Navigator.of(context).maybePop();
+                  },
+                )
+              : null,
           actions: [
             IconButton(
               icon: Icon(_isNeumorphic ? Icons.view_quilt : Icons.view_agenda),
