@@ -114,7 +114,62 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
           ),
         ],
       ),
+
       body: RefreshIndicator(
+        onRefresh: _refreshFolders,
+        child: _isGridView
+            ? Column(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: NotesGridView(
+                      key: const ValueKey('grid'),
+                      folders: _folders,
+                      isLoading: _isLoading,
+                    ),
+                  ),
+                  if (_currentFolder != null && _currentFolder!.notes.isNotEmpty)
+                    Expanded(
+                      flex: 3,
+                      child: ListView.builder(
+                        itemCount: _currentFolder!.notes.length,
+                        itemBuilder: (context, index) {
+                          final note = _currentFolder!.notes[index];
+                          return ListTile(
+                            leading: const Icon(Icons.note),
+                            title: Text(note.title),
+                            subtitle: Text('Created: \${note.createdAt}'),
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              )
+            : Column(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: NotesListView(key: const ValueKey('list'), folders: _folders),
+                  ),
+                  if (_currentFolder != null && _currentFolder!.notes.isNotEmpty)
+                    Expanded(
+                      flex: 3,
+                      child: ListView.builder(
+                        itemCount: _currentFolder!.notes.length,
+                        itemBuilder: (context, index) {
+                          final note = _currentFolder!.notes[index];
+                          return ListTile(
+                            leading: const Icon(Icons.note),
+                            title: Text(note.title),
+                            subtitle: Text('Created: \${note.createdAt}'),
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              ),
+      );
+
   Widget _buildBreadcrumb(BuildContext context, Folder folder) {
     List<Folder> path = [];
     Folder? current = folder;
@@ -156,8 +211,49 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
       ),
     );
   }
-        onRefresh: _refreshFolders,
-        child: AnimatedSwitcher(
+
+
+  Widget _buildBreadcrumb(BuildContext context, Folder folder) {
+    List<Folder> path = [];
+    Folder? current = folder;
+    while (current != null) {
+      path.insert(0, current);
+      if (current.parentId == null) break;
+      current = _findFolder(_getDummyFolders(), current.parentId!);
+    }
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (int i = 0; i < path.length; i++) ...[
+            GestureDetector(
+              onTap: () {
+                if (i == path.length - 1) return;
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => NotesHomeScreen(folderId: path[i].id),
+                  ),
+                );
+              },
+              child: Text(
+                path[i].name,
+                style: TextStyle(
+                  color: i == path.length - 1
+                      ? Colors.white
+                      : Colors.white70,
+                  fontWeight: i == path.length - 1
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
+            ),
+            if (i < path.length - 1)
+              const Icon(Icons.chevron_right, size: 16, color: Colors.white70),
+          ],
+        ],
+      ),
+    );
+  }
           duration: const Duration(milliseconds: 300),
           child: _isGridView
               ? Column(
