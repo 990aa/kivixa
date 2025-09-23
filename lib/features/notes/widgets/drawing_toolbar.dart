@@ -31,28 +31,30 @@ class DrawingToolbar extends StatelessWidget {
                   icon: const Icon(Icons.redo),
                   onPressed: () => notifier.redo(),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.color_lens),
-                  onPressed: () async {
-                    final color = await showDialog<Color>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Select Color'),
-                        content: SingleChildScrollView(
-                          child: ColorPicker(
-                            pickerColor: notifier.value.selectedColor,
-                            onColorChanged: (color) {
-                              Navigator.of(context).pop(color);
-                            },
+                if (notifier.value is Drawing)
+                  IconButton(
+                    icon: const Icon(Icons.color_lens),
+                    onPressed: () async {
+                      final color = await showDialog<Color>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Select Color'),
+                          content: SingleChildScrollView(
+                            child: ColorPicker(
+                              pickerColor:
+                                  Color((notifier.value as Drawing).selectedColor),
+                              onColorChanged: (color) {
+                                Navigator.of(context).pop(color);
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                    if (color != null) {
-                      drawingBloc.add(ColorChanged(color));
-                    }
-                  },
-                ),
+                      );
+                      if (color != null) {
+                        drawingBloc.add(ColorChanged(color));
+                      }
+                    },
+                  ),
                 IconButton(
                   icon: const Icon(Icons.line_weight),
                   onPressed: () async {
