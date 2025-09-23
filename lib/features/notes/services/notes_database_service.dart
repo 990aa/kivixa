@@ -87,6 +87,16 @@ CREATE TABLE notes (
     }).toList();
   }
 
+  Future<int> updateFolder(Folder folder) async {
+    final db = await instance.database;
+    return db.update(
+      'folders',
+      folder.toMap(),
+      where: 'id = ?',
+      whereArgs: [folder.id],
+    );
+  }
+
   Future<NoteDocument> create(NoteDocument note) async {
     final db = await instance.database;
     await db.insert('notes', note.toJson());
