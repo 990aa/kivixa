@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:kivixa/features/notes/blocs/drawing_bloc.dart';
+import 'package:scribble/scribble.dart';
 
 class DrawingToolbar extends StatelessWidget {
   const DrawingToolbar({super.key});
