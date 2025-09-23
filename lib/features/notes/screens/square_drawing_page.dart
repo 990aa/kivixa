@@ -26,7 +26,9 @@ class _SquareDrawingPageState extends State<SquareDrawingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.noteName.isNotEmpty ? widget.noteName : 'Square Drawing'),
+        title: Text(
+          widget.noteName.isNotEmpty ? widget.noteName : 'Square Drawing',
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.clear),

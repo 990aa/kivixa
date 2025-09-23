@@ -28,7 +28,9 @@ class _A4DrawingPageState extends State<A4DrawingPage> {
     const double a4Ratio = 210 / 297;
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.noteName.isNotEmpty ? widget.noteName : 'A4 Paper Drawing'),
+        title: Text(
+          widget.noteName.isNotEmpty ? widget.noteName : 'A4 Paper Drawing',
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.clear),

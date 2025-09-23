@@ -179,7 +179,10 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                 } else if (pageType == 'A3') {
                   page = A3DrawingPage(noteName: noteName, folderId: folderId);
                 } else {
-                  page = SquareDrawingPage(noteName: noteName, folderId: folderId);
+                  page = SquareDrawingPage(
+                    noteName: noteName,
+                    folderId: folderId,
+                  );
                 }
                 Navigator.push(
                   context,
