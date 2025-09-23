@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kivixa/features/notes/blocs/folders_bloc.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
 import 'package:kivixa/features/notes/screens/note_editor_screen.dart';
 import 'package:kivixa/features/notes/widgets/folder_grid_view.dart';
@@ -17,16 +19,14 @@ class FolderManagementScreen extends StatefulWidget {
 
 class _FolderManagementScreenState extends State<FolderManagementScreen> {
   bool _isNeumorphic = false;
-  final List<Folder> _folders = [
-    Folder(name: 'Personal', color: Colors.blue, noteCount: 12),
-    Folder(name: 'Work', color: Colors.green, noteCount: 8),
-    Folder(name: 'Ideas', color: Colors.purple, noteCount: 23),
-    Folder(name: 'Travel', color: Colors.orange, noteCount: 5),
-    Folder(name: 'Recipes', color: Colors.red, noteCount: 16),
-    Folder(name: 'Projects', color: Colors.teal, noteCount: 9),
-  ];
 
-  void _showCreateFolderDialog() {
+  @override
+  void initState() {
+    super.initState();
+    context.read<FoldersBloc>().add(LoadFolders());
+  }
+
+  void _showCreateFolderDialog(BuildContext context, List<Folder> folders) {
     final TextEditingController folderNameController = TextEditingController();
     showDialog(
       context: context,
@@ -48,12 +48,10 @@ class _FolderManagementScreenState extends State<FolderManagementScreen> {
                   final newFolder = Folder(
                     name: folderNameController.text,
                     color: Colors.primaries[
-                        _folders.length % Colors.primaries.length],
+                        folders.length % Colors.primaries.length],
                     noteCount: 0,
                   );
-                  setState(() {
-                    _folders.add(newFolder);
-                  });
+                  context.read<FoldersBloc>().add(AddFolder(newFolder));
                   Navigator.of(context).pop();
                 }
               },
@@ -88,54 +86,72 @@ class _FolderManagementScreenState extends State<FolderManagementScreen> {
           ],
         ),
         backgroundColor: Colors.black,
-        body: FolderGridView(
-          isNeumorphic: _isNeumorphic,
-          folders: _folders,
+        body: BlocBuilder<FoldersBloc, FoldersState>(
+          builder: (context, state) {
+            if (state is FoldersLoadInProgress) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is FoldersLoadSuccess) {
+              return FolderGridView(
+                isNeumorphic: _isNeumorphic,
+                folders: state.folders,
+                allFolders: state.folders,
+              );
+            } else if (state is FoldersLoadFailure) {
+              return Center(child: Text('Error: ${state.error}'));
+            }
+            return const Center(child: Text('No folders found.'));
+          },
         ),
-        floatingActionButton: SpeedDial(
-          icon: Icons.add,
-          activeIcon: Icons.close,
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          overlayColor: Colors.black,
-          overlayOpacity: 0.5,
-          children: [
-            SpeedDialChild(
-              child: const Icon(Icons.create_new_folder),
-              label: 'Create Folder',
-              onTap: _showCreateFolderDialog,
-            ),
-            SpeedDialChild(
-              child: const Icon(Icons.note_add),
-              label: 'Create Note',
-              onTap: () {
-                final newDocument = NoteDocument(
-                  id: const Uuid().v4(),
-                  title: 'Untitled Note',
-                  pages: [
-                    NotePage(
-                      pageNumber: 0,
-                      strokes: [],
-                      paperSettings: PaperSettings(
-                        paperType: PaperType.plain,
-                        paperSize: PaperSize.a4,
-                        options: PlainPaperOptions(backgroundColor: Colors.white),
+        floatingActionButton: BlocBuilder<FoldersBloc, FoldersState>(
+          builder: (context, state) {
+            final folders = (state is FoldersLoadSuccess) ? state.folders : <Folder>[];
+            return SpeedDial(
+              icon: Icons.add,
+              activeIcon: Icons.close,
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              overlayColor: Colors.black,
+              overlayOpacity: 0.5,
+              children: [
+                SpeedDialChild(
+                  child: const Icon(Icons.create_new_folder),
+                  label: 'Create Folder',
+                  onTap: () => _showCreateFolderDialog(context, folders),
+                ),
+                SpeedDialChild(
+                  child: const Icon(Icons.note_add),
+                  label: 'Create Note',
+                  onTap: () {
+                    final newDocument = NoteDocument(
+                      id: const Uuid().v4(),
+                      title: 'Untitled Note',
+                      pages: [
+                        NotePage(
+                          pageNumber: 0,
+                          strokes: [],
+                          paperSettings: PaperSettings(
+                            paperType: PaperType.plain,
+                            paperSize: PaperSize.a4,
+                            options:
+                                PlainPaperOptions(backgroundColor: Colors.white),
+                          ),
+                        ),
+                      ],
+                      createdAt: DateTime.now(),
+                      updatedAt: DateTime.now(),
+                    );
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => NoteEditorScreen(
+                          documentId: newDocument.id,
+                        ),
                       ),
-                    ),
-                  ],
-                  createdAt: DateTime.now(),
-                  updatedAt: DateTime.now(),
-                );
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => NoteEditorScreen(
-                      documentId: newDocument.id,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+                    );
+                  },
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
