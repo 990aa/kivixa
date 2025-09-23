@@ -21,6 +21,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
   bool _isLoading = true;
   List<Folder> _folders = [];
   Folder? _currentFolder;
+  List<dynamic> _items = [];
 
   @override
   void initState() {
@@ -34,9 +35,11 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
     setState(() {
       if (widget.folderId == null) {
         _folders = _getDummyFolders();
+        _items = _folders;
       } else {
         _currentFolder = _findFolder(_getDummyFolders(), widget.folderId!);
         _folders = _currentFolder?.subFolders ?? [];
+        _items = [..._folders, ..._currentFolder?.notes ?? []];
       }
       _isLoading = false;
     });
@@ -118,58 +121,14 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
       body: RefreshIndicator(
         onRefresh: _refreshFolders,
         child: _isGridView
-            ? Column(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: NotesGridView(
-                      key: const ValueKey('grid'),
-                      folders: _folders,
-                      isLoading: _isLoading,
-                    ),
-                  ),
-                  if (_currentFolder != null &&
-                      _currentFolder!.notes.isNotEmpty)
-                    Expanded(
-                      flex: 3,
-                      child: ListView.builder(
-                        itemCount: _currentFolder!.notes.length,
-                        itemBuilder: (context, index) {
-                          final note = _currentFolder!.notes[index];
-                          return ListTile(
-                            leading: const Icon(Icons.note),
-                            title: Text(note.title),
-                            subtitle: Text('Created: ${note.createdAt}'),
-                          );
-                        },
-                      ),
-                    ),
-                ],
+            ? NotesGridView(
+                key: const ValueKey('grid'),
+                items: _items,
+                isLoading: _isLoading,
               )
-            : Column(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: NotesListView(
-                        key: const ValueKey('list'), folders: _folders),
-                  ),
-                  if (_currentFolder != null &&
-                      _currentFolder!.notes.isNotEmpty)
-                    Expanded(
-                      flex: 3,
-                      child: ListView.builder(
-                        itemCount: _currentFolder!.notes.length,
-                        itemBuilder: (context, index) {
-                          final note = _currentFolder!.notes[index];
-                          return ListTile(
-                            leading: const Icon(Icons.note),
-                            title: Text(note.title),
-                            subtitle: Text('Created: ${note.createdAt}'),
-                          );
-                        },
-                      ),
-                    ),
-                ],
+            : NotesListView(
+                key: const ValueKey('list'),
+                folders: _folders,
               ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -291,6 +250,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                       );
                       setState(() {
                         _folders.add(newFolder);
+                        _items = [..._folders, ..._currentFolder?.notes ?? []];
                       });
                     } else {
                       final newNote = NoteDocument(
@@ -300,6 +260,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                       );
                       setState(() {
                         _currentFolder?.notes.add(newNote);
+                        _items = [..._folders, ..._currentFolder?.notes ?? []];
                       });
 
                       Widget page;
