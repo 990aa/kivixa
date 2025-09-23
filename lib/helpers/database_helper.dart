@@ -195,7 +195,7 @@ class DatabaseHelper {
       'notes_documents',
       {
         'title': document.title,
-        'updatedAt': document.updatedAt.toIso861String(),
+        'updatedAt': document.updatedAt.toIso8601String(),
         'page_count': document.pages.length,
       },
       where: 'id = ?',
