@@ -13,10 +13,16 @@ class NotesGridView extends StatelessWidget {
     super.key,
     required this.items,
     this.isLoading = false,
+    this.onRename,
+    this.onMove,
+    this.onDelete,
   });
 
   final List<dynamic> items;
   final bool isLoading;
+  final void Function(dynamic item)? onRename;
+  final void Function(dynamic item)? onMove;
+  final void Function(dynamic item)? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +43,8 @@ class NotesGridView extends StatelessWidget {
           itemBuilder: (context, index) {
             final item = items[index];
             if (item is Folder) {
-              return GestureDetector(
+              return ModernFolderCard(
+                folder: item,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -47,7 +54,9 @@ class NotesGridView extends StatelessWidget {
                     ),
                   );
                 },
-                child: ModernFolderCard(folder: item),
+                onRename: () => onRename?.call(item),
+                onMove: () => onMove?.call(item),
+                onDelete: () => onDelete?.call(item),
               );
             } else if (item is NoteDocument) {
               return ModernNoteCard(
@@ -63,6 +72,9 @@ class NotesGridView extends StatelessWidget {
                     ),
                   );
                 },
+                onRename: () => onRename?.call(item),
+                onMove: () => onMove?.call(item),
+                onDelete: () => onDelete?.call(item),
               );
             }
             return const SizedBox.shrink();
