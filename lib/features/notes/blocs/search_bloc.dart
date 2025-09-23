@@ -153,6 +153,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     await prefs.setStringList('search_history', history);
     emit(
       SearchLoaded(
+        query: '',
         results: [],
         suggestions: [],
         history: history,
