@@ -10,3 +10,10 @@ class AddFolder extends FoldersEvent {
 
   AddFolder(this.folder);
 }
+
+class MoveFolder extends FoldersEvent {
+  final String folderId;
+  final String? newParentId;
+
+  MoveFolder(this.folderId, this.newParentId);
+}
