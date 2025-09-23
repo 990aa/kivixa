@@ -205,7 +205,7 @@ class _ModernFolderCardState extends State<ModernFolderCard> {
             child: Text(
               '${widget.folder.noteCount}',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withAlpha((255 * 0.8).round()),
                 fontWeight: FontWeight.bold,
               ),
             ),
