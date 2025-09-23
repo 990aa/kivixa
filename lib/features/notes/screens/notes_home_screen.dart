@@ -17,66 +17,66 @@ class NotesHomeScreen extends StatefulWidget {
 }
 
 class _NotesHomeScreenState extends State<NotesHomeScreen> {
-      body: RefreshIndicator(
-        onRefresh: _refreshFolders,
-        child: _isGridView
-            ? Column(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: NotesGridView(
-                      key: const ValueKey('grid'),
-                      folders: _folders,
-                      isLoading: _isLoading,
-                    ),
-                  ),
-                  if (_currentFolder != null && _currentFolder!.notes.isNotEmpty)
-                    Expanded(
-                      flex: 3,
-                      child: ListView.builder(
-                        itemCount: _currentFolder!.notes.length,
-                        itemBuilder: (context, index) {
-                          final note = _currentFolder!.notes[index];
-                          return ListTile(
-                            leading: const Icon(Icons.note),
-                            title: Text(note.title),
-                            subtitle: Text('Created: \\${note.createdAt}'),
-                          );
-                        },
-                      ),
-                    ),
-                ],
-              )
-            : Column(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: NotesListView(key: const ValueKey('list'), folders: _folders),
-                  ),
-                  if (_currentFolder != null && _currentFolder!.notes.isNotEmpty)
-                    Expanded(
-                      flex: 3,
-                      child: ListView.builder(
-                        itemCount: _currentFolder!.notes.length,
-                        itemBuilder: (context, index) {
-                          final note = _currentFolder!.notes[index];
-                          return ListTile(
-                            leading: const Icon(Icons.note),
-                            title: Text(note.title),
-                            subtitle: Text('Created: \\${note.createdAt}'),
-                          );
-                        },
-                      ),
-                    ),
-                ],
-              ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showCreateOptions(context);
-        },
-        child: const Icon(Icons.add),
-      ),
+  bool _isGridView = true;
+  bool _isLoading = true;
+  List<Folder> _folders = [];
+  Folder? _currentFolder;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFolders();
+  }
+
+  Future<void> _loadFolders() async {
+    // Simulate network delay
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      if (widget.folderId == null) {
+        _folders = _getDummyFolders();
+      } else {
+        _currentFolder = _findFolder(_getDummyFolders(), widget.folderId!);
+        _folders = _currentFolder?.subFolders ?? [];
+      }
+      _isLoading = false;
+    });
+  }
+
+  Folder? _findFolder(List<Folder> folders, String folderId) {
+    for (var folder in folders) {
+      if (folder.id == folderId) {
+        return folder;
+      }
+      if (folder.subFolders.isNotEmpty) {
+        final subFolder = _findFolder(folder.subFolders, folderId);
+        if (subFolder != null) {
+          return subFolder;
+        }
+      }
+    }
+    return null;
+  }
+
+  Future<void> _refreshFolders() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await _loadFolders();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: Navigator.of(context).canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  if (_currentFolder?.parentId != null) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            NotesHomeScreen(folderId: _currentFolder!.parentId),
                       ),
                     );
                   } else {
@@ -177,8 +177,6 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
       ),
 
 
-
-
   Widget _buildBreadcrumb(BuildContext context, Folder folder) {
     List<Folder> path = [];
     Folder? current = folder;
@@ -221,101 +219,109 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
     );
   }
 
-
-  Widget _buildBreadcrumb(BuildContext context, Folder folder) {
-    List<Folder> path = [];
-    Folder? current = folder;
-    while (current != null) {
-      path.insert(0, current);
-      if (current.parentId == null) break;
-      current = _findFolder(_getDummyFolders(), current.parentId!);
-    }
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (int i = 0; i < path.length; i++) ...[
-            GestureDetector(
-              onTap: () {
-                if (i == path.length - 1) return;
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) => NotesHomeScreen(folderId: path[i].id),
-                  ),
-                );
-              },
-              child: Text(
-                path[i].name,
-                style: TextStyle(
-                  color: i == path.length - 1
-                      ? Colors.white
-                      : Colors.white70,
-                  fontWeight: i == path.length - 1
-                      ? FontWeight.bold
-                      : FontWeight.normal,
-                ),
-              ),
-            ),
-            if (i < path.length - 1)
-              const Icon(Icons.chevron_right, size: 16, color: Colors.white70),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: Navigator.of(context).canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  if (_currentFolder?.parentId != null) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            NotesHomeScreen(folderId: _currentFolder!.parentId),
+                      ),
+                    );
+                  } else {
+                    Navigator.of(context).maybePop();
+                  }
+                },
+              )
+            : null,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (_currentFolder != null) _buildBreadcrumb(context, _currentFolder!),
+            Text(_currentFolder?.name ?? 'Notes'),
           ],
-        ],
-      ),
-    );
-  }
-          duration: const Duration(milliseconds: 300),
-          child: _isGridView
-              ? Column(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: NotesGridView(
-                        key: const ValueKey('grid'),
-                        folders: _folders,
-                        isLoading: _isLoading,
-                      ),
-                    ),
-                    if (_currentFolder != null && _currentFolder!.notes.isNotEmpty)
-                      Expanded(
-                        flex: 3,
-                        child: ListView.builder(
-                          itemCount: _currentFolder!.notes.length,
-                          itemBuilder: (context, index) {
-                            final note = _currentFolder!.notes[index];
-                            return ListTile(
-                              leading: const Icon(Icons.note),
-                              title: Text(note.title),
-                              subtitle: Text('Created: \\${note.createdAt}'),
-                            );
-                          },
-                        ),
-                      ),
-                  ],
-                )
-              : Column(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: NotesListView(key: const ValueKey('list'), folders: _folders),
-                    ),
-                    if (_currentFolder != null && _currentFolder!.notes.isNotEmpty)
-                      Expanded(
-                        flex: 3,
-                        child: ListView.builder(
-                          itemCount: _currentFolder!.notes.length,
-                          itemBuilder: (context, index) {
-                            final note = _currentFolder!.notes[index];
-                            return ListTile(
-                              leading: const Icon(Icons.note),
-                              title: Text(note.title),
-                              subtitle: Text('Created: \\${note.createdAt}'),
-                            );
-                          },
-                        ),
-                      ),
-                  ],
-                ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(_isGridView ? Icons.grid_view : Icons.list),
+            onPressed: () {
+              setState(() {
+                _isGridView = !_isGridView;
+              });
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotesSettingsScreen(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: _refreshFolders,
+        child: _isGridView
+            ? Column(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: NotesGridView(
+                      key: const ValueKey('grid'),
+                      folders: _folders,
+                      isLoading: _isLoading,
+                    ),
+                  ),
+                  if (_currentFolder != null && _currentFolder!.notes.isNotEmpty)
+                    Expanded(
+                      flex: 3,
+                      child: ListView.builder(
+                        itemCount: _currentFolder!.notes.length,
+                        itemBuilder: (context, index) {
+                          final note = _currentFolder!.notes[index];
+                          return ListTile(
+                            leading: const Icon(Icons.note),
+                            title: Text(note.title),
+                            subtitle: Text('Created: ${note.createdAt}'),
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              )
+            : Column(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: NotesListView(key: const ValueKey('list'), folders: _folders),
+                  ),
+                  if (_currentFolder != null && _currentFolder!.notes.isNotEmpty)
+                    Expanded(
+                      flex: 3,
+                      child: ListView.builder(
+                        itemCount: _currentFolder!.notes.length,
+                        itemBuilder: (context, index) {
+                          final note = _currentFolder!.notes[index];
+                          return ListTile(
+                            leading: const Icon(Icons.note),
+                            title: Text(note.title),
+                            subtitle: Text('Created: ${note.createdAt}'),
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
