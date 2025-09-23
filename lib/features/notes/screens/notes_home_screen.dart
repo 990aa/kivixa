@@ -145,9 +145,11 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BlocProvider(
-                      create: (_) =>
-                          DocumentBloc(NotesDatabaseService.instance),
-                      child: const NoteEditorScreen(),
+                      create: (_) => DocumentBloc(NotesDatabaseService.instance),
+                      child: BlocProvider(
+                        create: (_) => DrawingBloc(),
+                        child: const NoteEditorScreen(),
+                      ),
                     ),
                   ),
                 );
