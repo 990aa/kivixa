@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kivixa/features/notes/blocs/folders_bloc.dart';
 import 'package:kivixa/features/notes/models/folder_model.dart';
 
 class FolderGridView extends StatefulWidget {
@@ -22,38 +20,6 @@ class FolderGridView extends StatefulWidget {
 class _FolderGridViewState extends State<FolderGridView> {
   String? _selectedFolderId;
 
-  void _showMoveFolderDialog(BuildContext context, Folder folderToMove) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Text('Move "${folderToMove.name}" to...'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: widget.allFolders.length,
-              itemBuilder: (context, index) {
-                final destinationFolder = widget.allFolders[index];
-                if (destinationFolder.id == folderToMove.id) {
-                  return const SizedBox.shrink(); // Can't move a folder into itself
-                }
-                return ListTile(
-                  title: Text(destinationFolder.name),
-                  onTap: () {
-                    BlocProvider.of<FoldersBloc>(
-                      context,
-                    ).add(MoveFolder(folderToMove.id, destinationFolder.id));
-                    Navigator.of(dialogContext).pop();
-                  },
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
