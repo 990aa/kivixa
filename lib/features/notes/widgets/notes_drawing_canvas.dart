@@ -23,6 +23,8 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
   final TransformationController _transformationController =
       TransformationController();
 
+  static Sketch? _copiedSketch;
+
   void _showContextMenu(BuildContext context, Offset offset) async {
     final result = await showMenu(
       context: context,
@@ -42,13 +44,21 @@ class _NotesDrawingCanvasState extends State<NotesDrawingCanvas> {
 
     switch (result) {
       case 'copy':
-        // TODO: Implement copy
+        _copiedSketch = widget.notifier.sketch;
         break;
       case 'cut':
-        // TODO: Implement cut
+        _copiedSketch = widget.notifier.sketch;
+        widget.notifier.clear();
         break;
       case 'paste':
-        // TODO: Implement paste
+        if (_copiedSketch != null) {
+          final currentSketch = widget.notifier.sketch;
+          final newLines = [
+            ...currentSketch.lines,
+            ..._copiedSketch!.lines,
+          ];
+          widget.notifier.sketch = currentSketch.copyWith(lines: newLines);
+        }
         break;
       case 'paper':
         setState(() {
