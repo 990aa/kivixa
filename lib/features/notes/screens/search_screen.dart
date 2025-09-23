@@ -104,12 +104,6 @@ class _SearchAppBarState extends State<SearchAppBar> {
             hintText: 'Search...',
             hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
             prefixIcon: const Icon(Icons.search, color: Colors.white),
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.mic, color: Colors.white),
-              onPressed: () {
-                // TODO: Implement voice search
-              },
-            ),
             border: InputBorder.none,
           ),
           onChanged: (query) {
