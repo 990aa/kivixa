@@ -29,5 +29,18 @@ class FoldersBloc extends Bloc<FoldersEvent, FoldersState> {
         emit(FoldersLoadFailure(e.toString()));
       }
     });
+
+    on<MoveFolder>((event, emit) async {
+      try {
+        await _notesDatabaseService.updateFolderParent(
+          event.folderId,
+          event.newParentId,
+        );
+        final folders = await _notesDatabaseService.getAllFolders();
+        emit(FoldersLoadSuccess(folders));
+      } catch (e) {
+        emit(FoldersLoadFailure(e.toString()));
+      }
+    });
   }
 }
