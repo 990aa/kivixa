@@ -125,6 +125,9 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                 key: const ValueKey('grid'),
                 items: _items,
                 isLoading: _isLoading,
+                onRename: _handleRename,
+                onMove: _handleMove,
+                onDelete: _handleDelete,
               )
             : NotesListView(
                 key: const ValueKey('list'),
@@ -289,6 +292,84 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
           },
         );
       },
+    );
+  }
+
+  void _handleRename(dynamic item) {
+    String currentName = item is Folder ? item.name : item.title;
+    TextEditingController controller = TextEditingController(text: currentName);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Rename ${item is Folder ? 'Folder' : 'Note'}'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (controller.text.trim().isEmpty) return;
+                setState(() {
+                  if (item is Folder) {
+                    item.copyWith(name: controller.text);
+                  } else if (item is NoteDocument) {
+                    item.copyWith(title: controller.text);
+                  }
+                  _items = [..._folders, ..._currentFolder?.notes ?? []];
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('Rename'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleDelete(dynamic item) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Delete ${item is Folder ? 'Folder' : 'Note'}?'),
+          content: Text(
+              'Are you sure you want to delete "${item is Folder ? item.name : item.title}"?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  if (item is Folder) {
+                    _folders.remove(item);
+                  } else if (item is NoteDocument) {
+                    _currentFolder?.notes.remove(item);
+                  }
+                  _items = [..._folders, ..._currentFolder?.notes ?? []];
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleMove(dynamic item) {
+    // TODO: Implement move functionality
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Move functionality not implemented yet.')),
     );
   }
 
