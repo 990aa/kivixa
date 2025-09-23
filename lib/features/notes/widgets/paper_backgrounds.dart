@@ -237,7 +237,7 @@ class PlainPaperPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (watermark != null) {
       final textStyle = TextStyle(
-        color: Colors.grey.withOpacity(0.1),
+        color: Colors.grey.withAlpha((255 * 0.1).round()),
         fontSize: 48,
         fontWeight: FontWeight.bold,
       );
