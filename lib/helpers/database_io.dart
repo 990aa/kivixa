@@ -24,6 +24,18 @@ class DatabaseHelper {
       ),
       settings: const ConnectionSettings(sslMode: SslMode.disable),
     );
+
+    // Create folders table if it does not exist
+    await connection.execute('''
+      CREATE TABLE IF NOT EXISTS folders (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        cover VARCHAR(255) NOT NULL,
+        createdAt TIMESTAMP NOT NULL,
+        colorValue INTEGER,
+        parentId INTEGER
+      );
+    ''');
     return connection;
   }
 
