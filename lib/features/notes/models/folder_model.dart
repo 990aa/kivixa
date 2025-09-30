@@ -64,6 +64,9 @@ class Folder {
     );
   }
 
+  int get colorValue => color.value;
+  int get iconValue => icon.codePoint;
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -71,8 +74,8 @@ class Folder {
       'parentId': parentId,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'lastModified': lastModified.millisecondsSinceEpoch,
-      'color': color.toARGB32(),
-      'icon': icon.codePoint,
+      'color': colorValue,
+      'icon': iconValue,
     };
   }
 
