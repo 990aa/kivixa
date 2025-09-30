@@ -5,29 +5,33 @@ class DatabaseHelper {
   factory DatabaseHelper() => _instance;
   DatabaseHelper._internal();
 
-  PostgreSQLConnection? _connection;
+  Connection? _connection;
 
-  Future<PostgreSQLConnection> get connection async {
-    if (_connection == null || _connection!.isClosed) {
+  Future<Connection> get connection async {
+    if (_connection == null || await _connection!.isClosed) {
       _connection = await _connect();
     }
     return _connection!;
   }
 
-  Future<PostgreSQLConnection> _connect() async {
-    final connection = PostgreSQLConnection(
-      'your_host',
-      5432,
-      'your_database',
-      username: 'your_username',
-      password: 'your_password',
+  Future<Connection> _connect() async {
+    final connection = await Connection.open(
+      Endpoint(
+        host: 'your_host',
+        port: 5432,
+        database: 'your_database',
+        username: 'your_username',
+        password: 'your_password',
+      ),
+      settings: const ConnectionSettings(
+        sslMode: SslMode.require,
+      ),
     );
-    await connection.open();
     return connection;
   }
 
   Future<void> close() async {
-    if (_connection != null && !_connection!.isClosed) {
+    if (_connection != null) {
       await _connection!.close();
     }
   }
