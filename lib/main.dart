@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kivixa/features/notes/blocs/folders_bloc.dart';
 import 'package:kivixa/features/notes/screens/folder_management_screen.dart';
+import 'package:kivixa/features/notes/screens/notes_home_screen.dart';
 import 'package:kivixa/features/notes/services/notes_database_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:kivixa/theme.dart';
 
-void main() {
+Future<void> main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 

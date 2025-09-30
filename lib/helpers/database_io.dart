@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:postgres/postgres.dart';
 
 class DatabaseHelper {
@@ -15,11 +16,11 @@ class DatabaseHelper {
   Future<Connection> _connect() async {
     final connection = await Connection.open(
       Endpoint(
-        host: 'your_host',
-        port: 5432,
-        database: 'your_database',
-        username: 'your_username',
-        password: 'your_password',
+        host: dotenv.env['DB_HOST']!,
+        port: int.parse(dotenv.env['DB_PORT']!),
+        database: dotenv.env['DB_NAME']!,
+        username: dotenv.env['DB_USER']!,
+        password: dotenv.env['DB_PASSWORD']!,
       ),
       settings: const ConnectionSettings(sslMode: SslMode.require),
     );
