@@ -129,10 +129,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                 onMove: _handleMove,
                 onDelete: _handleDelete,
               )
-            : NotesListView(
-                key: const ValueKey('list'),
-                folders: _folders,
-              ),
+            : NotesListView(key: const ValueKey('list'), folders: _folders),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -169,8 +166,9 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                 path[i].name,
                 style: TextStyle(
                   color: i == path.length - 1 ? Colors.white : Colors.white70,
-                  fontWeight:
-                      i == path.length - 1 ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: i == path.length - 1
+                      ? FontWeight.bold
+                      : FontWeight.normal,
                 ),
               ),
             ),
@@ -223,7 +221,9 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                         DropdownMenuItem(value: 'A4', child: Text('A4')),
                         DropdownMenuItem(value: 'A3', child: Text('A3')),
                         DropdownMenuItem(
-                            value: 'Square', child: Text('Square')),
+                          value: 'Square',
+                          child: Text('Square'),
+                        ),
                       ],
                       onChanged: (val) {
                         if (val != null) {
@@ -269,10 +269,14 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                       Widget page;
                       if (pageType == 'A4') {
                         page = A4DrawingPage(
-                            noteName: name, folderId: _currentFolder?.id);
+                          noteName: name,
+                          folderId: _currentFolder?.id,
+                        );
                       } else if (pageType == 'A3') {
                         page = A3DrawingPage(
-                            noteName: name, folderId: _currentFolder?.id);
+                          noteName: name,
+                          folderId: _currentFolder?.id,
+                        );
                       } else {
                         page = SquareDrawingPage(
                           noteName: name,
@@ -303,10 +307,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
       builder: (context) {
         return AlertDialog(
           title: Text('Rename ${item is Folder ? 'Folder' : 'Note'}'),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-          ),
+          content: TextField(controller: controller, autofocus: true),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -322,8 +323,9 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                       final newFolder = item.copyWith(name: controller.text);
                       _items[index] = newFolder;
                       if (_currentFolder == null) {
-                        final folderIndex =
-                            _folders.indexWhere((f) => f.id == item.id);
+                        final folderIndex = _folders.indexWhere(
+                          (f) => f.id == item.id,
+                        );
                         if (folderIndex != -1) {
                           _folders[folderIndex] = newFolder;
                         }
@@ -338,8 +340,9 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                       final newNote = item.copyWith(title: controller.text);
                       _items[index] = newNote;
                       if (_currentFolder != null) {
-                        final noteIndex = _currentFolder!.notes
-                            .indexWhere((n) => n.id == item.id);
+                        final noteIndex = _currentFolder!.notes.indexWhere(
+                          (n) => n.id == item.id,
+                        );
                         if (noteIndex != -1) {
                           _currentFolder!.notes[noteIndex] = newNote;
                         }
@@ -364,7 +367,8 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
         return AlertDialog(
           title: Text('Delete ${item is Folder ? 'Folder' : 'Note'}?'),
           content: Text(
-              'Are you sure you want to delete "${item is Folder ? item.name : item.title}"?'),
+            'Are you sure you want to delete "${item is Folder ? item.name : item.title}"?',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -460,8 +464,18 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
         size: 3,
         capacity: 10,
         subFolders: [
-          Folder(id: 'health', name: 'Health', color: Colors.green, parentId: 'personal'),
-          Folder(id: 'finance', name: 'Finance', color: Colors.yellow, parentId: 'personal'),
+          Folder(
+            id: 'health',
+            name: 'Health',
+            color: Colors.green,
+            parentId: 'personal',
+          ),
+          Folder(
+            id: 'finance',
+            name: 'Finance',
+            color: Colors.yellow,
+            parentId: 'personal',
+          ),
         ],
       ),
       Folder(
@@ -473,8 +487,18 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
         size: 8,
         capacity: 10,
         subFolders: [
-          Folder(id: 'projects', name: 'Projects', color: Colors.purple, parentId: 'work'),
-          Folder(id: 'meetings', name: 'Meetings', color: Colors.orange, parentId: 'work'),
+          Folder(
+            id: 'projects',
+            name: 'Projects',
+            color: Colors.purple,
+            parentId: 'work',
+          ),
+          Folder(
+            id: 'meetings',
+            name: 'Meetings',
+            color: Colors.orange,
+            parentId: 'work',
+          ),
         ],
       ),
       Folder(
@@ -538,7 +562,10 @@ class _MoveItemDialog extends StatelessWidget {
   }
 
   List<Widget> _buildFolderList(
-      BuildContext context, List<Folder> folderList, int depth) {
+    BuildContext context,
+    List<Folder> folderList,
+    int depth,
+  ) {
     List<Widget> widgets = [];
     for (var folder in folderList) {
       widgets.add(
