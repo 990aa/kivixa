@@ -316,12 +316,36 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
               onPressed: () {
                 if (controller.text.trim().isEmpty) return;
                 setState(() {
-                  if (item is Folder) {
-                    item.copyWith(name: controller.text);
-                  } else if (item is NoteDocument) {
-                    item.copyWith(title: controller.text);
+                  final index = _items.indexOf(item);
+                  if (index != -1) {
+                    if (item is Folder) {
+                      final newFolder = item.copyWith(name: controller.text);
+                      _items[index] = newFolder;
+                      if (_currentFolder == null) {
+                        final folderIndex =
+                            _folders.indexWhere((f) => f.id == item.id);
+                        if (folderIndex != -1) {
+                          _folders[folderIndex] = newFolder;
+                        }
+                      } else {
+                        final folderIndex = _currentFolder!.subFolders
+                            .indexWhere((f) => f.id == item.id);
+                        if (folderIndex != -1) {
+                          _currentFolder!.subFolders[folderIndex] = newFolder;
+                        }
+                      }
+                    } else if (item is NoteDocument) {
+                      final newNote = item.copyWith(title: controller.text);
+                      _items[index] = newNote;
+                      if (_currentFolder != null) {
+                        final noteIndex = _currentFolder!.notes
+                            .indexWhere((n) => n.id == item.id);
+                        if (noteIndex != -1) {
+                          _currentFolder!.notes[noteIndex] = newNote;
+                        }
+                      }
+                    }
                   }
-                  _items = [..._folders, ..._currentFolder?.notes ?? []];
                 });
                 Navigator.pop(context);
               },
@@ -332,6 +356,186 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
       },
     );
   }
+
+  void _handleDelete(dynamic item) {
+// ...existing code...
+      },
+    );
+  }
+
+  void _handleMove(dynamic item) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return _MoveItemDialog(
+          folders: _getDummyFolders(),
+          onSelectFolder: (Folder destination) {
+            setState(() {
+              // Remove from old location
+              if (item is Folder) {
+                final parent = _findParentFolder(item.id);
+                parent?.subFolders.remove(item);
+                _folders.remove(item); // for top level
+              } else if (item is NoteDocument) {
+                final parent = _findFolder(_getDummyFolders(), item.folderId!);
+                parent?.notes.remove(item);
+              }
+
+              // Add to new location
+              if (item is Folder) {
+                final movedItem = item.copyWith(parentId: destination.id);
+                destination.subFolders.add(movedItem);
+              } else if (item is NoteDocument) {
+                final movedItem = item.copyWith(folderId: destination.id);
+                destination.notes.add(movedItem);
+              }
+
+              // Refresh current view
+              _items.remove(item);
+            });
+            Navigator.of(context).pop(); // Close the dialog
+          },
+        );
+      },
+    );
+  }
+
+  Folder? _findParentFolder(String folderId) {
+    for (var folder in _getDummyFolders()) {
+      if (folder.subFolders.any((sub) => sub.id == folderId)) {
+        return folder;
+      }
+      final parent = _findParentFolderRecursive(folder, folderId);
+      if (parent != null) return parent;
+    }
+    return null;
+  }
+
+  Folder? _findParentFolderRecursive(Folder parent, String folderId) {
+    for (var folder in parent.subFolders) {
+      if (folder.subFolders.any((sub) => sub.id == folderId)) {
+        return folder;
+      }
+      final p = _findParentFolderRecursive(folder, folderId);
+      if (p != null) return p;
+    }
+    return null;
+  }
+
+  List<Folder> _getDummyFolders() {
+    return [
+      Folder(
+        id: 'personal',
+        name: 'Personal',
+        color: Colors.blue,
+        icon: Icons.person,
+        noteCount: 12,
+        size: 3,
+        capacity: 10,
+        subFolders: [
+          Folder(id: 'health', name: 'Health', color: Colors.green, parentId: 'personal'),
+          Folder(id: 'finance', name: 'Finance', color: Colors.yellow, parentId: 'personal'),
+        ],
+      ),
+      Folder(
+        id: 'work',
+        name: 'Work',
+        color: Colors.green,
+        icon: Icons.work,
+        noteCount: 8,
+        size: 8,
+        capacity: 10,
+        subFolders: [
+          Folder(id: 'projects', name: 'Projects', color: Colors.purple, parentId: 'work'),
+          Folder(id: 'meetings', name: 'Meetings', color: Colors.orange, parentId: 'work'),
+        ],
+      ),
+      Folder(
+        id: 'ideas',
+        name: 'Ideas',
+        color: Colors.purple,
+        icon: Icons.lightbulb,
+        noteCount: 23,
+        size: 5,
+        capacity: 10,
+      ),
+      Folder(
+        id: 'travel',
+        name: 'Travel',
+        color: Colors.orange,
+        icon: Icons.airplanemode_active,
+        noteCount: 5,
+        size: 2,
+        capacity: 10,
+      ),
+      Folder(
+        id: 'recipes',
+        name: 'Recipes',
+        color: Colors.red,
+        icon: Icons.restaurant,
+        noteCount: 15,
+        size: 9,
+        capacity: 10,
+      ),
+      Folder(
+        id: 'projects_main',
+        name: 'Projects',
+        color: Colors.teal,
+        icon: Icons.task,
+        noteCount: 7,
+        size: 7,
+        capacity: 10,
+      ),
+    ];
+  }
+}
+
+class _MoveItemDialog extends StatelessWidget {
+  final List<Folder> folders;
+  final Function(Folder) onSelectFolder;
+
+  const _MoveItemDialog({required this.folders, required this.onSelectFolder});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Move to...'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: ListView(
+          shrinkWrap: true,
+          children: _buildFolderList(context, folders, 0),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildFolderList(
+      BuildContext context, List<Folder> folderList, int depth) {
+    List<Widget> widgets = [];
+    for (var folder in folderList) {
+      widgets.add(
+        InkWell(
+          onTap: () => onSelectFolder(folder),
+          child: Padding(
+            padding: EdgeInsets.only(left: 16.0 * depth, top: 8, bottom: 8),
+            child: Row(
+              children: [
+                Icon(folder.icon, color: folder.color),
+                const SizedBox(width: 16),
+                Text(folder.name),
+              ],
+            ),
+          ),
+        ),
+      );
+      if (folder.subFolders.isNotEmpty) {
+        widgets.addAll(_buildFolderList(context, folder.subFolders, depth + 1));
+      }
+    }
+    return widgets;
+  }
+}
 
   void _handleDelete(dynamic item) {
     showDialog(
@@ -367,10 +571,61 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
   }
 
   void _handleMove(dynamic item) {
-    // TODO: Implement move functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Move functionality not implemented yet.')),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return _MoveItemDialog(
+          folders: _getDummyFolders(),
+          onSelectFolder: (Folder destination) {
+            setState(() {
+              // Remove from old location
+              if (item is Folder) {
+                final parent = _findParentFolder(item.id);
+                parent?.subFolders.remove(item);
+              } else if (item is NoteDocument) {
+                final parent = _findFolder(_getDummyFolders(), item.folderId!);
+                parent?.notes.remove(item);
+              }
+
+              // Add to new location
+              if (item is Folder) {
+                item.parentId = destination.id;
+                destination.subFolders.add(item);
+              } else if (item is NoteDocument) {
+                item.folderId = destination.id;
+                destination.notes.add(item);
+              }
+
+              // Refresh current view
+              _items.remove(item);
+            });
+            Navigator.of(context).pop(); // Close the dialog
+          },
+        );
+      },
     );
+  }
+
+  Folder? _findParentFolder(String folderId) {
+    for (var folder in _getDummyFolders()) {
+      if (folder.subFolders.any((sub) => sub.id == folderId)) {
+        return folder;
+      }
+      final parent = _findParentFolderRecursive(folder, folderId);
+      if (parent != null) return parent;
+    }
+    return null;
+  }
+
+  Folder? _findParentFolderRecursive(Folder parent, String folderId) {
+    for (var folder in parent.subFolders) {
+      if (folder.subFolders.any((sub) => sub.id == folderId)) {
+        return folder;
+      }
+      final p = _findParentFolderRecursive(folder, folderId);
+      if (p != null) return p;
+    }
+    return null;
   }
 
   List<Folder> _getDummyFolders() {
@@ -438,5 +693,65 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
         capacity: 10,
       ),
     ];
+  }
+}
+
+class _MoveItemDialog extends StatelessWidget {
+  final List<Folder> folders;
+  final ValueChanged<Folder> onSelectFolder;
+
+  const _MoveItemDialog({
+    Key? key,
+    required this.folders,
+    required this.onSelectFolder,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Move Item'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: ListView(
+          children: folders
+              .map(
+                (folder) => _FolderTile(
+                  folder: folder,
+                  onTap: () {
+                    onSelectFolder(folder);
+                  },
+                ),
+              )
+              .toList(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+      ],
+    );
+  }
+}
+
+class _FolderTile extends StatelessWidget {
+  final Folder folder;
+  final VoidCallback onTap;
+
+  const _FolderTile({
+    Key? key,
+    required this.folder,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(folder.icon, color: folder.color),
+      title: Text(folder.name),
+      subtitle: Text('${folder.noteCount} notes'),
+      onTap: onTap,
+    );
   }
 }
