@@ -22,7 +22,7 @@ class DatabaseHelper {
         username: dotenv.env['DB_USER']!,
         password: dotenv.env['DB_PASSWORD']!,
       ),
-      settings: const ConnectionSettings(sslMode: SslMode.require),
+      settings: const ConnectionSettings(sslMode: SslMode.disable),
     );
     return connection;
   }
