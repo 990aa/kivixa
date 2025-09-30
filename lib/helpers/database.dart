@@ -23,9 +23,7 @@ class DatabaseHelper {
         username: 'your_username',
         password: 'your_password',
       ),
-      settings: const ConnectionSettings(
-        sslMode: SslMode.require,
-      ),
+      settings: const ConnectionSettings(sslMode: SslMode.require),
     );
     return connection;
   }

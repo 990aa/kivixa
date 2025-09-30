@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS notes (
     final db = await instance.database;
     await db.execute(
       Sql.named(
-          'INSERT INTO folders (id, name, parentId, createdAt, lastModified, color, icon) VALUES (@id, @name, @parentId, @createdAt, @lastModified, @color, @icon)'),
+        'INSERT INTO folders (id, name, parentId, createdAt, lastModified, color, icon) VALUES (@id, @name, @parentId, @createdAt, @lastModified, @color, @icon)',
+      ),
       parameters: folder.toMap(),
     );
     return folder;
@@ -64,7 +65,8 @@ CREATE TABLE IF NOT EXISTS notes (
     final db = await instance.database;
     final result = await db.execute(
       Sql.named(
-          'UPDATE folders SET name = @name, parentId = @parentId, lastModified = @lastModified, color = @color, icon = @icon WHERE id = @id'),
+        'UPDATE folders SET name = @name, parentId = @parentId, lastModified = @lastModified, color = @color, icon = @icon WHERE id = @id',
+      ),
       parameters: folder.toMap(),
     );
     return result.affectedRows;
@@ -83,7 +85,8 @@ CREATE TABLE IF NOT EXISTS notes (
     final db = await instance.database;
     await db.execute(
       Sql.named(
-          'INSERT INTO notes (id, title, pages, createdAt, updatedAt, folderId) VALUES (@id, @title, @pages, @createdAt, @updatedAt, @folderId)'),
+        'INSERT INTO notes (id, title, pages, createdAt, updatedAt, folderId) VALUES (@id, @title, @pages, @createdAt, @updatedAt, @folderId)',
+      ),
       parameters: note.toJson(),
     );
     return note;
@@ -117,7 +120,8 @@ CREATE TABLE IF NOT EXISTS notes (
     final db = await instance.database;
     final result = await db.execute(
       Sql.named(
-          'UPDATE notes SET title = @title, pages = @pages, updatedAt = @updatedAt, folderId = @folderId WHERE id = @id'),
+        'UPDATE notes SET title = @title, pages = @pages, updatedAt = @updatedAt, folderId = @folderId WHERE id = @id',
+      ),
       parameters: note.toJson(),
     );
     return result.affectedRows;
