@@ -84,8 +84,8 @@ class Folder {
       id: map['id'],
       name: map['name'],
       parentId: map['parentId'],
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt']),
-      lastModified: DateTime.fromMillisecondsSinceEpoch(map['lastModified']),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdat']),
+      lastModified: DateTime.fromMillisecondsSinceEpoch(map['lastmodified']),
       color: Color(map['color']),
       icon: IconData(map['icon'], fontFamily: 'MaterialIcons'),
     );
