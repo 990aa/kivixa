@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kivixa/features/notes/blocs/folders_bloc.dart';
 import 'package:kivixa/features/notes/screens/folder_management_screen.dart';
-import 'package:kivixa/features/notes/screens/notes_home_screen.dart';
 import 'package:kivixa/features/notes/services/notes_database_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
