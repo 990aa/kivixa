@@ -8,9 +8,7 @@ class DatabaseHelper {
   Connection? _connection;
 
   Future<Connection> get connection async {
-    if (_connection == null) {
-      _connection = await _connect();
-    }
+    _connection ??= await _connect();
     return _connection!;
   }
 
