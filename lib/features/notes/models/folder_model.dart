@@ -64,7 +64,7 @@ class Folder {
     );
   }
 
-  int get colorValue => color.value;
+  int get colorValue => color.toARGB32();
   int get iconValue => icon.codePoint;
 
   Map<String, dynamic> toMap() {
