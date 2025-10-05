@@ -1,19 +1,24 @@
+// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'screens/home_screen.dart';
-import 'services/database_service.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'domain/models/note.dart';
+import 'presentation/screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  final dbService = DatabaseService();
-  await dbService.init();
+  await Hive.initFlutter();
   
-  runApp(
-    ProviderScope(
-      child: const KivixaApp(),
-    ),
-  );
+  // Register Hive adapters
+  Hive.registerAdapter(PageTemplateAdapter());
+  Hive.registerAdapter(DrawingToolAdapter());
+  Hive.registerAdapter(StrokeAdapter());
+  Hive.registerAdapter(CanvasImageAdapter());
+  Hive.registerAdapter(NotePageAdapter());
+  Hive.registerAdapter(NoteAdapter());
+  
+  runApp(const ProviderScope(child: KivixaApp()));
 }
 
 class KivixaApp extends StatelessWidget {
@@ -22,19 +27,13 @@ class KivixaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Kivixa',
-      debugShowCheckedModeBanner: false,
+      title: 'kivixa',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
-        brightness: Brightness.light,
-      ),
-      darkTheme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-        brightness: Brightness.dark,
       ),
       home: const HomeScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
