@@ -17,7 +17,7 @@ void main() async {
 }
 
 class KivixaApp extends StatelessWidget {
-  const KivixaApp({Key? key}) : super(key: key);
+  const KivixaApp({super.key});
 
   @override
   Widget build(BuildContext context) {
