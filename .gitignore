@@ -12,3 +12,18 @@
 build/
 
 .idea/
+
+android/
+ios/
+lib/
+linux/
+macos/
+test/
+web/
+windows/
+.metadata
+kivixa.iml
+pubspec.lock
+pubspec.yaml
+analysis_options.yaml
+README.md
