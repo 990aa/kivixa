@@ -14,7 +14,6 @@ build/
 .idea/
 
 android/
-ios/
 lib/
 linux/
 macos/
