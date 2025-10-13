@@ -245,7 +245,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   void _onPanStart(DragStartDetails details) {
     // Don't start drawing if multi-touch is active
     if (_shouldPassThroughGestures) return;
-    
+
     _isDrawing = true;
     final pdfCoord = _screenToPdfCoordinates(details.localPosition);
     setState(() {
@@ -374,17 +374,28 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       ),
       body: Stack(
         children: [
+          // PDF viewer
           Positioned.fill(
             child: _pdfView != null
                 ? RepaintBoundary(child: _pdfView!)
                 : const SizedBox.shrink(),
           ),
+
+          // Annotation overlay - only intercepts single-finger touches
           Positioned.fill(
             child: Listener(
               behavior: HitTestBehavior.translucent,
               onPointerDown: (event) {
                 if (event.kind == PointerDeviceKind.touch) {
-                  setState(() => _activeTouchCount++);
+                  setState(() {
+                    _activeTouchCount++;
+                    // Cancel any active drawing if multi-touch starts
+                    if (_activeTouchCount >= 2 && _isDrawing) {
+                      _isDrawing = false;
+                      _currentStroke = null;
+                      _currentStrokePoints.clear();
+                    }
+                  });
                 }
               },
               onPointerUp: (event) {
@@ -399,27 +410,23 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
               },
               onPointerCancel: (event) {
                 if (event.kind == PointerDeviceKind.touch) {
-                  setState(
-                    () => _activeTouchCount = (_activeTouchCount - 1).clamp(
-                      0,
-                      10,
-                    ),
-                  );
+                  setState(() {
+                    _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10);
+                    _isDrawing = false;
+                  });
                 }
               },
               child: IgnorePointer(
+                // Only ignore pointer events when multi-touch is active
                 ignoring: _shouldPassThroughGestures,
                 child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onPanStart: (details) {
-                    if (!_shouldPassThroughGestures) _onPanStart(details);
-                  },
-                  onPanUpdate: (details) {
-                    if (!_shouldPassThroughGestures) _onPanUpdate(details);
-                  },
-                  onPanEnd: (details) {
-                    if (!_shouldPassThroughGestures) _onPanEnd(details);
-                  },
+                  // Use deferToChild to allow underlying PDF viewer to handle gestures
+                  behavior: _shouldPassThroughGestures
+                      ? HitTestBehavior.translucent
+                      : HitTestBehavior.opaque,
+                  onPanStart: _onPanStart,
+                  onPanUpdate: _onPanUpdate,
+                  onPanEnd: _onPanEnd,
                   child: CustomPaint(
                     painter: AnnotationPainter(
                       annotations: _getCurrentPageAnnotations()
