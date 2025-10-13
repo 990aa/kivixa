@@ -95,16 +95,30 @@ class _PDFAnnotatorDemoState extends State<PDFAnnotatorDemo> {
             child: Row(
               children: [
                 // Tool selector
-                const Text('Tool: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  'Tool: ',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(width: 8),
                 _buildToolButton(DrawingTool.pen, Icons.edit, 'Pen'),
-                _buildToolButton(DrawingTool.highlighter, Icons.highlight, 'Highlighter'),
-                _buildToolButton(DrawingTool.eraser, Icons.auto_fix_high, 'Eraser'),
+                _buildToolButton(
+                  DrawingTool.highlighter,
+                  Icons.highlight,
+                  'Highlighter',
+                ),
+                _buildToolButton(
+                  DrawingTool.eraser,
+                  Icons.auto_fix_high,
+                  'Eraser',
+                ),
                 const SizedBox(width: 16),
-                
+
                 // Color selector (disabled for eraser)
                 if (_currentTool != DrawingTool.eraser) ...[
-                  const Text('Color: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Color: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(width: 8),
                   _buildColorButton(Colors.black),
                   _buildColorButton(Colors.red),
@@ -113,9 +127,9 @@ class _PDFAnnotatorDemoState extends State<PDFAnnotatorDemo> {
                   _buildColorButton(Colors.yellow),
                   _buildColorButton(Colors.orange),
                 ],
-                
+
                 const Spacer(),
-                
+
                 // Annotation stats
                 Text(
                   'Total annotations: ${_annotationLayer.totalAnnotationCount}',
@@ -124,7 +138,7 @@ class _PDFAnnotatorDemoState extends State<PDFAnnotatorDemo> {
               ],
             ),
           ),
-          
+
           // Canvas area
           Expanded(
             child: Container(
@@ -231,16 +245,18 @@ class _PDFAnnotatorDemoState extends State<PDFAnnotatorDemo> {
   /// Exports annotations to JSON (in production, would save to file)
   void _exportAnnotations() {
     final jsonString = _annotationLayer.exportToJson();
-    
+
     // In a real app, you would use file_picker and path_provider to save this
     // For demo purposes, we'll just print it
     debugPrint('Exported annotations:');
     debugPrint(jsonString);
-    
+
     // Show snackbar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Exported ${_annotationLayer.totalAnnotationCount} annotations'),
+        content: Text(
+          'Exported ${_annotationLayer.totalAnnotationCount} annotations',
+        ),
         action: SnackBarAction(
           label: 'View',
           onPressed: () {
@@ -257,7 +273,9 @@ class _PDFAnnotatorDemoState extends State<PDFAnnotatorDemo> {
     // For demo purposes, we'll show a dialog
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Import feature: Use file_picker to select annotation file'),
+        content: Text(
+          'Import feature: Use file_picker to select annotation file',
+        ),
       ),
     );
   }
@@ -268,9 +286,7 @@ class _PDFAnnotatorDemoState extends State<PDFAnnotatorDemo> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Exported JSON'),
-        content: SingleChildScrollView(
-          child: SelectableText(jsonString),
-        ),
+        content: SingleChildScrollView(child: SelectableText(jsonString)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
