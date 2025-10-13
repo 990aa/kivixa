@@ -72,10 +72,7 @@ class PerformanceOptimizer {
         points.sublist(0, maxIndex + 1),
         epsilon,
       );
-      final rightSegment = _douglasPeucker(
-        points.sublist(maxIndex),
-        epsilon,
-      );
+      final rightSegment = _douglasPeucker(points.sublist(maxIndex), epsilon);
 
       // Combine results (remove duplicate middle point)
       return [
@@ -103,9 +100,8 @@ class PerformanceOptimizer {
     }
 
     // Calculate perpendicular distance
-    final numerator = ((point.dx - lineStart.dx) * dy -
-            (point.dy - lineStart.dy) * dx)
-        .abs();
+    final numerator =
+        ((point.dx - lineStart.dx) * dy - (point.dy - lineStart.dy) * dx).abs();
     final denominator = _distance(lineStart, lineEnd);
 
     return numerator / denominator;
@@ -256,9 +252,7 @@ class PerformanceOptimizer {
 
         totalSimplifiedPoints += simplifiedPoints.length;
 
-        simplified.add(
-          annotation.copyWith(strokePath: simplifiedPoints),
-        );
+        simplified.add(annotation.copyWith(strokePath: simplifiedPoints));
       } else {
         totalSimplifiedPoints += annotation.strokePath.length;
         simplified.add(annotation);
@@ -324,7 +318,9 @@ class PerformanceOptimizer {
     Map<String, dynamic>? additionalMetrics,
   }) {
     final milliseconds = duration.inMilliseconds;
-    final fps = milliseconds > 0 ? (1000 / milliseconds).toStringAsFixed(1) : '∞';
+    final fps = milliseconds > 0
+        ? (1000 / milliseconds).toStringAsFixed(1)
+        : '∞';
 
     debugPrint('Performance: $operation');
     debugPrint('  Duration: ${milliseconds}ms');
@@ -381,8 +377,7 @@ class Throttler {
   bool call(VoidCallback action) {
     final now = DateTime.now();
 
-    if (_lastCall == null ||
-        now.difference(_lastCall!) >= interval) {
+    if (_lastCall == null || now.difference(_lastCall!) >= interval) {
       _lastCall = now;
       action();
       return true;
