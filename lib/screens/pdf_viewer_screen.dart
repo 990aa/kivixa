@@ -19,7 +19,7 @@ import '../services/annotation_storage.dart';
 class PDFViewerScreen extends StatefulWidget {
   final String pdfPath;
 
-  const PDFViewerScreen({Key? key, required this.pdfPath}) : super(key: key);
+  const PDFViewerScreen({super.key, required this.pdfPath});
 
   @override
   State<PDFViewerScreen> createState() => _PDFViewerScreenState();

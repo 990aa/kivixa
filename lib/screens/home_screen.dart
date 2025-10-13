@@ -5,7 +5,7 @@ import '../screens/pdf_viewer_screen.dart';
 
 /// Home screen with PDF file selection
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();

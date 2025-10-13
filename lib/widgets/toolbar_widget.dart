@@ -24,7 +24,7 @@ class ToolbarWidget extends StatefulWidget {
   final VoidCallback onSave;
 
   const ToolbarWidget({
-    Key? key,
+    super.key,
     required this.currentTool,
     required this.currentColor,
     required this.currentStrokeWidth,
@@ -35,7 +35,7 @@ class ToolbarWidget extends StatefulWidget {
     required this.onRedo,
     required this.onClear,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
   State<ToolbarWidget> createState() => _ToolbarWidgetState();

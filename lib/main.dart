@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
 
 /// Demo page showing the PDF annotation system in action
 class PDFAnnotatorDemo extends StatefulWidget {
-  const PDFAnnotatorDemo({Key? key}) : super(key: key);
+  const PDFAnnotatorDemo({super.key});
 
   @override
   State<PDFAnnotatorDemo> createState() => _PDFAnnotatorDemoState();
@@ -41,7 +41,7 @@ class _PDFAnnotatorDemoState extends State<PDFAnnotatorDemo> {
   // Current drawing settings
   DrawingTool _currentTool = DrawingTool.pen;
   Color _currentColor = Colors.black;
-  int _currentPage = 0;
+  final int _currentPage = 0;
 
   @override
   void initState() {

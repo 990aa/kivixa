@@ -32,14 +32,14 @@ class AnnotationCanvas extends StatefulWidget {
   final Size canvasSize;
 
   const AnnotationCanvas({
-    Key? key,
+    super.key,
     required this.annotationLayer,
     required this.currentPage,
     this.currentTool = DrawingTool.pen,
     this.currentColor = Colors.black,
     this.onAnnotationsChanged,
     this.canvasSize = const Size(595, 842), // A4 size at 72 DPI
-  }) : super(key: key);
+  });
 
   @override
   State<AnnotationCanvas> createState() => _AnnotationCanvasState();
