@@ -145,16 +145,6 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     );
   }
 
-  /// Convert PDF page coordinates to screen coordinates
-  Offset _pdfToScreenCoordinates(Offset pdfPoint) {
-    if (_currentPageSize == null) return pdfPoint;
-
-    return Offset(
-      pdfPoint.dx,
-      _currentPageSize!.height - pdfPoint.dy, // Flip Y axis back
-    );
-  }
-
   /// Handle pan start (begin new stroke)
   void _onPanStart(DragStartDetails details) {
     // Check if using stylus (preferred)
