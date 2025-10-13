@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -113,7 +115,7 @@ class PerformanceOptimizer {
   static double _distance(Offset p1, Offset p2) {
     final dx = p2.dx - p1.dx;
     final dy = p2.dy - p1.dy;
-    return (dx * dx + dy * dy).sqrt();
+    return math.sqrt(dx * dx + dy * dy);
   }
 
   /// Create a cached Picture object from annotation strokes
@@ -394,6 +396,3 @@ class Throttler {
     _lastCall = null;
   }
 }
-
-// Missing Timer import
-import 'dart:async';
