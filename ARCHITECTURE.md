@@ -361,4 +361,3 @@ P₀              P₅
 
 ---
 
-**Visual representation helps understanding! 📊**
