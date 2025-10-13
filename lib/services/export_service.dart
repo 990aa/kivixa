@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import '../models/annotation_layer.dart';
 import '../models/annotation_data.dart';
@@ -221,7 +222,7 @@ class ExportService {
     }
 
     // Draw the path
-    graphics.drawPath(pen, path: path);
+    graphics.drawPath(path, pen: pen);
   }
 
   /// Render highlighter stroke with transparency
@@ -285,7 +286,7 @@ class ExportService {
     }
 
     // Draw with transparency
-    graphics.drawPath(pen, brush: brush, path: path);
+    graphics.drawPath(path, pen: pen, brush: brush);
   }
 
   /// Generate output path for annotated PDF
