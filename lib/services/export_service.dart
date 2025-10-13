@@ -187,16 +187,16 @@ class ExportService {
     // Draw smooth Bézier curves through points
     if (points.length == 2) {
       // Simple line for 2 points
-      path.addLine(points[0], points[1]);
+      graphics.drawLine(pen, points[0], points[1]);
     } else {
       // Use Catmull-Rom to Cubic Bézier conversion
       for (int i = 0; i < points.length - 1; i++) {
         if (i == 0) {
           // First segment: straight line to start curve
-          path.addLine(points[0], points[1]);
+          graphics.drawLine(pen, points[0], points[1]);
         } else if (i == points.length - 2) {
           // Last segment: straight line to end
-          path.addLine(points[i], points[i + 1]);
+          graphics.drawLine(pen, points[i], points[i + 1]);
         } else {
           // Middle segments: smooth Bézier curves
           final p0 = points[i - 1];
@@ -214,14 +214,56 @@ class ExportService {
             p2.dy - (p3.dy - p1.dy) / 6,
           );
 
-          // Add cubic Bézier curve
-          path.addBezier(p1, cp1, cp2, p2);
+          // Draw cubic Bézier curve approximation using multiple line segments
+          _drawBezierApproximation(graphics, pen, p1, cp1, cp2, p2);
         }
       }
     }
+  }
 
-    // Draw the path with pen
-    path.draw(graphics, pen);
+  /// Draw Bézier curve using line segment approximation
+  static void _drawBezierApproximation(
+    PdfGraphics graphics,
+    PdfPen pen,
+    Offset p0,
+    Offset cp1,
+    Offset cp2,
+    Offset p1,
+  ) {
+    // Approximate Bézier curve with 10 line segments
+    const steps = 10;
+    Offset? lastPoint;
+
+    for (int i = 0; i <= steps; i++) {
+      final t = i / steps;
+      final point = _cubicBezierPoint(p0, cp1, cp2, p1, t);
+
+      if (lastPoint != null) {
+        graphics.drawLine(pen, lastPoint, point);
+      }
+
+      lastPoint = point;
+    }
+  }
+
+  /// Calculate point on cubic Bézier curve at parameter t
+  static Offset _cubicBezierPoint(
+    Offset p0,
+    Offset cp1,
+    Offset cp2,
+    Offset p1,
+    double t,
+  ) {
+    final t2 = t * t;
+    final t3 = t2 * t;
+    final mt = 1 - t;
+    final mt2 = mt * mt;
+    final mt3 = mt2 * mt;
+
+    return Offset(
+      mt3 * p0.dx + 3 * mt2 * t * cp1.dx + 3 * mt * t2 * cp2.dx + t3 * p1.dx,
+      mt3 * p0.dy + 3 * mt2 * t * cp1.dy + 3 * mt * t2 * cp2.dy + t3 * p1.dy,
+    );
   }
 
   /// Render highlighter stroke with transparency
