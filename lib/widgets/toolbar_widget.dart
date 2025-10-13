@@ -138,6 +138,13 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
                 _buildCompactActionButton(Icons.redo, 'Redo', widget.onRedo),
                 const SizedBox(width: 4),
                 _buildCompactActionButton(
+                  Icons.image,
+                  'Insert Image',
+                  widget.onInsertImage,
+                  color: Colors.blue,
+                ),
+                const SizedBox(width: 4),
+                _buildCompactActionButton(
                   Icons.delete_sweep,
                   'Clear',
                   widget.onClear,
