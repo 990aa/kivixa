@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/home_screen.dart';
 import 'models/annotation_layer.dart';
 import 'models/drawing_tool.dart';
 import 'widgets/annotation_canvas.dart';
@@ -19,7 +20,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const PDFAnnotatorDemo(),
+      home: const HomeScreen(),
+      routes: {
+        '/demo': (context) => const PDFAnnotatorDemo(),
+      },
     );
   }
 }
