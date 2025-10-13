@@ -84,21 +84,14 @@ class WindowsConfig {
 
   /// Get device kind as string for debugging
   static String getDeviceKindString(PointerDeviceKind kind) {
-    switch (kind) {
-      case PointerDeviceKind.touch:
-        return 'Touch';
-      case PointerDeviceKind.mouse:
-        return 'Mouse';
-      case PointerDeviceKind.stylus:
-        return 'Stylus';
-      case PointerDeviceKind.invertedStylus:
-        return 'Inverted Stylus (Eraser)';
-      case PointerDeviceKind.trackpad:
-        return 'Trackpad';
-      case PointerDeviceKind.unknown:
-      default:
-        return 'Unknown';
-    }
+    return switch (kind) {
+      PointerDeviceKind.touch => 'Touch',
+      PointerDeviceKind.mouse => 'Mouse',
+      PointerDeviceKind.stylus => 'Stylus',
+      PointerDeviceKind.invertedStylus => 'Inverted Stylus (Eraser)',
+      PointerDeviceKind.trackpad => 'Trackpad',
+      PointerDeviceKind.unknown => 'Unknown',
+    };
   }
 
   /// Register PDF file association (Windows only)
