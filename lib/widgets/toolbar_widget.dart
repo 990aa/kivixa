@@ -41,38 +41,9 @@ class ToolbarWidget extends StatefulWidget {
   State<ToolbarWidget> createState() => _ToolbarWidgetState();
 }
 
-class _ToolbarWidgetState extends State<ToolbarWidget>
-    with SingleTickerProviderStateMixin {
-  bool _isExpanded = true;
+class _ToolbarWidgetState extends State<ToolbarWidget> {
   bool _showPenSettings = false;
   bool _showHighlighterSettings = false;
-  late AnimationController _animationController;
-  late Animation<double> _expandAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-    _expandAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
-    _animationController.forward();
-  }
-
-  void _toggleExpand() {
-    setState(() {
-      _isExpanded = !_isExpanded;
-      if (_isExpanded) {
-        _animationController.forward();
-      } else {
-        _animationController.reverse();
-      }
-    });
-  }
 
   /// Show color picker dialog
   void _showColorPicker() {
