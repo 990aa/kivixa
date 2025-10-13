@@ -51,6 +51,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
   // Page dimensions for coordinate transformation
   Size? _currentPageSize;
+  import 'dart:typed_data';
+  import 'package:file_picker/file_picker.dart';
 
   // Auto-save timer
   Timer? _autoSaveTimer;
@@ -59,10 +61,17 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   // Loading state
   bool _isLoading = true;
 
-  // Multi-touch tracking to let 2+ fingers scroll/zoom the PDF
+    final String? pdfPath; // Non-null on desktop/mobile
+    final Uint8List? pdfBytes; // Non-null on web (or memory-based usage)
   int _activeTouchCount = 0;
   bool get _shouldPassThroughGestures => _activeTouchCount >= 2;
+    const PDFViewerScreen.file({super.key, required String pdfPath})
+        : pdfPath = pdfPath,
+          pdfBytes = null;
 
+    const PDFViewerScreen.memory({super.key, required Uint8List pdfBytes})
+        : pdfBytes = pdfBytes,
+          pdfPath = null;
   @override
   void initState() {
     super.initState();
@@ -88,8 +97,10 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       debugPrint('Error initializing PDF: $e');
       setState(() {
         _isLoading = false;
-      });
-    }
+        // Load existing annotations from storage (skip on web/memory)
+        if (!kIsWeb && widget.pdfPath != null) {
+          await _loadAnnotations();
+        }
   }
 
   /// Build the PDF viewer widget based on platform
@@ -155,8 +166,15 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     _autoSaveTimer?.cancel();
     _hasUnsavedChanges = true;
 
-    _autoSaveTimer = Timer(const Duration(seconds: 2), () {
+        // Skip persistent save on web or when no file path is available
+        if (kIsWeb || widget.pdfPath == null) {
+          setState(() {
+            _hasUnsavedChanges = false;
+          });
+          return;
+        }
       _saveAnnotations();
+        await AnnotationStorage.saveToFile(widget.pdfPath!, _annotationsByPage);
     });
   }
 
@@ -166,6 +184,71 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       _annotationsByPage[_currentPageNumber] = AnnotationLayer();
     }
     return _annotationsByPage[_currentPageNumber]!;
+    /// Import annotations via a JSON file (desktop/web)
+    Future<void> _importAnnotations() async {
+      try {
+        final result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['json'],
+          allowMultiple: false,
+          withData: true, // ensure bytes on web
+        );
+
+        if (result == null) return;
+
+        if (kIsWeb || result.files.single.bytes != null) {
+          // Web: read from bytes
+          final bytes = result.files.single.bytes!;
+          final jsonString = String.fromCharCodes(bytes);
+          _mergeAnnotationsFromJson(jsonString);
+        } else if (result.files.single.path != null) {
+          // Desktop/Mobile: use file path
+          final imported = await AnnotationStorage.importFromCustomPath(
+            result.files.single.path!,
+          );
+          setState(() {
+            for (final entry in imported.entries) {
+              final page = entry.key;
+              final layer = entry.value;
+              _annotationsByPage[page] ??= AnnotationLayer();
+              for (final a in layer.getAnnotationsForPage(page)) {
+                _annotationsByPage[page]!.addAnnotation(a);
+              }
+            }
+          });
+          _scheduleAutoSave();
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Annotations imported')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error importing annotations: $e')),
+          );
+        }
+      }
+    }
+
+    void _mergeAnnotationsFromJson(String jsonString) {
+      try {
+        final importedLayer = AnnotationLayer.fromJson(jsonString);
+        setState(() {
+          for (final page in importedLayer.annotatedPages) {
+            _annotationsByPage[page] ??= AnnotationLayer();
+            for (final a in importedLayer.getAnnotationsForPage(page)) {
+              _annotationsByPage[page]!.addAnnotation(a);
+            }
+          }
+        });
+        _scheduleAutoSave();
+      } catch (e) {
+        debugPrint('Failed to merge annotations: $e');
+      }
+    }
   }
 
   /// Convert screen coordinates to PDF page coordinates
@@ -185,6 +268,11 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       _currentPageSize!.height -
           screenPoint.dy, // Flip Y axis for PDF coordinates
     );
+            IconButton(
+              tooltip: 'Import annotations',
+              icon: const Icon(Icons.file_upload),
+              onPressed: _importAnnotations,
+            ),
   }
 
   /// Handle pan start (begin new stroke)
