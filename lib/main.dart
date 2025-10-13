@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'screens/home_screen.dart';
 import 'models/annotation_layer.dart';
@@ -379,11 +380,7 @@ class ErrorScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red[700],
-              ),
+              Icon(Icons.error_outline, size: 64, color: Colors.red[700]),
               const SizedBox(height: 24),
               Text(
                 'Oops! Something went wrong',
@@ -397,10 +394,7 @@ class ErrorScreen extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 'The app encountered an unexpected error.',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[700],
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
@@ -429,9 +423,7 @@ class ErrorScreen extends StatelessWidget {
                 onPressed: () {
                   // Attempt to navigate back to home
                   Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                      builder: (context) => const HomeScreen(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
                     (route) => false,
                   );
                 },
