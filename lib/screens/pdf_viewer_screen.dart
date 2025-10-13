@@ -243,6 +243,10 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   }
 
   void _onPanStart(DragStartDetails details) {
+    // Don't start drawing if multi-touch is active
+    if (_shouldPassThroughGestures) return;
+    
+    _isDrawing = true;
     final pdfCoord = _screenToPdfCoordinates(details.localPosition);
     setState(() {
       _currentStrokePoints = [pdfCoord];
@@ -257,7 +261,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
-    if (_currentStroke == null) return;
+    if (_currentStroke == null || !_isDrawing) return;
     final pdfCoord = _screenToPdfCoordinates(details.localPosition);
     if (_currentStrokePoints.isNotEmpty) {
       final distance = (pdfCoord - _currentStrokePoints.last).distance;
@@ -272,6 +276,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   }
 
   void _onPanEnd(DragEndDetails details) {
+    _isDrawing = false;
     if (_currentStroke == null || _currentStrokePoints.length < 2) {
       setState(() {
         _currentStroke = null;
