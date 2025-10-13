@@ -323,7 +323,9 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
               params: PdfViewerParams(
                 onPageChanged: (pageNumber) {
                   if (pageNumber != null) {
-                    _onPageChanged(pageNumber - 1); // pdfrx uses 1-based indexing
+                    _onPageChanged(
+                      pageNumber - 1,
+                    ); // pdfrx uses 1-based indexing
                   }
                 },
                 loadingBannerBuilder: (context, bytesDownloaded, totalBytes) {
