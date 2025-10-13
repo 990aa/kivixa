@@ -140,12 +140,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.pushNamed(context, '/demo');
                 },
                 icon: const Icon(Icons.draw),
-                label: const Text('Try Demo Canvas'),
-                style: OutlinedButton.styleFrom(
+                label: Text(kIsWeb ? 'Try Demo Canvas' : 'Try Demo Canvas'),
+                style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,
                     vertical: 16,
                   ),
+                  backgroundColor:
+                      kIsWeb ? Theme.of(context).colorScheme.primary : null,
+                  foregroundColor: kIsWeb ? Colors.white : null,
                 ),
               ),
 
