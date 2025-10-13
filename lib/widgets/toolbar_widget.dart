@@ -152,8 +152,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
             ),
 
             // Expandable pen settings
-            if (_showPenSettings &&
-                widget.currentTool == DrawingTool.pen) ...[
+            if (_showPenSettings && widget.currentTool == DrawingTool.pen) ...[
               const Divider(height: 8),
               _buildToolSettings(),
             ],
@@ -267,10 +266,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
               decoration: BoxDecoration(
                 color: widget.currentColor,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.grey.shade400,
-                  width: 2,
-                ),
+                border: Border.all(color: Colors.grey.shade400, width: 2),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.2),
