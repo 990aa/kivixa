@@ -1,11 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:async';
 import 'screens/home_screen.dart';
 import 'models/annotation_layer.dart';
 import 'models/drawing_tool.dart';
 import 'widgets/annotation_canvas.dart';
 
-void main() {
-  runApp(const MyApp());
+/// Main entry point with error handling and initialization
+void main() async {
+  // Ensure Flutter bindings are initialized
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Set up global error handling
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    debugPrint('Flutter Error: ${details.exception}');
+    debugPrint('Stack trace: ${details.stack}');
+  };
+
+  // Handle async errors
+  runZonedGuarded(
+    () {
+      runApp(const MyApp());
+    },
+    (error, stackTrace) {
+      debugPrint('Async Error: $error');
+      debugPrint('Stack trace: $stackTrace');
+    },
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -17,11 +39,57 @@ class MyApp extends StatelessWidget {
       title: 'Kivixa PDF Annotator',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.light,
+        ),
         useMaterial3: true,
+        
+        // Optimize for stylus input
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        
+        // Custom app bar theme
+        appBarTheme: const AppBarTheme(
+          centerTitle: true,
+          elevation: 2,
+        ),
+        
+        // Custom button themes
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            elevation: 2,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          ),
+        ),
       ),
+      
+      // Dark theme support
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      
+      // Use system theme mode
+      themeMode: ThemeMode.system,
+      
       home: const HomeScreen(),
-      routes: {'/demo': (context) => const PDFAnnotatorDemo()},
+      
+      routes: {
+        '/demo': (context) => const PDFAnnotatorDemo(),
+      },
+      
+      // Error handling UI
+      builder: (context, widget) {
+        ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
+          return ErrorScreen(errorDetails: errorDetails);
+        };
+        
+        return widget!;
+      },
     );
   }
 }
