@@ -76,7 +76,9 @@ class ExportService {
         final annotationLayer = annotationsByPage[pageNumber]!;
         final annotations = annotationLayer.getAnnotationsForPage(pageNumber);
 
-        debugPrint('Rendering ${annotations.length} annotations on page $pageNumber');
+        debugPrint(
+          'Rendering ${annotations.length} annotations on page $pageNumber',
+        );
 
         // Render each annotation
         for (var annotation in annotations) {
@@ -107,7 +109,9 @@ class ExportService {
       await outputFile.writeAsBytes(pdfBytes);
 
       debugPrint('Successfully exported annotated PDF: $finalOutputPath');
-      debugPrint('  File size: ${(await outputFile.length() / 1024).toStringAsFixed(1)} KB');
+      debugPrint(
+        '  File size: ${(await outputFile.length() / 1024).toStringAsFixed(1)} KB',
+      );
 
       if (onProgress != null) {
         onProgress(1.0);
@@ -241,12 +245,7 @@ class ExportService {
 
     // Create pen for stroke outline (also transparent)
     final pen = PdfPen(
-      PdfColor(
-        color.red,
-        color.green,
-        color.blue,
-        77,
-      ),
+      PdfColor(color.red, color.green, color.blue, 77),
       width: annotation.strokeWidth,
     );
     pen.lineCap = PdfLineCap.round;
