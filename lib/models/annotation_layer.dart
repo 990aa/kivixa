@@ -36,6 +36,12 @@ class AnnotationLayer {
     return _annotationsByPage[pageNumber] ?? [];
   }
 
+  /// Gets all image annotations for a specific page
+  /// Returns an empty list if the page has no image annotations
+  List<ImageAnnotation> getImageAnnotationsForPage(int pageNumber) {
+    return _imageAnnotationsByPage[pageNumber] ?? [];
+  }
+
   /// Adds a new annotation to the layer
   /// Automatically groups it by page number for efficient rendering
   void addAnnotation(AnnotationData annotation) {
@@ -46,6 +52,49 @@ class AnnotationLayer {
     }
 
     _annotationsByPage[pageNumber]!.add(annotation);
+  }
+
+  /// Adds a new image annotation to the layer
+  void addImageAnnotation(ImageAnnotation imageAnnotation) {
+    final pageNumber = imageAnnotation.pageNumber;
+
+    if (!_imageAnnotationsByPage.containsKey(pageNumber)) {
+      _imageAnnotationsByPage[pageNumber] = [];
+    }
+
+    _imageAnnotationsByPage[pageNumber]!.add(imageAnnotation);
+  }
+
+  /// Updates an existing image annotation
+  void updateImageAnnotation(ImageAnnotation updatedImage) {
+    final pageNumber = updatedImage.pageNumber;
+    final pageImages = _imageAnnotationsByPage[pageNumber];
+
+    if (pageImages != null) {
+      final index = pageImages.indexWhere((img) => img.id == updatedImage.id);
+      if (index != -1) {
+        pageImages[index] = updatedImage;
+      }
+    }
+  }
+
+  /// Removes an image annotation from the layer
+  bool removeImageAnnotation(ImageAnnotation imageAnnotation) {
+    final pageNumber = imageAnnotation.pageNumber;
+    final pageImages = _imageAnnotationsByPage[pageNumber];
+
+    if (pageImages != null) {
+      final removed = pageImages.removeWhere((img) => img.id == imageAnnotation.id) > 0;
+
+      // Clean up empty page entries
+      if (pageImages.isEmpty) {
+        _imageAnnotationsByPage.remove(pageNumber);
+      }
+
+      return removed;
+    }
+
+    return false;
   }
 
   /// Removes a specific annotation from the layer
