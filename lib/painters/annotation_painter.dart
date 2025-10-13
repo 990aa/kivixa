@@ -4,7 +4,7 @@ import '../models/annotation_data.dart';
 import '../models/drawing_tool.dart';
 
 /// CustomPainter that renders smooth vector-based annotations using Bézier curves
-/// 
+///
 /// This painter integrates with the hand_signature library to provide ultra-smooth
 /// stroke rendering with pressure sensitivity and velocity-based line width variation.
 /// All strokes are stored as vector paths, not rasterized pixels, ensuring quality
@@ -19,10 +19,7 @@ class AnnotationPainter extends CustomPainter {
   /// Paint objects for rendering (cached for performance)
   final Paint _paint = Paint();
 
-  AnnotationPainter({
-    required this.annotations,
-    this.currentStroke,
-  });
+  AnnotationPainter({required this.annotations, this.currentStroke});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -61,21 +58,21 @@ class AnnotationPainter extends CustomPainter {
   }
 
   /// Creates a smooth path using Cubic Bézier curves
-  /// 
+  ///
   /// This method converts a series of points into a smooth curve by calculating
   /// control points between each pair of points. The algorithm:
-  /// 
+  ///
   /// 1. For a single point: draws a small circle
   /// 2. For two points: draws a straight line
   /// 3. For three or more points: uses Catmull-Rom to Bézier conversion
-  /// 
+  ///
   /// Catmull-Rom splines pass through all control points and provide smooth
   /// interpolation. We convert them to Cubic Bézier curves for rendering.
-  /// 
+  ///
   /// The mathematical formula for Catmull-Rom to Bézier conversion:
   /// - Control Point 1 (CP1) = P1 + (P2 - P0) / 6
   /// - Control Point 2 (CP2) = P2 - (P3 - P1) / 6
-  /// 
+  ///
   /// Where P0, P1, P2, P3 are four consecutive points in the stroke path.
   Path _createBezierPath(List<Offset> points) {
     final path = Path();
@@ -98,7 +95,7 @@ class AnnotationPainter extends CustomPainter {
     }
 
     // Three or more points: use Cubic Bézier curves with Catmull-Rom interpolation
-    // 
+    //
     // For smooth curves, we need at least 4 points to calculate control points.
     // We'll use a sliding window approach to create smooth segments.
 
@@ -123,9 +120,12 @@ class AnnotationPainter extends CustomPainter {
       // Draw the Cubic Bézier curve segment
       // cubicTo(cp1.x, cp1.y, cp2.x, cp2.y, p2.x, p2.y)
       path.cubicTo(
-        cp1.dx, cp1.dy, // First control point
-        cp2.dx, cp2.dy, // Second control point
-        p2.dx, p2.dy,   // End point
+        cp1.dx,
+        cp1.dy, // First control point
+        cp2.dx,
+        cp2.dy, // Second control point
+        p2.dx,
+        p2.dy, // End point
       );
     }
 
@@ -136,12 +136,12 @@ class AnnotationPainter extends CustomPainter {
   bool shouldRepaint(covariant AnnotationPainter oldDelegate) {
     // Repaint if annotations have changed or current stroke is being drawn
     return oldDelegate.annotations != annotations ||
-           oldDelegate.currentStroke != currentStroke;
+        oldDelegate.currentStroke != currentStroke;
   }
 }
 
 /// Controller for managing drawing operations with hand_signature library
-/// 
+///
 /// This class wraps HandSignatureControl with optimal settings for smooth,
 /// pressure-sensitive strokes on Android tablets and Windows devices.
 class AnnotationController {
@@ -204,7 +204,7 @@ class AnnotationController {
   void endStroke() {
     if (_signatureControl.hasActivePath) {
       _signatureControl.closePath();
-      
+
       // Extract the completed path
       if (_signatureControl.paths.isNotEmpty) {
         final lastPath = _signatureControl.paths.last;
@@ -221,11 +221,11 @@ class AnnotationController {
     // CubicPath.points contains the actual point data
     // We iterate through the path and sample points
     final pathData = cubicPath.lines;
-    
+
     for (final line in pathData) {
       strokePoints.add(line.start);
     }
-    
+
     // Add the last endpoint if available
     if (pathData.isNotEmpty) {
       strokePoints.add(pathData.last.end);
@@ -250,7 +250,7 @@ class AnnotationController {
   }
 
   /// Gets the stroke width based on current tool type
-  /// 
+  ///
   /// PEN: Variable width from 1.0 to 5.0 (controlled by velocity/pressure)
   /// HIGHLIGHTER: Wider stroke from 8.0 to 15.0 with semi-transparency
   /// ERASER: Medium width of 10.0 for visible eraser radius
