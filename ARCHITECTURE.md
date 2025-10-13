@@ -299,7 +299,7 @@ P₀              P₅
 ├────────────────────────────────────────┤
 │                                        │
 │  1. Vector Storage                     │
-│     ✓ No bitmap rasterization         │
+│     ✓ No bitmap rasterization          │
 │     ✓ Minimal memory footprint         │
 │     ✓ Fast serialization               │
 │                                        │
@@ -309,20 +309,20 @@ P₀              P₅
 │     ✓ Skip off-screen annotations      │
 │                                        │
 │  3. Efficient Repainting               │
-│     ✓ shouldRepaint checks state        │
-│     ✓ Only repaint when changed         │
-│     ✓ CustomPainter caching             │
-│                                         │
-│  4. Point Threshold                     │
-│     ✓ 3.0px minimum distance            │
-│     ✓ Prevents over-capture             │
-│     ✓ Maintains smoothness              │
-│                                         │
-│  5. Undo Stack Limit                    │
-│     ✓ Max 100 items                     │
-│     ✓ FIFO when exceeded                │
-│     ✓ Prevents memory leaks             │
-│                                         │
+│     ✓ shouldRepaint checks state       │
+│     ✓ Only repaint when changed        │
+│     ✓ CustomPainter caching            │
+│                                        │
+│  4. Point Threshold                    │
+│     ✓ 3.0px minimum distance           │
+│     ✓ Prevents over-capture            │
+│     ✓ Maintains smoothness             │
+│                                        │
+│  5. Undo Stack Limit                   │
+│     ✓ Max 100 items                    │
+│     ✓ FIFO when exceeded               │
+│     ✓ Prevents memory leaks            │
+│                                        │
 └────────────────────────────────────────┘
 ```
 
