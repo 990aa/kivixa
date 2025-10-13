@@ -45,6 +45,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   bool _isLoading = true;
   int _activeTouchCount = 0;
   bool get _shouldPassThroughGestures => _activeTouchCount >= 2;
+  bool _isDrawing = false;
 
   @override
   void initState() {
