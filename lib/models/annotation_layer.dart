@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'annotation_data.dart';
+import 'image_annotation.dart';
 
 /// Model that manages multiple annotations for a PDF document
 ///
@@ -11,6 +12,9 @@ class AnnotationLayer {
   /// Using a map allows fast lookup and efficient per-page rendering
   final Map<int, List<AnnotationData>> _annotationsByPage;
 
+  /// Map of page numbers to lists of image annotations for that page
+  final Map<int, List<ImageAnnotation>> _imageAnnotationsByPage;
+
   /// History stack for undo functionality
   /// Stores removed annotations in reverse chronological order
   final List<AnnotationData> _undoStack;
@@ -20,9 +24,11 @@ class AnnotationLayer {
 
   AnnotationLayer({
     Map<int, List<AnnotationData>>? annotationsByPage,
+    Map<int, List<ImageAnnotation>>? imageAnnotationsByPage,
     this.maxUndoStackSize = 100,
-  }) : _annotationsByPage = annotationsByPage ?? {},
-       _undoStack = [];
+  })  : _annotationsByPage = annotationsByPage ?? {},
+        _imageAnnotationsByPage = imageAnnotationsByPage ?? {},
+        _undoStack = [];
 
   /// Gets all annotations for a specific page
   /// Returns an empty list if the page has no annotations
