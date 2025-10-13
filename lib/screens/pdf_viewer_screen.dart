@@ -583,9 +583,21 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
               onRedo: _redoLastStroke,
               onClear: _clearCurrentPage,
               onSave: _saveAnnotations,
+              onInsertImage: _insertImageFromFile,
             ),
           ),
+          
+          // Image annotations - rendered on top
+          ...(_getCurrentPageAnnotations()
+              .getImageAnnotationsForPage(_currentPageNumber)
+              .map((imageAnnotation) => ImageAnnotationWidget(
+                    imageAnnotation: imageAnnotation,
+                    onUpdate: _updateImageAnnotation,
+                    onDelete: _deleteImageAnnotation,
+                    pageSize: _currentPageSize ?? const Size(595, 842),
+                  ))),
         ],
+      ),
       ),
     );
   }

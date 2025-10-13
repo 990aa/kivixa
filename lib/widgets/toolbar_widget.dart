@@ -8,7 +8,7 @@ import '../models/drawing_tool.dart';
 /// - Tool selection (pen, highlighter, eraser)
 /// - Color picker
 /// - Stroke width slider
-/// - Action buttons (undo, redo, clear, save)
+/// - Action buttons (undo, redo, clear, save, insert image)
 /// - Material Design 3 styling
 /// - Tablet-optimized button sizes
 class ToolbarWidget extends StatefulWidget {
@@ -22,6 +22,7 @@ class ToolbarWidget extends StatefulWidget {
   final VoidCallback onRedo;
   final VoidCallback onClear;
   final VoidCallback onSave;
+  final VoidCallback onInsertImage;
 
   const ToolbarWidget({
     super.key,
@@ -35,6 +36,7 @@ class ToolbarWidget extends StatefulWidget {
     required this.onRedo,
     required this.onClear,
     required this.onSave,
+    required this.onInsertImage,
   });
 
   @override
