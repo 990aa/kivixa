@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 import '../models/annotation_data.dart';
 import '../models/annotation_layer.dart';
 import '../models/drawing_tool.dart';

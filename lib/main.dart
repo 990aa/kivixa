@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'screens/home_screen.dart';
@@ -368,7 +367,7 @@ class _PDFAnnotatorDemoState extends State<PDFAnnotatorDemo> {
 class ErrorScreen extends StatelessWidget {
   final FlutterErrorDetails errorDetails;
 
-  const ErrorScreen({Key? key, required this.errorDetails}) : super(key: key);
+  const ErrorScreen({super.key, required this.errorDetails});
 
   @override
   Widget build(BuildContext context) {

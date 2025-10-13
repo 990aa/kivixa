@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../models/annotation_data.dart';
 
@@ -42,7 +41,7 @@ class PerformanceOptimizer {
     debugPrint(
       '  Reduction: ${((1 - simplified.length / points.length) * 100).toStringAsFixed(1)}%',
     );
-    debugPrint('  Time: ${duration}µs');
+    debugPrint('  Time: $durationµs');
 
     return simplified;
   }

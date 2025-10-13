@@ -5,6 +5,7 @@
 /// - Stylus/pen input configuration
 /// - High DPI support
 /// - File associations (optional)
+library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
