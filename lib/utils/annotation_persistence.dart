@@ -234,8 +234,7 @@ class PDFHelper {
       final originalName = pdfPath.split(Platform.pathSeparator).last;
       final nameWithoutExtension = originalName.replaceAll('.pdf', '');
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final outputFileName =
-          '${nameWithoutExtension}_annotated_$timestamp.pdf';
+      final outputFileName = '${nameWithoutExtension}_annotated_$timestamp.pdf';
       final outputPath = '${exportsDir.path}/$outputFileName';
 
       return await exportAnnotatedPDF(pdfPath, annotationsByPage, outputPath);
