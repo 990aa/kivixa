@@ -23,11 +23,46 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Load recently opened PDF files
   Future<void> _loadRecentFiles() async {
-    // TODO: Implement persistent storage of recent files
-    // For now, just an empty list
-    setState(() {
-      _recentFiles = [];
-    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final recentFilesJson = prefs.getStringList('recent_pdf_files') ?? [];
+
+      setState(() {
+        _recentFiles = recentFilesJson;
+      });
+    } catch (e) {
+      debugPrint('Error loading recent files: $e');
+      setState(() {
+        _recentFiles = [];
+      });
+    }
+  }
+
+  /// Save a file to recent files list
+  Future<void> _saveToRecentFiles(String filePath) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final recentFilesJson = prefs.getStringList('recent_pdf_files') ?? [];
+
+      // Remove if already exists to avoid duplicates
+      recentFilesJson.remove(filePath);
+
+      // Add to beginning of list
+      recentFilesJson.insert(0, filePath);
+
+      // Keep only last 10 files
+      if (recentFilesJson.length > 10) {
+        recentFilesJson.removeRange(10, recentFilesJson.length);
+      }
+
+      await prefs.setStringList('recent_pdf_files', recentFilesJson);
+
+      setState(() {
+        _recentFiles = recentFilesJson;
+      });
+    } catch (e) {
+      debugPrint('Error saving recent file: $e');
+    }
   }
 
   /// Pick a PDF file and open it
