@@ -44,16 +44,13 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.light,
         ),
         useMaterial3: true,
-        
+
         // Optimize for stylus input
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        
+
         // Custom app bar theme
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
-          elevation: 2,
-        ),
-        
+        appBarTheme: const AppBarTheme(centerTitle: true, elevation: 2),
+
         // Custom button themes
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -62,7 +59,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      
+
       // Dark theme support
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -72,22 +69,20 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      
+
       // Use system theme mode
       themeMode: ThemeMode.system,
-      
+
       home: const HomeScreen(),
-      
-      routes: {
-        '/demo': (context) => const PDFAnnotatorDemo(),
-      },
-      
+
+      routes: {'/demo': (context) => const PDFAnnotatorDemo()},
+
       // Error handling UI
       builder: (context, widget) {
         ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
           return ErrorScreen(errorDetails: errorDetails);
         };
-        
+
         return widget!;
       },
     );
