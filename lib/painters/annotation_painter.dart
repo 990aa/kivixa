@@ -187,25 +187,29 @@ class AnnotationController {
       // Higher values = more width variation (thin when fast, thick when slow)
       // 2.0 provides natural-looking dynamic width without being too extreme
       velocityRange: 2.0,
-
-      // PRESSURE RATIO: Blends pressure sensitivity with velocity (0.0 to 1.0)
-      // 0.0 = width determined only by velocity
-      // 1.0 = width determined only by stylus pressure
-      // 0.3 provides subtle pressure influence while keeping velocity as primary factor
-      // This works well for devices with and without pressure-sensitive styluses
-      pressureRatio: 0.3,
     );
-
-    // Listen for stroke completion events
-    _signatureControl.notifier.addListener(_onSignatureChanged);
   }
 
-  /// Handles signature control changes
-  void _onSignatureChanged() {
-    if (!_signatureControl.hasActivePath && _signatureControl.paths.isNotEmpty) {
-      // Stroke was completed, extract the path data
-      final lastPath = _signatureControl.paths.last;
-      _convertAndNotifyStroke(lastPath);
+  /// Begins a new stroke at the given position
+  void beginStroke(Offset point, double pressure) {
+    _signatureControl.startPath(point, pressure);
+  }
+
+  /// Adds a point to the current stroke
+  void addPoint(Offset point, double pressure) {
+    _signatureControl.alterPath(point, pressure);
+  }
+
+  /// Ends the current stroke and converts it to AnnotationData
+  void endStroke() {
+    if (_signatureControl.hasActivePath) {
+      _signatureControl.closePath();
+      
+      // Extract the completed path
+      if (_signatureControl.paths.isNotEmpty) {
+        final lastPath = _signatureControl.paths.last;
+        _convertAndNotifyStroke(lastPath);
+      }
     }
   }
 
@@ -214,17 +218,17 @@ class AnnotationController {
     // Extract offset points from the cubic path
     final List<Offset> strokePoints = [];
 
-    // CubicPath contains segments, each with start, control points, and end
-    for (final segment in cubicPath.segments) {
-      strokePoints.add(segment.start);
-      // Optionally add control points for more detail
-      // strokePoints.add(segment.control1);
-      // strokePoints.add(segment.control2);
+    // CubicPath.points contains the actual point data
+    // We iterate through the path and sample points
+    final pathData = cubicPath.lines;
+    
+    for (final line in pathData) {
+      strokePoints.add(line.start);
     }
-
-    // Add the final end point
-    if (cubicPath.segments.isNotEmpty) {
-      strokePoints.add(cubicPath.segments.last.end);
+    
+    // Add the last endpoint if available
+    if (pathData.isNotEmpty) {
+      strokePoints.add(pathData.last.end);
     }
 
     if (strokePoints.isEmpty) return;
