@@ -133,24 +133,118 @@ class AnnotationPersistence {
   }
 }
 
-/// Helper class for working with PDF files using pdfx library
+/// Helper class for working with PDF files
 ///
-/// This will be used in future implementation to:
-/// - Load PDF documents
-/// - Render PDF pages
-/// - Overlay annotations on PDF pages
-/// - Export annotated PDFs
+/// This provides utilities for:
+/// - Loading PDF documents
+/// - Rendering PDF pages
+/// - Exporting annotated PDFs
 class PDFHelper {
-  // TODO: Implement PDF loading using pdfx
-  // Future<PdfDocument> loadPDF(String path) async { ... }
+  /// Load a PDF document from file path
+  ///
+  /// Returns a PdfDocument that can be used for rendering
+  static Future<PdfDocument?> loadPDF(String path) async {
+    try {
+      final file = File(path);
+      if (!await file.exists()) {
+        throw Exception('PDF file not found: $path');
+      }
 
-  // TODO: Implement PDF page rendering
-  // Future<PdfPageImage> renderPage(int pageNumber) async { ... }
+      final document = await PdfDocument.openFile(path);
+      debugPrint('Loaded PDF: ${document.pageCount} pages');
+      return document;
+    } catch (e) {
+      debugPrint('Error loading PDF: $e');
+      return null;
+    }
+  }
 
-  // TODO: Implement annotated PDF export using syncfusion_flutter_pdf
-  // Future<void> exportAnnotatedPDF(
-  //   String pdfPath,
-  //   AnnotationLayer annotations,
-  //   String outputPath,
-  // ) async { ... }
+  /// Get page count from PDF file
+  static Future<int> getPageCount(String path) async {
+    try {
+      final document = await loadPDF(path);
+      if (document == null) return 0;
+      return document.pageCount;
+    } catch (e) {
+      debugPrint('Error getting page count: $e');
+      return 0;
+    }
+  }
+
+  /// Render a PDF page to an image
+  ///
+  /// Returns the page as PdfPage for rendering
+  static Future<PdfPage?> renderPage(
+    PdfDocument document,
+    int pageNumber,
+  ) async {
+    try {
+      if (pageNumber < 1 || pageNumber > document.pageCount) {
+        throw Exception('Invalid page number: $pageNumber');
+      }
+
+      final page = await document.getPage(pageNumber);
+      debugPrint('Rendered page $pageNumber');
+      return page;
+    } catch (e) {
+      debugPrint('Error rendering page: $e');
+      return null;
+    }
+  }
+
+  /// Export annotated PDF using syncfusion_flutter_pdf
+  ///
+  /// Creates a new PDF with annotations burned into it
+  static Future<String?> exportAnnotatedPDF(
+    String pdfPath,
+    AnnotationLayer annotations,
+    String outputPath,
+  ) async {
+    try {
+      final exportService = ExportService();
+
+      // Export to the specified output path
+      await exportService.exportToPDF(
+        pdfPath,
+        annotations,
+        outputPath,
+      );
+
+      debugPrint('Exported annotated PDF to: $outputPath');
+      return outputPath;
+    } catch (e) {
+      debugPrint('Error exporting annotated PDF: $e');
+      return null;
+    }
+  }
+
+  /// Export annotated PDF to application documents directory
+  ///
+  /// Automatically generates a filename based on original PDF name
+  static Future<String?> exportAnnotatedPDFToDocuments(
+    String pdfPath,
+    AnnotationLayer annotations,
+  ) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+
+      // Create exports subdirectory
+      final exportsDir = Directory('${directory.path}/exports');
+      if (!await exportsDir.exists()) {
+        await exportsDir.create(recursive: true);
+      }
+
+      // Generate output filename
+      final originalName = pdfPath.split(Platform.pathSeparator).last;
+      final nameWithoutExtension = originalName.replaceAll('.pdf', '');
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final outputFileName = '${nameWithoutExtension}_annotated_$timestamp.pdf';
+      final outputPath = '${exportsDir.path}/$outputFileName';
+
+      return await exportAnnotatedPDF(pdfPath, annotations, outputPath);
+    } catch (e) {
+      debugPrint('Error exporting to documents: $e');
+      return null;
+    }
+  }
 }
