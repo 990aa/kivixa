@@ -45,8 +45,7 @@ app.*.map.json
 /android/app/release
 
 
-#
-android/
+
 lib/
 linux/
 macos/
