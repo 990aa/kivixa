@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'annotation_data.dart';
 
 /// Model that manages multiple annotations for a PDF document
-/// 
+///
 /// This class acts as a container for all annotations across all pages,
 /// providing methods to add, remove, undo strokes, and persist the annotation state.
 /// It maintains separate lists for each page for efficient rendering.
@@ -21,8 +21,8 @@ class AnnotationLayer {
   AnnotationLayer({
     Map<int, List<AnnotationData>>? annotationsByPage,
     this.maxUndoStackSize = 100,
-  })  : _annotationsByPage = annotationsByPage ?? {},
-        _undoStack = [];
+  }) : _annotationsByPage = annotationsByPage ?? {},
+       _undoStack = [];
 
   /// Gets all annotations for a specific page
   /// Returns an empty list if the page has no annotations
@@ -34,11 +34,11 @@ class AnnotationLayer {
   /// Automatically groups it by page number for efficient rendering
   void addAnnotation(AnnotationData annotation) {
     final pageNumber = annotation.pageNumber;
-    
+
     if (!_annotationsByPage.containsKey(pageNumber)) {
       _annotationsByPage[pageNumber] = [];
     }
-    
+
     _annotationsByPage[pageNumber]!.add(annotation);
   }
 
@@ -47,28 +47,28 @@ class AnnotationLayer {
   bool removeAnnotation(AnnotationData annotation) {
     final pageNumber = annotation.pageNumber;
     final pageAnnotations = _annotationsByPage[pageNumber];
-    
+
     if (pageAnnotations != null) {
       final removed = pageAnnotations.remove(annotation);
-      
+
       if (removed) {
         // Add to undo stack
         _undoStack.add(annotation);
-        
+
         // Maintain max stack size
         if (_undoStack.length > maxUndoStackSize) {
           _undoStack.removeAt(0);
         }
-        
+
         // Clean up empty page entries
         if (pageAnnotations.isEmpty) {
           _annotationsByPage.remove(pageNumber);
         }
       }
-      
+
       return removed;
     }
-    
+
     return false;
   }
 
@@ -85,7 +85,7 @@ class AnnotationLayer {
       final pageAnnotations = entry.value;
       if (pageAnnotations.isNotEmpty) {
         final lastAnnotation = pageAnnotations.last;
-        if (mostRecent == null || 
+        if (mostRecent == null ||
             lastAnnotation.timestamp.isAfter(mostRecent.timestamp)) {
           mostRecent = lastAnnotation;
           targetPage = entry.key;
@@ -95,13 +95,13 @@ class AnnotationLayer {
 
     if (mostRecent != null && targetPage != null) {
       _annotationsByPage[targetPage]!.removeLast();
-      
+
       // Add to undo stack
       _undoStack.add(mostRecent);
       if (_undoStack.length > maxUndoStackSize) {
         _undoStack.removeAt(0);
       }
-      
+
       // Clean up empty page entries
       if (_annotationsByPage[targetPage]!.isEmpty) {
         _annotationsByPage.remove(targetPage);
@@ -118,7 +118,7 @@ class AnnotationLayer {
 
     final annotation = _undoStack.removeLast();
     addAnnotation(annotation);
-    
+
     return true;
   }
 
@@ -127,12 +127,12 @@ class AnnotationLayer {
     final pageAnnotations = _annotationsByPage[pageNumber];
     if (pageAnnotations != null) {
       _undoStack.addAll(pageAnnotations);
-      
+
       // Maintain max stack size
       while (_undoStack.length > maxUndoStackSize) {
         _undoStack.removeAt(0);
       }
-      
+
       _annotationsByPage.remove(pageNumber);
     }
   }
@@ -142,19 +142,18 @@ class AnnotationLayer {
     for (var annotations in _annotationsByPage.values) {
       _undoStack.addAll(annotations);
     }
-    
+
     // Maintain max stack size
     while (_undoStack.length > maxUndoStackSize) {
       _undoStack.removeAt(0);
     }
-    
+
     _annotationsByPage.clear();
   }
 
   /// Gets the total number of annotations across all pages
   int get totalAnnotationCount {
-    return _annotationsByPage.values
-        .fold(0, (sum, list) => sum + list.length);
+    return _annotationsByPage.values.fold(0, (sum, list) => sum + list.length);
   }
 
   /// Gets all page numbers that have annotations
@@ -163,7 +162,7 @@ class AnnotationLayer {
   }
 
   /// Exports all annotations to JSON format for persistence
-  /// 
+  ///
   /// The resulting JSON can be saved to a file and later loaded
   /// to restore the complete annotation state
   String exportToJson() {
@@ -182,12 +181,13 @@ class AnnotationLayer {
   }
 
   /// Imports annotations from JSON format
-  /// 
+  ///
   /// This replaces the current annotations with those from the JSON.
   /// To merge with existing annotations, use importFromJson with merge option.
   factory AnnotationLayer.fromJson(String jsonString) {
     final Map<String, dynamic> data = jsonDecode(jsonString);
-    final Map<String, dynamic> pagesData = data['pages'] as Map<String, dynamic>;
+    final Map<String, dynamic> pagesData =
+        data['pages'] as Map<String, dynamic>;
 
     final Map<int, List<AnnotationData>> annotationsByPage = {};
 
