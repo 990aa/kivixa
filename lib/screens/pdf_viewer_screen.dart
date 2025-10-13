@@ -44,7 +44,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   bool _isLoading = true;
   int _activeTouchCount = 0;
   int _activeDrawingPointers = 0; // Track stylus/touch pointers for drawing
-  bool get _shouldPassThroughGestures => _activeTouchCount >= 2 || _activeDrawingPointers == 0;
+  bool get _shouldPassThroughGestures =>
+      _activeTouchCount >= 2 || _activeDrawingPointers == 0;
   bool _isDrawing = false;
 
   @override
@@ -316,14 +317,21 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                 : const SizedBox.shrink(),
           ),
 
-          // Annotation overlay - only intercepts single-finger touches
+          // Annotation overlay - only intercepts stylus and single-finger touches
           Positioned.fill(
             child: Listener(
               behavior: HitTestBehavior.translucent,
               onPointerDown: (event) {
-                // Track all pointer types for multi-touch detection
                 setState(() {
                   _activeTouchCount++;
+
+                  // Only track stylus or touch devices for drawing
+                  if (event.kind == PointerDeviceKind.stylus ||
+                      event.kind == PointerDeviceKind.touch ||
+                      event.kind == PointerDeviceKind.invertedStylus) {
+                    _activeDrawingPointers++;
+                  }
+
                   // Cancel any active drawing if multi-touch starts
                   if (_activeTouchCount >= 2 && _isDrawing) {
                     _isDrawing = false;
@@ -333,22 +341,43 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                 });
               },
               onPointerUp: (event) {
-                setState(
-                  () =>
-                      _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10),
-                );
+                setState(() {
+                  _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10);
+
+                  // Decrease drawing pointer count for stylus/touch
+                  if (event.kind == PointerDeviceKind.stylus ||
+                      event.kind == PointerDeviceKind.touch ||
+                      event.kind == PointerDeviceKind.invertedStylus) {
+                    _activeDrawingPointers = (_activeDrawingPointers - 1).clamp(
+                      0,
+                      10,
+                    );
+                  }
+                });
               },
               onPointerCancel: (event) {
                 setState(() {
                   _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10);
+
+                  // Decrease drawing pointer count for stylus/touch
+                  if (event.kind == PointerDeviceKind.stylus ||
+                      event.kind == PointerDeviceKind.touch ||
+                      event.kind == PointerDeviceKind.invertedStylus) {
+                    _activeDrawingPointers = (_activeDrawingPointers - 1).clamp(
+                      0,
+                      10,
+                    );
+                  }
+
                   _isDrawing = false;
                 });
               },
               child: IgnorePointer(
-                // Only ignore pointer events when multi-touch is active
+                // Ignore pointer events when:
+                // 1. Multi-touch is active (2+ fingers for zoom/scroll)
+                // 2. No drawing pointers are active (mouse/trackpad)
                 ignoring: _shouldPassThroughGestures,
                 child: GestureDetector(
-                  // Use deferToChild to allow underlying PDF viewer to handle gestures
                   behavior: _shouldPassThroughGestures
                       ? HitTestBehavior.translucent
                       : HitTestBehavior.opaque,
