@@ -360,11 +360,6 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       appBar: AppBar(
         title: Text('Page ${_currentPageNumber + 1}'),
         actions: [
-          IconButton(
-            tooltip: 'Import annotations',
-            icon: const Icon(Icons.file_upload),
-            onPressed: _importAnnotations,
-          ),
           if (_hasUnsavedChanges)
             const Padding(
               padding: EdgeInsets.all(16.0),
