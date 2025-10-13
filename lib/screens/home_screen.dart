@@ -146,8 +146,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     horizontal: 32,
                     vertical: 16,
                   ),
-                  backgroundColor:
-                      kIsWeb ? Theme.of(context).colorScheme.primary : null,
+                  backgroundColor: kIsWeb
+                      ? Theme.of(context).colorScheme.primary
+                      : null,
                   foregroundColor: kIsWeb ? Colors.white : null,
                 ),
               ),
