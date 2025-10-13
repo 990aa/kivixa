@@ -17,14 +17,14 @@ class PDFViewerScreen extends StatefulWidget {
   final String? pdfPath;
   final Uint8List? pdfBytes;
 
-  const PDFViewerScreen({super.key, required this.pdfPath})
-      : pdfBytes = null;
+  const PDFViewerScreen({super.key, required this.pdfPath}) : pdfBytes = null;
 
   const PDFViewerScreen.file({super.key, required this.pdfPath})
-      : pdfBytes = null;
+    : pdfBytes = null;
 
   const PDFViewerScreen.memory({super.key, required this.pdfBytes})
-      : pdfPath = null;  @override
+    : pdfPath = null;
+  @override
   State<PDFViewerScreen> createState() => _PDFViewerScreenState();
 }
 
