@@ -79,12 +79,6 @@ kivixa-windows/
 
 **Important**: All files in the `Release` folder must be distributed together. Users cannot run just the `.exe` file alone.
 
-### Optional: Create Installer
-
-For a professional installer, consider using:
-- **Inno Setup**: Free, simple Windows installer creator
-- **NSIS**: Nullsoft Scriptable Install System
-- **WiX Toolset**: Advanced Windows installer XML toolkit
 
 ### Testing
 
