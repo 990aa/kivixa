@@ -63,10 +63,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   /// Initialize PDF controller and load annotations
   Future<void> _initializePDF() async {
     try {
-      // Initialize PDF controller with pinch zoom enabled
-      _pdfController = PdfControllerPinch(
-        document: PdfDocument.openFile(widget.pdfPath),
-      );
+      // Initialize PDF controller
+      _pdfController = PdfViewerController();
 
       // Load existing annotations from storage
       await _loadAnnotations();
