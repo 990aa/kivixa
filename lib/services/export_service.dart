@@ -274,28 +274,19 @@ class ExportService {
   ) {
     if (points.length < 2) return;
 
-    // Create transparent brush (30% opacity)
+    // Create transparent pen (30% opacity)
     final color = annotation.color;
-    final brush = PdfSolidBrush(
+    final pen = PdfPen(
       PdfColor(
         color.red,
         color.green,
         color.blue,
         77, // 30% opacity (0-255 scale)
       ),
-    );
-
-    // Create pen for stroke outline (also transparent)
-    final pen = PdfPen(
-      PdfColor(color.red, color.green, color.blue, 77),
       width: annotation.strokeWidth,
     );
     pen.lineCap = PdfLineCap.round;
     pen.lineJoin = PdfLineJoin.round;
-
-    // Create path
-    final path = PdfPath();
-    path.addLine(points[0], points[0]);
 
     // Draw smooth curves
     if (points.length == 2) {
