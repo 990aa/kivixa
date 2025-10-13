@@ -195,17 +195,19 @@ class PDFHelper {
   /// Creates a new PDF with annotations burned into it
   static Future<String?> exportAnnotatedPDF(
     String pdfPath,
-    AnnotationLayer annotations,
+    Map<int, AnnotationLayer> annotationsByPage,
     String outputPath,
   ) async {
     try {
-      final exportService = ExportService();
+      // Use ExportService for PDF export
+      final result = await ExportService.exportAnnotatedPDF(
+        sourcePdfPath: pdfPath,
+        annotationsByPage: annotationsByPage,
+        outputPath: outputPath,
+      );
 
-      // Export to the specified output path
-      await exportService.exportToPDF(pdfPath, annotations, outputPath);
-
-      debugPrint('Exported annotated PDF to: $outputPath');
-      return outputPath;
+      debugPrint('Exported annotated PDF to: $result');
+      return result;
     } catch (e) {
       debugPrint('Error exporting annotated PDF: $e');
       return null;
