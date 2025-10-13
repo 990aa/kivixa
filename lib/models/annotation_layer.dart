@@ -84,7 +84,9 @@ class AnnotationLayer {
     final pageImages = _imageAnnotationsByPage[pageNumber];
 
     if (pageImages != null) {
-      final removed = pageImages.removeWhere((img) => img.id == imageAnnotation.id) > 0;
+      final initialLength = pageImages.length;
+      pageImages.removeWhere((img) => img.id == imageAnnotation.id);
+      final removed = pageImages.length < initialLength;
 
       // Clean up empty page entries
       if (pageImages.isEmpty) {
