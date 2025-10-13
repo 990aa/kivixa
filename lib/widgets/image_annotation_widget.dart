@@ -76,7 +76,7 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
                 boxShadow: _isSelected
                     ? [
                         BoxShadow(
-                          color: Colors.blue.withOpacity(0.3),
+                          color: Colors.blue.withValues(alpha: 0.3),
                           blurRadius: 4,
                           spreadRadius: 1,
                         ),
