@@ -219,7 +219,7 @@ class PDFHelper {
   /// Automatically generates a filename based on original PDF name
   static Future<String?> exportAnnotatedPDFToDocuments(
     String pdfPath,
-    AnnotationLayer annotations,
+    Map<int, AnnotationLayer> annotationsByPage,
   ) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
@@ -234,10 +234,11 @@ class PDFHelper {
       final originalName = pdfPath.split(Platform.pathSeparator).last;
       final nameWithoutExtension = originalName.replaceAll('.pdf', '');
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final outputFileName = '${nameWithoutExtension}_annotated_$timestamp.pdf';
+      final outputFileName =
+          '${nameWithoutExtension}_annotated_$timestamp.pdf';
       final outputPath = '${exportsDir.path}/$outputFileName';
 
-      return await exportAnnotatedPDF(pdfPath, annotations, outputPath);
+      return await exportAnnotatedPDF(pdfPath, annotationsByPage, outputPath);
     } catch (e) {
       debugPrint('Error exporting to documents: $e');
       return null;
