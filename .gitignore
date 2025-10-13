@@ -47,7 +47,6 @@ app.*.map.json
 
 
 lib/
-test/
 web/
 windows/
 .metadata
