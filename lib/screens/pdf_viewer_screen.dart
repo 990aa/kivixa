@@ -158,7 +158,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
       _currentStroke = AnnotationData(
         strokePath: [pdfCoord],
-        colorValue: _currentColor.value,
+        colorValue: _currentColor.toARGB32(),
         strokeWidth: _currentStrokeWidth,
         toolType: _currentTool,
         pageNumber: _currentPageNumber,
