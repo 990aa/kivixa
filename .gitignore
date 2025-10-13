@@ -47,7 +47,6 @@ app.*.map.json
 
 
 lib/
-linux/
 macos/
 test/
 web/
