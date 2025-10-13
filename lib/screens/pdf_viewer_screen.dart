@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:file_picker/file_picker.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart' as sf;
 import '../models/annotation_data.dart';
@@ -14,15 +16,28 @@ import '../services/annotation_storage.dart';
 /// Main PDF viewer screen with annotation capabilities
 ///
 /// This widget provides:
+import 'dart:typed_data';
 /// - PDF rendering with zoom/pan using pdfrx
 /// - Overlay annotation layer with coordinate transformation
 /// - Per-page annotation management
 /// - Stylus input handling
 /// - Auto-save functionality
 class PDFViewerScreen extends StatefulWidget {
-  final String pdfPath;
+  final String? pdfPath; // Desktop/mobile file path or URL on web
+  final Uint8List? pdfBytes; // In-memory bytes (web file pick)
 
-  const PDFViewerScreen({super.key, required this.pdfPath});
+  // Back-compat: existing code calls PDFViewerScreen(pdfPath: ...)
+  final String? pdfPath; // Desktop/mobile path or web URL
+
+  const PDFViewerScreen.file({super.key, required String pdfPath})
+      : pdfPath = pdfPath,
+  const PDFViewerScreen({super.key, required String pdfPath})
+      : pdfPath = pdfPath,
+        pdfBytes = null;
+
+  const PDFViewerScreen.memory({super.key, required Uint8List pdfBytes})
+      : pdfBytes = pdfBytes,
+        pdfPath = null;
 
   @override
   State<PDFViewerScreen> createState() => _PDFViewerScreenState();
