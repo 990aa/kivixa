@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -18,19 +17,14 @@ class PDFViewerScreen extends StatefulWidget {
   final String? pdfPath;
   final Uint8List? pdfBytes;
 
-  const PDFViewerScreen({super.key, required String pdfPath})
-    : pdfPath = pdfPath,
-      pdfBytes = null;
+  const PDFViewerScreen({super.key, required this.pdfPath})
+      : pdfBytes = null;
 
-  const PDFViewerScreen.file({super.key, required String pdfPath})
-    : pdfPath = pdfPath,
-      pdfBytes = null;
+  const PDFViewerScreen.file({super.key, required this.pdfPath})
+      : pdfBytes = null;
 
-  const PDFViewerScreen.memory({super.key, required Uint8List pdfBytes})
-    : pdfBytes = pdfBytes,
-      pdfPath = null;
-
-  @override
+  const PDFViewerScreen.memory({super.key, required this.pdfBytes})
+      : pdfPath = null;  @override
   State<PDFViewerScreen> createState() => _PDFViewerScreenState();
 }
 
