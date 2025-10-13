@@ -359,6 +359,23 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
               onToolChanged: (tool) {
                 setState(() {
                   _currentTool = tool;
+                  
+                  // Clamp stroke width to valid range for new tool
+                  if (tool == DrawingTool.highlighter) {
+                    // Highlighter range: 8.0 - 20.0
+                    if (_currentStrokeWidth < 8.0) {
+                      _currentStrokeWidth = 8.0;
+                    } else if (_currentStrokeWidth > 20.0) {
+                      _currentStrokeWidth = 20.0;
+                    }
+                  } else {
+                    // Pen/Eraser range: 1.0 - 10.0
+                    if (_currentStrokeWidth < 1.0) {
+                      _currentStrokeWidth = 1.0;
+                    } else if (_currentStrokeWidth > 10.0) {
+                      _currentStrokeWidth = 10.0;
+                    }
+                  }
                 });
               },
               onColorChanged: (color) {
