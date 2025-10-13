@@ -366,7 +366,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
             ),
           ),
           Positioned(
-            top: 16,
+            top: 4,
             left: 16,
             right: 16,
             child: ToolbarWidget(
