@@ -299,13 +299,13 @@ class ExportService {
 
     // Draw smooth curves
     if (points.length == 2) {
-      path.addLine(points[0], points[1]);
+      graphics.drawLine(pen, points[0], points[1]);
     } else {
       for (int i = 0; i < points.length - 1; i++) {
         if (i == 0) {
-          path.addLine(points[0], points[1]);
+          graphics.drawLine(pen, points[0], points[1]);
         } else if (i == points.length - 2) {
-          path.addLine(points[i], points[i + 1]);
+          graphics.drawLine(pen, points[i], points[i + 1]);
         } else {
           final p0 = points[i - 1];
           final p1 = points[i];
@@ -321,13 +321,10 @@ class ExportService {
             p2.dy - (p3.dy - p1.dy) / 6,
           );
 
-          path.addBezier(p1, cp1, cp2, p2);
+          _drawBezierApproximation(graphics, pen, p1, cp1, cp2, p2);
         }
       }
     }
-
-    // Draw with transparency
-    path.draw(graphics, pen, brush);
   }
 
   /// Generate output path for annotated PDF
