@@ -121,6 +121,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.11"
+  device_info_plus:
+    dependency: transitive
+    description:
+      name: device_info_plus
+      sha256: "49413c8ca514dea7633e8def233b25efdf83ec8522955cc2c0e3ad802927e7c6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "12.1.0"
+  device_info_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: device_info_plus_platform_interface
+      sha256: e1ea89119e34903dca74b883d0dd78eb762814f97fb6c76f35e9ff74d261a18f
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.3"
   fake_async:
     dependency: transitive
     description:
@@ -153,6 +169,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.3.3"
+  fixnum:
+    dependency: transitive
+    description:
+      name: fixnum
+      sha256: b6dc7065e46c974bc7c5f143080a6764ec7a4be6da1285ececdc37be96de53be
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -485,6 +509,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.1"
+  sprintf:
+    dependency: transitive
+    description:
+      name: sprintf
+      sha256: "1fc9ffe69d4df602376b52949af107d8f5703b77cda567c4d7d86a0693120f23"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.0"
   stack_trace:
     dependency: transitive
     description:
@@ -522,6 +554,62 @@ packages:
     description:
       name: syncfusion_flutter_pdf
       sha256: "222874bf28765671a5a57dac56b6c9d6fc6cfed4ce49ef0cfb38e3558bf31070"
+      url: "https://pub.dev"
+    source: hosted
+    version: "31.1.23"
+  syncfusion_flutter_pdfviewer:
+    dependency: "direct main"
+    description:
+      name: syncfusion_flutter_pdfviewer
+      sha256: "0ac3149d27507b615ee68621e88a073e05e9a201867cc1101ad664f4171f02af"
+      url: "https://pub.dev"
+    source: hosted
+    version: "31.1.23"
+  syncfusion_flutter_signaturepad:
+    dependency: transitive
+    description:
+      name: syncfusion_flutter_signaturepad
+      sha256: "0491efc4b0bba057fbb83cb3864b7718132608950d8b7ebb1f0ff61c066111ae"
+      url: "https://pub.dev"
+    source: hosted
+    version: "31.1.23"
+  syncfusion_pdfviewer_linux:
+    dependency: transitive
+    description:
+      name: syncfusion_pdfviewer_linux
+      sha256: "9b448ce3d11ebd879418a2eefdb78d83daa9240729b5d9eed986ef30b97f666c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "31.1.23"
+  syncfusion_pdfviewer_macos:
+    dependency: transitive
+    description:
+      name: syncfusion_pdfviewer_macos
+      sha256: c4fad8e6e8d31d98fc4e5766b6f282da42b06d527b0a734751080191a03e7c73
+      url: "https://pub.dev"
+    source: hosted
+    version: "31.1.23"
+  syncfusion_pdfviewer_platform_interface:
+    dependency: transitive
+    description:
+      name: syncfusion_pdfviewer_platform_interface
+      sha256: "52278505016e61b871d740014379854adc07e5e29c97f9362f8d130ec5747bb3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "31.1.23"
+  syncfusion_pdfviewer_web:
+    dependency: transitive
+    description:
+      name: syncfusion_pdfviewer_web
+      sha256: c3ea7aac63ea3a1b73ada80fc60de07855e22d6817d44e8f1424ac6428228640
+      url: "https://pub.dev"
+    source: hosted
+    version: "31.1.23"
+  syncfusion_pdfviewer_windows:
+    dependency: transitive
+    description:
+      name: syncfusion_pdfviewer_windows
+      sha256: b7c5988cd797e1e2432377131910d09e4bc4f54bb2b5a56953da2d553fdfd853
       url: "https://pub.dev"
     source: hosted
     version: "31.1.23"
@@ -621,6 +709,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.4"
+  uuid:
+    dependency: transitive
+    description:
+      name: uuid
+      sha256: a5be9ef6618a7ac1e964353ef476418026db906c4facdedaa299b7a2e71690ff
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.5.1"
   vector_math:
     dependency: transitive
     description:
@@ -653,6 +749,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.15.0"
+  win32_registry:
+    dependency: transitive
+    description:
+      name: win32_registry
+      sha256: "6f1b564492d0147b330dd794fee8f512cec4977957f310f9951b5f9d83618dae"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   xdg_directories:
     dependency: transitive
     description:
