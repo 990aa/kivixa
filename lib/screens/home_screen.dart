@@ -93,6 +93,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (result != null && result.files.single.path != null) {
         final pdfPath = result.files.single.path!;
 
+        // Save to recent files
+        await _saveToRecentFiles(pdfPath);
+
         // Navigate to PDF viewer
         if (mounted) {
           Navigator.push(
