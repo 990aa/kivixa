@@ -159,7 +159,7 @@ class PDFHelper {
     }
   }
 
-  /// Get page count from PDF file  
+  /// Get page count from PDF file
   static Future<int> getPageCount(String path) async {
     try {
       final document = await loadPDF(path);
