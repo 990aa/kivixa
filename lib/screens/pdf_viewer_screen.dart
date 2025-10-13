@@ -2,15 +2,20 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:pdfrx/pdfrx.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart' as sf;
+import 'dart:ui' as ui;
 import '../models/annotation_data.dart';
 import '../models/annotation_layer.dart';
+import '../models/image_annotation.dart';
 import '../models/drawing_tool.dart';
 import '../painters/annotation_painter.dart';
 import '../widgets/toolbar_widget.dart';
+import '../widgets/image_annotation_widget.dart';
 import '../services/annotation_storage.dart';
+import '../services/image_service.dart';
 
 class PDFViewerScreen extends StatefulWidget {
   final String? pdfPath;

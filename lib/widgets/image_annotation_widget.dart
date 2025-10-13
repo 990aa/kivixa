@@ -31,7 +31,10 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
   Widget build(BuildContext context) {
     return Positioned(
       left: widget.imageAnnotation.position.dx,
-      top: widget.pageSize.height - widget.imageAnnotation.position.dy - widget.imageAnnotation.size.height,
+      top:
+          widget.pageSize.height -
+          widget.imageAnnotation.position.dy -
+          widget.imageAnnotation.size.height,
       child: GestureDetector(
         onTap: () {
           setState(() => _isSelected = !_isSelected);
@@ -76,7 +79,7 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
                           color: Colors.blue.withOpacity(0.3),
                           blurRadius: 4,
                           spreadRadius: 1,
-                        )
+                        ),
                       ]
                     : null,
               ),
@@ -92,10 +95,8 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
               _buildResizeHandle(
                 alignment: Alignment.topLeft,
                 onPanStart: _onResizeStart,
-                onPanUpdate: (details) => _onResizeUpdate(
-                  details,
-                  ResizeDirection.topLeft,
-                ),
+                onPanUpdate: (details) =>
+                    _onResizeUpdate(details, ResizeDirection.topLeft),
                 onPanEnd: _onResizeEnd,
               ),
 
@@ -103,10 +104,8 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
               _buildResizeHandle(
                 alignment: Alignment.topRight,
                 onPanStart: _onResizeStart,
-                onPanUpdate: (details) => _onResizeUpdate(
-                  details,
-                  ResizeDirection.topRight,
-                ),
+                onPanUpdate: (details) =>
+                    _onResizeUpdate(details, ResizeDirection.topRight),
                 onPanEnd: _onResizeEnd,
               ),
 
@@ -114,10 +113,8 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
               _buildResizeHandle(
                 alignment: Alignment.bottomLeft,
                 onPanStart: _onResizeStart,
-                onPanUpdate: (details) => _onResizeUpdate(
-                  details,
-                  ResizeDirection.bottomLeft,
-                ),
+                onPanUpdate: (details) =>
+                    _onResizeUpdate(details, ResizeDirection.bottomLeft),
                 onPanEnd: _onResizeEnd,
               ),
 
@@ -125,10 +122,8 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
               _buildResizeHandle(
                 alignment: Alignment.bottomRight,
                 onPanStart: _onResizeStart,
-                onPanUpdate: (details) => _onResizeUpdate(
-                  details,
-                  ResizeDirection.bottomRight,
-                ),
+                onPanUpdate: (details) =>
+                    _onResizeUpdate(details, ResizeDirection.bottomRight),
                 onPanEnd: _onResizeEnd,
               ),
 
@@ -203,35 +198,71 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
 
     switch (direction) {
       case ResizeDirection.topLeft:
-        newWidth = (_resizeStartSize!.width - details.localPosition.dx).clamp(minSize, widget.pageSize.width);
-        newHeight = (_resizeStartSize!.height - details.localPosition.dy).clamp(minSize, widget.pageSize.height);
+        newWidth = (_resizeStartSize!.width - details.localPosition.dx).clamp(
+          minSize,
+          widget.pageSize.width,
+        );
+        newHeight = (_resizeStartSize!.height - details.localPosition.dy).clamp(
+          minSize,
+          widget.pageSize.height,
+        );
         newPosition = Offset(
-          (_resizeStartOffset!.dx + details.localPosition.dx).clamp(0.0, widget.pageSize.width - minSize),
-          (_resizeStartOffset!.dy + details.localPosition.dy).clamp(minSize, widget.pageSize.height),
+          (_resizeStartOffset!.dx + details.localPosition.dx).clamp(
+            0.0,
+            widget.pageSize.width - minSize,
+          ),
+          (_resizeStartOffset!.dy + details.localPosition.dy).clamp(
+            minSize,
+            widget.pageSize.height,
+          ),
         );
         break;
 
       case ResizeDirection.topRight:
-        newWidth = (_resizeStartSize!.width + details.localPosition.dx).clamp(minSize, widget.pageSize.width);
-        newHeight = (_resizeStartSize!.height - details.localPosition.dy).clamp(minSize, widget.pageSize.height);
+        newWidth = (_resizeStartSize!.width + details.localPosition.dx).clamp(
+          minSize,
+          widget.pageSize.width,
+        );
+        newHeight = (_resizeStartSize!.height - details.localPosition.dy).clamp(
+          minSize,
+          widget.pageSize.height,
+        );
         newPosition = Offset(
           _resizeStartOffset!.dx,
-          (_resizeStartOffset!.dy + details.localPosition.dy).clamp(minSize, widget.pageSize.height),
+          (_resizeStartOffset!.dy + details.localPosition.dy).clamp(
+            minSize,
+            widget.pageSize.height,
+          ),
         );
         break;
 
       case ResizeDirection.bottomLeft:
-        newWidth = (_resizeStartSize!.width - details.localPosition.dx).clamp(minSize, widget.pageSize.width);
-        newHeight = (_resizeStartSize!.height + details.localPosition.dy).clamp(minSize, widget.pageSize.height);
+        newWidth = (_resizeStartSize!.width - details.localPosition.dx).clamp(
+          minSize,
+          widget.pageSize.width,
+        );
+        newHeight = (_resizeStartSize!.height + details.localPosition.dy).clamp(
+          minSize,
+          widget.pageSize.height,
+        );
         newPosition = Offset(
-          (_resizeStartOffset!.dx + details.localPosition.dx).clamp(0.0, widget.pageSize.width - minSize),
+          (_resizeStartOffset!.dx + details.localPosition.dx).clamp(
+            0.0,
+            widget.pageSize.width - minSize,
+          ),
           _resizeStartOffset!.dy,
         );
         break;
 
       case ResizeDirection.bottomRight:
-        newWidth = (_resizeStartSize!.width + details.localPosition.dx).clamp(minSize, widget.pageSize.width);
-        newHeight = (_resizeStartSize!.height + details.localPosition.dy).clamp(minSize, widget.pageSize.height);
+        newWidth = (_resizeStartSize!.width + details.localPosition.dx).clamp(
+          minSize,
+          widget.pageSize.width,
+        );
+        newHeight = (_resizeStartSize!.height + details.localPosition.dy).clamp(
+          minSize,
+          widget.pageSize.height,
+        );
         break;
     }
 
@@ -249,9 +280,4 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
   }
 }
 
-enum ResizeDirection {
-  topLeft,
-  topRight,
-  bottomLeft,
-  bottomRight,
-}
+enum ResizeDirection { topLeft, topRight, bottomLeft, bottomRight }
