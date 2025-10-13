@@ -177,66 +177,6 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     return _annotationsByPage[_currentPageNumber]!;
   }
 
-  Future<void> _importAnnotations() async {
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-        allowMultiple: false,
-        withData: true,
-      );
-      if (result == null) return;
-      if (kIsWeb || result.files.single.bytes != null) {
-        final bytes = result.files.single.bytes!;
-        final jsonString = String.fromCharCodes(bytes);
-        _mergeAnnotationsFromJson(jsonString);
-      } else if (result.files.single.path != null) {
-        final imported = await AnnotationStorage.importFromCustomPath(
-          result.files.single.path!,
-        );
-        setState(() {
-          for (final entry in imported.entries) {
-            final page = entry.key;
-            final layer = entry.value;
-            _annotationsByPage[page] ??= AnnotationLayer();
-            for (final a in layer.getAnnotationsForPage(page)) {
-              _annotationsByPage[page]!.addAnnotation(a);
-            }
-          }
-        });
-        _scheduleAutoSave();
-      }
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Annotations imported')));
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error importing annotations: $e')),
-        );
-      }
-    }
-  }
-
-  void _mergeAnnotationsFromJson(String jsonString) {
-    try {
-      final importedLayer = AnnotationLayer.fromJson(jsonString);
-      setState(() {
-        for (final page in importedLayer.annotatedPages) {
-          _annotationsByPage[page] ??= AnnotationLayer();
-          for (final a in importedLayer.getAnnotationsForPage(page)) {
-            _annotationsByPage[page]!.addAnnotation(a);
-          }
-        }
-      });
-      _scheduleAutoSave();
-    } catch (e) {
-      debugPrint('Failed to merge annotations: $e');
-    }
-  }
-
   Offset _screenToPdfCoordinates(Offset screenPoint) {
     if (_currentPageSize == null) return screenPoint;
     return Offset(screenPoint.dx, _currentPageSize!.height - screenPoint.dy);
@@ -394,10 +334,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
               },
               onPointerUp: (event) {
                 setState(
-                  () => _activeTouchCount = (_activeTouchCount - 1).clamp(
-                    0,
-                    10,
-                  ),
+                  () =>
+                      _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10),
                 );
               },
               onPointerCancel: (event) {
