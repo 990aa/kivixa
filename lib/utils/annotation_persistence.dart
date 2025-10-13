@@ -151,7 +151,7 @@ class PDFHelper {
       }
 
       final document = await PdfDocument.openFile(path);
-      debugPrint('Loaded PDF: ${document.pageCount} pages');
+      debugPrint('Loaded PDF document');
       return document;
     } catch (e) {
       debugPrint('Error loading PDF: $e');
