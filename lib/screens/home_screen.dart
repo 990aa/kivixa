@@ -32,6 +32,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Pick a PDF file and open it
   Future<void> _pickAndOpenPDF() async {
+    // Check if running on web or platforms that don't support pdfx
+    if (kIsWeb) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'PDF viewing is not yet supported on web. Please use the desktop version.',
+            ),
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+      return;
+    }
+
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
