@@ -191,13 +191,13 @@ class AnnotationController {
   }
 
   /// Begins a new stroke at the given position
-  void beginStroke(Offset point, double pressure) {
-    _signatureControl.startPath(point, pressure);
+  void beginStroke(Offset point, {double pressure = 1.0}) {
+    _signatureControl.startPath(point);
   }
 
   /// Adds a point to the current stroke
-  void addPoint(Offset point, double pressure) {
-    _signatureControl.alterPath(point, pressure);
+  void addPoint(Offset point, {double pressure = 1.0}) {
+    _signatureControl.alterPath(point);
   }
 
   /// Ends the current stroke and converts it to AnnotationData
@@ -275,7 +275,6 @@ class AnnotationController {
 
   /// Disposes of the controller
   void dispose() {
-    _signatureControl.notifier.removeListener(_onSignatureChanged);
     _signatureControl.dispose();
   }
 
