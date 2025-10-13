@@ -2,13 +2,15 @@
 ///
 /// This file handles Windows platform initialization:
 /// - Window sizing and positioning
-/// - Stylus/pen input configuration  
+/// - Stylus/pen input configuration
 /// - High DPI support
 /// - File associations (optional)
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';class WindowsConfig {
+import 'package:flutter/services.dart';
+
+class WindowsConfig {
   /// Minimum window size for usable UI
   static const double minWidth = 1280;
   static const double minHeight = 720;
