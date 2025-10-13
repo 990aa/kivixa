@@ -36,7 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   
   # PDF annotation dependencies
-  pdfx: ^2.9.2
+  pdfrx: ^2.1.14
   hand_signature: ^3.1.0+2
   syncfusion_flutter_pdf: ^31.1.23
   file_picker: ^10.3.3
