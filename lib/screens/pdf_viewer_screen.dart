@@ -386,35 +386,30 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
             child: Listener(
               behavior: HitTestBehavior.translucent,
               onPointerDown: (event) {
-                if (event.kind == PointerDeviceKind.touch) {
-                  setState(() {
-                    _activeTouchCount++;
-                    // Cancel any active drawing if multi-touch starts
-                    if (_activeTouchCount >= 2 && _isDrawing) {
-                      _isDrawing = false;
-                      _currentStroke = null;
-                      _currentStrokePoints.clear();
-                    }
-                  });
-                }
+                // Track all pointer types for multi-touch detection
+                setState(() {
+                  _activeTouchCount++;
+                  // Cancel any active drawing if multi-touch starts
+                  if (_activeTouchCount >= 2 && _isDrawing) {
+                    _isDrawing = false;
+                    _currentStroke = null;
+                    _currentStrokePoints.clear();
+                  }
+                });
               },
               onPointerUp: (event) {
-                if (event.kind == PointerDeviceKind.touch) {
-                  setState(
-                    () => _activeTouchCount = (_activeTouchCount - 1).clamp(
-                      0,
-                      10,
-                    ),
-                  );
-                }
+                setState(
+                  () => _activeTouchCount = (_activeTouchCount - 1).clamp(
+                    0,
+                    10,
+                  ),
+                );
               },
               onPointerCancel: (event) {
-                if (event.kind == PointerDeviceKind.touch) {
-                  setState(() {
-                    _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10);
-                    _isDrawing = false;
-                  });
-                }
+                setState(() {
+                  _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10);
+                  _isDrawing = false;
+                });
               },
               child: IgnorePointer(
                 // Only ignore pointer events when multi-touch is active
