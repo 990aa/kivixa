@@ -44,6 +44,8 @@ class ToolbarWidget extends StatefulWidget {
 class _ToolbarWidgetState extends State<ToolbarWidget>
     with SingleTickerProviderStateMixin {
   bool _isExpanded = true;
+  bool _showPenSettings = false;
+  bool _showHighlighterSettings = false;
   late AnimationController _animationController;
   late Animation<double> _expandAnimation;
 
