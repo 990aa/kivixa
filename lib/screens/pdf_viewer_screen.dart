@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:pdfrx/pdfrx.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart' as sf;
 import '../models/annotation_data.dart';
 import '../models/annotation_layer.dart';
 import '../models/drawing_tool.dart';
@@ -28,6 +30,8 @@ class PDFViewerScreen extends StatefulWidget {
 class _PDFViewerScreenState extends State<PDFViewerScreen> {
   // PDF controller
   late PdfViewerController _pdfController;
+  // Stable PDF viewer widget to prevent repeated loads on rebuild
+  Widget? _pdfView;
 
   // Annotation storage per page
   final Map<int, AnnotationLayer> _annotationsByPage = {};
@@ -66,6 +70,9 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       // Initialize PDF controller
       _pdfController = PdfViewerController();
 
+      // Build the PDF viewer once; reuse in build to avoid reloading
+      _pdfView = _buildPdfView();
+
       // Load existing annotations from storage
       await _loadAnnotations();
 
@@ -78,6 +85,40 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  /// Build the PDF viewer widget based on platform
+  Widget _buildPdfView() {
+    if (kIsWeb) {
+      // Prefer Syncfusion viewer on web (PDF.js)
+      final path = widget.pdfPath;
+      if (path.startsWith('http://') || path.startsWith('https://')) {
+        return sf.SfPdfViewer.network(
+          path,
+          canShowScrollHead: true,
+          canShowScrollStatus: true,
+        );
+      }
+      // Fallback to pdfrx (note: local file paths are not accessible on web)
+    }
+
+    // Default (desktop/mobile): pdfrx file viewer
+    return PdfViewer.file(
+      widget.pdfPath,
+      controller: _pdfController,
+      params: PdfViewerParams(
+        onPageChanged: (pageNumber) {
+          if (pageNumber != null) {
+            _onPageChanged(
+              pageNumber - 1,
+            ); // pdfrx uses 1-based indexing
+          }
+        },
+        loadingBannerBuilder: (context, bytesDownloaded, totalBytes) {
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
   }
 
   /// Load annotations from storage
@@ -317,22 +358,9 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         children: [
           // PDF viewer
           Positioned.fill(
-            child: PdfViewer.file(
-              widget.pdfPath,
-              controller: _pdfController,
-              params: PdfViewerParams(
-                onPageChanged: (pageNumber) {
-                  if (pageNumber != null) {
-                    _onPageChanged(
-                      pageNumber - 1,
-                    ); // pdfrx uses 1-based indexing
-                  }
-                },
-                loadingBannerBuilder: (context, bytesDownloaded, totalBytes) {
-                  return const Center(child: CircularProgressIndicator());
-                },
-              ),
-            ),
+            child: _pdfView != null
+                ? RepaintBoundary(child: _pdfView!)
+                : const SizedBox.shrink(),
           ),
 
           // Annotation overlay - uses IgnorePointer to allow PDF gestures when not drawing
