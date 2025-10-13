@@ -43,6 +43,7 @@ dependencies:
   path_provider: ^2.1.5
   flutter_colorpicker: ^1.1.0
   shared_preferences: ^2.3.3
+  pasteboard: ^0.2.0  # For clipboard image access
 
 dev_dependencies:
   flutter_test:
