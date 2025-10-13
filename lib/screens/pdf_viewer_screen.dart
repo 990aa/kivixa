@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pdfx/pdfx.dart';
 import '../models/annotation_data.dart';
@@ -28,7 +27,7 @@ class PDFViewerScreen extends StatefulWidget {
 
 class _PDFViewerScreenState extends State<PDFViewerScreen> {
   // PDF controller
-  late PdfController _pdfController;
+  late PdfControllerPinch _pdfController;
 
   // Annotation storage per page
   final Map<int, AnnotationLayer> _annotationsByPage = {};
@@ -65,7 +64,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   Future<void> _initializePDF() async {
     try {
       // Initialize PDF controller with pinch zoom enabled
-      _pdfController = PdfController(
+      _pdfController = PdfControllerPinch(
         document: PdfDocument.openFile(widget.pdfPath),
       );
 
