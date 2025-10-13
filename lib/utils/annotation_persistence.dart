@@ -204,11 +204,7 @@ class PDFHelper {
       final exportService = ExportService();
 
       // Export to the specified output path
-      await exportService.exportToPDF(
-        pdfPath,
-        annotations,
-        outputPath,
-      );
+      await exportService.exportToPDF(pdfPath, annotations, outputPath);
 
       debugPrint('Exported annotated PDF to: $outputPath');
       return outputPath;
