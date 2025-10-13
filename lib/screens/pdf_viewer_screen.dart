@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:pdfx/pdfx.dart';
+import 'package:pdfrx/pdfrx.dart';
 import '../models/annotation_data.dart';
 import '../models/annotation_layer.dart';
 import '../models/drawing_tool.dart';
@@ -11,7 +11,7 @@ import '../services/annotation_storage.dart';
 /// Main PDF viewer screen with annotation capabilities
 ///
 /// This widget provides:
-/// - PDF rendering with zoom/pan using pdfx
+/// - PDF rendering with zoom/pan using pdfrx
 /// - Overlay annotation layer with coordinate transformation
 /// - Per-page annotation management
 /// - Stylus input handling
@@ -27,7 +27,7 @@ class PDFViewerScreen extends StatefulWidget {
 
 class _PDFViewerScreenState extends State<PDFViewerScreen> {
   // PDF controller
-  late PdfControllerPinch _pdfController;
+  late PdfViewerController _pdfController;
 
   // Annotation storage per page
   final Map<int, AnnotationLayer> _annotationsByPage = {};
