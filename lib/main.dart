@@ -362,3 +362,90 @@ class _PDFAnnotatorDemoState extends State<PDFAnnotatorDemo> {
     );
   }
 }
+
+/// Error screen for graceful error handling
+class ErrorScreen extends StatelessWidget {
+  final FlutterErrorDetails errorDetails;
+
+  const ErrorScreen({Key? key, required this.errorDetails}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.red[50],
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.red[700],
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Oops! Something went wrong',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red[700],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'The app encountered an unexpected error.',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[700],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              // Show error details in debug mode
+              if (kDebugMode) ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red[200]!),
+                  ),
+                  child: SingleChildScrollView(
+                    child: SelectableText(
+                      errorDetails.exceptionAsString(),
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+              ElevatedButton.icon(
+                onPressed: () {
+                  // Attempt to navigate back to home
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => const HomeScreen(),
+                    ),
+                    (route) => false,
+                  );
+                },
+                icon: const Icon(Icons.home),
+                label: const Text('Return to Home'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
