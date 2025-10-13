@@ -359,7 +359,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
               onToolChanged: (tool) {
                 setState(() {
                   _currentTool = tool;
-                  
+
                   // Clamp stroke width to valid range for new tool
                   if (tool == DrawingTool.highlighter) {
                     // Highlighter range: 8.0 - 20.0
