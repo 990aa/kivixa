@@ -229,7 +229,7 @@ class AnnotationController {
     // Create annotation data
     final annotation = AnnotationData(
       strokePath: strokePoints,
-      colorValue: currentColor.value,
+      colorValue: currentColor.toARGB32(),
       strokeWidth: strokeWidth,
       toolType: currentTool,
       pageNumber: currentPage,
