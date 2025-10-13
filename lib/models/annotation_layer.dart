@@ -237,6 +237,12 @@ class AnnotationLayer {
           annotations.map((a) => a.toJson()).toList(),
         ),
       ),
+      'imagePages': _imageAnnotationsByPage.map(
+        (pageNumber, images) => MapEntry(
+          pageNumber.toString(),
+          images.map((img) => img.toJson()).toList(),
+        ),
+      ),
     };
 
     return jsonEncode(data);
@@ -262,7 +268,26 @@ class AnnotationLayer {
           .toList();
     }
 
-    return AnnotationLayer(annotationsByPage: annotationsByPage);
+    // Load image annotations if present
+    final Map<int, List<ImageAnnotation>> imageAnnotationsByPage = {};
+    if (data.containsKey('imagePages')) {
+      final Map<String, dynamic> imagePagesData =
+          data['imagePages'] as Map<String, dynamic>;
+
+      for (var entry in imagePagesData.entries) {
+        final pageNumber = int.parse(entry.key);
+        final List<dynamic> imagesJson = entry.value;
+
+        imageAnnotationsByPage[pageNumber] = imagesJson
+            .map((json) => ImageAnnotation.fromJson(json))
+            .toList();
+      }
+    }
+
+    return AnnotationLayer(
+      annotationsByPage: annotationsByPage,
+      imageAnnotationsByPage: imageAnnotationsByPage,
+    );
   }
 
   /// Merges annotations from JSON into the current layer
