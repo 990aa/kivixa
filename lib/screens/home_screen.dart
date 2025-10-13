@@ -194,6 +194,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String _getFileName(String path) {
+    if (kIsWeb) {
+      return path.split('/').last;
+    }
     return path.split(Platform.pathSeparator).last;
   }
 }
