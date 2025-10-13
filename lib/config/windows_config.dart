@@ -94,6 +94,7 @@ import 'package:flutter/services.dart';class WindowsConfig {
       case PointerDeviceKind.trackpad:
         return 'Trackpad';
       case PointerDeviceKind.unknown:
+      default:
         return 'Unknown';
     }
   }
