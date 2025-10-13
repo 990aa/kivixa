@@ -295,20 +295,20 @@ P₀              P₅
 
 ```
 ┌────────────────────────────────────────┐
-│  Optimization Strategy                  │
+│  Optimization Strategy                 │
 ├────────────────────────────────────────┤
-│                                         │
-│  1. Vector Storage                      │
-│     ✓ No bitmap rasterization          │
-│     ✓ Minimal memory footprint          │
-│     ✓ Fast serialization                │
-│                                         │
-│  2. Per-Page Rendering                  │
-│     ✓ Only render active page           │
-│     ✓ O(1) page lookup (Map)            │
-│     ✓ Skip off-screen annotations       │
-│                                         │
-│  3. Efficient Repainting                │
+│                                        │
+│  1. Vector Storage                     │
+│     ✓ No bitmap rasterization         │
+│     ✓ Minimal memory footprint         │
+│     ✓ Fast serialization               │
+│                                        │
+│  2. Per-Page Rendering                 │
+│     ✓ Only render active page          │
+│     ✓ O(1) page lookup (Map)           │
+│     ✓ Skip off-screen annotations      │
+│                                        │
+│  3. Efficient Repainting               │
 │     ✓ shouldRepaint checks state        │
 │     ✓ Only repaint when changed         │
 │     ✓ CustomPainter caching             │
