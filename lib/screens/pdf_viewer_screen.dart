@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:pdfrx/pdfrx.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart' as sf;
@@ -57,6 +58,10 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
   // Loading state
   bool _isLoading = true;
+
+  // Multi-touch tracking to let 2+ fingers scroll/zoom the PDF
+  int _activeTouchCount = 0;
+  bool get _shouldPassThroughGestures => _activeTouchCount >= 2;
 
   @override
   void initState() {
@@ -361,20 +366,48 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                 : const SizedBox.shrink(),
           ),
 
-          // Annotation overlay - uses IgnorePointer to allow PDF gestures when not drawing
+          // Annotation overlay - lets 2+ finger gestures pass through to PDF viewer
           Positioned.fill(
-            child: IgnorePointer(
-              ignoring: false,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onPanStart: _onPanStart,
-                onPanUpdate: _onPanUpdate,
-                onPanEnd: _onPanEnd,
-                child: CustomPaint(
-                  painter: AnnotationPainter(
-                    annotations: _getCurrentPageAnnotations()
-                        .getAnnotationsForPage(_currentPageNumber),
-                    currentStroke: _currentStroke,
+            child: Listener(
+              behavior: HitTestBehavior.translucent,
+              onPointerDown: (event) {
+                if (event.kind == PointerDeviceKind.touch) {
+                  setState(() => _activeTouchCount++);
+                }
+              },
+              onPointerUp: (event) {
+                if (event.kind == PointerDeviceKind.touch) {
+                  setState(() => _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10));
+                }
+              },
+              onPointerCancel: (event) {
+                if (event.kind == PointerDeviceKind.touch) {
+                  setState(() => _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10));
+                }
+              },
+              child: IgnorePointer(
+                ignoring: _shouldPassThroughGestures,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onPanStart: (details) {
+                    // If user is performing multi-touch, don't start drawing
+                    if (_shouldPassThroughGestures) return;
+                    _onPanStart(details);
+                  },
+                  onPanUpdate: (details) {
+                    if (_shouldPassThroughGestures) return;
+                    _onPanUpdate(details);
+                  },
+                  onPanEnd: (details) {
+                    if (_shouldPassThroughGestures) return;
+                    _onPanEnd(details);
+                  },
+                  child: CustomPaint(
+                    painter: AnnotationPainter(
+                      annotations: _getCurrentPageAnnotations()
+                          .getAnnotationsForPage(_currentPageNumber),
+                      currentStroke: _currentStroke,
+                    ),
                   ),
                 ),
               ),
