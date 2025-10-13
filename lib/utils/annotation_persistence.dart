@@ -172,21 +172,18 @@ class PDFHelper {
     }
   }
 
-  /// Render a PDF page to an image
+  /// Render a PDF page
   ///
-  /// Returns the page as PdfPage for rendering
+  /// Note: pdfrx uses PdfViewerController for page rendering in widgets
   static Future<PdfPage?> renderPage(
     PdfDocument document,
     int pageNumber,
   ) async {
     try {
-      if (pageNumber < 1 || pageNumber > document.pageCount) {
-        throw Exception('Invalid page number: $pageNumber');
-      }
-
-      final page = await document.getPage(pageNumber);
-      debugPrint('Rendered page $pageNumber');
-      return page;
+      debugPrint('Page rendering handled by PdfViewer widget');
+      // pdfrx rendering is handled through PdfViewer widget
+      // This method is kept for API compatibility
+      return null;
     } catch (e) {
       debugPrint('Error rendering page: $e');
       return null;
