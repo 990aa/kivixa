@@ -108,7 +108,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Description
               Text(
-                'Annotate PDFs with smooth, vector-based strokes',
+                kIsWeb
+                    ? 'Try the annotation demo (PDF viewing not available on web)'
+                    : 'Annotate PDFs with smooth, vector-based strokes',
                 style: Theme.of(
                   context,
                 ).textTheme.bodyLarge?.copyWith(color: Colors.grey.shade600),
@@ -116,23 +118,24 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 48),
 
-              // Open PDF button
-              ElevatedButton.icon(
-                onPressed: _pickAndOpenPDF,
-                icon: const Icon(Icons.file_open, size: 24),
-                label: const Text('Open PDF'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 16,
+              // Open PDF button (disabled on web)
+              if (!kIsWeb)
+                ElevatedButton.icon(
+                  onPressed: _pickAndOpenPDF,
+                  icon: const Icon(Icons.file_open, size: 24),
+                  label: const Text('Open PDF'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                    textStyle: const TextStyle(fontSize: 18),
                   ),
-                  textStyle: const TextStyle(fontSize: 18),
                 ),
-              ),
-              const SizedBox(height: 16),
+              if (!kIsWeb) const SizedBox(height: 16),
 
-              // Demo canvas button
-              OutlinedButton.icon(
+              // Demo canvas button (always available)
+              ElevatedButton.icon(
                 onPressed: () {
                   Navigator.pushNamed(context, '/demo');
                 },
