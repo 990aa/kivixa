@@ -839,5 +839,3 @@ Provide support channels in your README and app store listings:
 - [ ] Announce release on social media/website
 
 ---
-
-**Happy Distributing! 🚀**
