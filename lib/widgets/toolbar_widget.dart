@@ -206,7 +206,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget>
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
+                                      color: Colors.black.withValues(alpha: 0.2),
                                       blurRadius: 4,
                                       offset: const Offset(0, 2),
                                     ),
@@ -383,7 +383,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget>
       label: Text(label),
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        backgroundColor: color?.withOpacity(0.1),
+        backgroundColor: color?.withValues(alpha: 0.1),
         foregroundColor: color ?? Theme.of(context).colorScheme.primary,
         minimumSize: const Size(80, 36),
       ),
