@@ -315,13 +315,18 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       ),
       body: Stack(
         children: [
-          // PDF viewer with pinch zoom
-          PdfViewPinch(
+          // PDF viewer
+          PdfViewer.file(
+            widget.pdfPath,
             controller: _pdfController,
-            onPageChanged: _onPageChanged,
-            onDocumentLoaded: (document) {
-              debugPrint('PDF loaded: ${document.pagesCount} pages');
-            },
+            params: PdfViewerParams(
+              onPageChanged: (pageNumber) {
+                _onPageChanged(pageNumber - 1); // pdfrx uses 1-based indexing
+              },
+              loadingBannerBuilder: (context, bytesDownloaded, totalBytes) {
+                return const Center(child: CircularProgressIndicator());
+              },
+            ),
           ),
 
           // Annotation overlay
