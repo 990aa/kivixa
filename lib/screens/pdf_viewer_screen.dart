@@ -16,7 +16,6 @@ import '../services/annotation_storage.dart';
 /// Main PDF viewer screen with annotation capabilities
 ///
 /// This widget provides:
-import 'dart:typed_data';
 /// - PDF rendering with zoom/pan using pdfrx
 /// - Overlay annotation layer with coordinate transformation
 /// - Per-page annotation management
@@ -26,12 +25,11 @@ class PDFViewerScreen extends StatefulWidget {
   final String? pdfPath; // Desktop/mobile file path or URL on web
   final Uint8List? pdfBytes; // In-memory bytes (web file pick)
 
-  // Back-compat: existing code calls PDFViewerScreen(pdfPath: ...)
-  final String? pdfPath; // Desktop/mobile path or web URL
+  const PDFViewerScreen({super.key, required String pdfPath})
+      : pdfPath = pdfPath,
+        pdfBytes = null;
 
   const PDFViewerScreen.file({super.key, required String pdfPath})
-      : pdfPath = pdfPath,
-  const PDFViewerScreen({super.key, required String pdfPath})
       : pdfPath = pdfPath,
         pdfBytes = null;
 
