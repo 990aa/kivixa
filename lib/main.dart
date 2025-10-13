@@ -21,9 +21,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const HomeScreen(),
-      routes: {
-        '/demo': (context) => const PDFAnnotatorDemo(),
-      },
+      routes: {'/demo': (context) => const PDFAnnotatorDemo()},
     );
   }
 }

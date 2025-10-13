@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (result != null && result.files.single.path != null) {
         final pdfPath = result.files.single.path!;
-        
+
         // Navigate to PDF viewer
         if (mounted) {
           Navigator.push(
@@ -53,9 +53,9 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error opening PDF: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error opening PDF: $e')));
       }
     }
   }
@@ -80,26 +80,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(height: 32),
-              
+
               // App title
               Text(
                 'Kivixa PDF Annotator',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 16),
-              
+
               // Description
               Text(
                 'Annotate PDFs with smooth, vector-based strokes',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey.shade600,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Colors.grey.shade600),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 48),
-              
+
               // Open PDF button
               ElevatedButton.icon(
                 onPressed: _pickAndOpenPDF,
@@ -114,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Demo canvas button
               OutlinedButton.icon(
                 onPressed: () {
@@ -129,9 +129,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 48),
-              
+
               // Recent files section
               if (_recentFiles.isNotEmpty) ...[
                 const Divider(),
@@ -154,9 +154,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PDFViewerScreen(
-                                pdfPath: file,
-                              ),
+                              builder: (context) =>
+                                  PDFViewerScreen(pdfPath: file),
                             ),
                           );
                         },
