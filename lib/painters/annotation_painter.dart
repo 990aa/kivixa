@@ -172,21 +172,23 @@ class AnnotationController {
   /// Initializes HandSignatureControl with optimal settings for smooth drawing
   void _initializeSignatureControl() {
     _signatureControl = HandSignatureControl(
-      // THRESHOLD: Minimum distance (in logical pixels) between captured points
-      // Lower values = more points = smoother curves but more processing
-      // 3.0 provides excellent smoothness without excessive point capture
-      threshold: 3.0,
+      setup: SignatureSetup(
+        // THRESHOLD: Minimum distance (in logical pixels) between captured points
+        // Lower values = more points = smoother curves but more processing
+        // 3.0 provides excellent smoothness without excessive point capture
+        threshold: 3.0,
 
-      // SMOOTH RATIO: Controls how much smoothing is applied (0.0 to 1.0)
-      // 0.0 = no smoothing (jagged, follows input exactly)
-      // 1.0 = maximum smoothing (very smooth but may lose detail)
-      // 0.65 balances smoothness with precision for natural-feeling strokes
-      smoothRatio: 0.65,
+        // SMOOTH RATIO: Controls how much smoothing is applied (0.0 to 1.0)
+        // 0.0 = no smoothing (jagged, follows input exactly)
+        // 1.0 = maximum smoothing (very smooth but may lose detail)
+        // 0.65 balances smoothness with precision for natural-feeling strokes
+        smoothRatio: 0.65,
 
-      // VELOCITY RANGE: Controls line width variation based on drawing speed
-      // Higher values = more width variation (thin when fast, thick when slow)
-      // 2.0 provides natural-looking dynamic width without being too extreme
-      velocityRange: 2.0,
+        // VELOCITY RANGE: Controls line width variation based on drawing speed
+        // Higher values = more width variation (thin when fast, thick when slow)
+        // 2.0 provides natural-looking dynamic width without being too extreme
+        velocityRange: 2.0,
+      ),
     );
   }
 
