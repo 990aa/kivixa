@@ -294,6 +294,141 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     _scheduleAutoSave();
   }
 
+  // Image annotation methods
+  Future<void> _insertImageFromClipboard() async {
+    try {
+      final imageBytes = await ImageService.getImageFromClipboard();
+      
+      if (imageBytes == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No image found in clipboard')),
+          );
+        }
+        return;
+      }
+
+      if (!ImageService.isValidImageData(imageBytes)) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid image format')),
+          );
+        }
+        return;
+      }
+
+      await _addImageAnnotation(imageBytes);
+    } catch (e) {
+      debugPrint('Error inserting image from clipboard: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error inserting image: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _insertImageFromFile() async {
+    try {
+      final imageBytes = await ImageService.pickImageFromFile();
+      
+      if (imageBytes == null) {
+        return; // User cancelled
+      }
+
+      if (!ImageService.isValidImageData(imageBytes)) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid image format')),
+          );
+        }
+        return;
+      }
+
+      await _addImageAnnotation(imageBytes);
+    } catch (e) {
+      debugPrint('Error inserting image from file: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error inserting image: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _addImageAnnotation(Uint8List imageBytes) async {
+    try {
+      // Decode image to get dimensions
+      final codec = await ui.instantiateImageCodec(imageBytes);
+      final frame = await codec.getNextFrame();
+      final image = frame.image;
+
+      final originalWidth = image.width.toDouble();
+      final originalHeight = image.height.toDouble();
+
+      // Calculate size to fit within page (max 300px width/height)
+      const maxDimension = 300.0;
+      double width = originalWidth;
+      double height = originalHeight;
+
+      if (width > maxDimension || height > maxDimension) {
+        final scale = maxDimension / (width > height ? width : height);
+        width *= scale;
+        height *= scale;
+      }
+
+      // Get page size for positioning
+      final pageSize = _currentPageSize ?? const Size(595, 842); // A4 default
+
+      // Position at center of page
+      final position = Offset(
+        (pageSize.width - width) / 2,
+        pageSize.height - height - 100, // 100px from top in PDF coordinates
+      );
+
+      // Create image annotation
+      final imageAnnotation = ImageAnnotation(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        imageBytes: imageBytes,
+        position: position,
+        size: Size(width, height),
+        pageNumber: _currentPageNumber,
+        createdAt: DateTime.now(),
+      );
+
+      // Add to current page
+      _getCurrentPageAnnotations().addImageAnnotation(imageAnnotation);
+      
+      setState(() {});
+      _scheduleAutoSave();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image added')),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error adding image annotation: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error processing image: $e')),
+        );
+      }
+    }
+  }
+
+  void _updateImageAnnotation(ImageAnnotation updated) {
+    _getCurrentPageAnnotations().updateImageAnnotation(updated);
+    setState(() {});
+    _scheduleAutoSave();
+  }
+
+  void _deleteImageAnnotation(ImageAnnotation image) {
+    _getCurrentPageAnnotations().removeImageAnnotation(image);
+    setState(() {});
+    _scheduleAutoSave();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -302,27 +437,42 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         body: const Center(child: CircularProgressIndicator()),
       );
     }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Page ${_currentPageNumber + 1}'),
-        actions: [
-          if (_hasUnsavedChanges)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Icon(Icons.circle, size: 8, color: Colors.orange),
+    
+    return Focus(
+      autofocus: true,
+      onKeyEvent: (node, event) {
+        // Handle Ctrl+V for paste
+        if (event is KeyDownEvent) {
+          if ((event.logicalKey == LogicalKeyboardKey.keyV) &&
+              (HardwareKeyboard.instance.isControlPressed ||
+                  HardwareKeyboard.instance.isMetaPressed)) {
+            _insertImageFromClipboard();
+            return KeyEventResult.handled;
+          }
+        }
+        return KeyEventResult.ignored;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Page ${_currentPageNumber + 1}'),
+          actions: [
+            if (_hasUnsavedChanges)
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Icon(Icons.circle, size: 8, color: Colors.orange),
+              ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            // PDF viewer
+            Positioned.fill(
+              child: _pdfView != null
+                  ? RepaintBoundary(child: _pdfView!)
+                  : const SizedBox.shrink(),
             ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          // PDF viewer
-          Positioned.fill(
-            child: _pdfView != null
-                ? RepaintBoundary(child: _pdfView!)
-                : const SizedBox.shrink(),
-          ),
 
-          // Annotation overlay - only intercepts stylus and single-finger touches
+            // Annotation overlay - only intercepts stylus and single-finger touches
           Positioned.fill(
             child: Listener(
               behavior: HitTestBehavior.translucent,
