@@ -302,9 +302,17 @@ class AnnotationLayer {
 
     final importedLayer = AnnotationLayer.fromJson(jsonString);
 
+    // Import stroke annotations
     for (var entry in importedLayer._annotationsByPage.entries) {
       for (var annotation in entry.value) {
         addAnnotation(annotation);
+      }
+    }
+
+    // Import image annotations
+    for (var entry in importedLayer._imageAnnotationsByPage.entries) {
+      for (var imageAnnotation in entry.value) {
+        addImageAnnotation(imageAnnotation);
       }
     }
   }
