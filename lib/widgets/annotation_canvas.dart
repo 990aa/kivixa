@@ -122,7 +122,7 @@ class _AnnotationCanvasState extends State<AnnotationCanvas> {
       _currentStroke = AnnotationData(
         strokePath: List.from(_currentStrokePoints),
         colorValue: widget.currentColor.value,
-        strokeWidth: _controller._getStrokeWidth(),
+        strokeWidth: _controller.getStrokeWidth(),
         toolType: widget.currentTool,
         pageNumber: widget.currentPage,
       );
@@ -147,7 +147,7 @@ class _AnnotationCanvasState extends State<AnnotationCanvas> {
         _currentStroke = AnnotationData(
           strokePath: List.from(_currentStrokePoints),
           colorValue: widget.currentColor.value,
-          strokeWidth: _controller._getStrokeWidth(),
+          strokeWidth: _controller.getStrokeWidth(),
           toolType: widget.currentTool,
           pageNumber: widget.currentPage,
         );

@@ -234,7 +234,7 @@ class AnnotationController {
     if (strokePoints.isEmpty) return;
 
     // Calculate stroke width based on tool type
-    final double strokeWidth = _getStrokeWidth();
+    final double strokeWidth = getStrokeWidth();
 
     // Create annotation data
     final annotation = AnnotationData(
