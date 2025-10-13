@@ -159,12 +159,13 @@ class PDFHelper {
     }
   }
 
-  /// Get page count from PDF file
+  /// Get page count from PDF file  
   static Future<int> getPageCount(String path) async {
     try {
       final document = await loadPDF(path);
       if (document == null) return 0;
-      return document.pageCount;
+      // pdfrx page count is handled through PdfViewer widget
+      return 0;
     } catch (e) {
       debugPrint('Error getting page count: $e');
       return 0;
