@@ -18,11 +18,11 @@ class ImageService {
 
       // Get image bytes from clipboard
       final imageBytes = await Pasteboard.image;
-      
+
       if (imageBytes != null && imageBytes.isNotEmpty) {
         return imageBytes;
       }
-      
+
       debugPrint('No image found in clipboard');
       return null;
     } catch (e) {
@@ -47,7 +47,7 @@ class ImageService {
       }
 
       final file = result.files.first;
-      
+
       if (file.bytes != null) {
         return file.bytes;
       }
