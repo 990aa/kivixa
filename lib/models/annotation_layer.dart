@@ -26,9 +26,9 @@ class AnnotationLayer {
     Map<int, List<AnnotationData>>? annotationsByPage,
     Map<int, List<ImageAnnotation>>? imageAnnotationsByPage,
     this.maxUndoStackSize = 100,
-  })  : _annotationsByPage = annotationsByPage ?? {},
-        _imageAnnotationsByPage = imageAnnotationsByPage ?? {},
-        _undoStack = [];
+  }) : _annotationsByPage = annotationsByPage ?? {},
+       _imageAnnotationsByPage = imageAnnotationsByPage ?? {},
+       _undoStack = [];
 
   /// Gets all annotations for a specific page
   /// Returns an empty list if the page has no annotations
