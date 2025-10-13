@@ -7,9 +7,8 @@
 /// - File associations (optional)
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-
-class WindowsConfig {
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';class WindowsConfig {
   /// Minimum window size for usable UI
   static const double minWidth = 1280;
   static const double minHeight = 720;
@@ -27,7 +26,7 @@ class WindowsConfig {
       try {
         await _setWindowSize();
         await _configureStylusInput();
-        
+
         debugPrint('Windows configuration completed');
       } catch (e) {
         debugPrint('Error initializing Windows config: $e');
@@ -39,11 +38,11 @@ class WindowsConfig {
   static Future<void> _setWindowSize() async {
     // In production, would use window_manager package or platform channels
     // For now, documented as configuration requirement
-    
+
     debugPrint('Window size configuration:');
     debugPrint('  Min: ${minWidth}x$minHeight');
     debugPrint('  Default: ${defaultWidth}x$defaultHeight');
-    
+
     // Note: To implement programmatic window control, add window_manager package:
     // await windowManager.ensureInitialized();
     // await windowManager.setMinimumSize(Size(minWidth, minHeight));
@@ -57,7 +56,7 @@ class WindowsConfig {
     debugPrint('  Surface Pen: Supported');
     debugPrint('  Wacom: Supported');
     debugPrint('  Pressure sensitivity: Available via PointerEvent');
-    
+
     // Flutter automatically handles stylus input on Windows via PointerEvent
     // Pressure and tilt are available through:
     // - PointerEvent.pressure (0.0 to 1.0)
@@ -100,14 +99,16 @@ class WindowsConfig {
   }
 
   /// Register PDF file association (Windows only)
-  /// 
+  ///
   /// This would allow double-clicking PDFs to open in Kivixa
   /// Requires Windows registry modifications
   static Future<void> registerFileAssociation() async {
     debugPrint('PDF file association registration:');
     debugPrint('  Status: Not implemented (requires registry access)');
-    debugPrint('  Manual setup: Associate .pdf files with kivixa.exe in Windows');
-    
+    debugPrint(
+      '  Manual setup: Associate .pdf files with kivixa.exe in Windows',
+    );
+
     // To implement:
     // 1. Add Windows registry entries via installer
     // 2. Or use shell integration package
