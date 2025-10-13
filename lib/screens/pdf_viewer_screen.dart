@@ -391,7 +391,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       _saveAnnotations();
     }
 
-    _pdfController.dispose();
+    // PdfViewerController doesn't need manual disposal
     super.dispose();
   }
 }
