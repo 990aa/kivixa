@@ -47,7 +47,7 @@ class AnnotationPainter extends CustomPainter {
 
     // Apply special rendering for highlighter (semi-transparent)
     if (annotation.toolType == DrawingTool.highlighter) {
-      _paint.color = _paint.color.withOpacity(0.3);
+      _paint.color = _paint.color.withValues(alpha: 0.3);
     }
 
     // Convert stroke path to smooth Bézier curve path
