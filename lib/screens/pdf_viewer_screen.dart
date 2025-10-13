@@ -316,32 +316,38 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       body: Stack(
         children: [
           // PDF viewer
-          PdfViewer.file(
-            widget.pdfPath,
-            controller: _pdfController,
-            params: PdfViewerParams(
-              onPageChanged: (pageNumber) {
-                if (pageNumber != null) {
-                  _onPageChanged(pageNumber - 1); // pdfrx uses 1-based indexing
-                }
-              },
-              loadingBannerBuilder: (context, bytesDownloaded, totalBytes) {
-                return const Center(child: CircularProgressIndicator());
-              },
+          Positioned.fill(
+            child: PdfViewer.file(
+              widget.pdfPath,
+              controller: _pdfController,
+              params: PdfViewerParams(
+                onPageChanged: (pageNumber) {
+                  if (pageNumber != null) {
+                    _onPageChanged(pageNumber - 1); // pdfrx uses 1-based indexing
+                  }
+                },
+                loadingBannerBuilder: (context, bytesDownloaded, totalBytes) {
+                  return const Center(child: CircularProgressIndicator());
+                },
+              ),
             ),
           ),
 
-          // Annotation overlay
+          // Annotation overlay - uses IgnorePointer to allow PDF gestures when not drawing
           Positioned.fill(
-            child: GestureDetector(
-              onPanStart: _onPanStart,
-              onPanUpdate: _onPanUpdate,
-              onPanEnd: _onPanEnd,
-              child: CustomPaint(
-                painter: AnnotationPainter(
-                  annotations: _getCurrentPageAnnotations()
-                      .getAnnotationsForPage(_currentPageNumber),
-                  currentStroke: _currentStroke,
+            child: IgnorePointer(
+              ignoring: false,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onPanStart: _onPanStart,
+                onPanUpdate: _onPanUpdate,
+                onPanEnd: _onPanEnd,
+                child: CustomPaint(
+                  painter: AnnotationPainter(
+                    annotations: _getCurrentPageAnnotations()
+                        .getAnnotationsForPage(_currentPageNumber),
+                    currentStroke: _currentStroke,
+                  ),
                 ),
               ),
             ),
