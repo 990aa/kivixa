@@ -10,7 +10,7 @@ import '../widgets/toolbar_widget.dart';
 import '../services/annotation_storage.dart';
 
 /// Main PDF viewer screen with annotation capabilities
-/// 
+///
 /// This widget provides:
 /// - PDF rendering with zoom/pan using pdfx
 /// - Overlay annotation layer with coordinate transformation
@@ -20,10 +20,7 @@ import '../services/annotation_storage.dart';
 class PDFViewerScreen extends StatefulWidget {
   final String pdfPath;
 
-  const PDFViewerScreen({
-    Key? key,
-    required this.pdfPath,
-  }) : super(key: key);
+  const PDFViewerScreen({Key? key, required this.pdfPath}) : super(key: key);
 
   @override
   State<PDFViewerScreen> createState() => _PDFViewerScreenState();
@@ -32,29 +29,29 @@ class PDFViewerScreen extends StatefulWidget {
 class _PDFViewerScreenState extends State<PDFViewerScreen> {
   // PDF controller
   late PdfController _pdfController;
-  
+
   // Annotation storage per page
   final Map<int, AnnotationLayer> _annotationsByPage = {};
-  
+
   // Current drawing state
   DrawingTool _currentTool = DrawingTool.pen;
   Color _currentColor = Colors.black;
   double _currentStrokeWidth = 3.0;
-  
+
   // Current page tracking
   int _currentPageNumber = 0;
-  
+
   // Active stroke being drawn
   List<Offset> _currentStrokePoints = [];
   AnnotationData? _currentStroke;
-  
+
   // Page dimensions for coordinate transformation
   Size? _currentPageSize;
-  
+
   // Auto-save timer
   Timer? _autoSaveTimer;
   bool _hasUnsavedChanges = false;
-  
+
   // Loading state
   bool _isLoading = true;
 
@@ -116,7 +113,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   void _scheduleAutoSave() {
     _autoSaveTimer?.cancel();
     _hasUnsavedChanges = true;
-    
+
     _autoSaveTimer = Timer(const Duration(seconds: 2), () {
       _saveAnnotations();
     });
@@ -131,27 +128,28 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   }
 
   /// Convert screen coordinates to PDF page coordinates
-  /// 
+  ///
   /// PDF coordinate system: (0,0) = bottom-left
   /// Screen coordinate system: (0,0) = top-left
   /// This ensures annotations stay anchored regardless of zoom level
   Offset _screenToPdfCoordinates(Offset screenPoint) {
     if (_currentPageSize == null) return screenPoint;
-    
+
     // For now, we use screen coordinates but with proper page size awareness
     // In production, you'd account for the PDF controller's transformation matrix
     // to handle zoom and pan properly
-    
+
     return Offset(
       screenPoint.dx,
-      _currentPageSize!.height - screenPoint.dy, // Flip Y axis for PDF coordinates
+      _currentPageSize!.height -
+          screenPoint.dy, // Flip Y axis for PDF coordinates
     );
   }
 
   /// Convert PDF page coordinates to screen coordinates
   Offset _pdfToScreenCoordinates(Offset pdfPoint) {
     if (_currentPageSize == null) return pdfPoint;
-    
+
     return Offset(
       pdfPoint.dx,
       _currentPageSize!.height - pdfPoint.dy, // Flip Y axis back
@@ -162,13 +160,13 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   void _onPanStart(DragStartDetails details) {
     // Check if using stylus (preferred)
     // In production, you'd check details.kind == PointerDeviceKind.stylus
-    
+
     final localPosition = details.localPosition;
     final pdfCoord = _screenToPdfCoordinates(localPosition);
-    
+
     setState(() {
       _currentStrokePoints = [pdfCoord];
-      
+
       _currentStroke = AnnotationData(
         strokePath: [pdfCoord],
         colorValue: _currentColor.value,
@@ -182,21 +180,21 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   /// Handle pan update (add points to stroke)
   void _onPanUpdate(DragUpdateDetails details) {
     if (_currentStroke == null) return;
-    
+
     final localPosition = details.localPosition;
     final pdfCoord = _screenToPdfCoordinates(localPosition);
-    
+
     // Add point if it's far enough from the last point (threshold)
     if (_currentStrokePoints.isNotEmpty) {
       final lastPoint = _currentStrokePoints.last;
       final distance = (pdfCoord - lastPoint).distance;
-      
+
       if (distance < 3.0) return; // Threshold for smoothness
     }
-    
+
     setState(() {
       _currentStrokePoints.add(pdfCoord);
-      
+
       _currentStroke = _currentStroke!.copyWith(
         strokePath: List.from(_currentStrokePoints),
       );
@@ -212,7 +210,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       });
       return;
     }
-    
+
     if (_currentTool == DrawingTool.eraser) {
       // Handle eraser
       _eraseStrokes();
@@ -220,11 +218,11 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       // Add completed stroke to annotation layer
       final currentPageAnnotations = _getCurrentPageAnnotations();
       currentPageAnnotations.addAnnotation(_currentStroke!);
-      
+
       // Schedule auto-save
       _scheduleAutoSave();
     }
-    
+
     setState(() {
       _currentStroke = null;
       _currentStrokePoints.clear();
@@ -235,9 +233,11 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   void _eraseStrokes() {
     const eraserRadius = 15.0;
     final currentPageAnnotations = _getCurrentPageAnnotations();
-    final annotations = currentPageAnnotations.getAnnotationsForPage(_currentPageNumber);
+    final annotations = currentPageAnnotations.getAnnotationsForPage(
+      _currentPageNumber,
+    );
     final toRemove = <AnnotationData>[];
-    
+
     for (final annotation in annotations) {
       for (final eraserPoint in _currentStrokePoints) {
         for (final strokePoint in annotation.strokePath) {
@@ -250,11 +250,11 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         if (toRemove.contains(annotation)) break;
       }
     }
-    
+
     for (final annotation in toRemove) {
       currentPageAnnotations.removeAnnotation(annotation);
     }
-    
+
     if (toRemove.isNotEmpty) {
       _scheduleAutoSave();
     }
@@ -266,7 +266,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     if (_hasUnsavedChanges) {
       _saveAnnotations();
     }
-    
+
     setState(() {
       _currentPageNumber = pageNumber;
       // Clear temp drawing buffers
@@ -279,7 +279,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   void _undoLastStroke() {
     final currentPageAnnotations = _getCurrentPageAnnotations();
     final undone = currentPageAnnotations.undoLastStroke();
-    
+
     if (undone != null) {
       setState(() {});
       _scheduleAutoSave();
@@ -290,7 +290,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   void _redoLastStroke() {
     final currentPageAnnotations = _getCurrentPageAnnotations();
     final success = currentPageAnnotations.redoLastUndo();
-    
+
     if (success) {
       setState(() {});
       _scheduleAutoSave();
@@ -301,7 +301,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   void _clearCurrentPage() {
     final currentPageAnnotations = _getCurrentPageAnnotations();
     currentPageAnnotations.clearPage(_currentPageNumber);
-    
+
     setState(() {});
     _scheduleAutoSave();
   }
@@ -310,12 +310,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Loading PDF...'),
-        ),
-        body: const Center(
-          child: CircularProgressIndicator(),
-        ),
+        appBar: AppBar(title: const Text('Loading PDF...')),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -340,7 +336,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
               debugPrint('PDF loaded: ${document.pagesCount} pages');
             },
           ),
-          
+
           // Annotation overlay
           Positioned.fill(
             child: GestureDetector(
@@ -356,7 +352,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
               ),
             ),
           ),
-          
+
           // Floating toolbar
           Positioned(
             top: 16,
@@ -395,12 +391,12 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   @override
   void dispose() {
     _autoSaveTimer?.cancel();
-    
+
     // Save on exit if there are unsaved changes
     if (_hasUnsavedChanges) {
       _saveAnnotations();
     }
-    
+
     _pdfController.dispose();
     super.dispose();
   }
