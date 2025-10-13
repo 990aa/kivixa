@@ -84,291 +84,251 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 8,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: AnimatedSize(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        child: Container(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header with collapse button
-              Row(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Icon(Icons.edit, size: 20),
-                  ),
-                  const Text(
-                    'Annotation Tools',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: AnimatedRotation(
-                      turns: _isExpanded ? 0.5 : 0,
-                      duration: const Duration(milliseconds: 300),
-                      child: const Icon(Icons.expand_less),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Main toolbar row
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Tool buttons
+                _buildCompactToolButton(
+                  DrawingTool.pen,
+                  Icons.edit,
+                  'Pen',
+                  onExpand: widget.currentTool == DrawingTool.pen
+                      ? () {
+                          setState(() {
+                            _showPenSettings = !_showPenSettings;
+                            _showHighlighterSettings = false;
+                          });
+                        }
+                      : null,
+                ),
+                const SizedBox(width: 4),
+                _buildCompactToolButton(
+                  DrawingTool.highlighter,
+                  Icons.highlight,
+                  'Highlight',
+                  onExpand: widget.currentTool == DrawingTool.highlighter
+                      ? () {
+                          setState(() {
+                            _showHighlighterSettings =
+                                !_showHighlighterSettings;
+                            _showPenSettings = false;
+                          });
+                        }
+                      : null,
+                ),
+                const SizedBox(width: 4),
+                _buildCompactToolButton(
+                  DrawingTool.eraser,
+                  Icons.auto_fix_high,
+                  'Eraser',
+                ),
+                const VerticalDivider(width: 16, thickness: 1),
+                // Action buttons
+                _buildCompactActionButton(Icons.undo, 'Undo', widget.onUndo),
+                const SizedBox(width: 4),
+                _buildCompactActionButton(Icons.redo, 'Redo', widget.onRedo),
+                const SizedBox(width: 4),
+                _buildCompactActionButton(
+                  Icons.delete_sweep,
+                  'Clear',
+                  widget.onClear,
+                  color: Colors.red,
+                ),
+                const SizedBox(width: 4),
+                _buildCompactActionButton(
+                  Icons.save,
+                  'Save',
+                  widget.onSave,
+                  color: Colors.green,
+                ),
+              ],
+            ),
+
+            // Expandable pen settings
+            if (_showPenSettings &&
+                widget.currentTool == DrawingTool.pen) ...[
+              const Divider(height: 8),
+              _buildToolSettings(),
+            ],
+
+            // Expandable highlighter settings
+            if (_showHighlighterSettings &&
+                widget.currentTool == DrawingTool.highlighter) ...[
+              const Divider(height: 8),
+              _buildToolSettings(),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Build compact tool button with optional expand arrow
+  Widget _buildCompactToolButton(
+    DrawingTool tool,
+    IconData icon,
+    String tooltip, {
+    VoidCallback? onExpand,
+  }) {
+    final isSelected = widget.currentTool == tool;
+    final hasSettings = tool != DrawingTool.eraser;
+
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: isSelected
+            ? Theme.of(context).colorScheme.primaryContainer
+            : Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          onTap: () => widget.onToolChanged(tool),
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 20,
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.onPrimaryContainer
+                      : Colors.grey.shade700,
+                ),
+                if (hasSettings && isSelected) ...[
+                  const SizedBox(width: 4),
+                  GestureDetector(
+                    onTap: onExpand,
+                    child: Icon(
+                      _showPenSettings || _showHighlighterSettings
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
                     ),
-                    onPressed: _toggleExpand,
-                    iconSize: 20,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Build compact action button
+  Widget _buildCompactActionButton(
+    IconData icon,
+    String tooltip,
+    VoidCallback onPressed, {
+    Color? color,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: color?.withValues(alpha: 0.1) ?? Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Icon(
+              icon,
+              size: 20,
+              color: color ?? Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Build tool settings (color and stroke width)
+  Widget _buildToolSettings() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Color preview and picker
+          GestureDetector(
+            onTap: _showColorPicker,
+            child: Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: widget.currentColor,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.grey.shade400,
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
-
-              // Expandable content
-              SizeTransition(
-                sizeFactor: _expandAnimation,
-                child: Column(
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Stroke width slider
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Divider(),
-
-                    // Tool selector buttons
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildToolButton(DrawingTool.pen, Icons.edit, 'Pen'),
-                          _buildToolButton(
-                            DrawingTool.highlighter,
-                            Icons.highlight,
-                            'Highlighter',
-                          ),
-                          _buildToolButton(
-                            DrawingTool.eraser,
-                            Icons.auto_fix_high,
-                            'Eraser',
-                          ),
-                        ],
-                      ),
+                    Text(
+                      'Width: ${widget.currentStrokeWidth.toStringAsFixed(1)}',
+                      style: const TextStyle(fontSize: 11),
                     ),
-
-                    // Color picker and stroke width (hidden for eraser)
-                    if (widget.currentTool != DrawingTool.eraser) ...[
-                      const Divider(),
-
-                      // Color picker button
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8),
-                              child: Text(
-                                'Color:',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: _showColorPicker,
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: widget.currentColor,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.grey.shade400,
-                                    width: 2,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.2,
-                                      ),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: _showColorPicker,
-                                icon: const Icon(Icons.palette, size: 18),
-                                label: const Text('Pick Color'),
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                          ],
-                        ),
+                    const SizedBox(width: 8),
+                    // Visual preview
+                    Container(
+                      width: 40,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(4),
                       ),
-
-                      // Stroke width slider
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                      child: CustomPaint(
+                        painter: _StrokePreviewPainter(
+                          color: widget.currentColor,
+                          strokeWidth: widget.currentStrokeWidth,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Text(
-                                  'Width:',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  widget.currentStrokeWidth.toStringAsFixed(1),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey.shade700,
-                                  ),
-                                ),
-                                const Spacer(),
-                                // Visual preview
-                                Container(
-                                  width: 60,
-                                  height: 24,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade200,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: CustomPaint(
-                                    painter: _StrokePreviewPainter(
-                                      color: widget.currentColor,
-                                      strokeWidth: widget.currentStrokeWidth,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Slider(
-                              value: widget.currentStrokeWidth,
-                              min: _getMinStrokeWidth(),
-                              max: _getMaxStrokeWidth(),
-                              divisions: 19,
-                              onChanged: widget.onStrokeWidthChanged,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-
-                    const Divider(),
-
-                    // Action buttons
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        alignment: WrapAlignment.center,
-                        children: [
-                          _buildActionButton(Icons.undo, 'Undo', widget.onUndo),
-                          _buildActionButton(Icons.redo, 'Redo', widget.onRedo),
-                          _buildActionButton(
-                            Icons.delete_sweep,
-                            'Clear',
-                            widget.onClear,
-                            color: Colors.red,
-                          ),
-                          _buildActionButton(
-                            Icons.save,
-                            'Save',
-                            widget.onSave,
-                            color: Colors.green,
-                          ),
-                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Build tool selection button
-  Widget _buildToolButton(DrawingTool tool, IconData icon, String label) {
-    final isSelected = widget.currentTool == tool;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Material(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primaryContainer
-              : Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            onTap: () => widget.onToolChanged(tool),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              width: 56,
-              height: 56,
-              padding: const EdgeInsets.all(12),
-              child: Icon(
-                icon,
-                size: 28,
-                color: isSelected
-                    ? Theme.of(context).colorScheme.onPrimaryContainer
-                    : Colors.grey.shade700,
-              ),
+                SizedBox(
+                  height: 30,
+                  child: Slider(
+                    value: widget.currentStrokeWidth,
+                    min: _getMinStrokeWidth(),
+                    max: _getMaxStrokeWidth(),
+                    divisions: 19,
+                    onChanged: widget.onStrokeWidthChanged,
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Colors.grey.shade700,
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Build action button
-  Widget _buildActionButton(
-    IconData icon,
-    String label,
-    VoidCallback onPressed, {
-    Color? color,
-  }) {
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, size: 18),
-      label: Text(label),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        backgroundColor: color?.withValues(alpha: 0.1),
-        foregroundColor: color ?? Theme.of(context).colorScheme.primary,
-        minimumSize: const Size(80, 36),
+        ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
   }
 }
 
