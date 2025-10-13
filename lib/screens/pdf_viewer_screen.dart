@@ -298,7 +298,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   Future<void> _insertImageFromClipboard() async {
     try {
       final imageBytes = await ImageService.getImageFromClipboard();
-      
+
       if (imageBytes == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -310,9 +310,9 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
       if (!ImageService.isValidImageData(imageBytes)) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Invalid image format')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Invalid image format')));
         }
         return;
       }
@@ -321,9 +321,9 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     } catch (e) {
       debugPrint('Error inserting image from clipboard: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error inserting image: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error inserting image: $e')));
       }
     }
   }
@@ -331,16 +331,16 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   Future<void> _insertImageFromFile() async {
     try {
       final imageBytes = await ImageService.pickImageFromFile();
-      
+
       if (imageBytes == null) {
         return; // User cancelled
       }
 
       if (!ImageService.isValidImageData(imageBytes)) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Invalid image format')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Invalid image format')));
         }
         return;
       }
@@ -349,9 +349,9 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     } catch (e) {
       debugPrint('Error inserting image from file: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error inserting image: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error inserting image: $e')));
       }
     }
   }
@@ -398,21 +398,21 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
       // Add to current page
       _getCurrentPageAnnotations().addImageAnnotation(imageAnnotation);
-      
+
       setState(() {});
       _scheduleAutoSave();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image added')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Image added')));
       }
     } catch (e) {
       debugPrint('Error adding image annotation: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error processing image: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error processing image: $e')));
       }
     }
   }
@@ -437,7 +437,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         body: const Center(child: CircularProgressIndicator()),
       );
     }
-    
+
     return Focus(
       autofocus: true,
       onKeyEvent: (node, event) {
@@ -473,131 +473,130 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
             ),
 
             // Annotation overlay - only intercepts stylus and single-finger touches
-          Positioned.fill(
-            child: Listener(
-              behavior: HitTestBehavior.translucent,
-              onPointerDown: (event) {
-                setState(() {
-                  _activeTouchCount++;
+            Positioned.fill(
+              child: Listener(
+                behavior: HitTestBehavior.translucent,
+                onPointerDown: (event) {
+                  setState(() {
+                    _activeTouchCount++;
 
-                  // Only track stylus or touch devices for drawing
-                  if (event.kind == PointerDeviceKind.stylus ||
-                      event.kind == PointerDeviceKind.touch ||
-                      event.kind == PointerDeviceKind.invertedStylus) {
-                    _activeDrawingPointers++;
-                  }
+                    // Only track stylus or touch devices for drawing
+                    if (event.kind == PointerDeviceKind.stylus ||
+                        event.kind == PointerDeviceKind.touch ||
+                        event.kind == PointerDeviceKind.invertedStylus) {
+                      _activeDrawingPointers++;
+                    }
 
-                  // Cancel any active drawing if multi-touch starts
-                  if (_activeTouchCount >= 2 && _isDrawing) {
+                    // Cancel any active drawing if multi-touch starts
+                    if (_activeTouchCount >= 2 && _isDrawing) {
+                      _isDrawing = false;
+                      _currentStroke = null;
+                      _currentStrokePoints.clear();
+                    }
+                  });
+                },
+                onPointerUp: (event) {
+                  setState(() {
+                    _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10);
+
+                    // Decrease drawing pointer count for stylus/touch
+                    if (event.kind == PointerDeviceKind.stylus ||
+                        event.kind == PointerDeviceKind.touch ||
+                        event.kind == PointerDeviceKind.invertedStylus) {
+                      _activeDrawingPointers = (_activeDrawingPointers - 1)
+                          .clamp(0, 10);
+                    }
+                  });
+                },
+                onPointerCancel: (event) {
+                  setState(() {
+                    _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10);
+
+                    // Decrease drawing pointer count for stylus/touch
+                    if (event.kind == PointerDeviceKind.stylus ||
+                        event.kind == PointerDeviceKind.touch ||
+                        event.kind == PointerDeviceKind.invertedStylus) {
+                      _activeDrawingPointers = (_activeDrawingPointers - 1)
+                          .clamp(0, 10);
+                    }
+
                     _isDrawing = false;
-                    _currentStroke = null;
-                    _currentStrokePoints.clear();
-                  }
-                });
-              },
-              onPointerUp: (event) {
-                setState(() {
-                  _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10);
-
-                  // Decrease drawing pointer count for stylus/touch
-                  if (event.kind == PointerDeviceKind.stylus ||
-                      event.kind == PointerDeviceKind.touch ||
-                      event.kind == PointerDeviceKind.invertedStylus) {
-                    _activeDrawingPointers = (_activeDrawingPointers - 1).clamp(
-                      0,
-                      10,
-                    );
-                  }
-                });
-              },
-              onPointerCancel: (event) {
-                setState(() {
-                  _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10);
-
-                  // Decrease drawing pointer count for stylus/touch
-                  if (event.kind == PointerDeviceKind.stylus ||
-                      event.kind == PointerDeviceKind.touch ||
-                      event.kind == PointerDeviceKind.invertedStylus) {
-                    _activeDrawingPointers = (_activeDrawingPointers - 1).clamp(
-                      0,
-                      10,
-                    );
-                  }
-
-                  _isDrawing = false;
-                });
-              },
-              child: IgnorePointer(
-                // Ignore pointer events when:
-                // 1. Multi-touch is active (2+ fingers for zoom/scroll)
-                // 2. No drawing pointers are active (mouse/trackpad)
-                ignoring: _shouldPassThroughGestures,
-                child: GestureDetector(
-                  behavior: _shouldPassThroughGestures
-                      ? HitTestBehavior.translucent
-                      : HitTestBehavior.opaque,
-                  onPanStart: _onPanStart,
-                  onPanUpdate: _onPanUpdate,
-                  onPanEnd: _onPanEnd,
-                  child: CustomPaint(
-                    painter: AnnotationPainter(
-                      annotations: _getCurrentPageAnnotations()
-                          .getAnnotationsForPage(_currentPageNumber),
-                      currentStroke: _currentStroke,
+                  });
+                },
+                child: IgnorePointer(
+                  // Ignore pointer events when:
+                  // 1. Multi-touch is active (2+ fingers for zoom/scroll)
+                  // 2. No drawing pointers are active (mouse/trackpad)
+                  ignoring: _shouldPassThroughGestures,
+                  child: GestureDetector(
+                    behavior: _shouldPassThroughGestures
+                        ? HitTestBehavior.translucent
+                        : HitTestBehavior.opaque,
+                    onPanStart: _onPanStart,
+                    onPanUpdate: _onPanUpdate,
+                    onPanEnd: _onPanEnd,
+                    child: CustomPaint(
+                      painter: AnnotationPainter(
+                        annotations: _getCurrentPageAnnotations()
+                            .getAnnotationsForPage(_currentPageNumber),
+                        currentStroke: _currentStroke,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          Positioned(
-            top: 4,
-            left: 16,
-            right: 16,
-            child: ToolbarWidget(
-              currentTool: _currentTool,
-              currentColor: _currentColor,
-              currentStrokeWidth: _currentStrokeWidth,
-              onToolChanged: (tool) {
-                setState(() {
-                  _currentTool = tool;
-                  if (tool == DrawingTool.highlighter) {
-                    if (_currentStrokeWidth < 8.0) {
-                      _currentStrokeWidth = 8.0;
-                    } else if (_currentStrokeWidth > 20.0) {
-                      _currentStrokeWidth = 20.0;
+            Positioned(
+              top: 4,
+              left: 16,
+              right: 16,
+              child: ToolbarWidget(
+                currentTool: _currentTool,
+                currentColor: _currentColor,
+                currentStrokeWidth: _currentStrokeWidth,
+                onToolChanged: (tool) {
+                  setState(() {
+                    _currentTool = tool;
+                    if (tool == DrawingTool.highlighter) {
+                      if (_currentStrokeWidth < 8.0) {
+                        _currentStrokeWidth = 8.0;
+                      } else if (_currentStrokeWidth > 20.0) {
+                        _currentStrokeWidth = 20.0;
+                      }
+                    } else {
+                      if (_currentStrokeWidth < 1.0) {
+                        _currentStrokeWidth = 1.0;
+                      } else if (_currentStrokeWidth > 10.0) {
+                        _currentStrokeWidth = 10.0;
+                      }
                     }
-                  } else {
-                    if (_currentStrokeWidth < 1.0) {
-                      _currentStrokeWidth = 1.0;
-                    } else if (_currentStrokeWidth > 10.0) {
-                      _currentStrokeWidth = 10.0;
-                    }
-                  }
-                });
-              },
-              onColorChanged: (color) => setState(() => _currentColor = color),
-              onStrokeWidthChanged: (width) =>
-                  setState(() => _currentStrokeWidth = width),
-              onUndo: _undoLastStroke,
-              onRedo: _redoLastStroke,
-              onClear: _clearCurrentPage,
-              onSave: _saveAnnotations,
-              onInsertImage: _insertImageFromFile,
+                  });
+                },
+                onColorChanged: (color) =>
+                    setState(() => _currentColor = color),
+                onStrokeWidthChanged: (width) =>
+                    setState(() => _currentStrokeWidth = width),
+                onUndo: _undoLastStroke,
+                onRedo: _redoLastStroke,
+                onClear: _clearCurrentPage,
+                onSave: _saveAnnotations,
+                onInsertImage: _insertImageFromFile,
+              ),
             ),
-          ),
-          
-          // Image annotations - rendered on top
-          ...(_getCurrentPageAnnotations()
-              .getImageAnnotationsForPage(_currentPageNumber)
-              .map((imageAnnotation) => ImageAnnotationWidget(
+
+            // Image annotations - rendered on top
+            ...(_getCurrentPageAnnotations()
+                .getImageAnnotationsForPage(_currentPageNumber)
+                .map(
+                  (imageAnnotation) => ImageAnnotationWidget(
                     imageAnnotation: imageAnnotation,
                     onUpdate: _updateImageAnnotation,
                     onDelete: _deleteImageAnnotation,
                     pageSize: _currentPageSize ?? const Size(595, 842),
-                  ))),
-        ],
-      ),
+                  ),
+                )),
+          ],
+        ),
       ),
     );
   }
