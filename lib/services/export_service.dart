@@ -164,9 +164,9 @@ class ExportService {
     // Create pen with annotation color and width
     final pen = PdfPen(
       PdfColor(
-        annotation.color.red,
-        annotation.color.green,
-        annotation.color.blue,
+        ((annotation.color.r * 255.0).round() & 0xff),
+        ((annotation.color.g * 255.0).round() & 0xff),
+        ((annotation.color.b * 255.0).round() & 0xff),
       ),
       width: annotation.strokeWidth,
     );
@@ -278,9 +278,9 @@ class ExportService {
     final color = annotation.color;
     final pen = PdfPen(
       PdfColor(
-        color.red,
-        color.green,
-        color.blue,
+        ((color.r * 255.0).round() & 0xff),
+        ((color.g * 255.0).round() & 0xff),
+        ((color.b * 255.0).round() & 0xff),
         77, // 30% opacity (0-255 scale)
       ),
       width: annotation.strokeWidth,
