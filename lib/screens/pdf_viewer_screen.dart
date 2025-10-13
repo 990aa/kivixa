@@ -321,7 +321,9 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
             controller: _pdfController,
             params: PdfViewerParams(
               onPageChanged: (pageNumber) {
-                _onPageChanged(pageNumber - 1); // pdfrx uses 1-based indexing
+                if (pageNumber != null) {
+                  _onPageChanged(pageNumber - 1); // pdfrx uses 1-based indexing
+                }
               },
               loadingBannerBuilder: (context, bytesDownloaded, totalBytes) {
                 return const Center(child: CircularProgressIndicator());
