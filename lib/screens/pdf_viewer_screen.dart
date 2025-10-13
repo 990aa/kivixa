@@ -377,12 +377,22 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
               },
               onPointerUp: (event) {
                 if (event.kind == PointerDeviceKind.touch) {
-                  setState(() => _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10));
+                  setState(
+                    () => _activeTouchCount = (_activeTouchCount - 1).clamp(
+                      0,
+                      10,
+                    ),
+                  );
                 }
               },
               onPointerCancel: (event) {
                 if (event.kind == PointerDeviceKind.touch) {
-                  setState(() => _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10));
+                  setState(
+                    () => _activeTouchCount = (_activeTouchCount - 1).clamp(
+                      0,
+                      10,
+                    ),
+                  );
                 }
               },
               child: IgnorePointer(
