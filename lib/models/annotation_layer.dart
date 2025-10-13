@@ -192,6 +192,9 @@ class AnnotationLayer {
 
       _annotationsByPage.remove(pageNumber);
     }
+
+    // Also clear image annotations for this page
+    _imageAnnotationsByPage.remove(pageNumber);
   }
 
   /// Clears all annotations from all pages
@@ -206,11 +209,13 @@ class AnnotationLayer {
     }
 
     _annotationsByPage.clear();
+    _imageAnnotationsByPage.clear();
   }
 
   /// Gets the total number of annotations across all pages
   int get totalAnnotationCount {
-    return _annotationsByPage.values.fold(0, (sum, list) => sum + list.length);
+    return _annotationsByPage.values.fold(0, (sum, list) => sum + list.length) +
+        _imageAnnotationsByPage.values.fold(0, (sum, list) => sum + list.length);
   }
 
   /// Gets all page numbers that have annotations
