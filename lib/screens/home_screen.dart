@@ -68,40 +68,39 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Pick a PDF file and open it
   Future<void> _pickAndOpenPDF() async {
-    // Check if running on web or platforms that don't support pdfx
-    if (kIsWeb) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'PDF viewing is not yet supported on web. Please use the desktop version.',
-            ),
-            duration: Duration(seconds: 4),
-          ),
-        );
-      }
-      return;
-    }
-
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
         allowMultiple: false,
+        withData: kIsWeb, // ensure bytes on web
       );
 
-      if (result != null && result.files.single.path != null) {
+      if (result == null) return;
+
+      if (kIsWeb) {
+        // Open using memory bytes
+        final bytes = result.files.single.bytes;
+        if (bytes != null && mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PDFViewerScreen.memory(pdfBytes: bytes),
+            ),
+          );
+        }
+        return;
+      }
+
+      // Desktop/Mobile path
+      if (result.files.single.path != null) {
         final pdfPath = result.files.single.path!;
-
-        // Save to recent files
         await _saveToRecentFiles(pdfPath);
-
-        // Navigate to PDF viewer
         if (mounted) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => PDFViewerScreen(pdfPath: pdfPath),
+              builder: (context) => PDFViewerScreen.file(pdfPath: pdfPath),
             ),
           );
         }
@@ -157,21 +156,20 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 48),
 
-              // Open PDF button (disabled on web)
-              if (!kIsWeb)
-                ElevatedButton.icon(
-                  onPressed: _pickAndOpenPDF,
-                  icon: const Icon(Icons.file_open, size: 24),
-                  label: const Text('Open PDF'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 16,
-                    ),
-                    textStyle: const TextStyle(fontSize: 18),
+              // Open PDF button (now works on web and desktop)
+              ElevatedButton.icon(
+                onPressed: _pickAndOpenPDF,
+                icon: const Icon(Icons.file_open, size: 24),
+                label: const Text('Open PDF'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
                   ),
+                  textStyle: const TextStyle(fontSize: 18),
                 ),
-              if (!kIsWeb) const SizedBox(height: 16),
+              ),
+              const SizedBox(height: 16),
 
               // Demo canvas button (always available)
               ElevatedButton.icon(
@@ -179,16 +177,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.pushNamed(context, '/demo');
                 },
                 icon: const Icon(Icons.draw),
-                label: Text(kIsWeb ? 'Try Demo Canvas' : 'Try Demo Canvas'),
+                label: const Text('Try Demo Canvas'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,
                     vertical: 16,
                   ),
-                  backgroundColor: kIsWeb
-                      ? Theme.of(context).colorScheme.primary
-                      : null,
-                  foregroundColor: kIsWeb ? Colors.white : null,
                 ),
               ),
 
@@ -216,8 +210,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  PDFViewerScreen(pdfPath: file),
+                              builder: (context) => kIsWeb
+                                  ? PDFViewerScreen(pdfPath: file)
+                                  : PDFViewerScreen.file(pdfPath: file),
                             ),
                           );
                         },
