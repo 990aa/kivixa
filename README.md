@@ -1,5 +1,5 @@
 <p>
-<img src="icon.png">
+<img src="icon.png" height = 30 width = 30>
 </p>
 
 # Kivixa PDF Annotator
