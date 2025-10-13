@@ -221,8 +221,8 @@ class ExportService {
       }
     }
 
-    // Draw the path
-    graphics.drawPath(path, pen: pen);
+    // Draw the path with pen
+    path.draw(graphics, pen);
   }
 
   /// Render highlighter stroke with transparency
@@ -286,7 +286,7 @@ class ExportService {
     }
 
     // Draw with transparency
-    graphics.drawPath(path, pen: pen, brush: brush);
+    path.draw(graphics, pen, brush);
   }
 
   /// Generate output path for annotated PDF
@@ -322,8 +322,6 @@ class ExportService {
 
       // Check each page for vector content
       for (int i = 0; i < document.pages.count; i++) {
-        final page = document.pages[i];
-
         // Syncfusion doesn't expose internal path data easily,
         // but we can verify by checking page layer count
         // and ensuring no large images were added
