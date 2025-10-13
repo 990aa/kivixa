@@ -43,7 +43,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   bool _hasUnsavedChanges = false;
   bool _isLoading = true;
   int _activeTouchCount = 0;
-  bool get _shouldPassThroughGestures => _activeTouchCount >= 2;
+  int _activeDrawingPointers = 0; // Track stylus/touch pointers for drawing
+  bool get _shouldPassThroughGestures => _activeTouchCount >= 2 || _activeDrawingPointers == 0;
   bool _isDrawing = false;
 
   @override
