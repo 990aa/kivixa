@@ -250,7 +250,7 @@ class AnnotationController {
   }
 
   /// Gets the stroke width based on current tool type
-  /// 
+  ///
   /// PEN: Variable width from 1.0 to 5.0 (controlled by velocity/pressure)
   /// HIGHLIGHTER: Wider stroke from 8.0 to 15.0 with semi-transparency
   /// ERASER: Medium width of 10.0 for visible eraser radius
@@ -263,7 +263,9 @@ class AnnotationController {
       case DrawingTool.eraser:
         return 10.0; // Medium width for eraser
     }
-  }  /// Gets the configured signature control
+  }
+
+  /// Gets the configured signature control
   HandSignatureControl get signatureControl => _signatureControl;
 
   /// Clears the current drawing

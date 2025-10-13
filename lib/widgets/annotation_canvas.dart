@@ -6,7 +6,7 @@ import '../models/drawing_tool.dart';
 import '../painters/annotation_painter.dart';
 
 /// Widget that captures touch/stylus input and renders annotations
-/// 
+///
 /// This widget provides a drawing surface that:
 /// - Captures MotionEvents from touch and stylus input
 /// - Extracts pressure, tilt, and position data
@@ -64,16 +64,16 @@ class _AnnotationCanvasState extends State<AnnotationCanvas> {
   @override
   void didUpdateWidget(AnnotationCanvas oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // Update controller if tool or color changed
     if (oldWidget.currentTool != widget.currentTool) {
       _controller.setTool(widget.currentTool);
     }
-    
+
     if (oldWidget.currentColor != widget.currentColor) {
       _controller.setColor(widget.currentColor);
     }
-    
+
     if (oldWidget.currentPage != widget.currentPage) {
       _controller.setPage(widget.currentPage);
     }
@@ -92,7 +92,7 @@ class _AnnotationCanvasState extends State<AnnotationCanvas> {
   void _onStrokeCompleted(AnnotationData annotation) {
     // Add to annotation layer
     widget.annotationLayer.addAnnotation(annotation);
-    
+
     // Clear current stroke
     setState(() {
       _currentStroke = null;
@@ -106,17 +106,17 @@ class _AnnotationCanvasState extends State<AnnotationCanvas> {
   /// Handles pointer down events (start of stroke)
   void _onPointerDown(PointerDownEvent event) {
     final localPosition = event.localPosition;
-    
+
     // Get pressure from event (defaults to 1.0 for non-pressure devices)
     final pressure = event.pressure;
-    
+
     // Start new stroke
     _currentStrokePoints.clear();
     _currentStrokePoints.add(localPosition);
-    
+
     // Begin stroke in controller
     _controller.beginStroke(localPosition, pressure: pressure);
-    
+
     // Create current stroke for real-time rendering
     setState(() {
       _currentStroke = AnnotationData(
@@ -133,11 +133,11 @@ class _AnnotationCanvasState extends State<AnnotationCanvas> {
   void _onPointerMove(PointerMoveEvent event) {
     final localPosition = event.localPosition;
     final pressure = event.pressure;
-    
+
     // Add point to current stroke
     _currentStrokePoints.add(localPosition);
     _controller.addPoint(localPosition, pressure: pressure);
-    
+
     // Handle eraser tool
     if (widget.currentTool == DrawingTool.eraser) {
       _eraseAtPoint(localPosition);
@@ -158,7 +158,7 @@ class _AnnotationCanvasState extends State<AnnotationCanvas> {
   /// Handles pointer up events (end of stroke)
   void _onPointerUp(PointerUpEvent event) {
     if (_currentStrokePoints.isEmpty) return;
-    
+
     // End stroke in controller (will trigger onStrokeCompleted)
     if (widget.currentTool != DrawingTool.eraser) {
       _controller.endStroke();
@@ -174,13 +174,14 @@ class _AnnotationCanvasState extends State<AnnotationCanvas> {
   /// Erases annotations within the eraser radius
   void _eraseAtPoint(Offset point) {
     const eraserRadius = 15.0; // Radius for eraser hit detection
-    
-    final pageAnnotations = widget.annotationLayer
-        .getAnnotationsForPage(widget.currentPage);
-    
+
+    final pageAnnotations = widget.annotationLayer.getAnnotationsForPage(
+      widget.currentPage,
+    );
+
     // Check each annotation to see if it intersects with eraser
     final toRemove = <AnnotationData>[];
-    
+
     for (final annotation in pageAnnotations) {
       // Check if any point in the stroke is within eraser radius
       for (final strokePoint in annotation.strokePath) {
@@ -191,7 +192,7 @@ class _AnnotationCanvasState extends State<AnnotationCanvas> {
         }
       }
     }
-    
+
     // Remove intersecting annotations
     if (toRemove.isNotEmpty) {
       setState(() {
@@ -199,7 +200,7 @@ class _AnnotationCanvasState extends State<AnnotationCanvas> {
           widget.annotationLayer.removeAnnotation(annotation);
         }
       });
-      
+
       widget.onAnnotationsChanged?.call();
     }
   }
@@ -222,8 +223,9 @@ class _AnnotationCanvasState extends State<AnnotationCanvas> {
       child: CustomPaint(
         size: widget.canvasSize,
         painter: AnnotationPainter(
-          annotations: widget.annotationLayer
-              .getAnnotationsForPage(widget.currentPage),
+          annotations: widget.annotationLayer.getAnnotationsForPage(
+            widget.currentPage,
+          ),
           currentStroke: _currentStroke,
         ),
         child: Container(
