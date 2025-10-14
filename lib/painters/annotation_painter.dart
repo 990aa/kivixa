@@ -46,6 +46,11 @@ class AnnotationPainter extends CustomPainter {
   void _drawAnnotation(Canvas canvas, AnnotationData annotation) {
     if (annotation.strokePath.isEmpty) return;
 
+    // Transform PDF coordinates to screen coordinates if transform is provided
+    final List<Offset> screenPoints = pdfToScreenTransform != null
+        ? annotation.strokePath.map((point) => pdfToScreenTransform!(point)).toList()
+        : annotation.strokePath;
+
     // Configure paint based on tool type
     _paint.color = Color(annotation.colorValue);
     _paint.strokeWidth = annotation.strokeWidth;
@@ -59,7 +64,7 @@ class AnnotationPainter extends CustomPainter {
     }
 
     // Convert stroke path to smooth Bézier curve path
-    final path = _createBezierPath(annotation.strokePath);
+    final path = _createBezierPath(screenPoints);
 
     // Draw the path
     canvas.drawPath(path, _paint);
