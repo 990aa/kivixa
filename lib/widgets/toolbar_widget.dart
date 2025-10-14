@@ -51,19 +51,31 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
   bool _showPenSettings = false;
   bool _showHighlighterSettings = false;
 
-  /// Show color picker dialog
+  /// Show color picker dialog for the current tool
   void _showColorPicker() {
+    // Don't show color picker for eraser (fixed color)
+    if (widget.currentTool == DrawingTool.eraser) return;
+    
+    // Get the appropriate color for the current tool
+    final initialColor = widget.currentTool == DrawingTool.pen
+        ? widget.penColor
+        : widget.highlighterColor;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Pick a color'),
+        title: Text(
+          widget.currentTool == DrawingTool.pen
+              ? 'Pick Pen Color'
+              : 'Pick Highlighter Color',
+        ),
         content: SingleChildScrollView(
           child: ColorPicker(
-            pickerColor: widget.currentColor,
+            pickerColor: initialColor,
             onColorChanged: widget.onColorChanged,
             pickerAreaHeightPercent: 0.8,
             displayThumbColor: true,
-            enableAlpha: false,
+            enableAlpha: widget.currentTool == DrawingTool.highlighter,
             labelTypes: const [ColorLabelType.rgb, ColorLabelType.hsv],
           ),
         ),
@@ -265,6 +277,11 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
 
   /// Build tool settings (color and stroke width)
   Widget _buildToolSettings() {
+    // Get the appropriate color to display
+    final displayColor = widget.currentTool == DrawingTool.pen
+        ? widget.penColor
+        : widget.highlighterColor;
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: Row(
@@ -277,7 +294,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: widget.currentColor,
+                color: displayColor,
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.grey.shade400, width: 2),
                 boxShadow: [
@@ -287,6 +304,15 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
                     offset: const Offset(0, 2),
                   ),
                 ],
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.palette,
+                  size: 14,
+                  color: displayColor.computeLuminance() > 0.5
+                      ? Colors.black54
+                      : Colors.white70,
+                ),
               ),
             ),
           ),
@@ -315,7 +341,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
                       ),
                       child: CustomPaint(
                         painter: _StrokePreviewPainter(
-                          color: widget.currentColor,
+                          color: displayColor,
                           strokeWidth: widget.currentStrokeWidth,
                         ),
                       ),
