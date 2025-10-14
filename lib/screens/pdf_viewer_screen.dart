@@ -69,6 +69,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         _sfController = sf.PdfViewerController();
       } else {
         _pdfController = PdfViewerController();
+        // Listen to PDF controller changes for zoom/scroll updates
+        _pdfController.addListener(_onPdfViewChanged);
       }
       _pdfView = _buildPdfView();
       if (!kIsWeb && widget.pdfPath != null) {
@@ -78,6 +80,17 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     } catch (e) {
       debugPrint('Error initializing PDF: $e');
       setState(() => _isLoading = false);
+    }
+  }
+  
+  void _onPdfViewChanged() {
+    // PDF view has changed (zoom, scroll, etc.)
+    // Trigger a rebuild to update annotation rendering
+    if (mounted) {
+      setState(() {
+        // The state change will trigger AnnotationPainter to repaint
+        // with updated coordinate transformation
+      });
     }
   }
 
