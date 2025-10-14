@@ -15,11 +15,19 @@ class AnnotationPainter extends CustomPainter {
 
   /// Current stroke being drawn (if any)
   final AnnotationData? currentStroke;
+  
+  /// Function to convert PDF coordinates to screen coordinates
+  /// This ensures annotations stick to the PDF content during zoom/scroll
+  final Offset Function(Offset)? pdfToScreenTransform;
 
   /// Paint objects for rendering (cached for performance)
   final Paint _paint = Paint();
 
-  AnnotationPainter({required this.annotations, this.currentStroke});
+  AnnotationPainter({
+    required this.annotations,
+    this.currentStroke,
+    this.pdfToScreenTransform,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
