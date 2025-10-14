@@ -76,7 +76,9 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
 
           // Convert the current screen position to PDF coordinates
           // Calculate the new position based on gesture delta
-          final currentScreenPos = widget.pdfToScreenTransform(_dragStartPdfPosition!);
+          final currentScreenPos = widget.pdfToScreenTransform(
+            _dragStartPdfPosition!,
+          );
           final newScreenPos = currentScreenPos + details.delta;
           final newPdfPos = widget.screenToPdfTransform(newScreenPos);
 
@@ -91,15 +93,13 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
           );
 
           final clampedPosition = Offset(clampedX, clampedY);
-          
+
           // Update the drag start position for next delta calculation
           _dragStartPdfPosition = clampedPosition;
 
           // Update the image annotation with smooth, continuous movement
           widget.onUpdate(
-            widget.imageAnnotation.copyWith(
-              position: clampedPosition,
-            ),
+            widget.imageAnnotation.copyWith(position: clampedPosition),
           );
         },
         onPanEnd: (details) {
@@ -234,7 +234,7 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
 
     // Use delta for smooth, continuous resizing
     final screenDelta = details.delta;
-    
+
     // Convert screen delta to approximate PDF delta
     // For more accurate conversion, we'd need to track the scale factor
     final pdfDelta = screenDelta;
@@ -248,18 +248,33 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
     switch (direction) {
       case ResizeDirection.topLeft:
         // Resize from top-left: decrease width/height, move position
-        newWidth = (newWidth - pdfDelta.dx).clamp(minSize, widget.pageSize.width);
-        newHeight = (newHeight + pdfDelta.dy).clamp(minSize, widget.pageSize.height);
+        newWidth = (newWidth - pdfDelta.dx).clamp(
+          minSize,
+          widget.pageSize.width,
+        );
+        newHeight = (newHeight + pdfDelta.dy).clamp(
+          minSize,
+          widget.pageSize.height,
+        );
         newPosition = Offset(
-          (newPosition.dx + pdfDelta.dx).clamp(0.0, widget.pageSize.width - minSize),
+          (newPosition.dx + pdfDelta.dx).clamp(
+            0.0,
+            widget.pageSize.width - minSize,
+          ),
           (newPosition.dy - pdfDelta.dy).clamp(minSize, widget.pageSize.height),
         );
         break;
 
       case ResizeDirection.topRight:
         // Resize from top-right: increase width, decrease height
-        newWidth = (newWidth + pdfDelta.dx).clamp(minSize, widget.pageSize.width - newPosition.dx);
-        newHeight = (newHeight + pdfDelta.dy).clamp(minSize, widget.pageSize.height);
+        newWidth = (newWidth + pdfDelta.dx).clamp(
+          minSize,
+          widget.pageSize.width - newPosition.dx,
+        );
+        newHeight = (newHeight + pdfDelta.dy).clamp(
+          minSize,
+          widget.pageSize.height,
+        );
         newPosition = Offset(
           newPosition.dx,
           (newPosition.dy - pdfDelta.dy).clamp(minSize, widget.pageSize.height),
@@ -268,18 +283,33 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
 
       case ResizeDirection.bottomLeft:
         // Resize from bottom-left: decrease width, increase height
-        newWidth = (newWidth - pdfDelta.dx).clamp(minSize, widget.pageSize.width);
-        newHeight = (newHeight - pdfDelta.dy).clamp(minSize, widget.pageSize.height);
+        newWidth = (newWidth - pdfDelta.dx).clamp(
+          minSize,
+          widget.pageSize.width,
+        );
+        newHeight = (newHeight - pdfDelta.dy).clamp(
+          minSize,
+          widget.pageSize.height,
+        );
         newPosition = Offset(
-          (newPosition.dx + pdfDelta.dx).clamp(0.0, widget.pageSize.width - minSize),
+          (newPosition.dx + pdfDelta.dx).clamp(
+            0.0,
+            widget.pageSize.width - minSize,
+          ),
           newPosition.dy,
         );
         break;
 
       case ResizeDirection.bottomRight:
         // Resize from bottom-right: increase both width and height
-        newWidth = (newWidth + pdfDelta.dx).clamp(minSize, widget.pageSize.width - newPosition.dx);
-        newHeight = (newHeight - pdfDelta.dy).clamp(minSize, widget.pageSize.height);
+        newWidth = (newWidth + pdfDelta.dx).clamp(
+          minSize,
+          widget.pageSize.width - newPosition.dx,
+        );
+        newHeight = (newHeight - pdfDelta.dy).clamp(
+          minSize,
+          widget.pageSize.height,
+        );
         break;
     }
 

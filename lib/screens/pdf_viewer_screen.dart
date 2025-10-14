@@ -59,12 +59,11 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       _activeTouchCount >= 2 || _activeDrawingPointers == 0;
   bool _isDrawing = false;
 
-  // PDF coordinate transformation tracking
+    // PDF coordinate transformation tracking
   Rect? _currentPageRect; // Page position and size in view coordinates
-
+  
   // Image annotation editing state
   String? _selectedImageId;
-  bool _isEditingImage = false;
 
   // Helper to get the current color based on tool
   Color get _currentColor {
