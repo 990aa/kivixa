@@ -53,8 +53,6 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   bool _isDrawing = false;
 
   // PDF coordinate transformation tracking
-  final double _currentZoom = 1.0;
-  final Offset _currentScrollOffset = Offset.zero;
   Rect? _currentPageRect; // Page position and size in view coordinates
 
   @override
