@@ -605,96 +605,107 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
             // Annotation overlay - only intercepts stylus and single-finger touches
             Positioned.fill(
-              child: Listener(
+              child: GestureDetector(
+                // Tap outside to deselect any selected image
+                onTapDown: (details) {
+                  if (_selectedImageId != null) {
+                    setState(() {
+                      _selectedImageId = null;
+                    });
+                  }
+                },
                 behavior: HitTestBehavior.translucent,
-                onPointerDown: (event) {
-                  setState(() {
-                    _activeTouchCount++;
+                child: Listener(
+                  behavior: HitTestBehavior.translucent,
+                  onPointerDown: (event) {
+                    setState(() {
+                      _activeTouchCount++;
 
-                    // Only track stylus or touch devices for drawing
-                    if (event.kind == PointerDeviceKind.stylus ||
-                        event.kind == PointerDeviceKind.touch ||
-                        event.kind == PointerDeviceKind.invertedStylus) {
-                      _activeDrawingPointers++;
-                    }
+                      // Only track stylus or touch devices for drawing
+                      if (event.kind == PointerDeviceKind.stylus ||
+                          event.kind == PointerDeviceKind.touch ||
+                          event.kind == PointerDeviceKind.invertedStylus) {
+                        _activeDrawingPointers++;
+                      }
 
-                    // Cancel any active drawing if multi-touch starts
-                    if (_activeTouchCount >= 2 && _isDrawing) {
+                      // Cancel any active drawing if multi-touch starts
+                      if (_activeTouchCount >= 2 && _isDrawing) {
+                        _isDrawing = false;
+                        _currentStroke = null;
+                        _currentStrokePoints.clear();
+                      }
+                    });
+                  },
+                  onPointerUp: (event) {
+                    setState(() {
+                      _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10);
+
+                      // Decrease drawing pointer count for stylus/touch
+                      if (event.kind == PointerDeviceKind.stylus ||
+                          event.kind == PointerDeviceKind.touch ||
+                          event.kind == PointerDeviceKind.invertedStylus) {
+                        _activeDrawingPointers = (_activeDrawingPointers - 1)
+                            .clamp(0, 10);
+                      }
+                    });
+                  },
+                  onPointerCancel: (event) {
+                    setState(() {
+                      _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10);
+
+                      // Decrease drawing pointer count for stylus/touch
+                      if (event.kind == PointerDeviceKind.stylus ||
+                          event.kind == PointerDeviceKind.touch ||
+                          event.kind == PointerDeviceKind.invertedStylus) {
+                        _activeDrawingPointers = (_activeDrawingPointers - 1)
+                            .clamp(0, 10);
+                      }
+
                       _isDrawing = false;
-                      _currentStroke = null;
-                      _currentStrokePoints.clear();
-                    }
-                  });
-                },
-                onPointerUp: (event) {
-                  setState(() {
-                    _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10);
+                    });
+                  },
+                  child: IgnorePointer(
+                    // Ignore pointer events when:
+                    // 1. Multi-touch is active (2+ fingers for zoom/scroll)
+                    // 2. No drawing pointers are active (mouse/trackpad)
+                    ignoring: _shouldPassThroughGestures,
+                    child: GestureDetector(
+                      behavior: _shouldPassThroughGestures
+                          ? HitTestBehavior.translucent
+                          : HitTestBehavior.opaque,
+                      onPanStart: _onPanStart,
+                      onPanUpdate: _onPanUpdate,
+                      onPanEnd: _onPanEnd,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          // Update page rect for coordinate transformation
+                          // This assumes the annotation overlay fills the same area as the PDF
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (_currentPageRect == null ||
+                                _currentPageRect!.width != constraints.maxWidth ||
+                                _currentPageRect!.height !=
+                                    constraints.maxHeight) {
+                              setState(() {
+                                _currentPageRect = Rect.fromLTWH(
+                                  0,
+                                  0,
+                                  constraints.maxWidth,
+                                  constraints.maxHeight,
+                                );
+                              });
+                            }
+                          });
 
-                    // Decrease drawing pointer count for stylus/touch
-                    if (event.kind == PointerDeviceKind.stylus ||
-                        event.kind == PointerDeviceKind.touch ||
-                        event.kind == PointerDeviceKind.invertedStylus) {
-                      _activeDrawingPointers = (_activeDrawingPointers - 1)
-                          .clamp(0, 10);
-                    }
-                  });
-                },
-                onPointerCancel: (event) {
-                  setState(() {
-                    _activeTouchCount = (_activeTouchCount - 1).clamp(0, 10);
-
-                    // Decrease drawing pointer count for stylus/touch
-                    if (event.kind == PointerDeviceKind.stylus ||
-                        event.kind == PointerDeviceKind.touch ||
-                        event.kind == PointerDeviceKind.invertedStylus) {
-                      _activeDrawingPointers = (_activeDrawingPointers - 1)
-                          .clamp(0, 10);
-                    }
-
-                    _isDrawing = false;
-                  });
-                },
-                child: IgnorePointer(
-                  // Ignore pointer events when:
-                  // 1. Multi-touch is active (2+ fingers for zoom/scroll)
-                  // 2. No drawing pointers are active (mouse/trackpad)
-                  ignoring: _shouldPassThroughGestures,
-                  child: GestureDetector(
-                    behavior: _shouldPassThroughGestures
-                        ? HitTestBehavior.translucent
-                        : HitTestBehavior.opaque,
-                    onPanStart: _onPanStart,
-                    onPanUpdate: _onPanUpdate,
-                    onPanEnd: _onPanEnd,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        // Update page rect for coordinate transformation
-                        // This assumes the annotation overlay fills the same area as the PDF
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (_currentPageRect == null ||
-                              _currentPageRect!.width != constraints.maxWidth ||
-                              _currentPageRect!.height !=
-                                  constraints.maxHeight) {
-                            setState(() {
-                              _currentPageRect = Rect.fromLTWH(
-                                0,
-                                0,
-                                constraints.maxWidth,
-                                constraints.maxHeight,
-                              );
-                            });
-                          }
-                        });
-
-                        return CustomPaint(
-                          painter: AnnotationPainter(
-                            annotations: _getCurrentPageAnnotations()
-                                .getAnnotationsForPage(_currentPageNumber),
-                            currentStroke: _currentStroke,
-                            pdfToScreenTransform: _pdfToScreenCoordinates,
-                          ),
-                        );
-                      },
+                          return CustomPaint(
+                            painter: AnnotationPainter(
+                              annotations: _getCurrentPageAnnotations()
+                                  .getAnnotationsForPage(_currentPageNumber),
+                              currentStroke: _currentStroke,
+                              pdfToScreenTransform: _pdfToScreenCoordinates,
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
