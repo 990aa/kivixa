@@ -37,14 +37,14 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   Widget? _pdfView;
   final Map<int, AnnotationLayer> _annotationsByPage = {};
   DrawingTool _currentTool = DrawingTool.pen;
-  
+
   // Separate colors for pen and highlighter
   Color _penColor = Colors.black;
   Color _highlighterColor = Colors.yellow.withValues(alpha: 0.5);
-  
+
   // Fixed eraser color - always light gray, never changes
   static const Color _eraserColor = Color(0xFFD3D3D3);
-  
+
   double _currentStrokeWidth = 3.0;
   int _currentPageNumber = 0;
   List<Offset> _currentStrokePoints = [];
@@ -61,7 +61,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
   // PDF coordinate transformation tracking
   Rect? _currentPageRect; // Page position and size in view coordinates
-  
+
   // Image annotation editing state
   String? _selectedImageId;
   bool _isEditingImage = false;
@@ -287,7 +287,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     final pdfCoord = _screenToPdfCoordinates(details.localPosition);
     setState(() {
       _currentStrokePoints = [pdfCoord];
-      
+
       // For eraser, create a visual feedback stroke (light gray) but don't store it as annotation
       _currentStroke = AnnotationData(
         strokePath: [pdfCoord],
@@ -339,7 +339,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
   void _eraseStrokes() {
     const eraserRadius = 15.0;
-    
+
     // Erase ink annotations
     final annotations = _getCurrentPageAnnotations().getAnnotationsForPage(
       _currentPageNumber,
@@ -359,12 +359,12 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     for (final annotation in toRemove) {
       _getCurrentPageAnnotations().removeAnnotation(annotation);
     }
-    
+
     // Erase image annotations that intersect with eraser path
     final imageAnnotations = _getCurrentPageAnnotations()
         .getImageAnnotationsForPage(_currentPageNumber);
     final imagesToRemove = <ImageAnnotation>[];
-    
+
     for (final imageAnnotation in imageAnnotations) {
       for (final eraserPoint in _currentStrokePoints) {
         // Check if eraser point is within image bounds
@@ -374,24 +374,24 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
           imageAnnotation.size.width,
           imageAnnotation.size.height,
         );
-        
+
         // Create eraser circle region
         final eraserCircle = Rect.fromCircle(
           center: eraserPoint,
           radius: eraserRadius,
         );
-        
+
         if (imgRect.overlaps(eraserCircle)) {
           imagesToRemove.add(imageAnnotation);
           break;
         }
       }
     }
-    
+
     for (final imageAnnotation in imagesToRemove) {
       _getCurrentPageAnnotations().removeImageAnnotation(imageAnnotation);
     }
-    
+
     if (toRemove.isNotEmpty || imagesToRemove.isNotEmpty) {
       _scheduleAutoSave();
     }

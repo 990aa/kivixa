@@ -12,6 +12,8 @@ class ImageAnnotationWidget extends StatefulWidget {
   final Offset Function(Offset) pdfToScreenTransform;
   final Offset Function(Offset) screenToPdfTransform;
   final Function()? onDeselect;
+  final bool isSelected;
+  final Function()? onSelect;
 
   const ImageAnnotationWidget({
     super.key,
@@ -22,6 +24,8 @@ class ImageAnnotationWidget extends StatefulWidget {
     required this.pdfToScreenTransform,
     required this.screenToPdfTransform,
     this.onDeselect,
+    this.isSelected = false,
+    this.onSelect,
   });
 
   @override
