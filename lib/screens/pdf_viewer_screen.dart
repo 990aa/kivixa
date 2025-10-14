@@ -51,6 +51,11 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   bool get _shouldPassThroughGestures =>
       _activeTouchCount >= 2 || _activeDrawingPointers == 0;
   bool _isDrawing = false;
+  
+  // PDF coordinate transformation tracking
+  double _currentZoom = 1.0;
+  Offset _currentScrollOffset = Offset.zero;
+  Rect? _currentPageRect; // Page position and size in view coordinates
 
   @override
   void initState() {
