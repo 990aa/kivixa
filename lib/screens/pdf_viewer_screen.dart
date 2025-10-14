@@ -39,7 +39,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   DrawingTool _currentTool = DrawingTool.pen;
   Color _penColor = Colors.black;
   Color _highlighterColor = Colors.yellow;
-  Color _eraserColor = Colors.grey.shade400;
+  final Color _eraserColor = Colors.grey.shade400;
   double _currentStrokeWidth = 3.0;
   int _currentPageNumber = 0;
   List<Offset> _currentStrokePoints = [];
