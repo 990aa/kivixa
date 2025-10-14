@@ -37,7 +37,9 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   Widget? _pdfView;
   final Map<int, AnnotationLayer> _annotationsByPage = {};
   DrawingTool _currentTool = DrawingTool.pen;
-  Color _currentColor = Colors.black;
+  Color _penColor = Colors.black;
+  Color _highlighterColor = Colors.yellow;
+  Color _eraserColor = Colors.grey.shade400;
   double _currentStrokeWidth = 3.0;
   int _currentPageNumber = 0;
   List<Offset> _currentStrokePoints = [];
@@ -54,6 +56,18 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
   // PDF coordinate transformation tracking
   Rect? _currentPageRect; // Page position and size in view coordinates
+
+  // Helper to get the current color based on tool
+  Color get _currentColor {
+    switch (_currentTool) {
+      case DrawingTool.pen:
+        return _penColor;
+      case DrawingTool.highlighter:
+        return _highlighterColor;
+      case DrawingTool.eraser:
+        return _eraserColor;
+    }
+  }
 
   @override
   void initState() {
@@ -663,8 +677,22 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                     }
                   });
                 },
-                onColorChanged: (color) =>
-                    setState(() => _currentColor = color),
+                onColorChanged: (color) {
+                  setState(() {
+                    // Update color based on current tool
+                    switch (_currentTool) {
+                      case DrawingTool.pen:
+                        _penColor = color;
+                        break;
+                      case DrawingTool.highlighter:
+                        _highlighterColor = color;
+                        break;
+                      case DrawingTool.eraser:
+                        // Eraser color is fixed, don't change it
+                        break;
+                    }
+                  });
+                },
                 onStrokeWidthChanged: (width) =>
                     setState(() => _currentStrokeWidth = width),
                 onUndo: _undoLastStroke,
