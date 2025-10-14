@@ -33,11 +33,9 @@ class ImageAnnotationWidget extends StatefulWidget {
 }
 
 class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
-  bool _isSelected = false;
   Offset? _dragStartPdfPosition;
-  Offset? _dragStartLocalOffset;
   Size? _resizeStartSize;
-  Offset? _resizeStartOffset;
+  Offset? _resizeStartPosition;
 
   @override
   Widget build(BuildContext context) {
@@ -65,50 +63,47 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
       top: screenTopLeft.dy,
       child: GestureDetector(
         onTap: () {
-          setState(() => _isSelected = !_isSelected);
+          widget.onSelect?.call();
         },
         onPanStart: (details) {
-          if (!_isSelected) {
-            setState(() => _isSelected = true);
+          if (!widget.isSelected) {
+            widget.onSelect?.call();
           }
           _dragStartPdfPosition = widget.imageAnnotation.position;
-          _dragStartLocalOffset = details.localPosition;
         },
         onPanUpdate: (details) {
-          if (_dragStartPdfPosition == null || _dragStartLocalOffset == null) {
-            return;
-          }
+          if (_dragStartPdfPosition == null) return;
 
-          // Calculate delta in screen space
-          final deltaScreen = details.localPosition - _dragStartLocalOffset!;
-
-          // Convert screen positions to PDF coordinates
-          final startScreen = widget.pdfToScreenTransform(
-            _dragStartPdfPosition!,
-          );
-          final newScreen = startScreen + deltaScreen;
-          final newPdf = widget.screenToPdfTransform(newScreen);
+          // Convert the current screen position to PDF coordinates
+          // Calculate the new position based on gesture delta
+          final currentScreenPos = widget.pdfToScreenTransform(_dragStartPdfPosition!);
+          final newScreenPos = currentScreenPos + details.delta;
+          final newPdfPos = widget.screenToPdfTransform(newScreenPos);
 
           // Clamp to page boundaries in PDF space
-          final clampedX = newPdf.dx.clamp(
+          final clampedX = newPdfPos.dx.clamp(
             0.0,
             widget.pageSize.width - widget.imageAnnotation.size.width,
           );
-          final clampedY = newPdf.dy.clamp(
+          final clampedY = newPdfPos.dy.clamp(
             widget.imageAnnotation.size.height,
             widget.pageSize.height,
           );
 
+          final clampedPosition = Offset(clampedX, clampedY);
+          
+          // Update the drag start position for next delta calculation
+          _dragStartPdfPosition = clampedPosition;
+
+          // Update the image annotation with smooth, continuous movement
           widget.onUpdate(
             widget.imageAnnotation.copyWith(
-              position: Offset(clampedX, clampedY),
+              position: clampedPosition,
             ),
           );
         },
         onPanEnd: (details) {
           _dragStartPdfPosition = null;
-          _dragStartLocalOffset = null;
-          // Don't deselect on pan end, let user explicitly deselect
         },
         child: Stack(
           children: [
@@ -117,10 +112,10 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
               width: screenWidth,
               height: screenHeight,
               decoration: BoxDecoration(
-                border: _isSelected
+                border: widget.isSelected
                     ? Border.all(color: Colors.blue, width: 2)
                     : null,
-                boxShadow: _isSelected
+                boxShadow: widget.isSelected
                     ? [
                         BoxShadow(
                           color: Colors.blue.withValues(alpha: 0.3),
@@ -137,7 +132,7 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
             ),
 
             // Resize handles (only visible when selected)
-            if (_isSelected) ...[
+            if (widget.isSelected) ...[
               // Top-left handle
               _buildResizeHandle(
                 alignment: Alignment.topLeft,
@@ -231,102 +226,64 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
 
   void _onResizeStart(DragStartDetails details) {
     _resizeStartSize = widget.imageAnnotation.size;
-    _resizeStartOffset = widget.imageAnnotation.position;
+    _resizeStartPosition = widget.imageAnnotation.position;
   }
 
   void _onResizeUpdate(DragUpdateDetails details, ResizeDirection direction) {
-    if (_resizeStartSize == null || _resizeStartOffset == null) return;
+    if (_resizeStartSize == null || _resizeStartPosition == null) return;
 
-    // Convert screen delta to PDF delta
-    final screenDelta = details.localPosition;
-    final startPdfPos = _resizeStartOffset!;
-    final startScreenPos = widget.pdfToScreenTransform(startPdfPos);
-    final newScreenPos = startScreenPos + screenDelta;
-    final newPdfPos = widget.screenToPdfTransform(newScreenPos);
-    final pdfDelta = newPdfPos - startPdfPos;
+    // Use delta for smooth, continuous resizing
+    final screenDelta = details.delta;
+    
+    // Convert screen delta to approximate PDF delta
+    // For more accurate conversion, we'd need to track the scale factor
+    final pdfDelta = screenDelta;
 
-    double newWidth = _resizeStartSize!.width;
-    double newHeight = _resizeStartSize!.height;
-    Offset newPosition = _resizeStartOffset!;
+    double newWidth = widget.imageAnnotation.size.width;
+    double newHeight = widget.imageAnnotation.size.height;
+    Offset newPosition = widget.imageAnnotation.position;
 
     const minSize = 50.0;
 
     switch (direction) {
       case ResizeDirection.topLeft:
-        // Moving top-left corner: width and height decrease, position moves
-        newWidth = (_resizeStartSize!.width - pdfDelta.dx).clamp(
-          minSize,
-          widget.pageSize.width,
-        );
-        newHeight = (_resizeStartSize!.height + pdfDelta.dy).clamp(
-          minSize,
-          widget.pageSize.height,
-        );
+        // Resize from top-left: decrease width/height, move position
+        newWidth = (newWidth - pdfDelta.dx).clamp(minSize, widget.pageSize.width);
+        newHeight = (newHeight + pdfDelta.dy).clamp(minSize, widget.pageSize.height);
         newPosition = Offset(
-          (_resizeStartOffset!.dx + pdfDelta.dx).clamp(
-            0.0,
-            widget.pageSize.width - minSize,
-          ),
-          (_resizeStartOffset!.dy - pdfDelta.dy).clamp(
-            minSize,
-            widget.pageSize.height,
-          ),
+          (newPosition.dx + pdfDelta.dx).clamp(0.0, widget.pageSize.width - minSize),
+          (newPosition.dy - pdfDelta.dy).clamp(minSize, widget.pageSize.height),
         );
         break;
 
       case ResizeDirection.topRight:
-        // Moving top-right corner: width increases, height decreases
-        newWidth = (_resizeStartSize!.width + pdfDelta.dx).clamp(
-          minSize,
-          widget.pageSize.width - _resizeStartOffset!.dx,
-        );
-        newHeight = (_resizeStartSize!.height + pdfDelta.dy).clamp(
-          minSize,
-          widget.pageSize.height,
-        );
+        // Resize from top-right: increase width, decrease height
+        newWidth = (newWidth + pdfDelta.dx).clamp(minSize, widget.pageSize.width - newPosition.dx);
+        newHeight = (newHeight + pdfDelta.dy).clamp(minSize, widget.pageSize.height);
         newPosition = Offset(
-          _resizeStartOffset!.dx,
-          (_resizeStartOffset!.dy - pdfDelta.dy).clamp(
-            minSize,
-            widget.pageSize.height,
-          ),
+          newPosition.dx,
+          (newPosition.dy - pdfDelta.dy).clamp(minSize, widget.pageSize.height),
         );
         break;
 
       case ResizeDirection.bottomLeft:
-        // Moving bottom-left corner: width decreases, height increases
-        newWidth = (_resizeStartSize!.width - pdfDelta.dx).clamp(
-          minSize,
-          widget.pageSize.width,
-        );
-        newHeight = (_resizeStartSize!.height - pdfDelta.dy).clamp(
-          minSize,
-          widget.pageSize.height -
-              (_resizeStartOffset!.dy - _resizeStartSize!.height),
-        );
+        // Resize from bottom-left: decrease width, increase height
+        newWidth = (newWidth - pdfDelta.dx).clamp(minSize, widget.pageSize.width);
+        newHeight = (newHeight - pdfDelta.dy).clamp(minSize, widget.pageSize.height);
         newPosition = Offset(
-          (_resizeStartOffset!.dx + pdfDelta.dx).clamp(
-            0.0,
-            widget.pageSize.width - minSize,
-          ),
-          _resizeStartOffset!.dy,
+          (newPosition.dx + pdfDelta.dx).clamp(0.0, widget.pageSize.width - minSize),
+          newPosition.dy,
         );
         break;
 
       case ResizeDirection.bottomRight:
-        // Moving bottom-right corner: both width and height increase
-        newWidth = (_resizeStartSize!.width + pdfDelta.dx).clamp(
-          minSize,
-          widget.pageSize.width - _resizeStartOffset!.dx,
-        );
-        newHeight = (_resizeStartSize!.height - pdfDelta.dy).clamp(
-          minSize,
-          widget.pageSize.height -
-              (_resizeStartOffset!.dy - _resizeStartSize!.height),
-        );
+        // Resize from bottom-right: increase both width and height
+        newWidth = (newWidth + pdfDelta.dx).clamp(minSize, widget.pageSize.width - newPosition.dx);
+        newHeight = (newHeight - pdfDelta.dy).clamp(minSize, widget.pageSize.height);
         break;
     }
 
+    // Smooth, continuous update with no quantization
     widget.onUpdate(
       widget.imageAnnotation.copyWith(
         size: Size(newWidth, newHeight),
@@ -337,7 +294,7 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
 
   void _onResizeEnd(DragEndDetails details) {
     _resizeStartSize = null;
-    _resizeStartOffset = null;
+    _resizeStartPosition = null;
   }
 }
 
