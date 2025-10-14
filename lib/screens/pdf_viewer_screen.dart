@@ -53,8 +53,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   bool _isDrawing = false;
 
   // PDF coordinate transformation tracking
-  double _currentZoom = 1.0;
-  Offset _currentScrollOffset = Offset.zero;
+  final double _currentZoom = 1.0;
+  final Offset _currentScrollOffset = Offset.zero;
   Rect? _currentPageRect; // Page position and size in view coordinates
 
   @override
@@ -695,6 +695,9 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   @override
   void dispose() {
     _autoSaveTimer?.cancel();
+    if (!kIsWeb) {
+      _pdfController.removeListener(_onPdfViewChanged);
+    }
     if (_hasUnsavedChanges && !kIsWeb && widget.pdfPath != null) {
       _saveAnnotations();
     }
