@@ -684,6 +684,13 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                     onUpdate: _updateImageAnnotation,
                     onDelete: _deleteImageAnnotation,
                     pageSize: _currentPageSize ?? const Size(595, 842),
+                    pdfToScreenTransform: _pdfToScreenCoordinates,
+                    screenToPdfTransform: _screenToPdfCoordinates,
+                    onDeselect: () {
+                      // Deselect logic can be implemented if needed
+                      // For now, just trigger a rebuild
+                      setState(() {});
+                    },
                   ),
                 )),
           ],
