@@ -15,7 +15,7 @@ class AnnotationPainter extends CustomPainter {
 
   /// Current stroke being drawn (if any)
   final AnnotationData? currentStroke;
-  
+
   /// Function to convert PDF coordinates to screen coordinates
   /// This ensures annotations stick to the PDF content during zoom/scroll
   final Offset Function(Offset)? pdfToScreenTransform;
@@ -48,7 +48,9 @@ class AnnotationPainter extends CustomPainter {
 
     // Transform PDF coordinates to screen coordinates if transform is provided
     final List<Offset> screenPoints = pdfToScreenTransform != null
-        ? annotation.strokePath.map((point) => pdfToScreenTransform!(point)).toList()
+        ? annotation.strokePath
+              .map((point) => pdfToScreenTransform!(point))
+              .toList()
         : annotation.strokePath;
 
     // Configure paint based on tool type
