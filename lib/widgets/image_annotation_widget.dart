@@ -231,6 +231,14 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
   void _onResizeUpdate(DragUpdateDetails details, ResizeDirection direction) {
     if (_resizeStartSize == null || _resizeStartOffset == null) return;
 
+    // Convert screen delta to PDF delta
+    final screenDelta = details.localPosition;
+    final startPdfPos = _resizeStartOffset!;
+    final startScreenPos = widget.pdfToScreenTransform(startPdfPos);
+    final newScreenPos = startScreenPos + screenDelta;
+    final newPdfPos = widget.screenToPdfTransform(newScreenPos);
+    final pdfDelta = newPdfPos - startPdfPos;
+
     double newWidth = _resizeStartSize!.width;
     double newHeight = _resizeStartSize!.height;
     Offset newPosition = _resizeStartOffset!;
@@ -239,20 +247,21 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
 
     switch (direction) {
       case ResizeDirection.topLeft:
-        newWidth = (_resizeStartSize!.width - details.localPosition.dx).clamp(
+        // Moving top-left corner: width and height decrease, position moves
+        newWidth = (_resizeStartSize!.width - pdfDelta.dx).clamp(
           minSize,
           widget.pageSize.width,
         );
-        newHeight = (_resizeStartSize!.height - details.localPosition.dy).clamp(
+        newHeight = (_resizeStartSize!.height + pdfDelta.dy).clamp(
           minSize,
           widget.pageSize.height,
         );
         newPosition = Offset(
-          (_resizeStartOffset!.dx + details.localPosition.dx).clamp(
+          (_resizeStartOffset!.dx + pdfDelta.dx).clamp(
             0.0,
             widget.pageSize.width - minSize,
           ),
-          (_resizeStartOffset!.dy + details.localPosition.dy).clamp(
+          (_resizeStartOffset!.dy - pdfDelta.dy).clamp(
             minSize,
             widget.pageSize.height,
           ),
@@ -260,19 +269,63 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
         break;
 
       case ResizeDirection.topRight:
-        newWidth = (_resizeStartSize!.width + details.localPosition.dx).clamp(
+        // Moving top-right corner: width increases, height decreases
+        newWidth = (_resizeStartSize!.width + pdfDelta.dx).clamp(
           minSize,
-          widget.pageSize.width,
+          widget.pageSize.width - _resizeStartOffset!.dx,
         );
-        newHeight = (_resizeStartSize!.height - details.localPosition.dy).clamp(
+        newHeight = (_resizeStartSize!.height + pdfDelta.dy).clamp(
           minSize,
           widget.pageSize.height,
         );
         newPosition = Offset(
           _resizeStartOffset!.dx,
-          (_resizeStartOffset!.dy + details.localPosition.dy).clamp(
+          (_resizeStartOffset!.dy - pdfDelta.dy).clamp(
             minSize,
             widget.pageSize.height,
+          ),
+        );
+        break;
+
+      case ResizeDirection.bottomLeft:
+        // Moving bottom-left corner: width decreases, height increases
+        newWidth = (_resizeStartSize!.width - pdfDelta.dx).clamp(
+          minSize,
+          widget.pageSize.width,
+        );
+        newHeight = (_resizeStartSize!.height - pdfDelta.dy).clamp(
+          minSize,
+          widget.pageSize.height - (_resizeStartOffset!.dy - _resizeStartSize!.height),
+        );
+        newPosition = Offset(
+          (_resizeStartOffset!.dx + pdfDelta.dx).clamp(
+            0.0,
+            widget.pageSize.width - minSize,
+          ),
+          _resizeStartOffset!.dy,
+        );
+        break;
+
+      case ResizeDirection.bottomRight:
+        // Moving bottom-right corner: both width and height increase
+        newWidth = (_resizeStartSize!.width + pdfDelta.dx).clamp(
+          minSize,
+          widget.pageSize.width - _resizeStartOffset!.dx,
+        );
+        newHeight = (_resizeStartSize!.height - pdfDelta.dy).clamp(
+          minSize,
+          widget.pageSize.height - (_resizeStartOffset!.dy - _resizeStartSize!.height),
+        );
+        break;
+    }
+
+    widget.onUpdate(
+      widget.imageAnnotation.copyWith(
+        size: Size(newWidth, newHeight),
+        position: newPosition,
+      ),
+    );
+  }
           ),
         );
         break;
