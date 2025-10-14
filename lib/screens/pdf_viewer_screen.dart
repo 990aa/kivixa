@@ -187,9 +187,61 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     return _annotationsByPage[_currentPageNumber]!;
   }
 
+  /// Converts screen/view coordinates to PDF page coordinates
+  /// 
+  /// Takes into account:
+  /// - Current zoom level
+  /// - Scroll offset
+  /// - PDF coordinate system (origin at bottom-left, y-axis points up)
+  /// - Page position in the widget
   Offset _screenToPdfCoordinates(Offset screenPoint) {
     if (_currentPageSize == null) return screenPoint;
-    return Offset(screenPoint.dx, _currentPageSize!.height - screenPoint.dy);
+    
+    // If we have page rect information (from pdfrx), use it for accurate transformation
+    if (_currentPageRect != null && !kIsWeb) {
+      // Account for page position in view
+      final relativeX = screenPoint.dx - _currentPageRect!.left;
+      final relativeY = screenPoint.dy - _currentPageRect!.top;
+      
+      // Scale from view coordinates to PDF coordinates
+      final pdfX = (relativeX / _currentPageRect!.width) * _currentPageSize!.width;
+      final pdfY = _currentPageSize!.height - ((relativeY / _currentPageRect!.height) * _currentPageSize!.height);
+      
+      return Offset(pdfX, pdfY);
+    }
+    
+    // Fallback: Simple transformation (for web or when page rect unavailable)
+    // Assumes page fills the widget area
+    return Offset(
+      screenPoint.dx,
+      _currentPageSize!.height - screenPoint.dy,
+    );
+  }
+
+  /// Converts PDF page coordinates to screen/view coordinates
+  ///
+  /// Reverse transformation of _screenToPdfCoordinates
+  Offset _pdfToScreenCoordinates(Offset pdfPoint) {
+    if (_currentPageSize == null) return pdfPoint;
+    
+    // If we have page rect information, use it for accurate transformation
+    if (_currentPageRect != null && !kIsWeb) {
+      // Convert from PDF coordinates to normalized coordinates (0-1)
+      final normalizedX = pdfPoint.dx / _currentPageSize!.width;
+      final normalizedY = (_currentPageSize!.height - pdfPoint.dy) / _currentPageSize!.height;
+      
+      // Scale to view coordinates and account for page position
+      final screenX = normalizedX * _currentPageRect!.width + _currentPageRect!.left;
+      final screenY = normalizedY * _currentPageRect!.height + _currentPageRect!.top;
+      
+      return Offset(screenX, screenY);
+    }
+    
+    // Fallback: Simple transformation
+    return Offset(
+      pdfPoint.dx,
+      _currentPageSize!.height - pdfPoint.dy,
+    );
   }
 
   void _onPanStart(DragStartDetails details) {
