@@ -148,8 +148,10 @@ class AnnotationPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant AnnotationPainter oldDelegate) {
     // Repaint if annotations have changed or current stroke is being drawn
+    // or if the coordinate transformation has changed (zoom/scroll)
     return oldDelegate.annotations != annotations ||
-        oldDelegate.currentStroke != currentStroke;
+        oldDelegate.currentStroke != currentStroke ||
+        oldDelegate.pdfToScreenTransform != pdfToScreenTransform;
   }
 }
 
