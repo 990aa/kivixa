@@ -44,7 +44,7 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
         widget.imageAnnotation.position.dy,
       ),
     );
-    
+
     // Calculate screen size based on PDF size and current scale
     final screenBottomRight = widget.pdfToScreenTransform(
       Offset(
@@ -52,7 +52,7 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
         widget.imageAnnotation.position.dy - widget.imageAnnotation.size.height,
       ),
     );
-    
+
     final screenWidth = (screenBottomRight.dx - screenTopLeft.dx).abs();
     final screenHeight = (screenBottomRight.dy - screenTopLeft.dy).abs();
 
@@ -77,9 +77,11 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
 
           // Calculate delta in screen space
           final deltaScreen = details.localPosition - _dragStartLocalOffset!;
-          
+
           // Convert screen positions to PDF coordinates
-          final startScreen = widget.pdfToScreenTransform(_dragStartPdfPosition!);
+          final startScreen = widget.pdfToScreenTransform(
+            _dragStartPdfPosition!,
+          );
           final newScreen = startScreen + deltaScreen;
           final newPdf = widget.screenToPdfTransform(newScreen);
 
@@ -295,7 +297,8 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
         );
         newHeight = (_resizeStartSize!.height - pdfDelta.dy).clamp(
           minSize,
-          widget.pageSize.height - (_resizeStartOffset!.dy - _resizeStartSize!.height),
+          widget.pageSize.height -
+              (_resizeStartOffset!.dy - _resizeStartSize!.height),
         );
         newPosition = Offset(
           (_resizeStartOffset!.dx + pdfDelta.dx).clamp(
@@ -314,7 +317,8 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
         );
         newHeight = (_resizeStartSize!.height - pdfDelta.dy).clamp(
           minSize,
-          widget.pageSize.height - (_resizeStartOffset!.dy - _resizeStartSize!.height),
+          widget.pageSize.height -
+              (_resizeStartOffset!.dy - _resizeStartSize!.height),
         );
         break;
     }
