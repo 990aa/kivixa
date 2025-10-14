@@ -1,4 +1,4 @@
-# Kivixa PDF Annotator - Quick Start Guide
+# Kivixa  - Quick Start Guide
 
 ## 🚀 Get Started in 5 Minutes
 

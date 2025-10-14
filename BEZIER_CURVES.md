@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document explains the mathematical foundation of the smooth drawing system in the Kivixa PDF annotator.
+This document explains the mathematical foundation of the smooth drawing system in the Kivixa .
 
 ## Problem Statement
 

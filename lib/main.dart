@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Kivixa PDF Annotator',
+      title: 'Kivixa ',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -116,7 +116,7 @@ class _PDFAnnotatorDemoState extends State<PDFAnnotatorDemo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kivixa PDF Annotator'),
+        title: const Text('Kivixa '),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           // Undo button

@@ -1,4 +1,4 @@
-/// Windows-specific configuration for Kivixa PDF Annotator
+/// Windows-specific configuration for Kivixa
 ///
 /// This file handles Windows platform initialization:
 /// - Window sizing and positioning

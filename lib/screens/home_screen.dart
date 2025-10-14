@@ -118,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kivixa PDF Annotator'),
+        title: const Text('Kivixa '),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Center(
@@ -137,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // App title
               Text(
-                'Kivixa PDF Annotator',
+                'Kivixa ',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),

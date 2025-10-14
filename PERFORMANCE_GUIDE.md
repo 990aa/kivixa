@@ -1,4 +1,4 @@
-# Kivixa PDF Annotator - Complete Implementation Guide
+# Kivixa  - Complete Implementation Guide
 
 ## 🎯 Overview
 
