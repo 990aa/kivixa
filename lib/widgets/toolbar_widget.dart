@@ -6,7 +6,7 @@ import '../models/drawing_tool.dart';
 ///
 /// Features:
 /// - Tool selection (pen, highlighter, eraser)
-/// - Color picker
+/// - Independent color pickers for pen and highlighter
 /// - Stroke width slider
 /// - Action buttons (undo, redo, clear, save, insert image)
 /// - Material Design 3 styling
@@ -23,6 +23,8 @@ class ToolbarWidget extends StatefulWidget {
   final VoidCallback onClear;
   final VoidCallback onSave;
   final VoidCallback onInsertImage;
+  final Color penColor;
+  final Color highlighterColor;
 
   const ToolbarWidget({
     super.key,
@@ -37,6 +39,8 @@ class ToolbarWidget extends StatefulWidget {
     required this.onClear,
     required this.onSave,
     required this.onInsertImage,
+    required this.penColor,
+    required this.highlighterColor,
   });
 
   @override
