@@ -80,7 +80,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       setState(() => _isLoading = false);
     }
   }
-  
+
   void _onPdfViewChanged() {
     // PDF view has changed (zoom, scroll, etc.)
     // Trigger a rebuild to update annotation rendering
@@ -607,9 +607,10 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                         // Update page rect for coordinate transformation
                         // This assumes the annotation overlay fills the same area as the PDF
                         WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (_currentPageRect == null || 
+                          if (_currentPageRect == null ||
                               _currentPageRect!.width != constraints.maxWidth ||
-                              _currentPageRect!.height != constraints.maxHeight) {
+                              _currentPageRect!.height !=
+                                  constraints.maxHeight) {
                             setState(() {
                               _currentPageRect = Rect.fromLTWH(
                                 0,
@@ -620,7 +621,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                             });
                           }
                         });
-                        
+
                         return CustomPaint(
                           painter: AnnotationPainter(
                             annotations: _getCurrentPageAnnotations()
