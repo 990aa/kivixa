@@ -55,12 +55,12 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
   void _showColorPicker() {
     // Don't show color picker for eraser (fixed color)
     if (widget.currentTool == DrawingTool.eraser) return;
-    
+
     // Get the appropriate color for the current tool
     final initialColor = widget.currentTool == DrawingTool.pen
         ? widget.penColor
         : widget.highlighterColor;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -281,7 +281,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
     final displayColor = widget.currentTool == DrawingTool.pen
         ? widget.penColor
         : widget.highlighterColor;
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: Row(
