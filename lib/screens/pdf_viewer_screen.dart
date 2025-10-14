@@ -59,9 +59,9 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       _activeTouchCount >= 2 || _activeDrawingPointers == 0;
   bool _isDrawing = false;
 
-    // PDF coordinate transformation tracking
+  // PDF coordinate transformation tracking
   Rect? _currentPageRect; // Page position and size in view coordinates
-  
+
   // Image annotation editing state
   String? _selectedImageId;
 
@@ -682,7 +682,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                           // This assumes the annotation overlay fills the same area as the PDF
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             if (_currentPageRect == null ||
-                                _currentPageRect!.width != constraints.maxWidth ||
+                                _currentPageRect!.width !=
+                                    constraints.maxWidth ||
                                 _currentPageRect!.height !=
                                     constraints.maxHeight) {
                               setState(() {
@@ -774,10 +775,16 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                     pageSize: _currentPageSize ?? const Size(595, 842),
                     pdfToScreenTransform: _pdfToScreenCoordinates,
                     screenToPdfTransform: _screenToPdfCoordinates,
+                    isSelected: _selectedImageId == imageAnnotation.id,
+                    onSelect: () {
+                      setState(() {
+                        _selectedImageId = imageAnnotation.id;
+                      });
+                    },
                     onDeselect: () {
-                      // Deselect logic can be implemented if needed
-                      // For now, just trigger a rebuild
-                      setState(() {});
+                      setState(() {
+                        _selectedImageId = null;
+                      });
                     },
                   ),
                 )),
