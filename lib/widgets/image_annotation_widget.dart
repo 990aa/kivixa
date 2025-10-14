@@ -3,11 +3,15 @@ import '../models/image_annotation.dart';
 
 /// Interactive widget for displaying and manipulating image annotations
 /// Supports dragging and resizing with corner handles
+/// Uses PDF coordinate system for proper zoom/scroll behavior
 class ImageAnnotationWidget extends StatefulWidget {
   final ImageAnnotation imageAnnotation;
   final Function(ImageAnnotation) onUpdate;
   final Function(ImageAnnotation) onDelete;
   final Size pageSize;
+  final Offset Function(Offset) pdfToScreenTransform;
+  final Offset Function(Offset) screenToPdfTransform;
+  final Function()? onDeselect;
 
   const ImageAnnotationWidget({
     super.key,
@@ -15,6 +19,9 @@ class ImageAnnotationWidget extends StatefulWidget {
     required this.onUpdate,
     required this.onDelete,
     required this.pageSize,
+    required this.pdfToScreenTransform,
+    required this.screenToPdfTransform,
+    this.onDeselect,
   });
 
   @override
@@ -23,52 +30,86 @@ class ImageAnnotationWidget extends StatefulWidget {
 
 class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
   bool _isSelected = false;
-  Offset? _dragStartPosition;
+  Offset? _dragStartPdfPosition;
+  Offset? _dragStartLocalOffset;
   Size? _resizeStartSize;
   Offset? _resizeStartOffset;
 
   @override
   Widget build(BuildContext context) {
+    // Convert PDF coordinates to screen coordinates
+    final screenTopLeft = widget.pdfToScreenTransform(
+      Offset(
+        widget.imageAnnotation.position.dx,
+        widget.imageAnnotation.position.dy,
+      ),
+    );
+    
+    // Calculate screen size based on PDF size and current scale
+    final screenBottomRight = widget.pdfToScreenTransform(
+      Offset(
+        widget.imageAnnotation.position.dx + widget.imageAnnotation.size.width,
+        widget.imageAnnotation.position.dy - widget.imageAnnotation.size.height,
+      ),
+    );
+    
+    final screenWidth = (screenBottomRight.dx - screenTopLeft.dx).abs();
+    final screenHeight = (screenBottomRight.dy - screenTopLeft.dy).abs();
+
     return Positioned(
-      left: widget.imageAnnotation.position.dx,
-      top:
-          widget.pageSize.height -
-          widget.imageAnnotation.position.dy -
-          widget.imageAnnotation.size.height,
+      left: screenTopLeft.dx,
+      top: screenTopLeft.dy,
       child: GestureDetector(
         onTap: () {
           setState(() => _isSelected = !_isSelected);
         },
         onPanStart: (details) {
-          _dragStartPosition = widget.imageAnnotation.position;
+          if (!_isSelected) {
+            setState(() => _isSelected = true);
+          }
+          _dragStartPdfPosition = widget.imageAnnotation.position;
+          _dragStartLocalOffset = details.localPosition;
         },
         onPanUpdate: (details) {
-          if (_dragStartPosition != null) {
-            final newPosition = Offset(
-              (_dragStartPosition!.dx + details.localPosition.dx).clamp(
-                0.0,
-                widget.pageSize.width - widget.imageAnnotation.size.width,
-              ),
-              (_dragStartPosition!.dy - details.localPosition.dy).clamp(
-                widget.imageAnnotation.size.height,
-                widget.pageSize.height,
-              ),
-            );
-
-            widget.onUpdate(
-              widget.imageAnnotation.copyWith(position: newPosition),
-            );
+          if (_dragStartPdfPosition == null || _dragStartLocalOffset == null) {
+            return;
           }
+
+          // Calculate delta in screen space
+          final deltaScreen = details.localPosition - _dragStartLocalOffset!;
+          
+          // Convert screen positions to PDF coordinates
+          final startScreen = widget.pdfToScreenTransform(_dragStartPdfPosition!);
+          final newScreen = startScreen + deltaScreen;
+          final newPdf = widget.screenToPdfTransform(newScreen);
+
+          // Clamp to page boundaries in PDF space
+          final clampedX = newPdf.dx.clamp(
+            0.0,
+            widget.pageSize.width - widget.imageAnnotation.size.width,
+          );
+          final clampedY = newPdf.dy.clamp(
+            widget.imageAnnotation.size.height,
+            widget.pageSize.height,
+          );
+
+          widget.onUpdate(
+            widget.imageAnnotation.copyWith(
+              position: Offset(clampedX, clampedY),
+            ),
+          );
         },
         onPanEnd: (details) {
-          _dragStartPosition = null;
+          _dragStartPdfPosition = null;
+          _dragStartLocalOffset = null;
+          // Don't deselect on pan end, let user explicitly deselect
         },
         child: Stack(
           children: [
             // Image display
             Container(
-              width: widget.imageAnnotation.size.width,
-              height: widget.imageAnnotation.size.height,
+              width: screenWidth,
+              height: screenHeight,
               decoration: BoxDecoration(
                 border: _isSelected
                     ? Border.all(color: Colors.blue, width: 2)
@@ -85,7 +126,7 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
               ),
               child: Image.memory(
                 widget.imageAnnotation.imageBytes,
-                fit: BoxFit.contain,
+                fit: BoxFit.fill,
               ),
             ),
 
