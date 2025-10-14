@@ -287,6 +287,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     final pdfCoord = _screenToPdfCoordinates(details.localPosition);
     setState(() {
       _currentStrokePoints = [pdfCoord];
+      
+      // For eraser, create a visual feedback stroke (light gray) but don't store it as annotation
       _currentStroke = AnnotationData(
         strokePath: [pdfCoord],
         colorValue: _currentColor.toARGB32(),
@@ -322,8 +324,10 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       return;
     }
     if (_currentTool == DrawingTool.eraser) {
+      // For eraser, remove intersecting strokes/images but don't save the eraser stroke itself
       _eraseStrokes();
     } else {
+      // For pen and highlighter, save the stroke
       _getCurrentPageAnnotations().addAnnotation(_currentStroke!);
       _scheduleAutoSave();
     }
