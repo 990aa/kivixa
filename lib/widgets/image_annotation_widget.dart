@@ -326,47 +326,6 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
       ),
     );
   }
-          ),
-        );
-        break;
-
-      case ResizeDirection.bottomLeft:
-        newWidth = (_resizeStartSize!.width - details.localPosition.dx).clamp(
-          minSize,
-          widget.pageSize.width,
-        );
-        newHeight = (_resizeStartSize!.height + details.localPosition.dy).clamp(
-          minSize,
-          widget.pageSize.height,
-        );
-        newPosition = Offset(
-          (_resizeStartOffset!.dx + details.localPosition.dx).clamp(
-            0.0,
-            widget.pageSize.width - minSize,
-          ),
-          _resizeStartOffset!.dy,
-        );
-        break;
-
-      case ResizeDirection.bottomRight:
-        newWidth = (_resizeStartSize!.width + details.localPosition.dx).clamp(
-          minSize,
-          widget.pageSize.width,
-        );
-        newHeight = (_resizeStartSize!.height + details.localPosition.dy).clamp(
-          minSize,
-          widget.pageSize.height,
-        );
-        break;
-    }
-
-    widget.onUpdate(
-      widget.imageAnnotation.copyWith(
-        size: Size(newWidth, newHeight),
-        position: newPosition,
-      ),
-    );
-  }
 
   void _onResizeEnd(DragEndDetails details) {
     _resizeStartSize = null;
