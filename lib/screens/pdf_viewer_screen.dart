@@ -719,6 +719,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
               child: ToolbarWidget(
                 currentTool: _currentTool,
                 currentColor: _currentColor,
+                penColor: _penColor,
+                highlighterColor: _highlighterColor,
                 currentStrokeWidth: _currentStrokeWidth,
                 onToolChanged: (tool) {
                   setState(() {
@@ -729,7 +731,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                       } else if (_currentStrokeWidth > 20.0) {
                         _currentStrokeWidth = 20.0;
                       }
-                    } else {
+                    } else if (tool == DrawingTool.pen) {
                       if (_currentStrokeWidth < 1.0) {
                         _currentStrokeWidth = 1.0;
                       } else if (_currentStrokeWidth > 10.0) {
