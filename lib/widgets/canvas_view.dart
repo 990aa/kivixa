@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vector_math/vector_math_64.dart' as vector;
 import '../models/canvas_settings.dart';
 import '../models/drawing_layer.dart';
 import '../painters/grid_overlay_painter.dart';
