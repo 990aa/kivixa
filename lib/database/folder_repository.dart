@@ -1,11 +1,9 @@
 import 'package:sqflite/sqflite.dart';
 import '../database/drawing_database.dart';
 import '../models/folder.dart';
-import '../models/drawing_document.dart';
-import '../models/tag.dart';
 
 /// Repository for folder operations
-/// 
+///
 /// Handles all CRUD operations for folders with hierarchical support
 class FolderRepository {
   /// Insert a new folder
@@ -153,4 +151,3 @@ class FolderRepository {
     return maps.map((map) => Folder.fromMap(map)).toList();
   }
 }
-

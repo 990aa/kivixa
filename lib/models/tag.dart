@@ -27,7 +27,7 @@ class Tag {
     return {
       'id': id,
       'name': name,
-      'color': color.value,
+      'color': color.toARGB32(),
       'created_at': createdAt.millisecondsSinceEpoch,
       'use_count': useCount,
     };

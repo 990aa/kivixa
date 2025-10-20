@@ -40,7 +40,7 @@ class Folder {
       'parent_folder_id': parentFolderId,
       'created_at': createdAt.millisecondsSinceEpoch,
       'modified_at': modifiedAt.millisecondsSinceEpoch,
-      'color': color?.value,
+      'color': color?.toARGB32(),
       'icon': icon,
       'description': description,
     };
