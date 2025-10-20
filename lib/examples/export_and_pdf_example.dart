@@ -255,8 +255,8 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
                     'Quality:',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  ...HighResolutionExporter.ExportQuality.values.map((quality) {
-                    return RadioListTile<HighResolutionExporter.ExportQuality>(
+                  ...ExportQuality.values.map((quality) {
+                    return RadioListTile<ExportQuality>(
                       title: Text(quality.name.toUpperCase()),
                       subtitle: Text(
                         '${HighResolutionExporter.getDPIForQuality(quality)} DPI',
@@ -265,14 +265,13 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
                       groupValue: _selectedQuality,
                       onChanged: (value) {
                         setState(() {
-                          _selectedQuality = value!;
+                          _selectedQuality = value as ExportQuality;
                         });
                       },
                     );
                   }),
 
-                  if (_selectedQuality ==
-                      HighResolutionExporter.ExportQuality.custom)
+                  if (_selectedQuality == ExportQuality.custom)
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextField(
@@ -292,7 +291,7 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
                     'Format:',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  DropdownButton<HighResolutionExporter.ExportFormat>(
+                  DropdownButton<ExportFormat>(
                     value: _selectedFormat,
                     isExpanded: true,
                     items: HighResolutionExporter.ExportFormat.values.map((
