@@ -283,16 +283,4 @@ class _PreciseCanvasGestureHandlerState
 
     widget.onNavigationEnd?.call(details);
   }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(IntProperty('pointers', _pointers.length));
-    properties.add(
-      FlagProperty('isNavigating', value: _isNavigating, ifTrue: 'navigating'),
-    );
-    properties.add(
-      FlagProperty('isDrawing', value: _isDrawing, ifTrue: 'drawing'),
-    );
-  }
 }
