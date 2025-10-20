@@ -165,13 +165,13 @@ class DrawingProcessor {
     final image = picture.toImageSync(outputWidth, outputHeight);
 
     // Convert to PNG bytes synchronously
-    final byteData = image.toByteData(format: ui.ImageByteFormat.png);
+    // Note: This is a simplified placeholder implementation
+    // In production, use a proper async image encoding library
     picture.dispose();
     image.dispose();
 
-    // Note: This is a simplified implementation
-    // In production, use a proper async image encoding library
-    return Uint8List(0); // Placeholder
+    // Placeholder return
+    return Uint8List(0);
   }
 
   static void _renderStroke(Canvas canvas, LayerStroke stroke) {
