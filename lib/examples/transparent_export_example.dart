@@ -6,7 +6,7 @@ import '../models/stroke_point.dart';
 import '../services/layer_renderer.dart';
 
 /// Demonstrates transparent background export and proper eraser implementation
-/// 
+///
 /// Key concepts:
 /// 1. Canvas background is visual aid only - never exported
 /// 2. Eraser creates TRUE transparency (not white pixels)
@@ -37,44 +37,54 @@ class _TransparentExportExampleState extends State<TransparentExportExample> {
     final layer = DrawingLayer(name: 'Sample Artwork');
 
     // Red circle
-    layer.addStroke(_createCircleStroke(
-      center: const Offset(100, 100),
-      radius: 40,
-      color: Colors.red.withValues(alpha: 0.8),
-      width: 10,
-    ));
+    layer.addStroke(
+      _createCircleStroke(
+        center: const Offset(100, 100),
+        radius: 40,
+        color: Colors.red.withValues(alpha: 0.8),
+        width: 10,
+      ),
+    );
 
     // Green circle (overlapping)
-    layer.addStroke(_createCircleStroke(
-      center: const Offset(140, 100),
-      radius: 40,
-      color: Colors.green.withValues(alpha: 0.6),
-      width: 10,
-    ));
+    layer.addStroke(
+      _createCircleStroke(
+        center: const Offset(140, 100),
+        radius: 40,
+        color: Colors.green.withValues(alpha: 0.6),
+        width: 10,
+      ),
+    );
 
     // Blue circle (overlapping)
-    layer.addStroke(_createCircleStroke(
-      center: const Offset(120, 140),
-      radius: 40,
-      color: Colors.blue.withValues(alpha: 0.7),
-      width: 10,
-    ));
+    layer.addStroke(
+      _createCircleStroke(
+        center: const Offset(120, 140),
+        radius: 40,
+        color: Colors.blue.withValues(alpha: 0.7),
+        width: 10,
+      ),
+    );
 
     // Yellow star with transparency
-    layer.addStroke(_createStarStroke(
-      center: const Offset(300, 300),
-      radius: 50,
-      color: Colors.yellow.withValues(alpha: 0.9),
-      width: 8,
-    ));
+    layer.addStroke(
+      _createStarStroke(
+        center: const Offset(300, 300),
+        radius: 50,
+        color: Colors.yellow.withValues(alpha: 0.9),
+        width: 8,
+      ),
+    );
 
     // Purple line with varying pressure
-    layer.addStroke(_createPressureStroke(
-      start: const Offset(50, 300),
-      end: const Offset(350, 320),
-      color: Colors.purple.withValues(alpha: 0.75),
-      baseWidth: 15,
-    ));
+    layer.addStroke(
+      _createPressureStroke(
+        start: const Offset(50, 300),
+        end: const Offset(350, 320),
+        color: Colors.purple.withValues(alpha: 0.75),
+        baseWidth: 15,
+      ),
+    );
 
     _layers.add(layer);
   }
@@ -88,13 +98,15 @@ class _TransparentExportExampleState extends State<TransparentExportExample> {
     final points = <StrokePoint>[];
     for (int i = 0; i <= 360; i += 10) {
       final angle = i * 3.14159 / 180;
-      points.add(StrokePoint(
-        position: Offset(
-          center.dx + radius * (angle / 6.28).abs(),
-          center.dy + radius * (1 - angle / 6.28).abs(),
+      points.add(
+        StrokePoint(
+          position: Offset(
+            center.dx + radius * (angle / 6.28).abs(),
+            center.dy + radius * (1 - angle / 6.28).abs(),
+          ),
+          pressure: 1.0,
         ),
-        pressure: 1.0,
-      ));
+      );
     }
 
     final paint = Paint()
@@ -118,13 +130,15 @@ class _TransparentExportExampleState extends State<TransparentExportExample> {
     for (int i = 0; i < 10; i++) {
       final angle = i * 3.14159 / 5;
       final r = i % 2 == 0 ? radius : radius / 2;
-      points.add(StrokePoint(
-        position: Offset(
-          center.dx + r * (angle / 6.28),
-          center.dy + r * (1 - angle / 6.28),
+      points.add(
+        StrokePoint(
+          position: Offset(
+            center.dx + r * (angle / 6.28),
+            center.dy + r * (1 - angle / 6.28),
+          ),
+          pressure: 1.0,
         ),
-        pressure: 1.0,
-      ));
+      );
     }
     points.add(points.first); // Close the star
 
@@ -150,12 +164,12 @@ class _TransparentExportExampleState extends State<TransparentExportExample> {
 
     for (int i = 0; i <= steps; i++) {
       final t = i / steps;
-      final pressure = 0.3 + 0.7 * (1 - (2 * t - 1).abs()); // Varies from 0.3 to 1.0
+      final pressure =
+          0.3 + 0.7 * (1 - (2 * t - 1).abs()); // Varies from 0.3 to 1.0
 
-      points.add(StrokePoint(
-        position: Offset.lerp(start, end, t)!,
-        pressure: pressure,
-      ));
+      points.add(
+        StrokePoint(position: Offset.lerp(start, end, t)!, pressure: pressure),
+      );
     }
 
     final paint = Paint()
@@ -211,11 +225,13 @@ class _TransparentExportExampleState extends State<TransparentExportExample> {
     final layer = DrawingLayer(name: 'Eraser Demo');
 
     // Draw a red rectangle
-    layer.addStroke(_createRectStroke(
-      rect: const Rect.fromLTWH(200, 200, 150, 100),
-      color: Colors.red.withValues(alpha: 0.8),
-      width: 20,
-    ));
+    layer.addStroke(
+      _createRectStroke(
+        rect: const Rect.fromLTWH(200, 200, 150, 100),
+        color: Colors.red.withValues(alpha: 0.8),
+        width: 20,
+      ),
+    );
 
     _layers.add(layer);
     setState(() => _statusText = 'Draw complete. Now erasing center...');
@@ -251,9 +267,7 @@ class _TransparentExportExampleState extends State<TransparentExportExample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Transparent Export Example'),
-      ),
+      appBar: AppBar(title: const Text('Transparent Export Example')),
       body: Column(
         children: [
           // Controls
@@ -267,10 +281,7 @@ class _TransparentExportExampleState extends State<TransparentExportExample> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  _statusText,
-                  style: const TextStyle(color: Colors.grey),
-                ),
+                Text(_statusText, style: const TextStyle(color: Colors.grey)),
                 const SizedBox(height: 16),
                 Wrap(
                   spacing: 8,
@@ -309,7 +320,8 @@ class _TransparentExportExampleState extends State<TransparentExportExample> {
                 SwitchListTile(
                   title: const Text('Show Checkered Background'),
                   subtitle: const Text(
-                      'Visualize transparency (not part of export)'),
+                    'Visualize transparency (not part of export)',
+                  ),
                   value: _showCheckeredBackground,
                   onChanged: (value) {
                     setState(() => _showCheckeredBackground = value);
@@ -469,7 +481,8 @@ class _CheckeredBackgroundPainter extends CustomPainter {
 
     for (double y = 0; y < size.height; y += checkSize) {
       for (double x = 0; x < size.width; x += checkSize) {
-        final isEven = ((x / checkSize).floor() + (y / checkSize).floor()) % 2 == 0;
+        final isEven =
+            ((x / checkSize).floor() + (y / checkSize).floor()) % 2 == 0;
         canvas.drawRect(
           Rect.fromLTWH(x, y, checkSize, checkSize),
           isEven ? lightPaint : darkPaint,
