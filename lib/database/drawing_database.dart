@@ -81,7 +81,7 @@ class DrawingDatabase {
 
     // Tags table with custom colors
     await db.execute('''
-      CREATE TABLE $TABLE_TAGS (
+      CREATE TABLE $tableTags (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,
         color INTEGER NOT NULL,
@@ -98,7 +98,7 @@ class DrawingDatabase {
         created_at INTEGER NOT NULL,
         PRIMARY KEY (document_id, tag_id),
         FOREIGN KEY (document_id) REFERENCES $tableDocuments(id) ON DELETE CASCADE,
-        FOREIGN KEY (tag_id) REFERENCES $TABLE_TAGS(id) ON DELETE CASCADE
+        FOREIGN KEY (tag_id) REFERENCES $tableTags(id) ON DELETE CASCADE
       )
     ''');
 
@@ -125,7 +125,7 @@ class DrawingDatabase {
       'CREATE INDEX idx_folders_parent ON $tableFolders(parent_folder_id)',
     );
     await db.execute('CREATE INDEX idx_folders_name ON $tableFolders(name)');
-    await db.execute('CREATE INDEX idx_tags_name ON $TABLE_TAGS(name)');
+    await db.execute('CREATE INDEX idx_tags_name ON $tableTags(name)');
     await db.execute(
       'CREATE INDEX idx_document_tags_doc ON $TABLE_DOCUMENT_TAGS(document_id)',
     );
@@ -188,4 +188,5 @@ class DrawingDatabase {
     return size;
   }
 }
+
 
