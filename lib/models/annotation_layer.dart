@@ -26,9 +26,9 @@ class AnnotationLayer {
     Map<int, List<AnnotationData>>? annotationsByPage,
     Map<int, List<ImageAnnotation>>? imageAnnotationsByPage,
     this.maxUndoStackSize = 100,
-  }) : _annotationsByPage = annotationsByPage ?? {},
-       _imageAnnotationsByPage = imageAnnotationsByPage ?? {},
-       _undoStack = [];
+  })  : _annotationsByPage = annotationsByPage ?? {},
+        _imageAnnotationsByPage = imageAnnotationsByPage ?? {},
+        _undoStack = [];
 
   /// Gets all annotations for a specific page
   /// Returns an empty list if the page has no annotations
@@ -143,7 +143,7 @@ class AnnotationLayer {
       if (pageAnnotations.isNotEmpty) {
         final lastAnnotation = pageAnnotations.last;
         if (mostRecent == null ||
-            lastAnnotation.timestamp.isAfter(mostRecent.timestamp)) {
+            lastAnnotation.timestamp > mostRecent.timestamp) {
           mostRecent = lastAnnotation;
           targetPage = entry.key;
         }
@@ -180,7 +180,7 @@ class AnnotationLayer {
   }
 
   /// Clears all annotations from a specific page
-  void clearPage(int pageNumber) {
+  void clearAnnotationsForPage(int pageNumber) {
     final pageAnnotations = _annotationsByPage[pageNumber];
     if (pageAnnotations != null) {
       _undoStack.addAll(pageAnnotations);
