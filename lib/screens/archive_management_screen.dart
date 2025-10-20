@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/archived_document.dart';
-import '../models/drawing_document.dart';
 import '../services/archive_service.dart';
 
 /// Archive management screen
