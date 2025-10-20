@@ -6,11 +6,7 @@ import '../models/vector_stroke.dart';
 import '../models/layer_stroke.dart';
 
 /// Export format options
-enum ExportFormat {
-  png,
-  jpg,
-  rawRgba,
-}
+enum ExportFormat { png, jpg, rawRgba }
 
 /// Export quality levels
 enum ExportQuality {
@@ -230,11 +226,7 @@ class HighResolutionExporter {
         ..isAntiAlias = true
         ..filterQuality = FilterQuality.high;
 
-      canvas.drawCircle(
-        stroke.points.first.position,
-        widths.first / 2,
-        paint,
-      );
+      canvas.drawCircle(stroke.points.first.position, widths.first / 2, paint);
       return;
     }
 
@@ -295,8 +287,11 @@ class HighResolutionExporter {
   }
 
   /// Calculate file size estimate in MB
-  double estimateFileSizeMB(Size canvasSize, double targetDPI,
-      {ExportFormat format = ExportFormat.png}) {
+  double estimateFileSizeMB(
+    Size canvasSize,
+    double targetDPI, {
+    ExportFormat format = ExportFormat.png,
+  }) {
     final dimensions = calculateExportDimensions(canvasSize, targetDPI);
     final pixels = dimensions.width * dimensions.height;
 
@@ -305,10 +300,12 @@ class HighResolutionExporter {
     switch (format) {
       case ExportFormat.png:
         bytesPerPixel = 4.0; // RGBA, but PNG compresses
-        return (pixels * bytesPerPixel * 0.3) / (1024 * 1024); // 30% compression
+        return (pixels * bytesPerPixel * 0.3) /
+            (1024 * 1024); // 30% compression
       case ExportFormat.jpg:
         bytesPerPixel = 3.0; // RGB
-        return (pixels * bytesPerPixel * 0.1) / (1024 * 1024); // 10% compression
+        return (pixels * bytesPerPixel * 0.1) /
+            (1024 * 1024); // 10% compression
       case ExportFormat.rawRgba:
         bytesPerPixel = 4.0; // RGBA, no compression
         return (pixels * bytesPerPixel) / (1024 * 1024);
@@ -328,9 +325,6 @@ class HighResolutionExporter {
 
     return maxDPI.clamp(screenDPI, printDPI * 2); // Max 600 DPI
   }
-
-  /// Export progress callback
-  typedef ExportProgressCallback = void Function(double progress, String status);
 
   /// Export with progress tracking (for large exports)
   Future<Uint8List> exportWithProgress({
