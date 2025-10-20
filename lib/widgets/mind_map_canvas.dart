@@ -12,14 +12,14 @@ class MindMapCanvas extends StatefulWidget {
   final bool enableEdit;
 
   const MindMapCanvas({
-    Key? key,
+    super.key,
     required this.nodes,
     required this.edges,
     this.onNodeTap,
     this.onNodeLongPress,
     this.onNodeDrag,
     this.enableEdit = true,
-  }) : super(key: key);
+  });
 
   @override
   State<MindMapCanvas> createState() => _MindMapCanvasState();
@@ -171,8 +171,7 @@ class MindMapViewer extends StatelessWidget {
   final List<model.MindMapNode> nodes;
   final List<model.MindMapEdge> edges;
 
-  const MindMapViewer({Key? key, required this.nodes, required this.edges})
-    : super(key: key);
+  const MindMapViewer({super.key, required this.nodes, required this.edges});
 
   @override
   Widget build(BuildContext context) {
