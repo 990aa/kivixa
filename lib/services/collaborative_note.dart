@@ -241,14 +241,14 @@ class CollaborativeNote extends ChangeNotifier {
       return {
         'type': 'text',
         'text': element.text,
-        'fontSize': element.fontSize,
-        'color': element.color.value,
+        'fontSize': element.style.fontSize ?? 24.0,
+        'color': element.style.color?.value ?? 0xFF000000,
         'position': [element.position.dx, element.position.dy],
       };
     } else if (element is ImageElement) {
       return {
         'type': 'image',
-        'imagePath': element.imagePath,
+        'imageData': element.imageData.toList(),
         'width': element.width,
         'height': element.height,
         'position': [element.position.dx, element.position.dy],
@@ -260,7 +260,6 @@ class CollaborativeNote extends ChangeNotifier {
   /// Deserialize element from map
   CanvasElement? _deserializeElement(String id, Map<String, dynamic> data) {
     try {
-      final type = data['type'] as String;
       // Note: Cannot reconstruct with original ID since CanvasElement auto-generates
       // This is a limitation that needs refactoring
       return null; // TODO: Refactor CanvasElement to accept ID parameter
