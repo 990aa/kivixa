@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vector_math/vector_math_64.dart' as vector;
 
 /// Canvas size presets
 enum CanvasPreset {
@@ -182,8 +183,8 @@ class CanvasTransform {
   /// Get as Matrix4
   Matrix4 toMatrix4() {
     return Matrix4.identity()
-      ..translate(translation.dx, translation.dy)
-      ..scale(scale, scale)
+      ..translateByVector3(vector.Vector3(translation.dx, translation.dy, 0))
+      ..scaleByVector3(vector.Vector3(scale, scale, 1.0))
       ..rotateZ(rotation);
   }
 
