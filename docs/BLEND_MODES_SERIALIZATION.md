@@ -572,7 +572,3 @@ static bool validateDrawingData(Map<String, dynamic> json) {
 4. **History:** Save multiple versions/checkpoints
 5. **Import:** Support PSD, Procreate formats
 6. **Export:** PDF, high-res PNG, video
-
----
-
-This implementation provides **professional-grade** serialization matching industry-standard digital art applications! 🎨💾
