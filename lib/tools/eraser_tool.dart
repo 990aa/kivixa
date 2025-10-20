@@ -7,11 +7,7 @@ import '../models/drawing_layer.dart';
 /// Eraser tool with multiple modes and features
 class EraserTool {
   /// Erase using the specified mode and settings
-  void erase(
-    Canvas canvas,
-    List<StrokePoint> points,
-    EraserSettings settings,
-  ) {
+  void erase(Canvas canvas, List<StrokePoint> points, EraserSettings settings) {
     if (points.isEmpty) return;
 
     switch (settings.mode) {
@@ -168,11 +164,7 @@ class EraserTool {
           Colors.white.withOpacity(1.0 - settings.hardness),
           Colors.transparent,
         ],
-        stops: [
-          0.0,
-          settings.hardness,
-          1.0,
-        ],
+        stops: [0.0, settings.hardness, 1.0],
       );
 
       final paint = Paint()
@@ -235,10 +227,7 @@ class EraserTool {
   }
 
   /// Get eraser bounds for dirty region tracking
-  Rect getEraserBounds(
-    List<StrokePoint> points,
-    EraserSettings settings,
-  ) {
+  Rect getEraserBounds(List<StrokePoint> points, EraserSettings settings) {
     if (points.isEmpty) return Rect.zero;
 
     double left = points.first.position.dx;

@@ -34,8 +34,11 @@ abstract class SelectionTool {
   bool isPointInSelection(Offset point);
 
   /// Draw selection on canvas
-  void drawSelection(Canvas canvas, SelectionSettings settings,
-      {double animationValue = 0.0});
+  void drawSelection(
+    Canvas canvas,
+    SelectionSettings settings, {
+    double animationValue = 0.0,
+  });
 
   /// Get selection mask (for operations)
   Future<ui.Image?> getSelectionMask(Size canvasSize);
@@ -287,10 +290,7 @@ class LassoSelection extends SelectionTool {
       );
 
       for (int i = 1; i < _selectionPoints.length; i++) {
-        selectionPath!.lineTo(
-          _selectionPoints[i].dx,
-          _selectionPoints[i].dy,
-        );
+        selectionPath!.lineTo(_selectionPoints[i].dx, _selectionPoints[i].dy);
       }
     }
   }
@@ -674,10 +674,7 @@ class MagicWandSelection extends SelectionTool {
       ..style = PaintingStyle.fill;
 
     for (final pixel in _selectedPixels) {
-      canvas.drawRect(
-        Rect.fromLTWH(pixel.dx, pixel.dy, 1, 1),
-        paint,
-      );
+      canvas.drawRect(Rect.fromLTWH(pixel.dx, pixel.dy, 1, 1), paint);
     }
 
     // Draw border if path exists
@@ -703,10 +700,7 @@ class MagicWandSelection extends SelectionTool {
       ..style = PaintingStyle.fill;
 
     for (final pixel in _selectedPixels) {
-      canvas.drawRect(
-        Rect.fromLTWH(pixel.dx, pixel.dy, 1, 1),
-        paint,
-      );
+      canvas.drawRect(Rect.fromLTWH(pixel.dx, pixel.dy, 1, 1), paint);
     }
 
     final picture = recorder.endRecording();
