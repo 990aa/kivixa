@@ -56,7 +56,7 @@ class SymmetrySettings {
       case SymmetryMode.radial:
         return Icons.control_camera;
       case SymmetryMode.kaleidoscope:
-        return Icons.kaleidoscope;
+        return Icons.auto_awesome;
     }
   }
 
