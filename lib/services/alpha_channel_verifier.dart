@@ -4,12 +4,12 @@ import 'package:flutter/foundation.dart';
 
 /// Verifies that exported images maintain proper alpha channel
 /// and transparency properties.
-/// 
+///
 /// CRITICAL: Use this to verify that exports contain genuine
 /// transparency and not white/black pixels masquerading as transparency.
 class AlphaChannelVerifier {
   /// Verify that a PNG image has transparent pixels
-  /// 
+  ///
   /// Returns true if the image contains at least one pixel with alpha < 255.
   /// This confirms that transparency is preserved in the export.
   static Future<bool> verifyTransparency(Uint8List pngBytes) async {
@@ -50,7 +50,7 @@ class AlphaChannelVerifier {
   }
 
   /// Get detailed transparency statistics for an image
-  /// 
+  ///
   /// Returns a map containing:
   /// - totalPixels: Total number of pixels
   /// - transparentPixels: Pixels with alpha < 255
@@ -74,9 +74,7 @@ class AlphaChannelVerifier {
       codec.dispose();
 
       if (byteData == null) {
-        return {
-          'error': 'Failed to get image data',
-        };
+        return {'error': 'Failed to get image data'};
       }
 
       final pixels = byteData.buffer.asUint8List();
@@ -112,14 +110,12 @@ class AlphaChannelVerifier {
         'transparencyPercentage': (transparentPixels / totalPixels) * 100,
       };
     } catch (e) {
-      return {
-        'error': e.toString(),
-      };
+      return {'error': e.toString()};
     }
   }
 
   /// Verify that an image is completely opaque (no transparency)
-  /// 
+  ///
   /// Useful for verifying display rendering vs export rendering
   static Future<bool> verifyCompletelyOpaque(Uint8List pngBytes) async {
     final hasTransparency = await verifyTransparency(pngBytes);
@@ -127,7 +123,7 @@ class AlphaChannelVerifier {
   }
 
   /// Check if specific regions are transparent
-  /// 
+  ///
   /// Samples pixels in the specified regions and returns true if
   /// they contain transparency.
   static Future<bool> verifyRegionTransparency(
@@ -178,7 +174,7 @@ class AlphaChannelVerifier {
   }
 
   /// Compare two images and report alpha channel differences
-  /// 
+  ///
   /// Useful for comparing display rendering vs export rendering.
   /// Returns percentage of pixels with different alpha values.
   static Future<double> compareAlphaChannels(
@@ -239,7 +235,7 @@ class AlphaChannelVerifier {
   }
 
   /// Verify that erased regions are truly transparent (alpha = 0)
-  /// 
+  ///
   /// Checks that eraser tool created genuine transparency, not
   /// white/black pixels.
   static Future<bool> verifyEraserTransparency(
@@ -312,7 +308,9 @@ class AlphaChannelVerifier {
     buffer.writeln(
       'Transparency: ${stats['transparencyPercentage'].toStringAsFixed(2)}%',
     );
-    buffer.writeln('Average Alpha: ${stats['averageAlpha'].toStringAsFixed(2)}');
+    buffer.writeln(
+      'Average Alpha: ${stats['averageAlpha'].toStringAsFixed(2)}',
+    );
     buffer.writeln('Alpha Range: ${stats['minAlpha']} - ${stats['maxAlpha']}');
 
     if (stats['transparentPixels'] > 0) {
