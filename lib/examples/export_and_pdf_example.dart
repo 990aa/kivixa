@@ -108,8 +108,7 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
       final bytes = await _exporter.exportWithProgress(
         layers: _layers,
         canvasSize: const Size(800, 600),
-        targetDPI:
-            _selectedQuality == HighResolutionExporter.ExportQuality.custom
+        targetDPI: _selectedQuality == ExportQuality.custom
             ? _customDPI
             : HighResolutionExporter.getDPIForQuality(_selectedQuality),
         format: _selectedFormat,
