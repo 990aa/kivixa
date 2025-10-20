@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/drawing_document.dart';
-import '../database/document_repository.dart';
 
 /// Grid view widget for displaying documents with thumbnails
 ///
