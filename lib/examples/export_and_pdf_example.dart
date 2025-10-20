@@ -52,21 +52,25 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
   void _onPanStart(DragStartDetails details) {
     setState(() {
       _currentStroke.clear();
-      _currentStroke.add(StrokePoint(
-        position: details.localPosition,
-        pressure: 1.0,
-        timestamp: DateTime.now(),
-      ));
+      _currentStroke.add(
+        StrokePoint(
+          position: details.localPosition,
+          pressure: 1.0,
+          timestamp: DateTime.now(),
+        ),
+      );
     });
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
     setState(() {
-      _currentStroke.add(StrokePoint(
-        position: details.localPosition,
-        pressure: 1.0,
-        timestamp: DateTime.now(),
-      ));
+      _currentStroke.add(
+        StrokePoint(
+          position: details.localPosition,
+          pressure: 1.0,
+          timestamp: DateTime.now(),
+        ),
+      );
     });
   }
 
@@ -112,7 +116,8 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
       final bytes = await _exporter.exportWithProgress(
         layers: _layers,
         canvasSize: const Size(800, 600),
-        targetDPI: _selectedQuality == HighResolutionExporter.ExportQuality.custom
+        targetDPI:
+            _selectedQuality == HighResolutionExporter.ExportQuality.custom
             ? _customDPI
             : HighResolutionExporter.getDPIForQuality(_selectedQuality),
         format: _selectedFormat,
@@ -129,15 +134,15 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
       await _saveFile(bytes, 'drawing.png');
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Export successful!')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Export successful!')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Export failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
       }
     } finally {
       setState(() {
@@ -174,9 +179,9 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load PDF: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to load PDF: $e')));
       }
     }
   }
@@ -195,9 +200,9 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('PDF export failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('PDF export failed: $e')));
       }
     }
   }
@@ -220,9 +225,7 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Export & PDF Integration Example'),
-      ),
+      appBar: AppBar(title: const Text('Export & PDF Integration Example')),
       body: Row(
         children: [
           // Drawing canvas
@@ -257,7 +260,10 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
                   ),
                   const SizedBox(height: 16),
 
-                  const Text('Quality:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Quality:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   ...HighResolutionExporter.ExportQuality.values.map((quality) {
                     return RadioListTile<HighResolutionExporter.ExportQuality>(
                       title: Text(quality.name.toUpperCase()),
@@ -274,7 +280,8 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
                     );
                   }),
 
-                  if (_selectedQuality == HighResolutionExporter.ExportQuality.custom)
+                  if (_selectedQuality ==
+                      HighResolutionExporter.ExportQuality.custom)
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextField(
@@ -290,11 +297,16 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
                     ),
 
                   const SizedBox(height: 16),
-                  const Text('Format:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Format:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   DropdownButton<HighResolutionExporter.ExportFormat>(
                     value: _selectedFormat,
                     isExpanded: true,
-                    items: HighResolutionExporter.ExportFormat.values.map((format) {
+                    items: HighResolutionExporter.ExportFormat.values.map((
+                      format,
+                    ) {
                       return DropdownMenuItem(
                         value: format,
                         child: Text(format.name.toUpperCase()),
@@ -366,7 +378,8 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: _currentPDFPage < _pdfManager.pageCount - 1
+                            onPressed:
+                                _currentPDFPage < _pdfManager.pageCount - 1
                                 ? () {
                                     setState(() {
                                       _currentPDFPage++;

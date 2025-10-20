@@ -40,7 +40,9 @@ class PDFCoordinateTransformer {
 
   /// Transform a list of points from Flutter to PDF coordinates
   List<Offset> transformPoints(
-      List<Offset> flutterPoints, double screenToPointRatio) {
+    List<Offset> flutterPoints,
+    double screenToPointRatio,
+  ) {
     return flutterPoints
         .map((point) => flutterToPDF(point, screenToPointRatio))
         .toList();
@@ -62,11 +64,7 @@ class PDFDrawingManager {
 
     // Initialize layers for each page
     for (int i = 0; i < pdfDocument!.pages.count; i++) {
-      pageLayerMap[i] = [
-        DrawingLayer(
-          name: 'Drawing Layer',
-        ),
-      ];
+      pageLayerMap[i] = [DrawingLayer(name: 'Drawing Layer')];
     }
   }
 
@@ -81,11 +79,7 @@ class PDFDrawingManager {
     for (int i = 0; i < pageCount; i++) {
       pdfDocument!.pages.add();
 
-      pageLayerMap[i] = [
-        DrawingLayer(
-          name: 'Drawing Layer',
-        ),
-      ];
+      pageLayerMap[i] = [DrawingLayer(name: 'Drawing Layer')];
     }
   }
 
@@ -153,7 +147,10 @@ class PDFDrawingManager {
 
   /// Add vector stroke to specific PDF page
   void addVectorStrokeToPage(
-      int pageIndex, VectorStroke stroke, Size screenSize) {
+    int pageIndex,
+    VectorStroke stroke,
+    Size screenSize,
+  ) {
     if (!pageLayerMap.containsKey(pageIndex)) return;
     if (pageLayerMap[pageIndex]!.isEmpty) {
       pageLayerMap[pageIndex]!.add(DrawingLayer(name: 'Drawing Layer'));
@@ -228,7 +225,10 @@ class PDFDrawingManager {
 
   /// Draw stroke on PDF page using PDF graphics
   void _drawStrokeOnPDFPage(
-      PdfGraphics graphics, LayerStroke stroke, double opacity) {
+    PdfGraphics graphics,
+    LayerStroke stroke,
+    double opacity,
+  ) {
     if (stroke.points.length < 2) {
       // Single point - draw as circle
       if (stroke.points.isNotEmpty) {
@@ -259,10 +259,8 @@ class PDFDrawingManager {
       (color.b * 255).round(),
     );
 
-    final pen = PdfPen(
-      pdfColor,
-      width: stroke.brushProperties.strokeWidth,
-    )..lineCap = PdfLineCap.round;
+    final pen = PdfPen(pdfColor, width: stroke.brushProperties.strokeWidth)
+      ..lineCap = PdfLineCap.round;
 
     // Draw path on PDF
     for (int i = 1; i < stroke.points.length; i++) {
