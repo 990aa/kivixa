@@ -59,9 +59,9 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving file: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error saving file: $e')));
       }
     }
   }
@@ -72,39 +72,45 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen>
       configs: [
         H1Config(
           style: GoogleFonts.lato(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.lightBlue),
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Colors.lightBlue,
+          ),
         ),
         H2Config(
           style: GoogleFonts.lato(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.lightGreen),
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Colors.lightGreen,
+          ),
         ),
         H3Config(
-            style: GoogleFonts.lato(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.orangeAccent),
+          style: GoogleFonts.lato(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.orangeAccent,
+          ),
         ),
         H4Config(
           style: GoogleFonts.lato(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.purpleAccent),
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.purpleAccent,
+          ),
         ),
         H5Config(
           style: GoogleFonts.lato(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.redAccent),
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.redAccent,
+          ),
         ),
         H6Config(
           style: GoogleFonts.lato(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.tealAccent),
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.tealAccent,
+          ),
         ),
         CodeConfig(
           style: GoogleFonts.robotoMono(
@@ -119,10 +125,7 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen>
           ),
         ),
         TableConfig(
-          border: TableBorder.all(
-            color: Colors.grey.shade400,
-            width: 1,
-          ),
+          border: TableBorder.all(color: Colors.grey.shade400, width: 1),
         ),
       ],
     );
@@ -131,10 +134,7 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen>
       appBar: AppBar(
         title: const Text('Markdown Editor'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _saveMarkdown,
-          ),
+          IconButton(icon: const Icon(Icons.save), onPressed: _saveMarkdown),
         ],
         bottom: TabBar(
           controller: _tabController,
@@ -159,10 +159,7 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen>
               ),
             ),
           ),
-          MarkdownWidget(
-            data: _markdownText,
-            config: markdownConfig,
-          ),
+          MarkdownWidget(data: _markdownText, config: markdownConfig),
         ],
       ),
     );
