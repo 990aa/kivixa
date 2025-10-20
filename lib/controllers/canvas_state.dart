@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../models/stroke.dart' as stroke_model;
 import '../models/canvas_element.dart' as element_model;

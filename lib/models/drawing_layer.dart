@@ -1,7 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'stroke_point.dart';
 import 'layer_stroke.dart';
 
 /// Drawing layer that stores all necessary information for each layer
