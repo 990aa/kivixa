@@ -97,9 +97,9 @@ class _InfiniteCanvasScreenState extends State<InfiniteCanvasScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error exporting PDF: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error exporting PDF: $e')));
       }
     }
   }
@@ -119,9 +119,9 @@ class _InfiniteCanvasScreenState extends State<InfiniteCanvasScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error exporting SVG: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error exporting SVG: $e')));
       }
     }
   }
