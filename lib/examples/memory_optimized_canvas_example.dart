@@ -147,18 +147,6 @@ class _MemoryOptimizedCanvasExampleState
         ),
       );
 
-      // Create a temporary stroke for preview
-      final previewStroke = LayerStroke(
-        points: List.from(_currentStrokePoints),
-        brushProperties: Paint()
-          ..color = Colors.black
-          ..strokeWidth = 4.0
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round
-          ..style = PaintingStyle.stroke
-          ..blendMode = BlendMode.srcOver,
-      );
-
       // Mark dirty region for the new segment
       final dirtyRect = DirtyRegionTracker.fromPoints(
         _currentStrokePoints.map((p) => p.position).toList(),
