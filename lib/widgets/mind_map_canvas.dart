@@ -28,7 +28,8 @@ class MindMapCanvas extends StatefulWidget {
 class _MindMapCanvasState extends State<MindMapCanvas> {
   final Graph graph = Graph();
   BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
-  TransformationController transformationController = TransformationController();
+  TransformationController transformationController =
+      TransformationController();
 
   @override
   void initState() {
@@ -108,7 +109,9 @@ class _MindMapCanvasState extends State<MindMapCanvas> {
   Widget _buildNodeWidget(model.MindMapNode node) {
     return GestureDetector(
       onTap: widget.enableEdit ? () => widget.onNodeTap?.call(node) : null,
-      onLongPress: widget.enableEdit ? () => widget.onNodeLongPress?.call(node) : null,
+      onLongPress: widget.enableEdit
+          ? () => widget.onNodeLongPress?.call(node)
+          : null,
       onPanUpdate: widget.enableEdit
           ? (details) => widget.onNodeDrag?.call(node, details.delta)
           : null,
@@ -131,7 +134,9 @@ class _MindMapCanvasState extends State<MindMapCanvas> {
           children: [
             if (node.childIds.isNotEmpty)
               Icon(
-                node.isCollapsed ? Icons.add_circle_outline : Icons.remove_circle_outline,
+                node.isCollapsed
+                    ? Icons.add_circle_outline
+                    : Icons.remove_circle_outline,
                 size: 16,
                 color: node.color,
               ),
@@ -166,18 +171,11 @@ class MindMapViewer extends StatelessWidget {
   final List<model.MindMapNode> nodes;
   final List<model.MindMapEdge> edges;
 
-  const MindMapViewer({
-    Key? key,
-    required this.nodes,
-    required this.edges,
-  }) : super(key: key);
+  const MindMapViewer({Key? key, required this.nodes, required this.edges})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MindMapCanvas(
-      nodes: nodes,
-      edges: edges,
-      enableEdit: false,
-    );
+    return MindMapCanvas(nodes: nodes, edges: edges, enableEdit: false);
   }
 }

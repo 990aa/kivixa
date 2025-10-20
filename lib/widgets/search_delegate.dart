@@ -11,10 +11,10 @@ class NotesSearchDelegate extends SearchDelegate<Note?> {
     required this.databaseService,
     this.useFullTextSearch = true,
   }) : super(
-          searchFieldLabel: 'Search notes...',
-          keyboardType: TextInputType.text,
-          textInputAction: TextInputAction.search,
-        );
+         searchFieldLabel: 'Search notes...',
+         keyboardType: TextInputType.text,
+         textInputAction: TextInputAction.search,
+       );
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -121,10 +121,7 @@ class NotesSearchDelegate extends SearchDelegate<Note?> {
                 padding: EdgeInsets.all(16.0),
                 child: Text(
                   'Recent Notes',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
               ...recentNotes.map((note) => _buildNoteListTile(context, note)),
@@ -150,10 +147,7 @@ class NotesSearchDelegate extends SearchDelegate<Note?> {
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-        child: Icon(
-          Icons.note,
-          color: Theme.of(context).primaryColor,
-        ),
+        child: Icon(Icons.note, color: Theme.of(context).primaryColor),
       ),
       title: highlightedTitle,
       subtitle: highlightedContent,
@@ -194,13 +188,15 @@ class NotesSearchDelegate extends SearchDelegate<Note?> {
         matches.add(TextSpan(text: text.substring(start, index)));
       }
 
-      matches.add(TextSpan(
-        text: text.substring(index, index + query.length),
-        style: const TextStyle(
-          backgroundColor: Colors.yellow,
-          fontWeight: FontWeight.bold,
+      matches.add(
+        TextSpan(
+          text: text.substring(index, index + query.length),
+          style: const TextStyle(
+            backgroundColor: Colors.yellow,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ));
+      );
 
       start = index + query.length;
     }

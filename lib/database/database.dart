@@ -183,7 +183,7 @@ class AppDatabase extends _$AppDatabase {
   Future<List<Note>> searchNotesFullText(String query) async {
     // Escape special FTS5 characters
     final sanitizedQuery = query.replaceAll(RegExp(r'[^\w\s]'), ' ');
-    
+
     // Use FTS5 MATCH query for full-text search
     final ftsQuery = '''
       SELECT n.* FROM notes n
@@ -191,7 +191,7 @@ class AppDatabase extends _$AppDatabase {
       WHERE notes_fts MATCH ?
       ORDER BY rank, n.modified_at DESC
     ''';
-    
+
     final results = await customSelect(
       ftsQuery,
       variables: [Variable.withString(sanitizedQuery)],
