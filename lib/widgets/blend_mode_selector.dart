@@ -27,10 +27,7 @@ class BlendModeSelector extends StatelessWidget {
           padding: EdgeInsets.all(8.0),
           child: Text(
             'Creative Modes',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
         ...creativeModes.map((mode) => _buildModeItem(context, mode)),
@@ -42,10 +39,7 @@ class BlendModeSelector extends StatelessWidget {
             padding: EdgeInsets.all(8.0),
             child: Text(
               'Technical Modes',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
           ...technicalModes.map((mode) => _buildModeItem(context, mode)),
@@ -63,16 +57,10 @@ class BlendModeSelector extends StatelessWidget {
       title: Text(mode.displayName),
       subtitle: Text(
         mode.getDescription(),
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.grey[600],
-        ),
+        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
       ),
       trailing: isSelected
-          ? Icon(
-              Icons.check,
-              color: Theme.of(context).primaryColor,
-            )
+          ? Icon(Icons.check, color: Theme.of(context).primaryColor)
           : null,
       onTap: () => onModeChanged(mode),
     );
@@ -107,10 +95,7 @@ class CompactBlendModeSelector extends StatelessWidget {
               Text(mode.displayName),
               Text(
                 mode.getDescription(),
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -175,10 +160,7 @@ class BlendModeBottomSheet extends StatelessWidget {
             children: [
               const Text(
                 'Blend Mode',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               IconButton(
                 icon: const Icon(Icons.close),
