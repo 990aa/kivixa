@@ -141,7 +141,6 @@ class ArchiveService {
         processed++;
         onProgress?.call(processed, eligibleDocs.length);
       } catch (e) {
-        print('Failed to archive document ${document.id}: $e');
         processed++;
       }
     }
@@ -308,7 +307,6 @@ class ArchiveService {
 
       return compressed.length / bytes.length;
     } catch (e) {
-      print('Failed to estimate compression: $e');
       return null;
     }
   }
