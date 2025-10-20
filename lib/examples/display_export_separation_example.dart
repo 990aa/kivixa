@@ -97,31 +97,11 @@ class _DisplayVsExportExampleState extends State<DisplayVsExportExample> {
 
     // Add a text-like pattern
     final textPoints = <StrokePoint>[
-      StrokePoint(
-        position: const Offset(100, 300),
-        pressure: 1.0,
-        timestamp: DateTime.now(),
-      ),
-      StrokePoint(
-        position: const Offset(150, 320),
-        pressure: 0.8,
-        timestamp: DateTime.now(),
-      ),
-      StrokePoint(
-        position: const Offset(200, 300),
-        pressure: 1.0,
-        timestamp: DateTime.now(),
-      ),
-      StrokePoint(
-        position: const Offset(250, 320),
-        pressure: 0.8,
-        timestamp: DateTime.now(),
-      ),
-      StrokePoint(
-        position: const Offset(300, 300),
-        pressure: 1.0,
-        timestamp: DateTime.now(),
-      ),
+      const StrokePoint(position: Offset(100, 300), pressure: 1.0),
+      const StrokePoint(position: Offset(150, 320), pressure: 0.8),
+      const StrokePoint(position: Offset(200, 300), pressure: 1.0),
+      const StrokePoint(position: Offset(250, 320), pressure: 0.8),
+      const StrokePoint(position: Offset(300, 300), pressure: 1.0),
     ];
 
     layer.strokes.add(
