@@ -23,7 +23,7 @@ class DocumentRepository {
   Future<int> insert(DrawingDocument document) async {
     final db = await DrawingDatabase.database;
     return await db.insert(
-      DrawingDatabase.TABLE_DOCUMENTS,
+      DrawingDatabase.tableDocuments,
       document.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -33,7 +33,7 @@ class DocumentRepository {
   Future<int> update(DrawingDocument document) async {
     final db = await DrawingDatabase.database;
     return await db.update(
-      DrawingDatabase.TABLE_DOCUMENTS,
+      DrawingDatabase.tableDocuments,
       document.copyWith(modifiedAt: DateTime.now()).toMap(),
       where: 'id = ?',
       whereArgs: [document.id],
@@ -44,7 +44,7 @@ class DocumentRepository {
   Future<int> delete(int id) async {
     final db = await DrawingDatabase.database;
     return await db.delete(
-      DrawingDatabase.TABLE_DOCUMENTS,
+      DrawingDatabase.tableDocuments,
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -54,7 +54,7 @@ class DocumentRepository {
   Future<DrawingDocument?> getById(int id) async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_DOCUMENTS,
+      DrawingDatabase.tableDocuments,
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -70,7 +70,7 @@ class DocumentRepository {
   Future<List<DrawingDocument>> getAll({DocumentSortBy? sortBy}) async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_DOCUMENTS,
+      DrawingDatabase.tableDocuments,
       orderBy: _getSortOrder(sortBy),
     );
 
@@ -103,7 +103,7 @@ class DocumentRepository {
     }
 
     final maps = await db.query(
-      DrawingDatabase.TABLE_DOCUMENTS,
+      DrawingDatabase.tableDocuments,
       where: whereClause,
       whereArgs: whereArgs,
       orderBy: _getSortOrder(sortBy),
@@ -122,7 +122,7 @@ class DocumentRepository {
   Future<List<DrawingDocument>> getFavorites({DocumentSortBy? sortBy}) async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_DOCUMENTS,
+      DrawingDatabase.tableDocuments,
       where: 'is_favorite = ?',
       whereArgs: [1],
       orderBy: _getSortOrder(sortBy),
@@ -141,7 +141,7 @@ class DocumentRepository {
   Future<List<DrawingDocument>> getRecent({int limit = 10}) async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_DOCUMENTS,
+      DrawingDatabase.tableDocuments,
       orderBy: 'last_opened_at DESC',
       limit: limit,
     );
@@ -162,7 +162,7 @@ class DocumentRepository {
   }) async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_DOCUMENTS,
+      DrawingDatabase.tableDocuments,
       where: 'name LIKE ?',
       whereArgs: ['%$query%'],
       orderBy: _getSortOrder(sortBy),
@@ -186,8 +186,8 @@ class DocumentRepository {
 
     final maps = await db.rawQuery(
       '''
-      SELECT d.* FROM ${DrawingDatabase.TABLE_DOCUMENTS} d
-      INNER JOIN ${DrawingDatabase.TABLE_DOCUMENT_TAGS} dt ON d.id = dt.document_id
+      SELECT d.* FROM ${DrawingDatabase.tableDocuments} d
+      INNER JOIN ${DrawingDatabase.tableDocumentTags} dt ON d.id = dt.document_id
       WHERE dt.tag_id = ?
       ORDER BY ${_getSortOrder(sortBy)}
     ''',
@@ -216,9 +216,9 @@ class DocumentRepository {
 
     final maps = await db.rawQuery(
       '''
-      SELECT d.* FROM ${DrawingDatabase.TABLE_DOCUMENTS} d
+      SELECT d.* FROM ${DrawingDatabase.tableDocuments} d
       WHERE (
-        SELECT COUNT(*) FROM ${DrawingDatabase.TABLE_DOCUMENT_TAGS} dt
+        SELECT COUNT(*) FROM ${DrawingDatabase.tableDocumentTags} dt
         WHERE dt.document_id = d.id AND dt.tag_id IN ($placeholders)
       ) = ?
       ORDER BY ${_getSortOrder(sortBy)}
@@ -239,7 +239,7 @@ class DocumentRepository {
   Future<int> moveToFolder(int documentId, int? folderId) async {
     final db = await DrawingDatabase.database;
     return await db.update(
-      DrawingDatabase.TABLE_DOCUMENTS,
+      DrawingDatabase.tableDocuments,
       {
         'folder_id': folderId,
         'modified_at': DateTime.now().millisecondsSinceEpoch,
@@ -253,7 +253,7 @@ class DocumentRepository {
   Future<int> toggleFavorite(int documentId, bool isFavorite) async {
     final db = await DrawingDatabase.database;
     return await db.update(
-      DrawingDatabase.TABLE_DOCUMENTS,
+      DrawingDatabase.tableDocuments,
       {
         'is_favorite': isFavorite ? 1 : 0,
         'modified_at': DateTime.now().millisecondsSinceEpoch,
@@ -267,7 +267,7 @@ class DocumentRepository {
   Future<int> updateLastOpened(int documentId) async {
     final db = await DrawingDatabase.database;
     return await db.update(
-      DrawingDatabase.TABLE_DOCUMENTS,
+      DrawingDatabase.tableDocuments,
       {'last_opened_at': DateTime.now().millisecondsSinceEpoch},
       where: 'id = ?',
       whereArgs: [documentId],
@@ -280,8 +280,8 @@ class DocumentRepository {
 
     final maps = await db.rawQuery(
       '''
-      SELECT t.* FROM ${DrawingDatabase.TABLE_TAGS} t
-      INNER JOIN ${DrawingDatabase.TABLE_DOCUMENT_TAGS} dt ON t.id = dt.tag_id
+      SELECT t.* FROM ${DrawingDatabase.tableTags} t
+      INNER JOIN ${DrawingDatabase.tableDocumentTags} dt ON t.id = dt.tag_id
       WHERE dt.document_id = ?
       ORDER BY t.name ASC
     ''',
@@ -315,3 +315,4 @@ class DocumentRepository {
     }
   }
 }
+
