@@ -218,15 +218,6 @@ if (stats['transparentPixels'] > 0) {
 }
 ```
 
-## Git Commits
-
-All implementations committed with zero flutter analyze issues:
-
-```bash
-git add .
-git commit -m "display export separation"
-git push
-```
 
 Previous commits:
 - "eraser stroke" - EraserStroke model
