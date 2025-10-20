@@ -5,6 +5,21 @@ import '../models/drawing_layer.dart';
 import '../models/vector_stroke.dart';
 import '../models/layer_stroke.dart';
 
+/// Export format options
+enum ExportFormat {
+  png,
+  jpg,
+  rawRgba,
+}
+
+/// Export quality levels
+enum ExportQuality {
+  screen, // 72 DPI
+  highQuality, // 150 DPI
+  print, // 300 DPI
+  custom, // Custom DPI
+}
+
 /// High-resolution export system for creating print-quality images
 class HighResolutionExporter {
   /// Standard screen DPI
@@ -15,21 +30,6 @@ class HighResolutionExporter {
 
   /// High quality screen DPI
   static const double highQualityDPI = 150.0;
-
-  /// Export format options
-  enum ExportFormat {
-    png,
-    jpg,
-    rawRgba,
-  }
-
-  /// Export quality levels
-  enum ExportQuality {
-    screen, // 72 DPI
-    highQuality, // 150 DPI
-    print, // 300 DPI
-    custom, // Custom DPI
-  }
 
   /// Get DPI for quality level
   static double getDPIForQuality(ExportQuality quality, {double? customDPI}) {
@@ -200,9 +200,7 @@ class HighResolutionExporter {
       final avgPressure = (prev.pressure + curr.pressure) / 2;
 
       final paint = Paint()
-        ..color = stroke.brushProperties.color.withValues(
-          alpha: stroke.brushProperties.opacity * avgPressure,
-        )
+        ..color = stroke.brushProperties.color
         ..strokeWidth = stroke.brushProperties.strokeWidth * avgPressure
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
