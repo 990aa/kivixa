@@ -135,17 +135,6 @@ class FolderRepository {
     }
   }
 
-  /// Helper method to load subfolders recursively
-  Future<void> _loadSubfoldersRecursive(Folder folder) async {
-    if (folder.id == null) return;
-
-    folder.subfolders = await getSubfolders(folder.id!);
-
-    for (final subfolder in folder.subfolders) {
-      await _loadSubfoldersRecursive(subfolder);
-    }
-  }
-
   Future<int> _getDocumentCount(int folderId) async {
     final db = await DrawingDatabase.database;
     final result = await db.rawQuery(
