@@ -100,6 +100,9 @@ class ExportUsageExamples {
       targetDPI,
       format: ExportFormat.jpg,
     );
+    
+    debugPrint('Estimated PNG size: ${estimatedSizePNG.toStringAsFixed(2)} MB');
+    debugPrint('Estimated JPG size: ${estimatedSizeJPG.toStringAsFixed(2)} MB');
 
     // Check recommended maximum DPI
     final maxDPI = exporter.getRecommendedMaxDPI(canvasSize);

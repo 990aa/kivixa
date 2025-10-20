@@ -67,18 +67,19 @@ class LosslessExporter {
   }
 
   /// Convert vector stroke to SVG path with Bezier curves
-  String _vectorStrokeToSVGPath(VectorStroke stroke) {
-    if (stroke.points.isEmpty) return '';
-
-    final buffer = StringBuffer();
-
-    // Move to first point
-    final firstPoint = stroke.points.first;
-    buffer.write('M ${firstPoint.position.dx} ${firstPoint.position.dy}');
-
-    // Use quadratic Bezier curves for smoother paths
-    for (int i = 1; i < stroke.points.length; i++) {
-      final point = stroke.points[i];
+  /// Note: Reserved for future VectorStroke implementation
+  // String _vectorStrokeToSVGPath(VectorStroke stroke) {
+  //   if (stroke.points.isEmpty) return '';
+  //
+  //   final buffer = StringBuffer();
+  //
+  //   // Move to first point
+  //   final firstPoint = stroke.points.first;
+  //   buffer.write('M ${firstPoint.position.dx} ${firstPoint.position.dy}');
+  //
+  //   // Use quadratic Bezier curves for smoother paths
+  //   for (int i = 1; i < stroke.points.length; i++) {
+  //     final point = stroke.points[i];
 
       if (i < stroke.points.length - 1) {
         // Use quadratic Bezier to next point
