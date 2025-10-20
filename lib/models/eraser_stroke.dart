@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'stroke_point.dart';
 
 /// Represents an eraser stroke that creates transparency
-/// 
+///
 /// Unlike regular strokes, eraser strokes don't add pixels -
 /// they remove pixels and create transparent regions.
 class EraserStroke {
@@ -25,13 +25,17 @@ class EraserStroke {
       'type': 'eraser',
       'size': size,
       'timestamp': timestamp.toIso8601String(),
-      'points': points.map((p) => {
-        'x': p.position.dx,
-        'y': p.position.dy,
-        'pressure': p.pressure,
-        'tilt': p.tilt,
-        'orientation': p.orientation,
-      }).toList(),
+      'points': points
+          .map(
+            (p) => {
+              'x': p.position.dx,
+              'y': p.position.dy,
+              'pressure': p.pressure,
+              'tilt': p.tilt,
+              'orientation': p.orientation,
+            },
+          )
+          .toList(),
     };
   }
 
