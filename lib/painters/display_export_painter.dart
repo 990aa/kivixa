@@ -227,15 +227,79 @@ class CanvasExportPainter {
       canvas.scale(scaleFactor);
     }
 
-    // NO background
-    // TODO: Apply eraser strokes with BlendMode.clear
-    _renderLayers(canvas, layers, size);
+    // NO background - transparent canvas
+    // Render layers with eraser strokes using BlendMode.clear
+    _renderLayersWithErasers(canvas, layers, size);
 
     final picture = recorder.endRecording();
     final image = await picture.toImage(outputWidth, outputHeight);
 
     picture.dispose();
     return image;
+  }
+
+  /// Render layers with eraser strokes applied using BlendMode.clear
+  static void _renderLayersWithErasers(
+    Canvas canvas,
+    List<DrawingLayer> layers,
+    Size size,
+  ) {
+    for (final layer in layers) {
+      if (!layer.isVisible) continue;
+
+      final layerPaint = Paint()
+        ..color = Colors.white.withValues(alpha: layer.opacity)
+        ..blendMode = layer.blendMode;
+
+      canvas.saveLayer(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        layerPaint,
+      );
+
+      for (final stroke in layer.strokes) {
+        // Check if this is an eraser stroke (BlendMode.clear)
+        if (stroke.brushProperties.blendMode == BlendMode.clear) {
+          _renderEraserStroke(canvas, stroke);
+        } else {
+          _renderStroke(canvas, stroke);
+        }
+      }
+
+      canvas.restore();
+    }
+  }
+
+  /// Render eraser stroke with BlendMode.clear
+  static void _renderEraserStroke(Canvas canvas, LayerStroke stroke) {
+    if (stroke.points.isEmpty) return;
+
+    final eraserPaint = Paint()
+      ..blendMode = BlendMode.clear
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..style = PaintingStyle.stroke
+      ..isAntiAlias = true;
+
+    if (stroke.points.length == 1) {
+      // Single point - erase circle
+      canvas.drawCircle(
+        stroke.points[0].position,
+        stroke.brushProperties.strokeWidth / 2,
+        eraserPaint..style = PaintingStyle.fill,
+      );
+      return;
+    }
+
+    // Multiple points - erase along path
+    for (int i = 1; i < stroke.points.length; i++) {
+      final prev = stroke.points[i - 1];
+      final curr = stroke.points[i];
+
+      eraserPaint.strokeWidth =
+          stroke.brushProperties.strokeWidth * curr.pressure;
+
+      canvas.drawLine(prev.position, curr.position, eraserPaint);
+    }
   }
 }
 
