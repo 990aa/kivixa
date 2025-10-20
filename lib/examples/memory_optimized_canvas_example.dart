@@ -18,7 +18,7 @@ import '../services/layer_memory_manager.dart';
 /// 6. Display to screen
 
 class MemoryOptimizedCanvasExample extends StatefulWidget {
-  const MemoryOptimizedCanvasExample({Key? key}) : super(key: key);
+  const MemoryOptimizedCanvasExample({super.key});
 
   @override
   State<MemoryOptimizedCanvasExample> createState() =>
@@ -37,8 +37,8 @@ class _MemoryOptimizedCanvasExampleState
   bool _isDrawing = false;
 
   // Viewport
-  Offset _viewportOffset = Offset.zero;
-  double _viewportScale = 1.0;
+  final Offset _viewportOffset = Offset.zero;
+  final double _viewportScale = 1.0;
 
   @override
   void initState() {
