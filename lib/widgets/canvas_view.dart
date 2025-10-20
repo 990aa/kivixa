@@ -201,10 +201,10 @@ class CanvasViewState extends State<CanvasView> {
   Offset screenToCanvas(Offset screenPoint) {
     final trans = _transformController.value.getTranslation();
     final translation = Offset(trans.x, trans.y);
-    
+
     // Remove translation and scale
     final canvasPoint = (screenPoint - translation) / _currentScale;
-    
+
     // Apply rotation
     if (_rotation != 0.0) {
       final cos = math.cos(-_rotation);
@@ -213,7 +213,7 @@ class CanvasViewState extends State<CanvasView> {
       final y = canvasPoint.dx * sin + canvasPoint.dy * cos;
       return Offset(x, y);
     }
-    
+
     return canvasPoint;
   }
 
@@ -228,7 +228,7 @@ class CanvasViewState extends State<CanvasView> {
       final y = point.dx * sin + point.dy * cos;
       point = Offset(x, y);
     }
-    
+
     // Apply scale and translation
     final trans = _transformController.value.getTranslation();
     final translation = Offset(trans.x, trans.y);
