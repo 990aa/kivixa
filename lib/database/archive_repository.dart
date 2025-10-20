@@ -99,11 +99,15 @@ class ArchiveRepository {
     // Compress file using ZIP
     final encoder = ZipEncoder();
     final archive = Archive();
-    
+
     final fileName = path.basename(document.filePath);
-    final archiveFile = ArchiveFile(fileName, originalBytes.length, originalBytes);
+    final archiveFile = ArchiveFile(
+      fileName,
+      originalBytes.length,
+      originalBytes,
+    );
     archive.addFile(archiveFile);
-    
+
     final compressedBytes = encoder.encode(archive);
     if (compressedBytes == null) {
       throw Exception('Failed to compress document');
@@ -162,7 +166,9 @@ class ArchiveRepository {
     // Read archived file
     final archivedFile = File(archivedDocument.archivedFilePath);
     if (!await archivedFile.exists()) {
-      throw Exception('Archived file not found: ${archivedDocument.archivedFilePath}');
+      throw Exception(
+        'Archived file not found: ${archivedDocument.archivedFilePath}',
+      );
     }
 
     final compressedBytes = await archivedFile.readAsBytes();
@@ -181,7 +187,7 @@ class ArchiveRepository {
 
     // Restore to original path
     final restoredFile = File(archivedDocument.originalFilePath);
-    
+
     // Create parent directory if needed
     final parentDir = restoredFile.parent;
     if (!await parentDir.exists()) {
@@ -217,7 +223,9 @@ class ArchiveRepository {
     final db = await database;
 
     // Calculate threshold timestamp
-    final thresholdDate = DateTime.now().subtract(Duration(days: daysThreshold));
+    final thresholdDate = DateTime.now().subtract(
+      Duration(days: daysThreshold),
+    );
     final thresholdTimestamp = thresholdDate.millisecondsSinceEpoch;
 
     // Query documents not opened in threshold period
@@ -255,10 +263,7 @@ class ArchiveRepository {
   /// Get all archived documents
   Future<List<ArchivedDocument>> getAll() async {
     final db = await database;
-    final results = await db.query(
-      tableArchives,
-      orderBy: 'archived_at DESC',
-    );
+    final results = await db.query(tableArchives, orderBy: 'archived_at DESC');
     return results.map((map) => ArchivedDocument.fromMap(map)).toList();
   }
 
@@ -397,11 +402,7 @@ class ArchiveRepository {
       }
     }
 
-    await db.delete(
-      tableArchives,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    await db.delete(tableArchives, where: 'id = ?', whereArgs: [id]);
   }
 
   /// Delete all archives for a document
@@ -460,7 +461,9 @@ class ArchiveRepository {
   /// Get count of archived documents
   Future<int> getCount() async {
     final db = await database;
-    final result = await db.rawQuery('SELECT COUNT(*) as count FROM $tableArchives');
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM $tableArchives',
+    );
     return Sqflite.firstIntValue(result) ?? 0;
   }
 

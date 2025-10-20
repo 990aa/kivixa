@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'archive_repository.dart';
 
 /// SQLite database for managing drawings, folders, tags, and document organization
 ///
@@ -9,10 +10,11 @@ import 'package:path/path.dart';
 /// - Full-text search across documents
 /// - Efficient indexing for fast queries
 /// - Cascade deletion for data integrity
+/// - Document archiving and compression
 class DrawingDatabase {
   static Database? _database;
   static const String dbName = 'drawing_app.db';
-  static const int dbVersion = 1;
+  static const int dbVersion = 2;
 
   // Table names
   static const String tableFolders = 'folders';
