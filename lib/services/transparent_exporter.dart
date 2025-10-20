@@ -22,25 +22,7 @@ class TransparentExporter {
     final outputWidth = (canvasSize.width * scaleFactor).toInt();
     final outputHeight = (canvasSize.height * scaleFactor).toInt();
 
-    // Render in isolate to prevent UI blocking for large exports
-    return await Isolate.run(() => _renderTransparent(
-          layers,
-          outputWidth,
-          outputHeight,
-          scaleFactor,
-        ));
-  }
-
-  /// Synchronous export (for smaller images or when isolate overhead isn't needed)
-  static Future<Uint8List> exportWithTransparencySync({
-    required List<DrawingLayer> layers,
-    required Size canvasSize,
-    double scaleFactor = 1.0,
-  }) async {
-    final outputWidth = (canvasSize.width * scaleFactor).toInt();
-    final outputHeight = (canvasSize.height * scaleFactor).toInt();
-
-    return _renderTransparent(
+    return await _renderTransparent(
       layers,
       outputWidth,
       outputHeight,
@@ -49,12 +31,12 @@ class TransparentExporter {
   }
 
   /// Internal rendering method
-  static Uint8List _renderTransparent(
+  static Future<Uint8List> _renderTransparent(
     List<DrawingLayer> layers,
     int width,
     int height,
     double scale,
-  ) {
+  ) async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
