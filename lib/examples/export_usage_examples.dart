@@ -100,7 +100,7 @@ class ExportUsageExamples {
       targetDPI,
       format: ExportFormat.jpg,
     );
-    
+
     debugPrint('Estimated PNG size: ${estimatedSizePNG.toStringAsFixed(2)} MB');
     debugPrint('Estimated JPG size: ${estimatedSizeJPG.toStringAsFixed(2)} MB');
 

@@ -80,24 +80,24 @@ class LosslessExporter {
   //   // Use quadratic Bezier curves for smoother paths
   //   for (int i = 1; i < stroke.points.length; i++) {
   //     final point = stroke.points[i];
-
-      if (i < stroke.points.length - 1) {
-        // Use quadratic Bezier to next point
-        final nextPoint = stroke.points[i + 1];
-        final controlX = (point.position.dx + nextPoint.position.dx) / 2;
-        final controlY = (point.position.dy + nextPoint.position.dy) / 2;
-
-        buffer.write(
-          ' Q ${point.position.dx} ${point.position.dy} $controlX $controlY',
-        );
-      } else {
-        // Last point - just line to it
-        buffer.write(' L ${point.position.dx} ${point.position.dy}');
-      }
-    }
-
-    return buffer.toString();
-  }
+  //
+  //     if (i < stroke.points.length - 1) {
+  //       // Use quadratic Bezier to next point
+  //       final nextPoint = stroke.points[i + 1];
+  //       final controlX = (point.position.dx + nextPoint.position.dx) / 2;
+  //       final controlY = (point.position.dy + nextPoint.position.dy) / 2;
+  //
+  //       buffer.write(
+  //         ' Q ${point.position.dx} ${point.position.dy} $controlX $controlY',
+  //       );
+  //     } else {
+  //       // Last point - just line to it
+  //       buffer.write(' L ${point.position.dx} ${point.position.dy}');
+  //     }
+  //   }
+  //
+  //   return buffer.toString();
+  // }
 
   /// Option 2: Export PDF with embedded high-res raster at 300+ DPI
   Future<Uint8List> exportAsPDFWithHighResRaster({
