@@ -53,11 +53,7 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
     setState(() {
       _currentStroke.clear();
       _currentStroke.add(
-        StrokePoint(
-          position: details.localPosition,
-          pressure: 1.0,
-          timestamp: DateTime.now(),
-        ),
+        StrokePoint(position: details.localPosition, pressure: 1.0),
       );
     });
   }
@@ -65,11 +61,7 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
   void _onPanUpdate(DragUpdateDetails details) {
     setState(() {
       _currentStroke.add(
-        StrokePoint(
-          position: details.localPosition,
-          pressure: 1.0,
-          timestamp: DateTime.now(),
-        ),
+        StrokePoint(position: details.localPosition, pressure: 1.0),
       );
     });
   }
