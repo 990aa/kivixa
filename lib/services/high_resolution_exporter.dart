@@ -176,7 +176,7 @@ class HighResolutionExporter {
       // Single point - render as circle
       final point = stroke.points.first;
       final baseColor = stroke.brushProperties.color;
-      final opacity = baseColor.opacity;
+      final opacity = baseColor.a;
       final paint = Paint()
         ..color = baseColor.withValues(alpha: opacity * point.pressure)
         ..style = PaintingStyle.fill
