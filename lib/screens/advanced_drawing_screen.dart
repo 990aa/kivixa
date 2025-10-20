@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:vector_math/vector_math_64.dart' show Vector3;
@@ -638,16 +639,33 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       });
 
       // Serialize in background
-      await DrawingProcessor.serializeDrawingAsync(_layers, _canvasSize);
+      final jsonData = await DrawingProcessor.serializeDrawingAsync(_layers, _canvasSize);
 
-      // TODO: Save to file using file_picker
-      debugPrint('Drawing serialized successfully');
+      // Ask user for save location
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Drawing',
+        fileName: 'drawing_${DateTime.now().millisecondsSinceEpoch}.json',
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
 
-      setState(() {
-        _statusText = 'File saved';
-      });
+      if (result != null) {
+        // Save to file
+        final file = File(result);
+        await file.writeAsString(jsonData);
+
+        setState(() {
+          _statusText = 'File saved successfully';
+        });
+      } else {
+        setState(() {
+          _statusText = 'Save cancelled';
+        });
+      }
     } catch (e) {
-      _statusText = 'Error saving: $e';
+      setState(() {
+        _statusText = 'Error saving: $e';
+      });
     } finally {
       setState(() {
         _isProcessing = false;
