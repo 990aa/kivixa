@@ -248,23 +248,26 @@ class _MemoryOptimizedCanvasExampleState
           children: [
             const Text('Layers', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            ..._layers.asMap().entries.map((entry) {
-              final index = entry.key;
-              final layer = entry.value;
-              return ListTile(
-                title: Text(layer.name),
-                selected: index == _activeLayerIndex,
-                onTap: () {
-                  setState(() {
-                    _activeLayerIndex = index;
-                  });
+            for (final entry in _layers.asMap().entries)
+              Builder(
+                builder: (context) {
+                  final index = entry.key;
+                  final layer = entry.value;
+                  return ListTile(
+                    title: Text(layer.name),
+                    selected: index == _activeLayerIndex,
+                    onTap: () {
+                      setState(() {
+                        _activeLayerIndex = index;
+                      });
+                    },
+                    trailing: Text(
+                      '${layer.strokes.length} strokes',
+                      style: const TextStyle(fontSize: 10),
+                    ),
+                  );
                 },
-                trailing: Text(
-                  '${layer.strokes.length} strokes',
-                  style: const TextStyle(fontSize: 10),
-                ),
-              );
-            }).toList(),
+              ),
           ],
         ),
       ),
