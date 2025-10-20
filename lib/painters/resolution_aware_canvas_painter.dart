@@ -102,7 +102,10 @@ class ResolutionAwareCanvasPainter extends CustomPainter {
 
   /// Render regular stroke at resolution
   void _renderStrokeAtResolution(
-      Canvas canvas, LayerStroke stroke, double scale) {
+    Canvas canvas,
+    LayerStroke stroke,
+    double scale,
+  ) {
     final points = stroke.points;
     if (points.isEmpty) return;
 
@@ -127,14 +130,13 @@ class ResolutionAwareCanvasPainter extends CustomPainter {
       final scaledWidth = baseWidth / scale;
 
       final paint = Paint()
-        ..color = stroke.brushProperties.color.withValues(
-          alpha: curr.pressure,
-        )
+        ..color = stroke.brushProperties.color.withValues(alpha: curr.pressure)
         ..strokeWidth = scaledWidth * curr.pressure
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
         ..style = PaintingStyle.stroke
-        ..isAntiAlias = true // Critical for smooth rendering
+        ..isAntiAlias =
+            true // Critical for smooth rendering
         ..filterQuality = FilterQuality.high;
 
       canvas.drawLine(prev.position, curr.position, paint);
@@ -164,14 +166,7 @@ class ResolutionAwareCanvasPainter extends CustomPainter {
         final cp2x = p1.position.dx + (p2.position.dx - p1.position.dx) * 0.5;
         final cp2y = p1.position.dy + (p2.position.dy - p1.position.dy) * 0.5;
 
-        path.cubicTo(
-          cp1x,
-          cp1y,
-          cp2x,
-          cp2y,
-          p1.position.dx,
-          p1.position.dy,
-        );
+        path.cubicTo(cp1x, cp1y, cp2x, cp2y, p1.position.dx, p1.position.dy);
       }
 
       // Add final segment
@@ -278,7 +273,11 @@ class InfiniteZoomCanvasPainter extends CustomPainter {
   }
 
   /// Render stroke with highest quality at any zoom level
-  void _renderStrokeHighQuality(Canvas canvas, VectorStroke stroke, double zoom) {
+  void _renderStrokeHighQuality(
+    Canvas canvas,
+    VectorStroke stroke,
+    double zoom,
+  ) {
     if (stroke.points.isEmpty) return;
 
     final points = stroke.points;

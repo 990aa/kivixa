@@ -44,12 +44,14 @@ class SymmetryTool {
       for (final point in points) {
         final symmetricOffsets = applySymmetry(point.position);
         if (i < symmetricOffsets.length) {
-          transformedPoints.add(StrokePoint(
-            position: symmetricOffsets[i],
-            pressure: point.pressure,
-            tilt: point.tilt,
-            orientation: point.orientation,
-          ));
+          transformedPoints.add(
+            StrokePoint(
+              position: symmetricOffsets[i],
+              pressure: point.pressure,
+              tilt: point.tilt,
+              orientation: point.orientation,
+            ),
+          );
         }
       }
       if (transformedPoints.isNotEmpty) {
@@ -77,18 +79,12 @@ class SymmetryTool {
 
   /// Horizontal mirror symmetry
   List<Offset> _applyHorizontalSymmetry(Offset point) {
-    return [
-      point,
-      Offset(2 * settings.center.dx - point.dx, point.dy),
-    ];
+    return [point, Offset(2 * settings.center.dx - point.dx, point.dy)];
   }
 
   /// Vertical mirror symmetry
   List<Offset> _applyVerticalSymmetry(Offset point) {
-    return [
-      point,
-      Offset(point.dx, 2 * settings.center.dy - point.dy),
-    ];
+    return [point, Offset(point.dx, 2 * settings.center.dy - point.dy)];
   }
 
   /// Radial symmetry (N-way rotation)
@@ -107,10 +103,9 @@ class SymmetryTool {
       final rotatedX = dx * cos - dy * sin;
       final rotatedY = dx * sin + dy * cos;
 
-      result.add(Offset(
-        settings.center.dx + rotatedX,
-        settings.center.dy + rotatedY,
-      ));
+      result.add(
+        Offset(settings.center.dx + rotatedX, settings.center.dy + rotatedY),
+      );
     }
 
     return result;
@@ -133,16 +128,14 @@ class SymmetryTool {
       final rotatedY = dx * sin + dy * cos;
 
       // Add rotated point
-      result.add(Offset(
-        settings.center.dx + rotatedX,
-        settings.center.dy + rotatedY,
-      ));
+      result.add(
+        Offset(settings.center.dx + rotatedX, settings.center.dy + rotatedY),
+      );
 
       // Add mirrored point (flip across the radial line)
-      result.add(Offset(
-        settings.center.dx + rotatedX,
-        settings.center.dy - rotatedY,
-      ));
+      result.add(
+        Offset(settings.center.dx + rotatedX, settings.center.dy - rotatedY),
+      );
     }
 
     return result;
@@ -208,7 +201,12 @@ class SymmetryTool {
   }
 
   /// Draw radial guidelines
-  void _drawRadialGuidelines(Canvas canvas, Size size, Paint paint, Paint dashedPaint) {
+  void _drawRadialGuidelines(
+    Canvas canvas,
+    Size size,
+    Paint paint,
+    Paint dashedPaint,
+  ) {
     final maxRadius = math.max(size.width, size.height);
     final angleStep = 2 * math.pi / settings.segments;
 
@@ -221,7 +219,12 @@ class SymmetryTool {
       if (i == 0) {
         canvas.drawLine(settings.center, Offset(endX, endY), paint);
       } else {
-        _drawDashedLine(canvas, settings.center, Offset(endX, endY), dashedPaint);
+        _drawDashedLine(
+          canvas,
+          settings.center,
+          Offset(endX, endY),
+          dashedPaint,
+        );
       }
     }
 
@@ -230,7 +233,12 @@ class SymmetryTool {
   }
 
   /// Draw kaleidoscope guidelines
-  void _drawKaleidoscopeGuidelines(Canvas canvas, Size size, Paint paint, Paint dashedPaint) {
+  void _drawKaleidoscopeGuidelines(
+    Canvas canvas,
+    Size size,
+    Paint paint,
+    Paint dashedPaint,
+  ) {
     final maxRadius = math.max(size.width, size.height);
     final angleStep = 2 * math.pi / settings.segments;
 
@@ -246,7 +254,12 @@ class SymmetryTool {
       final midAngle = angle + angleStep / 2;
       final mirrorEndX = settings.center.dx + maxRadius * math.cos(midAngle);
       final mirrorEndY = settings.center.dy + maxRadius * math.sin(midAngle);
-      _drawDashedLine(canvas, settings.center, Offset(mirrorEndX, mirrorEndY), paint);
+      _drawDashedLine(
+        canvas,
+        settings.center,
+        Offset(mirrorEndX, mirrorEndY),
+        paint,
+      );
     }
 
     // Draw center circles

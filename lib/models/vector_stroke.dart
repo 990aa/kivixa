@@ -50,7 +50,8 @@ class VectorStroke {
       final cp2y = p1.position.dy + (p2.position.dy - p1.position.dy) * 0.5;
 
       buffer.write(
-          ' C $cp1x $cp1y, $cp2x $cp2y, ${p1.position.dx} ${p1.position.dy}');
+        ' C $cp1x $cp1y, $cp2x $cp2y, ${p1.position.dx} ${p1.position.dy}',
+      );
     }
 
     // Add final point
@@ -76,9 +77,11 @@ class VectorStroke {
   /// Get colors along path (for gradient brushes)
   List<Color> getColorsAlongPath() {
     return points
-        .map((p) => brushSettings.color.withValues(
-              alpha: brushSettings.opacity * p.pressure,
-            ))
+        .map(
+          (p) => brushSettings.color.withValues(
+            alpha: brushSettings.opacity * p.pressure,
+          ),
+        )
         .toList();
   }
 
@@ -135,7 +138,10 @@ class VectorStroke {
   }
 
   /// Douglas-Peucker algorithm for path simplification
-  List<StrokePoint> _douglasPeucker(List<StrokePoint> points, double tolerance) {
+  List<StrokePoint> _douglasPeucker(
+    List<StrokePoint> points,
+    double tolerance,
+  ) {
     if (points.length <= 2) return points;
 
     // Find point with maximum distance from line between start and end
@@ -165,7 +171,11 @@ class VectorStroke {
   }
 
   /// Calculate perpendicular distance from point to line
-  double _perpendicularDistance(Offset point, Offset lineStart, Offset lineEnd) {
+  double _perpendicularDistance(
+    Offset point,
+    Offset lineStart,
+    Offset lineEnd,
+  ) {
     final dx = lineEnd.dx - lineStart.dx;
     final dy = lineEnd.dy - lineStart.dy;
 
@@ -176,9 +186,8 @@ class VectorStroke {
       return math.sqrt(pdx * pdx + pdy * pdy);
     }
 
-    final numerator = ((point.dx - lineStart.dx) * dy -
-            (point.dy - lineStart.dy) * dx)
-        .abs();
+    final numerator =
+        ((point.dx - lineStart.dx) * dy - (point.dy - lineStart.dy) * dx).abs();
     final denominator = math.sqrt(dx * dx + dy * dy);
 
     return numerator / denominator;
@@ -201,8 +210,9 @@ class VectorStroke {
       points: (json['points'] as List)
           .map((p) => StrokePoint.fromJson(p as Map<String, dynamic>))
           .toList(),
-      brushSettings:
-          BrushSettings.fromJson(json['brushSettings'] as Map<String, dynamic>),
+      brushSettings: BrushSettings.fromJson(
+        json['brushSettings'] as Map<String, dynamic>,
+      ),
       timestamp: DateTime.parse(json['timestamp'] as String),
     );
   }

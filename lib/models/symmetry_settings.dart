@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Symmetry modes for drawing
-enum SymmetryMode {
-  none,
-  horizontal,
-  vertical,
-  radial,
-  kaleidoscope,
-}
+enum SymmetryMode { none, horizontal, vertical, radial, kaleidoscope }
 
 /// Symmetry settings
 class SymmetrySettings {
