@@ -154,9 +154,9 @@ class ExportImportService {
         path.addPolygon(points);
 
         final pdfColor = PdfColor(
-          stroke.color.red,
-          stroke.color.green,
-          stroke.color.blue,
+          ((stroke.color.r * 255.0).round() & 0xff),
+          ((stroke.color.g * 255.0).round() & 0xff),
+          ((stroke.color.b * 255.0).round() & 0xff),
         );
 
         graphics.drawPath(
@@ -176,10 +176,11 @@ class ExportImportService {
         PdfFontFamily.helvetica,
         element.style.fontSize ?? 24,
       );
-      final color = PdfColor(
-        element.style.color?.red ?? 0,
-        element.style.color?.green ?? 0,
-        element.style.color?.blue ?? 0,
+      final color = element.style.color ?? Colors.black;
+      final pdfColor = PdfColor(
+        ((color.r * 255.0).round() & 0xff),
+        ((color.g * 255.0).round() & 0xff),
+        ((color.b * 255.0).round() & 0xff),
       );
 
       graphics.save();
@@ -187,13 +188,13 @@ class ExportImportService {
       graphics.rotateTransform(
         element.rotation * 180 / 3.14159,
       ); // Convert to degrees
-      graphics.scaleTransform(element.scale, element.scale);
 
       graphics.drawString(
         element.text,
         font,
-        pen: PdfPen(color),
-        brush: PdfSolidBrush(color),
+        bounds: Rect.fromLTWH(0, 0, 500, 100),
+        pen: PdfPen(pdfColor),
+        brush: PdfSolidBrush(pdfColor),
       );
 
       graphics.restore();
@@ -209,11 +210,15 @@ class ExportImportService {
       graphics.save();
       graphics.translateTransform(element.position.dx, element.position.dy);
       graphics.rotateTransform(element.rotation * 180 / 3.14159);
-      graphics.scaleTransform(element.scale, element.scale);
 
       graphics.drawImage(
         pdfImage,
-        Rect.fromLTWH(0, 0, element.width, element.height),
+        Rect.fromLTWH(
+          0,
+          0,
+          element.width * element.scale,
+          element.height * element.scale,
+        ),
       );
 
       graphics.restore();
