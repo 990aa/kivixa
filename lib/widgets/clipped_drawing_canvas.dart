@@ -169,20 +169,20 @@ class ClippedLayerPainter extends CustomPainter {
     if (stroke.points.isEmpty) return;
 
     final paint = Paint()
-      ..color = stroke.color
-      ..strokeWidth = stroke.strokeWidth
+      ..color = stroke.brushSettings.color
+      ..strokeWidth = stroke.brushSettings.size
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
 
     final path = Path();
-    path.moveTo(stroke.points[0].dx, stroke.points[0].dy);
+    path.moveTo(stroke.points[0].position.dx, stroke.points[0].position.dy);
 
     if (stroke.points.length == 1) {
       // Single point - draw a circle
       canvas.drawCircle(
-        stroke.points[0],
-        stroke.strokeWidth / 2,
+        stroke.points[0].position,
+        stroke.brushSettings.size / 2,
         paint..style = PaintingStyle.fill,
       );
       return;
@@ -190,7 +190,7 @@ class ClippedLayerPainter extends CustomPainter {
 
     // Create smooth vector path
     for (int i = 1; i < stroke.points.length; i++) {
-      path.lineTo(stroke.points[i].dx, stroke.points[i].dy);
+      path.lineTo(stroke.points[i].position.dx, stroke.points[i].position.dy);
     }
 
     canvas.drawPath(path, paint);
