@@ -42,7 +42,7 @@ class CanvasState extends ChangeNotifier {
   bool get canRedo => _redoStack.isNotEmpty;
 
   CanvasState({DatabaseService? databaseService})
-      : _databaseService = databaseService ?? DatabaseService();
+    : _databaseService = databaseService ?? DatabaseService();
 
   // ============ Tool & Color Management ============
 
@@ -141,7 +141,10 @@ class CanvasState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateElement(String elementId, element_model.CanvasElement updatedElement) {
+  void updateElement(
+    String elementId,
+    element_model.CanvasElement updatedElement,
+  ) {
     _captureSnapshotForUndo();
     final index = _elements.indexWhere((e) => e.id == elementId);
     if (index != -1) {
@@ -201,7 +204,9 @@ class CanvasState extends ChangeNotifier {
     return CanvasSnapshot(
       strokes: List.from(_strokes),
       elements: List.from(_elements),
-      layers: Map.from(_layers.map((key, value) => MapEntry(key, List.from(value)))),
+      layers: Map.from(
+        _layers.map((key, value) => MapEntry(key, List.from(value))),
+      ),
       activeLayer: _activeLayer,
     );
   }
@@ -209,7 +214,9 @@ class CanvasState extends ChangeNotifier {
   void _restoreSnapshot(CanvasSnapshot snapshot) {
     _strokes = List.from(snapshot.strokes);
     _elements = List.from(snapshot.elements);
-    _layers = Map.from(snapshot.layers.map((key, value) => MapEntry(key, List.from(value))));
+    _layers = Map.from(
+      snapshot.layers.map((key, value) => MapEntry(key, List.from(value))),
+    );
     _activeLayer = snapshot.activeLayer;
   }
 
@@ -221,11 +228,11 @@ class CanvasState extends ChangeNotifier {
 
   Future<void> loadNote(int noteId) async {
     _currentNoteId = noteId;
-    
+
     // Load strokes
     final loadedStrokes = await _databaseService.loadStrokesForNote(noteId);
     _strokes = loadedStrokes;
-    
+
     // Rebuild layers from loaded strokes
     _layers = {0: []};
     _layers[0] = List.from(_strokes);
@@ -247,7 +254,7 @@ class CanvasState extends ChangeNotifier {
       content: content,
     );
     _currentNoteId = noteId;
-    
+
     // Clear current canvas
     _strokes.clear();
     _elements.clear();
@@ -272,7 +279,7 @@ class CanvasState extends ChangeNotifier {
     try {
       // Save strokes
       await _databaseService.saveStrokesForNote(_currentNoteId!, _strokes);
-      
+
       // Save elements
       await _databaseService.saveElementsForNote(_currentNoteId!, _elements);
 
@@ -305,9 +312,9 @@ class CanvasState extends ChangeNotifier {
 
 /// Snapshot of canvas state for undo/redo
 class CanvasSnapshot {
-  final List<Stroke> strokes;
-  final List<CanvasElement> elements;
-  final Map<int, List<Stroke>> layers;
+  final List<stroke_model.Stroke> strokes;
+  final List<element_model.CanvasElement> elements;
+  final Map<int, List<stroke_model.Stroke>> layers;
   final int activeLayer;
 
   CanvasSnapshot({
