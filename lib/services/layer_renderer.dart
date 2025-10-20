@@ -5,12 +5,12 @@ import '../models/layer_stroke.dart';
 import '../models/vector_stroke.dart';
 
 /// Renders layers to images with proper transparency support
-/// 
+///
 /// CRITICAL: Canvas background (white/gray) is a visual aid only
 /// and must NEVER be exported with the artwork.
 class LayerRenderer {
   /// Render a single layer to an image with transparent background
-  /// 
+  ///
   /// This is the key method for exporting artwork without background.
   /// The canvas background is purely for visual aid during editing.
   static Future<ui.Image> renderLayerToImage(
@@ -19,27 +19,27 @@ class LayerRenderer {
   ) async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
-    
+
     // CRITICAL: DO NOT draw background color - leave transparent!
     // This is the key difference from display rendering
     // The user's artwork should be on a transparent background
-    
+
     // Draw all strokes with proper alpha handling
     for (final stroke in layer.strokes) {
       _renderLayerStroke(canvas, stroke);
     }
-    
+
     final picture = recorder.endRecording();
     final image = await picture.toImage(
       canvasSize.width.toInt(),
       canvasSize.height.toInt(),
     );
-    
+
     return image;
   }
-  
+
   /// Render multiple layers to a single image with transparency
-  /// 
+  ///
   /// Respects layer visibility, opacity, and blend modes.
   static Future<ui.Image> renderLayersToImage(
     List<DrawingLayer> layers,
@@ -48,47 +48,47 @@ class LayerRenderer {
   }) async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
-    
+
     // DO NOT draw background - keep transparent
-    
+
     for (final layer in layers) {
       if (!layer.isVisible && !includeInvisibleLayers) continue;
-      
+
       // Save layer state for opacity and blend mode
       if (layer.opacity < 1.0 || layer.blendMode != BlendMode.srcOver) {
         final paint = Paint()
           ..color = Colors.white.withValues(alpha: layer.opacity)
           ..blendMode = layer.blendMode;
-        
+
         canvas.saveLayer(
           Rect.fromLTWH(0, 0, canvasSize.width, canvasSize.height),
           paint,
         );
       }
-      
+
       // Render all strokes in the layer
       for (final stroke in layer.strokes) {
         _renderLayerStroke(canvas, stroke);
       }
-      
+
       if (layer.opacity < 1.0 || layer.blendMode != BlendMode.srcOver) {
         canvas.restore();
       }
     }
-    
+
     final picture = recorder.endRecording();
     final image = await picture.toImage(
       canvasSize.width.toInt(),
       canvasSize.height.toInt(),
     );
-    
+
     return image;
   }
-  
+
   /// Render a LayerStroke with proper alpha handling
   static void _renderLayerStroke(Canvas canvas, LayerStroke stroke) {
     if (stroke.points.isEmpty) return;
-    
+
     if (stroke.points.length == 1) {
       // Single point - draw a circle
       canvas.drawCircle(
@@ -98,12 +98,12 @@ class LayerRenderer {
       );
       return;
     }
-    
+
     // Draw line segments with pressure variation
     for (int i = 1; i < stroke.points.length; i++) {
       final prev = stroke.points[i - 1];
       final curr = stroke.points[i];
-      
+
       // Create paint with current pressure
       final paint = Paint()
         ..color = stroke.brushProperties.color
@@ -113,30 +113,32 @@ class LayerRenderer {
         ..blendMode = stroke.brushProperties.blendMode
         ..style = PaintingStyle.stroke
         ..isAntiAlias = true;
-      
+
       canvas.drawLine(prev.position, curr.position, paint);
     }
   }
-  
+
   /// Render a VectorStroke with proper alpha handling
   static void _renderVectorStroke(Canvas canvas, VectorStroke stroke) {
     if (stroke.points.isEmpty) return;
-    
+
     for (int i = 1; i < stroke.points.length; i++) {
       final prev = stroke.points[i - 1];
       final curr = stroke.points[i];
-      
+
       final paint = Paint()
-        ..color = stroke.brushSettings.color // Includes alpha from color
+        ..color = stroke
+            .brushSettings
+            .color // Includes alpha from color
         ..strokeWidth = stroke.brushSettings.size * curr.pressure
         ..strokeCap = StrokeCap.round
         ..style = PaintingStyle.stroke
         ..isAntiAlias = true;
-      
+
       canvas.drawLine(prev.position, curr.position, paint);
     }
   }
-  
+
   /// Export layer as PNG bytes with transparency
   static Future<List<int>> exportLayerAsPNG(
     DrawingLayer layer,
@@ -144,14 +146,14 @@ class LayerRenderer {
   ) async {
     final image = await renderLayerToImage(layer, canvasSize);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    
+
     if (byteData == null) {
       throw Exception('Failed to encode image as PNG');
     }
-    
+
     return byteData.buffer.asUint8List();
   }
-  
+
   /// Export multiple layers as PNG bytes with transparency
   static Future<List<int>> exportLayersAsPNG(
     List<DrawingLayer> layers,
@@ -163,16 +165,16 @@ class LayerRenderer {
       canvasSize,
       includeInvisibleLayers: includeInvisibleLayers,
     );
-    
+
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    
+
     if (byteData == null) {
       throw Exception('Failed to encode image as PNG');
     }
-    
+
     return byteData.buffer.asUint8List();
   }
-  
+
   /// Render layer to image at higher resolution for export
   static Future<ui.Image> renderLayerAtDPI(
     DrawingLayer layer,
@@ -185,29 +187,29 @@ class LayerRenderer {
       canvasSize.width * scale,
       canvasSize.height * scale,
     );
-    
+
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
-    
+
     // Scale canvas for higher resolution
     canvas.scale(scale);
-    
+
     // DO NOT draw background color
-    
+
     // Render all strokes
     for (final stroke in layer.strokes) {
       _renderLayerStroke(canvas, stroke);
     }
-    
+
     final picture = recorder.endRecording();
     final image = await picture.toImage(
       scaledSize.width.toInt(),
       scaledSize.height.toInt(),
     );
-    
+
     return image;
   }
-  
+
   /// Create a preview thumbnail of a layer
   static Future<ui.Image> createLayerThumbnail(
     DrawingLayer layer,
@@ -218,24 +220,24 @@ class LayerRenderer {
     final scaleX = thumbnailSize.width / canvasSize.width;
     final scaleY = thumbnailSize.height / canvasSize.height;
     final scale = scaleX < scaleY ? scaleX : scaleY;
-    
+
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
-    
+
     // Scale down
     canvas.scale(scale);
-    
+
     // Render strokes
     for (final stroke in layer.strokes) {
       _renderLayerStroke(canvas, stroke);
     }
-    
+
     final picture = recorder.endRecording();
     final image = await picture.toImage(
       (canvasSize.width * scale).toInt(),
       (canvasSize.height * scale).toInt(),
     );
-    
+
     return image;
   }
 }
