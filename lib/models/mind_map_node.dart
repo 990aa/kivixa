@@ -20,8 +20,8 @@ class MindMapNode {
     List<String>? childIds,
     this.fontSize = 16.0,
     this.isCollapsed = false,
-  })  : id = id ?? const Uuid().v4(),
-        childIds = childIds ?? [];
+  }) : id = id ?? const Uuid().v4(),
+       childIds = childIds ?? [];
 
   /// Copy with modifications
   MindMapNode copyWith({
@@ -80,7 +80,9 @@ class MindMapNode {
   /// Deserialize JSON string to list of nodes
   static List<MindMapNode> deserializeNodes(String json) {
     final List<dynamic> data = jsonDecode(json);
-    return data.map((n) => MindMapNode.fromJson(n as Map<String, dynamic>)).toList();
+    return data
+        .map((n) => MindMapNode.fromJson(n as Map<String, dynamic>))
+        .toList();
   }
 }
 
@@ -134,6 +136,8 @@ class MindMapEdge {
   /// Deserialize JSON string to list of edges
   static List<MindMapEdge> deserializeEdges(String json) {
     final List<dynamic> data = jsonDecode(json);
-    return data.map((e) => MindMapEdge.fromJson(e as Map<String, dynamic>)).toList();
+    return data
+        .map((e) => MindMapEdge.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 }
