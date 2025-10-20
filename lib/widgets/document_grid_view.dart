@@ -49,9 +49,9 @@ class _DocumentGridViewState extends State<DocumentGridView> {
             const SizedBox(height: 16),
             Text(
               'No documents found',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.grey,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: Colors.grey),
             ),
           ],
         ),
@@ -74,8 +74,7 @@ class _DocumentGridViewState extends State<DocumentGridView> {
   }
 
   Widget _buildDocumentCard(DrawingDocument document) {
-    final isSelected =
-        widget.selectedDocuments?.contains(document.id) ?? false;
+    final isSelected = widget.selectedDocuments?.contains(document.id) ?? false;
 
     return GestureDetector(
       onTap: () {
@@ -91,10 +90,7 @@ class _DocumentGridViewState extends State<DocumentGridView> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: isSelected
-              ? BorderSide(
-                  color: Theme.of(context).primaryColor,
-                  width: 2,
-                )
+              ? BorderSide(color: Theme.of(context).primaryColor, width: 2)
               : BorderSide.none,
         ),
         child: Column(
@@ -106,12 +102,14 @@ class _DocumentGridViewState extends State<DocumentGridView> {
                 children: [
                   // Thumbnail image or placeholder
                   ClipRRect(
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(12)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(12),
+                    ),
                     child: Container(
                       width: double.infinity,
                       color: Colors.grey.shade200,
-                      child: widget.showThumbnails &&
+                      child:
+                          widget.showThumbnails &&
                               document.thumbnailPath != null
                           ? Image.asset(
                               document.thumbnailPath!,
@@ -240,10 +238,7 @@ class _DocumentGridViewState extends State<DocumentGridView> {
                   // Modified time
                   Text(
                     document.modifiedRelative,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),
 
                   const SizedBox(height: 4),
@@ -251,10 +246,7 @@ class _DocumentGridViewState extends State<DocumentGridView> {
                   // File size
                   Text(
                     document.fileSizeFormatted,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade500,
-                    ),
+                    style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                   ),
 
                   // Tags
@@ -292,11 +284,7 @@ class _DocumentGridViewState extends State<DocumentGridView> {
 
   Widget _buildPlaceholder(DrawingDocument document) {
     return Center(
-      child: Icon(
-        document.typeIcon,
-        size: 48,
-        color: Colors.grey.shade400,
-      ),
+      child: Icon(document.typeIcon, size: 48, color: Colors.grey.shade400),
     );
   }
 }
