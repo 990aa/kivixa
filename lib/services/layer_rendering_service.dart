@@ -53,20 +53,12 @@ class LayerRenderingService {
         ..isAntiAlias = true;
 
       // Draw line segment with pressure-sensitive width
-      canvas.drawLine(
-        prevPoint.position,
-        point.position,
-        paint,
-      );
+      canvas.drawLine(prevPoint.position, point.position, paint);
     }
   }
 
   /// Paint multiple layers with compositing
-  static void paintLayers(
-    Canvas canvas,
-    List<DrawingLayer> layers,
-    Size size,
-  ) {
+  static void paintLayers(Canvas canvas, List<DrawingLayer> layers, Size size) {
     for (final layer in layers) {
       if (!layer.isVisible) continue;
 
@@ -78,10 +70,7 @@ class LayerRenderingService {
       // If layer has cached image, use it
       if (layer.cachedImage != null) {
         // Save layer for compositing effects
-        canvas.saveLayer(
-          Rect.fromLTWH(0, 0, size.width, size.height),
-          paint,
-        );
+        canvas.saveLayer(Rect.fromLTWH(0, 0, size.width, size.height), paint);
 
         // Draw cached layer image
         canvas.drawImage(layer.cachedImage!, Offset.zero, Paint());
@@ -90,10 +79,7 @@ class LayerRenderingService {
         canvas.restore();
       } else {
         // Draw strokes directly if no cache
-        canvas.saveLayer(
-          Rect.fromLTWH(0, 0, size.width, size.height),
-          paint,
-        );
+        canvas.saveLayer(Rect.fromLTWH(0, 0, size.width, size.height), paint);
 
         for (final stroke in layer.strokes) {
           _drawStroke(canvas, stroke);

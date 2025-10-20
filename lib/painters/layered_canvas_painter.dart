@@ -74,10 +74,7 @@ class SingleLayerPainter extends CustomPainter {
   final DrawingLayer layer;
   final Size canvasSize;
 
-  SingleLayerPainter({
-    required this.layer,
-    required this.canvasSize,
-  });
+  SingleLayerPainter({required this.layer, required this.canvasSize});
 
   @override
   void paint(Canvas canvas, Size size) {

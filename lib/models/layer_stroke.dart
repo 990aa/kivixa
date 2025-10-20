@@ -14,8 +14,8 @@ class LayerStroke {
     required this.points,
     required this.brushProperties,
     DateTime? timestamp,
-  })  : id = id ?? const Uuid().v4(),
-        timestamp = timestamp ?? DateTime.now();
+  }) : id = id ?? const Uuid().v4(),
+       timestamp = timestamp ?? DateTime.now();
 
   /// Create a copy with modified values
   LayerStroke copyWith({

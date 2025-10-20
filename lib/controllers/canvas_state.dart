@@ -17,9 +17,7 @@ class CanvasState extends ChangeNotifier {
   List<element_model.CanvasElement> _elements = [];
 
   // New layer system
-  List<DrawingLayer> _layers = [
-    DrawingLayer(name: 'Background'),
-  ];
+  List<DrawingLayer> _layers = [DrawingLayer(name: 'Background')];
   int _activeLayerIndex = 0;
 
   DrawingTool _currentTool = DrawingTool.pen;
@@ -57,7 +55,7 @@ class CanvasState extends ChangeNotifier {
   Size get canvasSize => _canvasSize;
 
   CanvasState({DatabaseService? databaseService})
-      : _databaseService = databaseService ?? DatabaseService();
+    : _databaseService = databaseService ?? DatabaseService();
 
   // ============ Canvas Size Management ============
 
@@ -95,44 +93,165 @@ class CanvasState extends ChangeNotifier {
 
   // ============ Layer Management ============
 
-  void addLayer() {
-    final newLayerId = _layers.keys.reduce((a, b) => a > b ? a : b) + 1;
-    _layers[newLayerId] = [];
+  void addLayer({String? name}) {
+    _captureSnapshotForUndo();
+    final newLayer = DrawingLayer(
+      name: name ?? 'Layer ${_layers.length + 1}',
+    );
+    _layers.add(newLayer);
+    _activeLayerIndex = _layers.length - 1;
     notifyListeners();
   }
 
-  void setActiveLayer(int layerId) {
-    if (_layers.containsKey(layerId)) {
-      _activeLayer = layerId;
+  void setActiveLayer(int index) {
+    if (index >= 0 && index < _layers.length) {
+      _activeLayerIndex = index;
       notifyListeners();
     }
   }
 
-  void deleteLayer(int layerId) {
-    if (_layers.length > 1 && _layers.containsKey(layerId)) {
-      _layers.remove(layerId);
-      if (_activeLayer == layerId) {
-        _activeLayer = _layers.keys.first;
+  void deleteLayer(int index) {
+    if (_layers.length > 1 && index >= 0 && index < _layers.length) {
+      _captureSnapshotForUndo();
+      _layers.removeAt(index);
+      if (_activeLayerIndex >= _layers.length) {
+        _activeLayerIndex = _layers.length - 1;
       }
-      _rebuildStrokesFromLayers();
       _scheduleAutoSave();
       notifyListeners();
     }
   }
 
-  void _rebuildStrokesFromLayers() {
-    _strokes.clear();
-    final sortedLayers = _layers.keys.toList()..sort();
-    for (final layerId in sortedLayers) {
-      _strokes.addAll(_layers[layerId]!);
+  void duplicateLayer(int index) {
+    if (index >= 0 && index < _layers.length) {
+      _captureSnapshotForUndo();
+      final layer = _layers[index];
+      final duplicated = layer.copyWith(
+        name: '${layer.name} Copy',
+      );
+      _layers.insert(index + 1, duplicated);
+      _activeLayerIndex = index + 1;
+      notifyListeners();
     }
   }
 
-  // ============ Stroke Management ============
+  void moveLayer(int fromIndex, int toIndex) {
+    if (fromIndex >= 0 &&
+        fromIndex < _layers.length &&
+        toIndex >= 0 &&
+        toIndex < _layers.length) {
+      _captureSnapshotForUndo();
+      final layer = _layers.removeAt(fromIndex);
+      _layers.insert(toIndex, layer);
+      _activeLayerIndex = toIndex;
+      notifyListeners();
+    }
+  }
 
+  void renameLayer(int index, String newName) {
+    if (index >= 0 && index < _layers.length) {
+      _layers[index].name = newName;
+      notifyListeners();
+    }
+  }
+
+  void setLayerOpacity(int index, double opacity) {
+    if (index >= 0 && index < _layers.length) {
+      _layers[index].opacity = opacity.clamp(0.0, 1.0);
+      notifyListeners();
+    }
+  }
+
+  void setLayerBlendMode(int index, BlendMode blendMode) {
+    if (index >= 0 && index < _layers.length) {
+      _layers[index].blendMode = blendMode;
+      notifyListeners();
+    }
+  }
+
+  void toggleLayerVisibility(int index) {
+    if (index >= 0 && index < _layers.length) {
+      _layers[index].isVisible = !_layers[index].isVisible;
+      notifyListeners();
+    }
+  }
+
+  void toggleLayerLock(int index) {
+    if (index >= 0 && index < _layers.length) {
+      _layers[index].isLocked = !_layers[index].isLocked;
+      notifyListeners();
+    }
+  }
+
+  void mergeLayerDown(int index) {
+    if (index > 0 && index < _layers.length) {
+      _captureSnapshotForUndo();
+      final upperLayer = _layers[index];
+      final lowerLayer = _layers[index - 1];
+
+      // Merge strokes
+      lowerLayer.strokes.addAll(upperLayer.strokes);
+      lowerLayer.updateBounds();
+      lowerLayer.invalidateCache();
+
+      // Remove upper layer
+      _layers.removeAt(index);
+      _activeLayerIndex = index - 1;
+
+      _scheduleAutoSave();
+      notifyListeners();
+    }
+  }
+
+  /// Cache all layers for better performance
+  Future<void> cacheAllLayers() async {
+    await LayerRenderingService.cacheAllLayers(_layers, _canvasSize);
+    notifyListeners();
+  }
+
+  /// Update cache for active layer
+  Future<void> updateActiveLayerCache() async {
+    await LayerRenderingService.updateLayerCache(
+      activeLayer,
+      _canvasSize,
+    );
+    notifyListeners();
+  }
+
+  // ============ Stroke Management (New Layer System) ============
+
+  /// Add a stroke to the active layer using new layer system
+  void addLayerStroke(LayerStroke stroke) {
+    if (activeLayer.isLocked) return;
+
+    _captureSnapshotForUndo();
+    activeLayer.addStroke(stroke);
+    activeLayer.invalidateCache();
+    _scheduleAutoSave();
+    notifyListeners();
+  }
+
+  /// Create and add a stroke from points (helper method)
+  void addStrokeFromPoints(List<StrokePoint> points) {
+    final paint = Paint()
+      ..color = _currentColor
+      ..strokeWidth = _strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..isAntiAlias = true;
+
+    final stroke = LayerStroke(
+      points: points,
+      brushProperties: paint,
+    );
+
+    addLayerStroke(stroke);
+  }
+
+  /// Legacy stroke support (for backward compatibility)
   void addStroke(stroke_model.Stroke stroke) {
     _captureSnapshotForUndo();
-    _layers[_activeLayer]!.add(stroke);
     _strokes.add(stroke);
     _scheduleAutoSave();
     notifyListeners();
@@ -141,9 +260,10 @@ class CanvasState extends ChangeNotifier {
   void removeStroke(String strokeId) {
     _captureSnapshotForUndo();
     _strokes.removeWhere((s) => s.id == strokeId);
-    // Remove from layers
-    for (final layer in _layers.values) {
-      layer.removeWhere((s) => s.id == strokeId);
+
+    // Also remove from layers
+    for (final layer in _layers) {
+      layer.removeStroke(strokeId);
     }
     _scheduleAutoSave();
     notifyListeners();
@@ -152,8 +272,9 @@ class CanvasState extends ChangeNotifier {
   void clearStrokes() {
     _captureSnapshotForUndo();
     _strokes.clear();
-    _layers = {0: []};
-    _activeLayer = 0;
+    for (final layer in _layers) {
+      layer.clearStrokes();
+    }
     _scheduleAutoSave();
     notifyListeners();
   }
@@ -230,20 +351,16 @@ class CanvasState extends ChangeNotifier {
     return CanvasSnapshot(
       strokes: List.from(_strokes),
       elements: List.from(_elements),
-      layers: Map.from(
-        _layers.map((key, value) => MapEntry(key, List.from(value))),
-      ),
-      activeLayer: _activeLayer,
+      layers: _layers.map((layer) => layer.copyWith()).toList(),
+      activeLayerIndex: _activeLayerIndex,
     );
   }
 
   void _restoreSnapshot(CanvasSnapshot snapshot) {
     _strokes = List.from(snapshot.strokes);
     _elements = List.from(snapshot.elements);
-    _layers = Map.from(
-      snapshot.layers.map((key, value) => MapEntry(key, List.from(value))),
-    );
-    _activeLayer = snapshot.activeLayer;
+    _layers = snapshot.layers.map((layer) => layer.copyWith()).toList();
+    _activeLayerIndex = snapshot.activeLayerIndex;
   }
 
   // ============ Note Management ============
@@ -327,4 +444,26 @@ class CanvasState extends ChangeNotifier {
     await _saveToDatabase();
   }
 
-  // ============ Cleanup ======
+  // ============ Cleanup ============
+
+  @override
+  void dispose() {
+    _saveTimer?.cancel();
+    super.dispose();
+  }
+}
+
+/// Snapshot of canvas state for undo/redo
+class CanvasSnapshot {
+  final List<stroke_model.Stroke> strokes;
+  final List<element_model.CanvasElement> elements;
+  final Map<int, List<stroke_model.Stroke>> layers;
+  final int activeLayer;
+
+  CanvasSnapshot({
+    required this.strokes,
+    required this.elements,
+    required this.layers,
+    required this.activeLayer,
+  });
+}
