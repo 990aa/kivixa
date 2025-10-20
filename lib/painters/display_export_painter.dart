@@ -4,7 +4,7 @@ import '../models/drawing_layer.dart';
 import '../models/layer_stroke.dart';
 
 /// Painter for displaying canvas with visual background
-/// 
+///
 /// CRITICAL: This is for DISPLAY ONLY. The background is a visual aid
 /// and should NEVER be included in exports.
 class CanvasDisplayPainter extends CustomPainter {
@@ -95,7 +95,7 @@ class CanvasDisplayPainter extends CustomPainter {
 }
 
 /// Painter for exporting canvas WITHOUT background
-/// 
+///
 /// CRITICAL: NO background is drawn during export.
 /// Canvas remains transparent, preserving alpha channel.
 class CanvasExportPainter {
@@ -155,7 +155,11 @@ class CanvasExportPainter {
   }
 
   /// Render all visible layers with proper compositing
-  static void _renderLayers(Canvas canvas, List<DrawingLayer> layers, Size size) {
+  static void _renderLayers(
+    Canvas canvas,
+    List<DrawingLayer> layers,
+    Size size,
+  ) {
     for (final layer in layers) {
       if (!layer.isVisible) continue;
 
