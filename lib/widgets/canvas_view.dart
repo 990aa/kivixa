@@ -14,13 +14,13 @@ class CanvasView extends StatefulWidget {
   final Function(Offset, Offset)? onCanvasDrag;
 
   const CanvasView({
-    Key? key,
+    super.key,
     required this.settings,
     this.layers = const [],
     this.child,
     this.onCanvasPointTap,
     this.onCanvasDrag,
-  }) : super(key: key);
+  });
 
   @override
   State<CanvasView> createState() => CanvasViewState();

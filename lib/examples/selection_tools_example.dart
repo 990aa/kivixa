@@ -313,7 +313,7 @@ class _SelectionToolsExampleState extends State<SelectionToolsExample>
                       style: const TextStyle(fontSize: 12),
                     ),
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),

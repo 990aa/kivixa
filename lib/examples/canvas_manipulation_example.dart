@@ -8,7 +8,7 @@ import 'dart:math' as math;
 
 /// Example demonstrating canvas manipulation features
 class CanvasManipulationExample extends StatefulWidget {
-  const CanvasManipulationExample({Key? key}) : super(key: key);
+  const CanvasManipulationExample({super.key});
 
   @override
   State<CanvasManipulationExample> createState() =>
@@ -26,7 +26,7 @@ class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
 
   // Sample drawing layers
   final List<DrawingLayer> _layers = [];
-  List<Offset> _currentStroke = [];
+  final List<Offset> _currentStroke = [];
 
   @override
   void initState() {
