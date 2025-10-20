@@ -43,25 +43,33 @@
 
 ### Specialized Guides
 
-6. **[Bezier Curves](BEZIER_CURVES.md)**
+6. **[Brush Engine Implementation](BRUSH_ENGINE_IMPLEMENTATION.md)** ⭐ New!
+   - Professional brush system
+   - 7+ brush types (pen, airbrush, watercolor, etc.)
+   - Pressure-sensitive rendering
+   - Fragment shader support
+   - Stroke stabilization and simplification
+   - Texture-based brushes
+
+7. **[Bezier Curves](BEZIER_CURVES.md)**
    - Smooth stroke rendering
    - Curve interpolation
 
-7. **[Infinite Canvas Implementation](INFINITE_CANVAS_IMPLEMENTATION.md)**
+8. **[Infinite Canvas Implementation](INFINITE_CANVAS_IMPLEMENTATION.md)**
    - Pan and zoom functionality
    - Viewport management
 
-8. **[Shapes and Storage](SHAPES_AND_STORAGE.md)**
+9. **[Shapes and Storage](SHAPES_AND_STORAGE.md)**
    - Shape drawing tools
    - Database storage
 
-9. **[PDF Viewer Guide](PDF_VIEWER_GUIDE.md)**
-   - PDF import and annotation
+10. **[PDF Viewer Guide](PDF_VIEWER_GUIDE.md)**
+    - PDF import and annotation
 
-10. **[Text & Photo Import/Export](TEXT_PHOTO_IMPORT_EXPORT.md)**
+11. **[Text & Photo Import/Export](TEXT_PHOTO_IMPORT_EXPORT.md)**
     - Media handling
 
-11. **[Performance Guide](PERFORMANCE_GUIDE.md)**
+12. **[Performance Guide](PERFORMANCE_GUIDE.md)**
     - General performance tips
 
 ## 🎯 Quick Navigation
