@@ -13,10 +13,7 @@ class DatabaseService {
   // ============ Note Operations ============
 
   /// Create a new note
-  Future<int> createNote({
-    required String title,
-    String? content,
-  }) async {
+  Future<int> createNote({required String title, String? content}) async {
     final now = DateTime.now();
     return await _db.createNote(
       NotesCompanion.insert(
@@ -153,10 +150,7 @@ class DatabaseService {
       // Update note
       final note = await _db.getNoteById(noteId);
       if (note != null) {
-        await updateNote(note.copyWith(
-          title: title,
-          content: Value(content),
-        ));
+        await updateNote(note.copyWith(title: title, content: Value(content)));
       }
 
       // Save strokes and elements
@@ -173,19 +167,13 @@ class DatabaseService {
     final strokes = await loadStrokesForNote(noteId);
     final elements = await loadElementsForNote(noteId);
 
-    return {
-      'note': note,
-      'strokes': strokes,
-      'elements': elements,
-    };
+    return {'note': note, 'strokes': strokes, 'elements': elements};
   }
 
   /// Get statistics
   Future<Map<String, int>> getStatistics() async {
     final notesCount = await _db.getNotesCount();
-    return {
-      'notesCount': notesCount,
-    };
+    return {'notesCount': notesCount};
   }
 
   /// Close database
