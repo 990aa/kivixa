@@ -66,10 +66,7 @@ class TagRepository {
   /// Get all tags
   Future<List<Tag>> getAll() async {
     final db = await DrawingDatabase.database;
-    final maps = await db.query(
-      DrawingDatabase.tableTags,
-      orderBy: 'name ASC',
-    );
+    final maps = await db.query(DrawingDatabase.tableTags, orderBy: 'name ASC');
 
     return maps.map((map) => Tag.fromMap(map)).toList();
   }
@@ -237,4 +234,3 @@ class TagRepository {
     ''');
   }
 }
-

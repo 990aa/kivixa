@@ -165,9 +165,9 @@ class DrawingDatabase {
   }
 
   /// Delete database (for testing or reset)
-  static Future<void> deleteDatabase() async {
+  static Future<void> deleteDatabaseFile() async {
     final databasesPath = await getDatabasesPath();
-    final path = join(databasesPath, DB_NAME);
+    final path = join(databasesPath, dbName);
     await databaseFactory.deleteDatabase(path);
     _database = null;
   }
