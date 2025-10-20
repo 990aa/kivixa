@@ -20,6 +20,9 @@ enum ExportQuality {
   custom, // Custom DPI
 }
 
+/// Export progress callback
+typedef ExportProgressCallback = void Function(double progress, String status);
+
 /// High-resolution export system for creating print-quality images
 class HighResolutionExporter {
   /// Standard screen DPI
