@@ -182,8 +182,8 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
 
       // Apply transform
       _transformController.value = Matrix4.identity()
-        ..translate(_canvasOffset.dx, _canvasOffset.dy)
-        ..scale(_zoomLevel, _zoomLevel, 1.0);
+        ..translateByDouble(_canvasOffset.dx, _canvasOffset.dy)
+        ..scaleByDouble(_zoomLevel, _zoomLevel, 1.0);
 
       _statusText = 'Zoom: ${(_zoomLevel * 100).toInt()}%';
     });
@@ -569,10 +569,7 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       });
 
       // Serialize in background
-      await DrawingProcessor.serializeDrawingAsync(
-        _layers,
-        _canvasSize,
-      );
+      await DrawingProcessor.serializeDrawingAsync(_layers, _canvasSize);
 
       // TODO: Save to file using file_picker
       debugPrint('Drawing serialized successfully');
