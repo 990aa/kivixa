@@ -101,14 +101,6 @@ class _CanvasClippingExampleState extends State<CanvasClippingExample> {
     required Color color,
     required double width,
   }) {
-    final brushSettings = BrushSettings(
-      color: color,
-      size: width,
-  LayerStroke _createStroke({
-    required List<Offset> points,
-    required Color color,
-    required double width,
-  }) {
     final paint = Paint()
       ..color = color.withValues(alpha: 0.8)
       ..strokeWidth = width
@@ -119,14 +111,17 @@ class _CanvasClippingExampleState extends State<CanvasClippingExample> {
 
     return LayerStroke(
       points: points
-          .map((p) => StrokePoint(
-                position: p,
-                pressure: 1.0,
-              ))
+          .map((p) => StrokePoint(position: p, pressure: 1.0))
           .toList(),
       brushProperties: paint,
     );
-  } });
+  }
+
+  void _clearAndRegenerate() {
+    setState(() {
+      _layers.clear();
+      _generateTestStrokes();
+    });
   }
 
   @override
