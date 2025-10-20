@@ -294,9 +294,7 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
                   DropdownButton<ExportFormat>(
                     value: _selectedFormat,
                     isExpanded: true,
-                    items: HighResolutionExporter.ExportFormat.values.map((
-                      format,
-                    ) {
+                    items: ExportFormat.values.map((format) {
                       return DropdownMenuItem(
                         value: format,
                         child: Text(format.name.toUpperCase()),
@@ -304,7 +302,7 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
-                        _selectedFormat = value!;
+                        _selectedFormat = value as ExportFormat;
                       });
                     },
                   ),
