@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'dart:isolate';
 import 'package:flutter/material.dart';
 import '../models/drawing_layer.dart';
 import '../models/layer_stroke.dart';
