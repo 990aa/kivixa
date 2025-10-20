@@ -314,5 +314,156 @@ class DocumentRepository {
         return 'modified_at DESC'; // Default
     }
   }
+
+  /// Advanced search with comprehensive filters
+  Future<List<DrawingDocument>> searchDocuments({
+    String? searchQuery,
+    List<DocumentType>? types,
+    List<int>? tagIds,
+    int? folderId,
+    bool? includeSubfolders,
+    bool? favoritesOnly,
+    DocumentSortBy sortBy = DocumentSortBy.dateModifiedDesc,
+  }) async {
+    String whereClause = '1=1'; // Always true base condition
+    List<dynamic> whereArgs = [];
+
+    // Search by name (case-insensitive)
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      whereClause += ' AND LOWER(name) LIKE ?';
+      whereArgs.add('%${searchQuery.toLowerCase()}%');
+    }
+
+    // Filter by document types
+    if (types != null && types.isNotEmpty) {
+      final typeStrings = types
+          .map((t) => "'${t.toString().split('.').last}'")
+          .join(',');
+      whereClause += ' AND type IN ($typeStrings)';
+    }
+
+    // Filter by folder
+    if (folderId != null) {
+      if (includeSubfolders == true) {
+        // Get all subfolder IDs recursively
+        final folderIds = await _getAllSubfolderIds(folderId);
+        folderIds.add(folderId);
+        final folderIdList = folderIds.join(',');
+        whereClause += ' AND (folder_id IN ($folderIdList) OR folder_id = ?)';
+        whereArgs.add(folderId);
+      } else {
+        whereClause += ' AND folder_id = ?';
+        whereArgs.add(folderId);
+      }
+    }
+
+    // Filter favorites
+    if (favoritesOnly == true) {
+      whereClause += ' AND is_favorite = 1';
+    }
+
+    final orderBy = _getSortOrder(sortBy);
+
+    // Execute base query
+    final db = await DrawingDatabase.database;
+    List<Map<String, dynamic>> maps = await db.query(
+      DrawingDatabase.tableDocuments,
+      where: whereClause,
+      whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
+      orderBy: orderBy,
+    );
+
+    List<DrawingDocument> documents =
+        maps.map((map) => DrawingDocument.fromMap(map)).toList();
+
+    // Filter by tags if specified
+    if (tagIds != null && tagIds.isNotEmpty) {
+      final filteredDocs = <DrawingDocument>[];
+      for (final doc in documents) {
+        if (doc.id != null && await _documentHasTags(doc.id!, tagIds)) {
+          filteredDocs.add(doc);
+        }
+      }
+      documents = filteredDocs;
+    }
+
+    // Load tags for each document
+    for (final doc in documents) {
+      if (doc.id != null) {
+        doc.tags = await _getDocumentTags(doc.id!);
+      }
+    }
+
+    return documents;
+  }
+
+  /// Get all subfolder IDs recursively
+  Future<List<int>> _getAllSubfolderIds(int parentFolderId) async {
+    final db = await DrawingDatabase.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      DrawingDatabase.tableFolders,
+      columns: ['id'],
+      where: 'parent_folder_id = ?',
+      whereArgs: [parentFolderId],
+    );
+
+    List<int> folderIds = [];
+
+    for (final map in maps) {
+      int folderId = map['id'];
+      folderIds.add(folderId);
+      // Recursively get subfolders
+      folderIds.addAll(await _getAllSubfolderIds(folderId));
+    }
+
+    return folderIds;
+  }
+
+  /// Check if document has all specified tags
+  Future<bool> _documentHasTags(int documentId, List<int> tagIds) async {
+    final db = await DrawingDatabase.database;
+    final result = await db.query(
+      DrawingDatabase.tableDocumentTags,
+      where: 'document_id = ? AND tag_id IN (${tagIds.join(',')})',
+      whereArgs: [documentId],
+    );
+
+    return result.length == tagIds.length; // All tags must match
+  }
+
+  /// Get documents in folder (alias)
+  Future<List<DrawingDocument>> getDocumentsInFolder(
+    int? folderId, {
+    DocumentSortBy sortBy = DocumentSortBy.dateModifiedDesc,
+  }) async {
+    return await getByFolder(folderId, sortBy: sortBy);
+  }
+
+  /// Create document (alias)
+  Future<int> createDocument(DrawingDocument document) async {
+    return await insert(document);
+  }
+
+  /// Delete document (alias)
+  Future<int> deleteDocument(int documentId) async {
+    return await delete(documentId);
+  }
+
+  /// Move document to folder (alias)
+  Future<int> moveDocument(int documentId, int? folderId) async {
+    return await moveToFolder(documentId, folderId);
+  }
+}
+
+/// Sort options for documents
+enum SortOption {
+  nameAsc,
+  nameDesc,
+  createdAsc,
+  createdDesc,
+  modifiedAsc,
+  modifiedDesc,
+  sizeAsc,
+  sizeDesc,
 }
 
