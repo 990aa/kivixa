@@ -7,33 +7,33 @@ enum LayerBlendMode {
   multiply(BlendMode.multiply, 'Multiply'),
   screen(BlendMode.screen, 'Screen'),
   overlay(BlendMode.overlay, 'Overlay'),
-  
+
   // Darken modes
   darken(BlendMode.darken, 'Darken'),
   colorBurn(BlendMode.colorBurn, 'Color Burn'),
-  
+
   // Lighten modes
   lighten(BlendMode.lighten, 'Lighten'),
   colorDodge(BlendMode.colorDodge, 'Color Dodge'),
-  
+
   // Light modes
   hardLight(BlendMode.hardLight, 'Hard Light'),
   softLight(BlendMode.softLight, 'Soft Light'),
-  
+
   // Difference modes
   difference(BlendMode.difference, 'Difference'),
   exclusion(BlendMode.exclusion, 'Exclusion'),
-  
+
   // Color modes
   hue(BlendMode.hue, 'Hue'),
   saturation(BlendMode.saturation, 'Saturation'),
   color(BlendMode.color, 'Color'),
   luminosity(BlendMode.luminosity, 'Luminosity'),
-  
+
   // Math modes
   plus(BlendMode.plus, 'Add'),
   modulate(BlendMode.modulate, 'Modulate'),
-  
+
   // Alpha modes
   src(BlendMode.src, 'Source'),
   dst(BlendMode.dst, 'Destination'),
@@ -49,10 +49,10 @@ enum LayerBlendMode {
   clear(BlendMode.clear, 'Clear');
 
   const LayerBlendMode(this.blendMode, this.displayName);
-  
+
   /// The Flutter BlendMode value
   final BlendMode blendMode;
-  
+
   /// Human-readable name for UI display
   final String displayName;
 

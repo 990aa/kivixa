@@ -432,6 +432,66 @@ class CanvasState extends ChangeNotifier {
     await _saveToDatabase();
   }
 
+  // ============ Project Save/Load (JSON + PNG) ============
+
+  /// Save project to file with JSON metadata and PNG layers
+  Future<void> saveProjectToFile({
+    required String filePath,
+    bool savePngLayers = true,
+  }) async {
+    await LayerSerializationService.saveProject(
+      filePath: filePath,
+      layers: _layers,
+      canvasSize: _canvasSize,
+      savePngLayers: savePngLayers,
+    );
+  }
+
+  /// Load project from file
+  Future<void> loadProjectFromFile(String filePath) async {
+    final drawingData = await LayerSerializationService.loadProject(filePath);
+
+    _layers = drawingData.layers;
+    _canvasSize = drawingData.canvasSize;
+    _activeLayerIndex = 0;
+
+    // Load layer images
+    await LayerSerializationService.loadLayerImages(
+      filePath: filePath,
+      layers: _layers,
+    );
+
+    // Clear undo/redo stacks
+    _undoStack.clear();
+    _redoStack.clear();
+
+    notifyListeners();
+  }
+
+  /// Export to JSON string
+  String exportToJson() {
+    return LayerSerializationService.exportToJson(_layers, _canvasSize);
+  }
+
+  /// Import from JSON string
+  void importFromJson(String jsonString) {
+    final drawingData = LayerSerializationService.importFromJson(jsonString);
+
+    _layers = drawingData.layers;
+    _canvasSize = drawingData.canvasSize;
+    _activeLayerIndex = 0;
+
+    _undoStack.clear();
+    _redoStack.clear();
+
+    notifyListeners();
+  }
+
+  /// Get estimated file size
+  int getEstimatedFileSize() {
+    return LayerSerializationService.estimateFileSize(_layers, _canvasSize);
+  }
+
   // ============ Cleanup ============
 
   @override

@@ -44,7 +44,9 @@ class LayerSerializationService {
           : null,
       'createdAt': layer.createdAt.toIso8601String(),
       'modifiedAt': layer.modifiedAt.toIso8601String(),
-      'strokes': layer.strokes.map((stroke) => _serializeStroke(stroke)).toList(),
+      'strokes': layer.strokes
+          .map((stroke) => _serializeStroke(stroke))
+          .toList(),
     };
   }
 
@@ -81,7 +83,9 @@ class LayerSerializationService {
     final version = json['version'] as String;
     if (version != currentVersion) {
       // Handle version migration if needed
-      debugPrint('Warning: Loading drawing with version $version (current: $currentVersion)');
+      debugPrint(
+        'Warning: Loading drawing with version $version (current: $currentVersion)',
+      );
     }
 
     final canvasSize = Size(
@@ -90,7 +94,9 @@ class LayerSerializationService {
     );
 
     final layers = (json['layers'] as List)
-        .map((layerJson) => _deserializeLayer(layerJson as Map<String, dynamic>))
+        .map(
+          (layerJson) => _deserializeLayer(layerJson as Map<String, dynamic>),
+        )
         .toList();
 
     return DrawingData(
@@ -103,7 +109,10 @@ class LayerSerializationService {
   /// Deserialize a single layer
   static DrawingLayer _deserializeLayer(Map<String, dynamic> json) {
     final strokes = (json['strokes'] as List)
-        .map((strokeJson) => _deserializeStroke(strokeJson as Map<String, dynamic>))
+        .map(
+          (strokeJson) =>
+              _deserializeStroke(strokeJson as Map<String, dynamic>),
+        )
         .toList();
 
     return DrawingLayer(
@@ -131,7 +140,9 @@ class LayerSerializationService {
   static LayerStroke _deserializeStroke(Map<String, dynamic> json) {
     final brush = json['brush'] as Map<String, dynamic>;
     final points = (json['points'] as List)
-        .map((pointJson) => _deserializePoint(pointJson as Map<String, dynamic>))
+        .map(
+          (pointJson) => _deserializePoint(pointJson as Map<String, dynamic>),
+        )
         .toList();
 
     final paint = Paint()
@@ -154,10 +165,7 @@ class LayerSerializationService {
   /// Deserialize a stroke point
   static StrokePoint _deserializePoint(Map<String, dynamic> json) {
     return StrokePoint(
-      position: Offset(
-        json['x'] as double,
-        json['y'] as double,
-      ),
+      position: Offset(json['x'] as double, json['y'] as double),
       pressure: json['pressure'] as double,
       tilt: json['tilt'] as double,
       orientation: json['orientation'] as double,
@@ -230,9 +238,7 @@ class LayerSerializationService {
 
   /// Save a layer image to PNG file
   static Future<void> _saveLayerImage(ui.Image image, String filePath) async {
-    final byteData = await image.toByteData(
-      format: ui.ImageByteFormat.png,
-    );
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     if (byteData != null) {
       final imageFile = File(filePath);
       await imageFile.writeAsBytes(byteData.buffer.asUint8List());
