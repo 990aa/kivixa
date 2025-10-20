@@ -270,7 +270,7 @@ class TileManager {
       'renderingTiles': _renderingTiles.length,
       'maxTiles': _maxCachedTiles,
       'estimatedMemoryMB':
-          (_tileCache.length * TILE_SIZE * TILE_SIZE * 4) / (1024 * 1024),
+          (_tileCache.length * tileSize * tileSize * 4) / (1024 * 1024),
     };
   }
 
