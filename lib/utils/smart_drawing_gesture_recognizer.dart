@@ -89,8 +89,11 @@ class SmartDrawingGestureRecognizer extends OneSequenceGestureRecognizer {
       if (_hasStarted) {
         onDrawEnd?.call();
       }
+      // Stop tracking before resetting to avoid null pointer
+      if (_pointer != null) {
+        stopTrackingPointer(_pointer!);
+      }
       _reset();
-      stopTrackingPointer(_pointer!);
     }
   }
 
