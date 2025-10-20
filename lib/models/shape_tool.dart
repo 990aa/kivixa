@@ -2,15 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 /// Enum for different tool types
-enum ToolType {
-  pen,
-  highlighter,
-  eraser,
-  line,
-  rectangle,
-  circle,
-  arrow,
-}
+enum ToolType { pen, highlighter, eraser, line, rectangle, circle, arrow }
 
 /// Shape tool for creating geometric shapes
 class ShapeTool {
@@ -58,10 +50,7 @@ class ShapeTool {
 
   Path _createCirclePath(Offset start, Offset end) {
     final radius = (end - start).distance / 2;
-    final center = Offset(
-      (start.dx + end.dx) / 2,
-      (start.dy + end.dy) / 2,
-    );
+    final center = Offset((start.dx + end.dx) / 2, (start.dy + end.dy) / 2);
     return Path()..addOval(Rect.fromCircle(center: center, radius: radius));
   }
 

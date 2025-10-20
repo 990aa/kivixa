@@ -9,24 +9,22 @@ import '../models/shape_tool.dart';
 class SerializationUtils {
   /// Serialize PointVector list to JSON string
   static String serializePoints(List<PointVector> points) {
-    return jsonEncode(points
-        .map((p) => {
-              'x': p.x,
-              'y': p.y,
-              'p': p.pressure,
-            })
-        .toList());
+    return jsonEncode(
+      points.map((p) => {'x': p.x, 'y': p.y, 'p': p.pressure}).toList(),
+    );
   }
 
   /// Deserialize JSON string to PointVector list
   static List<PointVector> deserializePoints(String json) {
     final List<dynamic> data = jsonDecode(json);
     return data
-        .map((p) => PointVector(
-              p['x'] as double,
-              p['y'] as double,
-              p['p'] as double?,
-            ))
+        .map(
+          (p) => PointVector(
+            p['x'] as double,
+            p['y'] as double,
+            p['p'] as double?,
+          ),
+        )
         .toList();
   }
 

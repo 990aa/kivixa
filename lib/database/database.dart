@@ -19,7 +19,8 @@ class Notes extends Table {
 /// Strokes table for storing drawing strokes
 class Strokes extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get noteId => integer().references(Notes, #id, onDelete: KeyAction.cascade)();
+  IntColumn get noteId =>
+      integer().references(Notes, #id, onDelete: KeyAction.cascade)();
   TextColumn get pointsJson => text()(); // Serialized points
   TextColumn get color => text()();
   RealColumn get strokeWidth => real()();
@@ -30,7 +31,8 @@ class Strokes extends Table {
 /// Canvas elements table for images, text, and shapes
 class CanvasElements extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get noteId => integer().references(Notes, #id, onDelete: KeyAction.cascade)();
+  IntColumn get noteId =>
+      integer().references(Notes, #id, onDelete: KeyAction.cascade)();
   TextColumn get type => text()(); // 'image', 'text', 'shape'
   TextColumn get dataJson => text()(); // Element-specific data
   RealColumn get posX => real()();
@@ -55,19 +57,19 @@ class AppDatabase extends _$AppDatabase {
 
   /// Watch all notes (reactive stream)
   Stream<List<Note>> watchAllNotes() {
-    return (select(notes)
-          ..orderBy([
-            (n) => OrderingTerm(expression: n.modifiedAt, mode: OrderingMode.desc)
-          ]))
+    return (select(notes)..orderBy([
+          (n) =>
+              OrderingTerm(expression: n.modifiedAt, mode: OrderingMode.desc),
+        ]))
         .watch();
   }
 
   /// Get all notes (one-time)
   Future<List<Note>> getAllNotes() {
-    return (select(notes)
-          ..orderBy([
-            (n) => OrderingTerm(expression: n.modifiedAt, mode: OrderingMode.desc)
-          ]))
+    return (select(notes)..orderBy([
+          (n) =>
+              OrderingTerm(expression: n.modifiedAt, mode: OrderingMode.desc),
+        ]))
         .get();
   }
 
@@ -90,14 +92,13 @@ class AppDatabase extends _$AppDatabase {
   Future<List<Stroke>> getStrokesForNote(int noteId) {
     return (select(strokes)
           ..where((s) => s.noteId.equals(noteId))
-          ..orderBy([
-            (s) => OrderingTerm(expression: s.layerIndex)
-          ]))
+          ..orderBy([(s) => OrderingTerm(expression: s.layerIndex)]))
         .get();
   }
 
   /// Save a stroke
-  Future<int> saveStroke(StrokesCompanion stroke) => into(strokes).insert(stroke);
+  Future<int> saveStroke(StrokesCompanion stroke) =>
+      into(strokes).insert(stroke);
 
   /// Save multiple strokes
   Future<void> saveStrokes(List<StrokesCompanion> strokeList) async {
@@ -120,9 +121,7 @@ class AppDatabase extends _$AppDatabase {
   Future<List<CanvasElement>> getElementsForNote(int noteId) {
     return (select(canvasElements)
           ..where((e) => e.noteId.equals(noteId))
-          ..orderBy([
-            (e) => OrderingTerm(expression: e.layerIndex)
-          ]))
+          ..orderBy([(e) => OrderingTerm(expression: e.layerIndex)]))
         .get();
   }
 
@@ -172,7 +171,8 @@ class AppDatabase extends _$AppDatabase {
     return (select(notes)
           ..where((n) => n.title.like('%$query%'))
           ..orderBy([
-            (n) => OrderingTerm(expression: n.modifiedAt, mode: OrderingMode.desc)
+            (n) =>
+                OrderingTerm(expression: n.modifiedAt, mode: OrderingMode.desc),
           ]))
         .get();
   }
