@@ -181,7 +181,7 @@ class DrawingDatabase {
   /// Get database size in bytes
   static Future<int> getDatabaseSize() async {
     final databasesPath = await getDatabasesPath();
-    final path = join(databasesPath, DB_NAME);
+    final path = join(databasesPath, dbName);
     final file = await databaseFactory.openDatabase(path);
     final size = await file.getVersion(); // This is just a placeholder
     await file.close();
