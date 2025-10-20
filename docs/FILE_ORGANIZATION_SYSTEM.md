@@ -602,13 +602,102 @@ class _DocumentGridViewState extends State<DocumentGridView> {
 }
 ```
 
+## Repository API Reference
+
+### FolderRepository Methods
+
+**CRUD Operations:**
+- `createFolder(Folder folder)` → `Future<int>` - Create folder (alias for insert)
+- `insert(Folder folder)` → `Future<int>` - Insert folder, returns ID
+- `updateFolder(Folder folder)` → `Future<int>` - Update folder (alias for update)
+- `update(Folder folder)` → `Future<int>` - Update folder
+- `deleteFolder(int folderId)` → `Future<int>` - Delete folder + CASCADE subfolders
+- `delete(int id)` → `Future<int>` - Delete folder (alias)
+- `getById(int id)` → `Future<Folder?>` - Get single folder
+
+**Query Operations:**
+- `getAll()` → `Future<List<Folder>>` - Get all folders
+- `getRootFolders()` → `Future<List<Folder>>` - Get folders with no parent
+- `getSubfolders(int parentId)` → `Future<List<Folder>>` - Get child folders
+- `getFolderHierarchy()` → `Future<List<Folder>>` - Build complete tree with document counts
+- `getFolderTree()` → `Future<List<Folder>>` - Alias for getFolderHierarchy
+- `searchByName(String query)` → `Future<List<Folder>>` - Search by name (LIKE)
+
+**Other Operations:**
+- `moveFolder(int folderId, int? newParentId)` → `Future<int>` - Change parent
+
+### DocumentRepository Methods
+
+**CRUD Operations:**
+- `createDocument(DrawingDocument doc)` → `Future<int>` - Create document (alias)
+- `insert(DrawingDocument doc)` → `Future<int>` - Insert document
+- `update(DrawingDocument doc)` → `Future<int>` - Update document
+- `deleteDocument(int id)` → `Future<int>` - Delete document (alias)
+- `delete(int id)` → `Future<int>` - Delete document
+- `getById(int id)` → `Future<DrawingDocument?>` - Get single document with tags
+
+**Query Operations:**
+- `getAll({DocumentSortBy? sortBy})` → `Future<List<DrawingDocument>>` - Get all documents
+- `getByFolder(int? folderId, {sortBy})` → `Future<List<DrawingDocument>>` - Documents in folder
+- `getDocumentsInFolder(int? folderId, {sortBy})` → Alias for getByFolder
+- `getFavorites({sortBy})` → `Future<List<DrawingDocument>>` - Get favorites
+- `getRecent({int limit = 10})` → `Future<List<DrawingDocument>>` - Recently opened
+- `searchByName(String query, {sortBy})` → `Future<List<DrawingDocument>>` - Name search
+- `getByTag(int tagId, {sortBy})` → `Future<List<DrawingDocument>>` - Documents with tag
+- `getByTags(List<int> tagIds, {sortBy})` → `Future<List<DrawingDocument>>` - Docs with ALL tags
+
+**Advanced Search:**
+- `searchDocuments({searchQuery, types, tagIds, folderId, includeSubfolders, favoritesOnly, sortBy})` → `Future<List<DrawingDocument>>`
+  - Comprehensive multi-filter search
+  - Supports nested folder search
+  - AND logic for tags
+
+**Other Operations:**
+- `moveToFolder(int docId, int? folderId)` → `Future<int>` - Move document
+- `moveDocument(int docId, int? folderId)` → Alias for moveToFolder
+- `toggleFavorite(int docId, bool isFavorite)` → `Future<int>` - Set favorite status
+- `updateLastOpened(int docId)` → `Future<int>` - Update last_opened_at timestamp
+
+### TagRepository Methods
+
+**CRUD Operations:**
+- `createTag(Tag tag)` → `Future<int>` - Create tag (alias)
+- `insert(Tag tag)` → `Future<int>` - Insert tag
+- `updateTag(Tag tag)` → `Future<int>` - Update tag (alias)
+- `update(Tag tag)` → `Future<int>` - Update tag
+- `deleteTag(int id)` → `Future<int>` - Delete tag (alias)
+- `delete(int id)` → `Future<int>` - Delete tag
+- `getById(int id)` → `Future<Tag?>` - Get single tag
+- `getByName(String name)` → `Future<Tag?>` - Get tag by name
+
+**Query Operations:**
+- `getAllTags()` → `Future<List<Tag>>` - Get all tags (alias)
+- `getAll()` → `Future<List<Tag>>` - Get all tags sorted by name
+- `getByPopularity()` → `Future<List<Tag>>` - Sort by use_count DESC
+- `searchTags(String query)` → `Future<List<Tag>>` - Search tags (case-insensitive)
+- `searchByName(String query)` → Alias for searchTags
+- `getUnused()` → `Future<List<Tag>>` - Tags with no documents
+
+**Relationship Operations:**
+- `addTagToDocument(int docId, int tagId)` → `Future<void>` - Add tag, increment use_count
+- `addToDocument(int tagId, int docId)` → Alias (reversed params)
+- `removeTagFromDocument(int docId, int tagId)` → `Future<void>` - Remove tag, decrement use_count
+- `removeFromDocument(int tagId, int docId)` → Alias (reversed params)
+- `getDocumentTags(int docId)` → `Future<List<Tag>>` - Get all tags for document
+- `setDocumentTags(int docId, List<int> tagIds)` → `Future<void>` - Replace all tags
+- `getDocumentCount(int tagId)` → `Future<int>` - Count documents with tag
+
+**Maintenance:**
+- `deleteUnused()` → `Future<int>` - Delete all tags with no documents, returns count
+
 ## Performance Considerations
 
-1. **Indexing**: All frequently queried columns have indexes
-2. **Lazy Loading**: Load folders/documents on demand
+1. **Indexing**: All frequently queried columns have indexes (15 total)
+2. **Lazy Loading**: Load folders/documents on demand, not eagerly
 3. **Pagination**: Use `LIMIT` and `OFFSET` for large result sets
-4. **Cascade Delete**: Database handles relationship cleanup
+4. **Cascade Delete**: Database handles relationship cleanup automatically
 5. **Transaction Support**: Use `db.transaction()` for bulk operations
+6. **Use Count Tracking**: Tags track usage for popularity sorting
 
 ## Database Maintenance
 
