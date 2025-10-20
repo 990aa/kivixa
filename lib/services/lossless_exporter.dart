@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import '../models/drawing_layer.dart';
 import '../models/layer_stroke.dart';
-import '../models/vector_stroke.dart';
 import 'high_resolution_exporter.dart';
 
 /// Lossless export strategies for preserving maximum quality

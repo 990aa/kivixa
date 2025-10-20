@@ -262,8 +262,8 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
                         '${HighResolutionExporter.getDPIForQuality(quality)} DPI',
                       ),
                       value: quality,
-                      selected: _selectedQuality == quality,
-                      toggleable: false,
+                      groupValue: _selectedQuality,
+                      // ignore: deprecated_member_use
                       onChanged: (value) {
                         setState(() {
                           _selectedQuality = value as ExportQuality;
