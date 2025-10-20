@@ -80,6 +80,11 @@ class TagRepository {
 
   /// Get all tags
   Future<List<Tag>> getAll() async {
+    return await getAllTags();
+  }
+
+  /// Get all tags
+  Future<List<Tag>> getAllTags() async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(DrawingDatabase.tableTags, orderBy: 'name ASC');
 
@@ -99,11 +104,16 @@ class TagRepository {
 
   /// Search tags by name
   Future<List<Tag>> searchByName(String query) async {
+    return await searchTags(query);
+  }
+
+  /// Search tags
+  Future<List<Tag>> searchTags(String query) async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
       DrawingDatabase.tableTags,
-      where: 'name LIKE ?',
-      whereArgs: ['%$query%'],
+      where: 'LOWER(name) LIKE ?',
+      whereArgs: ['%${query.toLowerCase()}%'],
       orderBy: 'name ASC',
     );
 
