@@ -154,6 +154,9 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
   void _handleDrawEnd() {
     if (_currentStroke != null && _currentPoints.length > 1) {
       setState(() {
+        // Save state for undo before adding stroke
+        _saveStateForUndo();
+
         // Add stroke to current layer
         _layers[_currentLayerIndex].addStroke(_currentStroke!);
 
@@ -465,19 +468,78 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
     });
   }
 
-  void _undo() {
-    if (_layers[_currentLayerIndex].strokes.isNotEmpty) {
-      setState(() {
-        _layers[_currentLayerIndex].strokes.removeLast();
-        _tileManager.clearCache();
-        _statusText = 'Undone | Total: ${_getTotalStrokes()}';
-      });
+  // Save current state for undo
+  void _saveStateForUndo() {
+    // Deep copy layers for undo stack
+    final layersCopy = _layers.map((layer) {
+      final newLayer = DrawingLayer(name: layer.name, isVisible: layer.isVisible);
+      for (final stroke in layer.strokes) {
+        newLayer.addStroke(stroke);
+      }
+      return newLayer;
+    }).toList();
+    
+    _undoStack.add(layersCopy);
+    
+    // Limit undo stack to 50 states to prevent memory issues
+    if (_undoStack.length > 50) {
+      _undoStack.removeAt(0);
     }
+    
+    // Clear redo stack when new action is performed
+    _redoStack.clear();
+  }
+
+  void _undo() {
+    if (_undoStack.isEmpty) {
+      setState(() {
+        _statusText = 'Nothing to undo';
+      });
+      return;
+    }
+
+    setState(() {
+      // Save current state to redo stack
+      final currentState = _layers.map((layer) {
+        final newLayer = DrawingLayer(name: layer.name, isVisible: layer.isVisible);
+        for (final stroke in layer.strokes) {
+          newLayer.addStroke(stroke);
+        }
+        return newLayer;
+      }).toList();
+      _redoStack.add(currentState);
+
+      // Restore from undo stack
+      _layers = _undoStack.removeLast();
+      _tileManager.clearCache();
+      _statusText = 'Undone | Total: ${_getTotalStrokes()}';
+    });
   }
 
   void _redo() {
-    // TODO: Implement redo stack
-    _statusText = 'Redo not implemented yet';
+    if (_redoStack.isEmpty) {
+      setState(() {
+        _statusText = 'Nothing to redo';
+      });
+      return;
+    }
+
+    setState(() {
+      // Save current state to undo stack
+      final currentState = _layers.map((layer) {
+        final newLayer = DrawingLayer(name: layer.name, isVisible: layer.isVisible);
+        for (final stroke in layer.strokes) {
+          newLayer.addStroke(stroke);
+        }
+        return newLayer;
+      }).toList();
+      _undoStack.add(currentState);
+
+      // Restore from redo stack
+      _layers = _redoStack.removeLast();
+      _tileManager.clearCache();
+      _statusText = 'Redone | Total: ${_getTotalStrokes()}';
+    });
   }
 
   void _clearCanvas() {
