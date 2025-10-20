@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/drawing_layer.dart';
+import '../models/layer_stroke.dart';
 import '../models/vector_stroke.dart';
 import '../models/stroke_point.dart';
-import 'dart:math' as math;
 
 /// Resolution-aware canvas painter that regenerates strokes at current zoom level
 class ResolutionAwareCanvasPainter extends CustomPainter {
