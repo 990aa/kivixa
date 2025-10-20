@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/stroke_point.dart';
 import '../models/brush_settings.dart';
-import '../engines/brush_engine.dart';
 import '../services/brush_stroke_renderer.dart';
 
 /// Example: Comprehensive brush engine demonstration
