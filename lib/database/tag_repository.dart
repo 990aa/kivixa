@@ -154,6 +154,11 @@ class TagRepository {
 
   /// Remove tag from document
   Future<void> removeFromDocument(int tagId, int documentId) async {
+    return await removeTagFromDocument(documentId, tagId);
+  }
+
+  /// Remove tag from document
+  Future<void> removeTagFromDocument(int documentId, int tagId) async {
     final db = await DrawingDatabase.database;
 
     await db.delete(
