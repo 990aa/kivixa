@@ -10,10 +10,13 @@ class CollaborativeNote extends ChangeNotifier {
   final String noteId;
   final String nodeId;
 
-  // CRDT maps for strokes and elements
-  final Map<String, Stroke> _strokes = {};
-  final Map<String, CanvasElement> _elements = {};
-  final Map<String, dynamic> _metadata = {};
+  // Data storage with timestamps for conflict resolution
+  final Map<String, _CrdtEntry<Stroke>> _strokes = {};
+  final Map<String, _CrdtEntry<CanvasElement>> _elements = {};
+  final Map<String, _CrdtEntry<dynamic>> _metadata = {};
+
+  // Hybrid logical clock for timestamp
+  int _hlc = 0;
 
   // Change listeners
   final StreamController<CrdtChange> _changesController =
@@ -21,20 +24,26 @@ class CollaborativeNote extends ChangeNotifier {
 
   Stream<CrdtChange> get onChanges => _changesController.stream;
 
-  List<Stroke> get strokes => _strokes.values.toList();
-  List<CanvasElement> get elements => _elements.values.toList();
+  List<Stroke> get strokes => _strokes.values.map((e) => e.value).toList();
+  List<CanvasElement> get elements =>
+      _elements.values.map((e) => e.value).toList();
 
   CollaborativeNote({required this.noteId, String? canonicalNodeId})
-    : crdt = Crdt(canonicalNodeId ?? noteId) {
-    _setupChangeListeners();
+    : nodeId = canonicalNodeId ?? noteId;
+
+  /// Get next HLC timestamp
+  int _getNextTimestamp() {
+    _hlc++;
+    return _hlc;
   }
 
-  void _setupChangeListeners() {
-    // Listen to CRDT changes
-    crdt.onUpdate = () {
-      _handleRemoteChanges();
-      notifyListeners();
-    };
+  /// Update HLC from remote timestamp
+  void _updateTimestamp(int remoteTimestamp) {
+    if (remoteTimestamp > _hlc) {
+      _hlc = remoteTimestamp + 1;
+    } else {
+      _hlc++;
+    }
   }
 
   /// Add a local stroke
