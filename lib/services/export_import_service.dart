@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
@@ -25,9 +24,6 @@ class ExportImportService {
     final PdfDocument document = PdfDocument();
     final PdfPage page = document.pages.add();
     final PdfGraphics graphics = page.graphics;
-
-    // Set page size
-    page.graphics.clientSize = Size(canvasWidth, canvasHeight);
 
     // Render each stroke
     for (final stroke in strokes) {
