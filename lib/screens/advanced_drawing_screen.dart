@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:vector_math/vector_math_64.dart' show Vector3;
 import '../widgets/drawing_workspace_layout.dart';
 import '../widgets/precise_canvas_gesture_handler.dart';
 import '../models/drawing_layer.dart';
@@ -182,8 +183,8 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
 
       // Apply transform
       final matrix = Matrix4.identity();
-      matrix.translateByDouble(_canvasOffset.dx, _canvasOffset.dy, 0);
-      matrix.scaleByDouble(_zoomLevel, _zoomLevel, 1.0, 1.0);
+      matrix.translateByVector3(Vector3(_canvasOffset.dx, _canvasOffset.dy, 0));
+      matrix.scaleByVector3(Vector3(_zoomLevel, _zoomLevel, 1.0));
       _transformController.value = matrix;
 
       _statusText = 'Zoom: ${(_zoomLevel * 100).toInt()}%';
