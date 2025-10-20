@@ -79,7 +79,6 @@ class CanvasSettings {
         return const Size(3840, 2160);
       case CanvasPreset.custom:
       case CanvasPreset.infinite:
-      default:
         return const Size(800, 600);
     }
   }

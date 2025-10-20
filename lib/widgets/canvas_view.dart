@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 import '../models/canvas_settings.dart';
 import '../models/drawing_layer.dart';
 import '../painters/grid_overlay_painter.dart';
@@ -61,86 +60,79 @@ class CanvasViewState extends State<CanvasView> {
   void zoomIn() {
     final matrix = _transformController.value.clone();
     final scale = 1.2;
-
+    
     // Get viewport center
     final Size viewportSize = context.size ?? Size.zero;
-    final Offset viewportCenter = Offset(
-      viewportSize.width / 2,
-      viewportSize.height / 2,
-    );
-
-    // Scale around center
-    final Offset focalPoint =
-        (Matrix4.inverted(matrix) *
-                Matrix4.translationValues(
-                  viewportCenter.dx,
-                  viewportCenter.dy,
-                  0,
-                ))
-            .getTranslation();
-
-    matrix.translate(focalPoint.x, focalPoint.y);
-    matrix.scale(scale);
-    matrix.translate(-focalPoint.x, -focalPoint.y);
-
-    _transformController.value = matrix;
+    final Offset viewportCenter = Offset(viewportSize.width / 2, viewportSize.height / 2);
+    
+    // Get translation component
+    final trans = matrix.getTranslation();
+    final translation = Offset(trans.x, trans.y);
+    
+    // Calculate focal point in canvas space
+    final focalPoint = (viewportCenter - translation) / _currentScale;
+    
+    // Apply zoom
+    final newScale = _currentScale * scale;
+    final newTranslation = viewportCenter - (focalPoint * newScale);
+    
+    final newMatrix = Matrix4.identity()
+      ..translate(newTranslation.dx, newTranslation.dy)
+      ..scale(newScale);
+    
+    _transformController.value = newMatrix;
   }
 
   /// Zoom out programmatically
   void zoomOut() {
     final matrix = _transformController.value.clone();
     final scale = 0.8;
-
+    
     // Get viewport center
     final Size viewportSize = context.size ?? Size.zero;
-    final Offset viewportCenter = Offset(
-      viewportSize.width / 2,
-      viewportSize.height / 2,
-    );
-
-    // Scale around center
-    final Offset focalPoint =
-        (Matrix4.inverted(matrix) *
-                Matrix4.translationValues(
-                  viewportCenter.dx,
-                  viewportCenter.dy,
-                  0,
-                ))
-            .getTranslation();
-
-    matrix.translate(focalPoint.x, focalPoint.y);
-    matrix.scale(scale);
-    matrix.translate(-focalPoint.x, -focalPoint.y);
-
-    _transformController.value = matrix;
+    final Offset viewportCenter = Offset(viewportSize.width / 2, viewportSize.height / 2);
+    
+    // Get translation component
+    final trans = matrix.getTranslation();
+    final translation = Offset(trans.x, trans.y);
+    
+    // Calculate focal point in canvas space
+    final focalPoint = (viewportCenter - translation) / _currentScale;
+    
+    // Apply zoom
+    final newScale = _currentScale * scale;
+    final newTranslation = viewportCenter - (focalPoint * newScale);
+    
+    final newMatrix = Matrix4.identity()
+      ..translate(newTranslation.dx, newTranslation.dy)
+      ..scale(newScale);
+    
+    _transformController.value = newMatrix;
   }
 
   /// Zoom to specific level
   void zoomToLevel(double level) {
     final matrix = _transformController.value.clone();
-    final currentScale = matrix.getMaxScaleOnAxis();
-    final scaleFactor = level / currentScale;
-
+    
+    // Get viewport center
     final Size viewportSize = context.size ?? Size.zero;
-    final Offset viewportCenter = Offset(
-      viewportSize.width / 2,
-      viewportSize.height / 2,
-    );
-
-    final Offset focalPoint =
-        (Matrix4.inverted(matrix) *
-                Matrix4.translationValues(
-                  viewportCenter.dx,
-                  viewportCenter.dy,
-                  0,
-                ))
-            .getTranslation();
-
-    matrix.translate(focalPoint.x, focalPoint.y);
-    matrix.scale(scaleFactor);
-    matrix.translate(-focalPoint.x, -focalPoint.y);
-
-    _transformController.value = matrix;
+    final Offset viewportCenter = Offset(viewportSize.width / 2, viewportSize.height / 2);
+    
+    // Get translation component
+    final trans = matrix.getTranslation();
+    final translation = Offset(trans.x, trans.y);
+    
+    // Calculate focal point in canvas space
+    final focalPoint = (viewportCenter - translation) / _currentScale;
+    
+    // Apply zoom to level
+    final newTranslation = viewportCenter - (focalPoint * level);
+    
+    final newMatrix = Matrix4.identity()
+      ..translate(newTranslation.dx, newTranslation.dy)
+      ..scale(level);
+    
+    _transformController.value = newMatrix;
   }
 
   /// Fit canvas to view

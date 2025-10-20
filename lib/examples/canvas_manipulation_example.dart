@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/canvas_settings.dart';
 import '../models/drawing_layer.dart';
+import '../models/layer_stroke.dart';
 import '../models/stroke_point.dart';
 import '../widgets/canvas_view.dart';
 import 'dart:math' as math;
@@ -38,7 +39,7 @@ class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
     final layer = DrawingLayer(
       id: 'sample_layer',
       name: 'Sample Layer',
-      visible: true,
+      isVisible: true,
     );
 
     // Add some sample strokes
@@ -62,22 +63,23 @@ class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
       for (double angle = 0; angle <= 2 * math.pi; angle += 0.1) {
         points.add(
           StrokePoint(
-            x: centerX + math.cos(angle) * radius,
-            y: centerY + math.sin(angle) * radius,
+            position: Offset(
+              centerX + math.cos(angle) * radius,
+              centerY + math.sin(angle) * radius,
+            ),
             pressure: 1.0,
-            timestamp: DateTime.now(),
           ),
         );
       }
 
-      layer.addStroke(
-        LayerStroke(
-          id: 'stroke_$i',
-          points: points,
-          color: color,
-          strokeWidth: 5.0,
-        ),
-      );
+      // Create paint properties
+      final paint = Paint()
+        ..color = color
+        ..strokeWidth = 5.0
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round;
+
+      layer.addStroke(LayerStroke(points: points, brushProperties: paint));
     }
 
     setState(() {
@@ -86,7 +88,8 @@ class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
   }
 
   void _onCanvasTap(Offset point) {
-    print('Canvas tapped at: $point');
+    // Handle canvas tap
+    debugPrint('Canvas tapped at: $point');
   }
 
   void _onCanvasDrag(Offset start, Offset end) {
@@ -374,12 +377,12 @@ class _SampleCanvasPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Draw layers
     for (final layer in layers) {
-      if (!layer.visible) continue;
+      if (!layer.isVisible) continue;
 
       for (final stroke in layer.strokes) {
         final paint = Paint()
-          ..color = stroke.color
-          ..strokeWidth = stroke.strokeWidth
+          ..color = stroke.brushProperties.color
+          ..strokeWidth = stroke.brushProperties.strokeWidth
           ..strokeCap = StrokeCap.round
           ..strokeJoin = StrokeJoin.round
           ..style = PaintingStyle.stroke;
@@ -388,9 +391,9 @@ class _SampleCanvasPainter extends CustomPainter {
         for (int i = 0; i < stroke.points.length; i++) {
           final point = stroke.points[i];
           if (i == 0) {
-            path.moveTo(point.x, point.y);
+            path.moveTo(point.position.dx, point.position.dy);
           } else {
-            path.lineTo(point.x, point.y);
+            path.lineTo(point.position.dx, point.position.dy);
           }
         }
 
