@@ -147,22 +147,24 @@ class _EraserToolExampleState extends State<EraserToolExample> {
             ),
             const SizedBox(height: 8),
             RadioGroup<EraserMode>(
-              value: _eraserSettings.mode,
+              groupValue: _eraserSettings.mode,
               onChanged: (value) {
                 setState(() {
                   _eraserSettings = _eraserSettings.copyWith(mode: value);
                 });
               },
-              children: EraserMode.values.map((mode) {
-                return RadioListTile<EraserMode>(
-                  title: Text(mode.name.toUpperCase()),
-                  subtitle: Text(
-                    EraserSettings.getModeDescription(mode),
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                  value: mode,
-                );
-              }).toList(),
+              child: Column(
+                children: EraserMode.values.map((mode) {
+                  return RadioListTile<EraserMode>(
+                    title: Text(mode.name.toUpperCase()),
+                    subtitle: Text(
+                      EraserSettings.getModeDescription(mode),
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    value: mode,
+                  );
+                }).toList(),
+              ),
             ),
 
             const Divider(),
