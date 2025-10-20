@@ -23,7 +23,6 @@ class CanvasState extends ChangeNotifier {
   DrawingTool _currentTool = DrawingTool.pen;
   Color _currentColor = Colors.black;
   double _strokeWidth = 4.0;
-  int _activeLayer = 0;
 
   // Current note ID
   int? _currentNoteId;
@@ -95,9 +94,7 @@ class CanvasState extends ChangeNotifier {
 
   void addLayer({String? name}) {
     _captureSnapshotForUndo();
-    final newLayer = DrawingLayer(
-      name: name ?? 'Layer ${_layers.length + 1}',
-    );
+    final newLayer = DrawingLayer(name: name ?? 'Layer ${_layers.length + 1}');
     _layers.add(newLayer);
     _activeLayerIndex = _layers.length - 1;
     notifyListeners();
@@ -126,9 +123,7 @@ class CanvasState extends ChangeNotifier {
     if (index >= 0 && index < _layers.length) {
       _captureSnapshotForUndo();
       final layer = _layers[index];
-      final duplicated = layer.copyWith(
-        name: '${layer.name} Copy',
-      );
+      final duplicated = layer.copyWith(name: '${layer.name} Copy');
       _layers.insert(index + 1, duplicated);
       _activeLayerIndex = index + 1;
       notifyListeners();
@@ -211,10 +206,7 @@ class CanvasState extends ChangeNotifier {
 
   /// Update cache for active layer
   Future<void> updateActiveLayerCache() async {
-    await LayerRenderingService.updateLayerCache(
-      activeLayer,
-      _canvasSize,
-    );
+    await LayerRenderingService.updateLayerCache(activeLayer, _canvasSize);
     notifyListeners();
   }
 
@@ -241,10 +233,7 @@ class CanvasState extends ChangeNotifier {
       ..strokeJoin = StrokeJoin.round
       ..isAntiAlias = true;
 
-    final stroke = LayerStroke(
-      points: points,
-      brushProperties: paint,
-    );
+    final stroke = LayerStroke(points: points, brushProperties: paint);
 
     addLayerStroke(stroke);
   }
@@ -376,10 +365,9 @@ class CanvasState extends ChangeNotifier {
     final loadedStrokes = await _databaseService.loadStrokesForNote(noteId);
     _strokes = loadedStrokes;
 
-    // Rebuild layers from loaded strokes
-    _layers = {0: []};
-    _layers[0] = List.from(_strokes);
-    _activeLayer = 0;
+    // Create a single layer with loaded strokes (can be enhanced later)
+    _layers = [DrawingLayer(name: 'Background')];
+    _activeLayerIndex = 0;
 
     // Load elements
     _elements = await _databaseService.loadElementsForNote(noteId);
@@ -401,8 +389,8 @@ class CanvasState extends ChangeNotifier {
     // Clear current canvas
     _strokes.clear();
     _elements.clear();
-    _layers = {0: []};
-    _activeLayer = 0;
+    _layers = [DrawingLayer(name: 'Background')];
+    _activeLayerIndex = 0;
     _undoStack.clear();
     _redoStack.clear();
 
@@ -457,13 +445,13 @@ class CanvasState extends ChangeNotifier {
 class CanvasSnapshot {
   final List<stroke_model.Stroke> strokes;
   final List<element_model.CanvasElement> elements;
-  final Map<int, List<stroke_model.Stroke>> layers;
-  final int activeLayer;
+  final List<DrawingLayer> layers;
+  final int activeLayerIndex;
 
   CanvasSnapshot({
     required this.strokes,
     required this.elements,
     required this.layers,
-    required this.activeLayer,
+    required this.activeLayerIndex,
   });
 }
