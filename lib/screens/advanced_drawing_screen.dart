@@ -474,20 +474,23 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
   void _saveStateForUndo() {
     // Deep copy layers for undo stack
     final layersCopy = _layers.map((layer) {
-      final newLayer = DrawingLayer(name: layer.name, isVisible: layer.isVisible);
+      final newLayer = DrawingLayer(
+        name: layer.name,
+        isVisible: layer.isVisible,
+      );
       for (final stroke in layer.strokes) {
         newLayer.addStroke(stroke);
       }
       return newLayer;
     }).toList();
-    
+
     _undoStack.add(layersCopy);
-    
+
     // Limit undo stack to 50 states to prevent memory issues
     if (_undoStack.length > 50) {
       _undoStack.removeAt(0);
     }
-    
+
     // Clear redo stack when new action is performed
     _redoStack.clear();
   }
@@ -503,7 +506,10 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
     setState(() {
       // Save current state to redo stack
       final currentState = _layers.map((layer) {
-        final newLayer = DrawingLayer(name: layer.name, isVisible: layer.isVisible);
+        final newLayer = DrawingLayer(
+          name: layer.name,
+          isVisible: layer.isVisible,
+        );
         for (final stroke in layer.strokes) {
           newLayer.addStroke(stroke);
         }
@@ -529,7 +535,10 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
     setState(() {
       // Save current state to undo stack
       final currentState = _layers.map((layer) {
-        final newLayer = DrawingLayer(name: layer.name, isVisible: layer.isVisible);
+        final newLayer = DrawingLayer(
+          name: layer.name,
+          isVisible: layer.isVisible,
+        );
         for (final stroke in layer.strokes) {
           newLayer.addStroke(stroke);
         }
@@ -640,7 +649,10 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       });
 
       // Serialize in background
-      final jsonData = await DrawingProcessor.serializeDrawingAsync(_layers, _canvasSize);
+      final jsonData = await DrawingProcessor.serializeDrawingAsync(
+        _layers,
+        _canvasSize,
+      );
 
       // Ask user for save location
       final result = await FilePicker.platform.saveFile(
@@ -720,7 +732,10 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       });
 
       // Generate SVG in background
-      final svgData = await DrawingProcessor.layersToSVGAsync(_layers, _canvasSize);
+      final svgData = await DrawingProcessor.layersToSVGAsync(
+        _layers,
+        _canvasSize,
+      );
 
       // Ask user for save location
       final result = await FilePicker.platform.saveFile(
