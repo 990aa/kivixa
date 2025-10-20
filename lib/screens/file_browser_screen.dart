@@ -295,16 +295,14 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [2, 3, 4, 5].map((size) {
+            final isSelected = _gridColumns == size;
             return ListTile(
               title: Text('$size columns'),
-              leading: Radio<int>(
-                value: size,
-                groupValue: _gridColumns,
-                onChanged: (value) {
-                  setState(() => _gridColumns = value!);
-                  Navigator.pop(context);
-                },
+              leading: Icon(
+                isSelected ? Icons.check_circle : Icons.circle_outlined,
+                color: isSelected ? Theme.of(context).primaryColor : null,
               ),
+              selected: isSelected,
               onTap: () {
                 setState(() => _gridColumns = size);
                 Navigator.pop(context);
@@ -348,6 +346,7 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
                 );
 
                 await folderRepo.insert(folder);
+                if (!context.mounted) return;
                 Navigator.pop(context);
                 _loadData();
               }
