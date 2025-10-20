@@ -5,12 +5,12 @@ import '../models/drawing_layer.dart';
 import '../models/layer_stroke.dart';
 
 /// Complete export system with full alpha channel preservation
-/// 
+///
 /// Exports only drawn content with transparent background.
 /// Uses isolate-based rendering to prevent UI blocking.
 class TransparentExporter {
   /// Export layers with transparent background
-  /// 
+  ///
   /// Returns PNG bytes with full alpha channel preserved.
   /// Canvas starts fully transparent - no background is drawn.
   static Future<Uint8List> exportWithTransparency({
