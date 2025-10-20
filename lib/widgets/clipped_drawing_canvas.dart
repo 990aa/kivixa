@@ -146,7 +146,6 @@ class ClippedLayerPainter extends CustomPainter {
 
     // Use quadratic bezier for smooth curves
     for (int i = 1; i < stroke.points.length; i++) {
-      final p0 = stroke.points[i - 1].position;
       final p1 = stroke.points[i].position;
 
       if (i == stroke.points.length - 1) {
