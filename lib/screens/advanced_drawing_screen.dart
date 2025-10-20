@@ -137,7 +137,9 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
           ..style = PaintingStyle.stroke;
 
         _currentStroke = LayerStroke(
-          points: _currentPoints.map((p) => model.StrokePoint(position: p, pressure: pressure)).toList(),
+          points: _currentPoints
+              .map((p) => model.StrokePoint(position: p, pressure: pressure))
+              .toList(),
           brushProperties: paint,
         );
       }
@@ -297,7 +299,7 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
   Widget _buildRightPanel() {
     return Container(
       width: 250,
-      color: Colors.grey.shade800?.withValues(alpha: 0.95),
+      color: Colors.grey.shade800.withValues(alpha: 0.95),
       child: Column(
         children: [
           // Panel header
@@ -567,12 +569,13 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       });
 
       // Serialize in background
-      final json = await DrawingProcessor.serializeDrawingAsync(
+      await DrawingProcessor.serializeDrawingAsync(
         _layers,
         _canvasSize,
       );
 
       // TODO: Save to file using file_picker
+      debugPrint('Drawing serialized successfully');
 
       setState(() {
         _statusText = 'File saved';
@@ -632,12 +635,10 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       });
 
       // Generate SVG in background
-      final svgData = await DrawingProcessor.layersToSVGAsync(
-        _layers,
-        _canvasSize,
-      );
+      await DrawingProcessor.layersToSVGAsync(_layers, _canvasSize);
 
       // TODO: Save SVG file
+      debugPrint('SVG generated successfully');
 
       setState(() {
         _statusText = 'SVG exported';
@@ -664,13 +665,14 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       });
 
       // Rasterize in background at 300 DPI
-      final imageBytes = await DrawingProcessor.rasterizeLayersAsync(
+      await DrawingProcessor.rasterizeLayersAsync(
         layers: _layers,
         canvasSize: _canvasSize,
         targetDPI: 300,
       );
 
       // TODO: Save PNG file
+      debugPrint('PNG rasterized successfully');
 
       setState(() {
         _statusText = 'PNG exported';

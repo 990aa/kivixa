@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import '../screens/pdf_viewer_screen.dart';
 import '../screens/markdown_editor_screen.dart';
 import '../screens/infinite_canvas_screen.dart';
+import '../screens/advanced_drawing_screen.dart';
 
 /// Home screen with options to import, create, or draw.
 class HomeScreen extends StatefulWidget {
@@ -153,6 +154,28 @@ class _HomeScreenState extends State<HomeScreen> {
                       vertical: 16,
                     ),
                     textStyle: const TextStyle(fontSize: 18),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdvancedDrawingScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.auto_awesome, size: 24),
+                  label: const Text('Pro Drawing (NEW)'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                    textStyle: const TextStyle(fontSize: 18),
+                    backgroundColor: Colors.deepPurple,
+                    foregroundColor: Colors.white,
                   ),
                 ),
               ],
