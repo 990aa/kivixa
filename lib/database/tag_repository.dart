@@ -150,8 +150,6 @@ class TagRepository {
 
   /// Set tags for a document (replaces existing tags)
   Future<void> setDocumentTags(int documentId, List<int> tagIds) async {
-    final db = await DrawingDatabase.database;
-
     // Get current tags
     final currentTags = await getDocumentTags(documentId);
     final currentTagIds = currentTags.map((t) => t.id!).toSet();
