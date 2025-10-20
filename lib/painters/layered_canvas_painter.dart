@@ -18,9 +18,9 @@ class LayeredCanvasPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // CRITICAL: Enforce canvas bounds at paint level
     canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
-    
+
     canvas.save();
-    
+
     // Use optimized rendering if viewport is provided
     if (useOptimization && viewport != null) {
       LayerRenderingService.paintLayersOptimized(
@@ -33,7 +33,7 @@ class LayeredCanvasPainter extends CustomPainter {
       // Standard rendering
       LayerRenderingService.paintLayers(canvas, layers, size);
     }
-    
+
     canvas.restore();
   }
 

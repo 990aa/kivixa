@@ -4,7 +4,7 @@ import '../models/layer_stroke.dart';
 import '../models/vector_stroke.dart';
 
 /// Canvas widget with strict boundary enforcement
-/// 
+///
 /// Implements ClipRect to prevent any strokes from bleeding outside
 /// the defined canvas bounds, regardless of brush size or stroke position.
 class ClippedDrawingCanvas extends StatelessWidget {
@@ -64,7 +64,7 @@ class ClippedDrawingCanvas extends StatelessWidget {
 }
 
 /// Custom painter with hardware-level clipping enforcement
-/// 
+///
 /// Uses canvas.clipRect() to ensure no pixels can be drawn outside
 /// the canvas bounds at the GPU level.
 class ClippedLayerPainter extends CustomPainter {
@@ -131,10 +131,7 @@ class ClippedLayerPainter extends CustomPainter {
     if (stroke.points.isEmpty) return;
 
     final path = Path();
-    path.moveTo(
-      stroke.points[0].position.dx,
-      stroke.points[0].position.dy,
-    );
+    path.moveTo(stroke.points[0].position.dx, stroke.points[0].position.dy);
 
     // Create smooth path through all points
     if (stroke.points.length == 1) {
@@ -158,10 +155,7 @@ class ClippedLayerPainter extends CustomPainter {
       } else {
         // Intermediate segment - quadratic curve
         final p2 = stroke.points[i + 1].position;
-        final controlPoint = Offset(
-          (p1.dx + p2.dx) / 2,
-          (p1.dy + p2.dy) / 2,
-        );
+        final controlPoint = Offset((p1.dx + p2.dx) / 2, (p1.dy + p2.dy) / 2);
         path.quadraticBezierTo(p1.dx, p1.dy, controlPoint.dx, controlPoint.dy);
       }
     }
@@ -212,7 +206,7 @@ class ClippedLayerPainter extends CustomPainter {
 }
 
 /// Simple clipped canvas for single layer rendering
-/// 
+///
 /// Useful for simpler use cases where you don't need multiple layers.
 class SimpleClippedCanvas extends StatelessWidget {
   final Size canvasSize;
@@ -258,10 +252,7 @@ class SimpleStrokePainter extends CustomPainter {
   final List<LayerStroke> strokes;
   final LayerStroke? currentStroke;
 
-  SimpleStrokePainter({
-    required this.strokes,
-    this.currentStroke,
-  });
+  SimpleStrokePainter({required this.strokes, this.currentStroke});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -283,16 +274,10 @@ class SimpleStrokePainter extends CustomPainter {
     if (stroke.points.isEmpty) return;
 
     final path = Path();
-    path.moveTo(
-      stroke.points[0].position.dx,
-      stroke.points[0].position.dy,
-    );
+    path.moveTo(stroke.points[0].position.dx, stroke.points[0].position.dy);
 
     for (int i = 1; i < stroke.points.length; i++) {
-      path.lineTo(
-        stroke.points[i].position.dx,
-        stroke.points[i].position.dy,
-      );
+      path.lineTo(stroke.points[i].position.dx, stroke.points[i].position.dy);
     }
 
     canvas.drawPath(path, stroke.brushProperties);
