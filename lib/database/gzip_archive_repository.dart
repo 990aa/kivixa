@@ -117,9 +117,7 @@ class GzipArchiveRepository {
     // Update document status
     await db.update(
       DrawingDatabase.tableDocuments,
-      {
-        'last_opened_at': DateTime.now().millisecondsSinceEpoch,
-      },
+      {'last_opened_at': DateTime.now().millisecondsSinceEpoch},
       where: 'id = ?',
       whereArgs: [documentId],
     );
@@ -128,10 +126,7 @@ class GzipArchiveRepository {
   /// Get all archived documents
   Future<List<ArchivedDocument>> getArchivedDocuments() async {
     final db = await database;
-    final maps = await db.query(
-      'archives',
-      orderBy: 'archived_at DESC',
-    );
+    final maps = await db.query('archives', orderBy: 'archived_at DESC');
 
     return maps.map((map) => ArchivedDocument.fromMap(map)).toList();
   }
@@ -212,8 +207,9 @@ class GzipArchiveRepository {
       'totalArchivedSize': archivedSize,
       'totalSpaceSaved': spaceSaved,
       'avgCompressionRatio': stats['avg_compression_ratio'] ?? 0.0,
-      'spaceSavingPercentage':
-          originalSize > 0 ? (spaceSaved / originalSize) * 100 : 0.0,
+      'spaceSavingPercentage': originalSize > 0
+          ? (spaceSaved / originalSize) * 100
+          : 0.0,
     };
   }
 
@@ -285,10 +281,6 @@ class GzipArchiveRepository {
       // Delete physical files handled by cleanup service
     }
 
-    await db.delete(
-      'archives',
-      where: 'id = ?',
-      whereArgs: [archiveId],
-    );
+    await db.delete('archives', where: 'id = ?', whereArgs: [archiveId]);
   }
 }
