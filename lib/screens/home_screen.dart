@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:file_picker/file_picker.dart';
 import '../screens/pdf_viewer_screen.dart';
 import '../screens/markdown_editor_screen.dart';
+import '../screens/infinite_canvas_screen.dart';
 
 /// Home screen with options to import, create, or draw.
 class HomeScreen extends StatefulWidget {
@@ -86,8 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   'Kivixa',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 16),
 
@@ -137,10 +138,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
                   onPressed: () {
-                     Navigator.pushNamed(context, '/demo');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const InfiniteCanvasScreen(),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.palette, size: 24),
-                  label: const Text('Create New Art'),
+                  label: const Text('Infinite Canvas'),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 32,
