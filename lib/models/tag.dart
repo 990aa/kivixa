@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Tag model with custom colors for document organization
-/// 
+///
 /// Features:
 /// - Unique tag names
 /// - Custom color coding
@@ -67,10 +67,7 @@ class Tag {
   }
 
   /// Get tag display chip widget
-  Widget toChip({
-    VoidCallback? onDeleted,
-    VoidCallback? onTap,
-  }) {
+  Widget toChip({VoidCallback? onDeleted, VoidCallback? onTap}) {
     return Chip(
       label: Text(
         name,
@@ -82,11 +79,7 @@ class Tag {
       ),
       backgroundColor: color,
       deleteIcon: onDeleted != null
-          ? Icon(
-              Icons.close,
-              size: 16,
-              color: _getContrastingTextColor(),
-            )
+          ? Icon(Icons.close, size: 16, color: _getContrastingTextColor())
           : null,
       onDeleted: onDeleted,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -97,7 +90,8 @@ class Tag {
   /// Get contrasting text color (black or white) based on background
   Color _getContrastingTextColor() {
     // Calculate relative luminance
-    final luminance = (0.299 * color.red + 0.587 * color.green + 0.114 * color.blue) / 255;
+    final luminance =
+        (0.299 * color.red + 0.587 * color.green + 0.114 * color.blue) / 255;
     return luminance > 0.5 ? Colors.black : Colors.white;
   }
 

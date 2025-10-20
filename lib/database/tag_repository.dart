@@ -3,7 +3,7 @@ import '../database/drawing_database.dart';
 import '../models/tag.dart';
 
 /// Repository for tag operations
-/// 
+///
 /// Handles all CRUD operations for tags and document-tag relationships
 class TagRepository {
   /// Insert a new tag
@@ -135,12 +135,15 @@ class TagRepository {
   Future<List<Tag>> getDocumentTags(int documentId) async {
     final db = await DrawingDatabase.database;
 
-    final maps = await db.rawQuery('''
+    final maps = await db.rawQuery(
+      '''
       SELECT t.* FROM ${DrawingDatabase.TABLE_TAGS} t
       INNER JOIN ${DrawingDatabase.TABLE_DOCUMENT_TAGS} dt ON t.id = dt.tag_id
       WHERE dt.document_id = ?
       ORDER BY t.name ASC
-    ''', [documentId]);
+    ''',
+      [documentId],
+    );
 
     return maps.map((map) => Tag.fromMap(map)).toList();
   }
@@ -172,11 +175,14 @@ class TagRepository {
   Future<int> getDocumentCount(int tagId) async {
     final db = await DrawingDatabase.database;
 
-    final result = await db.rawQuery('''
+    final result = await db.rawQuery(
+      '''
       SELECT COUNT(*) as count
       FROM ${DrawingDatabase.TABLE_DOCUMENT_TAGS}
       WHERE tag_id = ?
-    ''', [tagId]);
+    ''',
+      [tagId],
+    );
 
     return Sqflite.firstIntValue(result) ?? 0;
   }
@@ -184,21 +190,27 @@ class TagRepository {
   /// Increment tag use count
   Future<void> _incrementUseCount(int tagId) async {
     final db = await DrawingDatabase.database;
-    await db.rawUpdate('''
+    await db.rawUpdate(
+      '''
       UPDATE ${DrawingDatabase.TABLE_TAGS}
       SET use_count = use_count + 1
       WHERE id = ?
-    ''', [tagId]);
+    ''',
+      [tagId],
+    );
   }
 
   /// Decrement tag use count
   Future<void> _decrementUseCount(int tagId) async {
     final db = await DrawingDatabase.database;
-    await db.rawUpdate('''
+    await db.rawUpdate(
+      '''
       UPDATE ${DrawingDatabase.TABLE_TAGS}
       SET use_count = MAX(0, use_count - 1)
       WHERE id = ?
-    ''', [tagId]);
+    ''',
+      [tagId],
+    );
   }
 
   /// Get unused tags (no documents)

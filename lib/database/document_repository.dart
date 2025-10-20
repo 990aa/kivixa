@@ -16,7 +16,7 @@ enum DocumentSortBy {
 }
 
 /// Repository for document operations
-/// 
+///
 /// Handles all CRUD operations for documents with advanced querying
 class DocumentRepository {
   /// Insert a new document
@@ -184,12 +184,15 @@ class DocumentRepository {
   }) async {
     final db = await DrawingDatabase.database;
 
-    final maps = await db.rawQuery('''
+    final maps = await db.rawQuery(
+      '''
       SELECT d.* FROM ${DrawingDatabase.TABLE_DOCUMENTS} d
       INNER JOIN ${DrawingDatabase.TABLE_DOCUMENT_TAGS} dt ON d.id = dt.document_id
       WHERE dt.tag_id = ?
       ORDER BY ${_getSortOrder(sortBy)}
-    ''', [tagId]);
+    ''',
+      [tagId],
+    );
 
     final documents = maps.map((map) => DrawingDocument.fromMap(map)).toList();
 
@@ -211,14 +214,17 @@ class DocumentRepository {
 
     final placeholders = List.filled(tagIds.length, '?').join(',');
 
-    final maps = await db.rawQuery('''
+    final maps = await db.rawQuery(
+      '''
       SELECT d.* FROM ${DrawingDatabase.TABLE_DOCUMENTS} d
       WHERE (
         SELECT COUNT(*) FROM ${DrawingDatabase.TABLE_DOCUMENT_TAGS} dt
         WHERE dt.document_id = d.id AND dt.tag_id IN ($placeholders)
       ) = ?
       ORDER BY ${_getSortOrder(sortBy)}
-    ''', [...tagIds, tagIds.length]);
+    ''',
+      [...tagIds, tagIds.length],
+    );
 
     final documents = maps.map((map) => DrawingDocument.fromMap(map)).toList();
 
@@ -262,9 +268,7 @@ class DocumentRepository {
     final db = await DrawingDatabase.database;
     return await db.update(
       DrawingDatabase.TABLE_DOCUMENTS,
-      {
-        'last_opened_at': DateTime.now().millisecondsSinceEpoch,
-      },
+      {'last_opened_at': DateTime.now().millisecondsSinceEpoch},
       where: 'id = ?',
       whereArgs: [documentId],
     );
@@ -274,12 +278,15 @@ class DocumentRepository {
   Future<List<Tag>> _getDocumentTags(int documentId) async {
     final db = await DrawingDatabase.database;
 
-    final maps = await db.rawQuery('''
+    final maps = await db.rawQuery(
+      '''
       SELECT t.* FROM ${DrawingDatabase.TABLE_TAGS} t
       INNER JOIN ${DrawingDatabase.TABLE_DOCUMENT_TAGS} dt ON t.id = dt.tag_id
       WHERE dt.document_id = ?
       ORDER BY t.name ASC
-    ''', [documentId]);
+    ''',
+      [documentId],
+    );
 
     return maps.map((map) => Tag.fromMap(map)).toList();
   }

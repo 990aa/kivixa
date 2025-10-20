@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Folder model with hierarchical structure support
-/// 
+///
 /// Supports:
 /// - Parent-child relationships
 /// - Nested folders (unlimited depth)
@@ -53,8 +53,9 @@ class Folder {
       name: map['name'] as String,
       parentFolderId: map['parent_folder_id'] as int?,
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
-      modifiedAt:
-          DateTime.fromMillisecondsSinceEpoch(map['modified_at'] as int),
+      modifiedAt: DateTime.fromMillisecondsSinceEpoch(
+        map['modified_at'] as int,
+      ),
       color: map['color'] != null ? Color(map['color'] as int) : null,
       icon: map['icon'] as String?,
       description: map['description'] as String?,

@@ -2,19 +2,15 @@ import 'package:flutter/material.dart';
 import 'tag.dart';
 
 /// Document type enumeration
-enum DocumentType {
-  canvas,
-  image,
-  pdf,
-}
+enum DocumentType { canvas, image, pdf }
 
 /// Drawing document model
-/// 
+///
 /// Represents any file in the system:
 /// - Canvas files (native drawing format)
 /// - Imported images (PNG, JPEG, etc.)
 /// - PDF files
-/// 
+///
 /// Features:
 /// - Multi-tag support
 /// - Thumbnail generation
@@ -95,8 +91,9 @@ class DrawingDocument {
       height: map['height'] as int?,
       fileSize: map['file_size'] as int,
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
-      modifiedAt:
-          DateTime.fromMillisecondsSinceEpoch(map['modified_at'] as int),
+      modifiedAt: DateTime.fromMillisecondsSinceEpoch(
+        map['modified_at'] as int,
+      ),
       lastOpenedAt: map['last_opened_at'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['last_opened_at'] as int)
           : null,
