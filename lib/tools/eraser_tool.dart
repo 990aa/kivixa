@@ -1,4 +1,3 @@
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../models/stroke_point.dart';
 import '../models/eraser_mode.dart';

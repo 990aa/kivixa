@@ -104,10 +104,7 @@ class _EraserToolExampleState extends State<EraserToolExample> {
           ),
 
           // Controls panel
-          SizedBox(
-            width: 320,
-            child: _buildControlsPanel(),
-          ),
+          SizedBox(width: 320, child: _buildControlsPanel()),
         ],
       ),
     );
@@ -203,7 +200,9 @@ class _EraserToolExampleState extends State<EraserToolExample> {
                     max: 1.0,
                     onChanged: (value) {
                       setState(() {
-                        _eraserSettings = _eraserSettings.copyWith(hardness: value);
+                        _eraserSettings = _eraserSettings.copyWith(
+                          hardness: value,
+                        );
                       });
                     },
                   ),
@@ -225,7 +224,9 @@ class _EraserToolExampleState extends State<EraserToolExample> {
                     max: 1.0,
                     onChanged: (value) {
                       setState(() {
-                        _eraserSettings = _eraserSettings.copyWith(opacity: value);
+                        _eraserSettings = _eraserSettings.copyWith(
+                          opacity: value,
+                        );
                       });
                     },
                   ),
@@ -239,7 +240,9 @@ class _EraserToolExampleState extends State<EraserToolExample> {
               value: _eraserSettings.usePressure,
               onChanged: (value) {
                 setState(() {
-                  _eraserSettings = _eraserSettings.copyWith(usePressure: value);
+                  _eraserSettings = _eraserSettings.copyWith(
+                    usePressure: value,
+                  );
                 });
               },
             ),
@@ -272,33 +275,36 @@ class _EraserToolExampleState extends State<EraserToolExample> {
             const Text('Color'),
             Wrap(
               spacing: 8.0,
-              children: [
-                Colors.black,
-                Colors.red,
-                Colors.blue,
-                Colors.green,
-                Colors.purple,
-                Colors.orange,
-              ].map((color) {
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _brushSettings = _brushSettings.copyWith(color: color);
-                    });
-                  },
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                      border: _brushSettings.color == color
-                          ? Border.all(color: Colors.white, width: 3)
-                          : null,
-                    ),
-                  ),
-                );
-              }).toList(),
+              children:
+                  [
+                    Colors.black,
+                    Colors.red,
+                    Colors.blue,
+                    Colors.green,
+                    Colors.purple,
+                    Colors.orange,
+                  ].map((color) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _brushSettings = _brushSettings.copyWith(
+                            color: color,
+                          );
+                        });
+                      },
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                          border: _brushSettings.color == color
+                              ? Border.all(color: Colors.white, width: 3)
+                              : null,
+                        ),
+                      ),
+                    );
+                  }).toList(),
             ),
           ],
 
@@ -371,18 +377,12 @@ class _EraserToolExampleState extends State<EraserToolExample> {
       if (_eraserMode) {
         _isErasing = true;
         _currentErasePoints = [
-          StrokePoint(
-            position: details.localPosition,
-            pressure: 0.5,
-          ),
+          StrokePoint(position: details.localPosition, pressure: 0.5),
         ];
       } else {
         _isDrawing = true;
         _currentDrawPoints = [
-          StrokePoint(
-            position: details.localPosition,
-            pressure: 0.5,
-          ),
+          StrokePoint(position: details.localPosition, pressure: 0.5),
         ];
       }
     });
@@ -392,17 +392,11 @@ class _EraserToolExampleState extends State<EraserToolExample> {
     setState(() {
       if (_eraserMode && _isErasing) {
         _currentErasePoints.add(
-          StrokePoint(
-            position: details.localPosition,
-            pressure: 0.7,
-          ),
+          StrokePoint(position: details.localPosition, pressure: 0.7),
         );
       } else if (!_eraserMode && _isDrawing) {
         _currentDrawPoints.add(
-          StrokePoint(
-            position: details.localPosition,
-            pressure: 0.7,
-          ),
+          StrokePoint(position: details.localPosition, pressure: 0.7),
         );
       }
     });
@@ -413,19 +407,23 @@ class _EraserToolExampleState extends State<EraserToolExample> {
       if (_eraserMode && _isErasing) {
         _isErasing = false;
         if (_currentErasePoints.isNotEmpty) {
-          _eraserStrokes.add(_EraserStroke(
-            points: List.from(_currentErasePoints),
-            settings: _eraserSettings,
-          ));
+          _eraserStrokes.add(
+            _EraserStroke(
+              points: List.from(_currentErasePoints),
+              settings: _eraserSettings,
+            ),
+          );
           _currentErasePoints = [];
         }
       } else if (!_eraserMode && _isDrawing) {
         _isDrawing = false;
         if (_currentDrawPoints.isNotEmpty) {
-          _strokes.add(_DrawingStroke(
-            points: List.from(_currentDrawPoints),
-            settings: _brushSettings,
-          ));
+          _strokes.add(
+            _DrawingStroke(
+              points: List.from(_currentDrawPoints),
+              settings: _brushSettings,
+            ),
+          );
           _currentDrawPoints = [];
         }
       }
@@ -471,10 +469,7 @@ class _EraserCanvasPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // White background
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..color = Colors.white,
-    );
+    canvas.drawRect(Offset.zero & size, Paint()..color = Colors.white);
 
     // Save layer for proper blending
     canvas.saveLayer(Offset.zero & size, Paint());
