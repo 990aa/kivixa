@@ -8,7 +8,7 @@ A professional creative workspace and digital canvas built with Flutter, featuri
 
 ## 🎨 What is Kivixa?
 
-Kivixa is not just a PDF annotator—it's a **complete creative workspace** designed for digital artists, designers, annotators, and creative professionals. Whether you're sketching ideas, annotating documents, or creating digital artwork, Kivixa provides professional-grade tools with desktop-class performance on any device.
+Kivixa is a **complete creative workspace** designed for digital artists, designers, annotators, and creative professionals. Whether you're sketching ideas, annotating documents, or creating digital artwork, Kivixa provides professional-grade tools with desktop-class performance on any device.
 
 ## ✨ Key Features
 
@@ -408,4 +408,4 @@ See [LICENSE.md](LICENSE.md) for details.
 
 **Built with Flutter 💙 | Professional Performance 🚀 | Cross-Platform 🌐**
 
-**⭐ Star us on GitHub if Kivixa helps your creative workflow!**
+**⭐ Star on GitHub if Kivixa helps your creative workflow!**
