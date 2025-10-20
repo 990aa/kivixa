@@ -104,7 +104,7 @@ class OptimizedStrokePainter extends CustomPainter {
 
     // Apply highlighter effect if needed
     if (stroke.isHighlighter) {
-      paint.color = stroke.color.withOpacity(0.3);
+      paint.color = stroke.color.withValues(alpha: 0.3);
       paint.blendMode = BlendMode.multiply;
     }
 
@@ -131,7 +131,7 @@ class OptimizedStrokePainter extends CustomPainter {
       ..isAntiAlias = true;
 
     if (stroke.isHighlighter) {
-      paint.color = stroke.color.withOpacity(0.3);
+      paint.color = stroke.color.withValues(alpha: 0.3);
       paint.blendMode = BlendMode.multiply;
     }
 
