@@ -2,42 +2,23 @@ import 'package:flutter/material.dart';
 import '../models/annotation_data.dart';
 import '../models/annotation_layer.dart';
 import '../models/drawing_tool.dart';
-import '../painters/annotation_painter.dart';
 
-/// Widget that captures touch/stylus input and renders annotations
-///
-/// This widget provides a drawing surface that:
-/// - Captures MotionEvents from touch and stylus input
-/// - Extracts pressure, tilt, and position data
-/// - Renders smooth Bézier curves in real-time
-/// - Supports pen, highlighter, and eraser tools
 class AnnotationCanvas extends StatefulWidget {
-  /// The annotation layer containing all strokes
   final AnnotationLayer annotationLayer;
-
-  /// Current page number being annotated
   final int currentPage;
-
-  /// Current drawing tool
   final DrawingTool currentTool;
-
-  /// Current stroke color
   final Color currentColor;
-
-  /// Callback when annotations change
-  final VoidCallback? onAnnotationsChanged;
-
-  /// Size of the canvas
   final Size canvasSize;
+  final VoidCallback onAnnotationsChanged;
 
   const AnnotationCanvas({
     super.key,
     required this.annotationLayer,
     required this.currentPage,
-    this.currentTool = DrawingTool.pen,
-    this.currentColor = Colors.black,
-    this.onAnnotationsChanged,
-    this.canvasSize = const Size(595, 842), // A4 size at 72 DPI
+    required this.currentTool,
+    required this.currentColor,
+    required this.canvasSize,
+    required this.onAnnotationsChanged,
   });
 
   @override
@@ -45,200 +26,135 @@ class AnnotationCanvas extends StatefulWidget {
 }
 
 class _AnnotationCanvasState extends State<AnnotationCanvas> {
-  /// Controller for managing drawing operations
-  late AnnotationController _controller;
+  final List<Offset> _currentPoints = [];
 
-  /// Current stroke being drawn (for real-time rendering)
-  AnnotationData? _currentStroke;
+  void _handlePanStart(DragStartDetails details) {
+    if (widget.currentTool == DrawingTool.pen || widget.currentTool == DrawingTool.highlighter) {
+       setState(() {
+      _currentPoints.add(details.localPosition);
+    });
+    }
 
-  /// Points in the current stroke
-  final List<Offset> _currentStrokePoints = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeController();
+   
   }
 
-  @override
-  void didUpdateWidget(AnnotationCanvas oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    // Update controller if tool or color changed
-    if (oldWidget.currentTool != widget.currentTool) {
-      _controller.setTool(widget.currentTool);
-    }
-
-    if (oldWidget.currentColor != widget.currentColor) {
-      _controller.setColor(widget.currentColor);
-    }
-
-    if (oldWidget.currentPage != widget.currentPage) {
-      _controller.setPage(widget.currentPage);
+  void _handlePanUpdate(DragUpdateDetails details) {
+   if (widget.currentTool == DrawingTool.pen || widget.currentTool == DrawingTool.highlighter) {
+       setState(() {
+      _currentPoints.add(details.localPosition);
+    });
     }
   }
 
-  void _initializeController() {
-    _controller = AnnotationController(
-      currentTool: widget.currentTool,
-      currentColor: widget.currentColor,
-      currentPage: widget.currentPage,
-      onStrokeCompleted: _onStrokeCompleted,
+  void _handlePanEnd(DragEndDetails details) {
+    if ((widget.currentTool == DrawingTool.pen || widget.currentTool == DrawingTool.highlighter) && _currentPoints.isNotEmpty) {
+       final annotation = AnnotationData(
+      points: List.from(_currentPoints),
+      color: widget.currentColor,
+      strokeWidth: widget.currentTool == DrawingTool.highlighter ? 12.0 : 4.0,
+      tool: widget.currentTool,
+      pageNumber: widget.currentPage,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
     );
-  }
 
-  /// Called when a stroke is completed
-  void _onStrokeCompleted(AnnotationData annotation) {
-    // Add to annotation layer
     widget.annotationLayer.addAnnotation(annotation);
-
-    // Clear current stroke
-    setState(() {
-      _currentStroke = null;
-      _currentStrokePoints.clear();
-    });
-
-    // Notify changes
-    widget.onAnnotationsChanged?.call();
-  }
-
-  /// Handles pointer down events (start of stroke)
-  void _onPointerDown(PointerDownEvent event) {
-    final localPosition = event.localPosition;
-
-    // Get pressure from event (defaults to 1.0 for non-pressure devices)
-    final pressure = event.pressure;
-
-    // Start new stroke
-    _currentStrokePoints.clear();
-    _currentStrokePoints.add(localPosition);
-
-    // Begin stroke in controller
-    _controller.beginStroke(localPosition, pressure: pressure);
-
-    // Create current stroke for real-time rendering
-    setState(() {
-      _currentStroke = AnnotationData(
-        strokePath: List.from(_currentStrokePoints),
-        colorValue: widget.currentColor.toARGB32(),
-        strokeWidth: _controller.getStrokeWidth(),
-        toolType: widget.currentTool,
-        pageNumber: widget.currentPage,
-      );
-    });
-  }
-
-  /// Handles pointer move events (drawing)
-  void _onPointerMove(PointerMoveEvent event) {
-    final localPosition = event.localPosition;
-    final pressure = event.pressure;
-
-    // Add point to current stroke
-    _currentStrokePoints.add(localPosition);
-    _controller.addPoint(localPosition, pressure: pressure);
-
-    // Handle eraser tool
-    if (widget.currentTool == DrawingTool.eraser) {
-      _eraseAtPoint(localPosition);
-    } else {
-      // Update current stroke for real-time rendering
-      setState(() {
-        _currentStroke = AnnotationData(
-          strokePath: List.from(_currentStrokePoints),
-          colorValue: widget.currentColor.toARGB32(),
-          strokeWidth: _controller.getStrokeWidth(),
-          toolType: widget.currentTool,
-          pageNumber: widget.currentPage,
-        );
-      });
-    }
-  }
-
-  /// Handles pointer up events (end of stroke)
-  void _onPointerUp(PointerUpEvent event) {
-    if (_currentStrokePoints.isEmpty) return;
-
-    // End stroke in controller (will trigger onStrokeCompleted)
-    if (widget.currentTool != DrawingTool.eraser) {
-      _controller.endStroke();
-    } else {
-      // Clear current stroke for eraser
-      setState(() {
-        _currentStroke = null;
-        _currentStrokePoints.clear();
-      });
-    }
-  }
-
-  /// Erases annotations within the eraser radius
-  void _eraseAtPoint(Offset point) {
-    const eraserRadius = 15.0; // Radius for eraser hit detection
-
-    final pageAnnotations = widget.annotationLayer.getAnnotationsForPage(
-      widget.currentPage,
-    );
-
-    // Check each annotation to see if it intersects with eraser
-    final toRemove = <AnnotationData>[];
-
-    for (final annotation in pageAnnotations) {
-      // Check if any point in the stroke is within eraser radius
-      for (final strokePoint in annotation.strokePath) {
-        final distance = (strokePoint - point).distance;
-        if (distance <= eraserRadius) {
-          toRemove.add(annotation);
-          break;
-        }
-      }
+    _currentPoints.clear();
+    widget.onAnnotationsChanged();
     }
 
-    // Remove intersecting annotations
-    if (toRemove.isNotEmpty) {
-      setState(() {
-        for (final annotation in toRemove) {
-          widget.annotationLayer.removeAnnotation(annotation);
-        }
-      });
-
-      widget.onAnnotationsChanged?.call();
-    }
+   
   }
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      onPointerDown: _onPointerDown,
-      onPointerMove: _onPointerMove,
-      onPointerUp: _onPointerUp,
-      onPointerCancel: (event) => _onPointerUp(
-        PointerUpEvent(
-          timeStamp: event.timeStamp,
-          pointer: event.pointer,
-          kind: event.kind,
-          device: event.device,
-          position: event.position,
-        ),
-      ),
+    return GestureDetector(
+      onPanStart: _handlePanStart,
+      onPanUpdate: _handlePanUpdate,
+      onPanEnd: _handlePanEnd,
       child: CustomPaint(
         size: widget.canvasSize,
-        painter: AnnotationPainter(
-          annotations: widget.annotationLayer.getAnnotationsForPage(
-            widget.currentPage,
-          ),
-          currentStroke: _currentStroke,
-        ),
-        child: Container(
-          width: widget.canvasSize.width,
-          height: widget.canvasSize.height,
-          color: Colors.transparent,
+        painter: _AnnotationPainter(
+          annotations: widget.annotationLayer.getAnnotationsForPage(widget.currentPage),
+          currentPoints: _currentPoints,
+          currentColor: widget.currentColor,
+          currentTool: widget.currentTool,
         ),
       ),
     );
   }
+}
+
+class _AnnotationPainter extends CustomPainter {
+  final List<AnnotationData> annotations;
+  final List<Offset> currentPoints;
+  final Color currentColor;
+  final DrawingTool currentTool;
+
+  _AnnotationPainter({
+    required this.annotations,
+    required this.currentPoints,
+    required this.currentColor,
+    required this.currentTool,
+  });
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  void paint(Canvas canvas, Size size) {
+    for (final annotation in annotations) {
+      _drawAnnotation(canvas, annotation);
+    }
+
+    if (currentPoints.isNotEmpty) {
+      _drawCurrentPath(canvas);
+    }
+  }
+
+  void _drawAnnotation(Canvas canvas, AnnotationData annotation) {
+    final paint = Paint()
+      ..color = annotation.color
+      ..strokeWidth = annotation.strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    if (annotation.tool == DrawingTool.highlighter) {
+      paint.blendMode = BlendMode.multiply;
+    }
+
+    final path = Path();
+    if (annotation.points.isNotEmpty) {
+      path.moveTo(annotation.points.first.dx, annotation.points.first.dy);
+      for (var i = 1; i < annotation.points.length; i++) {
+        path.lineTo(annotation.points[i].dx, annotation.points[i].dy);
+      }
+    }
+
+    canvas.drawPath(path, paint);
+  }
+
+  void _drawCurrentPath(Canvas canvas) {
+    final paint = Paint()
+      ..color = currentColor
+      ..strokeWidth = currentTool == DrawingTool.highlighter ? 12.0 : 4.0
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    if (currentTool == DrawingTool.highlighter) {
+      paint.blendMode = BlendMode.multiply;
+    }
+
+    final path = Path();
+    if (currentPoints.isNotEmpty) {
+      path.moveTo(currentPoints.first.dx, currentPoints.first.dy);
+      for (var i = 1; i < currentPoints.length; i++) {
+        path.lineTo(currentPoints[i].dx, currentPoints[i].dy);
+      }
+    }
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _AnnotationPainter oldDelegate) {
+    return oldDelegate.annotations.length != annotations.length ||
+        oldDelegate.currentPoints.length != currentPoints.length;
   }
 }
