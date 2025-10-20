@@ -50,10 +50,9 @@ class CompressionService {
       final originalSize = originalBytes.length;
 
       // Create archive directory
-      final archiveDir = Directory(path.join(
-        await _getArchiveDirectory(),
-        'archives',
-      ));
+      final archiveDir = Directory(
+        path.join(await _getArchiveDirectory(), 'archives'),
+      );
       if (!await archiveDir.exists()) {
         await archiveDir.create(recursive: true);
       }
@@ -255,18 +254,9 @@ class CompressionService {
   static Map<String, dynamic> getCompressionStats(String fileExtension) {
     // Typical compression ratios by file type
     final stats = {
-      'json': {
-        'ratio': 0.20,
-        'description': 'Excellent (70-80% compression)',
-      },
-      'svg': {
-        'ratio': 0.15,
-        'description': 'Excellent (80-85% compression)',
-      },
-      'txt': {
-        'ratio': 0.25,
-        'description': 'Very Good (75% compression)',
-      },
+      'json': {'ratio': 0.20, 'description': 'Excellent (70-80% compression)'},
+      'svg': {'ratio': 0.15, 'description': 'Excellent (80-85% compression)'},
+      'txt': {'ratio': 0.25, 'description': 'Very Good (75% compression)'},
       'png': {
         'ratio': 0.90,
         'description': 'Poor (10% compression - already compressed)',
@@ -275,16 +265,10 @@ class CompressionService {
         'ratio': 0.95,
         'description': 'Minimal (5% compression - already compressed)',
       },
-      'pdf': {
-        'ratio': 0.85,
-        'description': 'Fair (15% compression)',
-      },
+      'pdf': {'ratio': 0.85, 'description': 'Fair (15% compression)'},
     };
 
     return stats[fileExtension.toLowerCase()] ??
-        {
-          'ratio': 0.50,
-          'description': 'Moderate (50% compression)',
-        };
+        {'ratio': 0.50, 'description': 'Moderate (50% compression)'};
   }
 }
