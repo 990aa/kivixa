@@ -395,10 +395,10 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
     await documentRepo.updateLastOpened(document.id!);
     // TODO: Navigate to document editor
     if (!mounted) return;
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Opening: ${document.name}')),
-    );
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Opening: ${document.name}')));
   }
 
   void _renameFolder(Folder folder) {
