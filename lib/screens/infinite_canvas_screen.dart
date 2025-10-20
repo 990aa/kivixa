@@ -16,7 +16,7 @@ class InfiniteCanvasScreen extends StatefulWidget {
 }
 
 class _InfiniteCanvasScreenState extends State<InfiniteCanvasScreen> {
-  final GlobalKey<_InfiniteCanvasState> _canvasKey = GlobalKey();
+  final GlobalKey _canvasKey = GlobalKey();
   final ImagePickerService _imagePickerService = ImagePickerService();
   final ExportImportService _exportService = ExportImportService();
 
