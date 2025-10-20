@@ -100,6 +100,11 @@ class FolderRepository {
     return rootFolders;
   }
 
+  /// Get complete folder tree (alias for getFolderHierarchy)
+  Future<List<Folder>> getFolderTree() async {
+    return await getFolderHierarchy();
+  }
+
   Future<void> _buildHierarchy(Folder parent, List<Folder> allFolders) async {
     // Get subfolders
     parent.subfolders = allFolders
@@ -112,6 +117,17 @@ class FolderRepository {
     // Recursively build hierarchy for subfolders
     for (final subfolder in parent.subfolders) {
       await _buildHierarchy(subfolder, allFolders);
+    }
+  }
+
+  /// Helper method to load subfolders recursively
+  Future<void> _loadSubfoldersRecursive(Folder folder) async {
+    if (folder.id == null) return;
+
+    folder.subfolders = await getSubfolders(folder.id!);
+
+    for (final subfolder in folder.subfolders) {
+      await _loadSubfoldersRecursive(subfolder);
     }
   }
 
