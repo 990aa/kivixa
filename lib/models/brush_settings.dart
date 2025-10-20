@@ -135,7 +135,10 @@ class BrushSettings {
   }
 
   /// Preset: Soft airbrush
-  factory BrushSettings.airbrush({Color color = Colors.black, double size = 20.0}) {
+  factory BrushSettings.airbrush({
+    Color color = Colors.black,
+    double size = 20.0,
+  }) {
     return BrushSettings(
       brushType: 'airbrush',
       color: color,
@@ -149,7 +152,10 @@ class BrushSettings {
   }
 
   /// Preset: Watercolor
-  factory BrushSettings.watercolor({Color color = Colors.blue, double size = 30.0}) {
+  factory BrushSettings.watercolor({
+    Color color = Colors.blue,
+    double size = 30.0,
+  }) {
     return BrushSettings(
       brushType: 'watercolor',
       color: color,
@@ -164,7 +170,10 @@ class BrushSettings {
   }
 
   /// Preset: Hard pencil
-  factory BrushSettings.pencil({Color color = Colors.black, double size = 2.0}) {
+  factory BrushSettings.pencil({
+    Color color = Colors.black,
+    double size = 2.0,
+  }) {
     return BrushSettings(
       brushType: 'pencil',
       color: color,
@@ -179,7 +188,10 @@ class BrushSettings {
   }
 
   /// Preset: Marker
-  factory BrushSettings.marker({Color color = Colors.black, double size = 15.0}) {
+  factory BrushSettings.marker({
+    Color color = Colors.black,
+    double size = 15.0,
+  }) {
     return BrushSettings(
       brushType: 'marker',
       color: color,
@@ -193,7 +205,10 @@ class BrushSettings {
   }
 
   /// Preset: Chalk/Pastel
-  factory BrushSettings.chalk({Color color = Colors.white, double size = 10.0}) {
+  factory BrushSettings.chalk({
+    Color color = Colors.white,
+    double size = 10.0,
+  }) {
     return BrushSettings(
       brushType: 'chalk',
       color: color,

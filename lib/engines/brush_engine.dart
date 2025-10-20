@@ -197,8 +197,16 @@ class PencilBrush extends BrushEngine {
 
     for (int i = 0; i < spacedPoints.length; i++) {
       final point = spacedPoints[i];
-      final size = calculatePressureSize(settings.size, point.pressure, settings);
-      final opacity = calculatePressureOpacity(settings.opacity, point.pressure, settings);
+      final size = calculatePressureSize(
+        settings.size,
+        point.pressure,
+        settings,
+      );
+      final opacity = calculatePressureOpacity(
+        settings.opacity,
+        point.pressure,
+        settings,
+      );
 
       // Multiple small circles for pencil texture
       final layers = 3;
@@ -261,8 +269,16 @@ class ChalkBrush extends BrushEngine {
 
     for (int i = 0; i < spacedPoints.length; i++) {
       final point = spacedPoints[i];
-      final size = calculatePressureSize(settings.size, point.pressure, settings);
-      final opacity = calculatePressureOpacity(settings.opacity, point.pressure, settings);
+      final size = calculatePressureSize(
+        settings.size,
+        point.pressure,
+        settings,
+      );
+      final opacity = calculatePressureOpacity(
+        settings.opacity,
+        point.pressure,
+        settings,
+      );
 
       // Multiple scattered particles for chalk texture
       final particleCount = 8;
@@ -302,7 +318,11 @@ class WatercolorBrush extends BrushEngine {
 
     for (int i = 0; i < spacedPoints.length; i++) {
       final point = spacedPoints[i];
-      final size = calculatePressureSize(settings.size, point.pressure, settings);
+      final size = calculatePressureSize(
+        settings.size,
+        point.pressure,
+        settings,
+      );
       final opacity = calculatePressureOpacity(
         settings.opacity * settings.flow,
         point.pressure,

@@ -55,17 +55,21 @@ class BrushStrokeRenderer {
 
       // Weighted average for smoothing
       final weight = 1.0 - stabilization;
-      final stabilizedX = curr.position.dx * weight +
+      final stabilizedX =
+          curr.position.dx * weight +
           (prev.position.dx + next.position.dx) * stabilization / 2;
-      final stabilizedY = curr.position.dy * weight +
+      final stabilizedY =
+          curr.position.dy * weight +
           (prev.position.dy + next.position.dy) * stabilization / 2;
 
-      result.add(StrokePoint(
-        position: Offset(stabilizedX, stabilizedY),
-        pressure: curr.pressure,
-        tilt: curr.tilt,
-        orientation: curr.orientation,
-      ));
+      result.add(
+        StrokePoint(
+          position: Offset(stabilizedX, stabilizedY),
+          pressure: curr.pressure,
+          tilt: curr.tilt,
+          orientation: curr.orientation,
+        ),
+      );
     }
 
     result.add(points.last);
@@ -90,16 +94,22 @@ class BrushStrokeRenderer {
       // Add interpolated points
       for (int step = 1; step < interpolationSteps; step++) {
         final t = step / interpolationSteps;
-        final interpolatedX = curr.position.dx + (next.position.dx - curr.position.dx) * t;
-        final interpolatedY = curr.position.dy + (next.position.dy - curr.position.dy) * t;
-        final interpolatedPressure = curr.pressure + (next.pressure - curr.pressure) * t;
+        final interpolatedX =
+            curr.position.dx + (next.position.dx - curr.position.dx) * t;
+        final interpolatedY =
+            curr.position.dy + (next.position.dy - curr.position.dy) * t;
+        final interpolatedPressure =
+            curr.pressure + (next.pressure - curr.pressure) * t;
 
-        result.add(StrokePoint(
-          position: Offset(interpolatedX, interpolatedY),
-          pressure: interpolatedPressure,
-          tilt: curr.tilt + (next.tilt - curr.tilt) * t,
-          orientation: curr.orientation + (next.orientation - curr.orientation) * t,
-        ));
+        result.add(
+          StrokePoint(
+            position: Offset(interpolatedX, interpolatedY),
+            pressure: interpolatedPressure,
+            tilt: curr.tilt + (next.tilt - curr.tilt) * t,
+            orientation:
+                curr.orientation + (next.orientation - curr.orientation) * t,
+          ),
+        );
       }
     }
 
@@ -117,7 +127,10 @@ class BrushStrokeRenderer {
     return _douglasPeucker(points, tolerance);
   }
 
-  List<StrokePoint> _douglasPeucker(List<StrokePoint> points, double tolerance) {
+  List<StrokePoint> _douglasPeucker(
+    List<StrokePoint> points,
+    double tolerance,
+  ) {
     // Find point with maximum distance from line segment
     double maxDistance = 0;
     int maxIndex = 0;
@@ -138,14 +151,8 @@ class BrushStrokeRenderer {
 
     // If max distance is greater than tolerance, recursively simplify
     if (maxDistance > tolerance) {
-      final left = _douglasPeucker(
-        points.sublist(0, maxIndex + 1),
-        tolerance,
-      );
-      final right = _douglasPeucker(
-        points.sublist(maxIndex),
-        tolerance,
-      );
+      final left = _douglasPeucker(points.sublist(0, maxIndex + 1), tolerance);
+      final right = _douglasPeucker(points.sublist(maxIndex), tolerance);
 
       return [...left.sublist(0, left.length - 1), ...right];
     } else {
@@ -153,7 +160,11 @@ class BrushStrokeRenderer {
     }
   }
 
-  double _perpendicularDistance(Offset point, Offset lineStart, Offset lineEnd) {
+  double _perpendicularDistance(
+    Offset point,
+    Offset lineStart,
+    Offset lineEnd,
+  ) {
     final dx = lineEnd.dx - lineStart.dx;
     final dy = lineEnd.dy - lineStart.dy;
 
@@ -161,14 +172,15 @@ class BrushStrokeRenderer {
       return (point - lineStart).distance;
     }
 
-    final t = ((point.dx - lineStart.dx) * dx + (point.dy - lineStart.dy) * dy) /
+    final t =
+        ((point.dx - lineStart.dx) * dx + (point.dy - lineStart.dy) * dy) /
         (dx * dx + dy * dy);
 
     final projection = t < 0
         ? lineStart
         : t > 1
-            ? lineEnd
-            : Offset(lineStart.dx + t * dx, lineStart.dy + t * dy);
+        ? lineEnd
+        : Offset(lineStart.dx + t * dx, lineStart.dy + t * dy);
 
     return (point - projection).distance;
   }

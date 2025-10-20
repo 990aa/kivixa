@@ -146,12 +146,7 @@ class TextureBrushEngine extends BrushEngine {
           height: size * 2,
         );
 
-        canvas.drawImageRect(
-          settings.textureImage!,
-          srcRect,
-          dstRect,
-          paint,
-        );
+        canvas.drawImageRect(settings.textureImage!, srcRect, dstRect, paint);
       } else {
         // Simple circle fallback
         final paint = Paint()
@@ -191,9 +186,7 @@ class BrushTextureLoader {
 
     try {
       final ByteData data = await rootBundle.load(assetPath);
-      final codec = await ui.instantiateImageCodec(
-        data.buffer.asUint8List(),
-      );
+      final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
       final frame = await codec.getNextFrame();
       _cache[assetPath] = frame.image;
       return frame.image;
