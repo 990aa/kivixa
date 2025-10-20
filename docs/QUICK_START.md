@@ -307,13 +307,3 @@ Swipe - Change page
 Pinch - Zoom in/out
 Drag - Pan view
 ```
-
----
-
-## Performance Targets
-
-- **Drawing**: 60 FPS
-- **Export**: 1 sec/page
-- **Memory**: < 100 MB
-- **Auto-save**: 2 seconds
-
