@@ -94,9 +94,9 @@ class _SearchFilterPanelState extends State<SearchFilterPanel> {
           // Type filters
           Text(
             'Document Type',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Wrap(
@@ -133,9 +133,9 @@ class _SearchFilterPanelState extends State<SearchFilterPanel> {
           // Tag filters
           Text(
             'Tags',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           _buildTagFilters(),
@@ -145,9 +145,9 @@ class _SearchFilterPanelState extends State<SearchFilterPanel> {
           // Sort options
           Text(
             'Sort By',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<DocumentSortBy>(
@@ -257,15 +257,17 @@ class _SearchFilterPanelState extends State<SearchFilterPanel> {
   }
 
   void _applyFilters() {
-    widget.onFilterChanged(SearchFilterCriteria(
-      searchQuery: _searchQuery.isEmpty ? null : _searchQuery,
-      types: _selectedTypes.isEmpty ? null : _selectedTypes,
-      tagIds: _selectedTags.isEmpty
-          ? null
-          : _selectedTags.map((t) => t.id!).toList(),
-      favoritesOnly: _favoritesOnly,
-      sortBy: _sortBy,
-    ));
+    widget.onFilterChanged(
+      SearchFilterCriteria(
+        searchQuery: _searchQuery.isEmpty ? null : _searchQuery,
+        types: _selectedTypes.isEmpty ? null : _selectedTypes,
+        tagIds: _selectedTags.isEmpty
+            ? null
+            : _selectedTags.map((t) => t.id!).toList(),
+        favoritesOnly: _favoritesOnly,
+        sortBy: _sortBy,
+      ),
+    );
   }
 
   bool _hasActiveFilters() {

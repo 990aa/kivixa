@@ -54,9 +54,9 @@ class _FolderTreeViewState extends State<FolderTreeView> {
             const SizedBox(height: 16),
             Text(
               'No folders yet',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.grey,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: Colors.grey),
             ),
           ],
         ),
@@ -73,7 +73,8 @@ class _FolderTreeViewState extends State<FolderTreeView> {
 
   Widget _buildFolderItem(BuildContext context, Folder folder, int level) {
     final hasSubfolders = folder.subfolders.isNotEmpty;
-    final isExpanded = folder.id != null && _expandedFolders.contains(folder.id!);
+    final isExpanded =
+        folder.id != null && _expandedFolders.contains(folder.id!);
     final isSelected = widget.selectedFolder?.id == folder.id;
 
     return Column(
@@ -126,7 +127,9 @@ class _FolderTreeViewState extends State<FolderTreeView> {
                     folder.name,
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -136,7 +139,10 @@ class _FolderTreeViewState extends State<FolderTreeView> {
                 // Document count badge
                 if (widget.showDocumentCount && folder.documentCount > 0)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade300,
                       borderRadius: BorderRadius.circular(12),
