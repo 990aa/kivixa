@@ -4,9 +4,8 @@ import '../widgets/drawing_workspace_layout.dart';
 import '../widgets/precise_canvas_gesture_handler.dart';
 import '../models/drawing_layer.dart';
 import '../models/layer_stroke.dart';
-import '../models/stroke_point.dart';
+import '../models/stroke_point.dart' as model;
 import '../services/drawing_processor.dart';
-import '../services/lossless_exporter.dart';
 import '../services/tile_manager.dart';
 
 /// Advanced drawing screen with all integrated features:
@@ -23,16 +22,16 @@ class AdvancedDrawingScreen extends StatefulWidget {
 }
 
 class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
-  final TransformationController _transformController = TransformationController();
+  final TransformationController _transformController =
+      TransformationController();
   final TileManager _tileManager = TileManager();
-  final LosslessExporter _exporter = LosslessExporter();
-  
+
   // Drawing state
   List<DrawingLayer> _layers = [];
   int _currentLayerIndex = 0;
   LayerStroke? _currentStroke;
   List<Offset> _currentPoints = [];
-  
+
   // UI state
   Color _currentColor = Colors.black;
   double _currentStrokeWidth = 3.0;
@@ -40,34 +39,34 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
   Offset _canvasOffset = Offset.zero;
   bool _isProcessing = false;
   String _statusText = 'Ready';
-  
+
   // Canvas settings
   final Size _canvasSize = const Size(4000, 4000); // Large canvas
-  
+
   @override
   void initState() {
     super.initState();
-    
+
     // Create initial layer
     _layers.add(DrawingLayer(name: 'Layer 1'));
-    
+
     // Log platform info
     debugPrint('Platform configuration initialized');
   }
-  
+
   @override
   void dispose() {
     _transformController.dispose();
     _tileManager.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: DrawingWorkspaceLayout(
         transformController: _transformController,
-        
+
         // Main canvas with gesture handling
         canvas: PreciseCanvasGestureHandler(
           canvas: CustomPaint(
@@ -78,12 +77,12 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
               tileManager: _tileManager,
             ),
           ),
-          
+
           // Drawing callbacks
           onDrawStart: _handleDrawStart,
           onDrawUpdate: _handleDrawUpdate,
           onDrawEnd: _handleDrawEnd,
-          
+
           // Navigation callbacks
           onNavigationStart: (details) {
             setState(() {
@@ -96,16 +95,16 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
               _statusText = 'Ready';
             });
           },
-          
+
           drawingEnabled: !_isProcessing,
           navigationEnabled: true,
         ),
-        
+
         // Fixed UI elements
         topToolbar: _buildTopToolbar(),
         bottomToolbar: _buildBottomToolbar(),
         rightPanel: _buildRightPanel(),
-        
+
         backgroundColor: Colors.grey.shade300,
         showTopToolbar: true,
         showBottomToolbar: true,
@@ -114,20 +113,20 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       ),
     );
   }
-  
+
   // ========== DRAWING HANDLERS ==========
-  
+
   void _handleDrawStart(Offset point) {
     setState(() {
       _currentPoints = [point];
       _statusText = 'Drawing...';
     });
   }
-  
+
   void _handleDrawUpdate(Offset point, double pressure) {
     setState(() {
       _currentPoints.add(point);
-      
+
       // Create temporary stroke for preview
       if (_currentPoints.length > 1) {
         final paint = Paint()
@@ -136,26 +135,26 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
           ..strokeCap = StrokeCap.round
           ..strokeJoin = StrokeJoin.round
           ..style = PaintingStyle.stroke;
-        
+
         _currentStroke = LayerStroke(
-          points: _currentPoints.map((p) => StrokePoint(position: p)).toList(),
+          points: _currentPoints.map((p) => model.StrokePoint(position: p, pressure: pressure)).toList(),
           brushProperties: paint,
         );
       }
     });
   }
-  
+
   void _handleDrawEnd() {
     if (_currentStroke != null && _currentPoints.length > 1) {
       setState(() {
         // Add stroke to current layer
         _layers[_currentLayerIndex].addStroke(_currentStroke!);
-        
+
         // Clear temporary stroke
         _currentStroke = null;
         _currentPoints = [];
         _statusText = 'Stroke added | Total: ${_getTotalStrokes()}';
-        
+
         // Invalidate tile cache
         _tileManager.clearCache();
       });
@@ -167,33 +166,33 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       });
     }
   }
-  
+
   // ========== NAVIGATION HANDLERS ==========
-  
+
   void _handleNavigationUpdate(ScaleUpdateDetails details) {
     setState(() {
       // Update zoom
       _zoomLevel *= details.scale;
       _zoomLevel = _zoomLevel.clamp(0.1, 10.0);
-      
+
       // Update pan
       _canvasOffset += details.focalPointDelta;
-      
+
       // Apply transform
       _transformController.value = Matrix4.identity()
         ..translate(_canvasOffset.dx, _canvasOffset.dy)
-        ..scaleByDouble(_zoomLevel);
-      
+        ..scale(_zoomLevel, _zoomLevel, 1.0);
+
       _statusText = 'Zoom: ${(_zoomLevel * 100).toInt()}%';
     });
   }
-  
+
   // ========== UI BUILDERS ==========
-  
+
   Widget _buildTopToolbar() {
     return Container(
       height: 60,
-      color: Colors.grey.shade800?.withValues(alpha: 0.95),
+      color: Colors.grey.shade800.withValues(alpha: 0.95),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
@@ -206,23 +205,23 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
             ),
           ),
           const SizedBox(width: 32),
-          
+
           // File operations
           _buildToolbarButton(Icons.folder_open, 'Open', _openFile),
           _buildToolbarButton(Icons.save, 'Save', _saveFile),
           _buildToolbarButton(Icons.file_download, 'Export', _showExportMenu),
-          
+
           const SizedBox(width: 16),
           const VerticalDivider(color: Colors.white24),
           const SizedBox(width: 16),
-          
+
           // Edit operations
           _buildToolbarButton(Icons.undo, 'Undo', _undo),
           _buildToolbarButton(Icons.redo, 'Redo', _redo),
           _buildToolbarButton(Icons.delete, 'Clear', _clearCanvas),
-          
+
           const Spacer(),
-          
+
           // Processing indicator
           if (_isProcessing)
             const Padding(
@@ -240,11 +239,11 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       ),
     );
   }
-  
+
   Widget _buildBottomToolbar() {
     return Container(
       height: 50,
-      color: Colors.grey.shade800?.withValues(alpha: 0.95),
+      color: Colors.grey.shade800.withValues(alpha: 0.95),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
@@ -264,7 +263,7 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
             onPressed: _resetTransform,
             tooltip: 'Reset Zoom',
           ),
-          
+
           // Zoom percentage
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -277,17 +276,14 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
               style: const TextStyle(color: Colors.white),
             ),
           ),
-          
+
           const Spacer(),
-          
+
           // Status text
-          Text(
-            _statusText,
-            style: const TextStyle(color: Colors.white70),
-          ),
-          
+          Text(_statusText, style: const TextStyle(color: Colors.white70)),
+
           const SizedBox(width: 16),
-          
+
           // Cache stats
           Text(
             'Tiles: ${_tileManager.getCacheStats()['cachedTiles']}',
@@ -297,7 +293,7 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       ),
     );
   }
-  
+
   Widget _buildRightPanel() {
     return Container(
       width: 250,
@@ -319,7 +315,7 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
               ),
             ),
           ),
-          
+
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(16),
@@ -340,11 +336,14 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
                     Colors.brown,
                   ].map((color) => _buildColorButton(color)).toList(),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Brush size
-                const Text('Brush Size', style: TextStyle(color: Colors.white70)),
+                const Text(
+                  'Brush Size',
+                  style: TextStyle(color: Colors.white70),
+                ),
                 Slider(
                   value: _currentStrokeWidth,
                   min: 1.0,
@@ -357,9 +356,9 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
                     });
                   },
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Layers
                 const Text('Layers', style: TextStyle(color: Colors.white70)),
                 const SizedBox(height: 8),
@@ -368,7 +367,7 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
                   final layer = entry.value;
                   return _buildLayerTile(index, layer);
                 }).toList(),
-                
+
                 // Add layer button
                 ElevatedButton.icon(
                   onPressed: _addLayer,
@@ -382,15 +381,19 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       ),
     );
   }
-  
-  Widget _buildToolbarButton(IconData icon, String tooltip, VoidCallback onPressed) {
+
+  Widget _buildToolbarButton(
+    IconData icon,
+    String tooltip,
+    VoidCallback onPressed,
+  ) {
     return IconButton(
       icon: Icon(icon, color: Colors.white),
       onPressed: onPressed,
       tooltip: tooltip,
     );
   }
-  
+
   Widget _buildColorButton(Color color) {
     return InkWell(
       onTap: () {
@@ -412,15 +415,14 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       ),
     );
   }
-  
+
   Widget _buildLayerTile(int index, DrawingLayer layer) {
     return Card(
-      color: index == _currentLayerIndex ? Colors.blue.shade700 : Colors.grey.shade700,
+      color: index == _currentLayerIndex
+          ? Colors.blue.shade700
+          : Colors.grey.shade700,
       child: ListTile(
-        title: Text(
-          layer.name,
-          style: const TextStyle(color: Colors.white),
-        ),
+        title: Text(layer.name, style: const TextStyle(color: Colors.white)),
         subtitle: Text(
           '${layer.strokes.length} strokes',
           style: const TextStyle(color: Colors.white70, fontSize: 12),
@@ -445,16 +447,16 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       ),
     );
   }
-  
+
   // ========== OPERATIONS ==========
-  
+
   void _addLayer() {
     setState(() {
       _layers.add(DrawingLayer(name: 'Layer ${_layers.length + 1}'));
       _currentLayerIndex = _layers.length - 1;
     });
   }
-  
+
   void _undo() {
     if (_layers[_currentLayerIndex].strokes.isNotEmpty) {
       setState(() {
@@ -464,12 +466,12 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       });
     }
   }
-  
+
   void _redo() {
     // TODO: Implement redo stack
     _statusText = 'Redo not implemented yet';
   }
-  
+
   void _clearCanvas() {
     showDialog(
       context: context,
@@ -498,17 +500,17 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       ),
     );
   }
-  
+
   void _setZoom(double zoom) {
     setState(() {
       _zoomLevel = zoom.clamp(0.1, 10.0);
       _transformController.value = Matrix4.identity()
         ..translate(_canvasOffset.dx, _canvasOffset.dy)
-        ..scaleByDouble(_zoomLevel);
+        ..scale(_zoomLevel, _zoomLevel, 1.0);
       _statusText = 'Zoom: ${(_zoomLevel * 100).toInt()}%';
     });
   }
-  
+
   void _resetTransform() {
     setState(() {
       _zoomLevel = 1.0;
@@ -517,29 +519,31 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       _statusText = 'Reset view';
     });
   }
-  
+
   int _getTotalStrokes() {
     return _layers.fold(0, (sum, layer) => sum + layer.strokes.length);
   }
-  
+
   // ========== FILE OPERATIONS ==========
-  
+
   Future<void> _openFile() async {
     try {
       setState(() {
         _isProcessing = true;
         _statusText = 'Opening file...';
       });
-      
+
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
-      
+
       if (result != null && result.files.single.path != null) {
         // Load in background
-        final doc = await DrawingProcessor.loadDocumentAsync(result.files.single.path!);
-        
+        final doc = await DrawingProcessor.loadDocumentAsync(
+          result.files.single.path!,
+        );
+
         setState(() {
           _layers = doc.layers;
           _tileManager.clearCache();
@@ -554,19 +558,22 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       });
     }
   }
-  
+
   Future<void> _saveFile() async {
     try {
       setState(() {
         _isProcessing = true;
         _statusText = 'Saving...';
       });
-      
+
       // Serialize in background
-      final json = await DrawingProcessor.serializeDrawingAsync(_layers, _canvasSize);
-      
+      final json = await DrawingProcessor.serializeDrawingAsync(
+        _layers,
+        _canvasSize,
+      );
+
       // TODO: Save to file using file_picker
-      
+
       setState(() {
         _statusText = 'File saved';
       });
@@ -578,7 +585,7 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       });
     }
   }
-  
+
   void _showExportMenu() {
     showModalBottomSheet(
       context: context,
@@ -616,19 +623,22 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       ),
     );
   }
-  
+
   Future<void> _exportAsSVG() async {
     try {
       setState(() {
         _isProcessing = true;
         _statusText = 'Exporting SVG...';
       });
-      
+
       // Generate SVG in background
-      final svgData = await DrawingProcessor.layersToSVGAsync(_layers, _canvasSize);
-      
+      final svgData = await DrawingProcessor.layersToSVGAsync(
+        _layers,
+        _canvasSize,
+      );
+
       // TODO: Save SVG file
-      
+
       setState(() {
         _statusText = 'SVG exported';
       });
@@ -640,28 +650,28 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       });
     }
   }
-  
+
   Future<void> _exportAsPDFVector() async {
     // TODO: Implement PDF vector export
     _statusText = 'PDF vector export coming soon';
   }
-  
+
   Future<void> _exportAsHighResPNG() async {
     try {
       setState(() {
         _isProcessing = true;
         _statusText = 'Exporting high-res PNG...';
       });
-      
+
       // Rasterize in background at 300 DPI
       final imageBytes = await DrawingProcessor.rasterizeLayersAsync(
         layers: _layers,
         canvasSize: _canvasSize,
         targetDPI: 300,
       );
-      
+
       // TODO: Save PNG file
-      
+
       setState(() {
         _statusText = 'PNG exported';
       });
@@ -681,41 +691,42 @@ class TiledCanvasPainter extends CustomPainter {
   final List<DrawingLayer> layers;
   final LayerStroke? currentStroke;
   final TileManager tileManager;
-  
+
   TiledCanvasPainter({
     required this.layers,
     this.currentStroke,
     required this.tileManager,
   });
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     // Use tile-based rendering for large canvases
     final viewport = Rect.fromLTWH(0, 0, size.width, size.height);
     tileManager.renderVisibleTiles(canvas, layers, viewport, 1.0);
-    
+
     // Draw current stroke on top (not tiled)
     if (currentStroke != null) {
       _drawStroke(canvas, currentStroke!);
     }
   }
-  
+
   void _drawStroke(Canvas canvas, LayerStroke stroke) {
     if (stroke.points.isEmpty) return;
-    
+
     final path = Path();
     path.moveTo(stroke.points[0].position.dx, stroke.points[0].position.dy);
-    
+
     for (int i = 1; i < stroke.points.length; i++) {
       path.lineTo(stroke.points[i].position.dx, stroke.points[i].position.dy);
     }
-    
+
     canvas.drawPath(path, stroke.brushProperties);
   }
-  
+
   @override
   bool shouldRepaint(covariant TiledCanvasPainter oldDelegate) {
-    return layers != oldDelegate.layers || currentStroke != oldDelegate.currentStroke;
+    return layers != oldDelegate.layers ||
+        currentStroke != oldDelegate.currentStroke;
   }
 }
 
@@ -725,13 +736,9 @@ class StrokePoint {
   final Offset position;
   final double pressure;
   final double tilt;
-  
-  StrokePoint({
-    required this.position,
-    this.pressure = 1.0,
-    this.tilt = 0.0,
-  });
-  
+
+  StrokePoint({required this.position, this.pressure = 1.0, this.tilt = 0.0});
+
   Map<String, dynamic> toJson() {
     return {
       'x': position.dx,
@@ -740,7 +747,7 @@ class StrokePoint {
       'tilt': tilt,
     };
   }
-  
+
   factory StrokePoint.fromJson(Map<String, dynamic> json) {
     return StrokePoint(
       position: Offset(json['x'] as double, json['y'] as double),
