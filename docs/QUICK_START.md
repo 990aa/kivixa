@@ -279,7 +279,7 @@ Submit feature requests with:
 
 ## 🎉 You're Ready!
 
-Start annotating your PDFs with professional-grade tools!
+Start annotating your PDFs with -grade tools!
 
 **Happy Annotating! 📝✨**
 

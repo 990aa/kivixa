@@ -216,7 +216,7 @@ class StrokeStabilizer {
   /// [points] - Input stroke points
   /// [subdivisions] - Number of points per segment
   ///
-  /// Best for: Professional-quality smooth curves, vector-like strokes
+  /// Best for: -quality smooth curves, vector-like strokes
   List<StrokePoint> bezierSpline(List<StrokePoint> points, int subdivisions) {
     if (points.length < 2) return points;
     if (points.length == 2) return points;

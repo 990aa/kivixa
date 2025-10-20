@@ -5,7 +5,7 @@
 
 ## Overview
 
-This document describes the advanced PDF drawing overlay system and lossless export strategies implemented for Kivixa, enabling professional PDF annotation and multiple high-quality export formats.
+This document describes the advanced PDF drawing overlay system and lossless export strategies implemented for Kivixa, enabling  PDF annotation and multiple high-quality export formats.
 
 ---
 
@@ -237,7 +237,7 @@ await file.writeAsBytes(pdfBytes);
 **Advantages**:
 - ✅ True vector PDF (infinite zoom)
 - ✅ Small file size
-- ✅ Professional PDF output
+- ✅  PDF output
 - ✅ Editable with PDF editors
 
 **Disadvantages**:

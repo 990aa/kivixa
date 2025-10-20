@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Kivixa stroke stabilization system provides professional-grade line smoothing to reduce hand tremor and create cleaner, more precise strokes. It includes **9 different algorithms** ranging from real-time jitter reduction to high-quality curve interpolation.
+The Kivixa stroke stabilization system provides -grade line smoothing to reduce hand tremor and create cleaner, more precise strokes. It includes **9 different algorithms** ranging from real-time jitter reduction to high-quality curve interpolation.
 
 ## Architecture
 
@@ -32,7 +32,7 @@ The Kivixa stroke stabilization system provides professional-grade line smoothin
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                  Smoothed Points Output                      │
-│              [Clean, Professional Lines]                     │
+│              [Clean,  Lines]                     │
 └─────────────────────────────────────────────────────────────┘
                          │
                          ▼
@@ -114,7 +114,7 @@ final smoothed = stabilizer.weightedMovingAverage(points, sigma: 1.5);
 **Performance**: ⚡ Good (O(n × window))
 
 **Use Cases**:
-- Professional illustration
+-  illustration
 - Preserving intentional details
 - High-quality post-processing
 
@@ -149,7 +149,7 @@ final smoothed = stabilizer.catmullRomSpline(points, 2); // 2 subdivisions
 
 ### 5. Bezier Spline
 
-**Best For**: Professional-quality smooth curves, vector graphics
+**Best For**: -quality smooth curves, vector graphics
 
 **How It Works**: Converts stroke into connected cubic Bezier curves with automatically calculated control points.
 
@@ -275,7 +275,7 @@ final smoothed = stabilizer.combinedSmooth(
 **Performance**: ⚠️ Slower (O(n × subdivisions))
 
 **Use Cases**:
-- Professional illustration
+-  illustration
 - Maximum quality required
 - Final artwork cleanup
 
@@ -434,7 +434,7 @@ final settings = BrushSettings.pencil().copyWith(
 // Use: streamline mode
 ```
 
-### Professional Illustration
+###  Illustration
 ```dart
 final settings = BrushSettings.pen().copyWith(
   stabilization: 0.5,

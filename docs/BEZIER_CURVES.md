@@ -160,7 +160,7 @@ The `hand_signature` library's `threshold: 3.0` setting ensures points are at le
 ### vs. Straight Lines
 - ✅ Smooth, natural appearance
 - ✅ No visible corners
-- ✅ Professional look
+- ✅  look
 
 ### vs. Quadratic Bézier
 - ✅ Better control over curve shape

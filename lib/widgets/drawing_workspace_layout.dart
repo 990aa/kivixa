@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Professional drawing workspace with fixed UI and transformable canvas
+///  drawing workspace with fixed UI and transformable canvas
 /// Only the canvas moves during pan/zoom, UI elements remain fixed
 class DrawingWorkspaceLayout extends StatelessWidget {
   /// Transformation controller for canvas

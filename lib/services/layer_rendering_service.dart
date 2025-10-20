@@ -185,7 +185,7 @@ class LayerRenderingService {
     return image;
   }
 
-  /// Get available blend modes (matching professional apps like ibis Paint)
+  /// Get available blend modes (matching  apps like ibis Paint)
   static List<BlendMode> getAvailableBlendModes() {
     return [
       BlendMode.srcOver, // Normal

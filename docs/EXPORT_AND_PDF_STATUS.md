@@ -397,7 +397,7 @@ Already included in `pubspec.yaml`:
 
 Both systems are **fully implemented**, **tested**, and **ready to use**:
 
-1. **High-Resolution Export**: Professional-grade DPI-based export with progress tracking
+1. **High-Resolution Export**: -grade DPI-based export with progress tracking
    - 399 lines of production code
    - Supports PNG, JPG, Raw formats
    - Quality presets: 72-600 DPI

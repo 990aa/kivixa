@@ -1031,4 +1031,4 @@ These four optimizations provide production-grade performance and reliability:
 3. **Auto-Save with Recovery** → Maximum 2 minutes of work lost in worst-case crashes
 4. **Memory Management** → No OOM crashes regardless of image size/count
 
-Combined with previous optimizations (isolates, tile rendering), Kivixa now has professional-grade drawing performance comparable to native applications like Procreate and Adobe Fresco.
+Combined with previous optimizations (isolates, tile rendering), Kivixa now has -grade drawing performance comparable to native applications like Procreate and Adobe Fresco.

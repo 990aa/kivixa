@@ -23,7 +23,7 @@ class ExportUsageExamples {
   ) async {
     final exporter = HighResolutionExporter();
 
-    // Export at 300 DPI for professional printing
+    // Export at 300 DPI for  printing
     final imageBytes = await exporter.exportAtDPI(
       layers: layers,
       canvasSize: canvasSize,

@@ -4,15 +4,15 @@
 
 # Kivixa 
 
-A professional creative workspace and digital canvas built with Flutter, featuring advanced drawing tools, performance optimizations, and multi-format export capabilities for Android, Windows, iOS, macOS, Linux, and Web.
+A  creative workspace and digital canvas built with Flutter, featuring advanced drawing tools, performance optimizations, and multi-format export capabilities for Android, Windows, iOS, macOS, Linux, and Web.
 
 ## 🎨 What is Kivixa?
 
-Kivixa is a **complete creative workspace** designed for digital artists, designers, annotators, and creative professionals. Whether you're sketching ideas, annotating documents, or creating digital artwork, Kivixa provides professional-grade tools with desktop-class performance on any device.
+Kivixa is a **complete creative workspace** designed for digital artists, designers, annotators, and creative s. Whether you're sketching ideas, annotating documents, or creating digital artwork, Kivixa provides -grade tools with desktop-class performance on any device.
 
 ## ✨ Key Features
 
-### �️ Professional Drawing Tools
+### �️  Drawing Tools
 
 - **Advanced Brush Engine**: Pressure-sensitive pen, highlighter, and airbrush with customizable properties
 - **Smooth Rendering**: Cubic Bézier curves with Catmull-Rom interpolation for ultra-smooth strokes
@@ -44,12 +44,12 @@ Kivixa is a **complete creative workspace** designed for digital artists, design
 ### 💾 Multi-Format Export
 
 - **SVG Export**: True vector format, infinite zoom capability
-- **PDF Vector**: Editable paths, professional-quality output
+- **PDF Vector**: Editable paths, -quality output
 - **PDF Raster**: Print-ready 300 DPI embedded images
 - **High-Res PNG**: Up to 600 DPI for print production
 - **Auto Format Selection**: Intelligent optimization based on content
 
-### 🖥️ Professional Workspace
+### 🖥️  Workspace
 
 - **Fixed UI Layout**: Toolbars and panels stay in place while canvas transforms
 - **6-Layer Architecture**: Background, canvas, top/bottom toolbars, left/right panels
@@ -87,7 +87,7 @@ Kivixa is a **complete creative workspace** designed for digital artists, design
 ## 🎯 Use Cases
 
 - **Digital Art**: Full-featured drawing with layers, blend modes, and high-res export
-- **PDF Annotation**: Mark up documents with professional tools
+- **PDF Annotation**: Mark up documents with  tools
 - **Note-Taking**: Handwriting capture with palm rejection
 - **Design Work**: Vector-based sketches that scale infinitely
 - **Education**: Interactive whiteboard with save/share capabilities
@@ -105,7 +105,7 @@ Kivixa is a **complete creative workspace** designed for digital artists, design
 - Drawing vs navigation mode switching
 - Device kind filtering per platform
 
-**Workspace Layout**: Professional fixed UI
+**Workspace Layout**:  fixed UI
 - 6-layer Stack (background, canvas, 4 UI layers)
 - Only canvas transforms (pan/zoom/rotate)
 - Customizable toolbars and panels
@@ -403,6 +403,6 @@ See [LICENSE.md](LICENSE.md) for details.
 
 ---
 
-**Built with Flutter 💙 | Professional Performance 🚀 | Cross-Platform 🌐**
+**Built with Flutter 💙 |  Performance 🚀 | Cross-Platform 🌐**
 
 **⭐ Star on GitHub if Kivixa helps your creative workflow!**

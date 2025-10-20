@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Canvas Clipping System ensures that all drawing operations stay strictly within the defined canvas boundaries. This prevents strokes from "bleeding" onto the workspace area, providing a clean professional look and preventing rendering artifacts.
+The Canvas Clipping System ensures that all drawing operations stay strictly within the defined canvas boundaries. This prevents strokes from "bleeding" onto the workspace area, providing a clean  look and preventing rendering artifacts.
 
 ## Problem Statement
 

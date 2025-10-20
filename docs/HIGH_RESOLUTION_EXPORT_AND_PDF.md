@@ -8,7 +8,7 @@ This document describes the high-resolution export system and PDF integration fe
 ## 1. High-Resolution Export System
 
 ### Purpose
-Export drawings at much higher resolution than display resolution to ensure print quality and professional output.
+Export drawings at much higher resolution than display resolution to ensure print quality and  output.
 
 ### File Location
 `lib/services/high_resolution_exporter.dart` (395 lines)
@@ -19,7 +19,7 @@ Export drawings at much higher resolution than display resolution to ensure prin
 Export at any target DPI (Dots Per Inch):
 - **Screen Quality**: 72 DPI (standard web/screen)
 - **High Quality**: 150 DPI (enhanced display)
-- **Print Quality**: 300 DPI (professional printing)
+- **Print Quality**: 300 DPI ( printing)
 - **Custom**: Any DPI value
 
 #### B. Multiple Export Formats

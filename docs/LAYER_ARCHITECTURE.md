@@ -1,7 +1,7 @@
 # Layer Architecture Implementation
 
 ## Overview
-Complete implementation of a professional-grade layer system with:
+Complete implementation of a -grade layer system with:
 - Offscreen rendering and caching
 - 29+ blend modes (matching industry standards)
 - Tile-based rendering for large canvases
@@ -74,7 +74,7 @@ class StrokePoint {
 
 ### 2. Layer Rendering Service (`lib/services/layer_rendering_service.dart`)
 
-Professional rendering engine with multiple capabilities:
+ rendering engine with multiple capabilities:
 
 #### **Offscreen Rendering**
 ```dart
@@ -451,4 +451,4 @@ canvasState.addLayerStroke(newLayerStroke);
 ✅ **Status:** Fully implemented and tested
 ✅ **Flutter Analyze:** No errors or warnings
 ✅ **Compatibility:** Backward compatible with existing code
-✅ **Performance:** Professional-grade optimization
+✅ **Performance:** -grade optimization

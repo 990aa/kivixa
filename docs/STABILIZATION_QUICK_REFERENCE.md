@@ -17,7 +17,7 @@ final settings = BrushSettings.pen().copyWith(stabilization: 0.5);
 ```dart
 final smoothed = renderer.stabilizePoints(points, 0.5, mode: 'weighted');
 ```
-**When**: Professional work, preserving details  
+**When**:  work, preserving details  
 **Speed**: ⚡⚡⚡⚡  
 **Quality**: ⭐⭐⭐⭐  
 

@@ -66,7 +66,7 @@ Demo screen featuring:
   - Halves spacing when zoomed in (> 2.0x)
 
 ### Stroke Rendering
-- Uses `perfect_freehand` for professional-quality strokes
+- Uses `perfect_freehand` for -quality strokes
 - Configurable thinning, smoothing, and streamline
 - Support for both pen and highlighter modes
 

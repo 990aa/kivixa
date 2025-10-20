@@ -1,7 +1,7 @@
 # Memory Management Strategy
 
 ## Overview
-Professional-grade memory management system for large canvases using tile-based rendering and dirty region tracking. Maintains 60fps performance even with complex artwork by only rendering what's needed.
+-grade memory management system for large canvases using tile-based rendering and dirty region tracking. Maintains 60fps performance even with complex artwork by only rendering what's needed.
 
 ## Architecture
 
