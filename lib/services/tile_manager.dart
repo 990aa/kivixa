@@ -22,9 +22,10 @@ import '../models/layer_stroke.dart';
 /// ```
 class TileManager {
   static const int tileSize = 512; // Pixels per tile
-  
+
   final Map<String, CachedTile> _tileCache = {};
-  final int _maxCachedTiles = 50; // Limit memory usage (~50MB at 512x512)  // Track which tiles are visible
+  final int _maxCachedTiles =
+      50; // Limit memory usage (~50MB at 512x512)  // Track which tiles are visible
   Set<String> _visibleTileKeys = {};
 
   // Rendering queue for async tile generation
@@ -68,11 +69,12 @@ class TileManager {
   /// Calculate which tiles intersect the viewport
   List<TileCoordinate> _getVisibleTiles(Rect viewport, double zoom) {
     final scaledTileSize = tileSize / zoom;
-    
+
     final startX = (viewport.left / scaledTileSize).floor();
     final endX = (viewport.right / scaledTileSize).ceil();
     final startY = (viewport.top / scaledTileSize).floor();
-    final endY = (viewport.bottom / scaledTileSize).ceil();    List<TileCoordinate> tiles = [];
+    final endY = (viewport.bottom / scaledTileSize).ceil();
+    List<TileCoordinate> tiles = [];
 
     for (int x = startX; x <= endX; x++) {
       for (int y = startY; y <= endY; y++) {
@@ -134,35 +136,37 @@ class TileManager {
       recorder,
       Rect.fromLTWH(0, 0, tileSize.toDouble(), tileSize.toDouble()),
     );
-    
+
     // Transform canvas to tile coordinate space
     canvas.translate(-tile.bounds.left, -tile.bounds.top);
-    
+
     // Only render strokes that intersect this tile
     for (final layer in layers) {
       if (!layer.isVisible) continue;
-      
+
       // Apply layer opacity
       canvas.saveLayer(
         tile.bounds,
         Paint()..color = Colors.white.withValues(alpha: layer.opacity),
       );
-      
+
       for (final stroke in layer.strokes) {
         if (_strokeIntersectsTile(stroke, tile.bounds)) {
           _renderStrokeSegment(canvas, stroke, tile.bounds);
         }
       }
-      
+
       canvas.restore();
     }
-    
+
     final picture = recorder.endRecording();
     final image = picture.toImageSync(tileSize, tileSize);
     picture.dispose();
-    
+
     return image;
-  }  /// Check if stroke intersects tile bounds
+  }
+
+  /// Check if stroke intersects tile bounds
   static bool _strokeIntersectsTile(LayerStroke stroke, Rect tileBounds) {
     // Quick bounds check
     final strokeBounds = stroke.getBounds();

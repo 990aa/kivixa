@@ -30,7 +30,6 @@ class ExportUsageExamples {
       backgroundColor: Colors.white,
     );
 
-    print('Exported at 300 DPI for printing');
     return imageBytes;
   }
 
@@ -50,7 +49,6 @@ class ExportUsageExamples {
       backgroundColor: Colors.white,
     );
 
-    print('Exported with print quality preset');
     return imageBytes;
   }
 
@@ -102,8 +100,6 @@ class ExportUsageExamples {
       targetDPI,
       format: ExportFormat.jpg,
     );
-    print('Estimated PNG size: ${estimatedSizePNG.toStringAsFixed(2)} MB');
-    print('Estimated JPG size: ${estimatedSizeJPG.toStringAsFixed(2)} MB');
 
     // Check recommended maximum DPI
     final maxDPI = exporter.getRecommendedMaxDPI(canvasSize);
