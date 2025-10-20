@@ -12,7 +12,7 @@ class FolderRepository {
   Future<int> insert(Folder folder) async {
     final db = await DrawingDatabase.database;
     return await db.insert(
-      DrawingDatabase.TABLE_FOLDERS,
+      DrawingDatabase.tableFolders,
       folder.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -22,7 +22,7 @@ class FolderRepository {
   Future<int> update(Folder folder) async {
     final db = await DrawingDatabase.database;
     return await db.update(
-      DrawingDatabase.TABLE_FOLDERS,
+      DrawingDatabase.tableFolders,
       folder.copyWith(modifiedAt: DateTime.now()).toMap(),
       where: 'id = ?',
       whereArgs: [folder.id],
@@ -33,7 +33,7 @@ class FolderRepository {
   Future<int> delete(int id) async {
     final db = await DrawingDatabase.database;
     return await db.delete(
-      DrawingDatabase.TABLE_FOLDERS,
+      DrawingDatabase.tableFolders,
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -43,7 +43,7 @@ class FolderRepository {
   Future<Folder?> getById(int id) async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_FOLDERS,
+      DrawingDatabase.tableFolders,
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -56,7 +56,7 @@ class FolderRepository {
   Future<List<Folder>> getAll() async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_FOLDERS,
+      DrawingDatabase.tableFolders,
       orderBy: 'name ASC',
     );
 
@@ -67,7 +67,7 @@ class FolderRepository {
   Future<List<Folder>> getRootFolders() async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_FOLDERS,
+      DrawingDatabase.tableFolders,
       where: 'parent_folder_id IS NULL',
       orderBy: 'name ASC',
     );
@@ -79,7 +79,7 @@ class FolderRepository {
   Future<List<Folder>> getSubfolders(int parentId) async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_FOLDERS,
+      DrawingDatabase.tableFolders,
       where: 'parent_folder_id = ?',
       whereArgs: [parentId],
       orderBy: 'name ASC',
@@ -120,7 +120,7 @@ class FolderRepository {
   Future<int> _getDocumentCount(int folderId) async {
     final db = await DrawingDatabase.database;
     final result = await db.rawQuery(
-      'SELECT COUNT(*) as count FROM ${DrawingDatabase.TABLE_DOCUMENTS} WHERE folder_id = ?',
+      'SELECT COUNT(*) as count FROM ${DrawingDatabase.tableDocuments} WHERE folder_id = ?',
       [folderId],
     );
     return Sqflite.firstIntValue(result) ?? 0;
@@ -130,7 +130,7 @@ class FolderRepository {
   Future<int> moveFolder(int folderId, int? newParentId) async {
     final db = await DrawingDatabase.database;
     return await db.update(
-      DrawingDatabase.TABLE_FOLDERS,
+      DrawingDatabase.tableFolders,
       {
         'parent_folder_id': newParentId,
         'modified_at': DateTime.now().millisecondsSinceEpoch,
@@ -144,7 +144,7 @@ class FolderRepository {
   Future<List<Folder>> searchByName(String query) async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_FOLDERS,
+      DrawingDatabase.tableFolders,
       where: 'name LIKE ?',
       whereArgs: ['%$query%'],
       orderBy: 'name ASC',
@@ -153,3 +153,4 @@ class FolderRepository {
     return maps.map((map) => Folder.fromMap(map)).toList();
   }
 }
+
