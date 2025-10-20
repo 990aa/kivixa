@@ -2,7 +2,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../models/drawing_layer.dart';
 import '../models/layer_stroke.dart';
-import '../models/vector_stroke.dart';
 
 /// Renders layers to images with proper transparency support
 ///
@@ -111,27 +110,6 @@ class LayerRenderer {
         ..strokeCap = stroke.brushProperties.strokeCap
         ..strokeJoin = stroke.brushProperties.strokeJoin
         ..blendMode = stroke.brushProperties.blendMode
-        ..style = PaintingStyle.stroke
-        ..isAntiAlias = true;
-
-      canvas.drawLine(prev.position, curr.position, paint);
-    }
-  }
-
-  /// Render a VectorStroke with proper alpha handling
-  static void _renderVectorStroke(Canvas canvas, VectorStroke stroke) {
-    if (stroke.points.isEmpty) return;
-
-    for (int i = 1; i < stroke.points.length; i++) {
-      final prev = stroke.points[i - 1];
-      final curr = stroke.points[i];
-
-      final paint = Paint()
-        ..color = stroke
-            .brushSettings
-            .color // Includes alpha from color
-        ..strokeWidth = stroke.brushSettings.size * curr.pressure
-        ..strokeCap = StrokeCap.round
         ..style = PaintingStyle.stroke
         ..isAntiAlias = true;
 
