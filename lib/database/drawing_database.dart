@@ -144,6 +144,9 @@ class DrawingDatabase {
       'color': 0xFF2196F3, // Blue
       'description': 'Default folder for all drawings',
     });
+
+    // Create archive tables
+    await ArchiveRepository.createArchiveTables(db);
   }
 
   /// Handle database migrations
@@ -154,8 +157,8 @@ class DrawingDatabase {
   ) async {
     // Add migration logic here when schema changes
     if (oldVersion < 2) {
-      // Example: Add new column in version 2
-      // await db.execute('ALTER TABLE $tableDocuments ADD COLUMN new_field TEXT');
+      // Version 2: Add archive tables
+      await ArchiveRepository.createArchiveTables(db);
     }
   }
 
