@@ -9,7 +9,7 @@ import '../services/alpha_channel_verifier.dart';
 
 /// Interactive example demonstrating the critical architectural separation
 /// between display rendering (with background) and export rendering (transparent).
-/// 
+///
 /// This example proves that:
 /// 1. Display shows white background for visual aid
 /// 2. Export contains NO background - pure transparency
@@ -58,55 +58,83 @@ class _DisplayVsExportExampleState extends State<DisplayVsExportExample> {
     const radius = 100.0;
 
     for (int i = 0; i < 5; i++) {
-      final angle = (i * 2 * 3.14159) / 5;
-      final start = center + Offset(
-        radius * 0.5 * (i.isEven ? 1 : -1) * (i / 5),
-        radius * 0.5 * (i.isEven ? -1 : 1) * (i / 5),
-      );
-      final end = center + Offset(
-        radius * (i.isEven ? 1 : -1) * ((5 - i) / 5),
-        radius * (i.isEven ? -1 : 1) * ((5 - i) / 5),
-      );
+      final start =
+          center +
+          Offset(
+            radius * 0.5 * (i.isEven ? 1 : -1) * (i / 5),
+            radius * 0.5 * (i.isEven ? -1 : 1) * (i / 5),
+          );
+      final end =
+          center +
+          Offset(
+            radius * (i.isEven ? 1 : -1) * ((5 - i) / 5),
+            radius * (i.isEven ? -1 : 1) * ((5 - i) / 5),
+          );
 
       final points = <StrokePoint>[];
       for (double t = 0; t <= 1.0; t += 0.05) {
-        points.add(StrokePoint(
-          position: Offset.lerp(start, end, t)!,
-          pressure: 0.5 + 0.5 * (t * 2 - 1).abs(),
-          timestamp: DateTime.now(),
-        ));
+        points.add(
+          StrokePoint(
+            position: Offset.lerp(start, end, t)!,
+            pressure: 0.5 + 0.5 * (t * 2 - 1).abs(),
+          ),
+        );
       }
 
-      layer.strokes.add(LayerStroke(
-        id: 'stroke-$i',
-        points: points,
-        brushProperties: Paint()
-          ..color = colors[i]
-          ..strokeWidth = 8.0 + i * 2.0
-          ..strokeCap = StrokeCap.round
-          ..style = PaintingStyle.stroke
-          ..blendMode = BlendMode.srcOver,
-      ));
+      layer.strokes.add(
+        LayerStroke(
+          id: 'stroke-$i',
+          points: points,
+          brushProperties: Paint()
+            ..color = colors[i]
+            ..strokeWidth = 8.0 + i * 2.0
+            ..strokeCap = StrokeCap.round
+            ..style = PaintingStyle.stroke
+            ..blendMode = BlendMode.srcOver,
+        ),
+      );
     }
 
     // Add a text-like pattern
     final textPoints = <StrokePoint>[
-      StrokePoint(position: const Offset(100, 300), pressure: 1.0, timestamp: DateTime.now()),
-      StrokePoint(position: const Offset(150, 320), pressure: 0.8, timestamp: DateTime.now()),
-      StrokePoint(position: const Offset(200, 300), pressure: 1.0, timestamp: DateTime.now()),
-      StrokePoint(position: const Offset(250, 320), pressure: 0.8, timestamp: DateTime.now()),
-      StrokePoint(position: const Offset(300, 300), pressure: 1.0, timestamp: DateTime.now()),
+      StrokePoint(
+        position: const Offset(100, 300),
+        pressure: 1.0,
+        timestamp: DateTime.now(),
+      ),
+      StrokePoint(
+        position: const Offset(150, 320),
+        pressure: 0.8,
+        timestamp: DateTime.now(),
+      ),
+      StrokePoint(
+        position: const Offset(200, 300),
+        pressure: 1.0,
+        timestamp: DateTime.now(),
+      ),
+      StrokePoint(
+        position: const Offset(250, 320),
+        pressure: 0.8,
+        timestamp: DateTime.now(),
+      ),
+      StrokePoint(
+        position: const Offset(300, 300),
+        pressure: 1.0,
+        timestamp: DateTime.now(),
+      ),
     ];
 
-    layer.strokes.add(LayerStroke(
-      id: 'text-stroke',
-      points: textPoints,
-      brushProperties: Paint()
-        ..color = Colors.black.withValues(alpha: 0.8)
-        ..strokeWidth = 12.0
-        ..strokeCap = StrokeCap.round
-        ..style = PaintingStyle.stroke,
-    ));
+    layer.strokes.add(
+      LayerStroke(
+        id: 'text-stroke',
+        points: textPoints,
+        brushProperties: Paint()
+          ..color = Colors.black.withValues(alpha: 0.8)
+          ..strokeWidth = 12.0
+          ..strokeCap = StrokeCap.round
+          ..style = PaintingStyle.stroke,
+      ),
+    );
 
     return [layer];
   }
@@ -127,9 +155,7 @@ class _DisplayVsExportExampleState extends State<DisplayVsExportExample> {
         scaleFactor: 1.0,
       );
 
-      final byteData = await image.toByteData(
-        format: ui.ImageByteFormat.png,
-      );
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
 
       image.dispose();
 
@@ -154,9 +180,7 @@ class _DisplayVsExportExampleState extends State<DisplayVsExportExample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Display vs Export Separation'),
-      ),
+      appBar: AppBar(title: const Text('Display vs Export Separation')),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -202,9 +226,15 @@ class _DisplayVsExportExampleState extends State<DisplayVsExportExample> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            _buildBulletPoint('Display: CanvasDisplayPainter draws white background for visual aid'),
-            _buildBulletPoint('Export: CanvasExportPainter draws NO background - transparent by default'),
-            _buildBulletPoint('Verification: AlphaChannelVerifier confirms genuine transparency'),
+            _buildBulletPoint(
+              'Display: CanvasDisplayPainter draws white background for visual aid',
+            ),
+            _buildBulletPoint(
+              'Export: CanvasExportPainter draws NO background - transparent by default',
+            ),
+            _buildBulletPoint(
+              'Verification: AlphaChannelVerifier confirms genuine transparency',
+            ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(12),
@@ -252,10 +282,7 @@ class _DisplayVsExportExampleState extends State<DisplayVsExportExample> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Controls',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('Controls', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 12),
             SwitchListTile(
               title: const Text('Show Display Background'),
@@ -277,7 +304,9 @@ class _DisplayVsExportExampleState extends State<DisplayVsExportExample> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.download),
-              label: Text(_isExporting ? 'Exporting...' : 'Export (No Background)'),
+              label: Text(
+                _isExporting ? 'Exporting...' : 'Export (No Background)',
+              ),
             ),
           ],
         ),
@@ -399,10 +428,7 @@ class _DisplayVsExportExampleState extends State<DisplayVsExportExample> {
                   ),
                 ),
                 child: _exportedImageBytes != null
-                    ? Image.memory(
-                        _exportedImageBytes!,
-                        fit: BoxFit.contain,
-                      )
+                    ? Image.memory(_exportedImageBytes!, fit: BoxFit.contain)
                     : Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -489,7 +515,10 @@ class _DisplayVsExportExampleState extends State<DisplayVsExportExample> {
             ),
             const SizedBox(height: 16),
             _buildStatRow('Total Pixels', '${stats['totalPixels']}'),
-            _buildStatRow('Transparent Pixels', '${stats['transparentPixels']}'),
+            _buildStatRow(
+              'Transparent Pixels',
+              '${stats['transparentPixels']}',
+            ),
             _buildStatRow('Opaque Pixels', '${stats['opaquePixels']}'),
             _buildStatRow(
               'Transparency',
