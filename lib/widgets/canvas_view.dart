@@ -81,8 +81,10 @@ class CanvasViewState extends State<CanvasView> {
     final newTranslation = viewportCenter - (focalPoint * newScale);
 
     final newMatrix = Matrix4.identity()
-      ..translate(newTranslation.dx, newTranslation.dy)
-      ..scale(newScale);
+      ..translateByVector3(
+        vector.Vector3(newTranslation.dx, newTranslation.dy, 0),
+      )
+      ..scaleByVector3(vector.Vector3(newScale, newScale, 1.0));
 
     _transformController.value = newMatrix;
   }
@@ -111,8 +113,10 @@ class CanvasViewState extends State<CanvasView> {
     final newTranslation = viewportCenter - (focalPoint * newScale);
 
     final newMatrix = Matrix4.identity()
-      ..translate(newTranslation.dx, newTranslation.dy)
-      ..scale(newScale);
+      ..translateByVector3(
+        vector.Vector3(newTranslation.dx, newTranslation.dy, 0),
+      )
+      ..scaleByVector3(vector.Vector3(newScale, newScale, 1.0));
 
     _transformController.value = newMatrix;
   }
@@ -139,8 +143,10 @@ class CanvasViewState extends State<CanvasView> {
     final newTranslation = viewportCenter - (focalPoint * level);
 
     final newMatrix = Matrix4.identity()
-      ..translate(newTranslation.dx, newTranslation.dy)
-      ..scale(level);
+      ..translateByVector3(
+        vector.Vector3(newTranslation.dx, newTranslation.dy, 0),
+      )
+      ..scaleByVector3(vector.Vector3(level, level, 1.0));
 
     _transformController.value = newMatrix;
   }
@@ -166,8 +172,8 @@ class CanvasViewState extends State<CanvasView> {
     final offsetY = (viewportSize.height - canvasHeight * scale) / 2;
 
     final matrix = Matrix4.identity()
-      ..translate(offsetX, offsetY)
-      ..scale(scale);
+      ..translateByVector3(vector.Vector3(offsetX, offsetY, 0))
+      ..scaleByVector3(vector.Vector3(scale, scale, 1.0));
 
     _transformController.value = matrix;
   }
