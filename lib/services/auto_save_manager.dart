@@ -4,14 +4,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 /// Automatic save manager with crash recovery
-/// 
+///
 /// Features:
 /// - Auto-save every 2 minutes
 /// - Emergency save on app lifecycle changes (pause, background)
 /// - Atomic file writes (prevents corruption)
 /// - Backup retention (can restore from previous save)
 /// - Crash recovery (detect incomplete saves)
-/// 
+///
 /// Usage:
 /// ```dart
 /// final autoSave = AutoSaveManager(
@@ -60,7 +60,7 @@ class AutoSaveManager with WidgetsBindingObserver {
   /// Start auto-save timer and lifecycle observer
   void start() {
     _log('Starting auto-save manager');
-    
+
     // Start periodic auto-save
     _autoSaveTimer = Timer.periodic(autoSaveInterval, (_) {
       if (_hasUnsavedChanges && !_isSaving) {
@@ -70,19 +70,19 @@ class AutoSaveManager with WidgetsBindingObserver {
 
     // Register for app lifecycle events
     WidgetsBinding.instance.addObserver(this);
-    
+
     _log('Auto-save started (interval: ${autoSaveInterval.inMinutes} minutes)');
   }
 
   /// Stop auto-save timer and lifecycle observer
   void stop() {
     _log('Stopping auto-save manager');
-    
+
     _autoSaveTimer?.cancel();
     _autoSaveTimer = null;
-    
+
     WidgetsBinding.instance.removeObserver(this);
-    
+
     _log('Auto-save stopped');
   }
 
@@ -126,19 +126,19 @@ class AutoSaveManager with WidgetsBindingObserver {
     try {
       // Get current document data
       final data = await onAutoSave();
-      
+
       // Serialize to JSON
       final jsonString = json.encode(data);
-      
+
       // Atomic file write
       await _atomicWrite(jsonString);
-      
+
       _hasUnsavedChanges = false;
       _lastSaveTime = DateTime.now();
-      
+
       _log('Auto-save completed successfully');
       onSaveComplete?.call();
-      
+
       return true;
     } catch (e, stackTrace) {
       _log('Auto-save failed: $e\n$stackTrace');
@@ -150,13 +150,13 @@ class AutoSaveManager with WidgetsBindingObserver {
   }
 
   /// Atomic file write with backup
-  /// 
+  ///
   /// Process:
   /// 1. Write to .tmp file
   /// 2. Rename current file to .backup (if exists)
   /// 3. Rename .tmp to current file
   /// 4. Delete old .backup
-  /// 
+  ///
   /// This ensures:
   /// - No data loss if write fails
   /// - No corruption if app crashes during write
@@ -173,12 +173,12 @@ class AutoSaveManager with WidgetsBindingObserver {
     // 2. Move current file to backup (if exists)
     if (await file.exists()) {
       _log('Moving current file to backup');
-      
+
       // Delete old backup if exists
       if (await backupFile.exists()) {
         await backupFile.delete();
       }
-      
+
       await file.rename(backupFile.path);
     }
 
@@ -190,7 +190,7 @@ class AutoSaveManager with WidgetsBindingObserver {
   }
 
   /// Recover from crash or incomplete save
-  /// 
+  ///
   /// Call this on app startup to check for corrupted saves
   static Future<RecoveryResult> recoverIfNeeded(String savePath) async {
     final file = File(savePath);
@@ -201,14 +201,14 @@ class AutoSaveManager with WidgetsBindingObserver {
     if (await tmpFile.exists()) {
       debugPrint('Found incomplete save, cleaning up');
       await tmpFile.delete();
-      
+
       if (!await file.exists() && await backupFile.exists()) {
         // Main file missing, restore from backup
         debugPrint('Restoring from backup');
         await backupFile.copy(file.path);
         return RecoveryResult.restoredFromBackup;
       }
-      
+
       return RecoveryResult.cleanedIncomplete;
     }
 
@@ -226,7 +226,7 @@ class AutoSaveManager with WidgetsBindingObserver {
           await backupFile.copy(file.path);
           return RecoveryResult.restoredFromBackup;
         }
-        
+
         return RecoveryResult.unrecoverable;
       }
     }
@@ -238,8 +238,8 @@ class AutoSaveManager with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _log('App lifecycle changed: $state');
-    
-    if (state == AppLifecycleState.paused || 
+
+    if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive ||
         state == AppLifecycleState.detached) {
       // App going to background or closing - emergency save!
@@ -261,13 +261,13 @@ class AutoSaveManager with WidgetsBindingObserver {
 enum RecoveryResult {
   /// No recovery needed, file is fine
   noRecoveryNeeded,
-  
+
   /// Cleaned up incomplete save
   cleanedIncomplete,
-  
+
   /// Restored from backup file
   restoredFromBackup,
-  
+
   /// File is corrupted and no backup available
   unrecoverable,
 }
@@ -287,8 +287,8 @@ extension RecoveryResultExtension on RecoveryResult {
     }
   }
 
-  bool get isSuccess => 
-      this == RecoveryResult.noRecoveryNeeded || 
+  bool get isSuccess =>
+      this == RecoveryResult.noRecoveryNeeded ||
       this == RecoveryResult.cleanedIncomplete ||
       this == RecoveryResult.restoredFromBackup;
 }
