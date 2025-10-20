@@ -33,6 +33,10 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
   LayerStroke? _currentStroke;
   List<Offset> _currentPoints = [];
 
+  // Undo/Redo stacks
+  final List<List<DrawingLayer>> _undoStack = [];
+  final List<List<DrawingLayer>> _redoStack = [];
+
   // UI state
   Color _currentColor = Colors.black;
   double _currentStrokeWidth = 3.0;
