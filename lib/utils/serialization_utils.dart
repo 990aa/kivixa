@@ -33,7 +33,7 @@ class SerializationUtils {
     return {
       'id': stroke.id,
       'points': serializePoints(stroke.points),
-      'color': stroke.color.value,
+      'color': stroke.color.toARGB32(),
       'strokeWidth': stroke.strokeWidth,
       'isHighlighter': stroke.isHighlighter,
     };
@@ -54,7 +54,7 @@ class SerializationUtils {
     return jsonEncode({
       'text': element.text,
       'fontSize': element.style.fontSize,
-      'color': element.style.color?.value,
+      'color': element.style.color?.toARGB32(),
       'fontWeight': element.style.fontWeight?.index,
       'fontStyle': element.style.fontStyle?.index,
     });

@@ -133,7 +133,7 @@ class Shape {
       'type': type.name,
       'startPoint': {'dx': startPoint.dx, 'dy': startPoint.dy},
       'endPoint': {'dx': endPoint.dx, 'dy': endPoint.dy},
-      'color': color.value,
+      'color': color.toARGB32(),
       'strokeWidth': strokeWidth,
       'filled': filled,
     };
