@@ -153,7 +153,7 @@ class BrushSettings {
 
   /// Preset: Watercolor
   factory BrushSettings.watercolor({
-    Color color = ((Colors.b * 255.0).round() & 0xff),
+    Color color = Colors.blue,
     double size = 30.0,
   }) {
     return BrushSettings(
@@ -255,7 +255,7 @@ class BrushSettings {
       spacing: json['spacing'] as double,
       minSize: json['minSize'] as double,
       maxSize: json['maxSize'] as double,
-      blendMode: BlendMode.toARGB32()s[json['blendMode'] as int],
+      blendMode: BlendMode.values[json['blendMode'] as int],
       usePressure: json['usePressure'] as bool,
       useTilt: json['useTilt'] as bool,
       stabilization: json['stabilization'] as double,

@@ -92,10 +92,10 @@ class TextureBrushEngine extends BrushEngine {
     shader.setFloat(1, size * 2); // height
 
     // uColor (vec4)
-    shader.setFloat(2, settings.((color.r * 255.0).round() & 0xff) / 255.0);
-    shader.setFloat(3, settings.((color.g * 255.0).round() & 0xff) / 255.0);
-    shader.setFloat(4, settings.((color.b * 255.0).round() & 0xff) / 255.0);
-    shader.setFloat(5, settings.((color.a * 255.0).round() & 0xff) / 255.0);
+    shader.setFloat(2, ((settings.color.r * 255.0).round() & 0xff) / 255.0);
+    shader.setFloat(3, ((settings.color.g * 255.0).round() & 0xff) / 255.0);
+    shader.setFloat(4, ((settings.color.b * 255.0).round() & 0xff) / 255.0);
+    shader.setFloat(5, ((settings.color.a * 255.0).round() & 0xff) / 255.0);
 
     // uOpacity (float)
     shader.setFloat(6, opacity);
@@ -198,7 +198,7 @@ class BrushTextureLoader {
 
   /// Clear texture cache
   static void clearCache() {
-    for (final image in _cache.toARGB32()s) {
+    for (final image in _cache.values) {
       image.dispose();
     }
     _cache.clear();
