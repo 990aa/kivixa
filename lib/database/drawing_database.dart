@@ -92,7 +92,7 @@ class DrawingDatabase {
 
     // Many-to-many relationship between documents and tags
     await db.execute('''
-      CREATE TABLE $TABLE_DOCUMENT_TAGS (
+      CREATE TABLE $tableDocumentTags (
         document_id INTEGER NOT NULL,
         tag_id INTEGER NOT NULL,
         created_at INTEGER NOT NULL,
@@ -127,10 +127,10 @@ class DrawingDatabase {
     await db.execute('CREATE INDEX idx_folders_name ON $tableFolders(name)');
     await db.execute('CREATE INDEX idx_tags_name ON $tableTags(name)');
     await db.execute(
-      'CREATE INDEX idx_document_tags_doc ON $TABLE_DOCUMENT_TAGS(document_id)',
+      'CREATE INDEX idx_document_tags_doc ON $tableDocumentTags(document_id)',
     );
     await db.execute(
-      'CREATE INDEX idx_document_tags_tag ON $TABLE_DOCUMENT_TAGS(tag_id)',
+      'CREATE INDEX idx_document_tags_tag ON $tableDocumentTags(tag_id)',
     );
 
     // Create default "All Drawings" folder
@@ -188,5 +188,6 @@ class DrawingDatabase {
     return size;
   }
 }
+
 
 
