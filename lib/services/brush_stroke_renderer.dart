@@ -51,7 +51,7 @@ class BrushStrokeRenderer {
 
   /// Apply stroke stabilization to smooth out jittery input
   /// Uses the advanced StrokeStabilizer with multiple algorithms
-  /// 
+  ///
   /// Available modes:
   /// - 'streamline': Real-time jitter reduction (default)
   /// - 'moving': Moving average filter
@@ -75,7 +75,10 @@ class BrushStrokeRenderer {
       case 'moving':
         return _stabilizer.movingAverage(points);
       case 'weighted':
-        return _stabilizer.weightedMovingAverage(points, sigma: stabilization * 2);
+        return _stabilizer.weightedMovingAverage(
+          points,
+          sigma: stabilization * 2,
+        );
       case 'catmull':
         return _stabilizer.catmullRomSpline(
           points,
@@ -100,7 +103,10 @@ class BrushStrokeRenderer {
       case 'adaptive':
         return _stabilizer.adaptiveSmooth(points, threshold: stabilization);
       case 'combined':
-        return _stabilizer.combinedSmooth(points, streamLineAmount: stabilization);
+        return _stabilizer.combinedSmooth(
+          points,
+          streamLineAmount: stabilization,
+        );
       default:
         return _stabilizer.streamLine(points, stabilization);
     }
