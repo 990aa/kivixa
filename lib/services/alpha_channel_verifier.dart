@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 /// Verifies that exported images maintain proper alpha channel
 /// and transparency properties.
