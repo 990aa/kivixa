@@ -42,10 +42,7 @@ class TextElementWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                     )
                   : null,
-              child: Text(
-                element.text,
-                style: element.style,
-              ),
+              child: Text(element.text, style: element.style),
             ),
           ),
         ),
@@ -98,10 +95,7 @@ class ImageElementWidget extends StatelessWidget {
                       border: Border.all(color: Colors.blue, width: 2),
                     )
                   : null,
-              child: Image.memory(
-                element.imageData,
-                fit: BoxFit.contain,
-              ),
+              child: Image.memory(element.imageData, fit: BoxFit.contain),
             ),
           ),
         ),
