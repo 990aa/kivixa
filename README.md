@@ -214,6 +214,35 @@ With `velocityRange: 2.0`:
 - Slow strokes → thicker lines
 - Natural calligraphic effect
 
+## Documentation
+
+### 📚 Comprehensive Guides
+
+- **[Quick Start Guide](docs/QUICK_START.md)** - Get up and running in 5 minutes
+- **[User Guide](docs/USER_GUIDE.md)** - Complete feature walkthrough
+- **[Architecture Overview](docs/ARCHITECTURE.md)** - System design and data models
+- **[Performance Guide](docs/PERFORMANCE_GUIDE.md)** - Optimization tips and benchmarks
+
+### 🎨 Feature Documentation
+
+- **[PDF Drawing & Lossless Export](docs/PDF_DRAWING_AND_LOSSLESS_EXPORT.md)** - PDF annotation with SVG/vector/raster export
+- **[Advanced Gesture Handling](docs/ADVANCED_GESTURE_HANDLING.md)** - Platform-specific gestures and workspace layout
+- **[Shapes & Storage](docs/SHAPES_AND_STORAGE.md)** - Drawing tools and persistence
+- **[Bézier Curves](docs/BEZIER_CURVES.md)** - Mathematical smoothing details
+- **[Mind Mapping](docs/MIND_MAPPING_AND_SEARCH.md)** - Node-based organization
+
+### 🔧 Implementation Guides
+
+- **[Infinite Canvas](docs/INFINITE_CANVAS_IMPLEMENTATION.md)** - Pan/zoom architecture
+- **[PDF Viewer](docs/PDF_VIEWER_GUIDE.md)** - Syncfusion integration
+- **[Text & Photo Import](docs/TEXT_PHOTO_IMPORT_EXPORT.md)** - Media handling
+
+### 📝 Examples & Summaries
+
+- **[Code Examples](docs/EXAMPLES.md)** - Common usage patterns
+- **[Feature Summary](docs/FEATURE_SUMMARY.md)** - Complete feature list
+- **[Recent Fixes](docs/FIXES_SUMMARY.md)** - Bug fixes and improvements
+
 ## Project Structure
 
 ```
@@ -225,8 +254,16 @@ lib/
 │   └── annotation_layer.dart          # Multi-stroke container
 ├── painters/
 │   └── annotation_painter.dart        # CustomPainter + controller
-└── widgets/
-    └── annotation_canvas.dart         # Input capture widget
+├── utils/
+│   ├── platform_input_config.dart     # Platform detection & gesture config
+│   └── smart_drawing_gesture_recognizer.dart  # Custom gesture recognizer
+├── widgets/
+│   ├── annotation_canvas.dart         # Input capture widget
+│   ├── pdf_drawing_canvas.dart        # PDF annotation overlay
+│   ├── precise_canvas_gesture_handler.dart    # Advanced gesture handling
+│   └── drawing_workspace_layout.dart  # Professional workspace UI
+└── services/
+    └── lossless_exporter.dart         # SVG/PDF vector/raster export
 ```
 
 ## Future Enhancements
