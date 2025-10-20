@@ -1,5 +1,4 @@
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
 
 /// Tile-based rendering system for large canvases
 /// Divides canvas into tiles to reduce memory consumption

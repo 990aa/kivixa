@@ -1,5 +1,4 @@
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
 
 /// Tracks which regions of the canvas have changed to minimize redraws
 /// Maintains 60fps even with complex artwork by only redrawing dirty regions

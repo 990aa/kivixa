@@ -1,5 +1,4 @@
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
 import '../models/tiled_layer.dart';
 import '../models/dirty_region_tracker.dart';
 import '../models/drawing_layer.dart';
@@ -60,19 +59,17 @@ class LayerMemoryManager {
   /// Mark a stroke as dirty (call when stroke is added/modified)
   void markStrokeDirty(LayerStroke stroke, String layerId) {
     final bounds = stroke.getBounds();
-    if (bounds != null) {
-      final dirtyRect = DirtyRegionTracker.fromStrokeBounds(
-        bounds,
-        stroke.brush.strokeWidth,
-      );
-      
-      dirtyTracker.markDirty(dirtyRect);
-      
-      // Invalidate affected tiles
-      if (enableTiling) {
-        final tiles = getTileSystem(layerId);
-        tiles.invalidateRegion(dirtyRect);
-      }
+    final dirtyRect = DirtyRegionTracker.fromStrokeBounds(
+      bounds,
+      stroke.brushProperties.strokeWidth,
+    );
+    
+    dirtyTracker.markDirty(dirtyRect);
+    
+    // Invalidate affected tiles
+    if (enableTiling) {
+      final tiles = getTileSystem(layerId);
+      tiles.invalidateRegion(dirtyRect);
     }
   }
   
