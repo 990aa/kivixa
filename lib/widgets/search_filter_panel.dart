@@ -30,7 +30,7 @@ class _SearchFilterPanelState extends State<SearchFilterPanel> {
   late TextEditingController _searchController;
   String _searchQuery = '';
   List<DocumentType> _selectedTypes = [];
-  List<Tag> _selectedTags = [];
+  final List<Tag> _selectedTags = [];
   bool _favoritesOnly = false;
   DocumentSortBy _sortBy = DocumentSortBy.dateModifiedDesc;
 
@@ -150,7 +150,7 @@ class _SearchFilterPanelState extends State<SearchFilterPanel> {
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<DocumentSortBy>(
-            value: _sortBy,
+            initialValue: _sortBy,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
