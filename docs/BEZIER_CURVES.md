@@ -218,6 +218,3 @@ Implementation based on:
 3. Flutter rendering engine documentation
 4. hand_signature library implementation
 
----
-
-**Mathematics in Code = Beautiful Strokes** ✨

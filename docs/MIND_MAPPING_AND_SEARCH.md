@@ -336,6 +336,3 @@ class AppDatabase {
   Future<void> rebuildFTS5Index();
 }
 ```
-
-## License
-Same as Kivixa project license.

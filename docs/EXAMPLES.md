@@ -646,7 +646,3 @@ void main() {
   });
 }
 ```
-
----
-
-**Complete examples for every use case! 🚀**
