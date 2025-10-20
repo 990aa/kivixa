@@ -43,8 +43,15 @@ class DatabaseService {
   /// Delete note
   Future<void> deleteNote(int id) => _db.deleteNoteCompletely(id);
 
-  /// Search notes
+  /// Search notes (basic LIKE search)
   Future<List<Note>> searchNotes(String query) => _db.searchNotes(query);
+
+  /// Search notes using FTS5 full-text search
+  Future<List<Note>> searchNotesFullText(String query) =>
+      _db.searchNotesFullText(query);
+
+  /// Initialize FTS5 full-text search (call once on app start)
+  Future<void> initializeFTS5() => _db.initializeFTS5();
 
   // ============ Stroke Operations ============
 
