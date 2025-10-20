@@ -79,8 +79,10 @@ class DrawingLayer {
 
   /// Remove a stroke from this layer
   bool removeStroke(String strokeId) {
-    final removed = strokes.removeWhere((s) => s.id == strokeId);
-    if (removed > 0) {
+    final initialLength = strokes.length;
+    strokes.removeWhere((s) => s.id == strokeId);
+    final removed = initialLength != strokes.length;
+    if (removed) {
       modifiedAt = DateTime.now();
       updateBounds();
       return true;

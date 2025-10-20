@@ -1,24 +1,37 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../models/stroke.dart' as stroke_model;
 import '../models/canvas_element.dart' as element_model;
 import '../models/drawing_tool.dart';
+import '../models/drawing_layer.dart';
+import '../models/layer_stroke.dart';
+import '../models/stroke_point.dart';
 import '../services/database_service.dart';
+import '../services/layer_rendering_service.dart';
 
-/// State management for canvas with Provider/ChangeNotifier
+/// State management for canvas with Provider/ChangeNotifier and Layer support
 class CanvasState extends ChangeNotifier {
+  // Legacy stroke system (for backward compatibility)
   List<stroke_model.Stroke> _strokes = [];
   List<element_model.CanvasElement> _elements = [];
+
+  // New layer system
+  List<DrawingLayer> _layers = [
+    DrawingLayer(name: 'Background'),
+  ];
+  int _activeLayerIndex = 0;
+
   DrawingTool _currentTool = DrawingTool.pen;
   Color _currentColor = Colors.black;
   double _strokeWidth = 4.0;
-
-  // Layer system for better organization
-  Map<int, List<stroke_model.Stroke>> _layers = {0: []};
   int _activeLayer = 0;
 
   // Current note ID
   int? _currentNoteId;
+
+  // Canvas size for layer caching
+  Size _canvasSize = const Size(1000, 1000);
 
   // Undo/Redo stack
   final List<CanvasSnapshot> _undoStack = [];
@@ -35,14 +48,27 @@ class CanvasState extends ChangeNotifier {
   DrawingTool get currentTool => _currentTool;
   Color get currentColor => _currentColor;
   double get strokeWidth => _strokeWidth;
-  Map<int, List<stroke_model.Stroke>> get layers => _layers;
-  int get activeLayer => _activeLayer;
+  List<DrawingLayer> get layers => _layers;
+  DrawingLayer get activeLayer => _layers[_activeLayerIndex];
+  int get activeLayerIndex => _activeLayerIndex;
   int? get currentNoteId => _currentNoteId;
   bool get canUndo => _undoStack.isNotEmpty;
   bool get canRedo => _redoStack.isNotEmpty;
+  Size get canvasSize => _canvasSize;
 
   CanvasState({DatabaseService? databaseService})
-    : _databaseService = databaseService ?? DatabaseService();
+      : _databaseService = databaseService ?? DatabaseService();
+
+  // ============ Canvas Size Management ============
+
+  void setCanvasSize(Size size) {
+    if (_canvasSize != size) {
+      _canvasSize = size;
+      // Invalidate all layer caches when canvas size changes
+      LayerRenderingService.invalidateAllCaches(_layers);
+      notifyListeners();
+    }
+  }
 
   // ============ Tool & Color Management ============
 
@@ -301,26 +327,4 @@ class CanvasState extends ChangeNotifier {
     await _saveToDatabase();
   }
 
-  // ============ Cleanup ============
-
-  @override
-  void dispose() {
-    _saveTimer?.cancel();
-    super.dispose();
-  }
-}
-
-/// Snapshot of canvas state for undo/redo
-class CanvasSnapshot {
-  final List<stroke_model.Stroke> strokes;
-  final List<element_model.CanvasElement> elements;
-  final Map<int, List<stroke_model.Stroke>> layers;
-  final int activeLayer;
-
-  CanvasSnapshot({
-    required this.strokes,
-    required this.elements,
-    required this.layers,
-    required this.activeLayer,
-  });
-}
+  // ============ Cleanup ======
