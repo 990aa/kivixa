@@ -54,6 +54,10 @@ flutter:
 
   uses-material-design: true
 
+  # Shader assets
+  shaders:
+    - shaders/texture_brush.frag
+
 flutter_launcher_icons:
   android: true
   ios: true

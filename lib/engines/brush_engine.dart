@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../models/stroke_point.dart';
 import '../models/brush_settings.dart';
+import 'airbrush_engine.dart';
 
 /// Abstract base class for all brush engines
 abstract class BrushEngine {
