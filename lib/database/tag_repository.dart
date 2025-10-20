@@ -6,6 +6,11 @@ import '../models/tag.dart';
 ///
 /// Handles all CRUD operations for tags and document-tag relationships
 class TagRepository {
+  /// Create tag
+  Future<int> createTag(Tag tag) async {
+    return await insert(tag);
+  }
+
   /// Insert a new tag
   Future<int> insert(Tag tag) async {
     final db = await DrawingDatabase.database;
