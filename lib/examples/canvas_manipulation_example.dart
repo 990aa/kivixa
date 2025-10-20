@@ -10,7 +10,8 @@ class CanvasManipulationExample extends StatefulWidget {
   const CanvasManipulationExample({Key? key}) : super(key: key);
 
   @override
-  State<CanvasManipulationExample> createState() => _CanvasManipulationExampleState();
+  State<CanvasManipulationExample> createState() =>
+      _CanvasManipulationExampleState();
 }
 
 class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
@@ -41,7 +42,13 @@ class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
     );
 
     // Add some sample strokes
-    final colors = [Colors.red, Colors.blue, Colors.green, Colors.purple, Colors.orange];
+    final colors = [
+      Colors.red,
+      Colors.blue,
+      Colors.green,
+      Colors.purple,
+      Colors.orange,
+    ];
     final random = math.Random(42);
 
     for (int i = 0; i < 5; i++) {
@@ -53,20 +60,24 @@ class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
       // Create circular stroke
       final points = <StrokePoint>[];
       for (double angle = 0; angle <= 2 * math.pi; angle += 0.1) {
-        points.add(StrokePoint(
-          x: centerX + math.cos(angle) * radius,
-          y: centerY + math.sin(angle) * radius,
-          pressure: 1.0,
-          timestamp: DateTime.now(),
-        ));
+        points.add(
+          StrokePoint(
+            x: centerX + math.cos(angle) * radius,
+            y: centerY + math.sin(angle) * radius,
+            pressure: 1.0,
+            timestamp: DateTime.now(),
+          ),
+        );
       }
 
-      layer.addStroke(LayerStroke(
-        id: 'stroke_$i',
-        points: points,
-        color: color,
-        strokeWidth: 5.0,
-      ));
+      layer.addStroke(
+        LayerStroke(
+          id: 'stroke_$i',
+          points: points,
+          color: color,
+          strokeWidth: 5.0,
+        ),
+      );
     }
 
     setState(() {
@@ -88,7 +99,7 @@ class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
     setState(() {
       _settings = _settings.copyWith(preset: preset);
     });
-    
+
     // Fit to view after changing preset
     Future.delayed(const Duration(milliseconds: 100), () {
       _canvasKey.currentState?.fitToView();
@@ -138,28 +149,32 @@ class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
               );
             }).toList(),
           ),
-          
+
           // Grid toggle
           IconButton(
             icon: Icon(_settings.showGrid ? Icons.grid_on : Icons.grid_off),
             tooltip: 'Toggle Grid',
             onPressed: _toggleGrid,
           ),
-          
+
           // Rulers toggle
           IconButton(
-            icon: Icon(_settings.showRulers ? Icons.straighten : Icons.straighten_outlined),
+            icon: Icon(
+              _settings.showRulers
+                  ? Icons.straighten
+                  : Icons.straighten_outlined,
+            ),
             tooltip: 'Toggle Rulers',
             onPressed: _toggleRulers,
           ),
-          
+
           // Fit to view
           IconButton(
             icon: const Icon(Icons.fit_screen),
             tooltip: 'Fit to View',
             onPressed: () => _canvasKey.currentState?.fitToView(),
           ),
-          
+
           // Reset view
           IconButton(
             icon: const Icon(Icons.restore),
@@ -182,16 +197,22 @@ class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
                 ),
                 const SizedBox(width: 16),
                 if (!_settings.isInfinite) ...[
-                  Text('Size: ${_settings.canvasWidth?.toInt()} × ${_settings.canvasHeight?.toInt()}'),
+                  Text(
+                    'Size: ${_settings.canvasWidth?.toInt()} × ${_settings.canvasHeight?.toInt()}',
+                  ),
                   const SizedBox(width: 16),
                 ],
-                Text('Zoom: ${(_canvasKey.currentState?.zoomLevel ?? 1.0) * 100}%'),
+                Text(
+                  'Zoom: ${(_canvasKey.currentState?.zoomLevel ?? 1.0) * 100}%',
+                ),
                 const SizedBox(width: 16),
-                Text('Rotation: ${((_canvasKey.currentState?.rotation ?? 0.0) * 180 / math.pi).toStringAsFixed(0)}°'),
+                Text(
+                  'Rotation: ${((_canvasKey.currentState?.rotation ?? 0.0) * 180 / math.pi).toStringAsFixed(0)}°',
+                ),
               ],
             ),
           ),
-          
+
           // Main canvas
           Expanded(
             child: CanvasView(
@@ -208,7 +229,7 @@ class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
               ),
             ),
           ),
-          
+
           // Control panel
           Container(
             padding: const EdgeInsets.all(16),
@@ -222,7 +243,7 @@ class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(height: 12),
-                
+
                 // Zoom controls
                 Row(
                   children: [
@@ -239,22 +260,25 @@ class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
                       tooltip: 'Zoom In',
                     ),
                     TextButton(
-                      onPressed: () => _canvasKey.currentState?.zoomToLevel(1.0),
+                      onPressed: () =>
+                          _canvasKey.currentState?.zoomToLevel(1.0),
                       child: const Text('100%'),
                     ),
                     TextButton(
-                      onPressed: () => _canvasKey.currentState?.zoomToLevel(2.0),
+                      onPressed: () =>
+                          _canvasKey.currentState?.zoomToLevel(2.0),
                       child: const Text('200%'),
                     ),
                     TextButton(
-                      onPressed: () => _canvasKey.currentState?.zoomToLevel(0.5),
+                      onPressed: () =>
+                          _canvasKey.currentState?.zoomToLevel(0.5),
                       child: const Text('50%'),
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 // Rotation controls
                 Row(
                   children: [
@@ -262,27 +286,31 @@ class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
                     const SizedBox(width: 8),
                     IconButton(
                       icon: const Icon(Icons.rotate_left),
-                      onPressed: () => _canvasKey.currentState?.rotateCanvas(-math.pi / 4),
+                      onPressed: () =>
+                          _canvasKey.currentState?.rotateCanvas(-math.pi / 4),
                       tooltip: 'Rotate Left 45°',
                     ),
                     IconButton(
                       icon: const Icon(Icons.rotate_right),
-                      onPressed: () => _canvasKey.currentState?.rotateCanvas(math.pi / 4),
+                      onPressed: () =>
+                          _canvasKey.currentState?.rotateCanvas(math.pi / 4),
                       tooltip: 'Rotate Right 45°',
                     ),
                     TextButton(
-                      onPressed: () => _canvasKey.currentState?.rotateCanvas(math.pi / 2),
+                      onPressed: () =>
+                          _canvasKey.currentState?.rotateCanvas(math.pi / 2),
                       child: const Text('90°'),
                     ),
                     TextButton(
-                      onPressed: () => _canvasKey.currentState?.rotateCanvas(math.pi),
+                      onPressed: () =>
+                          _canvasKey.currentState?.rotateCanvas(math.pi),
                       child: const Text('180°'),
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 // Grid size control
                 if (_settings.showGrid)
                   Row(
@@ -302,9 +330,9 @@ class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
                       Text('${_settings.gridSize.toInt()}px'),
                     ],
                   ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 // Instructions
                 Container(
                   padding: const EdgeInsets.all(8),
@@ -340,10 +368,7 @@ class _SampleCanvasPainter extends CustomPainter {
   final List<DrawingLayer> layers;
   final List<Offset> currentStroke;
 
-  _SampleCanvasPainter({
-    required this.layers,
-    required this.currentStroke,
-  });
+  _SampleCanvasPainter({required this.layers, required this.currentStroke});
 
   @override
   void paint(Canvas canvas, Size size) {

@@ -21,7 +21,7 @@ class GridOverlayPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Adjust grid size based on zoom level for better visibility
     final adjustedGridSize = gridSize * scale;
-    
+
     // Skip drawing if grid is too small or too large
     if (adjustedGridSize < 5 || adjustedGridSize > 500) return;
 
@@ -42,7 +42,8 @@ class GridOverlayPainter extends CustomPainter {
     // Draw vertical lines
     int lineCount = 0;
     for (double x = startX; x <= endX; x += gridSize) {
-      final isMajorLine = showMajorLines && (lineCount % majorLineInterval == 0);
+      final isMajorLine =
+          showMajorLines && (lineCount % majorLineInterval == 0);
       final paint = isMajorLine ? majorPaint : minorPaint;
       canvas.drawLine(Offset(x, startY), Offset(x, endY), paint);
       lineCount++;
@@ -51,7 +52,8 @@ class GridOverlayPainter extends CustomPainter {
     // Draw horizontal lines
     lineCount = 0;
     for (double y = startY; y <= endY; y += gridSize) {
-      final isMajorLine = showMajorLines && (lineCount % majorLineInterval == 0);
+      final isMajorLine =
+          showMajorLines && (lineCount % majorLineInterval == 0);
       final paint = isMajorLine ? majorPaint : minorPaint;
       canvas.drawLine(Offset(startX, y), Offset(endX, y), paint);
       lineCount++;
@@ -90,10 +92,10 @@ class RulerOverlayPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Draw horizontal ruler (top)
     _drawHorizontalRuler(canvas, size);
-    
+
     // Draw vertical ruler (left)
     _drawVerticalRuler(canvas, size);
-    
+
     // Draw corner square
     final cornerPaint = Paint()..color = rulerColor;
     canvas.drawRect(
@@ -105,7 +107,12 @@ class RulerOverlayPainter extends CustomPainter {
   void _drawHorizontalRuler(Canvas canvas, Size size) {
     final paint = Paint()..color = rulerColor;
     canvas.drawRect(
-      Rect.fromLTWH(rulerThickness, 0, size.width - rulerThickness, rulerThickness),
+      Rect.fromLTWH(
+        rulerThickness,
+        0,
+        size.width - rulerThickness,
+        rulerThickness,
+      ),
       paint,
     );
 
@@ -113,22 +120,26 @@ class RulerOverlayPainter extends CustomPainter {
       ..color = textColor.withOpacity(0.5)
       ..strokeWidth = 1.0;
 
-    final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-    );
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
 
     // Calculate visible range
     final startX = (-offset.dx / scale).floor();
     final endX = ((size.width - offset.dx) / scale).ceil();
 
-    for (int i = (startX / tickSpacing).floor(); i <= (endX / tickSpacing).ceil(); i++) {
+    for (
+      int i = (startX / tickSpacing).floor();
+      i <= (endX / tickSpacing).ceil();
+      i++
+    ) {
       final x = i * tickSpacing;
       final screenX = x * scale + offset.dx + rulerThickness;
 
       if (screenX < rulerThickness || screenX > size.width) continue;
 
       // Draw tick
-      final tickHeight = i % 5 == 0 ? rulerThickness * 0.6 : rulerThickness * 0.4;
+      final tickHeight = i % 5 == 0
+          ? rulerThickness * 0.6
+          : rulerThickness * 0.4;
       canvas.drawLine(
         Offset(screenX, rulerThickness),
         Offset(screenX, rulerThickness - tickHeight),
@@ -139,16 +150,10 @@ class RulerOverlayPainter extends CustomPainter {
       if (i % 5 == 0) {
         textPainter.text = TextSpan(
           text: '${x.toInt()}',
-          style: TextStyle(
-            color: textColor,
-            fontSize: 10,
-          ),
+          style: TextStyle(color: textColor, fontSize: 10),
         );
         textPainter.layout();
-        textPainter.paint(
-          canvas,
-          Offset(screenX - textPainter.width / 2, 2),
-        );
+        textPainter.paint(canvas, Offset(screenX - textPainter.width / 2, 2));
       }
     }
   }
@@ -156,7 +161,12 @@ class RulerOverlayPainter extends CustomPainter {
   void _drawVerticalRuler(Canvas canvas, Size size) {
     final paint = Paint()..color = rulerColor;
     canvas.drawRect(
-      Rect.fromLTWH(0, rulerThickness, rulerThickness, size.height - rulerThickness),
+      Rect.fromLTWH(
+        0,
+        rulerThickness,
+        rulerThickness,
+        size.height - rulerThickness,
+      ),
       paint,
     );
 
@@ -164,22 +174,26 @@ class RulerOverlayPainter extends CustomPainter {
       ..color = textColor.withOpacity(0.5)
       ..strokeWidth = 1.0;
 
-    final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-    );
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
 
     // Calculate visible range
     final startY = (-offset.dy / scale).floor();
     final endY = ((size.height - offset.dy) / scale).ceil();
 
-    for (int i = (startY / tickSpacing).floor(); i <= (endY / tickSpacing).ceil(); i++) {
+    for (
+      int i = (startY / tickSpacing).floor();
+      i <= (endY / tickSpacing).ceil();
+      i++
+    ) {
       final y = i * tickSpacing;
       final screenY = y * scale + offset.dy + rulerThickness;
 
       if (screenY < rulerThickness || screenY > size.height) continue;
 
       // Draw tick
-      final tickLength = i % 5 == 0 ? rulerThickness * 0.6 : rulerThickness * 0.4;
+      final tickLength = i % 5 == 0
+          ? rulerThickness * 0.6
+          : rulerThickness * 0.4;
       canvas.drawLine(
         Offset(rulerThickness, screenY),
         Offset(rulerThickness - tickLength, screenY),
@@ -191,20 +205,17 @@ class RulerOverlayPainter extends CustomPainter {
         canvas.save();
         canvas.translate(rulerThickness / 2, screenY);
         canvas.rotate(-math.pi / 2);
-        
+
         textPainter.text = TextSpan(
           text: '${y.toInt()}',
-          style: TextStyle(
-            color: textColor,
-            fontSize: 10,
-          ),
+          style: TextStyle(color: textColor, fontSize: 10),
         );
         textPainter.layout();
         textPainter.paint(
           canvas,
           Offset(-textPainter.width / 2, -textPainter.height / 2),
         );
-        
+
         canvas.restore();
       }
     }
@@ -237,10 +248,7 @@ class CanvasBoundaryPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Draw canvas background
     final bgPaint = Paint()..color = Colors.white;
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, canvasWidth, canvasHeight),
-      bgPaint,
-    );
+    canvas.drawRect(Rect.fromLTWH(0, 0, canvasWidth, canvasHeight), bgPaint);
 
     // Draw shadow
     final shadowPaint = Paint()

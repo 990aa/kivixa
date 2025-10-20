@@ -27,7 +27,8 @@ class CanvasView extends StatefulWidget {
 }
 
 class CanvasViewState extends State<CanvasView> {
-  final TransformationController _transformController = TransformationController();
+  final TransformationController _transformController =
+      TransformationController();
   double _rotation = 0.0;
   double _currentScale = 1.0;
   Offset _currentTranslation = Offset.zero;
@@ -49,7 +50,10 @@ class CanvasViewState extends State<CanvasView> {
     final matrix = _transformController.value;
     setState(() {
       _currentScale = matrix.getMaxScaleOnAxis();
-      _currentTranslation = Offset(matrix.getTranslation().x, matrix.getTranslation().y);
+      _currentTranslation = Offset(
+        matrix.getTranslation().x,
+        matrix.getTranslation().y,
+      );
     });
   }
 
@@ -57,20 +61,28 @@ class CanvasViewState extends State<CanvasView> {
   void zoomIn() {
     final matrix = _transformController.value.clone();
     final scale = 1.2;
-    
+
     // Get viewport center
     final Size viewportSize = context.size ?? Size.zero;
-    final Offset viewportCenter = Offset(viewportSize.width / 2, viewportSize.height / 2);
-    
+    final Offset viewportCenter = Offset(
+      viewportSize.width / 2,
+      viewportSize.height / 2,
+    );
+
     // Scale around center
-    final Offset focalPoint = (Matrix4.inverted(matrix) * Matrix4.translationValues(
-      viewportCenter.dx, viewportCenter.dy, 0,
-    )).getTranslation();
-    
+    final Offset focalPoint =
+        (Matrix4.inverted(matrix) *
+                Matrix4.translationValues(
+                  viewportCenter.dx,
+                  viewportCenter.dy,
+                  0,
+                ))
+            .getTranslation();
+
     matrix.translate(focalPoint.x, focalPoint.y);
     matrix.scale(scale);
     matrix.translate(-focalPoint.x, -focalPoint.y);
-    
+
     _transformController.value = matrix;
   }
 
@@ -78,20 +90,28 @@ class CanvasViewState extends State<CanvasView> {
   void zoomOut() {
     final matrix = _transformController.value.clone();
     final scale = 0.8;
-    
+
     // Get viewport center
     final Size viewportSize = context.size ?? Size.zero;
-    final Offset viewportCenter = Offset(viewportSize.width / 2, viewportSize.height / 2);
-    
+    final Offset viewportCenter = Offset(
+      viewportSize.width / 2,
+      viewportSize.height / 2,
+    );
+
     // Scale around center
-    final Offset focalPoint = (Matrix4.inverted(matrix) * Matrix4.translationValues(
-      viewportCenter.dx, viewportCenter.dy, 0,
-    )).getTranslation();
-    
+    final Offset focalPoint =
+        (Matrix4.inverted(matrix) *
+                Matrix4.translationValues(
+                  viewportCenter.dx,
+                  viewportCenter.dy,
+                  0,
+                ))
+            .getTranslation();
+
     matrix.translate(focalPoint.x, focalPoint.y);
     matrix.scale(scale);
     matrix.translate(-focalPoint.x, -focalPoint.y);
-    
+
     _transformController.value = matrix;
   }
 
@@ -100,18 +120,26 @@ class CanvasViewState extends State<CanvasView> {
     final matrix = _transformController.value.clone();
     final currentScale = matrix.getMaxScaleOnAxis();
     final scaleFactor = level / currentScale;
-    
+
     final Size viewportSize = context.size ?? Size.zero;
-    final Offset viewportCenter = Offset(viewportSize.width / 2, viewportSize.height / 2);
-    
-    final Offset focalPoint = (Matrix4.inverted(matrix) * Matrix4.translationValues(
-      viewportCenter.dx, viewportCenter.dy, 0,
-    )).getTranslation();
-    
+    final Offset viewportCenter = Offset(
+      viewportSize.width / 2,
+      viewportSize.height / 2,
+    );
+
+    final Offset focalPoint =
+        (Matrix4.inverted(matrix) *
+                Matrix4.translationValues(
+                  viewportCenter.dx,
+                  viewportCenter.dy,
+                  0,
+                ))
+            .getTranslation();
+
     matrix.translate(focalPoint.x, focalPoint.y);
     matrix.scale(scaleFactor);
     matrix.translate(-focalPoint.x, -focalPoint.y);
-    
+
     _transformController.value = matrix;
   }
 
@@ -172,8 +200,10 @@ class CanvasViewState extends State<CanvasView> {
   Offset screenToCanvas(Offset screenPoint) {
     final matrix = _transformController.value;
     final invertedMatrix = Matrix4.inverted(matrix);
-    final vector = invertedMatrix.transform3(Vector3(screenPoint.dx, screenPoint.dy, 0));
-    
+    final vector = invertedMatrix.transform3(
+      Vector3(screenPoint.dx, screenPoint.dy, 0),
+    );
+
     // Apply rotation
     if (_rotation != 0.0) {
       final cos = math.cos(-_rotation);
@@ -182,7 +212,7 @@ class CanvasViewState extends State<CanvasView> {
       final y = vector.x * sin + vector.y * cos;
       return Offset(x, y);
     }
-    
+
     return Offset(vector.x, vector.y);
   }
 
@@ -197,7 +227,7 @@ class CanvasViewState extends State<CanvasView> {
       final y = point.dx * sin + point.dy * cos;
       point = Offset(x, y);
     }
-    
+
     final matrix = _transformController.value;
     final vector = matrix.transform3(Vector3(point.dx, point.dy, 0));
     return Offset(vector.x, vector.y);
@@ -208,8 +238,10 @@ class CanvasViewState extends State<CanvasView> {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Calculate canvas size
-        final canvasWidth = widget.settings.canvasWidth ?? constraints.maxWidth * 3;
-        final canvasHeight = widget.settings.canvasHeight ?? constraints.maxHeight * 3;
+        final canvasWidth =
+            widget.settings.canvasWidth ?? constraints.maxWidth * 3;
+        final canvasHeight =
+            widget.settings.canvasHeight ?? constraints.maxHeight * 3;
 
         return Stack(
           children: [
@@ -220,7 +252,9 @@ class CanvasViewState extends State<CanvasView> {
               maxScale: 50.0,
               boundaryMargin: widget.settings.isInfinite
                   ? const EdgeInsets.all(double.infinity)
-                  : EdgeInsets.all(math.max(constraints.maxWidth, constraints.maxHeight)),
+                  : EdgeInsets.all(
+                      math.max(constraints.maxWidth, constraints.maxHeight),
+                    ),
               constrained: false,
               panEnabled: true,
               scaleEnabled: true,
@@ -240,7 +274,7 @@ class CanvasViewState extends State<CanvasView> {
                         ),
                         size: Size(canvasWidth, canvasHeight),
                       ),
-                    
+
                     // Grid overlay
                     if (widget.settings.showGrid)
                       CustomPaint(
@@ -251,7 +285,7 @@ class CanvasViewState extends State<CanvasView> {
                         ),
                         size: Size(canvasWidth, canvasHeight),
                       ),
-                    
+
                     // Main canvas content
                     if (widget.child != null)
                       SizedBox(
@@ -263,7 +297,7 @@ class CanvasViewState extends State<CanvasView> {
                 ),
               ),
             ),
-            
+
             // Rulers overlay (fixed position, not transformed)
             if (widget.settings.showRulers)
               IgnorePointer(
@@ -275,13 +309,9 @@ class CanvasViewState extends State<CanvasView> {
                   size: Size(constraints.maxWidth, constraints.maxHeight),
                 ),
               ),
-            
+
             // Zoom level indicator
-            Positioned(
-              bottom: 16,
-              right: 16,
-              child: _buildZoomIndicator(),
-            ),
+            Positioned(bottom: 16, right: 16, child: _buildZoomIndicator()),
           ],
         );
       },
@@ -353,10 +383,7 @@ class CanvasBoundaryPainter extends CustomPainter {
 
     // Draw canvas background
     final bgPaint = Paint()..color = Colors.white;
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, canvasWidth, canvasHeight),
-      bgPaint,
-    );
+    canvas.drawRect(Rect.fromLTWH(0, 0, canvasWidth, canvasHeight), bgPaint);
 
     // Draw boundary
     final borderPaint = Paint()
