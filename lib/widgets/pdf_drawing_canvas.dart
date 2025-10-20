@@ -39,8 +39,8 @@ class _PDFDrawingCanvasState extends State<PDFDrawingCanvas> {
   @override
   void initState() {
     super.initState();
-    _brushSettings =
-    _brushSettings = widget.defaultBrushSettings ??
+    _brushSettings = _brushSettings =
+        widget.defaultBrushSettings ??
         BrushSettings(
           brushType: 'pen',
           color: Colors.black,
