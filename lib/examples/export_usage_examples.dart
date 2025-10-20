@@ -6,6 +6,8 @@ import 'package:kivixa/models/stroke_point.dart';
 import 'package:kivixa/services/high_resolution_exporter.dart';
 import 'package:kivixa/services/pdf_drawing_manager.dart';
 
+// ignore_for_file: avoid_print
+
 /// Simple usage examples for High-Resolution Export and PDF Integration
 /// These are function examples, not a UI - integrate into your app as needed
 
