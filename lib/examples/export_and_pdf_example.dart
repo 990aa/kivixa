@@ -410,11 +410,11 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Output size: ${_exporter.calculateExportDimensions(const Size(800, 600), _selectedQuality == HighResolutionExporter.ExportQuality.custom ? _customDPI : HighResolutionExporter.getDPIForQuality(_selectedQuality)).width.toInt()}x${_exporter.calculateExportDimensions(const Size(800, 600), _selectedQuality == HighResolutionExporter.ExportQuality.custom ? _customDPI : HighResolutionExporter.getDPIForQuality(_selectedQuality)).height.toInt()} px',
+                    'Output size: ${_exporter.calculateExportDimensions(const Size(800, 600), _selectedQuality == ExportQuality.custom ? _customDPI : HighResolutionExporter.getDPIForQuality(_selectedQuality)).width.toInt()}x${_exporter.calculateExportDimensions(const Size(800, 600), _selectedQuality == ExportQuality.custom ? _customDPI : HighResolutionExporter.getDPIForQuality(_selectedQuality)).height.toInt()} px',
                     style: const TextStyle(fontSize: 12),
                   ),
                   Text(
-                    'Est. size: ${_exporter.estimateFileSizeMB(const Size(800, 600), _selectedQuality == HighResolutionExporter.ExportQuality.custom ? _customDPI : HighResolutionExporter.getDPIForQuality(_selectedQuality), format: _selectedFormat).toStringAsFixed(2)} MB',
+                    'Est. size: ${_exporter.estimateFileSizeMB(const Size(800, 600), _selectedQuality == ExportQuality.custom ? _customDPI : HighResolutionExporter.getDPIForQuality(_selectedQuality), format: _selectedFormat).toStringAsFixed(2)} MB',
                     style: const TextStyle(fontSize: 12),
                   ),
                 ],
