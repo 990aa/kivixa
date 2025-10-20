@@ -295,12 +295,18 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [2, 3, 4, 5].map((size) {
-            return RadioListTile<int>(
+            return ListTile(
               title: Text('$size columns'),
-              value: size,
-              groupValue: _gridColumns,
-              onChanged: (value) {
-                setState(() => _gridColumns = value!);
+              leading: Radio<int>(
+                value: size,
+                groupValue: _gridColumns,
+                onChanged: (value) {
+                  setState(() => _gridColumns = value!);
+                  Navigator.pop(context);
+                },
+              ),
+              onTap: () {
+                setState(() => _gridColumns = size);
                 Navigator.pop(context);
               },
             );
