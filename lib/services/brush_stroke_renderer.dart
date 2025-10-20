@@ -2,30 +2,40 @@ import 'package:flutter/material.dart';
 import '../models/stroke_point.dart';
 import '../models/brush_settings.dart';
 import '../engines/brush_engine.dart';
+import 'stroke_stabilizer.dart';
 
 /// Manages brush stroke application and rendering
 class BrushStrokeRenderer {
+  final StrokeStabilizer _stabilizer = StrokeStabilizer(windowSize: 5);
+
   /// Initialize brush engines
   void initialize() {
     BrushEngineFactory.initializeDefaults();
   }
 
   /// Render a stroke using the appropriate brush engine
+  /// Automatically applies stabilization if configured in settings
   void renderStroke(
     Canvas canvas,
     List<StrokePoint> points,
     BrushSettings settings,
   ) {
+    // Apply stabilization if enabled
+    var processedPoints = points;
+    if (settings.stabilization > 0 && points.length > 2) {
+      processedPoints = _stabilizer.streamLine(points, settings.stabilization);
+    }
+
     final engine = BrushEngineFactory.get(settings.brushType);
 
     if (engine == null) {
       debugPrint('Unknown brush type: ${settings.brushType}');
       // Fallback to pen brush
-      PenBrush().applyStroke(canvas, points, settings);
+      PenBrush().applyStroke(canvas, processedPoints, settings);
       return;
     }
 
-    engine.applyStroke(canvas, points, settings);
+    engine.applyStroke(canvas, processedPoints, settings);
   }
 
   /// Get stroke bounds for dirty region tracking
@@ -40,40 +50,60 @@ class BrushStrokeRenderer {
   }
 
   /// Apply stroke stabilization to smooth out jittery input
+  /// Uses the advanced StrokeStabilizer with multiple algorithms
+  /// 
+  /// Available modes:
+  /// - 'streamline': Real-time jitter reduction (default)
+  /// - 'moving': Moving average filter
+  /// - 'weighted': Weighted moving average with Gaussian weights
+  /// - 'catmull': Catmull-Rom spline interpolation
+  /// - 'bezier': Cubic Bezier spline
+  /// - 'chaikin': Chaikin corner cutting
+  /// - 'pull': Pull string algorithm
+  /// - 'adaptive': Adaptive smoothing based on curvature
+  /// - 'combined': Multi-stage smoothing (best quality)
   List<StrokePoint> stabilizePoints(
     List<StrokePoint> points,
-    double stabilization,
-  ) {
+    double stabilization, {
+    String mode = 'streamline',
+  }) {
     if (points.length < 3 || stabilization <= 0) return points;
 
-    final result = <StrokePoint>[points.first];
-
-    for (int i = 1; i < points.length - 1; i++) {
-      final prev = points[i - 1];
-      final curr = points[i];
-      final next = points[i + 1];
-
-      // Weighted average for smoothing
-      final weight = 1.0 - stabilization;
-      final stabilizedX =
-          curr.position.dx * weight +
-          (prev.position.dx + next.position.dx) * stabilization / 2;
-      final stabilizedY =
-          curr.position.dy * weight +
-          (prev.position.dy + next.position.dy) * stabilization / 2;
-
-      result.add(
-        StrokePoint(
-          position: Offset(stabilizedX, stabilizedY),
-          pressure: curr.pressure,
-          tilt: curr.tilt,
-          orientation: curr.orientation,
-        ),
-      );
+    switch (mode) {
+      case 'streamline':
+        return _stabilizer.streamLine(points, stabilization);
+      case 'moving':
+        return _stabilizer.movingAverage(points);
+      case 'weighted':
+        return _stabilizer.weightedMovingAverage(points, sigma: stabilization * 2);
+      case 'catmull':
+        return _stabilizer.catmullRomSpline(
+          points,
+          (stabilization * 5).round().clamp(1, 5),
+        );
+      case 'bezier':
+        return _stabilizer.bezierSpline(
+          points,
+          (stabilization * 5).round().clamp(1, 5),
+        );
+      case 'chaikin':
+        return _stabilizer.chaikinSmooth(
+          points,
+          (stabilization * 3).round().clamp(1, 3),
+        );
+      case 'pull':
+        return _stabilizer.pullString(
+          points,
+          iterations: 3,
+          strength: stabilization,
+        );
+      case 'adaptive':
+        return _stabilizer.adaptiveSmooth(points, threshold: stabilization);
+      case 'combined':
+        return _stabilizer.combinedSmooth(points, streamLineAmount: stabilization);
+      default:
+        return _stabilizer.streamLine(points, stabilization);
     }
-
-    result.add(points.last);
-    return result;
   }
 
   /// Interpolate between points for smoother strokes
