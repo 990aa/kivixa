@@ -7,7 +7,7 @@ import '../widgets/clipped_drawing_canvas.dart';
 import 'dart:math' as math;
 
 /// Demonstrates Canvas Clipping System to prevent drawing outside bounds
-/// 
+///
 /// Features:
 /// - ClipRect with Clip.hardEdge for widget-level clipping
 /// - canvas.clipRect() for hardware-level GPU clipping
@@ -37,69 +37,61 @@ class _CanvasClippingExampleState extends State<CanvasClippingExample> {
     final layer = DrawingLayer(name: 'Test Layer');
 
     // Stroke 1: Crosses left boundary
-    layer.addStroke(_createStroke(
-      points: [
-        const Offset(-50, 50),
-        const Offset(100, 50),
-      ],
-      color: Colors.red,
-      width: 10,
-    ));
+    layer.addStroke(
+      _createStroke(
+        points: [const Offset(-50, 50), const Offset(100, 50)],
+        color: Colors.red,
+        width: 10,
+      ),
+    );
 
     // Stroke 2: Crosses right boundary
-    layer.addStroke(_createStroke(
-      points: [
-        const Offset(300, 100),
-        const Offset(450, 100),
-      ],
-      color: Colors.blue,
-      width: 10,
-    ));
+    layer.addStroke(
+      _createStroke(
+        points: [const Offset(300, 100), const Offset(450, 100)],
+        color: Colors.blue,
+        width: 10,
+      ),
+    );
 
     // Stroke 3: Crosses top boundary
-    layer.addStroke(_createStroke(
-      points: [
-        const Offset(200, -30),
-        const Offset(200, 80),
-      ],
-      color: Colors.green,
-      width: 10,
-    ));
+    layer.addStroke(
+      _createStroke(
+        points: [const Offset(200, -30), const Offset(200, 80)],
+        color: Colors.green,
+        width: 10,
+      ),
+    );
 
     // Stroke 4: Crosses bottom boundary
-    layer.addStroke(_createStroke(
-      points: [
-        const Offset(300, 250),
-        const Offset(300, 350),
-      ],
-      color: Colors.orange,
-      width: 10,
-    ));
+    layer.addStroke(
+      _createStroke(
+        points: [const Offset(300, 250), const Offset(300, 350)],
+        color: Colors.orange,
+        width: 10,
+      ),
+    );
 
     // Stroke 5: Diagonal crossing multiple boundaries
-    layer.addStroke(_createStroke(
-      points: [
-        const Offset(-20, -20),
-        const Offset(420, 320),
-      ],
-      color: Colors.purple,
-      width: 15,
-    ));
+    layer.addStroke(
+      _createStroke(
+        points: [const Offset(-20, -20), const Offset(420, 320)],
+        color: Colors.purple,
+        width: 15,
+      ),
+    );
 
     // Stroke 6: Large circle that extends beyond all boundaries
     final circlePoints = <Offset>[];
     for (int i = 0; i <= 360; i += 10) {
       final angle = i * math.pi / 180;
-      circlePoints.add(Offset(
-        200 + 250 * math.cos(angle),
-        150 + 250 * math.sin(angle),
-      ));
+      circlePoints.add(
+        Offset(200 + 250 * math.cos(angle), 150 + 250 * math.sin(angle)),
+      );
     }
-    layer.addStroke(_createStroke(
-      points: circlePoints,
-      color: Colors.pink,
-      width: 8,
-    ));
+    layer.addStroke(
+      _createStroke(points: circlePoints, color: Colors.pink, width: 8),
+    );
 
     _layers.add(layer);
   }
@@ -112,9 +104,11 @@ class _CanvasClippingExampleState extends State<CanvasClippingExample> {
     final brushSettings = BrushSettings(
       color: color,
       size: width,
-      opacity: 0.8,
-    );
-
+  LayerStroke _createStroke({
+    required List<Offset> points,
+    required Color color,
+    required double width,
+  }) {
     final paint = Paint()
       ..color = color.withValues(alpha: 0.8)
       ..strokeWidth = width
@@ -128,20 +122,11 @@ class _CanvasClippingExampleState extends State<CanvasClippingExample> {
           .map((p) => StrokePoint(
                 position: p,
                 pressure: 1.0,
-                timestamp: DateTime.now(),
               ))
           .toList(),
       brushProperties: paint,
-      timestamp: DateTime.now(),
-      originalBrushSettings: brushSettings,
     );
-  }
-
-  void _clearAndRegenerate() {
-    setState(() {
-      _layers.clear();
-      _generateTestStrokes();
-    });
+  } });
   }
 
   @override
@@ -180,9 +165,11 @@ class _CanvasClippingExampleState extends State<CanvasClippingExample> {
                     Expanded(
                       child: SwitchListTile(
                         title: const Text('Enable Clipping'),
-                        subtitle: Text(_useClipping
-                            ? 'Strokes cannot go outside canvas'
-                            : 'Strokes can bleed onto workspace'),
+                        subtitle: Text(
+                          _useClipping
+                              ? 'Strokes cannot go outside canvas'
+                              : 'Strokes can bleed onto workspace',
+                        ),
                         value: _useClipping,
                         onChanged: (value) {
                           setState(() => _useClipping = value);
@@ -216,9 +203,7 @@ class _CanvasClippingExampleState extends State<CanvasClippingExample> {
                   alignment: Alignment.center,
                   children: [
                     // Background workspace
-                    Container(
-                      color: Colors.grey[300],
-                    ),
+                    Container(color: Colors.grey[300]),
 
                     // Canvas with or without clipping
                     if (_useClipping)
@@ -296,9 +281,13 @@ class _CanvasClippingExampleState extends State<CanvasClippingExample> {
                     _buildLegendItem(Colors.green, 'Top boundary crossing'),
                     _buildLegendItem(Colors.orange, 'Bottom boundary crossing'),
                     _buildLegendItem(
-                        Colors.purple, 'Diagonal multi-boundary crossing'),
+                      Colors.purple,
+                      'Diagonal multi-boundary crossing',
+                    ),
                     _buildLegendItem(
-                        Colors.pink, 'Large circle extending beyond all edges'),
+                      Colors.pink,
+                      'Large circle extending beyond all edges',
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       _useClipping
@@ -440,16 +429,10 @@ class _UnclippedPainter extends CustomPainter {
     if (stroke.points.isEmpty) return;
 
     final path = Path();
-    path.moveTo(
-      stroke.points[0].position.dx,
-      stroke.points[0].position.dy,
-    );
+    path.moveTo(stroke.points[0].position.dx, stroke.points[0].position.dy);
 
     for (int i = 1; i < stroke.points.length; i++) {
-      path.lineTo(
-        stroke.points[i].position.dx,
-        stroke.points[i].position.dy,
-      );
+      path.lineTo(stroke.points[i].position.dx, stroke.points[i].position.dy);
     }
 
     canvas.drawPath(path, stroke.brushProperties);
