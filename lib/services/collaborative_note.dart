@@ -9,25 +9,23 @@ import '../models/canvas_element.dart';
 class CollaborativeNote extends ChangeNotifier {
   final String noteId;
   final Crdt crdt;
-  
+
   // CRDT maps for strokes and elements
   final Map<String, Stroke> _strokes = {};
   final Map<String, CanvasElement> _elements = {};
   final Map<String, dynamic> _metadata = {};
-  
+
   // Change listeners
   final StreamController<CrdtChange> _changesController =
       StreamController<CrdtChange>.broadcast();
-  
+
   Stream<CrdtChange> get onChanges => _changesController.stream;
-  
+
   List<Stroke> get strokes => _strokes.values.toList();
   List<CanvasElement> get elements => _elements.values.toList();
-  
-  CollaborativeNote({
-    required this.noteId,
-    String? canonicalNodeId,
-  }) : crdt = Crdt(canonicalNodeId ?? noteId) {
+
+  CollaborativeNote({required this.noteId, String? canonicalNodeId})
+    : crdt = Crdt(canonicalNodeId ?? noteId) {
     _setupChangeListeners();
   }
 
@@ -42,17 +40,15 @@ class CollaborativeNote extends ChangeNotifier {
   /// Add a local stroke
   void addStroke(Stroke stroke) {
     _strokes[stroke.id] = stroke;
-    
+
     // Serialize stroke to CRDT
     final strokeData = _serializeStroke(stroke);
     crdt.put('stroke:${stroke.id}', strokeData);
-    
-    _changesController.add(CrdtChange(
-      type: CrdtChangeType.strokeAdded,
-      id: stroke.id,
-      data: stroke,
-    ));
-    
+
+    _changesController.add(
+      CrdtChange(type: CrdtChangeType.strokeAdded, id: stroke.id, data: stroke),
+    );
+
     notifyListeners();
   }
 
@@ -60,16 +56,18 @@ class CollaborativeNote extends ChangeNotifier {
   void updateStroke(Stroke stroke) {
     if (_strokes.containsKey(stroke.id)) {
       _strokes[stroke.id] = stroke;
-      
+
       final strokeData = _serializeStroke(stroke);
       crdt.put('stroke:${stroke.id}', strokeData);
-      
-      _changesController.add(CrdtChange(
-        type: CrdtChangeType.strokeUpdated,
-        id: stroke.id,
-        data: stroke,
-      ));
-      
+
+      _changesController.add(
+        CrdtChange(
+          type: CrdtChangeType.strokeUpdated,
+          id: stroke.id,
+          data: stroke,
+        ),
+      );
+
       notifyListeners();
     }
   }
@@ -79,13 +77,15 @@ class CollaborativeNote extends ChangeNotifier {
     if (_strokes.containsKey(strokeId)) {
       _strokes.remove(strokeId);
       crdt.delete('stroke:$strokeId');
-      
-      _changesController.add(CrdtChange(
-        type: CrdtChangeType.strokeRemoved,
-        id: strokeId,
-        data: null,
-      ));
-      
+
+      _changesController.add(
+        CrdtChange(
+          type: CrdtChangeType.strokeRemoved,
+          id: strokeId,
+          data: null,
+        ),
+      );
+
       notifyListeners();
     }
   }
@@ -93,16 +93,18 @@ class CollaborativeNote extends ChangeNotifier {
   /// Add a canvas element
   void addElement(CanvasElement element) {
     _elements[element.id] = element;
-    
+
     final elementData = _serializeElement(element);
     crdt.put('element:${element.id}', elementData);
-    
-    _changesController.add(CrdtChange(
-      type: CrdtChangeType.elementAdded,
-      id: element.id,
-      data: element,
-    ));
-    
+
+    _changesController.add(
+      CrdtChange(
+        type: CrdtChangeType.elementAdded,
+        id: element.id,
+        data: element,
+      ),
+    );
+
     notifyListeners();
   }
 
@@ -110,16 +112,18 @@ class CollaborativeNote extends ChangeNotifier {
   void updateElement(CanvasElement element) {
     if (_elements.containsKey(element.id)) {
       _elements[element.id] = element;
-      
+
       final elementData = _serializeElement(element);
       crdt.put('element:${element.id}', elementData);
-      
-      _changesController.add(CrdtChange(
-        type: CrdtChangeType.elementUpdated,
-        id: element.id,
-        data: element,
-      ));
-      
+
+      _changesController.add(
+        CrdtChange(
+          type: CrdtChangeType.elementUpdated,
+          id: element.id,
+          data: element,
+        ),
+      );
+
       notifyListeners();
     }
   }
@@ -129,13 +133,15 @@ class CollaborativeNote extends ChangeNotifier {
     if (_elements.containsKey(elementId)) {
       _elements.remove(elementId);
       crdt.delete('element:$elementId');
-      
-      _changesController.add(CrdtChange(
-        type: CrdtChangeType.elementRemoved,
-        id: elementId,
-        data: null,
-      ));
-      
+
+      _changesController.add(
+        CrdtChange(
+          type: CrdtChangeType.elementRemoved,
+          id: elementId,
+          data: null,
+        ),
+      );
+
       notifyListeners();
     }
   }
@@ -153,7 +159,7 @@ class CollaborativeNote extends ChangeNotifier {
   /// Handle remote changes from CRDT
   void _handleRemoteChanges() {
     final Map<String, dynamic> crdtMap = crdt.map;
-    
+
     // Process strokes
     final strokeKeys = crdtMap.keys.where((k) => k.startsWith('stroke:'));
     for (final key in strokeKeys) {
@@ -166,7 +172,7 @@ class CollaborativeNote extends ChangeNotifier {
         }
       }
     }
-    
+
     // Process elements
     final elementKeys = crdtMap.keys.where((k) => k.startsWith('element:'));
     for (final key in elementKeys) {
@@ -179,7 +185,7 @@ class CollaborativeNote extends ChangeNotifier {
         }
       }
     }
-    
+
     // Process metadata
     final metaKeys = crdtMap.keys.where((k) => k.startsWith('meta:'));
     for (final key in metaKeys) {
@@ -286,11 +292,7 @@ class CrdtChange {
   final String id;
   final dynamic data;
 
-  CrdtChange({
-    required this.type,
-    required this.id,
-    this.data,
-  });
+  CrdtChange({required this.type, required this.id, this.data});
 }
 
 /// Change type enum

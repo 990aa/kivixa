@@ -39,7 +39,7 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.24
   path: ^1.9.0
   graphview: ^1.2.0
-  crdt: ^9.1.0
+  crdt: ^5.1.3
   web_socket_channel: ^3.0.1
   provider: ^6.1.2
   get_it: ^8.0.3
