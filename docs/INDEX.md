@@ -51,25 +51,33 @@
    - Stroke stabilization and simplification
    - Texture-based brushes
 
-7. **[Bezier Curves](BEZIER_CURVES.md)**
+7. **[Stroke Stabilization](STROKE_STABILIZATION.md)** ⭐ New!
+   - 9 smoothing algorithms
+   - Real-time jitter reduction
+   - Professional curve interpolation
+   - Adaptive and combined modes
+   - Performance comparison
+   - Integration guide
+
+8. **[Bezier Curves](BEZIER_CURVES.md)**
    - Smooth stroke rendering
    - Curve interpolation
 
-8. **[Infinite Canvas Implementation](INFINITE_CANVAS_IMPLEMENTATION.md)**
+9. **[Infinite Canvas Implementation](INFINITE_CANVAS_IMPLEMENTATION.md)**
    - Pan and zoom functionality
    - Viewport management
 
-9. **[Shapes and Storage](SHAPES_AND_STORAGE.md)**
-   - Shape drawing tools
-   - Database storage
+10. **[Shapes and Storage](SHAPES_AND_STORAGE.md)**
+    - Shape drawing tools
+    - Database storage
 
-10. **[PDF Viewer Guide](PDF_VIEWER_GUIDE.md)**
+11. **[PDF Viewer Guide](PDF_VIEWER_GUIDE.md)**
     - PDF import and annotation
 
-11. **[Text & Photo Import/Export](TEXT_PHOTO_IMPORT_EXPORT.md)**
+12. **[Text & Photo Import/Export](TEXT_PHOTO_IMPORT_EXPORT.md)**
     - Media handling
 
-12. **[Performance Guide](PERFORMANCE_GUIDE.md)**
+13. **[Performance Guide](PERFORMANCE_GUIDE.md)**
     - General performance tips
 
 ## 🎯 Quick Navigation
@@ -165,6 +173,9 @@ Start with these in order:
 ✅ Pressure-sensitive strokes  
 ✅ Tilt and orientation support  
 ✅ Smooth Bézier curves  
+✅ 9 stabilization algorithms  
+✅ Real-time jitter reduction  
+✅ Professional curve interpolation  
 ✅ Optimized stroke rendering  
 ✅ Viewport culling  
 
