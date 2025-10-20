@@ -199,22 +199,22 @@ class CanvasViewState extends State<CanvasView> {
 
   /// Convert screen point to canvas point
   Offset screenToCanvas(Offset screenPoint) {
-    final matrix = _transformController.value;
-    final invertedMatrix = Matrix4.inverted(matrix);
-    final vector = invertedMatrix.transform3(
-      Vector3(screenPoint.dx, screenPoint.dy, 0),
-    );
-
+    final trans = _transformController.value.getTranslation();
+    final translation = Offset(trans.x, trans.y);
+    
+    // Remove translation and scale
+    final canvasPoint = (screenPoint - translation) / _currentScale;
+    
     // Apply rotation
     if (_rotation != 0.0) {
       final cos = math.cos(-_rotation);
       final sin = math.sin(-_rotation);
-      final x = vector.x * cos - vector.y * sin;
-      final y = vector.x * sin + vector.y * cos;
+      final x = canvasPoint.dx * cos - canvasPoint.dy * sin;
+      final y = canvasPoint.dx * sin + canvasPoint.dy * cos;
       return Offset(x, y);
     }
-
-    return Offset(vector.x, vector.y);
+    
+    return canvasPoint;
   }
 
   /// Convert canvas point to screen point
@@ -228,10 +228,11 @@ class CanvasViewState extends State<CanvasView> {
       final y = point.dx * sin + point.dy * cos;
       point = Offset(x, y);
     }
-
-    final matrix = _transformController.value;
-    final vector = matrix.transform3(Vector3(point.dx, point.dy, 0));
-    return Offset(vector.x, vector.y);
+    
+    // Apply scale and translation
+    final trans = _transformController.value.getTranslation();
+    final translation = Offset(trans.x, trans.y);
+    return (point * _currentScale) + translation;
   }
 
   @override
