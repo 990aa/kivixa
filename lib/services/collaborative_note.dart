@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:crdt/crdt.dart';
+import 'package:crdt/map_crdt.dart';
 import 'package:flutter/foundation.dart';
 import '../models/stroke.dart';
 import '../models/canvas_element.dart';
@@ -8,7 +8,7 @@ import '../models/canvas_element.dart';
 /// Collaborative note using CRDT for conflict-free editing
 class CollaborativeNote extends ChangeNotifier {
   final String noteId;
-  final Crdt crdt;
+  final MapCrdt<String, Map<String, dynamic>> crdt;
 
   // CRDT maps for strokes and elements
   final Map<String, Stroke> _strokes = {};
@@ -274,7 +274,10 @@ class CollaborativeNote extends ChangeNotifier {
     _strokes.clear();
     _elements.clear();
     _metadata.clear();
-    crdt.clear();
+    // Note: CRDT doesn't have clear method, use delete for all keys
+    for (final key in crdt.map.keys.toList()) {
+      crdt.delete(key);
+    }
     notifyListeners();
   }
 
