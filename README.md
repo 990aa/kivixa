@@ -356,9 +356,6 @@ PDFDrawingCanvas(
 - [ ] Symmetry drawing modes
 
 ### Planned 📋
-- [ ] Collaborative editing (real-time sync)
-- [ ] Cloud storage integration
-- [ ] AI-powered features (stroke smoothing, colorization)
 - [ ] Animation/video export
 - [ ] Custom brush creation
 - [ ] PSD layer export
