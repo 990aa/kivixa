@@ -123,29 +123,33 @@ class _SelectionToolsExampleState extends State<SelectionToolsExample>
           const SizedBox(height: 8),
 
           // Mode selector
-          ...SelectionMode.values.map((mode) {
-            return RadioListTile<SelectionMode>(
-              title: Row(
-                children: [
-                  Icon(SelectionSettings.getModeIcon(mode), size: 20),
-                  const SizedBox(width: 8),
-                  Text(mode.name.toUpperCase()),
-                ],
-              ),
-              subtitle: Text(
-                SelectionSettings.getModeDescription(mode),
-                style: const TextStyle(fontSize: 12),
-              ),
-              value: mode,
-              groupValue: _settings.mode,
-              onChanged: (value) {
-                setState(() {
-                  _settings = _settings.copyWith(mode: value);
-                  _initializeTool();
-                });
-              },
-            );
-          }).toList(),
+          RadioGroup<SelectionMode>(
+            groupValue: _settings.mode,
+            onChanged: (value) {
+              setState(() {
+                _settings = _settings.copyWith(mode: value);
+                _initializeTool();
+              });
+            },
+            child: Column(
+              children: SelectionMode.values.map((mode) {
+                return RadioListTile<SelectionMode>(
+                  title: Row(
+                    children: [
+                      Icon(SelectionSettings.getModeIcon(mode), size: 20),
+                      const SizedBox(width: 8),
+                      Text(mode.name.toUpperCase()),
+                    ],
+                  ),
+                  subtitle: Text(
+                    SelectionSettings.getModeDescription(mode),
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  value: mode,
+                );
+              }).toList(),
+            ),
+          ),
 
           const Divider(),
 

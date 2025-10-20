@@ -143,22 +143,26 @@ class _StrokeStabilizationExampleState
           const SizedBox(height: 8),
 
           // Mode selector
-          ...(_modes.map((mode) {
-            return RadioListTile<String>(
-              title: Text(mode.toUpperCase()),
-              subtitle: Text(
-                _modeDescriptions[mode] ?? '',
-                style: const TextStyle(fontSize: 12),
-              ),
-              value: mode,
-              groupValue: _selectedMode,
-              onChanged: (value) {
-                setState(() {
-                  _selectedMode = value!;
-                });
-              },
-            );
-          }).toList()),
+          RadioGroup<String>(
+            groupValue: _selectedMode,
+            onChanged: (value) {
+              setState(() {
+                _selectedMode = value!;
+              });
+            },
+            child: Column(
+              children: _modes.map((mode) {
+                return RadioListTile<String>(
+                  title: Text(mode.toUpperCase()),
+                  subtitle: Text(
+                    _modeDescriptions[mode] ?? '',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  value: mode,
+                );
+              }).toList(),
+            ),
+          ),
 
           const Divider(),
 
