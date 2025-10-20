@@ -125,13 +125,6 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen>
           ),
         ),
       ],
-      codeBlockBuilder: (text, language) => HighlightView(
-        text,
-        language: language,
-        theme: vs2015Theme,
-        padding: const EdgeInsets.all(12),
-        textStyle: GoogleFonts.robotoMono(),
-      ),
     );
 
     return Scaffold(
