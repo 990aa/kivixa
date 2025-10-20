@@ -8,6 +8,7 @@ import '../models/layer_stroke.dart';
 import '../models/stroke_point.dart';
 import '../services/database_service.dart';
 import '../services/layer_rendering_service.dart';
+import '../services/layer_serialization_service.dart';
 
 /// State management for canvas with Provider/ChangeNotifier and Layer support
 class CanvasState extends ChangeNotifier {
