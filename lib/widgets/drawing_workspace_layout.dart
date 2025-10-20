@@ -44,11 +44,7 @@ class DrawingWorkspaceLayout extends StatelessWidget {
     return Stack(
       children: [
         // Layer 1: Workspace background (fixed, doesn't move)
-        Positioned.fill(
-          child: Container(
-            color: backgroundColor,
-          ),
-        ),
+        Positioned.fill(child: Container(color: backgroundColor)),
 
         // Layer 2: Transformable canvas (moves with gestures)
         Positioned.fill(
@@ -164,7 +160,11 @@ class DefaultTopToolbar extends StatelessWidget {
     );
   }
 
-  Widget _buildIconButton(IconData icon, String tooltip, VoidCallback? onPressed) {
+  Widget _buildIconButton(
+    IconData icon,
+    String tooltip,
+    VoidCallback? onPressed,
+  ) {
     return IconButton(
       icon: Icon(icon, color: Colors.white.withValues(alpha: 0.9)),
       tooltip: tooltip,
@@ -219,7 +219,10 @@ class DefaultBottomToolbar extends StatelessWidget {
           const Spacer(),
           // Zoom controls
           IconButton(
-            icon: Icon(Icons.remove, color: Colors.white.withValues(alpha: 0.9)),
+            icon: Icon(
+              Icons.remove,
+              color: Colors.white.withValues(alpha: 0.9),
+            ),
             tooltip: 'Zoom Out',
             onPressed: onZoomOut,
           ),
@@ -243,7 +246,10 @@ class DefaultBottomToolbar extends StatelessWidget {
             onPressed: onZoomIn,
           ),
           IconButton(
-            icon: Icon(Icons.zoom_out_map, color: Colors.white.withValues(alpha: 0.9)),
+            icon: Icon(
+              Icons.zoom_out_map,
+              color: Colors.white.withValues(alpha: 0.9),
+            ),
             tooltip: 'Reset Zoom',
             onPressed: onZoomReset,
           ),
@@ -259,11 +265,7 @@ class DefaultRightPanel extends StatelessWidget {
   final List<Widget>? children;
   final String? title;
 
-  const DefaultRightPanel({
-    super.key,
-    this.children,
-    this.title,
-  });
+  const DefaultRightPanel({super.key, this.children, this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -287,9 +289,7 @@ class DefaultRightPanel extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.grey[300],
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey[400]!),
-                ),
+                border: Border(bottom: BorderSide(color: Colors.grey[400]!)),
               ),
               child: Text(
                 title!,
@@ -316,11 +316,7 @@ class DefaultLeftPanel extends StatelessWidget {
   final List<Widget>? children;
   final String? title;
 
-  const DefaultLeftPanel({
-    super.key,
-    this.children,
-    this.title,
-  });
+  const DefaultLeftPanel({super.key, this.children, this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -344,9 +340,7 @@ class DefaultLeftPanel extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.grey[300],
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey[400]!),
-                ),
+                border: Border(bottom: BorderSide(color: Colors.grey[400]!)),
               ),
               child: Text(
                 title!,
