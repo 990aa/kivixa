@@ -519,12 +519,10 @@ class PolygonalSelection extends SelectionTool {
 
 /// Magic wand (color-based) selection tool
 class MagicWandSelection extends SelectionTool {
-  Set<Offset> _selectedPixels = {};
-  Offset? _startPoint;
+  final Set<Offset> _selectedPixels = {};
 
   @override
   void startSelection(Offset point) {
-    _startPoint = point;
     _selectedPixels.clear();
   }
 
