@@ -376,7 +376,7 @@ class CanvasBoundaryPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Draw shadow
     final shadowPaint = Paint()
-      ..color = shadowColor.withOpacity(0.3)
+      ..color = shadowColor.withValues(alpha: 0.3)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
     canvas.drawRect(
       Rect.fromLTWH(5, 5, canvasWidth, canvasHeight),
@@ -389,7 +389,7 @@ class CanvasBoundaryPainter extends CustomPainter {
 
     // Draw boundary
     final borderPaint = Paint()
-      ..color = boundaryColor.withOpacity(0.5)
+      ..color = boundaryColor.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
     canvas.drawRect(

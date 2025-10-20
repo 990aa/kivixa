@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/drawing_layer.dart';
 import '../models/layer_stroke.dart';
 import '../models/vector_stroke.dart';
-import '../models/stroke_point.dart';
 
 /// Resolution-aware canvas painter that regenerates strokes at current zoom level
 class ResolutionAwareCanvasPainter extends CustomPainter {
@@ -62,7 +61,6 @@ class ResolutionAwareCanvasPainter extends CustomPainter {
   void _renderVectorStroke(Canvas canvas, VectorStroke stroke, double scale) {
     if (stroke.points.isEmpty) return;
 
-    final path = Path();
     final points = stroke.points;
     final widths = stroke.getWidthsAlongPath();
     final colors = stroke.getColorsAlongPath();
@@ -141,86 +139,6 @@ class ResolutionAwareCanvasPainter extends CustomPainter {
 
       canvas.drawLine(prev.position, curr.position, paint);
     }
-  }
-
-  /// Render stroke with smooth cubic bezier curves
-  void _renderSmoothStroke(Canvas canvas, VectorStroke stroke, double scale) {
-    final points = stroke.points;
-    if (points.length < 2) return;
-
-    final path = Path();
-    path.moveTo(points.first.position.dx, points.first.position.dy);
-
-    if (points.length == 2) {
-      path.lineTo(points.last.position.dx, points.last.position.dy);
-    } else {
-      // Use cubic bezier for smooth curves
-      for (int i = 0; i < points.length - 2; i++) {
-        final p0 = points[i];
-        final p1 = points[i + 1];
-        final p2 = points[i + 2];
-
-        // Calculate control points
-        final cp1x = p0.position.dx + (p1.position.dx - p0.position.dx) * 0.5;
-        final cp1y = p0.position.dy + (p1.position.dy - p0.position.dy) * 0.5;
-        final cp2x = p1.position.dx + (p2.position.dx - p1.position.dx) * 0.5;
-        final cp2y = p1.position.dy + (p2.position.dy - p1.position.dy) * 0.5;
-
-        path.cubicTo(cp1x, cp1y, cp2x, cp2y, p1.position.dx, p1.position.dy);
-      }
-
-      // Add final segment
-      path.lineTo(points.last.position.dx, points.last.position.dy);
-    }
-
-    // Average width for path
-    final widths = stroke.getWidthsAlongPath();
-    final avgWidth = widths.reduce((a, b) => a + b) / widths.length;
-    final scaledWidth = avgWidth / scale;
-
-    final paint = Paint()
-      ..color = stroke.brushSettings.color
-      ..strokeWidth = scaledWidth
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round
-      ..style = PaintingStyle.stroke
-      ..isAntiAlias = true
-      ..filterQuality = FilterQuality.high;
-
-    canvas.drawPath(path, paint);
-  }
-
-  /// Calculate visible strokes for performance
-  List<LayerStroke> _getVisibleStrokes(DrawingLayer layer, Rect viewport) {
-    return layer.strokes.where((stroke) {
-      final bounds = _calculateStrokeBounds(stroke);
-      return viewport.overlaps(bounds);
-    }).toList();
-  }
-
-  /// Calculate stroke bounding box
-  Rect _calculateStrokeBounds(LayerStroke stroke) {
-    if (stroke.points.isEmpty) return Rect.zero;
-
-    double minX = stroke.points.first.position.dx;
-    double maxX = stroke.points.first.position.dx;
-    double minY = stroke.points.first.position.dy;
-    double maxY = stroke.points.first.position.dy;
-
-    for (final point in stroke.points) {
-      if (point.position.dx < minX) minX = point.position.dx;
-      if (point.position.dx > maxX) maxX = point.position.dx;
-      if (point.position.dy < minY) minY = point.position.dy;
-      if (point.position.dy > maxY) maxY = point.position.dy;
-    }
-
-    final padding = stroke.brushProperties.strokeWidth * 2;
-    return Rect.fromLTRB(
-      minX - padding,
-      minY - padding,
-      maxX + padding,
-      maxY + padding,
-    );
   }
 
   @override

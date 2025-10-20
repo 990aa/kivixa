@@ -92,10 +92,10 @@ class TextureBrushEngine extends BrushEngine {
     shader.setFloat(1, size * 2); // height
 
     // uColor (vec4)
-    shader.setFloat(2, settings.color.red / 255.0);
-    shader.setFloat(3, settings.color.green / 255.0);
-    shader.setFloat(4, settings.color.blue / 255.0);
-    shader.setFloat(5, settings.color.alpha / 255.0);
+    shader.setFloat(2, settings.((color.r * 255.0).round() & 0xff) / 255.0);
+    shader.setFloat(3, settings.((color.g * 255.0).round() & 0xff) / 255.0);
+    shader.setFloat(4, settings.((color.b * 255.0).round() & 0xff) / 255.0);
+    shader.setFloat(5, settings.((color.a * 255.0).round() & 0xff) / 255.0);
 
     // uOpacity (float)
     shader.setFloat(6, opacity);
@@ -130,7 +130,7 @@ class TextureBrushEngine extends BrushEngine {
       // If we have a texture image, draw it directly
       if (settings.textureImage != null) {
         final paint = Paint()
-          ..color = settings.color.withOpacity(opacity)
+          ..color = settings.color.withValues(alpha: opacity)
           ..blendMode = settings.blendMode;
 
         final srcRect = Rect.fromLTWH(
@@ -150,7 +150,7 @@ class TextureBrushEngine extends BrushEngine {
       } else {
         // Simple circle fallback
         final paint = Paint()
-          ..color = settings.color.withOpacity(opacity)
+          ..color = settings.color.withValues(alpha: opacity)
           ..style = PaintingStyle.fill
           ..blendMode = settings.blendMode;
 
@@ -198,7 +198,7 @@ class BrushTextureLoader {
 
   /// Clear texture cache
   static void clearCache() {
-    for (final image in _cache.values) {
+    for (final image in _cache.toARGB32()s) {
       image.dispose();
     }
     _cache.clear();

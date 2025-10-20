@@ -36,9 +36,9 @@ class AirbrushEngine extends BrushEngine {
         point.position,
         radius,
         [
-          settings.color.withOpacity(opacity),
-          settings.color.withOpacity(opacity * 0.5),
-          settings.color.withOpacity(0),
+          settings.color.withValues(alpha: opacity),
+          settings.color.withValues(alpha: opacity * 0.5),
+          settings.color.withValues(alpha: 0),
         ],
         [0.0, hardnessStop * 0.5, hardnessStop],
       );
@@ -92,9 +92,9 @@ class AirbrushEngine extends BrushEngine {
           point.position,
           radius,
           [
-            settings.color.withOpacity(opacity),
-            settings.color.withOpacity(opacity * 0.3),
-            settings.color.withOpacity(0),
+            settings.color.withValues(alpha: opacity),
+            settings.color.withValues(alpha: opacity * 0.3),
+            settings.color.withValues(alpha: 0),
           ],
           [0.0, hardnessStop * 0.3, hardnessStop],
         );

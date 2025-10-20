@@ -85,7 +85,7 @@ class RectangularSelection extends SelectionTool {
 
     // Draw filled selection area with transparency
     final fillPaint = Paint()
-      ..color = Colors.blue.withOpacity(0.1)
+      ..color = Colors.blue.withValues(alpha: 0.1)
       ..style = PaintingStyle.fill;
 
     canvas.drawPath(selectionPath!, fillPaint);
@@ -232,7 +232,7 @@ class EllipseSelection extends SelectionTool {
 
     // Draw filled selection area
     final fillPaint = Paint()
-      ..color = Colors.blue.withOpacity(0.1)
+      ..color = Colors.blue.withValues(alpha: 0.1)
       ..style = PaintingStyle.fill;
 
     canvas.drawPath(selectionPath!, fillPaint);
@@ -344,7 +344,7 @@ class LassoSelection extends SelectionTool {
     if (selectionPath != null) {
       // Filled area
       final fillPaint = Paint()
-        ..color = Colors.blue.withOpacity(0.1)
+        ..color = Colors.blue.withValues(alpha: 0.1)
         ..style = PaintingStyle.fill;
 
       canvas.drawPath(selectionPath!, fillPaint);
@@ -480,7 +480,7 @@ class PolygonalSelection extends SelectionTool {
     // Draw closed selection if finished
     if (selectionPath != null) {
       final fillPaint = Paint()
-        ..color = Colors.blue.withOpacity(0.1)
+        ..color = Colors.blue.withValues(alpha: 0.1)
         ..style = PaintingStyle.fill;
 
       canvas.drawPath(selectionPath!, fillPaint);
@@ -668,7 +668,7 @@ class MagicWandSelection extends SelectionTool {
 
     // Draw selected pixels
     final paint = Paint()
-      ..color = Colors.blue.withOpacity(0.3)
+      ..color = Colors.blue.withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
 
     for (final pixel in _selectedPixels) {

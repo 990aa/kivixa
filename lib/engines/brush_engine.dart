@@ -170,7 +170,7 @@ class PenBrush extends BrushEngine {
 
       // Create paint
       final paint = Paint()
-        ..color = settings.color.withOpacity(opacity)
+        ..color = settings.color.withValues(alpha: opacity)
         ..strokeWidth = strokeWidth
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
@@ -215,7 +215,7 @@ class PencilBrush extends BrushEngine {
         final layerSize = size * (0.8 + layer * 0.1);
 
         final paint = Paint()
-          ..color = settings.color.withOpacity(layerOpacity)
+          ..color = settings.color.withValues(alpha: layerOpacity)
           ..style = PaintingStyle.fill
           ..blendMode = settings.blendMode;
 
@@ -244,7 +244,7 @@ class MarkerBrush extends BrushEngine {
 
       final size = settings.size;
       final paint = Paint()
-        ..color = settings.color.withOpacity(settings.opacity)
+        ..color = settings.color.withValues(alpha: settings.opacity)
         ..strokeWidth = size * settings.aspectRatio
         ..strokeCap = StrokeCap.round
         ..style = PaintingStyle.stroke
@@ -294,7 +294,7 @@ class ChalkBrush extends BrushEngine {
         final particleSize = size * (0.2 + (p / particleCount) * 0.3);
 
         final paint = Paint()
-          ..color = settings.color.withOpacity(particleOpacity)
+          ..color = settings.color.withValues(alpha: particleOpacity)
           ..style = PaintingStyle.fill
           ..blendMode = settings.blendMode;
 
@@ -334,9 +334,9 @@ class WatercolorBrush extends BrushEngine {
         point.position,
         size,
         [
-          settings.color.withOpacity(opacity),
-          settings.color.withOpacity(opacity * 0.5),
-          settings.color.withOpacity(0),
+          settings.color.withValues(alpha: opacity),
+          settings.color.withValues(alpha: opacity * 0.5),
+          settings.color.withValues(alpha: 0),
         ],
         [0.0, 0.5, 1.0],
       );
@@ -359,7 +359,7 @@ class WatercolorBrush extends BrushEngine {
           );
 
           final dropletPaint = Paint()
-            ..color = settings.color.withOpacity(opacity * 0.3)
+            ..color = settings.color.withValues(alpha: opacity * 0.3)
             ..style = PaintingStyle.fill
             ..blendMode = settings.blendMode;
 

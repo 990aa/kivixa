@@ -81,7 +81,7 @@ class EraserTool {
         final point = points.first;
         final size = _calculateSize(point.pressure, settings);
         final paint = Paint()
-          ..color = settings.backgroundColor.withOpacity(settings.opacity)
+          ..color = settings.backgroundColor.withValues(alpha: settings.opacity)
           ..style = PaintingStyle.fill;
 
         canvas.drawCircle(point.position, size / 2, paint);
@@ -90,7 +90,7 @@ class EraserTool {
     }
 
     final paint = Paint()
-      ..color = settings.backgroundColor.withOpacity(settings.opacity)
+      ..color = settings.backgroundColor.withValues(alpha: settings.opacity)
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
       ..style = PaintingStyle.stroke;
@@ -118,7 +118,7 @@ class EraserTool {
         final size = _calculateSize(point.pressure, settings);
         final paint = Paint()
           ..blendMode = BlendMode.dstOut
-          ..color = Colors.white.withOpacity(settings.opacity)
+          ..color = Colors.white.withValues(alpha: settings.opacity)
           ..style = PaintingStyle.fill;
 
         canvas.drawCircle(point.position, size / 2, paint);
@@ -131,7 +131,7 @@ class EraserTool {
       ..strokeJoin = StrokeJoin.round
       ..style = PaintingStyle.stroke
       ..blendMode = BlendMode.dstOut
-      ..color = Colors.white.withOpacity(settings.opacity);
+      ..color = Colors.white.withValues(alpha: settings.opacity);
 
     for (int i = 1; i < points.length; i++) {
       final prev = points[i - 1];
@@ -160,7 +160,7 @@ class EraserTool {
         radius: 1.0,
         colors: [
           Colors.white,
-          Colors.white.withOpacity(1.0 - settings.hardness),
+          Colors.white.withValues(alpha: 1.0 - settings.hardness),
           Colors.transparent,
         ],
         stops: [0.0, settings.hardness, 1.0],
@@ -267,7 +267,7 @@ class EraserTool {
 
     // Outer circle
     final outerPaint = Paint()
-      ..color = Colors.black.withOpacity(0.5)
+      ..color = Colors.black.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
 
@@ -275,7 +275,7 @@ class EraserTool {
 
     // Inner circle (indicates active area)
     final innerPaint = Paint()
-      ..color = Colors.white.withOpacity(0.3)
+      ..color = Colors.white.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 
@@ -283,7 +283,7 @@ class EraserTool {
 
     // Center dot
     final centerPaint = Paint()
-      ..color = Colors.black.withOpacity(0.7)
+      ..color = Colors.black.withValues(alpha: 0.7)
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(position, 2, centerPaint);
@@ -306,7 +306,7 @@ class EraserTool {
 
     // Background circle
     final bgPaint = Paint()
-      ..color = Colors.black.withOpacity(0.7)
+      ..color = Colors.black.withValues(alpha: 0.7)
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(indicatorPos, 8, bgPaint);

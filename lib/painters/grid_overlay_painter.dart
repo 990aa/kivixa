@@ -26,11 +26,11 @@ class GridOverlayPainter extends CustomPainter {
     if (adjustedGridSize < 5 || adjustedGridSize > 500) return;
 
     final minorPaint = Paint()
-      ..color = gridColor.withOpacity(0.2)
+      ..color = gridColor.withValues(alpha: 0.2)
       ..strokeWidth = 1.0 / scale;
 
     final majorPaint = Paint()
-      ..color = gridColor.withOpacity(0.4)
+      ..color = gridColor.withValues(alpha: 0.4)
       ..strokeWidth = 2.0 / scale;
 
     // Calculate visible bounds
@@ -117,7 +117,7 @@ class RulerOverlayPainter extends CustomPainter {
     );
 
     final tickPaint = Paint()
-      ..color = textColor.withOpacity(0.5)
+      ..color = textColor.withValues(alpha: 0.5)
       ..strokeWidth = 1.0;
 
     final textPainter = TextPainter(textDirection: TextDirection.ltr);
@@ -171,7 +171,7 @@ class RulerOverlayPainter extends CustomPainter {
     );
 
     final tickPaint = Paint()
-      ..color = textColor.withOpacity(0.5)
+      ..color = textColor.withValues(alpha: 0.5)
       ..strokeWidth = 1.0;
 
     final textPainter = TextPainter(textDirection: TextDirection.ltr);
