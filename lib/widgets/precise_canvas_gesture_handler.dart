@@ -90,31 +90,31 @@ class _PreciseCanvasGestureHandlerState
     if (widget.drawingEnabled) {
       recognizers[SmartDrawingGestureRecognizer] =
           GestureRecognizerFactoryWithHandlers<SmartDrawingGestureRecognizer>(
-        () => SmartDrawingGestureRecognizer(
-          onDrawStart: _onDrawStartInternal,
-          onDrawUpdate: _onDrawUpdateInternal,
-          onDrawEnd: _onDrawEndInternal,
-          shouldAcceptGesture: _shouldAcceptDrawing,
-          supportedDevices: PlatformInputConfig.getDrawingDevices(),
-        ),
-        (recognizer) {},
-      );
+            () => SmartDrawingGestureRecognizer(
+              onDrawStart: _onDrawStartInternal,
+              onDrawUpdate: _onDrawUpdateInternal,
+              onDrawEnd: _onDrawEndInternal,
+              shouldAcceptGesture: _shouldAcceptDrawing,
+              supportedDevices: PlatformInputConfig.getDrawingDevices(),
+            ),
+            (recognizer) {},
+          );
     }
 
     // Scale/Pan gesture (multi-touch or trackpad)
     if (widget.navigationEnabled) {
       recognizers[ScaleGestureRecognizer] =
           GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
-        () => ScaleGestureRecognizer(
-          supportedDevices: PlatformInputConfig.getNavigationDevices(),
-        ),
-        (recognizer) {
-          recognizer
-            ..onStart = _onScaleStart
-            ..onUpdate = _onScaleUpdate
-            ..onEnd = _onScaleEnd;
-        },
-      );
+            () => ScaleGestureRecognizer(
+              supportedDevices: PlatformInputConfig.getNavigationDevices(),
+            ),
+            (recognizer) {
+              recognizer
+                ..onStart = _onScaleStart
+                ..onUpdate = _onScaleUpdate
+                ..onEnd = _onScaleEnd;
+            },
+          );
     }
 
     return recognizers;
@@ -217,11 +217,7 @@ class _PreciseCanvasGestureHandlerState
       _isNavigating = false;
     });
 
-    widget.onNavigationEnd?.call(
-      ScaleEndDetails(
-        velocity: event.velocity,
-      ),
-    );
+    widget.onNavigationEnd?.call(ScaleEndDetails());
   }
 
   /// Drawing gesture callbacks
@@ -292,15 +288,11 @@ class _PreciseCanvasGestureHandlerState
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(IntProperty('pointers', _pointers.length));
-    properties.add(FlagProperty(
-      'isNavigating',
-      value: _isNavigating,
-      ifTrue: 'navigating',
-    ));
-    properties.add(FlagProperty(
-      'isDrawing',
-      value: _isDrawing,
-      ifTrue: 'drawing',
-    ));
+    properties.add(
+      FlagProperty('isNavigating', value: _isNavigating, ifTrue: 'navigating'),
+    );
+    properties.add(
+      FlagProperty('isDrawing', value: _isDrawing, ifTrue: 'drawing'),
+    );
   }
 }
