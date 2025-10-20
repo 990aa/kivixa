@@ -256,5 +256,3 @@ Verify → Confirms alpha preserved
    ↓
 PNG → Full alpha channel
 ```
-
-See `docs/DISPLAY_EXPORT_SEPARATION.md` for complete documentation.
