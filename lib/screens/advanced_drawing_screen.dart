@@ -508,9 +508,10 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
   void _setZoom(double zoom) {
     setState(() {
       _zoomLevel = zoom.clamp(0.1, 10.0);
-      _transformController.value = Matrix4.identity()
-        ..translate(_canvasOffset.dx, _canvasOffset.dy)
-        ..scale(_zoomLevel, _zoomLevel, 1.0);
+      final matrix = Matrix4.identity();
+      matrix.translateByVector3(Vector3(_canvasOffset.dx, _canvasOffset.dy, 0));
+      matrix.scaleByVector3(Vector3(_zoomLevel, _zoomLevel, 1.0));
+      _transformController.value = matrix;
       _statusText = 'Zoom: ${(_zoomLevel * 100).toInt()}%';
     });
   }
