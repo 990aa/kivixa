@@ -32,9 +32,16 @@ class _InfiniteCanvasScreenState extends State<InfiniteCanvasScreen> {
     });
   }
 
+  void _handleElementsChanged(List<CanvasElement> elements) {
+    setState(() {
+      _elements = elements;
+    });
+  }
+
   void _clearCanvas() {
     setState(() {
       _strokes = [];
+      _elements = [];
     });
   }
 
@@ -44,6 +51,141 @@ class _InfiniteCanvasScreenState extends State<InfiniteCanvasScreen> {
         _strokes = _strokes.sublist(0, _strokes.length - 1);
       });
     }
+  }
+
+  Future<void> _addImage(ImageSource source) async {
+    final element = await _imagePickerService.pickImage(
+      source: source,
+      position: const Offset(100, 100),
+    );
+
+    if (element != null) {
+      setState(() {
+        _elements.add(element);
+      });
+    }
+  }
+
+  void _addText() {
+    final element = _imagePickerService.createTextElement(
+      position: const Offset(100, 100),
+    );
+
+    showDialog<TextElement>(
+      context: context,
+      builder: (context) => TextEditDialog(element: element),
+    ).then((updatedElement) {
+      if (updatedElement != null) {
+        setState(() {
+          _elements.add(updatedElement);
+        });
+      }
+    });
+  }
+
+  Future<void> _exportToPDF() async {
+    try {
+      final file = await _exportService.exportToPDF(
+        strokes: _strokes,
+        elements: _elements,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('PDF exported to: ${file.path}')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error exporting PDF: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _exportToSVG() async {
+    try {
+      final svgContent = await _exportService.exportToSVG(
+        strokes: _strokes,
+        elements: _elements,
+      );
+      final file = await _exportService.saveSvgToFile(svgContent);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('SVG exported to: ${file.path}')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error exporting SVG: $e')),
+        );
+      }
+    }
+  }
+
+  void _showExportMenu() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.picture_as_pdf),
+            title: const Text('Export as PDF'),
+            onTap: () {
+              Navigator.pop(context);
+              _exportToPDF();
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.code),
+            title: const Text('Export as SVG'),
+            onTap: () {
+              Navigator.pop(context);
+              _exportToSVG();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showImportMenu() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.photo_library),
+            title: const Text('Add Image from Gallery'),
+            onTap: () {
+              Navigator.pop(context);
+              _addImage(ImageSource.gallery);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.camera_alt),
+            title: const Text('Add Image from Camera'),
+            onTap: () {
+              Navigator.pop(context);
+              _addImage(ImageSource.camera);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.text_fields),
+            title: const Text('Add Text'),
+            onTap: () {
+              Navigator.pop(context);
+              _addText();
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
