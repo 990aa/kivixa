@@ -253,7 +253,6 @@ class ArchiveRepository {
         archivedDocuments.add(archived);
       } catch (e) {
         // Skip documents that fail to archive
-        print('Failed to archive document ${document.id}: $e');
       }
     }
 
