@@ -16,6 +16,11 @@ class LayeredCanvasPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // CRITICAL: Enforce canvas bounds at paint level
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
+    
+    canvas.save();
+    
     // Use optimized rendering if viewport is provided
     if (useOptimization && viewport != null) {
       LayerRenderingService.paintLayersOptimized(
@@ -28,6 +33,8 @@ class LayeredCanvasPainter extends CustomPainter {
       // Standard rendering
       LayerRenderingService.paintLayers(canvas, layers, size);
     }
+    
+    canvas.restore();
   }
 
   @override
@@ -79,6 +86,9 @@ class SingleLayerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (!layer.isVisible) return;
+
+    // CRITICAL: Enforce canvas bounds at paint level
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
 
     final paint = Paint()
       ..color = Color.fromRGBO(255, 255, 255, layer.opacity)
