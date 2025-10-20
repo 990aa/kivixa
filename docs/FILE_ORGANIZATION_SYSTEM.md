@@ -271,7 +271,31 @@ final unused = await tagRepo.getUnused();
 await tagRepo.deleteUnused();
 ```
 
-### 6. Document Metadata
+### 6. Advanced Document Search
+
+The `DocumentRepository` provides a comprehensive `searchDocuments()` method with multiple filters:
+
+```dart
+final results = await docRepo.searchDocuments(
+  searchQuery: 'landscape',           // Case-insensitive name search
+  types: [DocumentType.canvas, DocumentType.image], // Filter by types
+  tagIds: [tagId1, tagId2],          // Documents with ALL these tags
+  folderId: parentFolderId,           // Search in folder
+  includeSubfolders: true,            // Include all nested subfolders
+  favoritesOnly: false,               // Only show favorites
+  sortBy: DocumentSortBy.dateModifiedDesc, // Sort order
+);
+```
+
+**Search Features:**
+- Case-insensitive name matching with `LIKE`
+- Filter by document types (canvas, image, pdf)
+- Tag-based filtering with AND logic (must have ALL tags)
+- Recursive folder search (include all subfolders)
+- Favorites-only filter
+- Flexible sorting with 8 options
+
+### 7. Document Metadata
 
 ```dart
 final document = DrawingDocument(
