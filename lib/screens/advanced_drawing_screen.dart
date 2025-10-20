@@ -181,9 +181,10 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       _canvasOffset += details.focalPointDelta;
 
       // Apply transform
-      _transformController.value = Matrix4.identity()
-        ..translateByDouble(_canvasOffset.dx, _canvasOffset.dy)
-        ..scaleByDouble(_zoomLevel, _zoomLevel, 1.0);
+      final matrix = Matrix4.identity();
+      matrix.translateByDouble(_canvasOffset.dx, _canvasOffset.dy, 0);
+      matrix.scaleByDouble(_zoomLevel, _zoomLevel, 1.0, 1.0);
+      _transformController.value = matrix;
 
       _statusText = 'Zoom: ${(_zoomLevel * 100).toInt()}%';
     });
