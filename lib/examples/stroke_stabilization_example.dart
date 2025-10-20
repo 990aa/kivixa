@@ -416,7 +416,12 @@ class _StabilizationCanvasPainter extends CustomPainter {
 
       // Draw points for visualization
       _drawPoints(canvas, rawStroke, Colors.red.withValues(alpha: 0.3), 2);
-      _drawPoints(canvas, stabilizedPoints, Colors.blue.withValues(alpha: 0.5), 3);
+      _drawPoints(
+        canvas,
+        stabilizedPoints,
+        Colors.blue.withValues(alpha: 0.5),
+        3,
+      );
     }
 
     // Draw current stroke being drawn
