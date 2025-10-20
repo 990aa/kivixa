@@ -96,10 +96,7 @@ class ExportImportService {
   }
 
   /// Save SVG to file
-  Future<File> saveSvgToFile(
-    String svgContent, {
-    String? filename,
-  }) async {
+  Future<File> saveSvgToFile(String svgContent, {String? filename}) async {
     final directory = await getApplicationDocumentsDirectory();
     final name = filename ?? 'canvas_${DateTime.now().millisecondsSinceEpoch}';
     final file = File('${directory.path}/$name.svg');
@@ -155,9 +152,7 @@ class ExportImportService {
       if (outlinePoints.isEmpty) return;
 
       final path = PdfPath();
-      final points = outlinePoints
-          .map((p) => Offset(p.dx, p.dy))
-          .toList();
+      final points = outlinePoints.map((p) => Offset(p.dx, p.dy)).toList();
 
       if (points.isNotEmpty) {
         path.addPolygon(points);
@@ -181,7 +176,10 @@ class ExportImportService {
 
   void _renderTextToPdf(PdfGraphics graphics, TextElement element) {
     try {
-      final font = PdfStandardFont(PdfFontFamily.helvetica, element.style.fontSize ?? 24);
+      final font = PdfStandardFont(
+        PdfFontFamily.helvetica,
+        element.style.fontSize ?? 24,
+      );
       final color = PdfColor(
         element.style.color?.red ?? 0,
         element.style.color?.green ?? 0,
@@ -190,7 +188,9 @@ class ExportImportService {
 
       graphics.save();
       graphics.translateTransform(element.position.dx, element.position.dy);
-      graphics.rotateTransform(element.rotation * 180 / 3.14159); // Convert to degrees
+      graphics.rotateTransform(
+        element.rotation * 180 / 3.14159,
+      ); // Convert to degrees
       graphics.scaleTransform(element.scale, element.scale);
 
       graphics.drawString(
