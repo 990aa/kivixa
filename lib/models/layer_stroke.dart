@@ -51,7 +51,7 @@ class LayerStroke {
       'id': id,
       'points': points.map((p) => p.toJson()).toList(),
       'brushProperties': {
-        'color': brushProperties.color.value,
+        'color': brushProperties.color.toARGB32(),
         'strokeWidth': brushProperties.strokeWidth,
         'style': brushProperties.style.index,
         'strokeCap': brushProperties.strokeCap.index,
