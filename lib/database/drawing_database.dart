@@ -30,11 +30,11 @@ class DrawingDatabase {
   /// Initialize database with all tables and indexes
   static Future<Database> _initDatabase() async {
     final databasesPath = await getDatabasesPath();
-    final path = join(databasesPath, DB_NAME);
+    final path = join(databasesPath, dbName);
 
     return await openDatabase(
       path,
-      version: DB_VERSION,
+      version: dbVersion,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -44,7 +44,7 @@ class DrawingDatabase {
   static Future<void> _onCreate(Database db, int version) async {
     // Folders table with hierarchical structure
     await db.execute('''
-      CREATE TABLE $TABLE_FOLDERS (
+      CREATE TABLE $tableFolders (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         parent_folder_id INTEGER,
@@ -53,13 +53,13 @@ class DrawingDatabase {
         color INTEGER,
         icon TEXT,
         description TEXT,
-        FOREIGN KEY (parent_folder_id) REFERENCES $TABLE_FOLDERS(id) ON DELETE CASCADE
+        FOREIGN KEY (parent_folder_id) REFERENCES $tableFolders(id) ON DELETE CASCADE
       )
     ''');
 
     // Documents table (canvases, images, PDFs)
     await db.execute('''
-      CREATE TABLE $TABLE_DOCUMENTS (
+      CREATE TABLE $tableDocuments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         type TEXT NOT NULL,
@@ -75,7 +75,7 @@ class DrawingDatabase {
         is_favorite INTEGER DEFAULT 0,
         stroke_count INTEGER DEFAULT 0,
         layer_count INTEGER DEFAULT 0,
-        FOREIGN KEY (folder_id) REFERENCES $TABLE_FOLDERS(id) ON DELETE SET NULL
+        FOREIGN KEY (folder_id) REFERENCES $tableFolders(id) ON DELETE SET NULL
       )
     ''');
 
@@ -97,34 +97,34 @@ class DrawingDatabase {
         tag_id INTEGER NOT NULL,
         created_at INTEGER NOT NULL,
         PRIMARY KEY (document_id, tag_id),
-        FOREIGN KEY (document_id) REFERENCES $TABLE_DOCUMENTS(id) ON DELETE CASCADE,
+        FOREIGN KEY (document_id) REFERENCES $tableDocuments(id) ON DELETE CASCADE,
         FOREIGN KEY (tag_id) REFERENCES $TABLE_TAGS(id) ON DELETE CASCADE
       )
     ''');
 
     // Create indexes for fast searching and filtering
     await db.execute(
-      'CREATE INDEX idx_documents_name ON $TABLE_DOCUMENTS(name)',
+      'CREATE INDEX idx_documents_name ON $tableDocuments(name)',
     );
     await db.execute(
-      'CREATE INDEX idx_documents_type ON $TABLE_DOCUMENTS(type)',
+      'CREATE INDEX idx_documents_type ON $tableDocuments(type)',
     );
     await db.execute(
-      'CREATE INDEX idx_documents_folder ON $TABLE_DOCUMENTS(folder_id)',
+      'CREATE INDEX idx_documents_folder ON $tableDocuments(folder_id)',
     );
     await db.execute(
-      'CREATE INDEX idx_documents_created ON $TABLE_DOCUMENTS(created_at)',
+      'CREATE INDEX idx_documents_created ON $tableDocuments(created_at)',
     );
     await db.execute(
-      'CREATE INDEX idx_documents_modified ON $TABLE_DOCUMENTS(modified_at)',
+      'CREATE INDEX idx_documents_modified ON $tableDocuments(modified_at)',
     );
     await db.execute(
-      'CREATE INDEX idx_documents_favorite ON $TABLE_DOCUMENTS(is_favorite)',
+      'CREATE INDEX idx_documents_favorite ON $tableDocuments(is_favorite)',
     );
     await db.execute(
-      'CREATE INDEX idx_folders_parent ON $TABLE_FOLDERS(parent_folder_id)',
+      'CREATE INDEX idx_folders_parent ON $tableFolders(parent_folder_id)',
     );
-    await db.execute('CREATE INDEX idx_folders_name ON $TABLE_FOLDERS(name)');
+    await db.execute('CREATE INDEX idx_folders_name ON $tableFolders(name)');
     await db.execute('CREATE INDEX idx_tags_name ON $TABLE_TAGS(name)');
     await db.execute(
       'CREATE INDEX idx_document_tags_doc ON $TABLE_DOCUMENT_TAGS(document_id)',
@@ -134,7 +134,7 @@ class DrawingDatabase {
     );
 
     // Create default "All Drawings" folder
-    await db.insert(TABLE_FOLDERS, {
+    await db.insert(tableFolders, {
       'name': 'All Drawings',
       'parent_folder_id': null,
       'created_at': DateTime.now().millisecondsSinceEpoch,
@@ -153,7 +153,7 @@ class DrawingDatabase {
     // Add migration logic here when schema changes
     if (oldVersion < 2) {
       // Example: Add new column in version 2
-      // await db.execute('ALTER TABLE $TABLE_DOCUMENTS ADD COLUMN new_field TEXT');
+      // await db.execute('ALTER TABLE $tableDocuments ADD COLUMN new_field TEXT');
     }
   }
 
@@ -188,3 +188,4 @@ class DrawingDatabase {
     return size;
   }
 }
+
