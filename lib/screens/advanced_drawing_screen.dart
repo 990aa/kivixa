@@ -755,8 +755,51 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
   }
 
   Future<void> _exportAsPDFVector() async {
-    // TODO: Implement PDF vector export
-    _statusText = 'PDF vector export coming soon';
+    try {
+      setState(() {
+        _isProcessing = true;
+        _statusText = 'Exporting PDF (vector)...';
+      });
+
+      // Generate PDF with vector strokes
+      final exporter = LosslessExporter();
+      final pdfBytes = await exporter.exportAsPDFWithVectorStrokes(
+        layers: _layers,
+        canvasSize: _canvasSize,
+        title: 'Kivixa Drawing',
+        author: 'Kivixa User',
+      );
+
+      // Ask user for save location
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export PDF',
+        fileName: 'drawing_${DateTime.now().millisecondsSinceEpoch}.pdf',
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+
+      if (result != null) {
+        // Save PDF to file
+        final file = File(result);
+        await file.writeAsBytes(pdfBytes);
+
+        setState(() {
+          _statusText = 'PDF exported successfully';
+        });
+      } else {
+        setState(() {
+          _statusText = 'Export cancelled';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _statusText = 'Export error: $e';
+      });
+    } finally {
+      setState(() {
+        _isProcessing = false;
+      });
+    }
   }
 
   Future<void> _exportAsHighResPNG() async {
@@ -767,20 +810,37 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       });
 
       // Rasterize in background at 300 DPI
-      await DrawingProcessor.rasterizeLayersAsync(
+      final imageBytes = await DrawingProcessor.rasterizeLayersAsync(
         layers: _layers,
         canvasSize: _canvasSize,
         targetDPI: 300,
       );
 
-      // TODO: Save PNG file
-      debugPrint('PNG rasterized successfully');
+      // Ask user for save location
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export PNG',
+        fileName: 'drawing_${DateTime.now().millisecondsSinceEpoch}.png',
+        type: FileType.custom,
+        allowedExtensions: ['png'],
+      );
 
-      setState(() {
-        _statusText = 'PNG exported';
-      });
+      if (result != null) {
+        // Save PNG to file
+        final file = File(result);
+        await file.writeAsBytes(imageBytes);
+
+        setState(() {
+          _statusText = 'PNG exported successfully';
+        });
+      } else {
+        setState(() {
+          _statusText = 'Export cancelled';
+        });
+      }
     } catch (e) {
-      _statusText = 'Export error: $e';
+      setState(() {
+        _statusText = 'Export error: $e';
+      });
     } finally {
       setState(() {
         _isProcessing = false;
