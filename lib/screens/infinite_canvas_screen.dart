@@ -197,6 +197,16 @@ class _InfiniteCanvasScreenState extends State<InfiniteCanvasScreen> {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
+            icon: const Icon(Icons.add_photo_alternate),
+            onPressed: _showImportMenu,
+            tooltip: 'Import',
+          ),
+          IconButton(
+            icon: const Icon(Icons.file_download),
+            onPressed: _showExportMenu,
+            tooltip: 'Export',
+          ),
+          IconButton(
             icon: const Icon(Icons.undo),
             onPressed: _undo,
             tooltip: 'Undo',
@@ -264,11 +274,14 @@ class _InfiniteCanvasScreenState extends State<InfiniteCanvasScreen> {
             child: Container(
               color: Colors.white,
               child: InfiniteCanvas(
+                key: _canvasKey,
                 initialStrokes: _strokes,
+                initialElements: _elements,
                 currentColor: _currentColor,
                 currentStrokeWidth: _currentStrokeWidth,
                 isHighlighter: _isHighlighter,
                 onStrokesChanged: _handleStrokesChanged,
+                onElementsChanged: _handleElementsChanged,
               ),
             ),
           ),
