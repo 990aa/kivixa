@@ -16,6 +16,11 @@ class OptimizedStrokePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // CRITICAL: Enforce canvas bounds at paint level
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
+    
+    canvas.save();
+    
     // Get only visible strokes using spatial filtering
     final visibleStrokes = _getVisibleStrokes(viewport);
 
@@ -23,6 +28,8 @@ class OptimizedStrokePainter extends CustomPainter {
     for (final stroke in visibleStrokes) {
       _drawStroke(canvas, stroke);
     }
+    
+    canvas.restore();
   }
 
   /// Get strokes that overlap with the viewport
