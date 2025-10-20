@@ -11,9 +11,9 @@ import '../models/layer_stroke.dart';
 /// Prevents UI blocking during expensive operations
 class DrawingProcessor {
   /// Rasterize layers at high resolution in background isolate
-  /// 
+  ///
   /// This prevents UI freezing during large exports (300+ DPI, 10000+ strokes)
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final imageBytes = await DrawingProcessor.rasterizeLayersAsync(
@@ -41,9 +41,9 @@ class DrawingProcessor {
   }
 
   /// Serialize large drawings to JSON in background
-  /// 
+  ///
   /// Prevents UI freezing when saving drawings with 1000+ strokes
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final json = await DrawingProcessor.serializeDrawingAsync(
@@ -70,9 +70,9 @@ class DrawingProcessor {
   }
 
   /// Load and parse large saved files in background
-  /// 
+  ///
   /// Prevents UI freezing when loading files with 1000+ strokes
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final doc = await DrawingProcessor.loadDocumentAsync(
@@ -94,9 +94,9 @@ class DrawingProcessor {
   }
 
   /// Compress images for export in background
-  /// 
+  ///
   /// Prevents UI freezing during PNG/JPG compression
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final compressed = await DrawingProcessor.compressImageAsync(
@@ -115,9 +115,9 @@ class DrawingProcessor {
   }
 
   /// Convert layers to SVG path data in background
-  /// 
+  ///
   /// Prevents UI freezing when generating SVG with 1000+ strokes
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final svgData = await DrawingProcessor.layersToSVGAsync(
@@ -237,10 +237,14 @@ class DrawingProcessor {
     if (stroke.points.isEmpty) return '';
 
     final buffer = StringBuffer();
-    buffer.write('M ${stroke.points[0].position.dx},${stroke.points[0].position.dy}');
+    buffer.write(
+      'M ${stroke.points[0].position.dx},${stroke.points[0].position.dy}',
+    );
 
     for (int i = 1; i < stroke.points.length; i++) {
-      buffer.write(' L ${stroke.points[i].position.dx},${stroke.points[i].position.dy}');
+      buffer.write(
+        ' L ${stroke.points[i].position.dx},${stroke.points[i].position.dy}',
+      );
     }
 
     return buffer.toString();
@@ -285,9 +289,14 @@ class DrawingDocument {
         (json['canvasWidth'] as num).toDouble(),
         (json['canvasHeight'] as num).toDouble(),
       ),
-      timestamp: DateTime.parse(json['timestamp'] as String? ?? DateTime.now().toIso8601String()),
+      timestamp: DateTime.parse(
+        json['timestamp'] as String? ?? DateTime.now().toIso8601String(),
+      ),
       layers: (json['layers'] as List<dynamic>)
-          .map((layerJson) => DrawingLayer.fromJson(layerJson as Map<String, dynamic>))
+          .map(
+            (layerJson) =>
+                DrawingLayer.fromJson(layerJson as Map<String, dynamic>),
+          )
           .toList(),
     );
   }
