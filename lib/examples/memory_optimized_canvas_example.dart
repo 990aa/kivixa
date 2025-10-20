@@ -127,7 +127,7 @@ class _MemoryOptimizedCanvasExampleState
       _currentStrokePoints.add(
         StrokePoint(
           position: canvasPoint,
-          pressure: details.kind == PointerDeviceKind.stylus ? 0.5 : 1.0,
+          pressure: 0.5, // Would detect stylus pressure in real app
         ),
       );
     });
