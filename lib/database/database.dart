@@ -166,15 +166,98 @@ class AppDatabase extends _$AppDatabase {
     return result.read(count) ?? 0;
   }
 
-  /// Search notes by title
+  /// Search notes by title or content using LIKE (basic search)
   Future<List<Note>> searchNotes(String query) {
+    final pattern = '%$query%';
     return (select(notes)
-          ..where((n) => n.title.like('%$query%'))
+          ..where((n) => n.title.like(pattern) | n.content.like(pattern))
           ..orderBy([
             (n) =>
                 OrderingTerm(expression: n.modifiedAt, mode: OrderingMode.desc),
           ]))
         .get();
+  }
+
+  /// Advanced search with FTS5 full-text search
+  /// Note: Requires FTS5 virtual table to be created
+  Future<List<Note>> searchNotesFullText(String query) async {
+    // Escape special FTS5 characters
+    final sanitizedQuery = query.replaceAll(RegExp(r'[^\w\s]'), ' ');
+    
+    // Use FTS5 MATCH query for full-text search
+    final ftsQuery = '''
+      SELECT n.* FROM notes n
+      INNER JOIN notes_fts fts ON n.id = fts.rowid
+      WHERE notes_fts MATCH ?
+      ORDER BY rank, n.modified_at DESC
+    ''';
+    
+    final results = await customSelect(
+      ftsQuery,
+      variables: [Variable.withString(sanitizedQuery)],
+      readsFrom: {notes},
+    ).get();
+
+    return results.map((row) => notes.map(row.data)).toList();
+  }
+
+  /// Create FTS5 virtual table for full-text search
+  Future<void> createFTS5Table() async {
+    await customStatement('''
+      CREATE VIRTUAL TABLE IF NOT EXISTS notes_fts USING fts5(
+        title,
+        content,
+        content='notes',
+        content_rowid='id'
+      );
+    ''');
+  }
+
+  /// Populate FTS5 table with existing data
+  Future<void> rebuildFTS5Index() async {
+    await customStatement('''
+      INSERT INTO notes_fts(notes_fts) VALUES('rebuild');
+    ''');
+  }
+
+  /// Setup FTS5 triggers for automatic indexing
+  Future<void> setupFTS5Triggers() async {
+    // Trigger for INSERT
+    await customStatement('''
+      CREATE TRIGGER IF NOT EXISTS notes_ai AFTER INSERT ON notes BEGIN
+        INSERT INTO notes_fts(rowid, title, content)
+        VALUES (new.id, new.title, new.content);
+      END;
+    ''');
+
+    // Trigger for UPDATE
+    await customStatement('''
+      CREATE TRIGGER IF NOT EXISTS notes_au AFTER UPDATE ON notes BEGIN
+        UPDATE notes_fts
+        SET title = new.title, content = new.content
+        WHERE rowid = old.id;
+      END;
+    ''');
+
+    // Trigger for DELETE
+    await customStatement('''
+      CREATE TRIGGER IF NOT EXISTS notes_ad AFTER DELETE ON notes BEGIN
+        DELETE FROM notes_fts WHERE rowid = old.id;
+      END;
+    ''');
+  }
+
+  /// Initialize FTS5 search (call once on app start)
+  Future<void> initializeFTS5() async {
+    await createFTS5Table();
+    await setupFTS5Triggers();
+    // Only rebuild if table is empty
+    final count = await customSelect(
+      'SELECT COUNT(*) as count FROM notes_fts',
+    ).getSingle();
+    if (count.data['count'] == 0) {
+      await rebuildFTS5Index();
+    }
   }
 }
 
