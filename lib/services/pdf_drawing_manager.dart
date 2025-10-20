@@ -179,17 +179,19 @@ class PDFDrawingManager {
       );
     }).toList();
 
-    final transformedStroke = VectorStroke(
-      id: stroke.id,
-      points: transformedPoints,
-      brushSettings: stroke.brushSettings,
-      timestamp: stroke.timestamp,
-    );
+    // Convert VectorStroke brush settings to Paint for LayerStroke
+    final paint = Paint()
+      ..color = stroke.brushSettings.color
+      ..strokeWidth = stroke.brushSettings.size
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..blendMode = stroke.brushSettings.blendMode
+      ..isAntiAlias = true;
 
-    // Convert to LayerStroke for compatibility
     final layerStroke = LayerStroke(
       points: transformedPoints,
-      brushProperties: stroke.brushSettings,
+      brushProperties: paint,
     );
 
     pageLayerMap[pageIndex]![0].addStroke(layerStroke);
@@ -220,7 +222,7 @@ class PDFDrawingManager {
     }
 
     // Save and return
-    final bytes = pdfDocument!.save();
+    final bytes = await pdfDocument!.save();
     return Uint8List.fromList(bytes);
   }
 
@@ -282,8 +284,6 @@ class PDFDrawingManager {
   /// Export specific page as image
   Future<Uint8List?> exportPageAsImage(int pageIndex) async {
     if (pdfDocument == null || pageIndex >= pageCount) return null;
-
-    final page = pdfDocument!.pages[pageIndex];
 
     // This would require additional implementation with image rendering
     // Syncfusion provides page rendering capabilities
@@ -378,7 +378,7 @@ class EnhancedPDFManager extends PDFDrawingManager {
     }
 
     // Just save without flattening
-    final bytes = pdfDocument!.save();
+    final bytes = await pdfDocument!.save();
     return Uint8List.fromList(bytes);
   }
 
