@@ -431,7 +431,3 @@ Use `syncfusion_flutter_pdf` to:
 - Check hit detection radius
 - Verify eraser tool selected
 - Ensure stroke removal updates state
-
----
-
-**Vector coordinates + PDF system = Perfect annotation fidelity! 🎯**
