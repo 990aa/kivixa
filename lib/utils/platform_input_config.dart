@@ -58,10 +58,7 @@ class PlatformInputConfig {
         PointerDeviceKind.mouse, // With modifier keys (Ctrl, Space, etc.)
       };
     } else {
-      return {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-      };
+      return {PointerDeviceKind.touch, PointerDeviceKind.mouse};
     }
   }
 
