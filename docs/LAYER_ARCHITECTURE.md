@@ -1,7 +1,17 @@
 # Layer Architecture Implementation
 
 ## Overview
-Complete implementation of a professional-grade layer system with offscreen rendering, caching, and 27+ blend modes, matching the capabilities of apps like ibis Paint.
+Complete implementation of a professional-grade layer system with:
+- Offscreen rendering and caching
+- 29+ blend modes (matching industry standards)
+- Tile-based rendering for large canvases
+- Dirty region tracking for optimal performance
+- Memory management for 60fps on complex artwork
+
+## Related Documentation
+- **[Blend Modes & Serialization](BLEND_MODES_SERIALIZATION.md)** - Blend modes and save/load system
+- **[Memory Management](MEMORY_MANAGEMENT.md)** - Tile-based rendering and optimization
+- **[Implementation Summary](MEMORY_IMPLEMENTATION_SUMMARY.md)** - Quick reference guide
 
 ## Architecture
 
