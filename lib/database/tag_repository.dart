@@ -10,7 +10,7 @@ class TagRepository {
   Future<int> insert(Tag tag) async {
     final db = await DrawingDatabase.database;
     return await db.insert(
-      DrawingDatabase.TABLE_TAGS,
+      DrawingDatabase.tableTags,
       tag.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -20,7 +20,7 @@ class TagRepository {
   Future<int> update(Tag tag) async {
     final db = await DrawingDatabase.database;
     return await db.update(
-      DrawingDatabase.TABLE_TAGS,
+      DrawingDatabase.tableTags,
       tag.toMap(),
       where: 'id = ?',
       whereArgs: [tag.id],
@@ -31,7 +31,7 @@ class TagRepository {
   Future<int> delete(int id) async {
     final db = await DrawingDatabase.database;
     return await db.delete(
-      DrawingDatabase.TABLE_TAGS,
+      DrawingDatabase.tableTags,
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -41,7 +41,7 @@ class TagRepository {
   Future<Tag?> getById(int id) async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_TAGS,
+      DrawingDatabase.tableTags,
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -54,7 +54,7 @@ class TagRepository {
   Future<Tag?> getByName(String name) async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_TAGS,
+      DrawingDatabase.tableTags,
       where: 'name = ?',
       whereArgs: [name],
     );
@@ -67,7 +67,7 @@ class TagRepository {
   Future<List<Tag>> getAll() async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_TAGS,
+      DrawingDatabase.tableTags,
       orderBy: 'name ASC',
     );
 
@@ -78,7 +78,7 @@ class TagRepository {
   Future<List<Tag>> getByPopularity() async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_TAGS,
+      DrawingDatabase.tableTags,
       orderBy: 'use_count DESC, name ASC',
     );
 
@@ -89,7 +89,7 @@ class TagRepository {
   Future<List<Tag>> searchByName(String query) async {
     final db = await DrawingDatabase.database;
     final maps = await db.query(
-      DrawingDatabase.TABLE_TAGS,
+      DrawingDatabase.tableTags,
       where: 'name LIKE ?',
       whereArgs: ['%$query%'],
       orderBy: 'name ASC',
@@ -104,7 +104,7 @@ class TagRepository {
 
     // Insert relationship
     await db.insert(
-      DrawingDatabase.TABLE_DOCUMENT_TAGS,
+      DrawingDatabase.tableDocumentTags,
       {
         'document_id': documentId,
         'tag_id': tagId,
@@ -122,7 +122,7 @@ class TagRepository {
     final db = await DrawingDatabase.database;
 
     await db.delete(
-      DrawingDatabase.TABLE_DOCUMENT_TAGS,
+      DrawingDatabase.tableDocumentTags,
       where: 'document_id = ? AND tag_id = ?',
       whereArgs: [documentId, tagId],
     );
@@ -137,8 +137,8 @@ class TagRepository {
 
     final maps = await db.rawQuery(
       '''
-      SELECT t.* FROM ${DrawingDatabase.TABLE_TAGS} t
-      INNER JOIN ${DrawingDatabase.TABLE_DOCUMENT_TAGS} dt ON t.id = dt.tag_id
+      SELECT t.* FROM ${DrawingDatabase.tableTags} t
+      INNER JOIN ${DrawingDatabase.tableDocumentTags} dt ON t.id = dt.tag_id
       WHERE dt.document_id = ?
       ORDER BY t.name ASC
     ''',
@@ -178,7 +178,7 @@ class TagRepository {
     final result = await db.rawQuery(
       '''
       SELECT COUNT(*) as count
-      FROM ${DrawingDatabase.TABLE_DOCUMENT_TAGS}
+      FROM ${DrawingDatabase.tableDocumentTags}
       WHERE tag_id = ?
     ''',
       [tagId],
@@ -192,7 +192,7 @@ class TagRepository {
     final db = await DrawingDatabase.database;
     await db.rawUpdate(
       '''
-      UPDATE ${DrawingDatabase.TABLE_TAGS}
+      UPDATE ${DrawingDatabase.tableTags}
       SET use_count = use_count + 1
       WHERE id = ?
     ''',
@@ -205,7 +205,7 @@ class TagRepository {
     final db = await DrawingDatabase.database;
     await db.rawUpdate(
       '''
-      UPDATE ${DrawingDatabase.TABLE_TAGS}
+      UPDATE ${DrawingDatabase.tableTags}
       SET use_count = MAX(0, use_count - 1)
       WHERE id = ?
     ''',
@@ -218,8 +218,8 @@ class TagRepository {
     final db = await DrawingDatabase.database;
 
     final maps = await db.rawQuery('''
-      SELECT t.* FROM ${DrawingDatabase.TABLE_TAGS} t
-      LEFT JOIN ${DrawingDatabase.TABLE_DOCUMENT_TAGS} dt ON t.id = dt.tag_id
+      SELECT t.* FROM ${DrawingDatabase.tableTags} t
+      LEFT JOIN ${DrawingDatabase.tableDocumentTags} dt ON t.id = dt.tag_id
       WHERE dt.tag_id IS NULL
       ORDER BY t.name ASC
     ''');
@@ -232,10 +232,11 @@ class TagRepository {
     final db = await DrawingDatabase.database;
 
     return await db.rawDelete('''
-      DELETE FROM ${DrawingDatabase.TABLE_TAGS}
+      DELETE FROM ${DrawingDatabase.tableTags}
       WHERE id NOT IN (
-        SELECT DISTINCT tag_id FROM ${DrawingDatabase.TABLE_DOCUMENT_TAGS}
+        SELECT DISTINCT tag_id FROM ${DrawingDatabase.tableDocumentTags}
       )
     ''');
   }
 }
+
