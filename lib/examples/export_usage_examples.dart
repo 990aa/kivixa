@@ -166,7 +166,7 @@ class ExportUsageExamples {
 
     // Add to first page
     final screenSize = const Size(595, 842);
-    await pdfManager.addStrokeToPage(highlightStroke, 0, screenSize);
+    pdfManager.addStrokeToPage(0, highlightStroke, screenSize);
 
     // Export with annotations flattened
     final annotatedPdfBytes = await pdfManager.exportAnnotatedPDF();
