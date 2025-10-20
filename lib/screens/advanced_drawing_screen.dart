@@ -370,7 +370,7 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
                   final index = entry.key;
                   final layer = entry.value;
                   return _buildLayerTile(index, layer);
-                }).toList(),
+                }),
 
                 // Add layer button
                 ElevatedButton.icon(
