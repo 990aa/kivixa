@@ -675,10 +675,3 @@ flutter run -d <device-id>
 # Or run on Edge for testing (no PDF rendering)
 flutter run -d edge
 ```
-
-**Next Steps**:
-1. Test on physical devices (Surface Pro, Galaxy Tab)
-2. Profile with Flutter DevTools
-3. Add crash reporting (Firebase Crashlytics)
-4. Implement cloud sync (optional)
-5. Publish to Microsoft Store / Google Play
