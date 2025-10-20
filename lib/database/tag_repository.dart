@@ -39,11 +39,16 @@ class TagRepository {
 
   /// Delete a tag
   Future<int> delete(int id) async {
+    return await deleteTag(id);
+  }
+
+  /// Delete tag
+  Future<int> deleteTag(int tagId) async {
     final db = await DrawingDatabase.database;
     return await db.delete(
       DrawingDatabase.tableTags,
       where: 'id = ?',
-      whereArgs: [id],
+      whereArgs: [tagId],
     );
   }
 

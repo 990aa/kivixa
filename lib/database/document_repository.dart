@@ -373,8 +373,9 @@ class DocumentRepository {
       orderBy: orderBy,
     );
 
-    List<DrawingDocument> documents =
-        maps.map((map) => DrawingDocument.fromMap(map)).toList();
+    List<DrawingDocument> documents = maps
+        .map((map) => DrawingDocument.fromMap(map))
+        .toList();
 
     // Filter by tags if specified
     if (tagIds != null && tagIds.isNotEmpty) {
@@ -466,4 +467,3 @@ enum SortOption {
   sizeAsc,
   sizeDesc,
 }
-
