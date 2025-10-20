@@ -218,11 +218,11 @@ class TransparentExporter {
     onProgress(0.8); // Rendering complete
 
     final picture = recorder.endRecording();
-    final image = picture.toImageSync(outputWidth, outputHeight);
+    final image = await picture.toImage(outputWidth, outputHeight);
 
     onProgress(0.9); // Image created
 
-    final byteData = image.toByteDataSync(format: ui.ImageByteFormat.png);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     final bytes = byteData!.buffer.asUint8List();
 
     image.dispose();
