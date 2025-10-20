@@ -124,10 +124,7 @@ class _StrokeStabilizationExampleState
           ),
 
           // Controls panel
-          SizedBox(
-            width: 320,
-            child: _buildControlsPanel(),
-          ),
+          SizedBox(width: 320, child: _buildControlsPanel()),
         ],
       ),
     );
@@ -144,7 +141,7 @@ class _StrokeStabilizationExampleState
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          
+
           // Mode selector
           ...(_modes.map((mode) {
             return RadioListTile<String>(
@@ -271,7 +268,7 @@ class _StrokeStabilizationExampleState
 
   Widget _buildStatistics() {
     final stabilizedPoints = _applyStabilization(_rawStroke);
-    
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -350,10 +347,7 @@ class _StrokeStabilizationExampleState
       _isDrawing = true;
       _rawStroke = [];
       _currentPoints = [
-        StrokePoint(
-          position: details.localPosition,
-          pressure: 0.5,
-        ),
+        StrokePoint(position: details.localPosition, pressure: 0.5),
       ];
     });
   }
@@ -363,10 +357,7 @@ class _StrokeStabilizationExampleState
 
     setState(() {
       _currentPoints.add(
-        StrokePoint(
-          position: details.localPosition,
-          pressure: 0.7,
-        ),
+        StrokePoint(position: details.localPosition, pressure: 0.7),
       );
     });
   }
@@ -404,10 +395,7 @@ class _StabilizationCanvasPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // Fill background
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..color = Colors.white,
-    );
+    canvas.drawRect(Offset.zero & size, Paint()..color = Colors.white);
 
     // Draw completed stroke with stabilization
     if (rawStroke.isNotEmpty) {
@@ -442,7 +430,12 @@ class _StabilizationCanvasPainter extends CustomPainter {
     }
   }
 
-  void _drawPoints(Canvas canvas, List<StrokePoint> points, Color color, double radius) {
+  void _drawPoints(
+    Canvas canvas,
+    List<StrokePoint> points,
+    Color color,
+    double radius,
+  ) {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
