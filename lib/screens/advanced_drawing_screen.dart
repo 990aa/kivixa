@@ -9,6 +9,7 @@ import '../models/layer_stroke.dart';
 import '../models/stroke_point.dart' as model;
 import '../services/drawing_processor.dart';
 import '../services/tile_manager.dart';
+import '../services/lossless_exporter.dart';
 
 /// Advanced drawing screen with all integrated features:
 /// - Gesture handling (1 finger draw, 2+ finger navigate)
@@ -719,16 +720,33 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       });
 
       // Generate SVG in background
-      await DrawingProcessor.layersToSVGAsync(_layers, _canvasSize);
+      final svgData = await DrawingProcessor.layersToSVGAsync(_layers, _canvasSize);
 
-      // TODO: Save SVG file
-      debugPrint('SVG generated successfully');
+      // Ask user for save location
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export SVG',
+        fileName: 'drawing_${DateTime.now().millisecondsSinceEpoch}.svg',
+        type: FileType.custom,
+        allowedExtensions: ['svg'],
+      );
 
-      setState(() {
-        _statusText = 'SVG exported';
-      });
+      if (result != null) {
+        // Save SVG to file
+        final file = File(result);
+        await file.writeAsString(svgData);
+
+        setState(() {
+          _statusText = 'SVG exported successfully';
+        });
+      } else {
+        setState(() {
+          _statusText = 'Export cancelled';
+        });
+      }
     } catch (e) {
-      _statusText = 'Export error: $e';
+      setState(() {
+        _statusText = 'Export error: $e';
+      });
     } finally {
       setState(() {
         _isProcessing = false;
