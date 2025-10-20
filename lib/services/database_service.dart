@@ -49,7 +49,10 @@ class DatabaseService {
   // ============ Stroke Operations ============
 
   /// Save strokes for a note
-  Future<void> saveStrokesForNote(int noteId, List<stroke_model.Stroke> strokes) async {
+  Future<void> saveStrokesForNote(
+    int noteId,
+    List<stroke_model.Stroke> strokes,
+  ) async {
     // Delete existing strokes
     await _db.deleteStrokesForNote(noteId);
 
@@ -121,7 +124,9 @@ class DatabaseService {
   }
 
   /// Load canvas elements for a note
-  Future<List<element_model.CanvasElement>> loadElementsForNote(int noteId) async {
+  Future<List<element_model.CanvasElement>> loadElementsForNote(
+    int noteId,
+  ) async {
     final dbElements = await _db.getElementsForNote(noteId);
 
     return dbElements.map((dbElement) {
