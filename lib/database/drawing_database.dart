@@ -11,14 +11,14 @@ import 'package:path/path.dart';
 /// - Cascade deletion for data integrity
 class DrawingDatabase {
   static Database? _database;
-  static const String DB_NAME = 'drawing_app.db';
-  static const int DB_VERSION = 1;
+  static const String dbName = 'drawing_app.db';
+  static const int dbVersion = 1;
 
   // Table names
-  static const String TABLE_FOLDERS = 'folders';
-  static const String TABLE_DOCUMENTS = 'documents';
-  static const String TABLE_TAGS = 'tags';
-  static const String TABLE_DOCUMENT_TAGS = 'document_tags';
+  static const String tableFolders = 'folders';
+  static const String tableDocuments = 'documents';
+  static const String tableTags = 'tags';
+  static const String tableDocumentTags = 'document_tags';
 
   /// Get database instance (singleton pattern)
   static Future<Database> get database async {
