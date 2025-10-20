@@ -189,7 +189,7 @@ class ExportUsageExamples {
     final screenSize = const Size(595, 842);
     for (final layer in layers) {
       for (final stroke in layer.strokes) {
-        await enhancedManager.addStrokeToPage(stroke, 0, screenSize);
+        enhancedManager.addStrokeToPage(0, stroke, screenSize);
       }
     }
 
@@ -201,9 +201,7 @@ class ExportUsageExamples {
       title: 'My Drawing',
       author: 'Artist Name',
       subject: 'Digital Artwork',
-      keywords: 'drawing, art, digital',
     );
-
     final pdfBytes = await enhancedManager.exportWithSettings(settings);
     print('Exported PDF with metadata');
 
@@ -212,12 +210,12 @@ class ExportUsageExamples {
 
   /// Example 8: Understanding coordinate transformation
   void demonstrateCoordinateTransformation() {
-    final transformer = PDFCoordinateTransformer();
+    const pageSize = Size(595, 842); // PDF page size
+    final transformer = PDFCoordinateTransformer(pageSize.height);
 
     // Flutter coordinates (top-left origin, Y increases downward)
     const flutterPoint = Offset(100, 200);
     const screenSize = Size(595, 842); // Screen/canvas size
-    const pageSize = Size(595, 842); // PDF page size
 
     // Calculate the screen-to-PDF ratio
     final ratio = transformer.calculateScreenToPointRatio(screenSize, pageSize);
@@ -225,21 +223,13 @@ class ExportUsageExamples {
 
     // Convert Flutter coordinates to PDF coordinates
     // PDF uses bottom-left origin, Y increases upward
-    final pdfPoint = transformer.flutterToPDF(
-      flutterPoint,
-      pageSize.height,
-      ratio,
-    );
+    final pdfPoint = transformer.flutterToPDF(flutterPoint, ratio);
     print(
       'Flutter point (100, 200) → PDF point (${pdfPoint.dx}, ${pdfPoint.dy})',
     );
 
     // Convert back to verify
-    final backToFlutter = transformer.pdfToFlutter(
-      pdfPoint,
-      pageSize.height,
-      ratio,
-    );
+    final backToFlutter = transformer.pdfToFlutter(pdfPoint, ratio);
     print('Back to Flutter: (${backToFlutter.dx}, ${backToFlutter.dy})');
 
     // Batch transform multiple points
@@ -249,12 +239,7 @@ class ExportUsageExamples {
       const Offset(200, 200),
     ];
 
-    final pdfPoints = transformer.transformPoints(
-      flutterPoints,
-      pageSize.height,
-      ratio,
-      flutterToPDF: true,
-    );
+    final pdfPoints = transformer.transformPoints(flutterPoints, ratio);
 
     print('Transformed ${pdfPoints.length} points to PDF coordinates');
   }
