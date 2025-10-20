@@ -37,6 +37,7 @@ dependencies:
   image: ^4.3.0
   drift: ^2.20.3
   sqlite3_flutter_libs: ^0.5.24
+  sqflite: ^2.4.1
   path: ^1.9.0
   graphview: ^1.2.0
   provider: ^6.1.2

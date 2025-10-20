@@ -2,7 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 /// SQLite database for managing drawings, folders, tags, and document organization
-/// 
+///
 /// Features:
 /// - Hierarchical folder structure
 /// - Multi-tagging support (many-to-many)
@@ -124,12 +124,8 @@ class DrawingDatabase {
     await db.execute(
       'CREATE INDEX idx_folders_parent ON $TABLE_FOLDERS(parent_folder_id)',
     );
-    await db.execute(
-      'CREATE INDEX idx_folders_name ON $TABLE_FOLDERS(name)',
-    );
-    await db.execute(
-      'CREATE INDEX idx_tags_name ON $TABLE_TAGS(name)',
-    );
+    await db.execute('CREATE INDEX idx_folders_name ON $TABLE_FOLDERS(name)');
+    await db.execute('CREATE INDEX idx_tags_name ON $TABLE_TAGS(name)');
     await db.execute(
       'CREATE INDEX idx_document_tags_doc ON $TABLE_DOCUMENT_TAGS(document_id)',
     );
