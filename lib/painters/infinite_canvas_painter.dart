@@ -90,23 +90,30 @@ class InfiniteCanvasPainter extends CustomPainter {
     // Use perfect_freehand to get smooth stroke outline
     final outlinePoints = getStroke(
       stroke.points,
-      size: stroke.strokeWidth,
-      thinning: stroke.isHighlighter ? 0.0 : 0.7,
-      smoothing: 0.5,
-      streamline: 0.5,
+      options: StrokeOptions(
+        size: stroke.strokeWidth,
+        thinning: stroke.isHighlighter ? 0.0 : 0.7,
+        smoothing: 0.5,
+        streamline: 0.5,
+      ),
     );
 
     if (outlinePoints.isEmpty) return;
 
     final path = Path();
-    path.moveTo(outlinePoints[0].x, outlinePoints[0].y);
+    path.moveTo(outlinePoints[0].dx, outlinePoints[0].dy);
 
     for (int i = 1; i < outlinePoints.length; i++) {
       final p0 = outlinePoints[i - 1];
       final p1 = outlinePoints[i];
 
       // Use quadratic bezier curves for smoothness
-      path.quadraticBezierTo(p0.x, p0.y, (p0.x + p1.x) / 2, (p0.y + p1.y) / 2);
+      path.quadraticBezierTo(
+        p0.dx,
+        p0.dy,
+        (p0.dx + p1.dx) / 2,
+        (p0.dy + p1.dy) / 2,
+      );
     }
 
     path.close();

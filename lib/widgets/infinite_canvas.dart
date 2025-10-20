@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:perfect_freehand/perfect_freehand.dart';
 import '../models/stroke.dart';
 import '../painters/infinite_canvas_painter.dart';
 
