@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import '../database/database.dart';
-import '../models/stroke.dart';
-import '../models/canvas_element.dart';
+import '../models/stroke.dart' as stroke_model;
+import '../models/canvas_element.dart' as element_model;
 import '../utils/serialization_utils.dart';
 
 /// Service for managing database operations
@@ -49,7 +49,7 @@ class DatabaseService {
   // ============ Stroke Operations ============
 
   /// Save strokes for a note
-  Future<void> saveStrokesForNote(int noteId, List<Stroke> strokes) async {
+  Future<void> saveStrokesForNote(int noteId, List<stroke_model.Stroke> strokes) async {
     // Delete existing strokes
     await _db.deleteStrokesForNote(noteId);
 
@@ -74,11 +74,11 @@ class DatabaseService {
   }
 
   /// Load strokes for a note
-  Future<List<Stroke>> loadStrokesForNote(int noteId) async {
+  Future<List<stroke_model.Stroke>> loadStrokesForNote(int noteId) async {
     final dbStrokes = await _db.getStrokesForNote(noteId);
 
     return dbStrokes.map((dbStroke) {
-      return Stroke(
+      return stroke_model.Stroke(
         points: SerializationUtils.deserializePoints(dbStroke.pointsJson),
         color: SerializationUtils.hexToColor(dbStroke.color),
         strokeWidth: dbStroke.strokeWidth,
@@ -92,7 +92,7 @@ class DatabaseService {
   /// Save canvas elements for a note
   Future<void> saveElementsForNote(
     int noteId,
-    List<CanvasElement> elements,
+    List<element_model.CanvasElement> elements,
   ) async {
     // Delete existing elements
     await _db.deleteElementsForNote(noteId);
@@ -121,7 +121,7 @@ class DatabaseService {
   }
 
   /// Load canvas elements for a note
-  Future<List<CanvasElement>> loadElementsForNote(int noteId) async {
+  Future<List<element_model.CanvasElement>> loadElementsForNote(int noteId) async {
     final dbElements = await _db.getElementsForNote(noteId);
 
     return dbElements.map((dbElement) {
@@ -143,8 +143,8 @@ class DatabaseService {
     required int noteId,
     required String title,
     String? content,
-    required List<Stroke> strokes,
-    required List<CanvasElement> elements,
+    required List<stroke_model.Stroke> strokes,
+    required List<element_model.CanvasElement> elements,
   }) async {
     await _db.transaction(() async {
       // Update note
