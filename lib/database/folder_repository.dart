@@ -6,6 +6,11 @@ import '../models/folder.dart';
 ///
 /// Handles all CRUD operations for folders with hierarchical support
 class FolderRepository {
+  /// Create a new folder
+  Future<int> createFolder(Folder folder) async {
+    return await insert(folder);
+  }
+
   /// Insert a new folder
   Future<int> insert(Folder folder) async {
     final db = await DrawingDatabase.database;
@@ -18,6 +23,11 @@ class FolderRepository {
 
   /// Update an existing folder
   Future<int> update(Folder folder) async {
+    return await updateFolder(folder);
+  }
+
+  /// Update folder
+  Future<int> updateFolder(Folder folder) async {
     final db = await DrawingDatabase.database;
     return await db.update(
       DrawingDatabase.tableFolders,
@@ -29,11 +39,16 @@ class FolderRepository {
 
   /// Delete a folder (and all subfolders due to CASCADE)
   Future<int> delete(int id) async {
+    return await deleteFolder(id);
+  }
+
+  /// Delete folder (cascade deletes subfolders due to FK constraint)
+  Future<int> deleteFolder(int folderId) async {
     final db = await DrawingDatabase.database;
     return await db.delete(
       DrawingDatabase.tableFolders,
       where: 'id = ?',
-      whereArgs: [id],
+      whereArgs: [folderId],
     );
   }
 
