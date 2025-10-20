@@ -277,8 +277,7 @@ class GzipArchiveRepository {
     );
 
     if (archives.isNotEmpty) {
-      final archive = ArchivedDocument.fromMap(archives.first);
-      // Delete physical files handled by cleanup service
+      // Physical file cleanup handled by resource cleanup service
     }
 
     await db.delete('archives', where: 'id = ?', whereArgs: [archiveId]);
