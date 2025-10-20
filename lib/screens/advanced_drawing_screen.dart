@@ -879,6 +879,13 @@ class TiledCanvasPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // CRITICAL: Enforce canvas bounds at paint level
+    // This provides hardware-level clipping that's impossible to bypass
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    // Save canvas state
+    canvas.save();
+
     // Use tile-based rendering for large canvases
     final viewport = Rect.fromLTWH(0, 0, size.width, size.height);
     tileManager.renderVisibleTiles(canvas, layers, viewport, 1.0);
@@ -887,6 +894,9 @@ class TiledCanvasPainter extends CustomPainter {
     if (currentStroke != null) {
       _drawStroke(canvas, currentStroke!);
     }
+
+    // Restore canvas state
+    canvas.restore();
   }
 
   void _drawStroke(Canvas canvas, LayerStroke stroke) {
