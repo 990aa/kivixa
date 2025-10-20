@@ -122,6 +122,11 @@ class TagRepository {
 
   /// Add tag to document
   Future<void> addToDocument(int tagId, int documentId) async {
+    return await addTagToDocument(documentId, tagId);
+  }
+
+  /// Add tag to document
+  Future<void> addTagToDocument(int documentId, int tagId) async {
     final db = await DrawingDatabase.database;
 
     // Insert relationship
@@ -137,6 +142,14 @@ class TagRepository {
 
     // Increment use count
     await _incrementUseCount(tagId);
+
+    // Update document modified time
+    await db.update(
+      DrawingDatabase.tableDocuments,
+      {'modified_at': DateTime.now().millisecondsSinceEpoch},
+      where: 'id = ?',
+      whereArgs: [documentId],
+    );
   }
 
   /// Remove tag from document
