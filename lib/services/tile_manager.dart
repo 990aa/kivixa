@@ -21,12 +21,10 @@ import '../models/layer_stroke.dart';
 /// );
 /// ```
 class TileManager {
-  static const int TILE_SIZE = 512; // Pixels per tile
-
+  static const int tileSize = 512; // Pixels per tile
+  
   final Map<String, CachedTile> _tileCache = {};
-  final int _maxCachedTiles = 50; // Limit memory usage (~50MB at 512x512)
-
-  // Track which tiles are visible
+  final int _maxCachedTiles = 50; // Limit memory usage (~50MB at 512x512)  // Track which tiles are visible
   Set<String> _visibleTileKeys = {};
 
   // Rendering queue for async tile generation
