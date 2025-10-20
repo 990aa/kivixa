@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:crdt/map_crdt.dart';
 import 'package:flutter/foundation.dart';
 import '../models/stroke.dart';
 import '../models/canvas_element.dart';
 
-/// Collaborative note using CRDT for conflict-free editing
+/// Collaborative note using CRDT-like conflict-free editing
+/// Note: Uses simplified CRDT approach with last-write-wins and HLC timestamps
 class CollaborativeNote extends ChangeNotifier {
   final String noteId;
-  final MapCrdt<String, Map<String, dynamic>> crdt;
+  final String nodeId;
 
   // CRDT maps for strokes and elements
   final Map<String, Stroke> _strokes = {};
