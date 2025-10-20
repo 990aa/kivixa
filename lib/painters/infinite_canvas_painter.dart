@@ -48,7 +48,7 @@ class InfiniteCanvasPainter extends CustomPainter {
 
   void _drawGrid(Canvas canvas, Size size, Matrix4 transform) {
     final paint = Paint()
-      ..color = Colors.grey.withOpacity(0.2)
+      ..color = Colors.grey.withValues(alpha: 0.2)
       ..strokeWidth = 1;
 
     // Calculate visible area based on transform
