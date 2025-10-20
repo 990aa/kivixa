@@ -23,6 +23,11 @@ class TagRepository {
 
   /// Update an existing tag
   Future<int> update(Tag tag) async {
+    return await updateTag(tag);
+  }
+
+  /// Update tag
+  Future<int> updateTag(Tag tag) async {
     final db = await DrawingDatabase.database;
     return await db.update(
       DrawingDatabase.tableTags,
