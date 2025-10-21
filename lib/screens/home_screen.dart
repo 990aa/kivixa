@@ -431,7 +431,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             Expanded(
-                              child: _documents.isEmpty
+                              child: (_documents.isEmpty)
                                   ? Center(
                                       child: Column(
                                         mainAxisAlignment:
