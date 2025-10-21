@@ -16,13 +16,13 @@ void main() {
   ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
-    
+
     // Wait for initial frame
     await tester.pump();
-    
+
     // Initially shows loading indicator
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    
+
     // Wait for async data loading with longer timeout
     await tester.pumpAndSettle(const Duration(seconds: 10));
 
@@ -35,7 +35,7 @@ void main() {
   ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
-    
+
     // Wait for loading to complete
     await tester.pumpAndSettle(const Duration(seconds: 10));
 
@@ -50,7 +50,7 @@ void main() {
   ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
-    
+
     // Wait for loading
     await tester.pumpAndSettle(const Duration(seconds: 10));
 
@@ -64,7 +64,7 @@ void main() {
   testWidgets('Refresh button is present', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
-    
+
     // Wait for loading
     await tester.pumpAndSettle(const Duration(seconds: 10));
 
