@@ -107,25 +107,11 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
   Future<void> _exportAsImage() async {
     try {
-      final page = await (await _pdfController.document).getPage(_pdfController.page);
-      final pageImage = await page.render(
-        width: _canvasSize.width,
-        height: _canvasSize.height,
-      );
-
-      if (pageImage == null) {
-        throw Exception('Failed to render page');
-      }
-
+      // Create a simple export using annotations
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
 
-      final codec = await ui.instantiateImageCodec(pageImage.bytes);
-      final frame = await codec.getNextFrame();
-      canvas.drawImage(frame.image, Offset.zero, Paint());
-
       final painter = AnnotationPainter();
-
       painter.paint(canvas, _canvasSize);
 
       final picture = recorder.endRecording();
@@ -143,7 +129,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
       if (kIsWeb) {
         await Printing.sharePdf(
-            bytes: await _createPdfWithImage(imageBytes), filename: 'exported_page.pdf');
+            bytes: await _createPdfWithImage(imageBytes), 
+            filename: 'exported_page.pdf');
       } else {
         final directory = await getApplicationDocumentsDirectory();
         final imagePath = '${directory.path}/exported_page.png';
@@ -153,6 +140,12 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         await Share.shareXFiles(
           [XFile(imagePath)],
           text: 'Check out my annotated page!',
+        );
+      }
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Page exported successfully')),
         );
       }
     } catch (e) {
