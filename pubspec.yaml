@@ -12,7 +12,6 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   
-  pdfx: ^2.5.0
   hand_signature: ^3.1.0+2
   syncfusion_flutter_pdf: ^31.2.2
   syncfusion_flutter_pdfviewer: ^31.2.2
