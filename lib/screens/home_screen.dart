@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<DrawingDocument> _documents = [];
   Folder? _selectedFolder;
   bool _isLoading = true;
-  int _gridColumns = 3;
+  final int _gridColumns = 3;
 
   @override
   void initState() {
@@ -123,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isFavorite: false,
     );
 
-    final id = await documentRepo.insert(document);
+    await documentRepo.insert(document);
     if (!mounted) return;
 
     Navigator.push(
@@ -155,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isFavorite: false,
     );
 
-    final id = await documentRepo.insert(document);
+    await documentRepo.insert(document);
     if (!mounted) return;
 
     Navigator.push(

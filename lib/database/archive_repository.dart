@@ -109,10 +109,8 @@ class ArchiveRepository {
     archive.addFile(archiveFile);
 
     final compressedBytes = encoder.encode(archive);
-    if (compressedBytes == null) {
-      throw Exception('Failed to compress document');
-    }
-
+    // Note: encode() always returns a non-null List<int>
+    
     final archivedSize = compressedBytes.length;
 
     // Create archive directory if it doesn't exist
