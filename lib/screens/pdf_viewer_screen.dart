@@ -21,17 +21,13 @@ class PDFViewerScreen extends StatefulWidget {
   final Uint8List? pdfBytes;
 
   const PDFViewerScreen({super.key, this.pdfPath, this.pdfBytes})
-      : assert(pdfPath != null || pdfBytes != null);
+    : assert(pdfPath != null || pdfBytes != null);
 
-  const PDFViewerScreen.file({
-    super.key,
-    required this.pdfPath,
-  }) : pdfBytes = null;
+  const PDFViewerScreen.file({super.key, required this.pdfPath})
+    : pdfBytes = null;
 
-  const PDFViewerScreen.memory({
-    super.key,
-    required this.pdfBytes,
-  }) : pdfPath = null;
+  const PDFViewerScreen.memory({super.key, required this.pdfBytes})
+    : pdfPath = null;
 
   @override
   State<PDFViewerScreen> createState() => _PDFViewerScreenState();
@@ -98,9 +94,9 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving annotations: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error saving annotations: $e')));
       }
     }
   }
@@ -129,20 +125,20 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
       if (kIsWeb) {
         await Printing.sharePdf(
-            bytes: await _createPdfWithImage(imageBytes), 
-            filename: 'exported_page.pdf');
+          bytes: await _createPdfWithImage(imageBytes),
+          filename: 'exported_page.pdf',
+        );
       } else {
         final directory = await getApplicationDocumentsDirectory();
         final imagePath = '${directory.path}/exported_page.png';
         await File(imagePath).writeAsBytes(imageBytes);
 
         // ignore: deprecated_member_use
-        await Share.shareXFiles(
-          [XFile(imagePath)],
-          text: 'Check out my annotated page!',
-        );
+        await Share.shareXFiles([
+          XFile(imagePath),
+        ], text: 'Check out my annotated page!');
       }
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Page exported successfully')),
@@ -167,9 +163,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     pdf.addPage(
       pw.Page(
         build: (pw.Context context) {
-          return pw.Center(
-            child: pw.Image(image),
-          );
+          return pw.Center(child: pw.Image(image));
         },
       ),
     );
@@ -183,10 +177,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     super.dispose();
   }
 
-  Future<String> _getPageInfo() async {
-    final page = await (await _pdfController.document).getPage(_pdfController.page);
-    final document = await _pdfController.document;
-    return 'Page ${page.pageNumber} of ${document.pagesCount}';
+  String _getPageInfo() {
+    return 'Page $_currentPage of $_totalPages';
   }
 
   @override
@@ -219,108 +211,122 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      _error!,
-                      style: const TextStyle(color: Colors.red, fontSize: 16),
-                      textAlign: TextAlign.center,
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  _error!,
+                  style: const TextStyle(color: Colors.red, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            )
+          : Stack(
+              children: [
+                if (widget.pdfBytes != null)
+                  SfPdfViewer.memory(
+                    widget.pdfBytes!,
+                    controller: _pdfController,
+                    onDocumentLoaded: _onDocumentLoaded,
+                    onDocumentLoadFailed: _onDocumentLoadFailed,
+                    onPageChanged: (PdfPageChangedDetails details) {
+                      setState(() {
+                        _currentPage = details.newPageNumber;
+                      });
+                    },
+                  )
+                else if (widget.pdfPath != null)
+                  SfPdfViewer.file(
+                    File(widget.pdfPath!),
+                    controller: _pdfController,
+                    onDocumentLoaded: _onDocumentLoaded,
+                    onDocumentLoadFailed: _onDocumentLoadFailed,
+                    onPageChanged: (PdfPageChangedDetails details) {
+                      setState(() {
+                        _currentPage = details.newPageNumber;
+                      });
+                    },
+                  ),
+                Positioned.fill(
+                  child: Center(
+                    child: AnnotationCanvas(
+                      annotationLayer: _annotationLayer,
+                      currentPage: _currentPage,
+                      currentTool: _currentTool,
+                      currentColor: _currentColor,
+                      canvasSize: _canvasSize,
+                      onAnnotationsChanged: () {
+                        setState(() {});
+                      },
                     ),
                   ),
-                )
-              : Stack(
-                  children: [
-                    Center(
-                      child: PdfView(
-                        controller: _pdfController,
-                        onPageChanged: (page) {},
-                        scrollDirection: Axis.vertical,
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Center(
-                        child: AnnotationCanvas(
-                          annotationLayer: _annotationLayer,
-                          currentPage: _pdfController.page,
-                          currentTool: _currentTool,
-                          currentColor: _currentColor,
-                          canvasSize: _canvasSize,
-                          onAnnotationsChanged: () {
-                            setState(() {});
-                          },
-                        ),
-                      ),
-                    ),
-                    if (_isToolbarVisible)
-                      Positioned(
-                        top: 16,
-                        right: 16,
-                        child: ToolbarWidget(
-                          currentTool: _currentTool,
-                          currentColor: _currentColor,
-                          onToolChanged: (tool) {
-                            setState(() {
-                              _currentTool = tool;
-                            });
-                          },
-                          onColorChanged: (color) {
-                            setState(() {
-                              _currentColor = color;
-                            });
-                          },
-                          onClear: _clearAnnotations,
-                        ),
-                      ),
-                    Positioned(
-                      bottom: 16,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                        color: Colors.black.withAlpha(120),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back, color: Colors.white),
-                              onPressed: () {
-                                _pdfController.previousPage(
-                                  duration: const Duration(milliseconds: 250),
-                                  curve: Curves.ease,
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 16),
-                            FutureBuilder<String>(
-                              future: _getPageInfo(),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  return Text(
-                                    snapshot.data!,
-                                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                                  );
-                                } else {
-                                  return const CircularProgressIndicator();
-                                }
-                              },
-                            ),
-                            const SizedBox(width: 16),
-                            IconButton(
-                              icon: const Icon(Icons.arrow_forward, color: Colors.white),
-                              onPressed: () {
-                                _pdfController.nextPage(
-                                  duration: const Duration(milliseconds: 250),
-                                  curve: Curves.ease,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
+                if (_isToolbarVisible)
+                  Positioned(
+                    top: 16,
+                    right: 16,
+                    child: ToolbarWidget(
+                      currentTool: _currentTool,
+                      currentColor: _currentColor,
+                      onToolChanged: (tool) {
+                        setState(() {
+                          _currentTool = tool;
+                        });
+                      },
+                      onColorChanged: (color) {
+                        setState(() {
+                          _currentColor = color;
+                        });
+                      },
+                      onClear: _clearAnnotations,
+                    ),
+                  ),
+                Positioned(
+                  bottom: 16,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 16,
+                    ),
+                    color: Colors.black.withAlpha(120),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            _pdfController.previousPage();
+                          },
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          _getPageInfo(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.arrow_forward,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            _pdfController.nextPage();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
