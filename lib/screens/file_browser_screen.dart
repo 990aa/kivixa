@@ -466,7 +466,47 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
   }
 
   void _renameFolder(Folder folder) {
-    // TODO: Implement folder rename
+    final nameController = TextEditingController(text: folder.name);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rename Folder'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            labelText: 'Folder name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final name = nameController.text.trim();
+              if (name.isNotEmpty && name != folder.name) {
+                final updatedFolder = folder.copyWith(
+                  name: name,
+                  modifiedAt: DateTime.now(),
+                );
+                
+                await folderRepo.update(updatedFolder);
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                _loadData();
+              } else {
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Rename'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _deleteFolder(Folder folder) async {
@@ -496,15 +536,136 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
   }
 
   void _createSubfolder(Folder parentFolder) {
-    // TODO: Implement subfolder creation
+    final nameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('New Subfolder in "${parentFolder.name}"'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            labelText: 'Folder name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final name = nameController.text.trim();
+              if (name.isNotEmpty) {
+                final folder = Folder(
+                  name: name,
+                  parentFolderId: parentFolder.id,
+                  createdAt: DateTime.now(),
+                  modifiedAt: DateTime.now(),
+                );
+
+                await folderRepo.insert(folder);
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                _loadData();
+              }
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _renameDocument(DrawingDocument document) {
-    // TODO: Implement document rename
+    final nameController = TextEditingController(text: document.name);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rename Document'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            labelText: 'Document name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final name = nameController.text.trim();
+              if (name.isNotEmpty && name != document.name) {
+                final updatedDocument = document.copyWith(
+                  name: name,
+                  modifiedAt: DateTime.now(),
+                );
+                
+                await documentRepo.update(updatedDocument);
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                _loadDocuments();
+              } else {
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Rename'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _moveDocument(DrawingDocument document) {
-    // TODO: Implement document move
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Move Document'),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 400,
+          child: FolderTreeView(
+            folders: _folders,
+            selectedFolder: _folders.firstWhere(
+              (f) => f.id == document.folderId,
+              orElse: () => _folders.first,
+            ),
+            onFolderSelected: (folder) async {
+              // Move document to selected folder
+              final updatedDocument = document.copyWith(
+                folderId: folder.id,
+                modifiedAt: DateTime.now(),
+              );
+              
+              await documentRepo.update(updatedDocument);
+              if (!context.mounted) return;
+              Navigator.pop(context);
+              _loadDocuments();
+              
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Moved "${document.name}" to "${folder.name}"'),
+                ),
+              );
+            },
+            onFolderLongPress: null,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _deleteDocument(DrawingDocument document) async {
