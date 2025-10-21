@@ -359,9 +359,51 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
   }
 
   void _showCreateDocumentDialog() {
-    // TODO: Implement document creation
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Document creation not implemented yet')),
+    final nameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('New Document'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            labelText: 'Document name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final name = nameController.text.trim();
+              if (name.isNotEmpty) {
+                final document = DrawingDocument(
+                  name: name,
+                  folderId: _selectedFolder?.id,
+                  type: DocumentType.drawing,
+                  createdAt: DateTime.now(),
+                  modifiedAt: DateTime.now(),
+                  lastOpenedAt: DateTime.now(),
+                  isFavorite: false,
+                );
+
+                final id = await documentRepo.insert(document);
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                
+                // Open the newly created document
+                _openDocument(document.copyWith(id: id));
+              }
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -392,12 +434,35 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
 
   Future<void> _openDocument(DrawingDocument document) async {
     await documentRepo.updateLastOpened(document.id!);
-    // TODO: Navigate to document editor
+    
     if (!mounted) return;
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Opening: ${document.name}')));
+    // Navigate to the drawing canvas screen
+    // Note: Replace 'DrawingCanvasScreen' with your actual canvas screen widget
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: Text(document.name),
+          ),
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.draw, size: 64),
+                const SizedBox(height: 16),
+                Text('Canvas for: ${document.name}'),
+                const SizedBox(height: 8),
+                const Text(
+                  'Replace this with your actual DrawingCanvasScreen widget',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _renameFolder(Folder folder) {
