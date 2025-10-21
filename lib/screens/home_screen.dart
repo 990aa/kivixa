@@ -464,13 +464,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       documents: _documents,
                                       crossAxisCount: _gridColumns,
                                       onDocumentTap: (document) async {
-                                        await documentRepo.updateLastOpened(
-                                          document.id!,
-                                        );
-
-                                        if (!mounted) return;
-
-                                        // Navigate to appropriate viewer based on document type
+                                        // Determine the screen to navigate to first
                                         Widget screen;
                                         switch (document.type) {
                                           case DocumentType.pdf:
@@ -497,13 +491,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                             }
                                             break;
                                         }
+                                        
+                                        // Capture context before async gap
+                                        final navigator = Navigator.of(context);
+                                        
+                                        // Update last opened
+                                        await documentRepo.updateLastOpened(
+                                          document.id!,
+                                        );
 
-                                        Navigator.push(
-                                          context,
+                                        if (!mounted) return;
+
+                                        // Navigate using captured navigator
+                                        await navigator.push(
                                           MaterialPageRoute(
                                             builder: (context) => screen,
                                           ),
-                                        ).then((_) => _loadDocuments());
+                                        );
+                                        
+                                        _loadDocuments();
                                       },
                                       onDocumentLongPress: null,
                                       onFavoriteToggle:
