@@ -382,10 +382,17 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
             onPressed: () async {
               final name = nameController.text.trim();
               if (name.isNotEmpty) {
+                // Generate file path for new document
+                final timestamp = DateTime.now().millisecondsSinceEpoch;
+                final filePath =
+                    'documents/${_selectedFolder?.id ?? 'root'}/$timestamp.canvas';
+
                 final document = DrawingDocument(
                   name: name,
                   folderId: _selectedFolder?.id,
-                  type: DocumentType.drawing,
+                  type: DocumentType.canvas,
+                  filePath: filePath,
+                  fileSize: 0,
                   createdAt: DateTime.now(),
                   modifiedAt: DateTime.now(),
                   lastOpenedAt: DateTime.now(),
@@ -395,7 +402,7 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
                 final id = await documentRepo.insert(document);
                 if (!context.mounted) return;
                 Navigator.pop(context);
-                
+
                 // Open the newly created document
                 _openDocument(document.copyWith(id: id));
               }
@@ -434,7 +441,7 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
 
   Future<void> _openDocument(DrawingDocument document) async {
     await documentRepo.updateLastOpened(document.id!);
-    
+
     if (!mounted) return;
 
     // Navigate to the drawing canvas screen
@@ -442,9 +449,7 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => Scaffold(
-          appBar: AppBar(
-            title: Text(document.name),
-          ),
+          appBar: AppBar(title: Text(document.name)),
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -493,7 +498,7 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
                   name: name,
                   modifiedAt: DateTime.now(),
                 );
-                
+
                 await folderRepo.update(updatedFolder);
                 if (!context.mounted) return;
                 Navigator.pop(context);
@@ -607,7 +612,7 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
                   name: name,
                   modifiedAt: DateTime.now(),
                 );
-                
+
                 await documentRepo.update(updatedDocument);
                 if (!context.mounted) return;
                 Navigator.pop(context);
@@ -643,12 +648,12 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
                 folderId: folder.id,
                 modifiedAt: DateTime.now(),
               );
-              
+
               await documentRepo.update(updatedDocument);
               if (!context.mounted) return;
               Navigator.pop(context);
               _loadDocuments();
-              
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Moved "${document.name}" to "${folder.name}"'),
