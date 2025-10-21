@@ -5,7 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdfx/pdfx.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/annotation_layer.dart';
@@ -38,63 +38,42 @@ class PDFViewerScreen extends StatefulWidget {
 }
 
 class _PDFViewerScreenState extends State<PDFViewerScreen> {
-  late final PdfController _pdfController;
+  final PdfViewerController _pdfController = PdfViewerController();
 
   final AnnotationLayer _annotationLayer = AnnotationLayer();
   DrawingTool _currentTool = DrawingTool.pen;
   Color _currentColor = Colors.black;
 
   bool _isToolbarVisible = true;
-  bool _isLoading = true;
+  bool _isLoading = false;
   String? _error;
 
   Size _canvasSize = const Size(595, 842);
+  int _currentPage = 1;
+  int _totalPages = 1;
 
   @override
   void initState() {
     super.initState();
-    _initializePDF();
   }
 
-  Future<void> _initializePDF() async {
-    try {
-      PdfDocument document;
-
-      if (widget.pdfBytes != null) {
-        document = await PdfDocument.openData(widget.pdfBytes!);
-      } else if (widget.pdfPath != null) {
-        document = await PdfDocument.openFile(widget.pdfPath!);
-      } else {
-        throw Exception('No PDF source provided');
-      }
-
-      _pdfController = PdfController(
-        document: Future.value(document),
-      );
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      await _updateCanvasSize();
-    } catch (e) {
-      setState(() {
-        _error = 'Error loading PDF: $e';
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _updateCanvasSize() async {
-    final page = await (await _pdfController.document).getPage(1);
+  void _onDocumentLoaded(PdfDocumentLoadedDetails details) {
     setState(() {
-      _canvasSize = Size(page.width, page.height);
+      _totalPages = details.document.pages.count;
+      _isLoading = false;
+    });
+  }
+
+  void _onDocumentLoadFailed(PdfDocumentLoadFailedDetails details) {
+    setState(() {
+      _error = 'Error loading PDF: ${details.error}';
+      _isLoading = false;
     });
   }
 
   void _clearAnnotations() {
     setState(() {
-      _annotationLayer.clearAnnotationsForPage(_pdfController.page);
+      _annotationLayer.clearAnnotationsForPage(_currentPage);
     });
   }
 
