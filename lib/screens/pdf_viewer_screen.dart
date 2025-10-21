@@ -44,7 +44,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   bool _isLoading = false;
   String? _error;
 
-  Size _canvasSize = const Size(595, 842);
+  final Size _canvasSize = const Size(595, 842);
   int _currentPage = 1;
   int _totalPages = 1;
 
