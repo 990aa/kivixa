@@ -26,22 +26,20 @@ void main() {
     // Verify the app has a Scaffold
     expect(find.byType(Scaffold), findsOneWidget);
   });
-  testWidgets('Home screen shows quick action buttons after loading', (
+  testWidgets('Home screen shows quick action buttons', (
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
-
+    
     // Wait for loading to complete
-    await tester.pumpAndSettle(const Duration(seconds: 10));
+    await tester.pumpAndSettle();
 
     // Verify that quick action buttons are displayed
     expect(find.text('Import PDF'), findsOneWidget);
     expect(find.text('Markdown'), findsOneWidget);
     expect(find.text('Canvas'), findsOneWidget);
-  });
-
-  testWidgets('Home screen has folders section after loading', (
+  });  testWidgets('Home screen has folders section after loading', (
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
