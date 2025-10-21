@@ -1,4 +1,4 @@
-// This is a basic Flutter widget test.
+// Widget tests for Kivixa app
 //
 // To perform an interaction with a widget in your test, use the WidgetTester
 // utility in the flutter_test package. For example, you can send tap and scroll
@@ -11,20 +11,37 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('App launches and shows home screen', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify that the app title is displayed
+    expect(find.text('Kivixa'), findsWidgets);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Verify that quick action buttons are displayed
+    expect(find.text('Import PDF'), findsOneWidget);
+    expect(find.text('Markdown'), findsOneWidget);
+    expect(find.text('Canvas'), findsOneWidget);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('Home screen has folders section', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    // Verify that the folders section is displayed
+    expect(find.text('Folders'), findsOneWidget);
+    
+    // Verify new folder button exists
+    expect(find.byIcon(Icons.create_new_folder), findsOneWidget);
+  });
+
+  testWidgets('Refresh button is present', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    // Verify refresh button is present
+    expect(find.byIcon(Icons.refresh), findsOneWidget);
   });
 }
