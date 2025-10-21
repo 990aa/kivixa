@@ -110,7 +110,7 @@ class ArchiveRepository {
 
     final compressedBytes = encoder.encode(archive);
     // Note: encode() always returns a non-null List<int>
-    
+
     final archivedSize = compressedBytes.length;
 
     // Create archive directory if it doesn't exist

@@ -304,7 +304,7 @@ class ArchiveService {
       // Use gzip for estimation (faster than zip)
       final compressed = GZipEncoder().encode(bytes);
       // Note: encode() always returns a non-null List<int>
-      
+
       return compressed.length / bytes.length;
     } catch (e) {
       return null;
