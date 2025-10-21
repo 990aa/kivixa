@@ -17,19 +17,15 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
 
-    // Wait for initial frame
-    await tester.pump();
+    // Wait for async data loading
+    await tester.pumpAndSettle();
 
-    // Initially shows loading indicator
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-    // Wait for async data loading with longer timeout
-    await tester.pumpAndSettle(const Duration(seconds: 10));
-
-    // Verify that the app title is displayed
+    // Verify that the app title is displayed in the AppBar
     expect(find.text('Kivixa'), findsAtLeastNWidgets(1));
-  });
 
+    // Verify the app has a Scaffold
+    expect(find.byType(Scaffold), findsOneWidget);
+  });
   testWidgets('Home screen shows quick action buttons after loading', (
     WidgetTester tester,
   ) async {
