@@ -23,7 +23,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final folderRepo = FolderRepository();
   final documentRepo = DocumentRepository();
-  
+
   List<Folder> _folders = [];
   List<DrawingDocument> _documents = [];
   Folder? _selectedFolder;
@@ -44,9 +44,9 @@ class _HomeScreenState extends State<HomeScreen> {
       await _loadDocuments();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading data: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading data: $e')));
       }
     } finally {
       if (mounted) {
@@ -64,9 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) setState(() {});
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading documents: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading documents: $e')));
       }
     }
   }
@@ -110,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final filePath = 'documents/${_selectedFolder?.id ?? 'root'}/$timestamp.md';
-    
+
     final document = DrawingDocument(
       name: name,
       folderId: _selectedFolder?.id,
@@ -128,9 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const MarkdownEditorScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const MarkdownEditorScreen()),
     ).then((_) => _loadDocuments());
   }
 
@@ -142,8 +140,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (name == null) return;
 
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final filePath = 'documents/${_selectedFolder?.id ?? 'root'}/$timestamp.canvas';
-    
+    final filePath =
+        'documents/${_selectedFolder?.id ?? 'root'}/$timestamp.canvas';
+
     final document = DrawingDocument(
       name: name,
       folderId: _selectedFolder?.id,
@@ -162,9 +161,9 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => isInfinite 
-          ? const InfiniteCanvasScreen()
-          : const AdvancedDrawingScreen(),
+        builder: (context) => isInfinite
+            ? const InfiniteCanvasScreen()
+            : const AdvancedDrawingScreen(),
       ),
     ).then((_) => _loadDocuments());
   }
@@ -263,141 +262,71 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: _isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : Column(
-            children: [
-              // Quick action buttons at top
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  border: Border(
-                    bottom: BorderSide(color: Colors.grey.shade300),
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                // Quick action buttons at top
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    border: Border(
+                      bottom: BorderSide(color: Colors.grey.shade300),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _pickAndOpenPDF,
+                          icon: const Icon(Icons.picture_as_pdf, size: 20),
+                          label: const Text('Import PDF'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _createMarkdown,
+                          icon: const Icon(Icons.edit_document, size: 20),
+                          label: const Text('Markdown'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _showCanvasTypeDialog,
+                          icon: const Icon(Icons.brush, size: 20),
+                          label: const Text('Canvas'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            backgroundColor: Colors.deepPurple,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _pickAndOpenPDF,
-                        icon: const Icon(Icons.picture_as_pdf, size: 20),
-                        label: const Text('Import PDF'),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _createMarkdown,
-                        icon: const Icon(Icons.edit_document, size: 20),
-                        label: const Text('Markdown'),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _showCanvasTypeDialog,
-                        icon: const Icon(Icons.brush, size: 20),
-                        label: const Text('Canvas'),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          backgroundColor: Colors.deepPurple,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
 
-              // File browser content
-              Expanded(
-                child: Row(
-                  children: [
-                    // Left panel: Folder tree
-                    SizedBox(
-                      width: 300,
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: Colors.grey.shade300),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                const Text(
-                                  'Folders',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const Spacer(),
-                                IconButton(
-                                  icon: const Icon(Icons.create_new_folder),
-                                  onPressed: () async {
-                                    final name = await _showNameDialog(
-                                      'New Folder',
-                                      'Folder name',
-                                    );
-                                    if (name != null) {
-                                      final folder = Folder(
-                                        name: name,
-                                        parentFolderId: _selectedFolder?.id,
-                                        createdAt: DateTime.now(),
-                                        modifiedAt: DateTime.now(),
-                                      );
-                                      await folderRepo.insert(folder);
-                                      _loadData();
-                                    }
-                                  },
-                                  tooltip: 'New folder',
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: FolderTreeView(
-                              folders: _folders,
-                              selectedFolder: _selectedFolder,
-                              onFolderSelected: (folder) {
-                                setState(() => _selectedFolder = folder);
-                                _loadDocuments();
-                              },
-                              onFolderLongPress: null,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    VerticalDivider(
-                      width: 1,
-                      thickness: 1,
-                      color: Colors.grey.shade300,
-                    ),
-
-                    // Right panel: Documents
-                    Expanded(
-                      child: Column(
-                        children: [
-                          if (_selectedFolder != null)
+                // File browser content
+                Expanded(
+                  child: Row(
+                    children: [
+                      // Left panel: Folder tree
+                      SizedBox(
+                        width: 300,
+                        child: Column(
+                          children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
+                              padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
                                 border: Border(
                                   bottom: BorderSide(
                                     color: Colors.grey.shade300,
@@ -406,85 +335,159 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               child: Row(
                                 children: [
-                                  Icon(
-                                    Icons.folder,
-                                    color: _selectedFolder!.color,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    _selectedFolder!.name,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                  const Text(
+                                    'Folders',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   const Spacer(),
-                                  Text(
-                                    '${_documents.length} document${_documents.length != 1 ? 's' : ''}',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey.shade600,
-                                    ),
+                                  IconButton(
+                                    icon: const Icon(Icons.create_new_folder),
+                                    onPressed: () async {
+                                      final name = await _showNameDialog(
+                                        'New Folder',
+                                        'Folder name',
+                                      );
+                                      if (name != null) {
+                                        final folder = Folder(
+                                          name: name,
+                                          parentFolderId: _selectedFolder?.id,
+                                          createdAt: DateTime.now(),
+                                          modifiedAt: DateTime.now(),
+                                        );
+                                        await folderRepo.insert(folder);
+                                        _loadData();
+                                      }
+                                    },
+                                    tooltip: 'New folder',
                                   ),
                                 ],
                               ),
                             ),
-                          Expanded(
-                            child: _documents.isEmpty
-                              ? Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.folder_open,
-                                        size: 64,
-                                        color: Colors.grey.shade400,
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        'No documents yet',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Create a new document using the buttons above',
-                                        style: TextStyle(
-                                          color: Colors.grey.shade500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : DocumentGridView(
-                                  documents: _documents,
-                                  crossAxisCount: _gridColumns,
-                                  onDocumentTap: (document) async {
-                                    await documentRepo.updateLastOpened(
-                                      document.id!,
-                                    );
-                                    // TODO: Navigate to appropriate viewer
-                                  },
-                                  onDocumentLongPress: null,
-                                  onFavoriteToggle: (document, isFavorite) async {
-                                    await documentRepo.toggleFavorite(
-                                      document.id!,
-                                      isFavorite,
-                                    );
-                                    _loadDocuments();
-                                  },
-                                ),
-                          ),
-                        ],
+                            Expanded(
+                              child: FolderTreeView(
+                                folders: _folders,
+                                selectedFolder: _selectedFolder,
+                                onFolderSelected: (folder) {
+                                  setState(() => _selectedFolder = folder);
+                                  _loadDocuments();
+                                },
+                                onFolderLongPress: null,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+
+                      VerticalDivider(
+                        width: 1,
+                        thickness: 1,
+                        color: Colors.grey.shade300,
+                      ),
+
+                      // Right panel: Documents
+                      Expanded(
+                        child: Column(
+                          children: [
+                            if (_selectedFolder != null)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade100,
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.folder,
+                                      color: _selectedFolder!.color,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _selectedFolder!.name,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    Text(
+                                      '${_documents.length} document${_documents.length != 1 ? 's' : ''}',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            Expanded(
+                              child: _documents.isEmpty
+                                  ? Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.folder_open,
+                                            size: 64,
+                                            color: Colors.grey.shade400,
+                                          ),
+                                          const SizedBox(height: 16),
+                                          Text(
+                                            'No documents yet',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            'Create a new document using the buttons above',
+                                            style: TextStyle(
+                                              color: Colors.grey.shade500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : DocumentGridView(
+                                      documents: _documents,
+                                      crossAxisCount: _gridColumns,
+                                      onDocumentTap: (document) async {
+                                        await documentRepo.updateLastOpened(
+                                          document.id!,
+                                        );
+                                        // TODO: Navigate to appropriate viewer
+                                      },
+                                      onDocumentLongPress: null,
+                                      onFavoriteToggle:
+                                          (document, isFavorite) async {
+                                            await documentRepo.toggleFavorite(
+                                              document.id!,
+                                              isFavorite,
+                                            );
+                                            _loadDocuments();
+                                          },
+                                    ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
     );
   }
 }
