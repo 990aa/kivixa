@@ -1,8 +1,9 @@
 {
-  // Java configuration
-  "java.configuration.updateBuildConfiguration": "automatic",
+  // Java configuration - Disable Java extension for Flutter project
+  "java.enabled": false,
   "java.import.gradle.enabled": false,
   "java.import.gradle.offline.enabled": false,
+  "java.configuration.updateBuildConfiguration": "disabled",
   
   // Exclude build folders from file watcher
   "files.watcherExclude": {
