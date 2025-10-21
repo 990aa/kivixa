@@ -16,9 +16,28 @@ void main() {
   ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
+    
+    // Wait for initial frame
+    await tester.pump();
+    
+    // Initially shows loading indicator
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    
+    // Wait for async data loading with longer timeout
+    await tester.pumpAndSettle(const Duration(seconds: 10));
 
     // Verify that the app title is displayed
-    expect(find.text('Kivixa'), findsWidgets);
+    expect(find.text('Kivixa'), findsAtLeastNWidgets(1));
+  });
+
+  testWidgets('Home screen shows quick action buttons after loading', (
+    WidgetTester tester,
+  ) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const MyApp());
+    
+    // Wait for loading to complete
+    await tester.pumpAndSettle(const Duration(seconds: 10));
 
     // Verify that quick action buttons are displayed
     expect(find.text('Import PDF'), findsOneWidget);
@@ -26,10 +45,14 @@ void main() {
     expect(find.text('Canvas'), findsOneWidget);
   });
 
-  testWidgets('Home screen has folders section', (WidgetTester tester) async {
+  testWidgets('Home screen has folders section after loading', (
+    WidgetTester tester,
+  ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
-    await tester.pumpAndSettle();
+    
+    // Wait for loading
+    await tester.pumpAndSettle(const Duration(seconds: 10));
 
     // Verify that the folders section is displayed
     expect(find.text('Folders'), findsOneWidget);
@@ -41,7 +64,9 @@ void main() {
   testWidgets('Refresh button is present', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
-    await tester.pumpAndSettle();
+    
+    // Wait for loading
+    await tester.pumpAndSettle(const Duration(seconds: 10));
 
     // Verify refresh button is present
     expect(find.byIcon(Icons.refresh), findsOneWidget);
