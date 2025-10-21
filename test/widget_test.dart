@@ -61,7 +61,7 @@ void main() {
     await tester.pumpWidget(const MyApp());
 
     // Wait for loading
-    await tester.pumpAndSettle(const Duration(seconds: 10));
+    await tester.pumpAndSettle();
 
     // Verify refresh button is present
     expect(find.byIcon(Icons.refresh), findsOneWidget);
