@@ -467,7 +467,37 @@ class _HomeScreenState extends State<HomeScreen> {
                                         await documentRepo.updateLastOpened(
                                           document.id!,
                                         );
-                                        // TODO: Navigate to appropriate viewer
+                                        
+                                        if (!mounted) return;
+                                        
+                                        // Navigate to appropriate viewer based on document type
+                                        Widget screen;
+                                        switch (document.type) {
+                                          case DocumentType.pdf:
+                                            screen = PDFViewerScreen.file(
+                                              pdfPath: document.filePath,
+                                            );
+                                            break;
+                                          case DocumentType.image:
+                                            // For images, use the advanced drawing screen
+                                            screen = const AdvancedDrawingScreen();
+                                            break;
+                                          case DocumentType.canvas:
+                                          default:
+                                            // Check if it's a markdown file by extension
+                                            if (document.filePath.endsWith('.md')) {
+                                              screen = const MarkdownEditorScreen();
+                                            } else {
+                                              // Default to canvas screen
+                                              screen = const InfiniteCanvasScreen();
+                                            }
+                                            break;
+                                        }
+                                        
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => screen),
+                                        ).then((_) => _loadDocuments());
                                       },
                                       onDocumentLongPress: null,
                                       onFavoriteToggle:
