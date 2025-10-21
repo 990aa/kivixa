@@ -40,9 +40,7 @@ void main() {
     expect(find.text('Markdown'), findsOneWidget);
     expect(find.text('Canvas'), findsOneWidget);
   });
-  testWidgets('Home screen has folders section', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('Home screen has folders section', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
 
