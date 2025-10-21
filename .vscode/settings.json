@@ -1,0 +1,34 @@
+{
+  // Java configuration
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.import.gradle.enabled": false,
+  "java.import.gradle.offline.enabled": false,
+  
+  // Exclude build folders from file watcher
+  "files.watcherExclude": {
+    "**/build/**": true,
+    "**/.dart_tool/**": true,
+    "**/node_modules/**": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/android/.gradle/**": true,
+    "**/android/build/**": true,
+    "**/ios/Pods/**": true,
+    "**/ios/build/**": true
+  },
+  
+  // Search exclusions
+  "search.exclude": {
+    "**/build": true,
+    "**/.dart_tool": true,
+    "**/android/.gradle": true,
+    "**/android/build": true
+  },
+  
+  // Files exclusions
+  "files.exclude": {
+    "**/.git": false,
+    "**/.dart_tool": true,
+    "**/pubspec.lock": false
+  }
+}
