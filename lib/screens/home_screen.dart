@@ -467,9 +467,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                         await documentRepo.updateLastOpened(
                                           document.id!,
                                         );
-                                        
+
                                         if (!mounted) return;
-                                        
+
                                         // Navigate to appropriate viewer based on document type
                                         Widget screen;
                                         switch (document.type) {
@@ -480,22 +480,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                             break;
                                           case DocumentType.image:
                                             // For images, use the advanced drawing screen
-                                            screen = const AdvancedDrawingScreen();
+                                            screen =
+                                                const AdvancedDrawingScreen();
                                             break;
                                           case DocumentType.canvas:
                                             // Check if it's a markdown file by extension
-                                            if (document.filePath.endsWith('.md')) {
-                                              screen = const MarkdownEditorScreen();
+                                            if (document.filePath.endsWith(
+                                              '.md',
+                                            )) {
+                                              screen =
+                                                  const MarkdownEditorScreen();
                                             } else {
                                               // Default to canvas screen
-                                              screen = const InfiniteCanvasScreen();
+                                              screen =
+                                                  const InfiniteCanvasScreen();
                                             }
                                             break;
                                         }
-                                        
+
                                         Navigator.push(
                                           context,
-                                          MaterialPageRoute(builder: (context) => screen),
+                                          MaterialPageRoute(
+                                            builder: (context) => screen,
+                                          ),
                                         ).then((_) => _loadDocuments());
                                       },
                                       onDocumentLongPress: null,
