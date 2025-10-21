@@ -11,7 +11,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/main.dart';
 
 void main() {
-  testWidgets('App launches and shows home screen', (WidgetTester tester) async {
+  testWidgets('App launches and shows home screen', (
+    WidgetTester tester,
+  ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
 
@@ -31,7 +33,7 @@ void main() {
 
     // Verify that the folders section is displayed
     expect(find.text('Folders'), findsOneWidget);
-    
+
     // Verify new folder button exists
     expect(find.byIcon(Icons.create_new_folder), findsOneWidget);
   });

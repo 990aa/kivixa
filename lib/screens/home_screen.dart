@@ -491,10 +491,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                             }
                                             break;
                                         }
-                                        
+
                                         // Capture context before async gap
                                         final navigator = Navigator.of(context);
-                                        
+
                                         // Update last opened
                                         await documentRepo.updateLastOpened(
                                           document.id!,
@@ -508,7 +508,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             builder: (context) => screen,
                                           ),
                                         );
-                                        
+
                                         _loadDocuments();
                                       },
                                       onDocumentLongPress: null,
