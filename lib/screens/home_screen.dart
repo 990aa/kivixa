@@ -301,7 +301,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const FileBrowserScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const FileBrowserScreen(),
+                  ),
                 );
               },
             ),
@@ -312,7 +314,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ArchiveManagementScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const ArchiveManagementScreen(),
+                  ),
                 );
               },
             ),
