@@ -11,7 +11,7 @@ import 'dart:io';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize sqflite_ffi for testing
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
@@ -24,7 +24,7 @@ void main() {
   setUp(() async {
     // Create test directory
     testDir = await Directory.systemTemp.createTemp('kivixa_test_');
-    
+
     // Initialize database and services
     await DatabaseHelper.initialize(testDir.path);
     folderRepo = FolderRepository();
@@ -186,19 +186,23 @@ void main() {
   group('Archive Management', () {
     test('should list all archives', () async {
       // Create multiple archives
-      final folder1 = await folderRepo.create(Folder(
-        name: 'Folder 1',
-        parentId: null,
-        createdAt: DateTime.now(),
-        modifiedAt: DateTime.now(),
-      ));
+      final folder1 = await folderRepo.create(
+        Folder(
+          name: 'Folder 1',
+          parentId: null,
+          createdAt: DateTime.now(),
+          modifiedAt: DateTime.now(),
+        ),
+      );
 
-      final folder2 = await folderRepo.create(Folder(
-        name: 'Folder 2',
-        parentId: null,
-        createdAt: DateTime.now(),
-        modifiedAt: DateTime.now(),
-      ));
+      final folder2 = await folderRepo.create(
+        Folder(
+          name: 'Folder 2',
+          parentId: null,
+          createdAt: DateTime.now(),
+          modifiedAt: DateTime.now(),
+        ),
+      );
 
       await archiveService.createArchive(name: 'Archive 1', folderId: folder1);
       await archiveService.createArchive(name: 'Archive 2', folderId: folder2);
@@ -208,12 +212,14 @@ void main() {
     });
 
     test('should delete archive', () async {
-      final folder = await folderRepo.create(Folder(
-        name: 'Test Folder',
-        parentId: null,
-        createdAt: DateTime.now(),
-        modifiedAt: DateTime.now(),
-      ));
+      final folder = await folderRepo.create(
+        Folder(
+          name: 'Test Folder',
+          parentId: null,
+          createdAt: DateTime.now(),
+          modifiedAt: DateTime.now(),
+        ),
+      );
 
       final archive = await archiveService.createArchive(
         name: 'Test Archive',
@@ -228,19 +234,18 @@ void main() {
 
       // Verify archive is removed from database
       final archives = await archiveService.getAllArchives();
-      expect(
-        archives.where((a) => a.id == archive.id).isEmpty,
-        true,
-      );
+      expect(archives.where((a) => a.id == archive.id).isEmpty, true);
     });
 
     test('should get archive size', () async {
-      final folder = await folderRepo.create(Folder(
-        name: 'Test Folder',
-        parentId: null,
-        createdAt: DateTime.now(),
-        modifiedAt: DateTime.now(),
-      ));
+      final folder = await folderRepo.create(
+        Folder(
+          name: 'Test Folder',
+          parentId: null,
+          createdAt: DateTime.now(),
+          modifiedAt: DateTime.now(),
+        ),
+      );
 
       final archive = await archiveService.createArchive(
         name: 'Test Archive',
@@ -254,12 +259,14 @@ void main() {
 
   group('Auto-Archiving', () {
     test('should enable auto-archiving for folder', () async {
-      final folder = await folderRepo.create(Folder(
-        name: 'Auto Folder',
-        parentId: null,
-        createdAt: DateTime.now(),
-        modifiedAt: DateTime.now(),
-      ));
+      final folder = await folderRepo.create(
+        Folder(
+          name: 'Auto Folder',
+          parentId: null,
+          createdAt: DateTime.now(),
+          modifiedAt: DateTime.now(),
+        ),
+      );
 
       await archiveService.enableAutoArchiving(
         folderId: folder,
@@ -273,12 +280,14 @@ void main() {
     });
 
     test('should disable auto-archiving for folder', () async {
-      final folder = await folderRepo.create(Folder(
-        name: 'Auto Folder',
-        parentId: null,
-        createdAt: DateTime.now(),
-        modifiedAt: DateTime.now(),
-      ));
+      final folder = await folderRepo.create(
+        Folder(
+          name: 'Auto Folder',
+          parentId: null,
+          createdAt: DateTime.now(),
+          modifiedAt: DateTime.now(),
+        ),
+      );
 
       await archiveService.enableAutoArchiving(
         folderId: folder,
@@ -291,12 +300,14 @@ void main() {
     });
 
     test('should archive old documents automatically', () async {
-      final folder = await folderRepo.create(Folder(
-        name: 'Auto Folder',
-        parentId: null,
-        createdAt: DateTime.now(),
-        modifiedAt: DateTime.now(),
-      ));
+      final folder = await folderRepo.create(
+        Folder(
+          name: 'Auto Folder',
+          parentId: null,
+          createdAt: DateTime.now(),
+          modifiedAt: DateTime.now(),
+        ),
+      );
 
       // Create old document
       final oldDoc = DrawingDocument(
@@ -327,12 +338,14 @@ void main() {
 
   group('Archive Integrity', () {
     test('should verify archive integrity', () async {
-      final folder = await folderRepo.create(Folder(
-        name: 'Test Folder',
-        parentId: null,
-        createdAt: DateTime.now(),
-        modifiedAt: DateTime.now(),
-      ));
+      final folder = await folderRepo.create(
+        Folder(
+          name: 'Test Folder',
+          parentId: null,
+          createdAt: DateTime.now(),
+          modifiedAt: DateTime.now(),
+        ),
+      );
 
       final archive = await archiveService.createArchive(
         name: 'Test Archive',
@@ -344,12 +357,14 @@ void main() {
     });
 
     test('should detect corrupted archive', () async {
-      final folder = await folderRepo.create(Folder(
-        name: 'Test Folder',
-        parentId: null,
-        createdAt: DateTime.now(),
-        modifiedAt: DateTime.now(),
-      ));
+      final folder = await folderRepo.create(
+        Folder(
+          name: 'Test Folder',
+          parentId: null,
+          createdAt: DateTime.now(),
+          modifiedAt: DateTime.now(),
+        ),
+      );
 
       final archive = await archiveService.createArchive(
         name: 'Test Archive',

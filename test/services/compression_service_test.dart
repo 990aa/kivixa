@@ -43,8 +43,14 @@ void main() {
       final data = 'Test data ' * 1000;
       final bytes = utf8.encode(data);
 
-      final compressed1 = await compressionService.compressGzip(bytes, level: 1);
-      final compressed9 = await compressionService.compressGzip(bytes, level: 9);
+      final compressed1 = await compressionService.compressGzip(
+        bytes,
+        level: 1,
+      );
+      final compressed9 = await compressionService.compressGzip(
+        bytes,
+        level: 9,
+      );
 
       // Higher compression level should result in smaller size
       expect(compressed9.length, lessThanOrEqualTo(compressed1.length));
@@ -52,7 +58,7 @@ void main() {
 
     test('should handle empty data', () async {
       final bytes = <int>[];
-      
+
       final compressed = await compressionService.compressGzip(bytes);
       final decompressed = await compressionService.decompressGzip(compressed);
 
@@ -149,7 +155,10 @@ void main() {
       final size = 100;
 
       final ratio = compressionService.getCompressionRatio(size, size);
-      final percentage = compressionService.getCompressionPercentage(size, size);
+      final percentage = compressionService.getCompressionPercentage(
+        size,
+        size,
+      );
 
       expect(ratio, 1.0);
       expect(percentage, 0.0);
@@ -275,10 +284,7 @@ void main() {
           (i) => {
             'points': List.generate(
               100,
-              (j) => {
-                'x': (i * j).toDouble(),
-                'y': (i + j).toDouble(),
-              },
+              (j) => {'x': (i * j).toDouble(), 'y': (i + j).toDouble()},
             ),
             'color': '#${i.toRadixString(16).padLeft(6, '0')}',
             'width': (i % 10) + 1.0,
@@ -292,7 +298,7 @@ void main() {
 
       // Should complete in reasonable time (< 1 second)
       expect(stopwatch.elapsedMilliseconds, lessThan(1000));
-      
+
       // Should achieve good compression ratio
       final originalSize = utf8.encode(jsonEncode(largeCanvas)).length;
       final ratio = compressionService.getCompressionRatio(
