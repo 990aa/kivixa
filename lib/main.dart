@@ -5,10 +5,10 @@ import 'package:kivixa/services/resource_cleanup_manager.dart';
 void main() {
   // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize resource cleanup for long-running performance
   ResourceCleanupManager.startPeriodicCleanup();
-  
+
   runApp(const MyApp());
 }
 
