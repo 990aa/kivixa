@@ -5,12 +5,15 @@ import '../screens/pdf_viewer_screen.dart';
 import '../screens/markdown_editor_screen.dart';
 import '../screens/infinite_canvas_screen.dart';
 import '../screens/advanced_drawing_screen.dart';
+import '../screens/archive_management_screen.dart';
+import '../screens/file_browser_screen.dart';
 import '../database/folder_repository.dart';
 import '../database/document_repository.dart';
 import '../models/folder.dart';
 import '../models/drawing_document.dart';
 import '../widgets/folder_tree_view.dart';
 import '../widgets/document_grid_view.dart';
+import '../services/resource_cleanup_manager.dart';
 
 /// Home screen with file browser and creation options
 class HomeScreen extends StatefulWidget {
