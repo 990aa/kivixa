@@ -7,7 +7,7 @@ import 'dart:io';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize sqflite_ffi for testing
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
@@ -44,8 +44,9 @@ void main() {
       expect(find.text('About'), findsOneWidget);
     });
 
-    testWidgets('should navigate to file browser from drawer',
-        (WidgetTester tester) async {
+    testWidgets('should navigate to file browser from drawer', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -61,8 +62,9 @@ void main() {
       expect(find.byType(Scaffold), findsWidgets);
     });
 
-    testWidgets('should navigate to archive management from drawer',
-        (WidgetTester tester) async {
+    testWidgets('should navigate to archive management from drawer', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -78,8 +80,9 @@ void main() {
       expect(find.byType(Scaffold), findsWidgets);
     });
 
-    testWidgets('should trigger resource cleanup from drawer',
-        (WidgetTester tester) async {
+    testWidgets('should trigger resource cleanup from drawer', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -95,8 +98,9 @@ void main() {
       expect(find.text('Cleanup completed'), findsOneWidget);
     });
 
-    testWidgets('should show about dialog from drawer',
-        (WidgetTester tester) async {
+    testWidgets('should show about dialog from drawer', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -115,8 +119,9 @@ void main() {
   });
 
   group('Quick Action Buttons', () {
-    testWidgets('should show all quick action buttons',
-        (WidgetTester tester) async {
+    testWidgets('should show all quick action buttons', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -125,8 +130,9 @@ void main() {
       expect(find.text('Canvas'), findsOneWidget);
     });
 
-    testWidgets('should show markdown creation dialog',
-        (WidgetTester tester) async {
+    testWidgets('should show markdown creation dialog', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -139,8 +145,9 @@ void main() {
       expect(find.text('Create Markdown Document'), findsOneWidget);
     });
 
-    testWidgets('should show canvas type selection dialog',
-        (WidgetTester tester) async {
+    testWidgets('should show canvas type selection dialog', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -172,8 +179,9 @@ void main() {
       expect(find.text('Documents'), findsOneWidget);
     });
 
-    testWidgets('should show folder creation button',
-        (WidgetTester tester) async {
+    testWidgets('should show folder creation button', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -189,8 +197,9 @@ void main() {
   });
 
   group('Folder Management', () {
-    testWidgets('should show folder creation dialog',
-        (WidgetTester tester) async {
+    testWidgets('should show folder creation dialog', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -203,8 +212,9 @@ void main() {
       expect(find.text('Create Folder'), findsOneWidget);
     });
 
-    testWidgets('should create folder with valid name',
-        (WidgetTester tester) async {
+    testWidgets('should create folder with valid name', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -221,8 +231,9 @@ void main() {
       expect(find.byType(AlertDialog), findsNothing);
     });
 
-    testWidgets('should not create folder with empty name',
-        (WidgetTester tester) async {
+    testWidgets('should not create folder with empty name', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -240,8 +251,9 @@ void main() {
   });
 
   group('App Lifecycle', () {
-    testWidgets('should initialize resource cleanup',
-        (WidgetTester tester) async {
+    testWidgets('should initialize resource cleanup', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -249,8 +261,9 @@ void main() {
       expect(find.byType(MaterialApp), findsOneWidget);
     });
 
-    testWidgets('should handle app pause and resume',
-        (WidgetTester tester) async {
+    testWidgets('should handle app pause and resume', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -268,20 +281,22 @@ void main() {
   });
 
   group('Navigation', () {
-    testWidgets('should have proper navigation structure',
-        (WidgetTester tester) async {
+    testWidgets('should have proper navigation structure', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
       // Check that MaterialApp is present
       expect(find.byType(MaterialApp), findsOneWidget);
-      
+
       // Check that home screen is shown
       expect(find.text('Kivixa'), findsOneWidget);
     });
 
-    testWidgets('should close drawer when tapping home',
-        (WidgetTester tester) async {
+    testWidgets('should close drawer when tapping home', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -299,10 +314,11 @@ void main() {
   });
 
   group('UI Responsiveness', () {
-    testWidgets('should show loading indicator during initial load',
-        (WidgetTester tester) async {
+    testWidgets('should show loading indicator during initial load', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
-      
+
       // Before pumping and settling, might see loading indicator
       // After settling, content should be shown
       await tester.pumpAndSettle();
@@ -332,8 +348,9 @@ void main() {
       expect(app.theme?.useMaterial3, true);
     });
 
-    testWidgets('should have proper app bar styling',
-        (WidgetTester tester) async {
+    testWidgets('should have proper app bar styling', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -343,8 +360,9 @@ void main() {
   });
 
   group('Error Handling', () {
-    testWidgets('should handle database errors gracefully',
-        (WidgetTester tester) async {
+    testWidgets('should handle database errors gracefully', (
+      WidgetTester tester,
+    ) async {
       // Close database to simulate error
       await DatabaseHelper.close();
 
