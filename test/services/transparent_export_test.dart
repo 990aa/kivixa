@@ -29,10 +29,7 @@ void main() {
     test('should export canvas with transparent background', () async {
       final strokes = [
         Stroke(
-          points: [
-            const Offset(10, 10),
-            const Offset(100, 100),
-          ],
+          points: [const Offset(10, 10), const Offset(100, 100)],
           color: Colors.black,
           strokeWidth: 2.0,
         ),
@@ -91,7 +88,7 @@ void main() {
       );
 
       expect(await file.exists(), true);
-      
+
       // File should be larger due to higher resolution
       final fileSize = await file.length();
       expect(fileSize, greaterThan(0));
@@ -178,17 +175,17 @@ void main() {
       // Create image with transparency
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
-      
+
       final paint = Paint()
         ..color = Colors.blue.withOpacity(0.5)
         ..style = PaintingStyle.fill;
-      
+
       canvas.drawRect(const Rect.fromLTWH(0, 0, 100, 100), paint);
-      
+
       final picture = recorder.endRecording();
       final image = await picture.toImage(100, 100);
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      
+
       final file = File('${testDir.path}/test_alpha.png');
       await file.writeAsBytes(bytes!.buffer.asUint8List());
 
@@ -223,18 +220,18 @@ void main() {
     test('should identify fully opaque pixels', () async {
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
-      
+
       // Draw fully opaque rectangle
       final paint = Paint()
         ..color = Colors.red
         ..style = PaintingStyle.fill;
-      
+
       canvas.drawRect(const Rect.fromLTWH(0, 0, 100, 100), paint);
-      
+
       final picture = recorder.endRecording();
       final image = await picture.toImage(100, 100);
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      
+
       final file = File('${testDir.path}/opaque.png');
       await file.writeAsBytes(bytes!.buffer.asUint8List());
 
@@ -331,7 +328,7 @@ void main() {
 
     test('should use correct blend mode for eraser', () async {
       final exporter = TransparentExporter(eraserBlendMode: BlendMode.clear);
-      
+
       final strokes = [
         Stroke(
           points: [const Offset(0, 0), const Offset(100, 100)],

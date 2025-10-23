@@ -12,7 +12,7 @@ void main() {
     testDir = await Directory.systemTemp.createTemp('cleanup_test_');
   });
 
-  tearDown() async {
+  tearDown(() async {
     ResourceCleanupManager.stopPeriodicCleanup();
     if (await testDir.exists()) {
       await testDir.delete(recursive: true);
