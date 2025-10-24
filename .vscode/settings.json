@@ -30,6 +30,25 @@
   "files.exclude": {
     "**/.git": false,
     "**/.dart_tool": true,
-    "**/pubspec.lock": false
-  }
+    "**/pubspec.lock": false,
+    ".sentry-native": true,
+    "android/.gradle/": true,
+    "android/.kotlin/": true,
+    "submodules/*/*": true,
+    "linux/flutter/ephemeral/": true,
+    "**/.dart_tool/": true,
+    "**/.idea/": true,
+    "**/.flutter-plugins-dependencies": true,
+    },
+    
+    "editor.defaultFormatter": "Dart-Code.dart-code",
+    "editor.formatOnSave": true,
+    "dart.doNotFormat": [
+        "**/submodules/**",
+        "**/lib/i18n/**.g.dart"
+    ],
+    "dart.analysisExcludedFolders": [
+        "submodules"
+    ],
+    "cmake.ignoreCMakeListsMissing": true
 }
