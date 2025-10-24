@@ -418,7 +418,6 @@ flutter build windows --release
 5. **OCR Integration** - Text recognition from images in PDFs
 6. **Crash Reporting** - Firebase Crashlytics for production monitoring
 7. **Analytics** - Track feature usage and performance metrics
-8. **Internationalization** - Multi-language support (i18n)
 
 ---
 
