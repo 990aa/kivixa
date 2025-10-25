@@ -55,21 +55,28 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.1
   drift_dev: ^2.20.3
   build_runner: ^2.4.13
+  yaml: ^3.1.2
+  golden_screenshot: ^5.1.0  
+  path_provider_platform_interface: ^2.0.0
+  plugin_platform_interface: ^2.0.0
 
 flutter:
-
   uses-material-design: true
-
-  # Shader assets
   shaders:
     - shaders/texture_brush.frag
+    - shaders/pencil.frag
+
 
 flutter_launcher_icons:
-  android: true
+  android:
+    enable: true
+    adaptive_background_color: "#00ddff"
+    adaptive_foreground_image: "icon_k.png"
   ios: true
   image_path: "icon.png"
   windows:
     generate: true
+    enable: true
     image_path: "icon.png"
     icon_size: 48
   macos:
