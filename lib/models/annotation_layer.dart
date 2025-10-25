@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'annotation_data.dart';
-import 'image_annotation.dart';
+import 'package:kivixa/models/annotation_data.dart';
+import 'package:kivixa/models/image_annotation.dart';
 
 /// Model that manages multiple annotations for a PDF document
 ///
@@ -138,7 +138,7 @@ class AnnotationLayer {
     AnnotationData? mostRecent;
     int? targetPage;
 
-    for (var entry in _annotationsByPage.entries) {
+    for (final entry in _annotationsByPage.entries) {
       final pageAnnotations = entry.value;
       if (pageAnnotations.isNotEmpty) {
         final lastAnnotation = pageAnnotations.last;
@@ -199,7 +199,7 @@ class AnnotationLayer {
 
   /// Clears all annotations from all pages
   void clearAll() {
-    for (var annotations in _annotationsByPage.values) {
+    for (final annotations in _annotationsByPage.values) {
       _undoStack.addAll(annotations);
     }
 
@@ -262,7 +262,7 @@ class AnnotationLayer {
 
     final Map<int, List<AnnotationData>> annotationsByPage = {};
 
-    for (var entry in pagesData.entries) {
+    for (final entry in pagesData.entries) {
       final pageNumber = int.parse(entry.key);
       final List<dynamic> annotationsJson = entry.value;
 
@@ -277,7 +277,7 @@ class AnnotationLayer {
       final Map<String, dynamic> imagePagesData =
           data['imagePages'] as Map<String, dynamic>;
 
-      for (var entry in imagePagesData.entries) {
+      for (final entry in imagePagesData.entries) {
         final pageNumber = int.parse(entry.key);
         final List<dynamic> imagesJson = entry.value;
 
@@ -303,15 +303,15 @@ class AnnotationLayer {
     final importedLayer = AnnotationLayer.fromJson(jsonString);
 
     // Import stroke annotations
-    for (var entry in importedLayer._annotationsByPage.entries) {
-      for (var annotation in entry.value) {
+    for (final entry in importedLayer._annotationsByPage.entries) {
+      for (final annotation in entry.value) {
         addAnnotation(annotation);
       }
     }
 
     // Import image annotations
-    for (var entry in importedLayer._imageAnnotationsByPage.entries) {
-      for (var imageAnnotation in entry.value) {
+    for (final entry in importedLayer._imageAnnotationsByPage.entries) {
+      for (final imageAnnotation in entry.value) {
         addImageAnnotation(imageAnnotation);
       }
     }

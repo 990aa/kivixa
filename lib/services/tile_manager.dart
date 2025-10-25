@@ -1,7 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../models/drawing_layer.dart';
-import '../models/layer_stroke.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/layer_stroke.dart';
 
 /// Tile-based rendering manager for massive canvases
 ///
@@ -21,10 +21,10 @@ import '../models/layer_stroke.dart';
 /// );
 /// ```
 class TileManager {
-  static const int tileSize = 512; // Pixels per tile
+  static const tileSize = 512; // Pixels per tile
 
   final Map<String, CachedTile> _tileCache = {};
-  final int _maxCachedTiles =
+  final _maxCachedTiles =
       50; // Limit memory usage (~50MB at 512x512)  // Track which tiles are visible
   Set<String> _visibleTileKeys = {};
 
@@ -74,7 +74,7 @@ class TileManager {
     final endX = (viewport.right / scaledTileSize).ceil();
     final startY = (viewport.top / scaledTileSize).floor();
     final endY = (viewport.bottom / scaledTileSize).ceil();
-    List<TileCoordinate> tiles = [];
+    final List<TileCoordinate> tiles = [];
 
     for (int x = startX; x <= endX; x++) {
       for (int y = startY; y <= endY; y++) {

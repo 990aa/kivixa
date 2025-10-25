@@ -7,7 +7,7 @@ class DirtyRegionTracker {
   final List<ui.Rect> _dirtyRegions = [];
 
   /// Whether the entire canvas is dirty (e.g., after major change)
-  bool _isFullyDirty = false;
+  var _isFullyDirty = false;
 
   /// Minimum size threshold for merging nearby regions (in pixels)
   final double mergeThreshold;
@@ -131,7 +131,7 @@ class DirtyRegionTracker {
   /// Get statistics about dirty regions
   DirtyRegionStats getStats() {
     if (_isFullyDirty) {
-      return DirtyRegionStats(
+      return const DirtyRegionStats(
         regionCount: -1,
         totalArea: double.infinity,
         coverage: 1.0,

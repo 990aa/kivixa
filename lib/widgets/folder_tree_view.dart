@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/folder.dart';
+import 'package:kivixa/models/folder.dart';
 
 /// Tree view widget for displaying hierarchical folder structure
 ///
@@ -50,7 +50,7 @@ class _FolderTreeViewState extends State<FolderTreeView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.folder_open, size: 64, color: Colors.grey),
+            const Icon(Icons.folder_open, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             Text(
               'No folders yet',

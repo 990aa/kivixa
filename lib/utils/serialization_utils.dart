@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
-import '../models/stroke.dart';
-import '../models/canvas_element.dart';
-import '../models/shape_tool.dart';
+import 'package:kivixa/models/stroke.dart';
+import 'package:kivixa/models/canvas_element.dart';
+import 'package:kivixa/models/shape_tool.dart';
 
 /// Utilities for serializing and deserializing canvas data
 class SerializationUtils {

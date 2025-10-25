@@ -1,17 +1,17 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import '../models/drawing_layer.dart';
-import '../models/vector_stroke.dart';
-import '../models/stroke_point.dart';
-import '../models/layer_stroke.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/vector_stroke.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/models/layer_stroke.dart';
 
 /// PDF coordinate system transformer
 /// PDFs use bottom-left origin (72 points per inch)
 /// Flutter uses top-left origin (pixels)
 class PDFCoordinateTransformer {
   final double pageHeightInPoints;
-  static const double pdfDPI = 72.0;
+  static const pdfDPI = 72.0;
 
   PDFCoordinateTransformer(this.pageHeightInPoints);
 
@@ -56,7 +56,7 @@ class PDFDrawingManager {
   PDFCoordinateTransformer? transformer;
 
   /// Current page being drawn on
-  int currentPageIndex = 0;
+  var currentPageIndex = 0;
 
   /// Load PDF and prepare for annotation
   Future<void> loadPDF(Uint8List pdfBytes) async {

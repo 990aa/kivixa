@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:archive/archive.dart';
 import 'package:path_provider/path_provider.dart';
-import '../database/archive_repository.dart';
-import '../database/document_repository.dart';
-import '../models/archived_document.dart';
-import '../models/drawing_document.dart';
+import 'package:kivixa/database/archive_repository.dart';
+import 'package:kivixa/database/document_repository.dart';
+import 'package:kivixa/models/archived_document.dart';
+import 'package:kivixa/models/drawing_document.dart';
 
 /// Archive management service
 ///
@@ -28,8 +28,8 @@ import '../models/drawing_document.dart';
 /// await service.unarchiveDocument(archivedDoc);
 /// ```
 class ArchiveService {
-  final ArchiveRepository _archiveRepo = ArchiveRepository();
-  final DocumentRepository _documentRepo = DocumentRepository();
+  final _archiveRepo = ArchiveRepository();
+  final _documentRepo = DocumentRepository();
 
   /// Get archive directory path
   Future<String> getArchiveDirectory() async {
@@ -302,7 +302,7 @@ class ArchiveService {
 
       final bytes = await file.readAsBytes();
       // Use gzip for estimation (faster than zip)
-      final compressed = GZipEncoder().encode(bytes);
+      final compressed = const GZipEncoder().encode(bytes);
       // Note: encode() always returns a non-null List<int>
 
       return compressed.length / bytes.length;

@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
-import '../models/annotation_data.dart';
+import 'package:kivixa/models/annotation_data.dart';
 import 'dart:ui' as ui;
 
 class ExportService {

@@ -1,4 +1,4 @@
-import 'drawing_document.dart';
+import 'package:kivixa/models/drawing_document.dart';
 
 /// Archived document model
 ///

@@ -185,7 +185,7 @@ class AppDatabase extends _$AppDatabase {
     final sanitizedQuery = query.replaceAll(RegExp(r'[^\w\s]'), ' ');
 
     // Use FTS5 MATCH query for full-text search
-    final ftsQuery = '''
+    const ftsQuery = '''
       SELECT n.* FROM notes n
       INNER JOIN notes_fts fts ON n.id = fts.rowid
       WHERE notes_fts MATCH ?

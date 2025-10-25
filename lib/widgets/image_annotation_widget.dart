@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/image_annotation.dart';
+import 'package:kivixa/models/image_annotation.dart';
 
 /// Interactive widget for displaying and manipulating image annotations
 /// Supports dragging and resizing with corner handles
@@ -263,7 +263,6 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
           ),
           (newPosition.dy - pdfDelta.dy).clamp(minSize, widget.pageSize.height),
         );
-        break;
 
       case ResizeDirection.topRight:
         // Resize from top-right: increase width, decrease height
@@ -279,7 +278,6 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
           newPosition.dx,
           (newPosition.dy - pdfDelta.dy).clamp(minSize, widget.pageSize.height),
         );
-        break;
 
       case ResizeDirection.bottomLeft:
         // Resize from bottom-left: decrease width, increase height
@@ -298,7 +296,6 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
           ),
           newPosition.dy,
         );
-        break;
 
       case ResizeDirection.bottomRight:
         // Resize from bottom-right: increase both width and height
@@ -310,7 +307,6 @@ class _ImageAnnotationWidgetState extends State<ImageAnnotationWidget> {
           minSize,
           widget.pageSize.height,
         );
-        break;
     }
 
     // Smooth, continuous update with no quantization

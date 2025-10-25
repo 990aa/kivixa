@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
-import '../database/drawing_database.dart';
-import '../models/folder.dart';
+import 'package:kivixa/database/drawing_database.dart';
+import 'package:kivixa/models/folder.dart';
 
 /// Repository for folder operations
 ///

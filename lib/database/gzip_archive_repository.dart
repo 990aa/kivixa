@@ -1,8 +1,8 @@
 import 'package:sqflite/sqflite.dart';
-import '../database/drawing_database.dart';
-import '../models/archived_document.dart';
-import '../models/drawing_document.dart';
-import '../services/compression_service.dart';
+import 'package:kivixa/database/drawing_database.dart';
+import 'package:kivixa/models/archived_document.dart';
+import 'package:kivixa/models/drawing_document.dart';
+import 'package:kivixa/services/compression_service.dart';
 
 /// Enhanced archive repository with GZIP compression
 ///

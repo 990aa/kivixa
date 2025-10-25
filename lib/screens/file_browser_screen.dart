@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../database/folder_repository.dart';
-import '../database/document_repository.dart';
-import '../database/tag_repository.dart';
-import '../models/folder.dart';
-import '../models/drawing_document.dart';
-import '../widgets/folder_tree_view.dart';
-import '../widgets/search_filter_panel.dart';
-import '../widgets/document_grid_view.dart';
+import 'package:kivixa/database/folder_repository.dart';
+import 'package:kivixa/database/document_repository.dart';
+import 'package:kivixa/database/tag_repository.dart';
+import 'package:kivixa/models/folder.dart';
+import 'package:kivixa/models/drawing_document.dart';
+import 'package:kivixa/widgets/folder_tree_view.dart';
+import 'package:kivixa/widgets/search_filter_panel.dart';
+import 'package:kivixa/widgets/document_grid_view.dart';
 
 /// Comprehensive file browser screen integrating all organization features
 ///
@@ -33,9 +33,9 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
   List<DrawingDocument> _documents = [];
   Folder? _selectedFolder;
   SearchFilterCriteria? _filterCriteria;
-  bool _isLoading = true;
-  bool _showFilters = false;
-  int _gridColumns = 3;
+  var _isLoading = true;
+  var _showFilters = false;
+  var _gridColumns = 3;
 
   @override
   void initState() {
@@ -534,7 +534,7 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
       ),
     );
 
-    if (confirmed == true && folder.id != null) {
+    if (confirmed ?? false && folder.id != null) {
       await folderRepo.delete(folder.id!);
       _loadData();
     }
@@ -693,7 +693,7 @@ class _FileBrowserScreenState extends State<FileBrowserScreen> {
       ),
     );
 
-    if (confirmed == true && document.id != null) {
+    if (confirmed ?? false && document.id != null) {
       await documentRepo.delete(document.id!);
       _loadDocuments();
     }

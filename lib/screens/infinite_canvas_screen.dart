@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../widgets/infinite_canvas.dart';
-import '../models/stroke.dart';
-import '../models/canvas_element.dart';
-import '../services/image_picker_service.dart';
-import '../services/export_import_service.dart';
-import '../widgets/canvas_element_widget.dart';
+import 'package:kivixa/widgets/infinite_canvas.dart';
+import 'package:kivixa/models/stroke.dart';
+import 'package:kivixa/models/canvas_element.dart';
+import 'package:kivixa/services/image_picker_service.dart';
+import 'package:kivixa/services/export_import_service.dart';
+import 'package:kivixa/widgets/canvas_element_widget.dart';
 
 /// Demo screen to showcase the infinite canvas with pan/zoom capabilities
 class InfiniteCanvasScreen extends StatefulWidget {
@@ -17,12 +17,12 @@ class InfiniteCanvasScreen extends StatefulWidget {
 
 class _InfiniteCanvasScreenState extends State<InfiniteCanvasScreen> {
   final GlobalKey _canvasKey = GlobalKey();
-  final ImagePickerService _imagePickerService = ImagePickerService();
-  final ExportImportService _exportService = ExportImportService();
+  final _imagePickerService = ImagePickerService();
+  final _exportService = ExportImportService();
 
   Color _currentColor = Colors.black;
-  double _currentStrokeWidth = 4.0;
-  bool _isHighlighter = false;
+  var _currentStrokeWidth = 4.0;
+  var _isHighlighter = false;
   List<Stroke> _strokes = [];
   List<CanvasElement> _elements = [];
 
@@ -271,7 +271,7 @@ class _InfiniteCanvasScreenState extends State<InfiniteCanvasScreen> {
           ),
           // Canvas
           Expanded(
-            child: Container(
+            child: ColoredBox(
               color: Colors.white,
               child: InfiniteCanvas(
                 key: _canvasKey,

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import '../services/pdf_drawing_manager.dart';
-import '../models/drawing_layer.dart';
-import '../models/layer_stroke.dart';
-import '../models/stroke_point.dart';
-import '../models/brush_settings.dart';
+import 'package:kivixa/services/pdf_drawing_manager.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/layer_stroke.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/models/brush_settings.dart';
 
 /// PDF viewer with drawing overlay for annotation
 class PDFDrawingCanvas extends StatefulWidget {
@@ -25,13 +25,13 @@ class PDFDrawingCanvas extends StatefulWidget {
 }
 
 class _PDFDrawingCanvasState extends State<PDFDrawingCanvas> {
-  final PdfViewerController _pdfController = PdfViewerController();
-  final PDFDrawingManager _drawingManager = PDFDrawingManager();
+  final _pdfController = PdfViewerController();
+  final _drawingManager = PDFDrawingManager();
 
   LayerStroke? _currentStroke;
-  int _currentPage = 0;
-  bool _isLoading = true;
-  bool _drawingEnabled = true;
+  var _currentPage = 0;
+  var _isLoading = true;
+  var _drawingEnabled = true;
 
   // Current brush settings
   late BrushSettings _brushSettings;
@@ -41,7 +41,7 @@ class _PDFDrawingCanvasState extends State<PDFDrawingCanvas> {
     super.initState();
     _brushSettings = _brushSettings =
         widget.defaultBrushSettings ??
-        BrushSettings(
+        const BrushSettings(
           brushType: 'pen',
           color: Colors.black,
           size: 3.0,

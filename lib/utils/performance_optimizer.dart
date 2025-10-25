@@ -1,4 +1,4 @@
-import '../models/annotation_data.dart';
+import 'package:kivixa/models/annotation_data.dart';
 
 class PerformanceOptimizer {
   List<AnnotationData> simplifyAnnotations(List<AnnotationData> annotations, double tolerance) {
@@ -24,7 +24,7 @@ class PerformanceOptimizer {
     }
 
     final double sqTolerance = tolerance * tolerance;
-    List<T> simplified = [];
+    final List<T> simplified = [];
 
     // Add the first point
     simplified.add(points.first);
@@ -44,7 +44,7 @@ class PerformanceOptimizer {
     int index = 0;
 
     for (int i = startIndex + 1; i < endIndex; i++) {
-      double d = 0.0; // Placeholder for distance calculation logic
+      final double d = 0.0; // Placeholder for distance calculation logic
       if (d > dmax) {
         index = i;
         dmax = d;

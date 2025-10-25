@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/canvas_settings.dart';
-import '../models/drawing_layer.dart';
-import '../models/layer_stroke.dart';
-import '../models/stroke_point.dart';
-import '../widgets/canvas_view.dart';
+import 'package:kivixa/models/canvas_settings.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/layer_stroke.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/widgets/canvas_view.dart';
 import 'dart:math' as math;
 
 /// Example demonstrating canvas manipulation features
@@ -17,7 +17,7 @@ class CanvasManipulationExample extends StatefulWidget {
 
 class _CanvasManipulationExampleState extends State<CanvasManipulationExample> {
   final GlobalKey<CanvasViewState> _canvasKey = GlobalKey();
-  CanvasSettings _settings = const CanvasSettings(
+  var _settings = const CanvasSettings(
     preset: CanvasPreset.square2048,
     showGrid: true,
     gridSize: 50.0,

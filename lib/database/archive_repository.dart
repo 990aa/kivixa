@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:archive/archive.dart';
 import 'package:path/path.dart' as path;
 import 'package:sqflite/sqflite.dart';
-import 'drawing_database.dart';
-import '../models/archived_document.dart';
-import '../models/drawing_document.dart';
+import 'package:kivixa/database/drawing_database.dart';
+import 'package:kivixa/models/archived_document.dart';
+import 'package:kivixa/models/drawing_document.dart';
 
 /// Repository for managing archived documents
 ///
@@ -18,7 +18,7 @@ import '../models/drawing_document.dart';
 /// - Query archived documents
 /// - Calculate storage savings
 class ArchiveRepository {
-  static const String tableArchives = 'archives';
+  static const tableArchives = 'archives';
 
   /// Get database instance
   Future<Database> get database async => DrawingDatabase.database;

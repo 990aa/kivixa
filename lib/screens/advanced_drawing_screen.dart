@@ -2,14 +2,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:vector_math/vector_math_64.dart' show Vector3;
-import '../widgets/drawing_workspace_layout.dart';
-import '../widgets/precise_canvas_gesture_handler.dart';
-import '../models/drawing_layer.dart';
-import '../models/layer_stroke.dart';
-import '../models/stroke_point.dart' as model;
-import '../services/drawing_processor.dart';
-import '../services/tile_manager.dart';
-import '../services/lossless_exporter.dart';
+import 'package:kivixa/widgets/drawing_workspace_layout.dart';
+import 'package:kivixa/widgets/precise_canvas_gesture_handler.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/layer_stroke.dart';
+import 'package:kivixa/models/stroke_point.dart' as model;
+import 'package:kivixa/services/drawing_processor.dart';
+import 'package:kivixa/services/tile_manager.dart';
+import 'package:kivixa/services/lossless_exporter.dart';
 
 /// Advanced drawing screen with all integrated features:
 /// - Gesture handling (1 finger draw, 2+ finger navigate)
@@ -25,13 +25,13 @@ class AdvancedDrawingScreen extends StatefulWidget {
 }
 
 class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
-  final TransformationController _transformController =
+  final _transformController =
       TransformationController();
-  final TileManager _tileManager = TileManager();
+  final _tileManager = TileManager();
 
   // Drawing state
   List<DrawingLayer> _layers = [];
-  int _currentLayerIndex = 0;
+  var _currentLayerIndex = 0;
   LayerStroke? _currentStroke;
   List<Offset> _currentPoints = [];
 
@@ -41,14 +41,14 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
 
   // UI state
   Color _currentColor = Colors.black;
-  double _currentStrokeWidth = 3.0;
-  double _zoomLevel = 1.0;
+  var _currentStrokeWidth = 3.0;
+  var _zoomLevel = 1.0;
   Offset _canvasOffset = Offset.zero;
-  bool _isProcessing = false;
-  String _statusText = 'Ready';
+  var _isProcessing = false;
+  var _statusText = 'Ready';
 
   // Canvas settings
-  final Size _canvasSize = const Size(4000, 4000); // Large canvas
+  final _canvasSize = const Size(4000, 4000); // Large canvas
 
   @override
   void initState() {
@@ -209,9 +209,9 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          Text(
+          const Text(
             'Kivixa Pro',
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -316,7 +316,7 @@ class _AdvancedDrawingScreenState extends State<AdvancedDrawingScreen> {
           // Panel header
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               border: Border(bottom: BorderSide(color: Colors.white24)),
             ),
             child: const Text(

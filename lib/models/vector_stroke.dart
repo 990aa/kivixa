@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/stroke_point.dart';
-import '../models/brush_settings.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/models/brush_settings.dart';
 import 'dart:math' as math;
 
 /// Vector stroke that can be rendered at any resolution

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/stroke_point.dart';
-import '../models/brush_settings.dart';
-import '../services/brush_stroke_renderer.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/models/brush_settings.dart';
+import 'package:kivixa/services/brush_stroke_renderer.dart';
 
 /// Example: Comprehensive brush engine demonstration
 /// Shows all brush types with interactive controls
@@ -14,14 +14,14 @@ class BrushEngineExample extends StatefulWidget {
 }
 
 class _BrushEngineExampleState extends State<BrushEngineExample> {
-  final BrushStrokeRenderer _renderer = BrushStrokeRenderer();
+  final _renderer = BrushStrokeRenderer();
   final List<_StrokeData> _strokes = [];
   List<StrokePoint> _currentPoints = [];
-  bool _isDrawing = false;
+  var _isDrawing = false;
 
   // Current brush settings
-  BrushSettings _brushSettings = BrushSettings.pen();
-  String _selectedBrushType = 'pen';
+  var _brushSettings = BrushSettings.pen();
+  var _selectedBrushType = 'pen';
 
   @override
   void initState() {
@@ -268,7 +268,7 @@ class _BrushEngineExampleState extends State<BrushEngineExample> {
                       ? Border.all(color: Colors.white, width: 3)
                       : null,
                   boxShadow: isSelected
-                      ? [BoxShadow(color: Colors.black26, blurRadius: 4)]
+                      ? [const BoxShadow(color: Colors.black26, blurRadius: 4)]
                       : null,
                 ),
               ),

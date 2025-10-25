@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
-import '../models/drawing_layer.dart';
-import '../models/layer_stroke.dart';
-import '../models/stroke_point.dart';
-import '../painters/display_export_painter.dart';
-import '../services/alpha_channel_verifier.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/layer_stroke.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/painters/display_export_painter.dart';
+import 'package:kivixa/services/alpha_channel_verifier.dart';
 
 /// Interactive example demonstrating the critical architectural separation
 /// between display rendering (with background) and export rendering (transparent).
@@ -26,8 +26,8 @@ class _DisplayVsExportExampleState extends State<DisplayVsExportExample> {
   late List<DrawingLayer> _layers;
   Uint8List? _exportedImageBytes;
   Map<String, dynamic>? _transparencyStats;
-  bool _showBackground = true;
-  bool _isExporting = false;
+  var _showBackground = true;
+  var _isExporting = false;
 
   @override
   void initState() {

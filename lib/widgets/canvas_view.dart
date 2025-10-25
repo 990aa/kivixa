@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
-import '../models/canvas_settings.dart';
-import '../models/drawing_layer.dart';
-import '../painters/grid_overlay_painter.dart';
+import 'package:kivixa/models/canvas_settings.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/painters/grid_overlay_painter.dart';
 import 'dart:math' as math;
 
 /// Interactive canvas view with zoom, pan, and rotation
@@ -27,10 +27,10 @@ class CanvasView extends StatefulWidget {
 }
 
 class CanvasViewState extends State<CanvasView> {
-  final TransformationController _transformController =
+  final _transformController =
       TransformationController();
-  double _rotation = 0.0;
-  double _currentScale = 1.0;
+  var _rotation = 0.0;
+  var _currentScale = 1.0;
   Offset _currentTranslation = Offset.zero;
 
   @override
@@ -60,7 +60,7 @@ class CanvasViewState extends State<CanvasView> {
   /// Zoom in programmatically
   void zoomIn() {
     final matrix = _transformController.value.clone();
-    final scale = 1.2;
+    const scale = 1.2;
 
     // Get viewport center
     final Size viewportSize = context.size ?? Size.zero;
@@ -92,7 +92,7 @@ class CanvasViewState extends State<CanvasView> {
   /// Zoom out programmatically
   void zoomOut() {
     final matrix = _transformController.value.clone();
-    final scale = 0.8;
+    const scale = 0.8;
 
     // Get viewport center
     final Size viewportSize = context.size ?? Size.zero;

@@ -1,12 +1,12 @@
 import 'package:drift/drift.dart';
-import '../database/database.dart';
-import '../models/stroke.dart' as stroke_model;
-import '../models/canvas_element.dart' as element_model;
-import '../utils/serialization_utils.dart';
+import 'package:kivixa/database/database.dart';
+import 'package:kivixa/models/stroke.dart' as stroke_model;
+import 'package:kivixa/models/canvas_element.dart' as element_model;
+import 'package:kivixa/utils/serialization_utils.dart';
 
 /// Service for managing database operations
 class DatabaseService {
-  final AppDatabase _db = AppDatabase();
+  final _db = AppDatabase();
 
   AppDatabase get database => _db;
 

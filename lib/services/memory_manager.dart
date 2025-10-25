@@ -36,7 +36,7 @@ class MemoryManager {
   final Map<String, _TrackedImage> _images = {};
 
   /// Total memory usage in bytes
-  int _totalMemoryBytes = 0;
+  var _totalMemoryBytes = 0;
 
   MemoryManager({this.maxMemoryMB = 500.0, this.verbose = false});
 

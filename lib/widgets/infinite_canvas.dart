@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
-import '../models/stroke.dart';
-import '../models/canvas_element.dart';
-import '../painters/infinite_canvas_painter.dart';
+import 'package:kivixa/models/stroke.dart';
+import 'package:kivixa/models/canvas_element.dart';
+import 'package:kivixa/painters/infinite_canvas_painter.dart';
 
 /// Infinite canvas widget with pan and zoom capabilities
 class InfiniteCanvas extends StatefulWidget {
@@ -30,11 +30,11 @@ class InfiniteCanvas extends StatefulWidget {
 }
 
 class _InfiniteCanvasState extends State<InfiniteCanvas> {
-  final TransformationController _controller = TransformationController();
+  final _controller = TransformationController();
   List<Stroke> strokes = [];
   List<CanvasElement> elements = [];
   Offset canvasOffset = Offset.zero;
-  bool isDrawing = false;
+  var isDrawing = false;
   List<Offset> currentPoints = [];
 
   @override

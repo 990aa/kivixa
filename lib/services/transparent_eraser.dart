@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/stroke_point.dart';
+import 'package:kivixa/models/stroke_point.dart';
 
 /// Implements true transparency-based eraser (not white painting)
 ///
@@ -131,7 +131,7 @@ class TransparentEraser {
     );
 
     // Draw multiple passes with decreasing size for soft edge
-    final passes = 5;
+    const passes = 5;
     for (int pass = 0; pass < passes; pass++) {
       final sizeFactor = 1.0 - (pass / passes) * softness;
       final alphaMask = 1.0 - (pass / passes);

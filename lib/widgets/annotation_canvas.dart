@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/annotation_data.dart';
-import '../models/annotation_layer.dart';
-import '../models/drawing_tool.dart';
+import 'package:kivixa/models/annotation_data.dart';
+import 'package:kivixa/models/annotation_layer.dart';
+import 'package:kivixa/models/drawing_tool.dart';
 
 class AnnotationCanvas extends StatefulWidget {
   final AnnotationLayer annotationLayer;

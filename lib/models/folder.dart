@@ -19,7 +19,7 @@ class Folder {
 
   // Computed properties (not stored in database)
   List<Folder> subfolders = [];
-  int documentCount = 0;
+  var documentCount = 0;
 
   Folder({
     this.id,

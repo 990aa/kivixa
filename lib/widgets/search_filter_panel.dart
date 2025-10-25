@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../database/tag_repository.dart';
-import '../database/document_repository.dart';
-import '../models/drawing_document.dart';
-import '../models/tag.dart';
+import 'package:kivixa/database/tag_repository.dart';
+import 'package:kivixa/database/document_repository.dart';
+import 'package:kivixa/models/drawing_document.dart';
+import 'package:kivixa/models/tag.dart';
 
 /// Filter and search panel for document organization
 ///
@@ -28,10 +28,10 @@ class SearchFilterPanel extends StatefulWidget {
 
 class _SearchFilterPanelState extends State<SearchFilterPanel> {
   late TextEditingController _searchController;
-  String _searchQuery = '';
+  var _searchQuery = '';
   List<DocumentType> _selectedTypes = [];
   final List<Tag> _selectedTags = [];
-  bool _favoritesOnly = false;
+  var _favoritesOnly = false;
   DocumentSortBy _sortBy = DocumentSortBy.dateModifiedDesc;
 
   @override

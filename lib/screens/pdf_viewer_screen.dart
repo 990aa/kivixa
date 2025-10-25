@@ -8,11 +8,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
-import '../models/annotation_layer.dart';
-import '../models/drawing_tool.dart';
-import '../painters/annotation_painter.dart';
-import '../widgets/annotation_canvas.dart';
-import '../widgets/toolbar_widget.dart';
+import 'package:kivixa/models/annotation_layer.dart';
+import 'package:kivixa/models/drawing_tool.dart';
+import 'package:kivixa/painters/annotation_painter.dart';
+import 'package:kivixa/widgets/annotation_canvas.dart';
+import 'package:kivixa/widgets/toolbar_widget.dart';
 import 'dart:ui' as ui;
 import 'package:pdf/widgets.dart' as pw;
 
@@ -34,19 +34,19 @@ class PDFViewerScreen extends StatefulWidget {
 }
 
 class _PDFViewerScreenState extends State<PDFViewerScreen> {
-  final PdfViewerController _pdfController = PdfViewerController();
+  final _pdfController = PdfViewerController();
 
-  final AnnotationLayer _annotationLayer = AnnotationLayer();
+  final _annotationLayer = AnnotationLayer();
   DrawingTool _currentTool = DrawingTool.pen;
   Color _currentColor = Colors.black;
 
-  bool _isToolbarVisible = true;
-  bool _isLoading = false;
+  var _isToolbarVisible = true;
+  var _isLoading = false;
   String? _error;
 
-  final Size _canvasSize = const Size(595, 842);
-  int _currentPage = 1;
-  int _totalPages = 1;
+  final _canvasSize = const Size(595, 842);
+  var _currentPage = 1;
+  var _totalPages = 1;
 
   @override
   void initState() {

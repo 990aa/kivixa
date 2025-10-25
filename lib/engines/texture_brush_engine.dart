@@ -1,15 +1,15 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../models/stroke_point.dart';
-import '../models/brush_settings.dart';
-import 'brush_engine.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/models/brush_settings.dart';
+import 'package:kivixa/engines/brush_engine.dart';
 
 /// Texture-based brush using fragment shaders
 class TextureBrushEngine extends BrushEngine {
   ui.FragmentProgram? _program;
   ui.FragmentShader? _shader;
-  bool _isShaderLoaded = false;
+  var _isShaderLoaded = false;
 
   /// Load the fragment shader from assets
   Future<void> loadShader() async {

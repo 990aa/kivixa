@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/layer_blend_mode.dart';
+import 'package:kivixa/models/layer_blend_mode.dart';
 
 /// Widget for selecting layer blend modes
 class BlendModeSelector extends StatelessWidget {
@@ -216,7 +216,7 @@ class _BlendModePreviewPainter extends CustomPainter {
     // Draw base layer (gradient)
     final baseRect = Rect.fromLTWH(0, 0, size.width, size.height);
     final basePaint = Paint()
-      ..shader = LinearGradient(
+      ..shader = const LinearGradient(
         colors: [Colors.red, Colors.blue],
       ).createShader(baseRect);
     canvas.drawRect(baseRect, basePaint);

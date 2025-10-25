@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
-import '../database/drawing_database.dart';
-import '../models/drawing_document.dart';
-import '../models/tag.dart';
+import 'package:kivixa/database/drawing_database.dart';
+import 'package:kivixa/models/drawing_document.dart';
+import 'package:kivixa/models/tag.dart';
 
 /// Sort options for documents
 enum DocumentSortBy {
@@ -326,7 +326,7 @@ class DocumentRepository {
     DocumentSortBy sortBy = DocumentSortBy.dateModifiedDesc,
   }) async {
     String whereClause = '1=1'; // Always true base condition
-    List<dynamic> whereArgs = [];
+    final List<dynamic> whereArgs = [];
 
     // Search by name (case-insensitive)
     if (searchQuery != null && searchQuery.isNotEmpty) {
@@ -344,7 +344,7 @@ class DocumentRepository {
 
     // Filter by folder
     if (folderId != null) {
-      if (includeSubfolders == true) {
+      if (includeSubfolders ?? false) {
         // Get all subfolder IDs recursively
         final folderIds = await _getAllSubfolderIds(folderId);
         folderIds.add(folderId);
@@ -358,7 +358,7 @@ class DocumentRepository {
     }
 
     // Filter favorites
-    if (favoritesOnly == true) {
+    if (favoritesOnly ?? false) {
       whereClause += ' AND is_favorite = 1';
     }
 
@@ -366,7 +366,7 @@ class DocumentRepository {
 
     // Execute base query
     final db = await DrawingDatabase.database;
-    List<Map<String, dynamic>> maps = await db.query(
+    final List<Map<String, dynamic>> maps = await db.query(
       DrawingDatabase.tableDocuments,
       where: whereClause,
       whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
@@ -408,10 +408,10 @@ class DocumentRepository {
       whereArgs: [parentFolderId],
     );
 
-    List<int> folderIds = [];
+    final List<int> folderIds = [];
 
     for (final map in maps) {
-      int folderId = map['id'];
+      final int folderId = map['id'];
       folderIds.add(folderId);
       // Recursively get subfolders
       folderIds.addAll(await _getAllSubfolderIds(folderId));

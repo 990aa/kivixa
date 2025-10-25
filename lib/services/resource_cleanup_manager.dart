@@ -23,8 +23,8 @@ import 'package:path_provider/path_provider.dart';
 /// ```
 class ResourceCleanupManager {
   static Timer? _cleanupTimer;
-  static const Duration cleanupInterval = Duration(minutes: 10);
-  static const Duration tempFileMaxAge = Duration(hours: 24);
+  static const cleanupInterval = Duration(minutes: 10);
+  static const tempFileMaxAge = Duration(hours: 24);
 
   /// Start periodic cleanup
   ///
@@ -110,7 +110,7 @@ class ResourceCleanupManager {
       int deletedCount = 0;
       int freedBytes = 0;
 
-      for (var file in files) {
+      for (final file in files) {
         try {
           final stat = await file.stat();
           final age = DateTime.now().difference(stat.modified);
@@ -212,12 +212,10 @@ class AppLifecycleManager extends WidgetsBindingObserver {
       case AppLifecycleState.paused:
         // App going to background
         _onAppPaused();
-        break;
 
       case AppLifecycleState.resumed:
         // App coming to foreground
         _onAppResumed();
-        break;
 
       case AppLifecycleState.inactive:
         // App transitioning
@@ -226,7 +224,6 @@ class AppLifecycleManager extends WidgetsBindingObserver {
       case AppLifecycleState.detached:
         // App terminating
         _onAppTerminating();
-        break;
 
       case AppLifecycleState.hidden:
         break;

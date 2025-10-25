@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/selection_mode.dart';
-import '../tools/selection_tools.dart';
+import 'package:kivixa/models/selection_mode.dart';
+import 'package:kivixa/tools/selection_tools.dart';
 
 /// Example: Comprehensive selection tools demonstration
 /// Shows all selection modes with interactive controls
@@ -15,7 +15,7 @@ class SelectionToolsExample extends StatefulWidget {
 class _SelectionToolsExampleState extends State<SelectionToolsExample>
     with SingleTickerProviderStateMixin {
   SelectionTool? _currentTool;
-  SelectionSettings _settings = const SelectionSettings();
+  var _settings = const SelectionSettings();
 
   late AnimationController _marchingAntsController;
 
@@ -40,19 +40,14 @@ class _SelectionToolsExampleState extends State<SelectionToolsExample>
     switch (_settings.mode) {
       case SelectionMode.rectangular:
         _currentTool = RectangularSelection();
-        break;
       case SelectionMode.ellipse:
         _currentTool = EllipseSelection();
-        break;
       case SelectionMode.lasso:
         _currentTool = LassoSelection();
-        break;
       case SelectionMode.polygonal:
         _currentTool = PolygonalSelection();
-        break;
       case SelectionMode.magicWand:
         _currentTool = MagicWandSelection();
-        break;
     }
   }
 

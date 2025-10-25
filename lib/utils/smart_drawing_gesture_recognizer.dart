@@ -35,7 +35,7 @@ class SmartDrawingGestureRecognizer extends OneSequenceGestureRecognizer {
   Offset? _initialPosition;
 
   /// Has drawing started
-  bool _hasStarted = false;
+  var _hasStarted = false;
 
   SmartDrawingGestureRecognizer({
     this.onDrawStart,

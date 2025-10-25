@@ -4,8 +4,8 @@ import 'dart:ui' as ui;
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '../models/drawing_layer.dart';
-import '../models/layer_stroke.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/layer_stroke.dart';
 
 /// Heavy computation processor using Flutter isolates
 /// Prevents UI blocking during expensive operations
@@ -217,7 +217,7 @@ class DrawingProcessor {
 
         final pathData = _strokeToPathData(stroke);
         final colorHex = _colorToHex(stroke.brushProperties.color);
-        final opacity = 1.0; // LayerStroke doesn't have isHighlighter flag
+        const opacity = 1.0; // LayerStroke doesn't have isHighlighter flag
 
         buffer.writeln(
           '    <path d="$pathData" stroke="$colorHex" stroke-width="${stroke.brushProperties.strokeWidth}" '

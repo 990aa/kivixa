@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
-import '../models/stroke.dart';
+import 'package:kivixa/models/stroke.dart';
 
 /// Performance-optimized painter that only renders visible strokes
 class OptimizedStrokePainter extends CustomPainter {

@@ -12,8 +12,8 @@ import 'dart:convert';
 /// - Recent files tracking with SharedPreferences
 /// - Permission handling
 class FilePickerService {
-  static const String _recentFilesKey = 'recent_pdf_files';
-  static const int _maxRecentFiles = 10;
+  static const _recentFilesKey = 'recent_pdf_files';
+  static const _maxRecentFiles = 10;
 
   /// Pick a PDF file from device storage
   ///
@@ -83,7 +83,7 @@ class FilePickerService {
 
       final List<File> files = [];
 
-      for (var platformFile in result.files) {
+      for (final platformFile in result.files) {
         if (platformFile.path != null) {
           final file = File(platformFile.path!);
 
@@ -167,7 +167,7 @@ class FilePickerService {
 
       // Filter out files that no longer exist
       final List<String> validPaths = [];
-      for (var path in paths) {
+      for (final path in paths) {
         if (await File(path).exists()) {
           validPaths.add(path);
         }

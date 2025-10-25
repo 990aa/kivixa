@@ -5,8 +5,8 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
 import 'package:xml/xml.dart' as xml;
 import 'package:path_drawing/path_drawing.dart';
-import '../models/stroke.dart';
-import '../models/canvas_element.dart';
+import 'package:kivixa/models/stroke.dart';
+import 'package:kivixa/models/canvas_element.dart';
 
 /// Service for exporting and importing canvas data
 class ExportImportService {
@@ -192,7 +192,7 @@ class ExportImportService {
       graphics.drawString(
         element.text,
         font,
-        bounds: Rect.fromLTWH(0, 0, 500, 100),
+        bounds: const Rect.fromLTWH(0, 0, 500, 100),
         pen: PdfPen(pdfColor),
         brush: PdfSolidBrush(pdfColor),
       );

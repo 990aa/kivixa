@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/symmetry_settings.dart';
-import '../models/stroke_point.dart';
+import 'package:kivixa/models/symmetry_settings.dart';
+import 'package:kivixa/models/stroke_point.dart';
 import 'dart:math' as math;
 
 /// Symmetry tool for creating mirrored and radial drawings
@@ -160,19 +160,15 @@ class SymmetryTool {
     switch (settings.mode) {
       case SymmetryMode.horizontal:
         _drawHorizontalGuideline(canvas, size, paint);
-        break;
 
       case SymmetryMode.vertical:
         _drawVerticalGuideline(canvas, size, paint);
-        break;
 
       case SymmetryMode.radial:
         _drawRadialGuidelines(canvas, size, paint, dashedPaint);
-        break;
 
       case SymmetryMode.kaleidoscope:
         _drawKaleidoscopeGuidelines(canvas, size, paint, dashedPaint);
-        break;
 
       case SymmetryMode.none:
         break;

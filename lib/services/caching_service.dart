@@ -1,4 +1,4 @@
-import '../models/annotation_data.dart';
+import 'package:kivixa/models/annotation_data.dart';
 
 class CachingService {
   final Map<int, List<AnnotationData>> _cache = {};

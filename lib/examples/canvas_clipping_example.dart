@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/drawing_layer.dart';
-import '../models/layer_stroke.dart';
-import '../models/stroke_point.dart';
-import '../widgets/clipped_drawing_canvas.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/layer_stroke.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/widgets/clipped_drawing_canvas.dart';
 import 'dart:math' as math;
 
 /// Demonstrates Canvas Clipping System to prevent drawing outside bounds
@@ -21,9 +21,9 @@ class CanvasClippingExample extends StatefulWidget {
 
 class _CanvasClippingExampleState extends State<CanvasClippingExample> {
   final List<DrawingLayer> _layers = [];
-  final Size _canvasSize = const Size(400, 300);
-  bool _useClipping = true;
-  bool _showBoundary = true;
+  final _canvasSize = const Size(400, 300);
+  var _useClipping = true;
+  var _showBoundary = true;
 
   @override
   void initState() {
@@ -303,29 +303,29 @@ class _CanvasClippingExampleState extends State<CanvasClippingExample> {
             padding: const EdgeInsets.all(16.0),
             child: Card(
               color: Colors.blue[50],
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
+              child: const Padding(
+                padding: EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       '🔧 Implementation Details',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    SizedBox(height: 8),
+                    Text(
                       '1. Widget-level: ClipRect with Clip.hardEdge wraps CustomPaint',
                       style: TextStyle(fontSize: 12),
                     ),
-                    const Text(
+                    Text(
                       '2. GPU-level: canvas.clipRect() in paint() method',
                       style: TextStyle(fontSize: 12),
                     ),
-                    const Text(
+                    Text(
                       '3. Hardware acceleration: Clipping happens at GPU level',
                       style: TextStyle(fontSize: 12),
                     ),
-                    const Text(
+                    Text(
                       '4. Performance: Zero overhead, native GPU operation',
                       style: TextStyle(fontSize: 12),
                     ),

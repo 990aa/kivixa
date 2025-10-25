@@ -2,14 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../models/drawing_layer.dart';
-import '../models/layer_stroke.dart';
-import '../models/stroke_point.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/layer_stroke.dart';
+import 'package:kivixa/models/stroke_point.dart';
 
 /// Service for serializing and deserializing layer data
 class LayerSerializationService {
   /// Version of the serialization format
-  static const String currentVersion = '1.0';
+  static const currentVersion = '1.0';
 
   /// Serialize drawing layers to JSON
   static Map<String, dynamic> serializeDrawing(

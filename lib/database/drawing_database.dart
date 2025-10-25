@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'archive_repository.dart';
+import 'package:kivixa/database/archive_repository.dart';
 
 /// SQLite database for managing drawings, folders, tags, and document organization
 ///
@@ -13,14 +13,14 @@ import 'archive_repository.dart';
 /// - Document archiving and compression
 class DrawingDatabase {
   static Database? _database;
-  static const String dbName = 'drawing_app.db';
-  static const int dbVersion = 2;
+  static const dbName = 'drawing_app.db';
+  static const dbVersion = 2;
 
   // Table names
-  static const String tableFolders = 'folders';
-  static const String tableDocuments = 'documents';
-  static const String tableTags = 'tags';
-  static const String tableDocumentTags = 'document_tags';
+  static const tableFolders = 'folders';
+  static const tableDocuments = 'documents';
+  static const tableTags = 'tags';
+  static const tableDocumentTags = 'document_tags';
 
   /// Get database instance (singleton pattern)
   static Future<Database> get database async {

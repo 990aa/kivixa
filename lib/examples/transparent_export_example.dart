@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
-import '../models/drawing_layer.dart';
-import '../models/layer_stroke.dart';
-import '../models/stroke_point.dart';
-import '../services/layer_renderer.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/layer_stroke.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/services/layer_renderer.dart';
 
 /// Demonstrates transparent background export and proper eraser implementation
 ///
@@ -21,10 +21,10 @@ class TransparentExportExample extends StatefulWidget {
 
 class _TransparentExportExampleState extends State<TransparentExportExample> {
   final List<DrawingLayer> _layers = [];
-  final Size _canvasSize = const Size(400, 400);
+  final _canvasSize = const Size(400, 400);
   ui.Image? _exportedImage;
-  bool _showCheckeredBackground = true;
-  String _statusText = 'Ready to export';
+  var _showCheckeredBackground = true;
+  var _statusText = 'Ready to export';
 
   @override
   void initState() {
@@ -429,34 +429,34 @@ class _TransparentExportExampleState extends State<TransparentExportExample> {
             padding: const EdgeInsets.all(16.0),
             child: Card(
               color: Colors.blue.shade50,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
+              child: const Padding(
+                padding: EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       '🔧 Technical Implementation',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    SizedBox(height: 8),
+                    Text(
                       '✓ Canvas background (white) is NOT rendered during export',
                       style: TextStyle(fontSize: 12),
                     ),
-                    const Text(
+                    Text(
                       '✓ Layers render with proper alpha compositing',
                       style: TextStyle(fontSize: 12),
                     ),
-                    const Text(
+                    Text(
                       '✓ Eraser uses BlendMode.clear + saveLayer for transparency',
                       style: TextStyle(fontSize: 12),
                     ),
-                    const Text(
+                    Text(
                       '✓ PNG export preserves full alpha channel',
                       style: TextStyle(fontSize: 12),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    SizedBox(height: 8),
+                    Text(
                       '💡 Checkered background is only for visualization',
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),

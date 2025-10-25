@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
-import '../services/high_resolution_exporter.dart';
-import '../services/pdf_drawing_manager.dart';
-import '../models/drawing_layer.dart';
-import '../models/layer_stroke.dart';
-import '../models/stroke_point.dart';
+import 'package:kivixa/services/high_resolution_exporter.dart';
+import 'package:kivixa/services/pdf_drawing_manager.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/layer_stroke.dart';
+import 'package:kivixa/models/stroke_point.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 
@@ -19,22 +19,22 @@ class ExportAndPDFExample extends StatefulWidget {
 class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
   final List<DrawingLayer> _layers = [];
   final List<StrokePoint> _currentStroke = [];
-  final HighResolutionExporter _exporter = HighResolutionExporter();
-  final PDFDrawingManager _pdfManager = PDFDrawingManager();
+  final _exporter = HighResolutionExporter();
+  final _pdfManager = PDFDrawingManager();
 
   // Export settings
   ExportQuality _selectedQuality = ExportQuality.print;
-  double _customDPI = 300.0;
+  var _customDPI = 300.0;
   ExportFormat _selectedFormat = ExportFormat.png;
 
   // PDF settings
-  bool _pdfLoaded = false;
-  int _currentPDFPage = 0;
+  var _pdfLoaded = false;
+  var _currentPDFPage = 0;
 
   // Export progress
-  double _exportProgress = 0.0;
-  String _exportStatus = '';
-  bool _isExporting = false;
+  var _exportProgress = 0.0;
+  var _exportStatus = '';
+  var _isExporting = false;
 
   @override
   void initState() {
@@ -222,7 +222,7 @@ class _ExportAndPDFExampleState extends State<ExportAndPDFExample> {
           // Drawing canvas
           Expanded(
             flex: 3,
-            child: Container(
+            child: ColoredBox(
               color: Colors.white,
               child: GestureDetector(
                 onPanStart: _onPanStart,

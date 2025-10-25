@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../models/stroke_point.dart';
+import 'package:kivixa/models/stroke_point.dart';
 
 /// Advanced stroke stabilization system for reducing hand tremor
 /// and creating cleaner, smoother lines with multiple algorithms
@@ -22,7 +22,7 @@ class StrokeStabilizer {
   List<StrokePoint> streamLine(List<StrokePoint> points, double amount) {
     if (points.length < 2 || amount == 0) return points;
 
-    List<StrokePoint> smoothed = [points.first];
+    final List<StrokePoint> smoothed = [points.first];
 
     for (int i = 1; i < points.length; i++) {
       final prev = smoothed.last;
@@ -64,11 +64,11 @@ class StrokeStabilizer {
   List<StrokePoint> movingAverage(List<StrokePoint> points) {
     if (points.length < _windowSize) return points;
 
-    List<StrokePoint> smoothed = [];
+    final List<StrokePoint> smoothed = [];
 
     for (int i = 0; i < points.length; i++) {
-      int start = max(0, i - _windowSize ~/ 2);
-      int end = min(points.length, i + _windowSize ~/ 2 + 1);
+      final int start = max(0, i - _windowSize ~/ 2);
+      final int end = min(points.length, i + _windowSize ~/ 2 + 1);
 
       Offset avgPos = Offset.zero;
       double avgPressure = 0.0;
@@ -80,7 +80,7 @@ class StrokeStabilizer {
         avgTilt += points[j].tilt;
       }
 
-      int count = end - start;
+      final int count = end - start;
       avgPos = Offset(avgPos.dx / count, avgPos.dy / count);
       avgPressure /= count;
       avgTilt /= count;
@@ -112,11 +112,11 @@ class StrokeStabilizer {
   }) {
     if (points.length < _windowSize) return points;
 
-    List<StrokePoint> smoothed = [];
+    final List<StrokePoint> smoothed = [];
 
     for (int i = 0; i < points.length; i++) {
-      int start = max(0, i - _windowSize ~/ 2);
-      int end = min(points.length, i + _windowSize ~/ 2 + 1);
+      final int start = max(0, i - _windowSize ~/ 2);
+      final int end = min(points.length, i + _windowSize ~/ 2 + 1);
 
       Offset weightedPos = Offset.zero;
       double weightedPressure = 0.0;
@@ -169,13 +169,13 @@ class StrokeStabilizer {
   ) {
     if (points.length < 4) return points;
 
-    List<StrokePoint> interpolated = [points.first];
+    final List<StrokePoint> interpolated = [points.first];
 
     for (int i = 0; i < points.length - 3; i++) {
       for (int t = 0; t <= subdivisions; t++) {
         if (i == 0 && t == 0) continue; // Skip duplicate first point
 
-        double u = t / subdivisions;
+        final double u = t / subdivisions;
         final p = _catmullRom(
           points[i].position,
           points[i + 1].position,
@@ -221,7 +221,7 @@ class StrokeStabilizer {
     if (points.length < 2) return points;
     if (points.length == 2) return points;
 
-    List<StrokePoint> smoothed = [points.first];
+    final List<StrokePoint> smoothed = [points.first];
 
     // Generate control points for cubic Bezier curves
     for (int i = 0; i < points.length - 1; i++) {
@@ -277,7 +277,7 @@ class StrokeStabilizer {
     List<StrokePoint> smoothed = List.from(points);
 
     for (int iter = 0; iter < iterations; iter++) {
-      List<StrokePoint> next = [smoothed.first];
+      final List<StrokePoint> next = [smoothed.first];
 
       for (int i = 0; i < smoothed.length - 1; i++) {
         final p0 = smoothed[i];
@@ -335,7 +335,7 @@ class StrokeStabilizer {
     List<StrokePoint> smoothed = List.from(points);
 
     for (int iter = 0; iter < iterations; iter++) {
-      List<StrokePoint> next = [smoothed.first];
+      final List<StrokePoint> next = [smoothed.first];
 
       for (int i = 1; i < smoothed.length - 1; i++) {
         final prev = smoothed[i - 1];
@@ -386,7 +386,7 @@ class StrokeStabilizer {
   }) {
     if (points.length < 3) return points;
 
-    List<StrokePoint> smoothed = [points.first];
+    final List<StrokePoint> smoothed = [points.first];
 
     for (int i = 1; i < points.length - 1; i++) {
       final prev = points[i - 1];

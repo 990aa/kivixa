@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../models/stroke_point.dart';
-import '../models/brush_settings.dart';
-import 'airbrush_engine.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/models/brush_settings.dart';
+import 'package:kivixa/engines/airbrush_engine.dart';
 
 /// Abstract base class for all brush engines
 abstract class BrushEngine {
@@ -209,7 +209,7 @@ class PencilBrush extends BrushEngine {
       );
 
       // Multiple small circles for pencil texture
-      final layers = 3;
+      const layers = 3;
       for (int layer = 0; layer < layers; layer++) {
         final layerOpacity = opacity * (0.3 + layer * 0.2);
         final layerSize = size * (0.8 + layer * 0.1);
@@ -281,7 +281,7 @@ class ChalkBrush extends BrushEngine {
       );
 
       // Multiple scattered particles for chalk texture
-      final particleCount = 8;
+      const particleCount = 8;
       for (int p = 0; p < particleCount; p++) {
         final scatteredPos = applyScatter(
           point.position,
@@ -349,7 +349,7 @@ class WatercolorBrush extends BrushEngine {
 
       // Add scattered droplets for texture
       if (settings.scatter > 0) {
-        final dropletCount = 3;
+        const dropletCount = 3;
         for (int d = 0; d < dropletCount; d++) {
           final dropletPos = applyScatter(
             point.position,

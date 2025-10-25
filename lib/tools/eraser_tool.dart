@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/stroke_point.dart';
-import '../models/eraser_mode.dart';
-import '../models/drawing_layer.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/models/eraser_mode.dart';
+import 'package:kivixa/models/drawing_layer.dart';
 
 /// Eraser tool with multiple modes and features
 class EraserTool {
@@ -12,17 +12,13 @@ class EraserTool {
     switch (settings.mode) {
       case EraserMode.standard:
         _eraseStandard(canvas, points, settings);
-        break;
       case EraserMode.blendColor:
         _eraseBlendColor(canvas, points, settings);
-        break;
       case EraserMode.alpha:
         _eraseAlpha(canvas, points, settings);
-        break;
       case EraserMode.stroke:
         // Stroke mode is handled at layer level
         _eraseStandard(canvas, points, settings);
-        break;
     }
   }
 
@@ -234,7 +230,7 @@ class EraserTool {
     double right = points.first.position.dx;
     double bottom = points.first.position.dy;
 
-    double maxSize = settings.size * settings.maxSize;
+    final double maxSize = settings.size * settings.maxSize;
 
     for (final point in points) {
       final size = _calculateSize(point.pressure, settings);
@@ -329,12 +325,10 @@ class EraserTool {
           indicatorPos + const Offset(-4, 4),
           indicatorPaint..strokeWidth = 2,
         );
-        break;
 
       case EraserMode.blendColor:
         // Filled circle
         canvas.drawCircle(indicatorPos, 4, indicatorPaint);
-        break;
 
       case EraserMode.alpha:
         // Half circle
@@ -345,7 +339,6 @@ class EraserTool {
           true,
           indicatorPaint,
         );
-        break;
 
       case EraserMode.stroke:
         // Wavy line
@@ -364,7 +357,6 @@ class EraserTool {
           indicatorPos.dy,
         );
         canvas.drawPath(path, indicatorPaint..strokeWidth = 2);
-        break;
     }
   }
 }

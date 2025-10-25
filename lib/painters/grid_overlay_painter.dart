@@ -34,9 +34,9 @@ class GridOverlayPainter extends CustomPainter {
       ..strokeWidth = 2.0 / scale;
 
     // Calculate visible bounds
-    final startX = 0.0;
+    const startX = 0.0;
     final endX = size.width;
-    final startY = 0.0;
+    const startY = 0.0;
     final endY = size.height;
 
     // Draw vertical lines

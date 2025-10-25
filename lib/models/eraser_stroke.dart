@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'stroke_point.dart';
+import 'package:kivixa/models/stroke_point.dart';
 
 /// Represents an eraser stroke that creates transparency
 ///

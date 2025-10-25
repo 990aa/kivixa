@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
-import '../models/drawing_layer.dart';
-import '../models/layer_stroke.dart';
-import '../models/stroke_point.dart';
-import '../models/tiled_layer.dart';
-import '../models/dirty_region_tracker.dart';
-import '../services/layer_memory_manager.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/layer_stroke.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/models/tiled_layer.dart';
+import 'package:kivixa/models/dirty_region_tracker.dart';
+import 'package:kivixa/services/layer_memory_manager.dart';
 
 /// Example: Complete workflow for memory-optimized layer rendering
 ///
@@ -30,15 +30,15 @@ class _MemoryOptimizedCanvasExampleState
   // Canvas state
   final List<DrawingLayer> _layers = [];
   late final LayerMemoryManager _memoryManager;
-  int _activeLayerIndex = 0;
+  var _activeLayerIndex = 0;
 
   // Drawing state
   final List<StrokePoint> _currentStrokePoints = [];
-  bool _isDrawing = false;
+  var _isDrawing = false;
 
   // Viewport
   final Offset _viewportOffset = Offset.zero;
-  final double _viewportScale = 1.0;
+  final _viewportScale = 1.0;
 
   @override
   void initState() {

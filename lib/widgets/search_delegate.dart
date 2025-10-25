@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../database/database.dart';
-import '../services/database_service.dart';
+import 'package:kivixa/database/database.dart';
+import 'package:kivixa/services/database_service.dart';
 
 /// Search delegate for searching notes
 class NotesSearchDelegate extends SearchDelegate<Note?> {

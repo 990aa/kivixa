@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
-import '../models/tiled_layer.dart';
-import '../models/dirty_region_tracker.dart';
-import '../models/drawing_layer.dart';
-import '../models/layer_stroke.dart';
+import 'package:kivixa/models/tiled_layer.dart';
+import 'package:kivixa/models/dirty_region_tracker.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/layer_stroke.dart';
 
 /// Central memory management for layer rendering
 /// Coordinates tile caching and dirty region tracking

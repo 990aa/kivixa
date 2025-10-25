@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'stroke_point.dart';
+import 'package:kivixa/models/stroke_point.dart';
 
 /// A stroke with path data and brush properties for layer-based drawing
 class LayerStroke {

@@ -1,11 +1,11 @@
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import '../models/canvas_element.dart';
+import 'package:kivixa/models/canvas_element.dart';
 
 /// Service for handling image picking and import
 class ImagePickerService {
-  final ImagePicker _picker = ImagePicker();
+  final _picker = ImagePicker();
 
   /// Pick an image from the specified source
   Future<ImageElement?> pickImage({

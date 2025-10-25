@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/drawing_layer.dart';
-import '../models/layer_stroke.dart';
-import '../models/vector_stroke.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/layer_stroke.dart';
+import 'package:kivixa/models/vector_stroke.dart';
 
 /// Canvas widget with strict boundary enforcement
 ///

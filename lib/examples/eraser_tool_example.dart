@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/stroke_point.dart';
-import '../models/eraser_mode.dart';
-import '../models/brush_settings.dart';
-import '../tools/eraser_tool.dart';
-import '../services/brush_stroke_renderer.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/models/eraser_mode.dart';
+import 'package:kivixa/models/brush_settings.dart';
+import 'package:kivixa/tools/eraser_tool.dart';
+import 'package:kivixa/services/brush_stroke_renderer.dart';
 
 /// Example: Comprehensive eraser tool demonstration
 /// Shows all eraser modes with interactive controls
@@ -16,8 +16,8 @@ class EraserToolExample extends StatefulWidget {
 }
 
 class _EraserToolExampleState extends State<EraserToolExample> {
-  final BrushStrokeRenderer _renderer = BrushStrokeRenderer();
-  final EraserTool _eraserTool = EraserTool();
+  final _renderer = BrushStrokeRenderer();
+  final _eraserTool = EraserTool();
 
   final List<_DrawingStroke> _strokes = [];
   final List<_EraserStroke> _eraserStrokes = [];
@@ -25,20 +25,20 @@ class _EraserToolExampleState extends State<EraserToolExample> {
   List<StrokePoint> _currentDrawPoints = [];
   List<StrokePoint> _currentErasePoints = [];
 
-  bool _isDrawing = false;
-  bool _isErasing = false;
+  var _isDrawing = false;
+  var _isErasing = false;
 
   // Tool modes
-  bool _eraserMode = false;
+  var _eraserMode = false;
 
   // Drawing settings
-  BrushSettings _brushSettings = BrushSettings.pen(
+  var _brushSettings = BrushSettings.pen(
     color: Colors.black,
     size: 8.0,
   );
 
   // Eraser settings
-  EraserSettings _eraserSettings = const EraserSettings(
+  var _eraserSettings = const EraserSettings(
     mode: EraserMode.standard,
     size: 20.0,
   );
@@ -344,27 +344,27 @@ class _EraserToolExampleState extends State<EraserToolExample> {
               color: Colors.blue.shade50,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Column(
+            child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Instructions:',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 4),
-                const Text(
+                SizedBox(height: 4),
+                Text(
                   '• Draw strokes in brush mode',
                   style: TextStyle(fontSize: 12),
                 ),
-                const Text(
+                Text(
                   '• Switch to eraser to remove',
                   style: TextStyle(fontSize: 12),
                 ),
-                const Text(
+                Text(
                   '• Try different eraser modes',
                   style: TextStyle(fontSize: 12),
                 ),
-                const Text(
+                Text(
                   '• Adjust size and hardness',
                   style: TextStyle(fontSize: 12),
                 ),

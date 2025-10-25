@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:file_picker/file_picker.dart';
-import '../screens/pdf_viewer_screen.dart';
-import '../screens/markdown_editor_screen.dart';
-import '../screens/infinite_canvas_screen.dart';
-import '../screens/advanced_drawing_screen.dart';
-import '../screens/archive_management_screen.dart';
-import '../screens/file_browser_screen.dart';
-import '../database/folder_repository.dart';
-import '../database/document_repository.dart';
-import '../models/folder.dart';
-import '../models/drawing_document.dart';
-import '../widgets/folder_tree_view.dart';
-import '../widgets/document_grid_view.dart';
-import '../services/resource_cleanup_manager.dart';
+import 'package:kivixa/screens/pdf_viewer_screen.dart';
+import 'package:kivixa/screens/markdown_editor_screen.dart';
+import 'package:kivixa/screens/infinite_canvas_screen.dart';
+import 'package:kivixa/screens/advanced_drawing_screen.dart';
+import 'package:kivixa/screens/archive_management_screen.dart';
+import 'package:kivixa/screens/file_browser_screen.dart';
+import 'package:kivixa/database/folder_repository.dart';
+import 'package:kivixa/database/document_repository.dart';
+import 'package:kivixa/models/folder.dart';
+import 'package:kivixa/models/drawing_document.dart';
+import 'package:kivixa/widgets/folder_tree_view.dart';
+import 'package:kivixa/widgets/document_grid_view.dart';
+import 'package:kivixa/services/resource_cleanup_manager.dart';
 
 /// Home screen with file browser and creation options
 class HomeScreen extends StatefulWidget {
@@ -30,8 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Folder> _folders = [];
   List<DrawingDocument> _documents = [];
   Folder? _selectedFolder;
-  bool _isLoading = true;
-  final int _gridColumns = 3;
+  var _isLoading = true;
+  final _gridColumns = 3;
 
   @override
   void initState() {
@@ -272,16 +272,16 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.inversePrimary,
               ),
-              child: Column(
+              child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.apps, size: 48),
-                  const SizedBox(height: 16),
-                  const Text(
+                  Icon(Icons.apps, size: 48),
+                  SizedBox(height: 16),
+                  Text(
                     'Kivixa',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  const Text(
+                  Text(
                     'Advanced Drawing & Canvas',
                     style: TextStyle(fontSize: 12),
                   ),
@@ -568,12 +568,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                             screen = PDFViewerScreen.file(
                                               pdfPath: document.filePath,
                                             );
-                                            break;
                                           case DocumentType.image:
                                             // For images, use the advanced drawing screen
                                             screen =
                                                 const AdvancedDrawingScreen();
-                                            break;
                                           case DocumentType.canvas:
                                             // Check if it's a markdown file by extension
                                             if (document.filePath.endsWith(
@@ -586,7 +584,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                               screen =
                                                   const InfiniteCanvasScreen();
                                             }
-                                            break;
                                         }
 
                                         // Capture context before async gap

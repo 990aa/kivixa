@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/annotation_data.dart';
-import '../models/drawing_tool.dart';
+import 'package:kivixa/models/annotation_data.dart';
+import 'package:kivixa/models/drawing_tool.dart';
 
 class AnnotationController extends ChangeNotifier {
   final List<AnnotationData> _annotations = [];

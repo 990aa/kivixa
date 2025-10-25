@@ -147,11 +147,11 @@ class PrecisionValidator {
   static Map<String, dynamic> runPrecisionTest() {
     // Test with extreme values
     final testCoords = [
-      PrecisionCoordinate(0.0, 0.0),
-      PrecisionCoordinate(1.0, 1.0),
-      PrecisionCoordinate(123.456789012345, 987.654321098765),
-      PrecisionCoordinate(9999999.999999, 9999999.999999),
-      PrecisionCoordinate(-1234.5678, -9876.5432),
+      const PrecisionCoordinate(0.0, 0.0),
+      const PrecisionCoordinate(1.0, 1.0),
+      const PrecisionCoordinate(123.456789012345, 987.654321098765),
+      const PrecisionCoordinate(9999999.999999, 9999999.999999),
+      const PrecisionCoordinate(-1234.5678, -9876.5432),
     ];
 
     int passed = 0;

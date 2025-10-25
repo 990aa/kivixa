@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/drawing_document.dart';
+import 'package:kivixa/models/drawing_document.dart';
 
 /// Grid view widget for displaying documents with thumbnails
 ///
@@ -45,7 +45,7 @@ class _DocumentGridViewState extends State<DocumentGridView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.insert_drive_file, size: 64, color: Colors.grey),
+            const Icon(Icons.insert_drive_file, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             Text(
               'No documents found',
@@ -127,7 +127,7 @@ class _DocumentGridViewState extends State<DocumentGridView> {
                     Positioned(
                       top: 8,
                       left: 8,
-                      child: Container(
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
@@ -155,7 +155,7 @@ class _DocumentGridViewState extends State<DocumentGridView> {
                     Positioned(
                       top: 8,
                       right: 8,
-                      child: Container(
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.9),
                           shape: BoxShape.circle,

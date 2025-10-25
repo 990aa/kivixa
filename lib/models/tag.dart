@@ -115,7 +115,7 @@ class Tag {
 
 /// Predefined tag colors for quick selection
 class TagColors {
-  static const List<Color> predefined = [
+  static const predefined = <Color>[
     Color(0xFFE57373), // Red
     Color(0xFFF06292), // Pink
     Color(0xFFBA68C8), // Purple

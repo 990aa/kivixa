@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
-import 'drawing_tool.dart';
+import 'package:kivixa/models/drawing_tool.dart';
 
 class AnnotationData {
   final List<Offset> points;

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import '../models/annotation_data.dart';
+import 'package:kivixa/models/annotation_data.dart';
 
 class AnnotationStorage {
   Future<String> get _localPath async {

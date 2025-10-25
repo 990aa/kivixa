@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../models/stroke.dart' as stroke_model;
-import '../models/canvas_element.dart' as element_model;
-import '../models/drawing_tool.dart';
-import '../models/drawing_layer.dart';
-import '../models/layer_stroke.dart';
-import '../models/stroke_point.dart';
-import '../services/database_service.dart';
-import '../services/layer_rendering_service.dart';
-import '../services/layer_serialization_service.dart';
+import 'package:kivixa/models/stroke.dart' as stroke_model;
+import 'package:kivixa/models/canvas_element.dart' as element_model;
+import 'package:kivixa/models/drawing_tool.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/layer_stroke.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/services/database_service.dart';
+import 'package:kivixa/services/layer_rendering_service.dart';
+import 'package:kivixa/services/layer_serialization_service.dart';
 
 /// State management for canvas with Provider/ChangeNotifier and Layer support
 class CanvasState extends ChangeNotifier {
@@ -17,23 +17,23 @@ class CanvasState extends ChangeNotifier {
   List<element_model.CanvasElement> _elements = [];
 
   // New layer system
-  List<DrawingLayer> _layers = [DrawingLayer(name: 'Background')];
-  int _activeLayerIndex = 0;
+  var _layers = <DrawingLayer>[DrawingLayer(name: 'Background')];
+  var _activeLayerIndex = 0;
 
   DrawingTool _currentTool = DrawingTool.pen;
   Color _currentColor = Colors.black;
-  double _strokeWidth = 4.0;
+  var _strokeWidth = 4.0;
 
   // Current note ID
   int? _currentNoteId;
 
   // Canvas size for layer caching
-  Size _canvasSize = const Size(1000, 1000);
+  var _canvasSize = const Size(1000, 1000);
 
   // Undo/Redo stack
   final List<CanvasSnapshot> _undoStack = [];
   final List<CanvasSnapshot> _redoStack = [];
-  static const int _maxUndoStackSize = 50;
+  static const _maxUndoStackSize = 50;
 
   // Background auto-save
   Timer? _saveTimer;

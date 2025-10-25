@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
-import '../database/drawing_database.dart';
-import '../models/tag.dart';
+import 'package:kivixa/database/drawing_database.dart';
+import 'package:kivixa/models/tag.dart';
 
 /// Repository for tag operations
 ///

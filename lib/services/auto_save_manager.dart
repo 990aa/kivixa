@@ -44,8 +44,8 @@ class AutoSaveManager with WidgetsBindingObserver {
   final bool verbose;
 
   Timer? _autoSaveTimer;
-  bool _hasUnsavedChanges = false;
-  bool _isSaving = false;
+  var _hasUnsavedChanges = false;
+  var _isSaving = false;
   DateTime? _lastSaveTime;
 
   AutoSaveManager({

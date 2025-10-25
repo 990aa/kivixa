@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
-import '../models/annotation_data.dart';
+import 'package:kivixa/models/annotation_data.dart';
 
 class AnnotationPersistence {
   static Future<String> get _localPath async {
@@ -26,7 +26,7 @@ class AnnotationPersistence {
   static Future<List<AnnotationData>> loadAnnotations(String fileName) async {
     try {
       final file = await _localFile(fileName);
-      String contents = await file.readAsString();
+      final String contents = await file.readAsString();
       final data = jsonDecode(contents) as List;
       return data.map((e) => AnnotationData.fromJson(e)).toList();
     } catch (e) {

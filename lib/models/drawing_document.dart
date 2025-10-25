@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'tag.dart';
+import 'package:kivixa/models/tag.dart';
 
 /// Document type enumeration
 enum DocumentType { canvas, image, pdf }

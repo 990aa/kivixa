@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../models/stroke_point.dart';
-import '../models/brush_settings.dart';
-import 'brush_engine.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/models/brush_settings.dart';
+import 'package:kivixa/engines/brush_engine.dart';
 
 /// Airbrush with Gaussian falloff and flow control
 class AirbrushEngine extends BrushEngine {
@@ -77,9 +77,9 @@ class AirbrushEngine extends BrushEngine {
 
       // Multiple layers for more realistic airbrush
       final layers = [
-        _AirbrushLayer(radiusMultiplier: 0.3, opacityMultiplier: 0.8),
-        _AirbrushLayer(radiusMultiplier: 0.6, opacityMultiplier: 0.5),
-        _AirbrushLayer(radiusMultiplier: 1.0, opacityMultiplier: 0.2),
+        const _AirbrushLayer(radiusMultiplier: 0.3, opacityMultiplier: 0.8),
+        const _AirbrushLayer(radiusMultiplier: 0.6, opacityMultiplier: 0.5),
+        const _AirbrushLayer(radiusMultiplier: 1.0, opacityMultiplier: 0.2),
       ];
 
       for (final layer in layers) {

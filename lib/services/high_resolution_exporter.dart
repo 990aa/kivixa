@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../models/drawing_layer.dart';
-import '../models/vector_stroke.dart';
-import '../models/layer_stroke.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/models/vector_stroke.dart';
+import 'package:kivixa/models/layer_stroke.dart';
 
 /// Export format options
 enum ExportFormat { png, jpg, rawRgba }
@@ -22,13 +22,13 @@ typedef ExportProgressCallback = void Function(double progress, String status);
 /// High-resolution export system for creating print-quality images
 class HighResolutionExporter {
   /// Standard screen DPI
-  static const double screenDPI = 72.0;
+  static const screenDPI = 72.0;
 
   /// Print quality DPI
-  static const double printDPI = 300.0;
+  static const printDPI = 300.0;
 
   /// High quality screen DPI
-  static const double highQualityDPI = 150.0;
+  static const highQualityDPI = 150.0;
 
   /// Get DPI for quality level
   static double getDPIForQuality(ExportQuality quality, {double? customDPI}) {
@@ -262,15 +262,12 @@ class HighResolutionExporter {
     switch (format) {
       case ExportFormat.png:
         byteFormat = ui.ImageByteFormat.png;
-        break;
       case ExportFormat.jpg:
         // Note: Flutter doesn't directly support JPEG quality parameter
         // This uses PNG and would need additional processing for true JPEG
         byteFormat = ui.ImageByteFormat.png;
-        break;
       case ExportFormat.rawRgba:
         byteFormat = ui.ImageByteFormat.rawRgba;
-        break;
     }
 
     final byteData = await image.toByteData(format: byteFormat);

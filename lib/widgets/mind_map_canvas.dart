@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graphview/GraphView.dart';
-import '../models/mind_map_node.dart' as model;
+import 'package:kivixa/models/mind_map_node.dart' as model;
 
 /// Widget for displaying and interacting with mind maps
 class MindMapCanvas extends StatefulWidget {
@@ -26,9 +26,9 @@ class MindMapCanvas extends StatefulWidget {
 }
 
 class _MindMapCanvasState extends State<MindMapCanvas> {
-  final Graph graph = Graph();
-  BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
-  TransformationController transformationController =
+  final graph = Graph();
+  var builder = BuchheimWalkerConfiguration();
+  var transformationController =
       TransformationController();
 
   @override
@@ -60,14 +60,14 @@ class _MindMapCanvasState extends State<MindMapCanvas> {
 
     // Create GraphView nodes
     final nodeMap = <String, Node>{};
-    for (var mindMapNode in widget.nodes) {
+    for (final mindMapNode in widget.nodes) {
       final graphNode = Node.Id(mindMapNode.id);
       nodeMap[mindMapNode.id] = graphNode;
       graph.addNode(graphNode);
     }
 
     // Create GraphView edges
-    for (var edge in widget.edges) {
+    for (final edge in widget.edges) {
       final fromNode = nodeMap[edge.fromNodeId];
       final toNode = nodeMap[edge.toNodeId];
       if (fromNode != null && toNode != null) {

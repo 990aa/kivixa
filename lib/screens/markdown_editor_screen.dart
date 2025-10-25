@@ -14,9 +14,9 @@ class MarkdownEditorScreen extends StatefulWidget {
 
 class _MarkdownEditorScreenState extends State<MarkdownEditorScreen>
     with SingleTickerProviderStateMixin {
-  final TextEditingController _controller = TextEditingController();
+  final _controller = TextEditingController();
   late TabController _tabController;
-  String _markdownText = '';
+  var _markdownText = '';
 
   @override
   void initState() {

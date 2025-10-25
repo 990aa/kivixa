@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import '../utils/platform_input_config.dart';
-import '../utils/smart_drawing_gesture_recognizer.dart';
+import 'package:kivixa/utils/platform_input_config.dart';
+import 'package:kivixa/utils/smart_drawing_gesture_recognizer.dart';
 
 /// Advanced gesture handler with precise control over gesture arena
 /// Separates drawing (1 finger) from navigation (2+ fingers, trackpad)
@@ -49,10 +49,10 @@ class _PreciseCanvasGestureHandlerState
   final Set<int> _pointers = {};
 
   /// Is currently in navigation mode
-  bool _isNavigating = false;
+  var _isNavigating = false;
 
   /// Is currently drawing
-  bool _isDrawing = false;
+  var _isDrawing = false;
 
   /// Platform configuration
   late GestureConfiguration _gestureConfig;

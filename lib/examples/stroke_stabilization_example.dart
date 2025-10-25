@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/stroke_point.dart';
-import '../models/brush_settings.dart';
-import '../services/brush_stroke_renderer.dart';
-import '../services/stroke_stabilizer.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/models/brush_settings.dart';
+import 'package:kivixa/services/brush_stroke_renderer.dart';
+import 'package:kivixa/services/stroke_stabilizer.dart';
 
 /// Example: Comprehensive stroke stabilization demonstration
 /// Shows all stabilization algorithms with side-by-side comparison
@@ -17,19 +17,19 @@ class StrokeStabilizationExample extends StatefulWidget {
 
 class _StrokeStabilizationExampleState
     extends State<StrokeStabilizationExample> {
-  final BrushStrokeRenderer _renderer = BrushStrokeRenderer();
-  final StrokeStabilizer _stabilizer = StrokeStabilizer(windowSize: 5);
+  final _renderer = BrushStrokeRenderer();
+  final _stabilizer = StrokeStabilizer(windowSize: 5);
 
   List<StrokePoint> _rawStroke = [];
   List<StrokePoint> _currentPoints = [];
-  bool _isDrawing = false;
+  var _isDrawing = false;
 
   // Stabilization settings
-  String _selectedMode = 'streamline';
-  double _stabilizationAmount = 0.5;
-  BrushSettings _brushSettings = BrushSettings.pen();
+  var _selectedMode = 'streamline';
+  var _stabilizationAmount = 0.5;
+  var _brushSettings = BrushSettings.pen();
 
-  final List<String> _modes = [
+  final _modes = <String>[
     'none',
     'streamline',
     'moving',
@@ -42,7 +42,7 @@ class _StrokeStabilizationExampleState
     'combined',
   ];
 
-  final Map<String, String> _modeDescriptions = {
+  final _modeDescriptions = <String, String>{
     'none': 'No stabilization - raw input',
     'streamline': 'Real-time jitter reduction with exponential smoothing',
     'moving': 'Simple moving average filter',
@@ -238,27 +238,27 @@ class _StrokeStabilizationExampleState
               color: Colors.blue.shade50,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Column(
+            child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Tips:',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 4),
-                const Text(
+                SizedBox(height: 4),
+                Text(
                   '• Draw wobbly lines to see stabilization',
                   style: TextStyle(fontSize: 12),
                 ),
-                const Text(
+                Text(
                   '• Try different modes for different effects',
                   style: TextStyle(fontSize: 12),
                 ),
-                const Text(
+                Text(
                   '• Higher amounts = more smoothing',
                   style: TextStyle(fontSize: 12),
                 ),
-                const Text(
+                Text(
                   '• Combined mode gives best quality',
                   style: TextStyle(fontSize: 12),
                 ),

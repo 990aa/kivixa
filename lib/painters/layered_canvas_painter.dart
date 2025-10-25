@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/drawing_layer.dart';
-import '../services/layer_rendering_service.dart';
+import 'package:kivixa/models/drawing_layer.dart';
+import 'package:kivixa/services/layer_rendering_service.dart';
 
 /// Custom painter for rendering multiple layers with optimization
 class LayeredCanvasPainter extends CustomPainter {

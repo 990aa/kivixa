@@ -1,6 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../models/layer_stroke.dart';
+import 'package:kivixa/models/layer_stroke.dart';
 
 /// Optimized stroke renderer using batched GPU operations
 ///
@@ -16,7 +16,7 @@ import '../models/layer_stroke.dart';
 /// ```
 class OptimizedStrokeRenderer {
   // Reuse Paint objects - don't create new ones every frame
-  final Paint _strokePaint = Paint()
+  final _strokePaint = Paint()
     ..style = PaintingStyle.stroke
     ..strokeCap = StrokeCap.round
     ..strokeJoin = StrokeJoin.round

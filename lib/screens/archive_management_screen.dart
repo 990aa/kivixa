@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/archived_document.dart';
-import '../services/archive_service.dart';
+import 'package:kivixa/models/archived_document.dart';
+import 'package:kivixa/services/archive_service.dart';
 
 /// Archive management screen
 ///
@@ -19,13 +19,13 @@ class ArchiveManagementScreen extends StatefulWidget {
 }
 
 class _ArchiveManagementScreenState extends State<ArchiveManagementScreen> {
-  final ArchiveService _archiveService = ArchiveService();
+  final _archiveService = ArchiveService();
 
   List<ArchivedDocument> _archives = [];
   Map<String, String> _stats = {};
-  bool _isLoading = true;
-  int _autoArchiveDays = 90;
-  bool _excludeFavorites = true;
+  var _isLoading = true;
+  var _autoArchiveDays = 90;
+  var _excludeFavorites = true;
 
   @override
   void initState() {

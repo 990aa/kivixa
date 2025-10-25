@@ -2,7 +2,7 @@ import 'dart:ui' as ui;
 import 'dart:collection';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../models/selection_mode.dart';
+import 'package:kivixa/models/selection_mode.dart';
 
 /// Base class for all selection tools
 abstract class SelectionTool {
@@ -134,8 +134,8 @@ class RectangularSelection extends SelectionTool {
     Paint paint,
     double animationValue,
   ) {
-    final dashWidth = 6.0;
-    final dashSpace = 6.0;
+    const dashWidth = 6.0;
+    const dashSpace = 6.0;
     final dashOffset = animationValue * (dashWidth + dashSpace);
 
     final metrics = path.computeMetrics();

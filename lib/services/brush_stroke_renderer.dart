@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../models/stroke_point.dart';
-import '../models/brush_settings.dart';
-import '../engines/brush_engine.dart';
-import 'stroke_stabilizer.dart';
+import 'package:kivixa/models/stroke_point.dart';
+import 'package:kivixa/models/brush_settings.dart';
+import 'package:kivixa/engines/brush_engine.dart';
+import 'package:kivixa/services/stroke_stabilizer.dart';
 
 /// Manages brush stroke application and rendering
 class BrushStrokeRenderer {
-  final StrokeStabilizer _stabilizer = StrokeStabilizer(windowSize: 5);
+  final _stabilizer = StrokeStabilizer(windowSize: 5);
 
   /// Initialize brush engines
   void initialize() {

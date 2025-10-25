@@ -140,7 +140,7 @@ class ExportUsageExamples {
 
     // Add strokes to different pages
     // The coordinate transformer will handle Flutter->PDF conversion
-    final screenSize = const Size(595, 842); // Match page size for 1:1 mapping
+    const screenSize = Size(595, 842); // Match page size for 1:1 mapping
     pdfManager.addStrokeToPage(0, stroke1, screenSize);
     pdfManager.addStrokeToPage(1, stroke2, screenSize);
 
@@ -166,7 +166,7 @@ class ExportUsageExamples {
     );
 
     // Add to first page
-    final screenSize = const Size(595, 842);
+    const screenSize = Size(595, 842);
     pdfManager.addStrokeToPage(0, highlightStroke, screenSize);
 
     // Export with annotations flattened
@@ -187,7 +187,7 @@ class ExportUsageExamples {
     );
 
     // Add drawings from layers
-    final screenSize = const Size(595, 842);
+    const screenSize = Size(595, 842);
     for (final layer in layers) {
       for (final stroke in layer.strokes) {
         enhancedManager.addStrokeToPage(0, stroke, screenSize);
@@ -195,7 +195,7 @@ class ExportUsageExamples {
     }
 
     // Export with settings and metadata
-    final settings = PDFExportSettings(
+    const settings = PDFExportSettings(
       flattenAnnotations: true,
       includeMetadata: true,
       optimizeForWeb: false,

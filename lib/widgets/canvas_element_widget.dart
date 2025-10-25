@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
-import '../models/canvas_element.dart';
+import 'package:kivixa/models/canvas_element.dart';
 
 /// Widget for rendering and interacting with text elements
 class TextElementWidget extends StatelessWidget {

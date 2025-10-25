@@ -201,5 +201,5 @@ class CanvasTransform {
   }
 
   /// Reset to identity
-  static const CanvasTransform identity = CanvasTransform();
+  static const identity = CanvasTransform();
 }

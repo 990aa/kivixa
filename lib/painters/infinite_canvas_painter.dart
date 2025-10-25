@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
-import '../models/stroke.dart';
+import 'package:kivixa/models/stroke.dart';
 
 /// Canvas painter for infinite canvas with grid and stroke rendering
 class InfiniteCanvasPainter extends CustomPainter {
@@ -53,7 +53,7 @@ class InfiniteCanvasPainter extends CustomPainter {
 
     // Calculate visible area based on transform
     final scale = transform.getMaxScaleOnAxis();
-    final gridSpacing = 50.0;
+    const gridSpacing = 50.0;
 
     // Adjust grid density based on zoom level
     double adjustedSpacing = gridSpacing;
