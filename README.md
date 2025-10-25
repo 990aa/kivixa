@@ -2,13 +2,13 @@
 <img src="icon.png" height = 250 width = 250>
 </p>
 
-# Kivixa 
+# Kivixa  
 
 A  creative workspace and digital canvas built with Flutter, featuring advanced drawing tools, performance optimizations, and multi-format export capabilities for Android, Windows, iOS, macOS, Linux, and Web.
 
 ## 🎨 What is Kivixa?
 
-Kivixa is a **complete creative workspace** designed for digital artists, designers, annotators, and creative s. Whether you're sketching ideas, annotating documents, or creating digital artwork, Kivixa provides -grade tools with desktop-class performance on any device.
+Kivixa is a **creative workspace** designed for digital artists, designers, annotators, and creative s. Whether you're sketching ideas, annotating documents, or creating digital artwork, Kivixa provides -grade tools with desktop-class performance on any device.
 
 ## ✨ Key Features
 
