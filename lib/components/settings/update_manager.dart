@@ -17,7 +17,7 @@ abstract class UpdateManager {
   static final log = Logger('UpdateManager');
 
   static final Uri versionUrl = Uri.parse(
-    'https://raw.githubusercontent.com/990aa/kivixa/main/lib/data/version.dart',
+    'https://raw.githubusercontent.com/990aa/kivixa/refs/heads/main/lib/data/version.dart',
   );
   static final Uri apiUrl = Uri.parse(
     'https://api.github.com/repos/990aa/kivixa/releases/latest',
@@ -108,10 +108,12 @@ abstract class UpdateManager {
     int currentVersionNumber,
     int newestVersionNumber,
   ) {
-    final currentVersion = KivixaVersion.fromNumber(currentVersionNumber)
-        .copyWith(revision: 0);
-    final newestVersion =
-        KivixaVersion.fromNumber(newestVersionNumber).copyWith(revision: 0);
+    final currentVersion = KivixaVersion.fromNumber(
+      currentVersionNumber,
+    ).copyWith(revision: 0);
+    final newestVersion = KivixaVersion.fromNumber(
+      newestVersionNumber,
+    ).copyWith(revision: 0);
 
     // Check if we're up to date
     if (newestVersion.buildNumber <= currentVersion.buildNumber) {
@@ -214,7 +216,7 @@ abstract class UpdateManager {
     assert(newestVersion != null);
 
     final url =
-        'https://raw.githubusercontent.com/990aa/kivixa/main/'
+        'https://raw.githubusercontent.com/990aa/kivixa/refs/heads/main/'
         'metadata/$localeCode/changelogs/$newestVersion.txt';
     log.info('Downloading changelog from $url');
 

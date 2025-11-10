@@ -141,5 +141,13 @@ icons_launcher:
   platforms:
     android:
       enable: true
+    ios:
+      enable: true
+    macos:
+      enable: true
     windows:
+      enable: true
+    web:
+      enable: true
+    linux:
       enable: true
