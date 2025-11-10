@@ -39,6 +39,12 @@ class _BrowsePageState extends State<BrowsePage> {
 
   final ValueNotifier<List<String>> selectedFiles = ValueNotifier([]);
 
+  // Search, filter, and sort
+  final TextEditingController _searchController = TextEditingController();
+  var _isSearching = false;
+  var _filterType = FileFilterType.all; // all, notes, markdown
+  var _sortType = SortType.aToZ; // A-Z, Z-A, latest-oldest, oldest-latest
+
   @override
   void initState() {
     path = widget.initialPath;
@@ -48,6 +54,7 @@ class _BrowsePageState extends State<BrowsePage> {
       fileWriteListener,
     );
     selectedFiles.addListener(_setState);
+    _searchController.addListener(_setState);
 
     super.initState();
   }
@@ -55,6 +62,8 @@ class _BrowsePageState extends State<BrowsePage> {
   @override
   void dispose() {
     selectedFiles.removeListener(_setState);
+    _searchController.removeListener(_setState);
+    _searchController.dispose();
     fileWriteSubscription?.cancel();
     super.dispose();
   }
@@ -113,6 +122,84 @@ class _BrowsePageState extends State<BrowsePage> {
     findChildrenOfPath();
   }
 
+  List<String> _getFilteredAndSortedFiles() {
+    if (children == null) return [];
+
+    var files = children!.files.toList();
+    final searchQuery = _searchController.text.toLowerCase();
+
+    // Apply search filter
+    if (searchQuery.isNotEmpty) {
+      files = files.where((file) {
+        return file.toLowerCase().contains(searchQuery);
+      }).toList();
+    }
+
+    // Apply file type filter
+    switch (_filterType) {
+      case FileFilterType.notes:
+        files = files.where((file) {
+          // Check if .kvx file exists
+          final fullPath = "${path ?? ""}/$file";
+          return FileManager.doesFileExist('$fullPath${Editor.extension}');
+        }).toList();
+        break;
+      case FileFilterType.markdown:
+        files = files.where((file) {
+          // Check if .md file exists
+          final fullPath = "${path ?? ""}/$file";
+          return FileManager.doesFileExist('$fullPath.md');
+        }).toList();
+        break;
+      case FileFilterType.all:
+        break;
+    }
+
+    // Apply sorting
+    switch (_sortType) {
+      case SortType.aToZ:
+        files.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+        break;
+      case SortType.zToA:
+        files.sort((a, b) => b.toLowerCase().compareTo(a.toLowerCase()));
+        break;
+      case SortType.latestFirst:
+        files.sort((a, b) {
+          final aPath = "${path ?? ""}/$a";
+          final bPath = "${path ?? ""}/$b";
+          final aTime = _getFileModifiedTime(aPath);
+          final bTime = _getFileModifiedTime(bPath);
+          return bTime.compareTo(aTime); // Latest first
+        });
+        break;
+      case SortType.oldestFirst:
+        files.sort((a, b) {
+          final aPath = "${path ?? ""}/$a";
+          final bPath = "${path ?? ""}/$b";
+          final aTime = _getFileModifiedTime(aPath);
+          final bTime = _getFileModifiedTime(bPath);
+          return aTime.compareTo(bTime); // Oldest first
+        });
+        break;
+    }
+
+    return files;
+  }
+
+  DateTime _getFileModifiedTime(String filePath) {
+    try {
+      // Check .kvx file first, then .md
+      if (FileManager.doesFileExist('$filePath${Editor.extension}')) {
+        return FileManager.lastModified('$filePath${Editor.extension}');
+      } else if (FileManager.doesFileExist('$filePath.md')) {
+        return FileManager.lastModified('$filePath.md');
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+    return DateTime(2000); // Default to old date if file doesn't exist
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = ColorScheme.of(context);
@@ -150,20 +237,175 @@ class _BrowsePageState extends State<BrowsePage> {
               slivers: [
                 SliverAppBar(
                   collapsedHeight: kToolbarHeight,
-                  expandedHeight: 200 - 8,
+                  expandedHeight: _isSearching ? kToolbarHeight : 200 - 8,
                   pinned: true,
                   scrolledUnderElevation: 1,
-                  flexibleSpace: FlexibleSpaceBar(
-                    title: Text(
-                      t.home.titles.browse,
-                      style: TextStyle(color: colorScheme.onSurface),
-                    ),
-                    centerTitle: false,
-                    titlePadding: const EdgeInsetsDirectional.only(
-                      start: 16,
-                      bottom: 8,
-                    ),
-                  ),
+                  flexibleSpace: _isSearching
+                      ? null
+                      : FlexibleSpaceBar(
+                          title: Text(
+                            t.home.titles.browse,
+                            style: TextStyle(color: colorScheme.onSurface),
+                          ),
+                          centerTitle: false,
+                          titlePadding: const EdgeInsetsDirectional.only(
+                            start: 16,
+                            bottom: 8,
+                          ),
+                        ),
+                  title: _isSearching
+                      ? TextField(
+                          controller: _searchController,
+                          autofocus: true,
+                          decoration: InputDecoration(
+                            hintText: 'Search files...',
+                            border: InputBorder.none,
+                            hintStyle: TextStyle(
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                          ),
+                          style: TextStyle(color: colorScheme.onSurface),
+                        )
+                      : null,
+                  actions: [
+                    if (_isSearching)
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          setState(() {
+                            _isSearching = false;
+                            _searchController.clear();
+                          });
+                        },
+                        tooltip: 'Close search',
+                      )
+                    else ...[
+                      IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: () {
+                          setState(() {
+                            _isSearching = true;
+                          });
+                        },
+                        tooltip: 'Search',
+                      ),
+                      PopupMenuButton<FileFilterType>(
+                        icon: const Icon(Icons.filter_list),
+                        tooltip: 'Filter',
+                        onSelected: (FileFilterType type) {
+                          setState(() {
+                            _filterType = type;
+                          });
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: FileFilterType.all,
+                            child: Row(
+                              children: [
+                                if (_filterType == FileFilterType.all)
+                                  const Icon(Icons.check, size: 20)
+                                else
+                                  const SizedBox(width: 20),
+                                const SizedBox(width: 8),
+                                const Text('All Files'),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: FileFilterType.notes,
+                            child: Row(
+                              children: [
+                                if (_filterType == FileFilterType.notes)
+                                  const Icon(Icons.check, size: 20)
+                                else
+                                  const SizedBox(width: 20),
+                                const SizedBox(width: 8),
+                                const Text('Notes Only'),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: FileFilterType.markdown,
+                            child: Row(
+                              children: [
+                                if (_filterType == FileFilterType.markdown)
+                                  const Icon(Icons.check, size: 20)
+                                else
+                                  const SizedBox(width: 20),
+                                const SizedBox(width: 8),
+                                const Text('Markdown Only'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      PopupMenuButton<SortType>(
+                        icon: const Icon(Icons.sort),
+                        tooltip: 'Sort',
+                        onSelected: (SortType type) {
+                          setState(() {
+                            _sortType = type;
+                          });
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: SortType.aToZ,
+                            child: Row(
+                              children: [
+                                if (_sortType == SortType.aToZ)
+                                  const Icon(Icons.check, size: 20)
+                                else
+                                  const SizedBox(width: 20),
+                                const SizedBox(width: 8),
+                                const Text('A-Z'),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: SortType.zToA,
+                            child: Row(
+                              children: [
+                                if (_sortType == SortType.zToA)
+                                  const Icon(Icons.check, size: 20)
+                                else
+                                  const SizedBox(width: 20),
+                                const SizedBox(width: 8),
+                                const Text('Z-A'),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: SortType.latestFirst,
+                            child: Row(
+                              children: [
+                                if (_sortType == SortType.latestFirst)
+                                  const Icon(Icons.check, size: 20)
+                                else
+                                  const SizedBox(width: 20),
+                                const SizedBox(width: 8),
+                                const Text('Latest First'),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: SortType.oldestFirst,
+                            child: Row(
+                              children: [
+                                if (_sortType == SortType.oldestFirst)
+                                  const Icon(Icons.check, size: 20)
+                                else
+                                  const SizedBox(width: 20),
+                                const SizedBox(width: 8),
+                                const Text('Oldest First'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
                 ),
                 SliverToBoxAdapter(
                   child: PathComponents(
@@ -220,7 +462,7 @@ class _BrowsePageState extends State<BrowsePage> {
                     sliver: MasonryFiles(
                       crossAxisCount: crossAxisCount,
                       files: [
-                        for (final filePath in children?.files ?? const [])
+                        for (final filePath in _getFilteredAndSortedFiles())
                           "${path ?? ""}/$filePath",
                       ],
                       selectedFiles: selectedFiles,
@@ -278,3 +520,7 @@ class _BrowsePageState extends State<BrowsePage> {
     );
   }
 }
+
+enum FileFilterType { all, notes, markdown }
+
+enum SortType { aToZ, zToA, latestFirst, oldestFirst }

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:kivixa/components/files/file_tree.dart';
 import 'package:kivixa/components/theming/adaptive_icon.dart';
 
 class VerticalNavbar extends StatefulWidget {
@@ -67,7 +66,6 @@ class _VerticalNavbarState extends State<VerticalNavbar> {
               onDestinationSelected: widget.onDestinationSelected,
             ),
           ),
-          if (expanded) const Expanded(child: FileTree()),
         ],
       ),
     );
