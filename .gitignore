@@ -53,3 +53,14 @@ test_backup/
 *.md
 *.ps1
 *.json
+
+
+# Flatpak/linux build files
+.flatpak-builder
+build-dir
+kivixa-Linux-Portable.tar.gz
+
+# Sentry error tracking
+.sentry-native/
+sentry.properties
+sentry-wizard
