@@ -1,4 +1,4 @@
-# Advanced Optimization Features
+ Advanced Optimization Features
 
 This document details the final layer of performance optimizations for Kivixa's drawing engine. These optimizations address production-grade concerns: rendering performance, data precision, crash recovery, and memory management.
 
