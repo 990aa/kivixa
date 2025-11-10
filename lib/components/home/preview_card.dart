@@ -192,7 +192,7 @@ class _PreviewCardState extends State<PreviewCard> {
         final editor = isMarkdown
             ? MarkdownEditor(filePath: widget.filePath)
             : Editor(path: widget.filePath);
-        
+
         return OpenContainer(
           closedColor: colorScheme.surface,
           closedShape: RoundedRectangleBorder(

@@ -566,6 +566,8 @@ class FileManager {
               0,
               filePath.length - Editor.extensionOldJson.length,
             );
+          } else if (filePath.endsWith('.md')) {
+            return filePath.substring(0, filePath.length - '.md'.length);
           } else {
             return filePath;
           }
