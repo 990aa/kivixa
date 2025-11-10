@@ -54,6 +54,22 @@ class _NewNoteButtonState extends State<NewNoteButton> {
           },
         ),
         SpeedDialChild(
+          child: const Icon(Icons.description),
+          label: 'New Markdown Note',
+          onTap: () async {
+            if (widget.path == null) {
+              context.push(RoutePaths.markdown);
+            } else {
+              final newFilePath = await FileManager.newFilePath(
+                '${widget.path}/',
+                extension: '.md',
+              );
+              if (!context.mounted) return;
+              context.push(RoutePaths.markdownFilePath(newFilePath));
+            }
+          },
+        ),
+        SpeedDialChild(
           child: const Icon(Icons.note_add),
           label: t.home.create.importNote,
           onTap: () async {

@@ -16,6 +16,7 @@ import 'package:kivixa/data/tools/stroke_properties.dart';
 import 'package:kivixa/pages/editor/editor.dart';
 import 'package:kivixa/pages/home/home.dart';
 import 'package:kivixa/pages/logs.dart';
+import 'package:kivixa/pages/markdown/markdown_editor.dart';
 import 'package:logging/logging.dart';
 import 'package:path_to_regexp/path_to_regexp.dart';
 import 'package:pdfrx/pdfrx.dart';
@@ -108,6 +109,12 @@ class App extends StatefulWidget {
         builder: (context, state) => Editor(
           path: state.uri.queryParameters['path'],
           pdfPath: state.uri.queryParameters['pdfPath'],
+        ),
+      ),
+      GoRoute(
+        path: RoutePaths.markdown,
+        builder: (context, state) => MarkdownEditor(
+          filePath: state.uri.queryParameters['path'],
         ),
       ),
       GoRoute(

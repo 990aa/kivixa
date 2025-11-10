@@ -9,6 +9,7 @@ import 'package:path_to_regexp/path_to_regexp.dart';
 abstract class RoutePaths {
   static const home = '$prefixOfHome/:subpage';
   static const edit = '/edit';
+  static const markdown = '/markdown';
   static const login = '/login';
   static const logs = '/logs';
 
@@ -22,6 +23,10 @@ abstract class RoutePaths {
     return '$edit'
         '?path=${Uri.encodeQueryComponent(filePath)}'
         '&pdfPath=${Uri.encodeQueryComponent(pdfPath)}';
+  }
+
+  static String markdownFilePath(String filePath) {
+    return '$markdown?path=${Uri.encodeQueryComponent(filePath)}';
   }
 }
 
