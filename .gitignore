@@ -44,14 +44,4 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Flatpak/linux build files
-.flatpak-builder
-build-dir
-kivixa-Linux-Portable.tar.gz
-
-# Sentry error tracking
-.sentry-native/
-sentry.properties
-sentry-wizard
-
 backup/
