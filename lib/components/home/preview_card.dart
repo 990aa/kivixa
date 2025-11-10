@@ -6,16 +6,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:kivixa/components/canvas/_stroke.dart';
-import 'package:kivixa/components/canvas/canvas_preview.dart';
 import 'package:kivixa/components/canvas/inner_canvas.dart';
 import 'package:kivixa/components/canvas/invert_widget.dart';
-
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
 import 'package:kivixa/pages/markdown/markdown_editor.dart';
+import 'package:logging/logging.dart';
 
 class PreviewCard extends StatefulWidget {
   PreviewCard({
@@ -38,6 +37,7 @@ class _PreviewCardState extends State<PreviewCard> {
   final expanded = ValueNotifier(false);
   final thumbnail = _ThumbnailState();
   String? _markdownContent;
+  final log = Logger('PreviewCard');
 
   @override
   void initState() {
@@ -58,16 +58,28 @@ class _PreviewCardState extends State<PreviewCard> {
   Future<void> _loadMarkdownContent() async {
     try {
       final file = FileManager.getFile('${widget.filePath}.md');
-      if (file.existsSync()) {
-        final content = await file.readAsString();
-        if (mounted) {
-          setState(() {
-            _markdownContent = content;
-          });
-        }
+      if (!file.existsSync()) {
+        log.warning('Markdown file does not exist: ${widget.filePath}.md');
+        return;
       }
-    } catch (e) {
-      // Ignore errors, will show fallback
+
+      final content = await file.readAsString();
+      if (mounted) {
+        setState(() {
+          _markdownContent = content;
+        });
+      }
+    } catch (e, stackTrace) {
+      log.severe(
+        'Error loading markdown content for ${widget.filePath}',
+        e,
+        stackTrace,
+      );
+      if (mounted) {
+        setState(() {
+          _markdownContent = null;
+        });
+      }
     }
   }
 
@@ -75,16 +87,30 @@ class _PreviewCardState extends State<PreviewCard> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final imageFile = FileManager.getFile(
-      '${widget.filePath}${Editor.extension}.p',
-    );
-    if (kDebugMode && Platform.environment.containsKey('FLUTTER_TEST')) {
-      // Avoid FileImages in tests
-      thumbnail.image = imageFile.existsSync()
-          ? MemoryImage(imageFile.readAsBytesSync())
-          : null;
-    } else {
-      thumbnail.image = FileImage(imageFile);
+    try {
+      final imageFile = FileManager.getFile(
+        '${widget.filePath}${Editor.extension}.p',
+      );
+
+      if (!imageFile.existsSync()) {
+        // File doesn't exist, thumbnail will show fallback
+        thumbnail.image = null;
+        return;
+      }
+
+      if (kDebugMode && Platform.environment.containsKey('FLUTTER_TEST')) {
+        // Avoid FileImages in tests
+        thumbnail.image = MemoryImage(imageFile.readAsBytesSync());
+      } else {
+        thumbnail.image = FileImage(imageFile);
+      }
+    } catch (e, stackTrace) {
+      log.severe(
+        'Error loading thumbnail for ${widget.filePath}',
+        e,
+        stackTrace,
+      );
+      thumbnail.image = null;
     }
   }
 
@@ -167,57 +193,28 @@ class _PreviewCardState extends State<PreviewCard> {
   }
 
   Widget _buildNotePreview(bool invert) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 100, maxHeight: 200),
-      child: ClipRect(
-        child: FutureBuilder(
-          future: _loadNotePreview(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              );
-            }
-
-            if (snapshot.hasError || !snapshot.hasData) {
-              return const _FallbackThumbnail();
-            }
-
-            return SizedBox(
-              height: 200,
-              child: IgnorePointer(
-                child: FittedBox(
-                  fit: BoxFit.cover,
-                  alignment: Alignment.topCenter,
-                  child: InvertWidget(
-                    invert: invert,
-                    child: CanvasPreview.fromFile(filePath: widget.filePath),
-                  ),
-                ),
-              ),
-            );
-          },
+    return AnimatedBuilder(
+      animation: thumbnail,
+      builder: (context, _) => AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: ConstrainedBox(
+          key: ValueKey(thumbnail.updateCount),
+          constraints: const BoxConstraints(minHeight: 100, maxHeight: 200),
+          child: ClipRect(
+            child: InvertWidget(
+              invert: invert,
+              child: thumbnail.doesImageExist
+                  ? Image(
+                      image: thumbnail.image!,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.topCenter,
+                    )
+                  : const _FallbackThumbnail(),
+            ),
+          ),
         ),
       ),
     );
-  }
-
-  Future<dynamic> _loadNotePreview() async {
-    try {
-      final file = FileManager.getFile('${widget.filePath}${Editor.extension}');
-      if (!file.existsSync()) {
-        return null;
-      }
-      // Just return a placeholder to indicate file exists
-      // CanvasPreview.fromFile will handle the actual loading
-      return true;
-    } catch (e) {
-      return null;
-    }
   }
 
   @override

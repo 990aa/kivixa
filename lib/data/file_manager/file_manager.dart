@@ -554,26 +554,51 @@ class FileManager {
 
   static Future<List<String>> getRecentlyAccessed() async {
     if (!stows.recentFiles.loaded) await stows.recentFiles.waitUntilRead();
-    return stows.recentFiles.value
-        .map((String filePath) {
-          if (filePath.endsWith(Editor.extension)) {
-            return filePath.substring(
-              0,
-              filePath.length - Editor.extension.length,
-            );
-          } else if (filePath.endsWith(Editor.extensionOldJson)) {
-            return filePath.substring(
-              0,
-              filePath.length - Editor.extensionOldJson.length,
-            );
-          } else if (filePath.endsWith('.md')) {
-            return filePath.substring(0, filePath.length - '.md'.length);
-          } else {
-            return filePath;
-          }
-        })
-        .where((String file) => !Editor.isReservedPath(file))
-        .toList();
+
+    final recentFiles = <String>[];
+    final filesToRemove = <String>[];
+
+    for (final filePath in stows.recentFiles.value) {
+      String normalizedPath;
+      if (filePath.endsWith(Editor.extension)) {
+        normalizedPath = filePath.substring(
+          0,
+          filePath.length - Editor.extension.length,
+        );
+      } else if (filePath.endsWith(Editor.extensionOldJson)) {
+        normalizedPath = filePath.substring(
+          0,
+          filePath.length - Editor.extensionOldJson.length,
+        );
+      } else if (filePath.endsWith('.md')) {
+        normalizedPath = filePath.substring(0, filePath.length - '.md'.length);
+      } else {
+        normalizedPath = filePath;
+      }
+
+      if (Editor.isReservedPath(normalizedPath)) continue;
+
+      // Check if the file actually exists
+      final fileExists =
+          doesFileExist('$normalizedPath${Editor.extension}') ||
+          doesFileExist('$normalizedPath.md');
+
+      if (fileExists) {
+        recentFiles.add(normalizedPath);
+      } else {
+        // Mark for removal from recent files list
+        filesToRemove.add(filePath);
+      }
+    }
+
+    // Remove deleted files from the recent files list
+    if (filesToRemove.isNotEmpty) {
+      final updatedRecentFiles = List<String>.from(stows.recentFiles.value);
+      updatedRecentFiles.removeWhere((file) => filesToRemove.contains(file));
+      stows.recentFiles.value = updatedRecentFiles;
+    }
+
+    return recentFiles;
   }
 
   static bool isDirectory(String filePath) {

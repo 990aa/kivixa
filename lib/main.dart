@@ -46,7 +46,44 @@ Future<void> appRunner(List<String> args) async {
       : Level.WARNING;
   Logger.root.onRecord.listen((record) {
     logsHistory.add(record);
+    // Also print to console in debug mode for better visibility
+    if (kDebugMode) {
+      print('[${record.level.name}] ${record.loggerName}: ${record.message}');
+      if (record.error != null) {
+        print('Error: ${record.error}');
+      }
+      if (record.stackTrace != null) {
+        print('Stack trace:\n${record.stackTrace}');
+      }
+    }
   });
+
+  // Catch Flutter framework errors
+  FlutterError.onError = (FlutterErrorDetails details) {
+    final log = Logger('FlutterError');
+    log.severe(
+      'Flutter error: ${details.exceptionAsString()}',
+      details.exception,
+      details.stack,
+    );
+    // In debug mode, also use the default error handler which shows the red screen
+    if (kDebugMode) {
+      FlutterError.dumpErrorToConsole(details);
+    }
+  };
+
+  // Catch async errors that aren't caught by FlutterError
+  PlatformDispatcher.instance.onError = (error, stack) {
+    final log = Logger('PlatformDispatcher');
+    log.severe('Uncaught error', error, stack);
+    if (kDebugMode) {
+      print('=== UNCAUGHT ERROR ===');
+      print('Error: $error');
+      print('Stack trace:\n$stack');
+      print('=====================');
+    }
+    return true; // Mark as handled
+  };
 
   // For some reason, logging errors breaks hot reload while debugging.
 
