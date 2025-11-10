@@ -3,24 +3,17 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  audioplayers_linux
   desktop_webview_window
   dynamic_color
-  file_selector_linux
   flutter_secure_storage_linux
-  gtk
   irondash_engine_context
   open_file_linux
-  pasteboard
   printing
   screen_retriever_linux
-  sqlite3_flutter_libs
   super_native_extensions
-  syncfusion_pdfviewer_linux
   url_launcher_linux
   window_manager
   window_to_front
-  yaru_window_linux
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

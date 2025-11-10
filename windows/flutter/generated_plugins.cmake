@@ -3,20 +3,16 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  audioplayers_windows
   desktop_webview_window
   dynamic_color
   file_selector_windows
   flutter_secure_storage_windows
   irondash_engine_context
-  pasteboard
   permission_handler_windows
   printing
   screen_retriever_windows
   share_plus
-  sqlite3_flutter_libs
   super_native_extensions
-  syncfusion_pdfviewer_windows
   url_launcher_windows
   window_manager
   window_to_front
