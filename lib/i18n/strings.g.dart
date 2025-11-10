@@ -22,6 +22,9 @@ class TranslationsCommon {
   String get done => 'Done';
   String get continueBtn => 'Continue';
   String get cancel => 'Cancel';
+  String get rename => 'Rename';
+  String get delete => 'Delete';
+  String get error => 'Error';
 }
 
 class TranslationsHome {
@@ -40,6 +43,13 @@ class TranslationsHome {
   final TranslationsHomeRenameNote renameNote = TranslationsHomeRenameNote();
   final TranslationsHomeMoveNote moveNote = TranslationsHomeMoveNote();
   String get deleteNote => 'Delete note';
+  String get renameFile => 'Rename file';
+  String get deleteFile => 'Delete file';
+  String get fileName => 'File name';
+  String get fileRenamed => 'File renamed successfully';
+  String get fileDeleted => 'File deleted successfully';
+  String get deleteFileConfirmation =>
+      'Are you sure you want to delete this file? This action cannot be undone.';
   final TranslationsHomeRenameFolder renameFolder =
       TranslationsHomeRenameFolder();
   final TranslationsHomeDeleteFolder deleteFolder =

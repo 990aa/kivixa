@@ -39,6 +39,9 @@ class _PreviewCardState extends State<PreviewCard> {
   String? _markdownContent;
   final log = Logger('PreviewCard');
 
+  // For rename functionality
+  final _renameController = TextEditingController();
+
   @override
   void initState() {
     fileWriteSubscription = FileManager.fileWriteStream.stream.listen(
@@ -314,6 +317,83 @@ class _PreviewCardState extends State<PreviewCard> {
                   ),
                 ],
               ),
+              // Three-dot menu button
+              Positioned(
+                top: 4,
+                right: 4,
+                child: Material(
+                  color: Colors.transparent,
+                  child: PopupMenuButton<String>(
+                    icon: Icon(
+                      Icons.more_vert,
+                      color: colorScheme.onSurface.withValues(alpha: 0.7),
+                      size: 20,
+                    ),
+                    onSelected: (value) {
+                      switch (value) {
+                        case 'rename':
+                          _showRenameDialog();
+                        case 'move':
+                          // TODO: Implement move functionality
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Move functionality coming soon'),
+                            ),
+                          );
+                        case 'delete':
+                          _showDeleteDialog();
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'rename',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.edit,
+                              size: 20,
+                              color: colorScheme.onSurface,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(t.common.rename),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'move',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.drive_file_move,
+                              size: 20,
+                              color: colorScheme.onSurface,
+                            ),
+                            const SizedBox(width: 12),
+                            const Text('Move'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.delete,
+                              size: 20,
+                              color: colorScheme.error,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              t.common.delete,
+                              style: TextStyle(color: colorScheme.error),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -356,9 +436,154 @@ class _PreviewCardState extends State<PreviewCard> {
     );
   }
 
+  Future<void> _showRenameDialog() async {
+    final fileName = widget.filePath.substring(
+      widget.filePath.lastIndexOf('/') + 1,
+    );
+    _renameController.text = fileName;
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t.home.renameFile),
+        content: TextField(
+          controller: _renameController,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: t.home.fileName,
+            border: const OutlineInputBorder(),
+          ),
+          onSubmitted: (value) {
+            if (value.trim().isNotEmpty) {
+              Navigator.of(context).pop(value.trim());
+            }
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(t.common.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              final newName = _renameController.text.trim();
+              if (newName.isNotEmpty) {
+                Navigator.of(context).pop(newName);
+              }
+            },
+            child: Text(t.common.rename),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result != fileName) {
+      await _renameFile(result);
+    }
+  }
+
+  Future<void> _renameFile(String newName) async {
+    try {
+      final directory = widget.filePath.substring(
+        0,
+        widget.filePath.lastIndexOf('/') + 1,
+      );
+      final newPath = '$directory$newName';
+
+      // Check if it's a markdown file
+      final mdFile = FileManager.getFile('${widget.filePath}.md');
+      final isMarkdown = mdFile.existsSync();
+
+      if (isMarkdown) {
+        // Rename the .md file
+        await FileManager.moveFile('${widget.filePath}.md', '$newPath.md');
+      } else {
+        // Rename the note file (.kvx)
+        await FileManager.moveFile(
+          '${widget.filePath}${Editor.extension}',
+          '$newPath${Editor.extension}',
+        );
+      }
+
+      log.info('File renamed from ${widget.filePath} to $newPath');
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(t.home.fileRenamed)));
+      }
+    } catch (e, stackTrace) {
+      log.severe('Error renaming file ${widget.filePath}', e, stackTrace);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('${t.common.error}: $e')));
+      }
+    }
+  }
+
+  Future<void> _showDeleteDialog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t.home.deleteFile),
+        content: Text(t.home.deleteFileConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(t.common.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: Text(t.common.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) {
+      await _deleteFile();
+    }
+  }
+
+  Future<void> _deleteFile() async {
+    try {
+      // Check if it's a markdown file
+      final mdFile = FileManager.getFile('${widget.filePath}.md');
+      final isMarkdown = mdFile.existsSync();
+
+      if (isMarkdown) {
+        // Delete the .md file (this will also delete the .p preview)
+        await FileManager.deleteFile('${widget.filePath}.md');
+      } else {
+        // Delete the note file (this will also delete assets and .p preview)
+        await FileManager.deleteFile('${widget.filePath}${Editor.extension}');
+      }
+
+      log.info('File deleted: ${widget.filePath}');
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(t.home.fileDeleted)));
+      }
+    } catch (e, stackTrace) {
+      log.severe('Error deleting file ${widget.filePath}', e, stackTrace);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('${t.common.error}: $e')));
+      }
+    }
+  }
+
   @override
   void dispose() {
     fileWriteSubscription?.cancel();
+    _renameController.dispose();
     super.dispose();
   }
 }
