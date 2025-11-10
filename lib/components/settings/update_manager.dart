@@ -35,10 +35,12 @@ abstract class UpdateManager {
     bool userTriggered = false,
   }) async {
     if (!userTriggered) {
+      // Don't check for updates if disabled in preferences
+      await stows.shouldCheckForUpdates.waitUntilRead();
+      if (!stows.shouldCheckForUpdates.value) return;
+      
       if (status.value == UpdateStatus.upToDate) {
         // check for updates if not already done
-        await stows.shouldCheckForUpdates.waitUntilRead();
-        if (!stows.shouldCheckForUpdates.value) return;
         status.value = await _checkForUpdate();
       }
       if (status.value != UpdateStatus.updateRecommended)
@@ -60,7 +62,12 @@ abstract class UpdateManager {
     try {
       newestVersion = await getNewestVersion();
     } catch (e) {
-      log.severe('Failed to check for update: $e', e);
+      log.info('Unable to check for update (this is normal for development/forks): $e');
+      return UpdateStatus.upToDate;
+    }
+
+    if (newestVersion == null) {
+      log.info('Could not determine newest version, assuming up to date');
       return UpdateStatus.upToDate;
     }
 
