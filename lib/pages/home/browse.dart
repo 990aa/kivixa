@@ -40,7 +40,7 @@ class _BrowsePageState extends State<BrowsePage> {
   final ValueNotifier<List<String>> selectedFiles = ValueNotifier([]);
 
   // Search, filter, and sort
-  final TextEditingController _searchController = TextEditingController();
+  final _searchController = TextEditingController();
   var _isSearching = false;
   var _filterType = FileFilterType.all; // all, notes, markdown
   var _sortType = SortType.aToZ; // A-Z, Z-A, latest-oldest, oldest-latest
@@ -143,26 +143,21 @@ class _BrowsePageState extends State<BrowsePage> {
           final fullPath = "${path ?? ""}/$file";
           return FileManager.doesFileExist('$fullPath${Editor.extension}');
         }).toList();
-        break;
       case FileFilterType.markdown:
         files = files.where((file) {
           // Check if .md file exists
           final fullPath = "${path ?? ""}/$file";
           return FileManager.doesFileExist('$fullPath.md');
         }).toList();
-        break;
       case FileFilterType.all:
-        break;
     }
 
     // Apply sorting
     switch (_sortType) {
       case SortType.aToZ:
         files.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
-        break;
       case SortType.zToA:
         files.sort((a, b) => b.toLowerCase().compareTo(a.toLowerCase()));
-        break;
       case SortType.latestFirst:
         files.sort((a, b) {
           final aPath = "${path ?? ""}/$a";
@@ -171,7 +166,6 @@ class _BrowsePageState extends State<BrowsePage> {
           final bTime = _getFileModifiedTime(bPath);
           return bTime.compareTo(aTime); // Latest first
         });
-        break;
       case SortType.oldestFirst:
         files.sort((a, b) {
           final aPath = "${path ?? ""}/$a";
@@ -180,9 +174,7 @@ class _BrowsePageState extends State<BrowsePage> {
           final bTime = _getFileModifiedTime(bPath);
           return aTime.compareTo(bTime); // Oldest first
         });
-        break;
     }
-
     return files;
   }
 
