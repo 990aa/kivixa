@@ -46,12 +46,12 @@ class _PreviewCardState extends State<PreviewCard> {
     );
 
     expanded.value = widget.selected;
-    
+
     // Load markdown content if it's a markdown file
     if (widget.filePath.endsWith('.md')) {
       _loadMarkdownContent();
     }
-    
+
     super.initState();
   }
 
@@ -116,10 +116,7 @@ class _PreviewCardState extends State<PreviewCard> {
 
   Widget _buildMarkdownPreview(ColorScheme colorScheme) {
     return ConstrainedBox(
-      constraints: const BoxConstraints(
-        minHeight: 100,
-        maxHeight: 200,
-      ),
+      constraints: const BoxConstraints(minHeight: 100, maxHeight: 200),
       child: ClipRect(
         child: _markdownContent == null
             ? const _FallbackThumbnail()
@@ -137,13 +134,26 @@ class _PreviewCardState extends State<PreviewCard> {
                           physics: const NeverScrollableScrollPhysics(),
                           styleSheet: MarkdownStyleSheet(
                             textScaler: const TextScaler.linear(0.7),
-                            p: TextStyle(fontSize: 10, color: colorScheme.onSurface),
-                            h1: TextStyle(fontSize: 14, color: colorScheme.primary),
-                            h2: TextStyle(fontSize: 13, color: colorScheme.primary),
-                            h3: TextStyle(fontSize: 12, color: colorScheme.primary),
+                            p: TextStyle(
+                              fontSize: 10,
+                              color: colorScheme.onSurface,
+                            ),
+                            h1: TextStyle(
+                              fontSize: 14,
+                              color: colorScheme.primary,
+                            ),
+                            h2: TextStyle(
+                              fontSize: 13,
+                              color: colorScheme.primary,
+                            ),
+                            h3: TextStyle(
+                              fontSize: 12,
+                              color: colorScheme.primary,
+                            ),
                             code: TextStyle(
                               fontSize: 9,
-                              backgroundColor: colorScheme.surfaceContainerHighest,
+                              backgroundColor:
+                                  colorScheme.surfaceContainerHighest,
                             ),
                           ),
                         ),
@@ -158,10 +168,7 @@ class _PreviewCardState extends State<PreviewCard> {
 
   Widget _buildNotePreview(bool invert) {
     return ConstrainedBox(
-      constraints: const BoxConstraints(
-        minHeight: 100,
-        maxHeight: 200,
-      ),
+      constraints: const BoxConstraints(minHeight: 100, maxHeight: 200),
       child: ClipRect(
         child: FutureBuilder(
           future: _loadNotePreview(),
@@ -175,7 +182,7 @@ class _PreviewCardState extends State<PreviewCard> {
                 ),
               );
             }
-            
+
             if (snapshot.hasError || !snapshot.hasData) {
               return const _FallbackThumbnail();
             }
@@ -188,9 +195,7 @@ class _PreviewCardState extends State<PreviewCard> {
                   alignment: Alignment.topCenter,
                   child: InvertWidget(
                     invert: invert,
-                    child: CanvasPreview.fromFile(
-                      filePath: widget.filePath,
-                    ),
+                    child: CanvasPreview.fromFile(filePath: widget.filePath),
                   ),
                 ),
               ),
