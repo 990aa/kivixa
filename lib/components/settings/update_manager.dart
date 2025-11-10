@@ -38,7 +38,7 @@ abstract class UpdateManager {
       // Don't check for updates if disabled in preferences
       await stows.shouldCheckForUpdates.waitUntilRead();
       if (!stows.shouldCheckForUpdates.value) return;
-      
+
       if (status.value == UpdateStatus.upToDate) {
         // check for updates if not already done
         status.value = await _checkForUpdate();
@@ -62,7 +62,9 @@ abstract class UpdateManager {
     try {
       newestVersion = await getNewestVersion();
     } catch (e) {
-      log.info('Unable to check for update (this is normal for development/forks): $e');
+      log.info(
+        'Unable to check for update (this is normal for development/forks): $e',
+      );
       return UpdateStatus.upToDate;
     }
 

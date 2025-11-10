@@ -118,11 +118,17 @@ class _RecentPageState extends State<RecentPage> {
           // Background SVG
           Positioned.fill(
             child: Opacity(
-              opacity: 0.1,
-              child: SvgPicture.asset(
-                'assets/images/home_page.svg',
-                fit: BoxFit.cover,
-                alignment: Alignment.center,
+              opacity: 0.05,
+              child: Center(
+                child: SizedBox(
+                  width: 400,
+                  height: 400,
+                  child: SvgPicture.asset(
+                    'assets/images/home_page.svg',
+                    fit: BoxFit.contain,
+                    alignment: Alignment.center,
+                  ),
+                ),
               ),
             ),
           ),

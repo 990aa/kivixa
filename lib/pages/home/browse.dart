@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collapsible/collapsible.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kivixa/components/home/export_note_button.dart';
 import 'package:kivixa/components/home/grid_folders.dart';
@@ -120,93 +121,116 @@ class _BrowsePageState extends State<BrowsePage> {
     final crossAxisCount = MediaQuery.sizeOf(context).width ~/ 300 + 1;
 
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () => Future.wait([
-          findChildrenOfPath(),
-          Future.delayed(const Duration(milliseconds: 500)),
-        ]),
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              collapsedHeight: kToolbarHeight,
-              expandedHeight: 200 - 8,
-              pinned: true,
-              scrolledUnderElevation: 1,
-              flexibleSpace: FlexibleSpaceBar(
-                title: Text(
-                  t.home.titles.browse,
-                  style: TextStyle(color: colorScheme.onSurface),
-                ),
-                centerTitle: false,
-                titlePadding: const EdgeInsetsDirectional.only(
-                  start: 16,
-                  bottom: 8,
+      body: Stack(
+        children: [
+          // Background SVG
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.05,
+              child: Center(
+                child: SizedBox(
+                  width: 400,
+                  height: 400,
+                  child: SvgPicture.asset(
+                    'assets/images/home_page.svg',
+                    fit: BoxFit.contain,
+                    alignment: Alignment.center,
+                  ),
                 ),
               ),
             ),
-            SliverToBoxAdapter(
-              child: PathComponents(
-                path,
-                onPathComponentTap: onPathComponentTap,
-              ),
-            ),
-            const SliverPadding(padding: EdgeInsets.only(bottom: 16)),
-            GridFolders(
-              isAtRoot: path?.isEmpty ?? true,
-              crossAxisCount: crossAxisCount,
-              onTap: onDirectoryTap,
-              createFolder: createFolder,
-              doesFolderExist: (String folderName) {
-                return children?.directories.contains(folderName) ?? false;
-              },
-              renameFolder: (String oldName, String newName) async {
-                final oldPath = '${path ?? ''}/$oldName';
-                await FileManager.renameDirectory(oldPath, newName);
-                findChildrenOfPath();
-              },
-              isFolderEmpty: (String folderName) async {
-                final folderPath = '${path ?? ''}/$folderName';
-                final children = await FileManager.getChildrenOfDirectory(
-                  folderPath,
-                );
-                return children?.isEmpty ?? true;
-              },
-              deleteFolder: (String folderName) async {
-                final folderPath = '${path ?? ''}/$folderName';
-                await FileManager.deleteDirectory(folderPath);
-                findChildrenOfPath();
-              },
-              folders: [
-                for (final directoryPath in children?.directories ?? const [])
-                  directoryPath,
+          ),
+          // Main content
+          RefreshIndicator(
+            onRefresh: () => Future.wait([
+              findChildrenOfPath(),
+              Future.delayed(const Duration(milliseconds: 500)),
+            ]),
+            child: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  collapsedHeight: kToolbarHeight,
+                  expandedHeight: 200 - 8,
+                  pinned: true,
+                  scrolledUnderElevation: 1,
+                  flexibleSpace: FlexibleSpaceBar(
+                    title: Text(
+                      t.home.titles.browse,
+                      style: TextStyle(color: colorScheme.onSurface),
+                    ),
+                    centerTitle: false,
+                    titlePadding: const EdgeInsetsDirectional.only(
+                      start: 16,
+                      bottom: 8,
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: PathComponents(
+                    path,
+                    onPathComponentTap: onPathComponentTap,
+                  ),
+                ),
+                const SliverPadding(padding: EdgeInsets.only(bottom: 16)),
+                GridFolders(
+                  isAtRoot: path?.isEmpty ?? true,
+                  crossAxisCount: crossAxisCount,
+                  onTap: onDirectoryTap,
+                  createFolder: createFolder,
+                  doesFolderExist: (String folderName) {
+                    return children?.directories.contains(folderName) ?? false;
+                  },
+                  renameFolder: (String oldName, String newName) async {
+                    final oldPath = '${path ?? ''}/$oldName';
+                    await FileManager.renameDirectory(oldPath, newName);
+                    findChildrenOfPath();
+                  },
+                  isFolderEmpty: (String folderName) async {
+                    final folderPath = '${path ?? ''}/$folderName';
+                    final children = await FileManager.getChildrenOfDirectory(
+                      folderPath,
+                    );
+                    return children?.isEmpty ?? true;
+                  },
+                  deleteFolder: (String folderName) async {
+                    final folderPath = '${path ?? ''}/$folderName';
+                    await FileManager.deleteDirectory(folderPath);
+                    findChildrenOfPath();
+                  },
+                  folders: [
+                    for (final directoryPath
+                        in children?.directories ?? const [])
+                      directoryPath,
+                  ],
+                ),
+                if (children == null) ...[
+                  // loading
+                ] else if (children!.isEmpty) ...[
+                  const SliverSafeArea(
+                    sliver: SliverToBoxAdapter(child: NoFiles()),
+                  ),
+                ] else ...[
+                  SliverSafeArea(
+                    top: false,
+                    minimum: const EdgeInsets.only(
+                      top: 8,
+                      // Allow space for the FloatingActionButton
+                      bottom: 70,
+                    ),
+                    sliver: MasonryFiles(
+                      crossAxisCount: crossAxisCount,
+                      files: [
+                        for (final filePath in children?.files ?? const [])
+                          "${path ?? ""}/$filePath",
+                      ],
+                      selectedFiles: selectedFiles,
+                    ),
+                  ),
+                ],
               ],
             ),
-            if (children == null) ...[
-              // loading
-            ] else if (children!.isEmpty) ...[
-              const SliverSafeArea(
-                sliver: SliverToBoxAdapter(child: NoFiles()),
-              ),
-            ] else ...[
-              SliverSafeArea(
-                top: false,
-                minimum: const EdgeInsets.only(
-                  top: 8,
-                  // Allow space for the FloatingActionButton
-                  bottom: 70,
-                ),
-                sliver: MasonryFiles(
-                  crossAxisCount: crossAxisCount,
-                  files: [
-                    for (final filePath in children?.files ?? const [])
-                      "${path ?? ""}/$filePath",
-                  ],
-                  selectedFiles: selectedFiles,
-                ),
-              ),
-            ],
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButton: NewNoteButton(cupertino: cupertino, path: path),
       persistentFooterButtons: selectedFiles.value.isEmpty
