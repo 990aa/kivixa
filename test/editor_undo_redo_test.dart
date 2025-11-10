@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:golden_screenshot/golden_screenshot.dart';
 import 'package:kivixa/components/theming/dynamic_material_app.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/flavor_config.dart';
@@ -13,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'utils/test_mock_channel_handlers.dart';
 
 void main() {
-  testGoldens('Editor: undo/redo buttons interaction test', (tester) async {
+  testWidgets('Editor: undo/redo buttons interaction test', (tester) async {
     TestWidgetsFlutterBinding.ensureInitialized();
     HttpOverrides.global = null; // needed for [google_fonts] package
 
