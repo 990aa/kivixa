@@ -52,22 +52,24 @@ void main() {
         awaitWrite: true,
       );
 
+      // Wait to ensure file is written and handles are released
+      await Future.delayed(const Duration(milliseconds: 200));
+
       // read file
       final file = File('$rootDir$filePath');
       final readContent = await file.readAsString();
       expect(readContent, content);
 
-      // Wait a bit before deleting to avoid file locking issues on Windows
-      await Future.delayed(const Duration(milliseconds: 100));
+      // Wait before deleting to avoid file locking issues on Windows
+      await Future.delayed(const Duration(milliseconds: 200));
 
-      // delete file
+      // delete file - use FileManager.deleteFile instead
       try {
-        await file.delete();
+        await FileManager.deleteFile(filePath);
       } catch (e) {
         // Ignore deletion errors on Windows
       }
     });
-
     test('writeFile and readFile', () async {
       const filePath = '/test_readWriteFile.kvx';
       const content = 'test content for $filePath';
@@ -79,14 +81,23 @@ void main() {
         awaitWrite: true,
       );
 
+      // Wait to ensure file is written and handles are released
+      await Future.delayed(const Duration(milliseconds: 200));
+
       // read file
       final readBytes = await FileManager.readFile(filePath);
       final readContent = utf8.decode(readBytes!);
       expect(readContent, content);
 
+      // Wait before deleting to avoid file locking issues on Windows
+      await Future.delayed(const Duration(milliseconds: 200));
+
       // delete file
-      final file = File('$rootDir$filePath');
-      await file.delete();
+      try {
+        await FileManager.deleteFile(filePath);
+      } catch (e) {
+        // Ignore deletion errors on Windows
+      }
     });
 
     test('moveFile', () async {
@@ -117,11 +128,17 @@ void main() {
         awaitWrite: true,
       );
 
-      // Wait a bit to ensure files are written
-      await Future.delayed(const Duration(milliseconds: 100));
+      // Wait to ensure files are written and handles are released
+      await Future.delayed(const Duration(milliseconds: 300));
 
       // ensure file does not exist (in case of previous test failure)
-      await FileManager.deleteFile(filePathAfter);
+      try {
+        await FileManager.deleteFile(filePathAfter);
+      } catch (e) {
+        // Ignore if file doesn't exist
+      }
+
+      await Future.delayed(const Duration(milliseconds: 200));
 
       // move file
       final filePathActual = await FileManager.moveFile(
@@ -158,16 +175,12 @@ void main() {
       final readContentP = utf8.decode(readBytesP!);
       expect(readContentP, contentP);
 
-      // Wait a bit before deleting to avoid file locking issues on Windows
-      await Future.delayed(const Duration(milliseconds: 100));
+      // Wait before deleting to avoid file locking issues on Windows
+      await Future.delayed(const Duration(milliseconds: 300));
 
-      // delete files
+      // delete files using FileManager
       try {
-        await Future.wait([
-          fileAfter.delete(),
-          fileAfterA.delete(),
-          fileAfterP.delete(),
-        ]);
+        await FileManager.deleteFile(filePathAfter);
       } catch (e) {
         // Ignore deletion errors on Windows
       }
@@ -280,8 +293,8 @@ void main() {
       await FileManager.writeFile('/$fileName1.kvx', [1], awaitWrite: true);
       await FileManager.writeFile('/$fileName2.kvx', [2], awaitWrite: true);
 
-      // Wait a bit to ensure files are written
-      await Future.delayed(const Duration(milliseconds: 100));
+      // Wait to ensure files are written and handles are released
+      await Future.delayed(const Duration(milliseconds: 300));
 
       // check recently accessed
       recentlyAccessed = await FileManager.getRecentlyAccessed();
@@ -289,12 +302,13 @@ void main() {
       expect(recentlyAccessed[0], '/$fileName2');
       expect(recentlyAccessed[1], '/$fileName1');
 
-      // Wait a bit before deleting to avoid file locking issues on Windows
-      await Future.delayed(const Duration(milliseconds: 100));
+      // Wait before deleting to avoid file locking issues on Windows
+      await Future.delayed(const Duration(milliseconds: 300));
 
       // delete files
       try {
         await FileManager.deleteFile('/$fileName1.kvx');
+        await Future.delayed(const Duration(milliseconds: 100));
         await FileManager.deleteFile('/$fileName2.kvx');
       } catch (e) {
         // Ignore deletion errors on Windows

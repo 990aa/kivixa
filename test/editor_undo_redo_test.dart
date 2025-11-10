@@ -148,8 +148,13 @@ void main() {
     printOnFailure('Saving file: $filePath${Editor.extension}');
     await tester.runAsync(() async {
       await editorState.saveToFile();
-      await Future.delayed(const Duration(milliseconds: 100));
-      await FileManager.deleteFile(filePath + Editor.extension);
+      // Wait to ensure file handles are released on Windows
+      await Future.delayed(const Duration(milliseconds: 300));
+      try {
+        await FileManager.deleteFile(filePath + Editor.extension);
+      } catch (e) {
+        // Ignore deletion errors on Windows
+      }
     });
   });
 }

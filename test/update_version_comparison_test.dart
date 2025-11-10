@@ -89,18 +89,22 @@ void main() => group('Update manager:', () {
   );
 
   test('Test that the latest version can be parsed from GitHub', () async {
-    final fileContents = await File('test/samples/github_releases_api.json').readAsString();
-    final int? newestVersion = await UpdateManager.getNewestVersion(fileContents);
+    final fileContents = await File(
+      'test/samples/github_releases_api.json',
+    ).readAsString();
+    final int? newestVersion = await UpdateManager.getNewestVersion(
+      fileContents,
+    );
 
     expect(
       newestVersion,
       isNotNull,
       reason: 'Could not parse version number from GitHub',
     );
-    // at the time of writing, the latest version is 5050
+    // The version should be parsed as 100000 from "v1.0.0"
     expect(
       newestVersion,
-      greaterThan(5000),
+      equals(100000),
       reason: 'Incorrect version number parsed from GitHub',
     );
   });
