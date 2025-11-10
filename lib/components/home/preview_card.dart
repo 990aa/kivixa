@@ -4,7 +4,9 @@ import 'dart:io';
 import 'package:animations/animations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:kivixa/components/canvas/_stroke.dart';
+import 'package:kivixa/components/canvas/canvas_preview.dart';
 import 'package:kivixa/components/canvas/inner_canvas.dart';
 import 'package:kivixa/components/canvas/invert_widget.dart';
 
@@ -35,6 +37,7 @@ class PreviewCard extends StatefulWidget {
 class _PreviewCardState extends State<PreviewCard> {
   final expanded = ValueNotifier(false);
   final thumbnail = _ThumbnailState();
+  String? _markdownContent;
 
   @override
   void initState() {
@@ -43,7 +46,29 @@ class _PreviewCardState extends State<PreviewCard> {
     );
 
     expanded.value = widget.selected;
+    
+    // Load markdown content if it's a markdown file
+    if (widget.filePath.endsWith('.md')) {
+      _loadMarkdownContent();
+    }
+    
     super.initState();
+  }
+
+  Future<void> _loadMarkdownContent() async {
+    try {
+      final file = FileManager.getFile('${widget.filePath}.md');
+      if (file.existsSync()) {
+        final content = await file.readAsString();
+        if (mounted) {
+          setState(() {
+            _markdownContent = content;
+          });
+        }
+      }
+    } catch (e) {
+      // Ignore errors, will show fallback
+    }
   }
 
   @override
@@ -68,9 +93,17 @@ class _PreviewCardState extends State<PreviewCard> {
     if (event.filePath != widget.filePath) return;
     if (event.type == FileOperationType.delete) {
       thumbnail.image = null;
+      if (widget.filePath.endsWith('.md')) {
+        setState(() {
+          _markdownContent = null;
+        });
+      }
     } else if (event.type == FileOperationType.write) {
       thumbnail.image?.evict();
       thumbnail.markAsChanged();
+      if (widget.filePath.endsWith('.md')) {
+        _loadMarkdownContent();
+      }
     } else {
       throw Exception('Unknown file operation type: ${event.type}');
     }
@@ -79,6 +112,107 @@ class _PreviewCardState extends State<PreviewCard> {
   void _toggleCardSelection() {
     expanded.value = !expanded.value;
     widget.toggleSelection(widget.filePath, expanded.value);
+  }
+
+  Widget _buildMarkdownPreview(ColorScheme colorScheme) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        minHeight: 100,
+        maxHeight: 200,
+      ),
+      child: ClipRect(
+        child: _markdownContent == null
+            ? const _FallbackThumbnail()
+            : Container(
+                color: colorScheme.surface,
+                padding: const EdgeInsets.all(8),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SizedBox(
+                      height: 200,
+                      child: IgnorePointer(
+                        child: Markdown(
+                          data: _markdownContent!,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          styleSheet: MarkdownStyleSheet(
+                            textScaleFactor: 0.7,
+                            p: TextStyle(fontSize: 10, color: colorScheme.onSurface),
+                            h1: TextStyle(fontSize: 14, color: colorScheme.primary),
+                            h2: TextStyle(fontSize: 13, color: colorScheme.primary),
+                            h3: TextStyle(fontSize: 12, color: colorScheme.primary),
+                            code: TextStyle(
+                              fontSize: 9,
+                              backgroundColor: colorScheme.surfaceContainerHighest,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildNotePreview(bool invert) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        minHeight: 100,
+        maxHeight: 200,
+      ),
+      child: ClipRect(
+        child: FutureBuilder(
+          future: _loadNotePreview(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              );
+            }
+            
+            if (snapshot.hasError || !snapshot.hasData) {
+              return const _FallbackThumbnail();
+            }
+
+            return SizedBox(
+              height: 200,
+              child: IgnorePointer(
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  alignment: Alignment.topCenter,
+                  child: InvertWidget(
+                    invert: invert,
+                    child: CanvasPreview.fromFile(
+                      filePath: widget.filePath,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<dynamic> _loadNotePreview() async {
+    try {
+      final file = FileManager.getFile('${widget.filePath}${Editor.extension}');
+      if (!file.existsSync()) {
+        return null;
+      }
+      // Just return a placeholder to indicate file exists
+      // CanvasPreview.fromFile will handle the actual loading
+      return true;
+    } catch (e) {
+      return null;
+    }
   }
 
   @override
@@ -107,22 +241,10 @@ class _PreviewCardState extends State<PreviewCard> {
                 children: [
                   Stack(
                     children: [
-                      AnimatedBuilder(
-                        animation: thumbnail,
-                        builder: (context, _) => AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          child: ConstrainedBox(
-                            key: ValueKey(thumbnail.updateCount),
-                            constraints: const BoxConstraints(minHeight: 100),
-                            child: InvertWidget(
-                              invert: invert,
-                              child: thumbnail.doesImageExist
-                                  ? Image(image: thumbnail.image!)
-                                  : const _FallbackThumbnail(),
-                            ),
-                          ),
-                        ),
-                      ),
+                      // Preview content based on file type
+                      widget.filePath.endsWith('.md')
+                          ? _buildMarkdownPreview(colorScheme)
+                          : _buildNotePreview(invert),
                       Positioned.fill(
                         left: -1,
                         top: -1,
