@@ -1,46 +1,13 @@
 {
-  // Java configuration - Disable Java extension for Flutter project
-  "java.enabled": false,
-  "java.import.gradle.enabled": false,
-  "java.import.gradle.offline.enabled": false,
-  "java.configuration.updateBuildConfiguration": "disabled",
-  
-  // Exclude build folders from file watcher
-  "files.watcherExclude": {
-    "**/build/**": true,
-    "**/.dart_tool/**": true,
-    "**/node_modules/**": true,
-    "**/.git/objects/**": true,
-    "**/.git/subtree-cache/**": true,
-    "**/android/.gradle/**": true,
-    "**/android/build/**": true,
-    "**/ios/Pods/**": true,
-    "**/ios/build/**": true
-  },
-  
-  // Search exclusions
-  "search.exclude": {
-    "**/build": true,
-    "**/.dart_tool": true,
-    "**/android/.gradle": true,
-    "**/android/build": true
-  },
-  
-  // Files exclusions
-  "files.exclude": {
-    "**/.git": false,
-    "**/.dart_tool": true,
-    "**/pubspec.lock": false,
-    ".sentry-native": true,
-    "android/.gradle/": true,
-    "android/.kotlin/": true,
-    "submodules/*/*": true,
-    "linux/flutter/ephemeral/": true,
-    "**/.dart_tool/": true,
-    "**/.idea/": true,
-    "**/.flutter-plugins-dependencies": true,
+    "files.exclude": {
+        "android/.gradle/": true,
+        "android/.kotlin/": true,
+        "submodules/*/*": true,
+        "linux/flutter/ephemeral/": true,
+        "**/.dart_tool/": true,
+        "**/.idea/": true,
+        "**/.flutter-plugins-dependencies": true,
     },
-    
     "editor.defaultFormatter": "Dart-Code.dart-code",
     "editor.formatOnSave": true,
     "dart.doNotFormat": [
