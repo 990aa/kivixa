@@ -6,13 +6,13 @@
 
 A  creative workspace and digital canvas built with Flutter, featuring advanced drawing tools, performance optimizations, and multi-format export capabilities for Android, Windows, iOS, macOS, Linux, and Web.
 
-## 🎨 What is Kivixa?
+## What is Kivixa?
 
-Kivixa is a **creative workspace** designed for digital artists, designers, annotators, and creative s. Whether you're sketching ideas, annotating documents, or creating digital artwork, Kivixa provides -grade tools with desktop-class performance on any device.
+Kivixa is a **creative workspace**. Whether you're sketching ideas, annotating documents, or creating digital artwork, Kivixa provides -grade tools with desktop-class performance on any device.
 
-## ✨ Key Features
+## Key Features
 
-### �️  Drawing Tools
+### Drawing Tools
 
 - **Advanced Brush Engine**: Pressure-sensitive pen, highlighter, and airbrush with customizable properties
 - **Smooth Rendering**: Cubic Bézier curves with Catmull-Rom interpolation for ultra-smooth strokes
@@ -20,7 +20,7 @@ Kivixa is a **creative workspace** designed for digital artists, designers, anno
 - **Precision Drawing**: Platform-specific gesture handling (1 finger draw, 2+ finger navigate)
 - **Undo/Redo System**: Full 50-state history with intelligent state management
 
-### � Smart Features
+### Smart Features
 
 - **Optimized Performance**:
   - **Batched GPU Rendering**: 90%+ reduction in draw calls (1000 strokes → 10 calls)
@@ -34,14 +34,14 @@ Kivixa is a **creative workspace** designed for digital artists, designers, anno
   - 64-bit double precision with string serialization
   - Lossless vector data preservation
 
-### 📄 PDF Integration
+### PDF Integration
 
 - **Interactive PDF Annotation**: Draw directly on PDF pages with Syncfusion overlay
 - **Per-Page Layers**: Independent annotation layers for each PDF page
 - **Coordinate Transformation**: Automatic viewport ↔ PDF coordinate mapping
 - **Export Options**: Embed annotations in PDF or export separately
 
-### 💾 Multi-Format Export
+### Multi-Format Export
 
 - **SVG Export**: True vector format, infinite zoom capability
 - **PDF Vector**: Editable paths, -quality output
@@ -49,16 +49,14 @@ Kivixa is a **creative workspace** designed for digital artists, designers, anno
 - **High-Res PNG**: Up to 600 DPI for print production
 - **Auto Format Selection**: Intelligent optimization based on content
 
-### 🖥️  Workspace
+### Workspace
 
 - **Fixed UI Layout**: Toolbars and panels stay in place while canvas transforms
 - **6-Layer Architecture**: Background, canvas, top/bottom toolbars, left/right panels
 - **Gesture Arena Control**: Platform-specific input device configuration
 - **Massive Canvas Support**: Up to 10,000×10,000px with efficient rendering
 
-### 🚀 Advanced Optimizations
-
-### 🚀 Advanced Optimizations
+### Advanced Optimizations
 
 **Rendering**:
 - Batched stroke rendering by brush properties
@@ -84,7 +82,7 @@ Kivixa is a **creative workspace** designed for digital artists, designers, anno
 - Maximum 2 minutes of work lost
 - Zero precision loss across save/load cycles
 
-## 🎯 Use Cases
+## Use Cases
 
 - **Digital Art**: Full-featured drawing with layers, blend modes, and high-res export
 - **PDF Annotation**: Mark up documents with  tools
@@ -93,7 +91,7 @@ Kivixa is a **creative workspace** designed for digital artists, designers, anno
 - **Education**: Interactive whiteboard with save/share capabilities
 - **Creative Workflows**: Complete workspace for ideation and iteration
 
-## 🏗️ Architecture
+## Architecture
 
 **Platform Input Config**: Detects platform and configures input devices
 - Android/iOS: 1 finger draw, 2+ fingers navigate
@@ -110,7 +108,7 @@ Kivixa is a **creative workspace** designed for digital artists, designers, anno
 - Only canvas transforms (pan/zoom/rotate)
 - Customizable toolbars and panels
 
-#### 4. **Performance Systems**
+#### **Performance Systems**
 
 **OptimizedStrokeRenderer**:
 ```dart
@@ -136,7 +134,7 @@ autoSave.start();  // Automatic crash recovery
 memoryMgr.trackImage('photo1', image);
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
@@ -202,7 +200,7 @@ final pdfBytes = await LosslessExporter().exportAsPDFWithVectorStrokes(
 );
 ```
 
-## 📊 Performance Metrics
+## Performance Metrics
 
 ### Rendering Performance
 
@@ -230,7 +228,7 @@ final pdfBytes = await LosslessExporter().exportAsPDFWithVectorStrokes(
 | Battery death | 100% loss | < 2 min loss | Automatic |
 | Corrupted save | Unrecoverable | Restore from backup | Automatic |
 
-## 📦 Dependencies
+## Dependencies
 
 ```yaml
 dependencies:
@@ -257,7 +255,7 @@ dependencies:
   uuid: ^4.5.1                          # Unique IDs
 ```
 
-## 📚 Documentation
+## Documentation
 
 ### Comprehensive Guides
 
@@ -280,7 +278,7 @@ dependencies:
 - **[Shapes & Storage](docs/SHAPES_AND_STORAGE.md)** - Drawing tools
 - **[Bézier Curves](docs/BEZIER_CURVES.md)** - Mathematical details
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 lib/
@@ -336,7 +334,7 @@ PDFDrawingCanvas(
 // Features: Stylus support, palm rejection, auto-save
 ```
 
-## 🔮 Roadmap
+## Roadmap
 
 ### Completed ✅
 - [x] Multi-layer system with blend modes
@@ -360,7 +358,7 @@ PDFDrawingCanvas(
 - [ ] Custom brush creation
 - [ ] PSD layer export
 
-## 🖥️ Platform Support
+## Platform Support
 
 | Platform | Status | Notes |
 |----------|--------|-------|
@@ -371,7 +369,7 @@ PDFDrawingCanvas(
 | Linux | 🔧 Experimental | Basic support |
 | Web | 🔧 Experimental | Limited stylus API |
 
-## 🤝 Contributing
+## Contributing
 
 Contributions welcome! We're looking for:
 
@@ -390,19 +388,8 @@ Contributions welcome! We're looking for:
 5. Push: `git push origin feature/amazing-feature`
 6. Open a Pull Request
 
-## 📄 License
+## License
 
 See [LICENSE.md](LICENSE.md) for details.
-
-## 🙏 Acknowledgments
-
-- [hand_signature](https://pub.dev/packages/hand_signature) - Smooth Bézier drawing
-- [Syncfusion PDF](https://pub.dev/packages/syncfusion_flutter_pdf) - PDF manipulation
-- [pdfx](https://pub.dev/packages/pdfx) - PDF rendering
-- Flutter team for amazing framework
-
----
-
-**Built with Flutter 💙 |  Performance 🚀 | Cross-Platform 🌐**
 
 **⭐ Star on GitHub if Kivixa helps your creative workflow!**
