@@ -1,9 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:markdown/markdown.dart' as md;
 import 'package:kivixa/data/file_manager/file_manager.dart';
+import 'package:markdown/markdown.dart' as md;
 import 'package:url_launcher/url_launcher.dart';
 
 class MarkdownEditor extends StatefulWidget {
@@ -11,7 +9,7 @@ class MarkdownEditor extends StatefulWidget {
 
   final String? filePath;
 
-  static const String extension = '.md';
+  static const extension = '.md';
 
   @override
   State<MarkdownEditor> createState() => _MarkdownEditorState();
@@ -21,10 +19,10 @@ class _MarkdownEditorState extends State<MarkdownEditor>
     with SingleTickerProviderStateMixin {
   late TextEditingController _controller;
   late TabController _tabController;
-  bool _isLoading = true;
-  bool _hasUnsavedChanges = false;
+  var _isLoading = true;
+  var _hasUnsavedChanges = false;
   String? _currentFilePath;
-  String _fileName = 'Untitled';
+  var _fileName = 'Untitled';
 
   @override
   void initState() {
@@ -41,13 +39,15 @@ class _MarkdownEditorState extends State<MarkdownEditor>
     if (widget.filePath != null) {
       try {
         _currentFilePath = widget.filePath! + MarkdownEditor.extension;
-        final file = FileManager.getFile(_currentFilePath!);
-        
-        if (await file.exists()) {
-          final content = await file.readAsString();
-          _controller.text = content;
-          _fileName = _getFileNameFromPath(_currentFilePath!);
-        } else {
+
+        try {
+          final content = await FileManager.readFile(_currentFilePath!);
+          if (content != null) {
+            _controller.text = String.fromCharCodes(content);
+            _fileName = _getFileNameFromPath(_currentFilePath!);
+          }
+        } catch (e) {
+          // File doesn't exist yet, that's okay
           _currentFilePath = widget.filePath! + MarkdownEditor.extension;
           _fileName = _getFileNameFromPath(widget.filePath!);
         }
@@ -82,12 +82,8 @@ class _MarkdownEditorState extends State<MarkdownEditor>
   }
 
   Future<void> _saveFile() async {
-    if (_currentFilePath == null) {
-      _currentFilePath = await FileManager.newFilePath(
-        '/$_fileName',
-        extension: MarkdownEditor.extension,
-      );
-    }
+    _currentFilePath ??=
+        '${await FileManager.newFilePath('/')}$_fileName${MarkdownEditor.extension}';
 
     try {
       await FileManager.writeFile(
@@ -101,15 +97,15 @@ class _MarkdownEditorState extends State<MarkdownEditor>
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Markdown file saved')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Markdown file saved')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving file: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error saving file: $e')));
       }
     }
   }
@@ -124,9 +120,7 @@ class _MarkdownEditorState extends State<MarkdownEditor>
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -150,10 +144,7 @@ class _MarkdownEditorState extends State<MarkdownEditor>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildEditor(),
-          _buildPreview(),
-        ],
+        children: [_buildEditor(), _buildPreview()],
       ),
     );
   }
@@ -169,10 +160,7 @@ class _MarkdownEditorState extends State<MarkdownEditor>
           hintText: 'Start typing markdown here...',
           border: InputBorder.none,
         ),
-        style: const TextStyle(
-          fontSize: 16,
-          fontFamily: 'FiraMono',
-        ),
+        style: const TextStyle(fontSize: 16, fontFamily: 'FiraMono'),
       ),
     );
   }
@@ -183,10 +171,7 @@ class _MarkdownEditorState extends State<MarkdownEditor>
       selectable: true,
       extensionSet: md.ExtensionSet(
         md.ExtensionSet.gitHubFlavored.blockSyntaxes,
-        [
-          md.EmojiSyntax(),
-          ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes,
-        ],
+        [md.EmojiSyntax(), ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes],
       ),
       styleSheet: MarkdownStyleSheet(
         h1: const TextStyle(
@@ -233,14 +218,9 @@ class _MarkdownEditorState extends State<MarkdownEditor>
           color: Colors.grey,
           fontStyle: FontStyle.italic,
         ),
-        tableHead: const TextStyle(
-          fontWeight: FontWeight.bold,
-        ),
+        tableHead: const TextStyle(fontWeight: FontWeight.bold),
         tableBody: const TextStyle(),
-        tableBorder: TableBorder.all(
-          color: const Color(0xFFe1e4e8),
-          width: 1,
-        ),
+        tableBorder: TableBorder.all(color: const Color(0xFFe1e4e8), width: 1),
       ),
       onTapLink: (text, href, title) {
         if (href != null) {

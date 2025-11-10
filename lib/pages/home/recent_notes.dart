@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collapsible/collapsible.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kivixa/components/home/export_note_button.dart';
 import 'package:kivixa/components/home/masonry_files.dart';
@@ -112,52 +113,68 @@ class _RecentPageState extends State<RecentPage> {
     const cupertino = false;
     final crossAxisCount = MediaQuery.sizeOf(context).width ~/ 300 + 1;
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () => Future.wait([
-          findRecentlyAccessedNotes(),
-          Future.delayed(const Duration(milliseconds: 500)),
-        ]),
-        child: CustomScrollView(
-          slivers: [
-            SliverPadding(
-              padding: const EdgeInsets.only(bottom: 8),
-              sliver: SliverAppBar(
-                collapsedHeight: kToolbarHeight,
-                expandedHeight: 200,
-                pinned: true,
-                scrolledUnderElevation: 1,
-                flexibleSpace: FlexibleSpaceBar(
-                  title: Text(
-                    t.home.titles.home,
-                    style: TextStyle(color: colorScheme.onSurface),
-                  ),
-                  centerTitle: false,
-                  titlePadding: const EdgeInsetsDirectional.only(
-                    start: 16,
-                    bottom: 16,
-                  ),
-                ),
+      body: Stack(
+        children: [
+          // Background SVG
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.1,
+              child: SvgPicture.asset(
+                'assets/images/home_page.svg',
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
               ),
             ),
-            if (failed) ...[
-              const SliverSafeArea(
-                sliver: SliverToBoxAdapter(child: Welcome()),
-              ),
-            ] else ...[
-              SliverSafeArea(
-                minimum: const EdgeInsets.only(
-                  // Allow space for the FloatingActionButton
-                  bottom: 70,
+          ),
+          // Main content
+          RefreshIndicator(
+            onRefresh: () => Future.wait([
+              findRecentlyAccessedNotes(),
+              Future.delayed(const Duration(milliseconds: 500)),
+            ]),
+            child: CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  sliver: SliverAppBar(
+                    collapsedHeight: kToolbarHeight,
+                    expandedHeight: 200,
+                    pinned: true,
+                    scrolledUnderElevation: 1,
+                    flexibleSpace: FlexibleSpaceBar(
+                      title: Text(
+                        t.home.titles.home,
+                        style: TextStyle(color: colorScheme.onSurface),
+                      ),
+                      centerTitle: false,
+                      titlePadding: const EdgeInsetsDirectional.only(
+                        start: 16,
+                        bottom: 16,
+                      ),
+                    ),
+                  ),
                 ),
-                sliver: MasonryFiles(
-                  crossAxisCount: crossAxisCount,
-                  files: [for (final filePath in filePaths) filePath],
-                  selectedFiles: selectedFiles,
-                ),
-              ),
-            ],
-          ],
-        ),
+                if (failed) ...[
+                  const SliverSafeArea(
+                    sliver: SliverToBoxAdapter(child: Welcome()),
+                  ),
+                ] else ...[
+                  SliverSafeArea(
+                    minimum: const EdgeInsets.only(
+                      // Allow space for the FloatingActionButton
+                      bottom: 70,
+                    ),
+                    sliver: MasonryFiles(
+                      crossAxisCount: crossAxisCount,
+                      files: [for (final filePath in filePaths) filePath],
+                      selectedFiles: selectedFiles,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
       ),
       floatingActionButton: const NewNoteButton(cupertino: cupertino),
       persistentFooterButtons: selectedFiles.value.isEmpty

@@ -113,9 +113,8 @@ class App extends StatefulWidget {
       ),
       GoRoute(
         path: RoutePaths.markdown,
-        builder: (context, state) => MarkdownEditor(
-          filePath: state.uri.queryParameters['path'],
-        ),
+        builder: (context, state) =>
+            MarkdownEditor(filePath: state.uri.queryParameters['path']),
       ),
       GoRoute(
         path: RoutePaths.logs,
