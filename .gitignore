@@ -44,16 +44,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-.idx/
-kivixa1/
-backup/
-lib/
-test/
-*.md
-*.ps1
-*.json
-
-
 # Flatpak/linux build files
 .flatpak-builder
 build-dir
@@ -63,3 +53,6 @@ kivixa-Linux-Portable.tar.gz
 .sentry-native/
 sentry.properties
 sentry-wizard
+
+test/
+backup/

@@ -1,0 +1,807 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:archive/archive_io.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart' show DateFormat;
+import 'package:kivixa/data/prefs.dart';
+import 'package:kivixa/i18n/strings.g.dart';
+import 'package:kivixa/pages/editor/editor.dart';
+import 'package:logging/logging.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:saver_gallery/saver_gallery.dart';
+import 'package:share_plus/share_plus.dart';
+
+class FileManager {
+  FileManager._();
+
+  static final log = Logger('FileManager');
+
+  static const appRootDirectoryPrefix = 'kivixa';
+
+  static late String documentsDirectory;
+
+  static final fileWriteStream = StreamController<FileOperation>.broadcast();
+
+  static String _sanitisePath(String path) => File(path).path;
+
+  static final assetFileRegex = RegExp(r'\.kvx?\.[\dp]+$');
+
+  static Future<void> init({
+    String? documentsDirectory,
+    bool shouldWatchRootDirectory = true,
+  }) async {
+    FileManager.documentsDirectory =
+        documentsDirectory ?? await getDocumentsDirectory();
+
+    if (shouldWatchRootDirectory) unawaited(watchRootDirectory());
+  }
+
+  static Future<String> getDocumentsDirectory() async =>
+      stows.customDataDir.value ?? await getDefaultDocumentsDirectory();
+
+  static Future<String> getDefaultDocumentsDirectory() async =>
+      '${(await getApplicationDocumentsDirectory()).path}/$appRootDirectoryPrefix';
+
+  static Future<void> migrateDataDir() async {
+    final oldDir = Directory(documentsDirectory);
+    final newDir = Directory(await getDocumentsDirectory());
+    if (oldDir.path == newDir.path) return;
+    log.info('Migrating data directory from $oldDir to $newDir');
+
+    late final oldDirEmpty = oldDir.existsSync()
+        ? oldDir.listSync().isEmpty
+        : true;
+    late final newDirEmpty = newDir.existsSync()
+        ? newDir.listSync().isEmpty
+        : true;
+
+    if (!oldDirEmpty && !newDirEmpty) {
+      log.severe('New and old data directory aren\'t empty, can\'t migrate');
+      return;
+    }
+
+    documentsDirectory = newDir.path;
+    if (oldDirEmpty) {
+      log.fine('Old data directory is empty or missing, nothing to migrate');
+    } else {
+      await moveDirContents(oldDir: oldDir, newDir: newDir);
+      await oldDir.delete(recursive: true);
+    }
+  }
+
+  static Future<void> moveDirContents({
+    required Directory oldDir,
+    required Directory newDir,
+  }) async {
+    await newDir.create(recursive: true);
+
+    await for (final entity in oldDir.list(recursive: true)) {
+      final relative = p.relative(entity.path, from: oldDir.path);
+      final targetPath = p.join(newDir.path, relative);
+
+      if (entity is Directory) {
+        await Directory(targetPath).create(recursive: true);
+        continue;
+      }
+
+      if (entity is File) {
+        await entity.parent.create(recursive: true);
+
+        try {
+          await entity.rename(targetPath);
+        } on FileSystemException catch (e) {
+          const exdev = 18;
+          if (e.osError?.errorCode == exdev) {
+            await entity.copy(targetPath);
+            await entity.delete();
+          } else {
+            rethrow;
+          }
+        }
+      }
+    }
+  }
+
+  @visibleForTesting
+  static Future<void> watchRootDirectory() async {
+    final rootDir = Directory(documentsDirectory);
+    await rootDir.create(recursive: true);
+    rootDir.watch(recursive: true).listen((FileSystemEvent event) {
+      final type =
+          event.type == FileSystemEvent.create ||
+              event.type == FileSystemEvent.modify ||
+              event.type == FileSystemEvent.move
+          ? FileOperationType.write
+          : FileOperationType.delete;
+      final String path = event.path
+          .replaceAll('\\', '/')
+          .replaceFirst(documentsDirectory, '');
+      broadcastFileWrite(type, path);
+    });
+  }
+
+  @visibleForTesting
+  static void broadcastFileWrite(FileOperationType type, String path) async {
+    if (!fileWriteStream.hasListener) return;
+
+    if (path.endsWith(Editor.extension)) {
+      path = path.substring(0, path.length - Editor.extension.length);
+    } else if (path.endsWith(Editor.extensionOldJson)) {
+      path = path.substring(0, path.length - Editor.extensionOldJson.length);
+    }
+
+    fileWriteStream.add(FileOperation(type, path));
+  }
+
+  static Future<Uint8List?> readFile(String filePath, {int retries = 3}) async {
+    filePath = _sanitisePath(filePath);
+
+    Uint8List? result;
+    final file = getFile(filePath);
+    if (file.existsSync()) {
+      result = await file.readAsBytes();
+      if (result.isEmpty) result = null;
+    } else {
+      retries = 0;
+    }
+
+    if (result == null && retries > 0) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      return readFile(filePath, retries: retries - 1);
+    }
+    return result;
+  }
+
+  @visibleForTesting
+  static var shouldUseRawFilePath = false;
+
+  static File getFile(String filePath) {
+    if (shouldUseRawFilePath) {
+      return File(filePath);
+    } else {
+      assert(
+        filePath.startsWith('/'),
+        'Expected filePath to start with a slash, got $filePath',
+      );
+      return File(documentsDirectory + filePath);
+    }
+  }
+
+  static Directory getRootDirectory() => Directory(documentsDirectory);
+
+  static Future<void> writeFile(
+    String filePath,
+    List<int> toWrite, {
+    bool awaitWrite = false,
+    DateTime? lastModified,
+  }) async {
+    filePath = _sanitisePath(filePath);
+    log.fine('Writing to $filePath');
+
+    await _saveFileAsRecentlyAccessed(filePath);
+
+    final file = getFile(filePath);
+    await _createFileDirectory(filePath);
+    Future writeFuture = Future.wait([
+      file.writeAsBytes(toWrite).then((file) async {
+        if (lastModified != null) await file.setLastModified(lastModified);
+      }),
+      if (filePath.endsWith(Editor.extension))
+        getFile(
+          '${filePath.substring(0, filePath.length - Editor.extension.length)}'
+          '${Editor.extensionOldJson}',
+        ).delete().catchError(
+          (_) => File(''),
+          test: (e) => e is PathNotFoundException,
+        ),
+    ]);
+
+    void afterWrite() {
+      broadcastFileWrite(FileOperationType.write, filePath);
+      if (filePath.endsWith(Editor.extension)) {
+        _removeReferences(
+          '${filePath.substring(0, filePath.length - Editor.extension.length)}'
+          '${Editor.extensionOldJson}',
+        );
+      }
+    }
+
+    writeFuture = writeFuture.then((_) => afterWrite());
+    if (awaitWrite) await writeFuture;
+  }
+
+  static Future<void> createFolder(String folderPath) async {
+    folderPath = _sanitisePath(folderPath);
+
+    final dir = Directory(documentsDirectory + folderPath);
+    await dir.create(recursive: true);
+  }
+
+  static Future exportFile(
+    String fileName,
+    List<int> bytes, {
+    bool isImage = false,
+    required BuildContext context,
+  }) async {
+    File? tempFile;
+    Future<File> getTempFile() async {
+      final tempFolder = (await getTemporaryDirectory()).path;
+      final file = File('$tempFolder/$fileName');
+      await file.writeAsBytes(bytes);
+      return file;
+    }
+
+    if (Platform.isAndroid) {
+      if (isImage) {
+        final permissionGranted = await _requestPhotosPermission();
+        if (permissionGranted) {
+          await SaverGallery.saveImage(
+            Uint8List.fromList(bytes),
+            fileName: fileName,
+            androidRelativePath: 'Pictures/kivixa',
+            skipIfExists: true,
+          );
+        }
+      } else {
+        tempFile = await getTempFile();
+        await SharePlus.instance.share(
+          ShareParams(files: [XFile(tempFile.path)]),
+        );
+      }
+    } else {
+      final outputFile = await FilePicker.platform.saveFile(
+        fileName: fileName,
+        initialDirectory: (await getDownloadsDirectory())?.path,
+        type: FileType.custom,
+        allowedExtensions: [fileName.split('.').last],
+      );
+      if (outputFile != null) {
+        final file = File(outputFile);
+        await file.writeAsBytes(bytes);
+      }
+    }
+
+    await tempFile?.delete();
+  }
+
+  static Future<bool> _requestPhotosPermission() async {
+    if (!Platform.isAndroid) {
+      return true;
+    }
+
+    final sdkInt = await DeviceInfoPlugin().androidInfo.then(
+      (info) => info.version.sdkInt,
+    );
+    if (sdkInt > 33) {
+      return await Permission.photos.request().isGranted;
+    } else {
+      return await Permission.storage.request().isGranted;
+    }
+  }
+
+  static Future<String> moveFile(
+    String fromPath,
+    String toPath, {
+    bool replaceExistingFile = false,
+    bool alsoMoveAssets = true,
+  }) async {
+    fromPath = _sanitisePath(fromPath);
+    toPath = _sanitisePath(toPath);
+
+    if (!toPath.contains('/')) {
+      toPath = fromPath.substring(0, fromPath.lastIndexOf('/') + 1) + toPath;
+    }
+
+    if (!replaceExistingFile || Editor.isReservedPath(toPath)) {
+      toPath = await suffixFilePathToMakeItUnique(
+        toPath,
+        currentPath: fromPath,
+      );
+    }
+
+    if (fromPath == toPath) return toPath;
+
+    final fromFile = getFile(fromPath);
+    final toFile = getFile(toPath);
+    await _createFileDirectory(toPath);
+    if (fromFile.existsSync()) {
+      await fromFile.rename(toFile.path);
+    } else {
+      log.warning('Tried to move non-existent file from $fromPath to $toPath');
+    }
+
+    _renameReferences(fromPath, toPath);
+    broadcastFileWrite(FileOperationType.delete, fromPath);
+    broadcastFileWrite(FileOperationType.write, toPath);
+
+    if (alsoMoveAssets && !assetFileRegex.hasMatch(fromPath)) {
+      final assets = <String>[];
+      for (int assetNumber = 0; true; assetNumber++) {
+        final assetFile = getFile('$fromPath.$assetNumber');
+        if (assetFile.existsSync()) {
+          assets.add('$assetNumber');
+        } else {
+          break;
+        }
+      }
+      {
+        const assetNumber = 'p';
+        final assetFile = getFile('$fromPath.$assetNumber');
+        if (assetFile.existsSync()) {
+          assets.add(assetNumber);
+        }
+      }
+
+      await Future.wait([
+        for (final assetNumber in assets)
+          moveFile(
+            '$fromPath.$assetNumber',
+            '$toPath.$assetNumber',
+            replaceExistingFile: replaceExistingFile,
+          ),
+      ]);
+    }
+
+    return toPath;
+  }
+
+  static Future deleteFile(
+    String filePath, {
+    bool alsoDeleteAssets = true,
+  }) async {
+    filePath = _sanitisePath(filePath);
+
+    final file = getFile(filePath);
+    if (!file.existsSync()) return;
+    await file.delete();
+
+    _removeReferences(filePath);
+    broadcastFileWrite(FileOperationType.delete, filePath);
+
+    if (alsoDeleteAssets && !assetFileRegex.hasMatch(filePath)) {
+      final assets = <int>[];
+      for (int assetNumber = 0; true; assetNumber++) {
+        final assetFile = getFile('$filePath.$assetNumber');
+        if (assetFile.existsSync()) {
+          assets.add(assetNumber);
+        } else {
+          break;
+        }
+      }
+
+      final previewFile = getFile('$filePath.p');
+      await Future.wait([
+        for (final assetNumber in assets)
+          deleteFile('$filePath.$assetNumber', alsoDeleteAssets: false),
+        if (previewFile.existsSync())
+          deleteFile('$filePath.p', alsoDeleteAssets: false),
+      ]);
+    }
+  }
+
+  static Future removeUnusedAssets(
+    String filePath, {
+    required int numAssets,
+  }) async {
+    final futures = <Future>[];
+
+    for (int assetNumber = numAssets; true; assetNumber++) {
+      final assetPath = '$filePath.$assetNumber';
+      if (getFile(assetPath).existsSync()) {
+        futures.add(deleteFile(assetPath));
+      } else {
+        break;
+      }
+    }
+
+    await Future.wait(futures);
+  }
+
+  static Future renameDirectory(String directoryPath, String newName) async {
+    directoryPath = _sanitisePath(directoryPath);
+
+    final directory = Directory(documentsDirectory + directoryPath);
+    if (!directory.existsSync()) return;
+
+    final List<String> children = [];
+    await for (final entity in directory.list(recursive: true)) {
+      if (entity is File) {
+        children.add(entity.path.substring(directory.path.length));
+      }
+    }
+
+    final String newPath =
+        directoryPath.substring(0, directoryPath.lastIndexOf('/') + 1) +
+        newName;
+    await directory.rename(documentsDirectory + newPath);
+
+    for (final child in children) {
+      _renameReferences(directoryPath + child, newPath + child);
+      broadcastFileWrite(FileOperationType.delete, directoryPath + child);
+      broadcastFileWrite(FileOperationType.write, newPath + child);
+    }
+  }
+
+  static Future deleteDirectory(
+    String directoryPath, [
+    bool recursive = true,
+  ]) async {
+    directoryPath = _sanitisePath(directoryPath);
+
+    final directory = Directory(documentsDirectory + directoryPath);
+    if (!directory.existsSync()) return;
+
+    if (recursive) {
+      await for (final entity in directory.list(recursive: true)) {
+        if (entity is File) {
+          await deleteFile(entity.path.substring(documentsDirectory.length));
+        }
+      }
+    }
+
+    await directory.delete(recursive: recursive);
+  }
+
+  static Future<DirectoryChildren?> getChildrenOfDirectory(
+    String directory, {
+    bool includeExtensions = false,
+    bool includeAssets = false,
+  }) async {
+    assert(
+      !includeAssets || includeExtensions,
+      'includeAssets can\'t be true without includeExtensions',
+    );
+
+    directory = _sanitisePath(directory);
+    if (!directory.endsWith('/')) directory += '/';
+
+    final Iterable<String> allChildren;
+    final List<String> directories = [], files = [];
+
+    final dir = Directory(documentsDirectory + directory);
+    if (!dir.existsSync()) return null;
+
+    final int directoryPrefixLength = directory.endsWith('/')
+        ? directory.length
+        : directory.length + 1;
+    allChildren = await dir
+        .list()
+        .map((FileSystemEntity entity) {
+          final filePath = entity.path.substring(documentsDirectory.length);
+
+          if (entity is Directory) return filePath;
+
+          if (Editor.isReservedPath(filePath)) return null;
+
+          late final iskvx = filePath.endsWith(Editor.extension);
+          late final iskvx1 = filePath.endsWith(Editor.extensionOldJson);
+
+          if (!includeExtensions) {
+            if (iskvx) {
+              return filePath.substring(
+                0,
+                filePath.length - Editor.extension.length,
+              );
+            } else if (iskvx1) {
+              return filePath.substring(
+                0,
+                filePath.length - Editor.extensionOldJson.length,
+              );
+            } else {
+              return null;
+            }
+          } else if (!includeAssets) {
+            final isAsset = !iskvx && !iskvx1;
+            if (isAsset) return null;
+          }
+
+          return filePath;
+        })
+        .where((String? file) => file != null)
+        .map((file) => file!.substring(directoryPrefixLength))
+        .toList();
+
+    await Future.wait(
+      allChildren.map((child) async {
+        if (FileManager.isDirectory(directory + child) &&
+            !directories.contains(child)) {
+          directories.add(child);
+        } else if (!includeAssets && assetFileRegex.hasMatch(child)) {
+        } else {
+          files.add(child);
+        }
+      }),
+    );
+
+    return DirectoryChildren(directories, files);
+  }
+
+  static Future<List<String>> getAllFiles({
+    bool includeExtensions = false,
+    bool includeAssets = false,
+  }) async {
+    final allFiles = <String>[];
+    final directories = <String>['/'];
+
+    while (directories.isNotEmpty) {
+      final directory = directories.removeLast();
+      final children = await getChildrenOfDirectory(
+        directory,
+        includeExtensions: includeExtensions,
+        includeAssets: includeAssets,
+      );
+      if (children == null) continue;
+
+      for (final file in children.files) {
+        allFiles.add('$directory$file');
+      }
+      for (final childDirectory in children.directories) {
+        directories.add('$directory$childDirectory/');
+      }
+    }
+
+    return allFiles;
+  }
+
+  static Future<List<String>> getRecentlyAccessed() async {
+    if (!stows.recentFiles.loaded) await stows.recentFiles.waitUntilRead();
+    return stows.recentFiles.value
+        .map((String filePath) {
+          if (filePath.endsWith(Editor.extension)) {
+            return filePath.substring(
+              0,
+              filePath.length - Editor.extension.length,
+            );
+          } else if (filePath.endsWith(Editor.extensionOldJson)) {
+            return filePath.substring(
+              0,
+              filePath.length - Editor.extensionOldJson.length,
+            );
+          } else {
+            return filePath;
+          }
+        })
+        .where((String file) => !Editor.isReservedPath(file))
+        .toList();
+  }
+
+  static bool isDirectory(String filePath) {
+    filePath = _sanitisePath(filePath);
+    final directory = Directory(documentsDirectory + filePath);
+    return directory.existsSync();
+  }
+
+  static bool doesFileExist(String filePath) {
+    filePath = _sanitisePath(filePath);
+    final file = getFile(filePath);
+    return file.existsSync();
+  }
+
+  static DateTime lastModified(String filePath) {
+    filePath = _sanitisePath(filePath);
+    final file = getFile(filePath);
+    return file.lastModifiedSync();
+  }
+
+  static Future<String> newFilePath([String parentPath = '/']) async {
+    assert(parentPath.endsWith('/'));
+
+    final DateTime now = DateTime.now();
+    final String filePath =
+        '$parentPath${DateFormat("yy-MM-dd").format(now)} '
+        '${t.editor.untitled}';
+
+    return await suffixFilePathToMakeItUnique(filePath);
+  }
+
+  static Future<String> suffixFilePathToMakeItUnique(
+    String filePath, {
+    String? intendedExtension,
+    String? currentPath,
+  }) async {
+    String newFilePath = filePath;
+    bool hasExtension = false;
+
+    if (filePath.endsWith(Editor.extension)) {
+      filePath = filePath.substring(
+        0,
+        filePath.length - Editor.extension.length,
+      );
+      newFilePath = filePath;
+      hasExtension = true;
+      intendedExtension ??= Editor.extension;
+    } else if (filePath.endsWith(Editor.extensionOldJson)) {
+      filePath = filePath.substring(
+        0,
+        filePath.length - Editor.extensionOldJson.length,
+      );
+      newFilePath = filePath;
+      hasExtension = true;
+      intendedExtension ??= Editor.extensionOldJson;
+    } else {
+      intendedExtension ??= Editor.extension;
+    }
+
+    int i = 1;
+    while (true) {
+      if (!doesFileExist(newFilePath + Editor.extension) &&
+          !doesFileExist(newFilePath + Editor.extensionOldJson))
+        break;
+      if (newFilePath + Editor.extension == currentPath) break;
+      if (newFilePath + Editor.extensionOldJson == currentPath) break;
+      i++;
+      newFilePath = '$filePath ($i)';
+    }
+
+    return newFilePath + (hasExtension ? intendedExtension : '');
+  }
+
+  static Future<String?> importFile(
+    String path,
+    String? parentDir, {
+    String? extension,
+    bool awaitWrite = true,
+  }) async {
+    assert(
+      parentDir == null || parentDir.startsWith('/') && parentDir.endsWith('/'),
+    );
+
+    if (extension == null) {
+      extension = '.${path.split('.').last}';
+      assert(extension.length > 1);
+    } else {
+      assert(extension.startsWith('.'));
+    }
+
+    String fileName = path.split(RegExp(r'[\\/]')).last;
+    fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+    final String importedPath;
+
+    final writeFutures = <Future>[];
+
+    if (extension.toLowerCase() == '.kvx ') {
+      final inputStream = InputFileStream(path);
+      final archive = ZipDecoder().decodeStream(inputStream);
+
+      final mainFile = archive.files.cast<ArchiveFile?>().firstWhere(
+        (file) =>
+            file!.name.toLowerCase().endsWith('kvx') ||
+            file.name.toLowerCase().endsWith('kvx'),
+        orElse: () => null,
+      );
+      if (mainFile == null) {
+        log.severe('Failed to find main note in kvx : $path');
+        return null;
+      }
+      final mainFileExtension = '.${mainFile.name.split('.').last}'
+          .toLowerCase();
+      importedPath = await suffixFilePathToMakeItUnique(
+        '${parentDir ?? '/'}$fileName',
+        intendedExtension: mainFileExtension,
+      );
+      final mainFileContents = () {
+        final output = OutputMemoryStream();
+        mainFile.writeContent(output);
+        return output.getBytes();
+      }();
+      writeFutures.add(
+        writeFile(
+          importedPath + mainFileExtension,
+          mainFileContents,
+          awaitWrite: awaitWrite,
+        ),
+      );
+
+      for (final file in archive.files) {
+        if (!file.isFile) continue;
+        if (file == mainFile) continue;
+
+        final extension = file.name.split('.').last;
+        final assetNumber = int.tryParse(extension);
+        if (assetNumber == null) continue;
+        if (assetNumber < 0) continue;
+
+        final assetBytes = () {
+          final output = OutputMemoryStream();
+          file.writeContent(output);
+          return output.getBytes();
+        }();
+        writeFutures.add(
+          writeFile(
+            '$importedPath$mainFileExtension.$assetNumber',
+            assetBytes,
+            awaitWrite: awaitWrite,
+          ),
+        );
+      }
+    } else {
+      final file = File(path);
+      final fileContents = await file.readAsBytes();
+      importedPath = await suffixFilePathToMakeItUnique(
+        '${parentDir ?? '/'}$fileName',
+        intendedExtension: extension.toLowerCase(),
+      );
+      writeFutures.add(
+        writeFile(
+          importedPath + extension.toLowerCase(),
+          fileContents,
+          awaitWrite: awaitWrite,
+        ),
+      );
+    }
+
+    await Future.wait(writeFutures);
+
+    return importedPath;
+  }
+
+  static Future _createFileDirectory(String filePath) async {
+    assert(filePath.contains('/'), 'filePath must be a path, not a file name');
+    final parentDirectory = filePath.substring(0, filePath.lastIndexOf('/'));
+    await Directory(
+      documentsDirectory + parentDirectory,
+    ).create(recursive: true);
+  }
+
+  static Future _renameReferences(String fromPath, String toPath) async {
+    bool replaced = false;
+    for (int i = 0; i < stows.recentFiles.value.length; i++) {
+      if (stows.recentFiles.value[i] != fromPath) continue;
+      if (!replaced) {
+        stows.recentFiles.value[i] = toPath;
+        replaced = true;
+      } else {
+        stows.recentFiles.value.removeAt(i);
+      }
+    }
+    stows.recentFiles.notifyListeners();
+  }
+
+  static Future _removeReferences(String filePath) async {
+    for (int i = 0; i < stows.recentFiles.value.length; i++) {
+      if (stows.recentFiles.value[i] != filePath) continue;
+      stows.recentFiles.value.removeAt(i);
+    }
+    stows.recentFiles.notifyListeners();
+  }
+
+  static Future _saveFileAsRecentlyAccessed(String filePath) async {
+    if (assetFileRegex.hasMatch(filePath)) return;
+
+    stows.recentFiles.value.remove(filePath);
+    stows.recentFiles.value.insert(0, filePath);
+    if (stows.recentFiles.value.length > maxRecentlyAccessedFiles)
+      stows.recentFiles.value.removeLast();
+
+    stows.recentFiles.notifyListeners();
+  }
+
+  static const maxRecentlyAccessedFiles = 30;
+}
+
+class DirectoryChildren {
+  final List<String> directories;
+  final List<String> files;
+
+  DirectoryChildren(this.directories, this.files);
+
+  bool onlyOneChild() => directories.length + files.length <= 1;
+
+  bool get isEmpty => directories.isEmpty && files.isEmpty;
+  bool get isNotEmpty => !isEmpty;
+}
+
+enum FileOperationType { write, delete }
+
+class FileOperation {
+  final FileOperationType type;
+  final String filePath;
+
+  const FileOperation(this.type, this.filePath);
+}
