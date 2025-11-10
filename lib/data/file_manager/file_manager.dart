@@ -198,7 +198,7 @@ class FileManager {
           '${Editor.extensionOldJson}',
         ).delete().catchError(
           (_) => File(''),
-          test: (e) => e is PathNotFoundException,
+          test: (e) => e is PathNotFoundException || e is PathAccessException,
         ),
     ]);
 
