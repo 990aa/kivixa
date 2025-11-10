@@ -48,7 +48,9 @@ class _PreviewCardState extends State<PreviewCard> {
     expanded.value = widget.selected;
 
     // Load markdown content if it's a markdown file
-    if (widget.filePath.endsWith('.md')) {
+    // Check actual file since extensions are stripped from filePath
+    final mdFile = FileManager.getFile('${widget.filePath}.md');
+    if (mdFile.existsSync()) {
       _loadMarkdownContent();
     }
 
@@ -117,9 +119,14 @@ class _PreviewCardState extends State<PreviewCard> {
   StreamSubscription? fileWriteSubscription;
   void fileWriteListener(FileOperation event) {
     if (event.filePath != widget.filePath) return;
+
+    // Check if this is a markdown file
+    final mdFile = FileManager.getFile('${widget.filePath}.md');
+    final isMarkdown = mdFile.existsSync();
+
     if (event.type == FileOperationType.delete) {
       thumbnail.image = null;
-      if (widget.filePath.endsWith('.md')) {
+      if (isMarkdown) {
         setState(() {
           _markdownContent = null;
         });
@@ -127,7 +134,7 @@ class _PreviewCardState extends State<PreviewCard> {
     } else if (event.type == FileOperationType.write) {
       thumbnail.image?.evict();
       thumbnail.markAsChanged();
-      if (widget.filePath.endsWith('.md')) {
+      if (isMarkdown) {
         _loadMarkdownContent();
       }
     } else {
@@ -244,7 +251,11 @@ class _PreviewCardState extends State<PreviewCard> {
                   Stack(
                     children: [
                       // Preview content based on file type
-                      if (widget.filePath.endsWith('.md'))
+                      // Check actual file since extensions are stripped
+                      if (_markdownContent != null ||
+                          FileManager.getFile(
+                            '${widget.filePath}.md',
+                          ).existsSync())
                         _buildMarkdownPreview(colorScheme)
                       else
                         _buildNotePreview(invert),
@@ -312,8 +323,11 @@ class _PreviewCardState extends State<PreviewCard> {
     return ValueListenableBuilder(
       valueListenable: expanded,
       builder: (context, expanded, _) {
-        // Determine which editor to open based on file extension
-        final isMarkdown = widget.filePath.endsWith('.md');
+        // Determine which editor to open based on actual file type
+        // Check if .md file exists (since extensions are stripped in file lists)
+        final mdFile = FileManager.getFile('${widget.filePath}.md');
+        final isMarkdown = mdFile.existsSync();
+
         final editor = isMarkdown
             ? MarkdownEditor(filePath: widget.filePath)
             : Editor(path: widget.filePath);

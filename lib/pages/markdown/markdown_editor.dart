@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
@@ -18,16 +20,20 @@ class MarkdownEditor extends StatefulWidget {
 class _MarkdownEditorState extends State<MarkdownEditor>
     with SingleTickerProviderStateMixin {
   late TextEditingController _controller;
+  late TextEditingController _fileNameController;
   late TabController _tabController;
   var _isLoading = true;
-  var _hasUnsavedChanges = false;
   String? _currentFilePath;
   var _fileName = 'Untitled';
+  Timer? _autosaveTimer;
+  Timer? _renameTimer;
+  var _isEditingFileName = false;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    _fileNameController = TextEditingController();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       setState(() {}); // Rebuild when tab changes
@@ -60,12 +66,66 @@ class _MarkdownEditorState extends State<MarkdownEditor>
       _isLoading = false;
     });
 
-    _controller.addListener(() {
-      if (!_hasUnsavedChanges) {
-        setState(() {
-          _hasUnsavedChanges = true;
-        });
+    // Setup filename controller
+    _fileNameController.text = _fileName;
+    _fileNameController.addListener(_onFileNameChanged);
+
+    // Setup autosave listener
+    _controller.addListener(_onTextChanged);
+  }
+
+  void _onFileNameChanged() {
+    // Cancel existing rename timer
+    _renameTimer?.cancel();
+
+    // Start new timer for rename (1 second after user stops typing)
+    _renameTimer = Timer(const Duration(seconds: 1), () {
+      _renameFile();
+    });
+  }
+
+  Future<void> _renameFile() async {
+    final newName = _fileNameController.text.trim();
+    if (newName.isEmpty || newName == _fileName) return;
+
+    try {
+      if (_currentFilePath != null) {
+        // Get the directory path
+        final parts = _currentFilePath!.split('/');
+        parts.removeLast(); // Remove old filename
+        final dirPath = parts.join('/');
+
+        // Create new file path
+        final newFilePath = '$dirPath/$newName${MarkdownEditor.extension}';
+
+        // Move the file
+        final actualNewPath = await FileManager.moveFile(
+          _currentFilePath!,
+          newFilePath,
+        );
+
+        _currentFilePath = actualNewPath;
+        _fileName = newName;
+
+        setState(() {});
+      } else {
+        // File hasn't been created yet, just update the name
+        _fileName = newName;
       }
+    } catch (e) {
+      debugPrint('Error renaming file: $e');
+      // Revert the filename on error
+      _fileNameController.text = _fileName;
+    }
+  }
+
+  void _onTextChanged() {
+    // Cancel existing timer
+    _autosaveTimer?.cancel();
+
+    // Start new timer for autosave (2 seconds after user stops typing)
+    _autosaveTimer = Timer(const Duration(seconds: 2), () {
+      _saveFile();
     });
   }
 
@@ -91,16 +151,6 @@ class _MarkdownEditorState extends State<MarkdownEditor>
         _controller.text.codeUnits,
         awaitWrite: true,
       );
-
-      setState(() {
-        _hasUnsavedChanges = false;
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Markdown file saved')));
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -112,7 +162,10 @@ class _MarkdownEditorState extends State<MarkdownEditor>
 
   @override
   void dispose() {
+    _autosaveTimer?.cancel();
+    _renameTimer?.cancel();
     _controller.dispose();
+    _fileNameController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -125,15 +178,41 @@ class _MarkdownEditorState extends State<MarkdownEditor>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_fileName),
-        actions: [
-          if (_hasUnsavedChanges)
-            IconButton(
-              icon: const Icon(Icons.save),
-              onPressed: _saveFile,
-              tooltip: 'Save',
-            ),
-        ],
+        title: InkWell(
+          onTap: () {
+            setState(() {
+              _isEditingFileName = true;
+            });
+          },
+          child: _isEditingFileName
+              ? TextField(
+                  controller: _fileNameController,
+                  autofocus: true,
+                  style: const TextStyle(fontSize: 20),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    isDense: true,
+                  ),
+                  onSubmitted: (_) {
+                    setState(() {
+                      _isEditingFileName = false;
+                    });
+                  },
+                  onTapOutside: (_) {
+                    setState(() {
+                      _isEditingFileName = false;
+                    });
+                  },
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(_fileName),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.edit, size: 18),
+                  ],
+                ),
+        ),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
