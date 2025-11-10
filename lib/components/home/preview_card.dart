@@ -136,7 +136,7 @@ class _PreviewCardState extends State<PreviewCard> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           styleSheet: MarkdownStyleSheet(
-                            textScaleFactor: 0.7,
+                            textScaler: const TextScaler.linear(0.7),
                             p: TextStyle(fontSize: 10, color: colorScheme.onSurface),
                             h1: TextStyle(fontSize: 14, color: colorScheme.primary),
                             h2: TextStyle(fontSize: 13, color: colorScheme.primary),
@@ -242,9 +242,10 @@ class _PreviewCardState extends State<PreviewCard> {
                   Stack(
                     children: [
                       // Preview content based on file type
-                      widget.filePath.endsWith('.md')
-                          ? _buildMarkdownPreview(colorScheme)
-                          : _buildNotePreview(invert),
+                      if (widget.filePath.endsWith('.md'))
+                        _buildMarkdownPreview(colorScheme)
+                      else
+                        _buildNotePreview(invert),
                       Positioned.fill(
                         left: -1,
                         top: -1,
