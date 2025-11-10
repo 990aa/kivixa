@@ -46,10 +46,9 @@ app.*.map.json
 
 .idx/
 kivixa1/
-lib_backup/
+backup/
 lib/
 test/
-test_backup/
 *.md
 *.ps1
 *.json

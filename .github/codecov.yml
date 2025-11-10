@@ -1,0 +1,10 @@
+coverage:
+  status:
+    patch: false
+    project:
+      kivixa:
+        threshold: "5.0"
+
+ignore:
+  - "packages"
+  - "lib/i18n"
