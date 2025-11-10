@@ -495,10 +495,7 @@ class FileManager {
                 filePath.length - Editor.extensionOldJson.length,
               );
             } else if (ismd) {
-              return filePath.substring(
-                0,
-                filePath.length - '.md'.length,
-              );
+              return filePath.substring(0, filePath.length - '.md'.length);
             } else {
               return null;
             }

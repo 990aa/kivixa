@@ -187,6 +187,12 @@ class _PreviewCardState extends State<PreviewCard> {
     return ValueListenableBuilder(
       valueListenable: expanded,
       builder: (context, expanded, _) {
+        // Determine which editor to open based on file extension
+        final isMarkdown = widget.filePath.endsWith('.md');
+        final editor = isMarkdown
+            ? MarkdownEditor(filePath: widget.filePath)
+            : Editor(path: widget.filePath);
+        
         return OpenContainer(
           closedColor: colorScheme.surface,
           closedShape: RoundedRectangleBorder(
@@ -195,10 +201,12 @@ class _PreviewCardState extends State<PreviewCard> {
           closedElevation: expanded ? 4 : 1,
           closedBuilder: (context, action) => card,
           openColor: colorScheme.surface,
-          openBuilder: (context, action) => Editor(path: widget.filePath),
+          openBuilder: (context, action) => editor,
           transitionDuration: transitionDuration,
           routeSettings: RouteSettings(
-            name: RoutePaths.editFilePath(widget.filePath),
+            name: isMarkdown
+                ? RoutePaths.markdownFilePath(widget.filePath)
+                : RoutePaths.editFilePath(widget.filePath),
           ),
           onClosed: (_) {
             thumbnail.image?.evict();
