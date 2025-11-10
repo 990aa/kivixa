@@ -393,3 +393,6 @@ Contributions welcome! We're looking for:
 See [LICENSE.md](LICENSE.md) for details.
 
 **⭐ Star on GitHub if Kivixa helps your creative workflow!**
+
+# IF APP BREAKS RESTORE TO COMMIT FOR BACKUP FOLDER:
+a7f7535101a8eb95c61fad71b9a9bf7456469808
