@@ -118,7 +118,7 @@ class _RecentPageState extends State<RecentPage> {
           // Background SVG
           Positioned.fill(
             child: Opacity(
-              opacity: 0.05,
+              opacity: 0.15,
               child: Center(
                 child: SizedBox(
                   width: 400,
