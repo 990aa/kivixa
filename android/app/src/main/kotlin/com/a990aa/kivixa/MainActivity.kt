@@ -1,4 +1,4 @@
-package com.example.kivixa
+package com.a990aa.kivixa
 
 import io.flutter.embedding.android.FlutterActivity
 
