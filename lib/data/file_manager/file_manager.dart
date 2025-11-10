@@ -481,6 +481,7 @@ class FileManager {
 
           late final iskvx = filePath.endsWith(Editor.extension);
           late final iskvx1 = filePath.endsWith(Editor.extensionOldJson);
+          late final ismd = filePath.endsWith('.md');
 
           if (!includeExtensions) {
             if (iskvx) {
@@ -493,11 +494,16 @@ class FileManager {
                 0,
                 filePath.length - Editor.extensionOldJson.length,
               );
+            } else if (ismd) {
+              return filePath.substring(
+                0,
+                filePath.length - '.md'.length,
+              );
             } else {
               return null;
             }
           } else if (!includeAssets) {
-            final isAsset = !iskvx && !iskvx1;
+            final isAsset = !iskvx && !iskvx1 && !ismd;
             if (isAsset) return null;
           }
 

@@ -13,6 +13,7 @@ import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
+import 'package:kivixa/pages/markdown/markdown_editor.dart';
 
 class PreviewCard extends StatefulWidget {
   PreviewCard({
