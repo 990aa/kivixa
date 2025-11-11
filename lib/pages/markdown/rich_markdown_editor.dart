@@ -269,28 +269,27 @@ class _RichMarkdownEditorState extends State<RichMarkdownEditor> {
               child: Stack(
                 key: _stackKey,
                 children: [
-                  // Main editor
-                  AppFlowyEditor(
-                    editorState: _editorState,
-                    editorStyle: _buildEditorStyle(context),
+                  // Main editor (only interactable when NOT in text box mode)
+                  IgnorePointer(
+                    ignoring: _textBoxMode,
+                    child: AppFlowyEditor(
+                      editorState: _editorState,
+                      editorStyle: _buildEditorStyle(context),
+                    ),
                   ),
-                  // Text box overlay
-                  if (_textBoxMode || _textBoxes.isNotEmpty)
+                  // Clickable overlay for creating text boxes (only in text box mode)
+                  if (_textBoxMode)
                     Positioned.fill(
                       child: GestureDetector(
                         behavior: HitTestBehavior.translucent,
-                        onTapDown: _textBoxMode
-                            ? (details) {
-                                _addTextBox(details.localPosition);
-                              }
-                            : null,
-                        child: Stack(
-                          children: _textBoxes
-                              .map((textBox) => _buildTextBox(textBox))
-                              .toList(),
-                        ),
+                        onTapDown: (details) {
+                          _addTextBox(details.localPosition);
+                        },
+                        child: Container(color: Colors.transparent),
                       ),
                     ),
+                  // Text boxes stack (always visible when there are text boxes)
+                  ...(_textBoxes.map((textBox) => _buildTextBox(textBox))),
                 ],
               ),
             ),
@@ -475,6 +474,7 @@ class _RichMarkdownEditorState extends State<RichMarkdownEditor> {
       left: textBox.position.dx,
       top: textBox.position.dy,
       child: GestureDetector(
+        // Allow dragging only when NOT in text box mode
         onPanUpdate: _textBoxMode
             ? null
             : (details) {
@@ -483,6 +483,10 @@ class _RichMarkdownEditorState extends State<RichMarkdownEditor> {
                   position: textBox.position + details.delta,
                 );
               },
+        // Prevent text box from intercepting clicks meant for creating new text boxes
+        behavior: _textBoxMode
+            ? HitTestBehavior.deferToChild
+            : HitTestBehavior.translucent,
         child: Container(
           width: textBox.size.width,
           height: textBox.size.height,
@@ -513,6 +517,7 @@ class _RichMarkdownEditorState extends State<RichMarkdownEditor> {
                     controller: textBox.controller,
                     maxLines: null,
                     expands: true,
+                    autofocus: true,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       isDense: true,
