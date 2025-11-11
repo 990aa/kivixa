@@ -7,6 +7,43 @@ import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:logging/logging.dart';
 
+class TextBoxData {
+  String id;
+  Offset position;
+  Size size;
+  String text;
+  TextEditingController controller;
+
+  TextBoxData({
+    required this.id,
+    required this.position,
+    required this.size,
+    required this.text,
+  }) : controller = TextEditingController(text: text);
+
+  void dispose() {
+    controller.dispose();
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'x': position.dx,
+    'y': position.dy,
+    'width': size.width,
+    'height': size.height,
+    'text': text,
+  };
+
+  factory TextBoxData.fromJson(Map<String, dynamic> json) {
+    return TextBoxData(
+      id: json['id'],
+      position: Offset(json['x'], json['y']),
+      size: Size(json['width'], json['height']),
+      text: json['text'],
+    );
+  }
+}
+
 class RichMarkdownEditor extends StatefulWidget {
   const RichMarkdownEditor({super.key, this.filePath});
 
@@ -28,6 +65,11 @@ class _RichMarkdownEditorState extends State<RichMarkdownEditor> {
   Timer? _renameTimer;
   final log = Logger('RichMarkdownEditor');
 
+  // Text box tool state
+  final List<TextBoxData> _textBoxes = [];
+  var _textBoxMode = false;
+  final GlobalKey _stackKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -45,10 +87,31 @@ class _RichMarkdownEditorState extends State<RichMarkdownEditor> {
           final content = await FileManager.readFile(_currentFilePath!);
           if (content != null) {
             final jsonString = String.fromCharCodes(content);
-            final document = Document.fromJson(
-              Map<String, Object>.from(json.decode(jsonString)),
-            );
-            _editorState = EditorState(document: document);
+            final data = json.decode(jsonString);
+
+            // Handle new format with document and textBoxes
+            if (data is Map && data.containsKey('document')) {
+              final document = Document.fromJson(
+                Map<String, Object>.from(data['document']),
+              );
+              _editorState = EditorState(document: document);
+
+              // Load text boxes if available
+              if (data.containsKey('textBoxes')) {
+                for (final boxJson in data['textBoxes']) {
+                  _textBoxes.add(
+                    TextBoxData.fromJson(Map<String, dynamic>.from(boxJson)),
+                  );
+                }
+              }
+            } else {
+              // Handle old format (just document)
+              final document = Document.fromJson(
+                Map<String, Object>.from(data),
+              );
+              _editorState = EditorState(document: document);
+            }
+
             _fileName = _getFileNameFromPath(_currentFilePath!);
           }
         } catch (e) {
@@ -141,7 +204,11 @@ class _RichMarkdownEditorState extends State<RichMarkdownEditor> {
 
     try {
       final documentJson = _editorState.document.toJson();
-      final jsonString = json.encode(documentJson);
+      final textBoxesJson = _textBoxes.map((tb) => tb.toJson()).toList();
+
+      final fullData = {'document': documentJson, 'textBoxes': textBoxesJson};
+
+      final jsonString = json.encode(fullData);
       await FileManager.writeFile(_currentFilePath!, utf8.encode(jsonString));
       log.info('File saved: $_currentFilePath');
     } catch (e) {
@@ -155,6 +222,9 @@ class _RichMarkdownEditorState extends State<RichMarkdownEditor> {
     _renameTimer?.cancel();
     _fileNameController.dispose();
     _editorState.dispose();
+    for (final textBox in _textBoxes) {
+      textBox.dispose();
+    }
     super.dispose();
   }
 
@@ -194,11 +264,34 @@ class _RichMarkdownEditorState extends State<RichMarkdownEditor> {
             // Toolbar
             _buildToolbar(),
             const Divider(height: 1),
-            // Editor
+            // Editor with text box overlay
             Expanded(
-              child: AppFlowyEditor(
-                editorState: _editorState,
-                editorStyle: _buildEditorStyle(context),
+              child: Stack(
+                key: _stackKey,
+                children: [
+                  // Main editor
+                  AppFlowyEditor(
+                    editorState: _editorState,
+                    editorStyle: _buildEditorStyle(context),
+                  ),
+                  // Text box overlay
+                  if (_textBoxMode || _textBoxes.isNotEmpty)
+                    Positioned.fill(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onTapDown: _textBoxMode
+                            ? (details) {
+                                _addTextBox(details.localPosition);
+                              }
+                            : null,
+                        child: Stack(
+                          children: _textBoxes
+                              .map((textBox) => _buildTextBox(textBox))
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ],
@@ -276,6 +369,13 @@ class _RichMarkdownEditorState extends State<RichMarkdownEditor> {
               tooltip: 'Insert Link',
               onPressed: _insertLink,
             ),
+            const VerticalDivider(),
+            _ToolbarButton(
+              icon: Icons.text_fields,
+              tooltip: 'Text Box Tool',
+              onPressed: _toggleTextBoxMode,
+              isActive: _textBoxMode,
+            ),
           ],
         ),
       ),
@@ -314,6 +414,181 @@ class _RichMarkdownEditorState extends State<RichMarkdownEditor> {
     );
   }
 
+  void _toggleTextBoxMode() {
+    setState(() {
+      _textBoxMode = !_textBoxMode;
+    });
+  }
+
+  void _addTextBox(Offset position) {
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    final textBox = TextBoxData(
+      id: id,
+      position: position,
+      size: const Size(200, 100),
+      text: '',
+    );
+
+    setState(() {
+      _textBoxes.add(textBox);
+    });
+
+    _autosaveTimer?.cancel();
+    _autosaveTimer = Timer(const Duration(seconds: 2), _saveFile);
+  }
+
+  void _updateTextBox(String id, {Offset? position, Size? size, String? text}) {
+    final index = _textBoxes.indexWhere((tb) => tb.id == id);
+    if (index == -1) return;
+
+    setState(() {
+      if (position != null) _textBoxes[index].position = position;
+      if (size != null) _textBoxes[index].size = size;
+      if (text != null) {
+        _textBoxes[index].text = text;
+        _textBoxes[index].controller.text = text;
+      }
+    });
+
+    _autosaveTimer?.cancel();
+    _autosaveTimer = Timer(const Duration(seconds: 2), _saveFile);
+  }
+
+  void _deleteTextBox(String id) {
+    final index = _textBoxes.indexWhere((tb) => tb.id == id);
+    if (index == -1) return;
+
+    setState(() {
+      _textBoxes[index].dispose();
+      _textBoxes.removeAt(index);
+    });
+
+    _autosaveTimer?.cancel();
+    _autosaveTimer = Timer(const Duration(seconds: 2), _saveFile);
+  }
+
+  Widget _buildTextBox(TextBoxData textBox) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Positioned(
+      left: textBox.position.dx,
+      top: textBox.position.dy,
+      child: GestureDetector(
+        onPanUpdate: _textBoxMode
+            ? null
+            : (details) {
+                _updateTextBox(
+                  textBox.id,
+                  position: textBox.position + details.delta,
+                );
+              },
+        child: Container(
+          width: textBox.size.width,
+          height: textBox.size.height,
+          decoration: BoxDecoration(
+            color: colorScheme.surface.withValues(alpha: 0.9),
+            border: Border.all(
+              color: _textBoxMode
+                  ? colorScheme.primary
+                  : colorScheme.outline.withValues(alpha: 0.5),
+              width: _textBoxMode ? 2 : 1,
+            ),
+            borderRadius: BorderRadius.circular(4),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Text field (editable only in text box mode)
+              if (_textBoxMode)
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: TextField(
+                    controller: textBox.controller,
+                    maxLines: null,
+                    expands: true,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    style: theme.textTheme.bodyMedium,
+                    onChanged: (value) {
+                      _updateTextBox(textBox.id, text: value);
+                    },
+                  ),
+                )
+              else
+                // Read-only text display
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Text(textBox.text, style: theme.textTheme.bodyMedium),
+                ),
+
+              // Resize handle (only visible in text box mode)
+              if (_textBoxMode)
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: GestureDetector(
+                    onPanUpdate: (details) {
+                      final newWidth = textBox.size.width + details.delta.dx;
+                      final newHeight = textBox.size.height + details.delta.dy;
+                      _updateTextBox(
+                        textBox.id,
+                        size: Size(
+                          newWidth.clamp(100, 800),
+                          newHeight.clamp(50, 600),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(4),
+                          bottomRight: Radius.circular(4),
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.drag_handle,
+                        size: 16,
+                        color: colorScheme.onPrimary,
+                      ),
+                    ),
+                  ),
+                ),
+
+              // Delete button (only visible in text box mode)
+              if (_textBoxMode)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: IconButton(
+                    icon: Icon(Icons.close, size: 16, color: colorScheme.error),
+                    onPressed: () => _deleteTextBox(textBox.id),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 24,
+                      minHeight: 24,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   EditorStyle _buildEditorStyle(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -346,19 +621,28 @@ class _ToolbarButton extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     required this.onPressed,
+    this.isActive = false,
   });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback onPressed;
+  final bool isActive;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return IconButton(
       icon: Icon(icon, size: 20),
       tooltip: tooltip,
       onPressed: onPressed,
       visualDensity: VisualDensity.compact,
+      style: isActive
+          ? IconButton.styleFrom(
+              backgroundColor: theme.colorScheme.primaryContainer,
+              foregroundColor: theme.colorScheme.onPrimaryContainer,
+            )
+          : null,
     );
   }
 }

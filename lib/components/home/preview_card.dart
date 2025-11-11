@@ -8,6 +8,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:kivixa/components/canvas/_stroke.dart';
 import 'package:kivixa/components/canvas/inner_canvas.dart';
 import 'package:kivixa/components/canvas/invert_widget.dart';
+import 'package:kivixa/components/home/folder_picker_dialog.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/routes.dart';
@@ -334,12 +335,7 @@ class _PreviewCardState extends State<PreviewCard> {
                         case 'rename':
                           _showRenameDialog();
                         case 'move':
-                          // TODO: Implement move functionality
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Move functionality coming soon'),
-                            ),
-                          );
+                          _showMoveDialog();
                         case 'delete':
                           _showDeleteDialog();
                       }
@@ -514,6 +510,71 @@ class _PreviewCardState extends State<PreviewCard> {
       }
     } catch (e, stackTrace) {
       log.severe('Error renaming file ${widget.filePath}', e, stackTrace);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('${t.common.error}: $e')));
+      }
+    }
+  }
+
+  Future<void> _showMoveDialog() async {
+    final destinationFolder = await showDialog<String>(
+      context: context,
+      builder: (context) => const FolderPickerDialog(),
+    );
+
+    if (destinationFolder == null) return;
+
+    await _moveFile(destinationFolder);
+  }
+
+  Future<void> _moveFile(String destinationFolder) async {
+    try {
+      // Get the filename without directory
+      final fileName = widget.filePath.substring(
+        widget.filePath.lastIndexOf('/') + 1,
+      );
+
+      // Construct new path
+      final newPath = destinationFolder == '/'
+          ? '/$fileName'
+          : '$destinationFolder/$fileName';
+
+      // Check if already in the destination
+      if (newPath == widget.filePath) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('File is already in this folder')),
+          );
+        }
+        return;
+      }
+
+      // Check if it's a markdown file
+      final mdFile = FileManager.getFile('${widget.filePath}.md');
+      final isMarkdown = mdFile.existsSync();
+
+      if (isMarkdown) {
+        // Move the .md file
+        await FileManager.moveFile('${widget.filePath}.md', '$newPath.md');
+      } else {
+        // Move the note file (.kvx)
+        await FileManager.moveFile(
+          '${widget.filePath}${Editor.extension}',
+          '$newPath${Editor.extension}',
+        );
+      }
+
+      log.info('File moved from ${widget.filePath} to $newPath');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File moved successfully')),
+        );
+      }
+    } catch (e, stackTrace) {
+      log.severe('Error moving file ${widget.filePath}', e, stackTrace);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
