@@ -13,7 +13,7 @@ import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
-import 'package:kivixa/pages/markdown/markdown_editor.dart';
+import 'package:kivixa/pages/markdown/rich_markdown_editor.dart';
 import 'package:logging/logging.dart';
 
 class PreviewCard extends StatefulWidget {
@@ -409,7 +409,7 @@ class _PreviewCardState extends State<PreviewCard> {
         final isMarkdown = mdFile.existsSync();
 
         final editor = isMarkdown
-            ? MarkdownEditor(filePath: widget.filePath)
+            ? RichMarkdownEditor(filePath: widget.filePath)
             : Editor(path: widget.filePath);
 
         return OpenContainer(

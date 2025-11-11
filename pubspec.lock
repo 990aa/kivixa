@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  appflowy_editor:
+    dependency: "direct main"
+    description:
+      name: appflowy_editor
+      sha256: "4d764fb43badaeea58f6664956a35648af522e8a81afba6629147e83f428c924"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.1.0"
   archive:
     dependency: "direct main"
     description:
@@ -692,6 +700,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  keyboard_height_plugin:
+    dependency: transitive
+    description:
+      name: keyboard_height_plugin
+      sha256: "3a51c8ebb43465ebe0b3bad17f3b6d945421e58011f3f5a08134afe69a3d775f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.5"
   leak_tracker:
     dependency: transitive
     description:
@@ -796,6 +812,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0"
+  nanoid:
+    dependency: transitive
+    description:
+      name: nanoid
+      sha256: be3f8752d9046c825df2f3914195151eb876f3ad64b9d833dd0b799b77b8759e
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   nested:
     dependency: transitive
     description:
@@ -804,6 +828,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  numerus:
+    dependency: transitive
+    description:
+      name: numerus
+      sha256: a17a3f34527497e89378696a76f382b40dc534c4a57b3778de246ebc1ce2ca99
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.0"
   one_dollar_unistroke_recognizer:
     dependency: "direct main"
     description:
@@ -1284,6 +1316,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  scroll_to_index:
+    dependency: transitive
+    description:
+      name: scroll_to_index
+      sha256: b707546e7500d9f070d63e5acf74fd437ec7eeeb68d3412ef7b0afada0b4f176
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1"
   share_plus:
     dependency: "direct main"
     description:
@@ -1441,6 +1481,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
+  string_validator:
+    dependency: transitive
+    description:
+      name: string_validator
+      sha256: "240f4c98027dfbe8639c8271ef18cc9de735b47067aa15a720cfed9576a512b1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   super_clipboard:
     dependency: "direct main"
     description:
@@ -1505,6 +1553,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  universal_html:
+    dependency: transitive
+    description:
+      name: universal_html
+      sha256: "56536254004e24d9d8cfdb7dbbf09b74cf8df96729f38a2f5c238163e3d58971"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.4"
   universal_io:
     dependency: transitive
     description:
@@ -1513,6 +1569,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.2"
+  universal_platform:
+    dependency: transitive
+    description:
+      name: universal_platform
+      sha256: "64e16458a0ea9b99260ceb5467a214c1f298d647c659af1bff6d3bf82536b1ec"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   url_launcher:
     dependency: "direct main"
     description:
