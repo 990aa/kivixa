@@ -557,7 +557,7 @@ void main() {
   group('Recurrence Rule Generation Tests', () {
     test('should generate RRULE for daily recurrence', () {
       const interval = 1;
-      final rule = 'FREQ=DAILY;INTERVAL=$interval';
+      const rule = 'FREQ=DAILY;INTERVAL=$interval';
       expect(rule, 'FREQ=DAILY;INTERVAL=1');
     });
 
@@ -570,19 +570,19 @@ void main() {
 
     test('should generate RRULE for monthly recurrence', () {
       const interval = 2;
-      final rule = 'FREQ=MONTHLY;INTERVAL=$interval';
+      const rule = 'FREQ=MONTHLY;INTERVAL=$interval';
       expect(rule, 'FREQ=MONTHLY;INTERVAL=2');
     });
 
     test('should generate RRULE for yearly recurrence', () {
       const interval = 1;
-      final rule = 'FREQ=YEARLY;INTERVAL=$interval';
+      const rule = 'FREQ=YEARLY;INTERVAL=$interval';
       expect(rule, 'FREQ=YEARLY;INTERVAL=1');
     });
 
     test('should handle custom intervals', () {
       const interval = 3;
-      final rule = 'FREQ=WEEKLY;INTERVAL=$interval';
+      const rule = 'FREQ=WEEKLY;INTERVAL=$interval';
       expect(rule, 'FREQ=WEEKLY;INTERVAL=3');
     });
   });
