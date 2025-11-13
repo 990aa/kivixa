@@ -63,6 +63,14 @@ abstract class HomeRoutes {
       ),
     ),
     _Route(
+      routePath: _homeFunction({'subpage': HomePage.projectsSubpage}),
+      label: 'Projects',
+      icon: const AdaptiveIcon(
+        icon: Icons.work,
+        cupertinoIcon: CupertinoIcons.briefcase_fill,
+      ),
+    ),
+    _Route(
       routePath: _homeFunction({'subpage': HomePage.settingsSubpage}),
       label: t.home.tabs.settings,
       icon: const AdaptiveIcon(
