@@ -4,7 +4,7 @@ import 'package:kivixa/data/models/calendar_event.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CalendarStorage {
-  static const String _eventsKey = 'calendar_events';
+  static const _eventsKey = 'calendar_events';
 
   static Future<List<CalendarEvent>> loadEvents() async {
     final prefs = await SharedPreferences.getInstance();

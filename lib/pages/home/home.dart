@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
         HomePage.calendarSubpage => const CalendarPage(),
         HomePage.whiteboardSubpage => const Whiteboard(),
         HomePage.settingsSubpage => const SettingsPage(),
-        _ => BrowsePage(path: null),
+        _ => const BrowsePage(path: null),
       },
     );
   }
