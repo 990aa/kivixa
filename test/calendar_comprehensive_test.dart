@@ -342,7 +342,7 @@ void main() {
 
       // Green dot color verification (Colors.green is MaterialColor)
       const greenDot = Color(0xFF4CAF50);
-      expect(greenDot.value, Colors.green.value);
+      expect(greenDot.toARGB32(), Colors.green.toARGB32());
     });
 
     test('Overdue tasks have red dots', () {
@@ -379,7 +379,7 @@ void main() {
 
       // Red dot color verification (Colors.red is MaterialColor)
       const redDot = Color(0xFFF44336);
-      expect(redDot.value, Colors.red.value);
+      expect(redDot.toARGB32(), Colors.red.toARGB32());
     });
 
     test('Completed tasks have grey dots', () {
@@ -401,7 +401,7 @@ void main() {
 
       // Grey dot color verification (Colors.grey is MaterialColor)
       const greyDot = Color(0xFF9E9E9E);
-      expect(greyDot.value, Colors.grey.value);
+      expect(greyDot.toARGB32(), Colors.grey.toARGB32());
     });
 
     test('Mixed tasks show red for overdue', () {
@@ -472,7 +472,7 @@ void main() {
 
       // Verify red color constant (Colors.red is MaterialColor)
       const redColor = Color(0xFFF44336);
-      expect(redColor.value, Colors.red.value);
+      expect(redColor.toARGB32(), Colors.red.toARGB32());
     });
 
     test('Non-Sunday dates do not get red color', () {
