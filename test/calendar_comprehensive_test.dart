@@ -321,7 +321,7 @@ void main() {
 
       // Orange dot color verification (Colors.orange is MaterialColor)
       const orangeDot = Color(0xFFFF9800);
-      expect(orangeDot.value, Colors.orange.value);
+      expect(orangeDot.toARGB32(), Colors.orange.toARGB32());
     });
 
     test('Active tasks have green dots', () {
