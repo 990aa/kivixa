@@ -4,7 +4,7 @@
 
 # Kivixa
 
-### A Modern Cross-Platform Notes & Canvas Application
+### A Modern Cross-Platform Notes & Productivity Application
 
 *Seamlessly blend notes, sketches, and creativity across all your devices*
 
