@@ -461,6 +461,56 @@ class _CalendarPageState extends State<CalendarPage> {
               _refreshEvents();
             },
           ),
+          PopupMenuButton<CalendarView>(
+            icon: const Icon(Icons.view_module),
+            onSelected: (view) {
+              setState(() {
+                _calendarView = view;
+              });
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: CalendarView.month,
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_month),
+                    SizedBox(width: 8),
+                    Text('Month'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: CalendarView.week,
+                child: Row(
+                  children: [
+                    Icon(Icons.view_week),
+                    SizedBox(width: 8),
+                    Text('Week'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: CalendarView.day,
+                child: Row(
+                  children: [
+                    Icon(Icons.view_day),
+                    SizedBox(width: 8),
+                    Text('Day'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: CalendarView.year,
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today),
+                    SizedBox(width: 8),
+                    Text('Year'),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: Row(
@@ -489,106 +539,113 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
           // Events column
           Expanded(
-            child: Stack(
-              children: [
-                // Hour lines
-                ListView.builder(
-                  itemCount: 24,
-                  itemBuilder: (context, hour) {
-                    return Container(
-                      height: 60,
-                      decoration: BoxDecoration(
-                        border: Border(
-                          top: BorderSide(
-                            color: colorScheme.outline.withValues(alpha: 0.2),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                // Events
-                ...dayEvents.where((e) => !e.isAllDay).map((event) {
-                  final startMinutes =
-                      (event.startTime!.hour * 60) + event.startTime!.minute;
-                  final endMinutes =
-                      (event.endTime!.hour * 60) + event.endTime!.minute;
-                  final top = (startMinutes / 60) * 60.0;
-                  final height = ((endMinutes - startMinutes) / 60) * 60.0;
-
-                  return Positioned(
-                    top: top,
-                    left: 8,
-                    right: 8,
-                    height: height.clamp(40, double.infinity),
-                    child: GestureDetector(
-                      onTap: () => _showEventDialog(existingEvent: event),
-                      child: Card(
-                        color: event.type == EventType.event
-                            ? colorScheme.primaryContainer
-                            : colorScheme.tertiaryContainer,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                event.title,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: event.type == EventType.event
-                                      ? colorScheme.onPrimaryContainer
-                                      : colorScheme.onTertiaryContainer,
+            child: SingleChildScrollView(
+              child: SizedBox(
+                height: 24 * 60.0, // 24 hours * 60 pixels per hour
+                child: Stack(
+                  children: [
+                    // Hour lines
+                    Column(
+                      children: List.generate(24, (hour) {
+                        return Container(
+                          height: 60,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              top: BorderSide(
+                                color: colorScheme.outline.withValues(
+                                  alpha: 0.2,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              if (height > 45 && event.description != null)
-                                Text(
-                                  event.description!,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: event.type == EventType.event
-                                        ? colorScheme.onPrimaryContainer
-                                        : colorScheme.onTertiaryContainer,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-                // All-day events at top
-                if (dayEvents.any((e) => e.isAllDay))
-                  Positioned(
-                    top: 0,
-                    left: 8,
-                    right: 8,
-                    child: Column(
-                      children: dayEvents
-                          .where((e) => e.isAllDay)
-                          .map(
-                            (event) => Card(
-                              color: event.type == EventType.event
-                                  ? colorScheme.secondaryContainer
-                                  : colorScheme.tertiaryContainer,
-                              child: ListTile(
-                                dense: true,
-                                title: Text(event.title),
-                                subtitle: Text(t.calendar.allDay),
-                                onTap: () =>
-                                    _showEventDialog(existingEvent: event),
                               ),
                             ),
-                          )
-                          .toList(),
+                          ),
+                        );
+                      }),
                     ),
-                  ),
-              ],
+                    // Events
+                    ...dayEvents.where((e) => !e.isAllDay).map((event) {
+                      final startMinutes =
+                          (event.startTime!.hour * 60) +
+                          event.startTime!.minute;
+                      final endMinutes =
+                          (event.endTime!.hour * 60) + event.endTime!.minute;
+                      final top = (startMinutes / 60) * 60.0;
+                      final height = ((endMinutes - startMinutes) / 60) * 60.0;
+
+                      return Positioned(
+                        top: top,
+                        left: 8,
+                        right: 8,
+                        height: height.clamp(40, double.infinity),
+                        child: GestureDetector(
+                          onTap: () => _showEventDialog(existingEvent: event),
+                          child: Card(
+                            color: event.type == EventType.event
+                                ? colorScheme.primaryContainer
+                                : colorScheme.tertiaryContainer,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    event.title,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: event.type == EventType.event
+                                          ? colorScheme.onPrimaryContainer
+                                          : colorScheme.onTertiaryContainer,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  if (height > 45 && event.description != null)
+                                    Text(
+                                      event.description!,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: event.type == EventType.event
+                                            ? colorScheme.onPrimaryContainer
+                                            : colorScheme.onTertiaryContainer,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                    // All-day events at top
+                    if (dayEvents.any((e) => e.isAllDay))
+                      Positioned(
+                        top: 0,
+                        left: 8,
+                        right: 8,
+                        child: Column(
+                          children: dayEvents
+                              .where((e) => e.isAllDay)
+                              .map(
+                                (event) => Card(
+                                  color: event.type == EventType.event
+                                      ? colorScheme.secondaryContainer
+                                      : colorScheme.tertiaryContainer,
+                                  child: ListTile(
+                                    dense: true,
+                                    title: Text(event.title),
+                                    subtitle: Text(t.calendar.allDay),
+                                    onTap: () =>
+                                        _showEventDialog(existingEvent: event),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -620,6 +677,58 @@ class _CalendarPageState extends State<CalendarPage> {
             });
           },
         ),
+        actions: [
+          PopupMenuButton<CalendarView>(
+            icon: const Icon(Icons.view_module),
+            onSelected: (view) {
+              setState(() {
+                _calendarView = view;
+              });
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: CalendarView.month,
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_month),
+                    SizedBox(width: 8),
+                    Text('Month'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: CalendarView.week,
+                child: Row(
+                  children: [
+                    Icon(Icons.view_week),
+                    SizedBox(width: 8),
+                    Text('Week'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: CalendarView.day,
+                child: Row(
+                  children: [
+                    Icon(Icons.view_day),
+                    SizedBox(width: 8),
+                    Text('Day'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: CalendarView.year,
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today),
+                    SizedBox(width: 8),
+                    Text('Year'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -787,6 +896,56 @@ class _CalendarPageState extends State<CalendarPage> {
               });
             },
           ),
+          PopupMenuButton<CalendarView>(
+            icon: const Icon(Icons.view_module),
+            onSelected: (view) {
+              setState(() {
+                _calendarView = view;
+              });
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: CalendarView.month,
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_month),
+                    SizedBox(width: 8),
+                    Text('Month'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: CalendarView.week,
+                child: Row(
+                  children: [
+                    Icon(Icons.view_week),
+                    SizedBox(width: 8),
+                    Text('Week'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: CalendarView.day,
+                child: Row(
+                  children: [
+                    Icon(Icons.view_day),
+                    SizedBox(width: 8),
+                    Text('Day'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: CalendarView.year,
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today),
+                    SizedBox(width: 8),
+                    Text('Year'),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: GridView.builder(
@@ -817,54 +976,99 @@ class _CalendarPageState extends State<CalendarPage> {
                       _getMonthName(month),
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    const SizedBox(height: 8),
-                    Expanded(
-                      child: GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 7,
+                    const SizedBox(height: 4),
+                    // Weekday headers
+                    Row(
+                      children: _daysOfWeek.map((day) {
+                        return Expanded(
+                          child: Center(
+                            child: Text(
+                              day.substring(0, 1),
+                              style: TextStyle(
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
                             ),
-                        itemCount: DateTime(
-                          _focusedMonth.year,
-                          month + 1,
-                          0,
-                        ).day,
-                        itemBuilder: (context, day) {
-                          final date = DateTime(
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 2),
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final firstDayOfMonth = DateTime(
                             _focusedMonth.year,
                             month,
-                            day + 1,
+                            1,
                           );
-                          final events = _monthEvents
-                              .where((e) => e.occursOn(date))
-                              .toList();
-                          return Container(
-                            alignment: Alignment.center,
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Text(
-                                  '${day + 1}',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: colorScheme.onSurface,
-                                  ),
+                          final firstWeekday = firstDayOfMonth.weekday % 7;
+                          final daysInMonth = DateTime(
+                            _focusedMonth.year,
+                            month + 1,
+                            0,
+                          ).day;
+                          final totalCells =
+                              ((firstWeekday + daysInMonth) / 7).ceil() * 7;
+
+                          return GridView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 7,
+                                  childAspectRatio: 1,
                                 ),
-                                if (events.isNotEmpty)
-                                  Positioned(
-                                    bottom: 0,
-                                    child: Container(
-                                      width: 3,
-                                      height: 3,
-                                      decoration: BoxDecoration(
-                                        color: colorScheme.primary,
-                                        shape: BoxShape.circle,
-                                      ),
+                            itemCount: totalCells,
+                            itemBuilder: (context, index) {
+                              final dayOffset = index - firstWeekday;
+                              final date = firstDayOfMonth.add(
+                                Duration(days: dayOffset),
+                              );
+
+                              // Only show dates within current month
+                              if (dayOffset < 0 || dayOffset >= daysInMonth) {
+                                return const SizedBox.shrink();
+                              }
+
+                              final events = _monthEvents
+                                  .where((e) => e.occursOn(date))
+                                  .toList();
+                              final hasEvents = events.isNotEmpty;
+
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedDate = date;
+                                    _calendarView = CalendarView.day;
+                                  });
+                                  _refreshEvents();
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.all(1),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: hasEvents
+                                        ? colorScheme.primaryContainer
+                                              .withValues(alpha: 0.5)
+                                        : null,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    '${date.day}',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: hasEvents
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: hasEvents
+                                          ? colorScheme.onPrimaryContainer
+                                          : colorScheme.onSurface,
                                     ),
                                   ),
-                              ],
-                            ),
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
@@ -931,10 +1135,40 @@ class _CalendarPageState extends State<CalendarPage> {
 }
 
 // Year Picker Dialog
-class YearPickerDialog extends StatelessWidget {
+class YearPickerDialog extends StatefulWidget {
   const YearPickerDialog({required this.initialYear, super.key});
 
   final int initialYear;
+
+  @override
+  State<YearPickerDialog> createState() => _YearPickerDialogState();
+}
+
+class _YearPickerDialogState extends State<YearPickerDialog> {
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Calculate initial scroll position to center current year
+    // Each row has 3 items, item height is approximately 56 (48 + 8 spacing)
+    final initialIndex =
+        50; // Current year is at index 50 (middle of 100 years)
+    final rowIndex = initialIndex ~/ 3;
+    final itemHeight = 56.0;
+    final initialScrollOffset =
+        (rowIndex * itemHeight) - 100; // Offset to center
+
+    _scrollController = ScrollController(
+      initialScrollOffset: initialScrollOffset.clamp(0, double.infinity),
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -945,6 +1179,7 @@ class YearPickerDialog extends StatelessWidget {
         width: 300,
         height: 400,
         child: GridView.builder(
+          controller: _scrollController,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             mainAxisSpacing: 8,
@@ -952,8 +1187,8 @@ class YearPickerDialog extends StatelessWidget {
           ),
           itemCount: 100,
           itemBuilder: (context, index) {
-            final year = initialYear - 50 + index;
-            final isSelected = year == initialYear;
+            final year = widget.initialYear - 50 + index;
+            final isSelected = year == widget.initialYear;
             return InkWell(
               onTap: () => Navigator.pop(context, year),
               child: Container(
@@ -1078,6 +1313,7 @@ class EventCard extends StatelessWidget {
         ),
         title: Text(event.title),
         subtitle: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (event.description != null && event.description!.isNotEmpty)
