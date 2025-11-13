@@ -1155,7 +1155,7 @@ class EventCard extends StatelessWidget {
         return 'Repeats daily';
       case RecurrenceType.weekly:
         if (recurrence.weekdays != null && recurrence.weekdays!.isNotEmpty) {
-          const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+          var days = <String>['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
           final selectedDays = recurrence.weekdays!
               .map((d) => days[d - 1])
               .join(', ');
@@ -1456,7 +1456,7 @@ class _EventDialogState extends State<EventDialog> {
               Text('Repeat', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               DropdownButtonFormField<RecurrenceType>(
-                value: _recurrenceType,
+                initialValue: _recurrenceType,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Recurrence',
