@@ -169,14 +169,8 @@ void main() {
         color: Colors.blue,
       );
 
-      await ProjectStorage.addChangeToProject(
-        project.id,
-        'First change',
-      );
-      await ProjectStorage.addChangeToProject(
-        project.id,
-        'Second change',
-      );
+      await ProjectStorage.addChangeToProject(project.id, 'First change');
+      await ProjectStorage.addChangeToProject(project.id, 'Second change');
 
       final updated = await ProjectStorage.getProjectById(project.id);
 
@@ -257,20 +251,22 @@ void main() {
       expect(result, isNull);
     });
 
-    test('updateChangeInProject returns null for non-existent project',
-        () async {
-      final change = ProjectChange(
-        id: '1',
-        description: 'Test',
-        timestamp: DateTime.now(),
-        isCompleted: false,
-      );
-      final result = await ProjectStorage.updateChangeInProject(
-        'non-existent',
-        change,
-      );
-      expect(result, isNull);
-    });
+    test(
+      'updateChangeInProject returns null for non-existent project',
+      () async {
+        final change = ProjectChange(
+          id: '1',
+          description: 'Test',
+          timestamp: DateTime.now(),
+          isCompleted: false,
+        );
+        final result = await ProjectStorage.updateChangeInProject(
+          'non-existent',
+          change,
+        );
+        expect(result, isNull);
+      },
+    );
 
     test('maintains data persistence across operations', () async {
       // Add project
@@ -322,8 +318,14 @@ void main() {
       final updated = await ProjectStorage.getProjectById(project.id);
       final changeTimestamp = updated!.changes[0].timestamp;
 
-      expect(changeTimestamp.isAfter(before.subtract(const Duration(seconds: 1))), true);
-      expect(changeTimestamp.isBefore(after.add(const Duration(seconds: 1))), true);
+      expect(
+        changeTimestamp.isAfter(before.subtract(const Duration(seconds: 1))),
+        true,
+      );
+      expect(
+        changeTimestamp.isBefore(after.add(const Duration(seconds: 1))),
+        true,
+      );
     });
   });
 }
