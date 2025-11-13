@@ -50,13 +50,16 @@ void main() {
         startTime: const TimeOfDay(hour: 9, minute: 0),
         endTime: const TimeOfDay(hour: 10, minute: 0),
         type: model.EventType.event,
-        recurrence: model.RecurrenceRule(type: model.RecurrenceType.daily, interval: 1),
+        recurrence: model.RecurrenceRule(
+          type: model.RecurrenceType.daily,
+          interval: 1,
+        ),
       );
 
       final dataSource = CalendarEventDataSource([event]);
       final appointment = dataSource.appointments!.first as Appointment;
-      expect(appointment.model.RecurrenceRule, contains('FREQ=DAILY'));
-      expect(appointment.model.RecurrenceRule, contains('INTERVAL=1'));
+      expect(appointment.recurrenceRule, contains('FREQ=DAILY'));
+      expect(appointment.recurrenceRule, contains('INTERVAL=1'));
     });
 
     test('should generate weekly recurrence rule with weekdays', () {
@@ -76,8 +79,8 @@ void main() {
 
       final dataSource = CalendarEventDataSource([event]);
       final appointment = dataSource.appointments!.first as Appointment;
-      expect(appointment.model.RecurrenceRule, contains('FREQ=WEEKLY'));
-      expect(appointment.model.RecurrenceRule, contains('BYDAY=MO,WE,FR'));
+      expect(appointment.recurrenceRule, contains('FREQ=WEEKLY'));
+      expect(appointment.recurrenceRule, contains('BYDAY=MO,WE,FR'));
     });
 
     test('should generate monthly recurrence rule correctly', () {
@@ -88,12 +91,15 @@ void main() {
         startTime: const TimeOfDay(hour: 9, minute: 0),
         endTime: const TimeOfDay(hour: 10, minute: 0),
         type: model.EventType.event,
-        recurrence: model.RecurrenceRule(type: model.RecurrenceType.monthly, interval: 1),
+        recurrence: model.RecurrenceRule(
+          type: model.RecurrenceType.monthly,
+          interval: 1,
+        ),
       );
 
       final dataSource = CalendarEventDataSource([event]);
       final appointment = dataSource.appointments!.first as Appointment;
-      expect(appointment.model.RecurrenceRule, contains('FREQ=MONTHLY'));
+      expect(appointment.recurrenceRule, contains('FREQ=MONTHLY'));
     });
 
     test('should generate yearly recurrence rule correctly', () {
@@ -104,12 +110,15 @@ void main() {
         startTime: const TimeOfDay(hour: 9, minute: 0),
         endTime: const TimeOfDay(hour: 10, minute: 0),
         type: model.EventType.event,
-        recurrence: model.RecurrenceRule(type: model.RecurrenceType.yearly, interval: 1),
+        recurrence: model.RecurrenceRule(
+          type: model.RecurrenceType.yearly,
+          interval: 1,
+        ),
       );
 
       final dataSource = CalendarEventDataSource([event]);
       final appointment = dataSource.appointments!.first as Appointment;
-      expect(appointment.model.RecurrenceRule, contains('FREQ=YEARLY'));
+      expect(appointment.recurrenceRule, contains('FREQ=YEARLY'));
     });
 
     test('should handle empty event list', () {
