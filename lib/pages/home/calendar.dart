@@ -110,10 +110,14 @@ class _CalendarPageState extends State<CalendarPage> {
           await CalendarStorage.updateEvent(updated);
           // Cancel overdue notifications if task is completed
           if (updated.isCompleted) {
-            await NotificationService.instance.cancelEventNotifications(updated);
+            await NotificationService.instance.cancelEventNotifications(
+              updated,
+            );
           } else {
             // Reschedule notifications if uncompleted
-            await NotificationService.instance.scheduleEventNotification(updated);
+            await NotificationService.instance.scheduleEventNotification(
+              updated,
+            );
           }
           await _refreshEvents();
           // Close and reopen dialog to show updated state
@@ -136,7 +140,9 @@ class _CalendarPageState extends State<CalendarPage> {
           if (existingEvent != null) {
             await CalendarStorage.updateEvent(event);
             // Cancel old notifications and schedule new ones
-            await NotificationService.instance.cancelEventNotifications(existingEvent);
+            await NotificationService.instance.cancelEventNotifications(
+              existingEvent,
+            );
           } else {
             await CalendarStorage.addEvent(event);
           }
