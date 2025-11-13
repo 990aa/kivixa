@@ -647,6 +647,65 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage>
     );
   }
 
+  Widget _buildProjectsTab() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: _projects.length,
+      itemBuilder: (context, index) {
+        final project = _projects[index];
+        final completedCount = project.completedChanges.length;
+        final totalCount = project.taskIds.length;
+        final progress = totalCount > 0 ? completedCount / totalCount : 0.0;
+        return Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: project.color ?? Colors.blue,
+              child: Text(
+                '${(progress * 100).toInt()}%',
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
+            title: Text(project.title),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
+                LinearProgressIndicator(value: progress),
+                const SizedBox(height: 4),
+                Text(
+                  '$completedCount/$totalCount tasks • ${_getStatusText(project.status)}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                if (project.completedAt != null)
+                  Text(
+                    'Completed: ${project.completedAt!.year}-${project.completedAt!.month.toString().padLeft(2, '0')}-${project.completedAt!.day.toString().padLeft(2, '0')}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+              ],
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              // Navigate to project details
+              Navigator.pushNamed(context, '/project-manager');
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  String _getStatusText(ProjectStatus status) {
+    switch (status) {
+      case ProjectStatus.upcoming:
+        return 'Upcoming';
+      case ProjectStatus.ongoing:
+        return 'Ongoing';
+      case ProjectStatus.completed:
+        return 'Completed';
+    }
+  }
+
   IconData _getViewIcon(CalendarView view) {
     switch (view) {
       case CalendarView.day:
