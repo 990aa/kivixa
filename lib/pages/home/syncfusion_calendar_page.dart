@@ -2,12 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
-
 import 'package:kivixa/data/calendar_storage.dart';
 import 'package:kivixa/data/models/calendar_event.dart' as model;
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/services/notification_service.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 /// Syncfusion Calendar Page with all comprehensive features
 class SyncfusionCalendarPage extends StatefulWidget {
