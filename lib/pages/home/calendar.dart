@@ -1152,11 +1152,11 @@ class _YearPickerDialogState extends State<YearPickerDialog> {
     super.initState();
     // Calculate initial scroll position to center current year
     // Each row has 3 items, item height is approximately 56 (48 + 8 spacing)
-    final initialIndex =
+    const initialIndex =
         50; // Current year is at index 50 (middle of 100 years)
-    final rowIndex = initialIndex ~/ 3;
-    final itemHeight = 56.0;
-    final initialScrollOffset =
+    const rowIndex = initialIndex ~/ 3;
+    const itemHeight = 56.0;
+    const initialScrollOffset =
         (rowIndex * itemHeight) - 100; // Offset to center
 
     _scrollController = ScrollController(
