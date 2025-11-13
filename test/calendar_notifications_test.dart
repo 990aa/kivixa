@@ -1,7 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/data/models/calendar_event.dart';
 import 'package:kivixa/data/models/notification_settings.dart';
-import 'package:flutter/material.dart';
 
 void main() {
   group('Task Checkbox and Completion Tests', () {
