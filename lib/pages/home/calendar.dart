@@ -18,6 +18,7 @@ class _CalendarPageState extends State<CalendarPage> {
   var _focusedMonth = DateTime.now();
   var _monthEvents = <CalendarEvent>[];
   var _calendarView = CalendarView.month;
+  var _previousView = CalendarView.month;
   DateTime? _lastTapTime;
   DateTime? _lastTappedDate;
 
@@ -67,19 +68,49 @@ class _CalendarPageState extends State<CalendarPage> {
         now.difference(_lastTapTime!).inMilliseconds < 500) {
       // Double tap detected - show day timeline
       setState(() {
+        _previousView = _calendarView;
         _selectedDate = date;
         _calendarView = CalendarView.day;
       });
       _lastTapTime = null;
       _lastTappedDate = null;
     } else {
-      // Single tap
+      // Single tap - show event list popup
       setState(() {
         _selectedDate = date;
       });
       _lastTapTime = now;
       _lastTappedDate = date;
+
+      // Show popup with events
+      _showEventsPopup(date);
     }
+  }
+
+  Future<void> _showEventsPopup(DateTime date) async {
+    final events = _getEventsForDate(date);
+    if (events.isEmpty) return;
+
+    await showDialog(
+      context: context,
+      builder: (context) => EventsListDialog(
+        date: date,
+        events: events,
+        onEdit: (event) {
+          Navigator.pop(context);
+          _showEventDialog(existingEvent: event);
+        },
+        onDelete: (event) {
+          Navigator.pop(context);
+          _deleteEvent(event);
+        },
+        onToggleComplete: (event) async {
+          final updated = event.copyWith(isCompleted: !event.isCompleted);
+          await CalendarStorage.updateEvent(updated);
+          _refreshEvents();
+        },
+      ),
+    );
   }
 
   Future<void> _showEventDialog({CalendarEvent? existingEvent}) async {
@@ -175,7 +206,6 @@ class _CalendarPageState extends State<CalendarPage> {
 
   Widget _buildMonthView() {
     final colorScheme = Theme.of(context).colorScheme;
-    final selectedDateEvents = _getEventsForDate(_selectedDate);
 
     return Scaffold(
       body: Column(
@@ -287,14 +317,18 @@ class _CalendarPageState extends State<CalendarPage> {
                   padding: const EdgeInsets.all(8),
                   child: Row(
                     children: [
-                      for (final day in _daysOfWeek)
+                      for (var i = 0; i < _daysOfWeek.length; i++)
                         Expanded(
                           child: Center(
                             child: Text(
-                              day,
+                              _daysOfWeek[i],
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: colorScheme.onSurfaceVariant,
+                                color:
+                                    i ==
+                                        0 // Sunday
+                                    ? Colors.red
+                                    : colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ),
@@ -325,6 +359,7 @@ class _CalendarPageState extends State<CalendarPage> {
                           date.day == DateTime.now().day &&
                           date.month == DateTime.now().month &&
                           date.year == DateTime.now().year;
+                      final isSunday = date.weekday == 7;
                       final eventsOnDay = _getEventsForDate(date);
                       final eventCount = eventsOnDay
                           .where((e) => e.type == EventType.event)
@@ -356,13 +391,15 @@ class _CalendarPageState extends State<CalendarPage> {
                               Text(
                                 '${date.day}',
                                 style: TextStyle(
-                                  color: isCurrentMonth
-                                      ? (isSelected
-                                            ? colorScheme.onPrimaryContainer
-                                            : colorScheme.onSurface)
-                                      : colorScheme.onSurfaceVariant.withValues(
-                                          alpha: 0.5,
-                                        ),
+                                  color: isSunday
+                                      ? Colors.red
+                                      : (isCurrentMonth
+                                            ? (isSelected
+                                                  ? colorScheme
+                                                        .onPrimaryContainer
+                                                  : colorScheme.onSurface)
+                                            : colorScheme.onSurfaceVariant
+                                                  .withValues(alpha: 0.5)),
                                   fontWeight: isSelected || isToday
                                       ? FontWeight.bold
                                       : FontWeight.normal,
@@ -389,41 +426,6 @@ class _CalendarPageState extends State<CalendarPage> {
                     },
                   ),
                 ),
-
-                // Events list for selected date
-                Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerLow,
-                    border: Border(
-                      top: BorderSide(
-                        color: colorScheme.outline.withValues(alpha: 0.2),
-                      ),
-                    ),
-                  ),
-                  child: selectedDateEvents.isEmpty
-                      ? Center(
-                          child: Text(
-                            t.calendar.noEvents,
-                            style: TextStyle(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(8),
-                          itemCount: selectedDateEvents.length,
-                          itemBuilder: (context, index) {
-                            final event = selectedDateEvents[index];
-                            return EventCard(
-                              event: event,
-                              onTap: () =>
-                                  _showEventDialog(existingEvent: event),
-                              onDelete: () => _deleteEvent(event),
-                            );
-                          },
-                        ),
-                ),
               ],
             ),
           ),
@@ -447,11 +449,24 @@ class _CalendarPageState extends State<CalendarPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             setState(() {
-              _calendarView = CalendarView.month;
+              _calendarView = _previousView;
             });
           },
         ),
         actions: [
+          if (_calendarView != CalendarView.month)
+            IconButton(
+              icon: const Icon(Icons.home),
+              tooltip: 'Today',
+              onPressed: () {
+                setState(() {
+                  _selectedDate = DateTime.now();
+                  _focusedMonth = DateTime.now();
+                  _calendarView = CalendarView.month;
+                });
+                _refreshEvents();
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.today),
             onPressed: () {

@@ -61,6 +61,7 @@ class CalendarEvent {
   final EventType type;
   final String? meetingLink;
   final RecurrenceRule? recurrence;
+  final bool isCompleted;
 
   CalendarEvent({
     required this.id,
@@ -73,6 +74,7 @@ class CalendarEvent {
     this.type = EventType.event,
     this.meetingLink,
     this.recurrence,
+    this.isCompleted = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -91,6 +93,7 @@ class CalendarEvent {
       'type': type.name,
       'meetingLink': meetingLink,
       'recurrence': recurrence?.toJson(),
+      'isCompleted': isCompleted,
     };
   }
 
@@ -120,6 +123,7 @@ class CalendarEvent {
       recurrence: json['recurrence'] != null
           ? RecurrenceRule.fromJson(json['recurrence'] as Map<String, dynamic>)
           : null,
+      isCompleted: json['isCompleted'] as bool? ?? false,
     );
   }
 
@@ -134,6 +138,7 @@ class CalendarEvent {
     EventType? type,
     String? meetingLink,
     RecurrenceRule? recurrence,
+    bool? isCompleted,
   }) {
     return CalendarEvent(
       id: id ?? this.id,
@@ -146,6 +151,7 @@ class CalendarEvent {
       type: type ?? this.type,
       meetingLink: meetingLink ?? this.meetingLink,
       recurrence: recurrence ?? this.recurrence,
+      isCompleted: isCompleted ?? this.isCompleted,
     );
   }
 
