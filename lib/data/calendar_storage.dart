@@ -44,11 +44,7 @@ class CalendarStorage {
 
   static Future<List<CalendarEvent>> getEventsForDate(DateTime date) async {
     final events = await loadEvents();
-    return events.where((e) {
-      return e.date.year == date.year &&
-          e.date.month == date.month &&
-          e.date.day == date.day;
-    }).toList();
+    return events.where((e) => e.occursOn(date)).toList();
   }
 
   static Future<List<CalendarEvent>> getEventsForMonth(
@@ -56,8 +52,20 @@ class CalendarStorage {
     int month,
   ) async {
     final events = await loadEvents();
-    return events.where((e) {
-      return e.date.year == year && e.date.month == month;
-    }).toList();
+    final result = <CalendarEvent>[];
+    
+    // Check each day of the month
+    final firstDay = DateTime(year, month, 1);
+    final lastDay = DateTime(year, month + 1, 0);
+    
+    for (var day = firstDay; day.isBefore(lastDay.add(const Duration(days: 1))); day = day.add(const Duration(days: 1))) {
+      for (final event in events) {
+        if (event.occursOn(day) && !result.any((e) => e.id == event.id && e.date == event.date)) {
+          result.add(event);
+        }
+      }
+    }
+    
+    return result;
   }
 }
