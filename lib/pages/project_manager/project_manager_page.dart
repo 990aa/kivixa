@@ -50,8 +50,6 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Project Manager'),
@@ -200,24 +198,21 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
         color = Colors.blue;
         icon = Icons.schedule;
         label = 'Upcoming';
-        break;
       case ProjectStatus.ongoing:
         color = Colors.orange;
         icon = Icons.work;
         label = 'Ongoing';
-        break;
       case ProjectStatus.completed:
         color = Colors.green;
         icon = Icons.check_circle;
         label = 'Completed';
-        break;
     }
 
     return Chip(
       avatar: Icon(icon, size: 16, color: color),
       label: Text(label),
       labelStyle: TextStyle(color: color, fontSize: 12),
-      backgroundColor: color.withOpacity(0.1),
+      backgroundColor: color.withValues(alpha: 0.1),
       side: BorderSide.none,
       visualDensity: VisualDensity.compact,
     );
