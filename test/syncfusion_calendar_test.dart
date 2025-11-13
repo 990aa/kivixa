@@ -230,11 +230,20 @@ void main() {
         isAllDay: true,
       );
 
+      final event = model.CalendarEvent(
+        id: 'test-2',
+        title: 'All Day Event',
+        date: DateTime(2025, 11, 15),
+        isAllDay: true,
+        type: model.EventType.event,
+      );
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: AppointmentDetailsDialog(
               appointment: appointment,
+              event: event,
               onEdit: () {},
               onDelete: () {},
             ),
@@ -258,11 +267,21 @@ void main() {
         color: Colors.blue,
       );
 
+      final event = model.CalendarEvent(
+        id: 'test-3',
+        title: 'Test Event',
+        date: DateTime(2025, 11, 15),
+        startTime: const TimeOfDay(hour: 9, minute: 0),
+        endTime: const TimeOfDay(hour: 10, minute: 0),
+        type: model.EventType.event,
+      );
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: AppointmentDetailsDialog(
               appointment: appointment,
+              event: event,
               onEdit: () {
                 editCalled = true;
               },
@@ -290,11 +309,21 @@ void main() {
         color: Colors.blue,
       );
 
+      final event = model.CalendarEvent(
+        id: 'test-4',
+        title: 'Test Event',
+        date: DateTime(2025, 11, 15),
+        startTime: const TimeOfDay(hour: 9, minute: 0),
+        endTime: const TimeOfDay(hour: 10, minute: 0),
+        type: model.EventType.event,
+      );
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: AppointmentDetailsDialog(
               appointment: appointment,
+              event: event,
               onEdit: () {},
               onDelete: () {
                 deleteCalled = true;
