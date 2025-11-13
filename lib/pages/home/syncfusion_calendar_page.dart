@@ -17,10 +17,10 @@ class SyncfusionCalendarPage extends StatefulWidget {
 }
 
 class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
-  final CalendarController _calendarController = CalendarController();
+  final _calendarController = CalendarController();
   late CalendarEventDataSource _dataSource;
   CalendarView _currentView = CalendarView.month;
-  DateTime _selectedDate = DateTime.now();
+  var _selectedDate = DateTime.now();
   final List<CalendarView> _allowedViews = [
     CalendarView.day,
     CalendarView.week,
@@ -37,11 +37,11 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
   int _firstDayOfWeek = DateTime.sunday;
   double _startHour = 0;
   double _endHour = 24;
-  List<int> _nonWorkingDays = <int>[DateTime.saturday, DateTime.sunday];
-  bool _showWeekNumber = false;
-  bool _showTrailingAndLeadingDates = true;
-  List<DateTime> _blackoutDates = <DateTime>[];
-  List<TimeRegion> _specialTimeRegions = <TimeRegion>[];
+  var _nonWorkingDays = <int>[DateTime.saturday, DateTime.sunday];
+  var _showWeekNumber = false;
+  var _showTrailingAndLeadingDates = true;
+  var _blackoutDates = <DateTime>[];
+  var _specialTimeRegions = <TimeRegion>[];
 
   @override
   void initState() {
@@ -115,8 +115,8 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
   void _showAppointmentDetails(Appointment appointment) {
     // Find the original CalendarEvent from the appointment
     final event = _dataSource.appointments!.cast<Appointment>().firstWhere(
-          (app) => app.id == appointment.id,
-        );
+      (app) => app.id == appointment.id,
+    );
 
     showDialog(
       context: context,
@@ -208,7 +208,9 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
     CalendarEvent? existingEvent;
     if (appointment != null) {
       final events = await CalendarStorage.loadEvents();
-      existingEvent = events.firstWhere((e) => e.id == appointment.id.toString());
+      existingEvent = events.firstWhere(
+        (e) => e.id == appointment.id.toString(),
+      );
     }
 
     await showDialog(
@@ -335,7 +337,8 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
     MonthCellDetails details,
   ) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isToday = details.date.day == DateTime.now().day &&
+    final isToday =
+        details.date.day == DateTime.now().day &&
         details.date.month == DateTime.now().month &&
         details.date.year == DateTime.now().year;
 
@@ -470,9 +473,7 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
       ),
       body: Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: colorScheme.copyWith(
-            primary: colorScheme.primary,
-          ),
+          colorScheme: colorScheme.copyWith(primary: colorScheme.primary),
         ),
         child: SfCalendar(
           controller: _calendarController,
@@ -560,10 +561,7 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
           cellBorderColor: colorScheme.outline.withValues(alpha: 0.2),
           selectionDecoration: BoxDecoration(
             color: colorScheme.primaryContainer.withValues(alpha: 0.3),
-            border: Border.all(
-              color: colorScheme.primary,
-              width: 2,
-            ),
+            border: Border.all(color: colorScheme.primary, width: 2),
             borderRadius: BorderRadius.circular(4),
           ),
           appointmentTextStyle: TextStyle(
@@ -758,8 +756,9 @@ class CalendarEventDataSource extends CalendarDataSource {
       case RecurrenceType.weekly:
         if (recurrence.weekdays != null && recurrence.weekdays!.isNotEmpty) {
           final days = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
-          final selectedDays =
-              recurrence.weekdays!.map((d) => days[d - 1]).join(',');
+          final selectedDays = recurrence.weekdays!
+              .map((d) => days[d - 1])
+              .join(',');
           return 'FREQ=WEEKLY;INTERVAL=${recurrence.interval};BYDAY=$selectedDays';
         }
         return 'FREQ=WEEKLY;INTERVAL=${recurrence.interval}';
@@ -826,15 +825,10 @@ class AppointmentDetailsDialog extends StatelessWidget {
         ],
       ),
       actions: [
-        TextButton(
-          onPressed: onEdit,
-          child: const Text('Edit'),
-        ),
+        TextButton(onPressed: onEdit, child: const Text('Edit')),
         TextButton(
           onPressed: onDelete,
-          style: TextButton.styleFrom(
-            foregroundColor: colorScheme.error,
-          ),
+          style: TextButton.styleFrom(foregroundColor: colorScheme.error),
           child: const Text('Delete'),
         ),
         TextButton(
@@ -846,7 +840,9 @@ class AppointmentDetailsDialog extends StatelessWidget {
   }
 
   String _formatTime(DateTime time) {
-    final hour = time.hour > 12 ? time.hour - 12 : (time.hour == 0 ? 12 : time.hour);
+    final hour = time.hour > 12
+        ? time.hour - 12
+        : (time.hour == 0 ? 12 : time.hour);
     final minute = time.minute.toString().padLeft(2, '0');
     final period = time.hour >= 12 ? 'PM' : 'AM';
     return '$hour:$minute $period';
@@ -875,8 +871,7 @@ class CalendarSettingsDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) onSave;
 
   @override
-  State<CalendarSettingsDialog> createState() =>
-      _CalendarSettingsDialogState();
+  State<CalendarSettingsDialog> createState() => _CalendarSettingsDialogState();
 }
 
 class _CalendarSettingsDialogState extends State<CalendarSettingsDialog> {
@@ -915,14 +910,8 @@ class _CalendarSettingsDialogState extends State<CalendarSettingsDialog> {
               value: _firstDayOfWeek,
               isExpanded: true,
               items: const [
-                DropdownMenuItem(
-                  value: DateTime.sunday,
-                  child: Text('Sunday'),
-                ),
-                DropdownMenuItem(
-                  value: DateTime.monday,
-                  child: Text('Monday'),
-                ),
+                DropdownMenuItem(value: DateTime.sunday, child: Text('Sunday')),
+                DropdownMenuItem(value: DateTime.monday, child: Text('Monday')),
                 DropdownMenuItem(
                   value: DateTime.saturday,
                   child: Text('Saturday'),
@@ -1178,7 +1167,9 @@ class _EventDialogState extends State<EventDialog> {
             }
 
             final event = CalendarEvent(
-              id: widget.event?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+              id:
+                  widget.event?.id ??
+                  DateTime.now().millisecondsSinceEpoch.toString(),
               title: _titleController.text.trim(),
               description: _descriptionController.text.trim().isEmpty
                   ? null

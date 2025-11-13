@@ -4,8 +4,8 @@ import 'package:kivixa/components/navbar/responsive_navbar.dart';
 import 'package:kivixa/components/settings/update_manager.dart';
 import 'package:kivixa/components/theming/dynamic_material_app.dart';
 import 'package:kivixa/pages/home/browse.dart';
-import 'package:kivixa/pages/home/calendar.dart';
 import 'package:kivixa/pages/home/settings.dart';
+import 'package:kivixa/pages/home/syncfusion_calendar_page.dart';
 import 'package:kivixa/pages/home/whiteboard.dart';
 
 class HomePage extends StatefulWidget {
@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
       duration: const Duration(milliseconds: 300),
       child: switch (widget.subpage) {
         HomePage.browseSubpage => BrowsePage(path: widget.path),
-        HomePage.calendarSubpage => const CalendarPage(),
+        HomePage.calendarSubpage => const SyncfusionCalendarPage(),
         HomePage.whiteboardSubpage => const Whiteboard(),
         HomePage.settingsSubpage => const SettingsPage(),
         _ => const BrowsePage(path: null),
