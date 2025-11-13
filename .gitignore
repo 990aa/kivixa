@@ -44,7 +44,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-RELEASE.md
-DEBUGGING.md
-DO_NOT_DELETE.md
+
 md_files/
