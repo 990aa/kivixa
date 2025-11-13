@@ -852,7 +852,9 @@ class _CalendarPageState extends State<CalendarPage> {
                             style: TextStyle(
                               color: isToday
                                   ? colorScheme.onPrimary
-                                  : (isSunday ? Colors.red : colorScheme.onSurface),
+                                  : (isSunday
+                                        ? Colors.red
+                                        : colorScheme.onSurface),
                               fontWeight: isToday
                                   ? FontWeight.bold
                                   : FontWeight.normal,
@@ -1224,6 +1226,199 @@ class _CalendarPageState extends State<CalendarPage> {
     final firstWeekday = firstDayOfMonth.weekday % 7;
     final dayOffset = index - firstWeekday;
     return firstDayOfMonth.add(Duration(days: dayOffset));
+  }
+
+  bool _isToday(DateTime date) {
+    final now = DateTime.now();
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
+  }
+
+  double _getCurrentTimePosition() {
+    final now = DateTime.now();
+    final minutes = now.hour * 60 + now.minute;
+    return (minutes / 60) * 60.0; // 60 pixels per hour
+  }
+
+  bool _isOverdue(CalendarEvent event) {
+    if (event.type != EventType.task || event.isCompleted) return false;
+    
+    final now = DateTime.now();
+    final eventDateTime = DateTime(
+      event.date.year,
+      event.date.month,
+      event.date.day,
+      event.endTime?.hour ?? 23,
+      event.endTime?.minute ?? 59,
+    );
+    
+    return eventDateTime.isBefore(now);
+  }
+}
+
+// Events List Popup Dialog
+class EventsListDialog extends StatelessWidget {
+  const EventsListDialog({
+    required this.date,
+    required this.events,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onToggleComplete,
+    super.key,
+  });
+
+  final DateTime date;
+  final List<CalendarEvent> events;
+  final void Function(CalendarEvent) onEdit;
+  final void Function(CalendarEvent) onDelete;
+  final void Function(CalendarEvent) onToggleComplete;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    // Sort events by time
+    final sortedEvents = List<CalendarEvent>.from(events)
+      ..sort((a, b) {
+        if (a.isAllDay && !b.isAllDay) return -1;
+        if (!a.isAllDay && b.isAllDay) return 1;
+        if (a.isAllDay && b.isAllDay) return 0;
+        
+        final aMinutes = (a.startTime?.hour ?? 0) * 60 + (a.startTime?.minute ?? 0);
+        final bMinutes = (b.startTime?.hour ?? 0) * 60 + (b.startTime?.minute ?? 0);
+        return aMinutes.compareTo(bMinutes);
+      });
+
+    return AlertDialog(
+      title: Text('${date.day}/${date.month}/${date.year}'),
+      content: SizedBox(
+        width: 400,
+        height: 500,
+        child: ListView.builder(
+          itemCount: sortedEvents.length,
+          itemBuilder: (context, index) {
+            final event = sortedEvents[index];
+            final isOverdue = event.type == EventType.task &&
+                !event.isCompleted &&
+                DateTime.now().isAfter(
+                  DateTime(
+                    event.date.year,
+                    event.date.month,
+                    event.date.day,
+                    event.endTime?.hour ?? 23,
+                    event.endTime?.minute ?? 59,
+                  ),
+                );
+
+            return Card(
+              color: isOverdue
+                  ? Colors.red.withValues(alpha: 0.1)
+                  : (event.type == EventType.event
+                      ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+                      : colorScheme.tertiaryContainer.withValues(alpha: 0.3)),
+              child: ListTile(
+                leading: event.type == EventType.task
+                    ? Checkbox(
+                        value: event.isCompleted,
+                        onChanged: (_) => onToggleComplete(event),
+                      )
+                    : Icon(
+                        Icons.event,
+                        color: colorScheme.primary,
+                      ),
+                title: Text(
+                  event.title,
+                  style: TextStyle(
+                    decoration: event.isCompleted
+                        ? TextDecoration.lineThrough
+                        : null,
+                  ),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (event.description != null && event.description!.isNotEmpty)
+                      Text(
+                        event.description!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    Text(
+                      event.isAllDay
+                          ? 'All Day'
+                          : '${_formatTime(event.startTime!)} - ${_formatTime(event.endTime!)}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isOverdue
+                            ? Colors.red
+                            : colorScheme.onSurfaceVariant,
+                        fontWeight: isOverdue ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                    if (isOverdue)
+                      Text(
+                        'OVERDUE',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                  ],
+                ),
+                trailing: PopupMenuButton(
+                  icon: const Icon(Icons.more_vert),
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'edit',
+                      child: const Row(
+                        children: [
+                          Icon(Icons.edit),
+                          SizedBox(width: 8),
+                          Text('Edit'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, color: Colors.red),
+                          const SizedBox(width: 8),
+                          Text('Delete', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
+                  onSelected: (value) {
+                    if (value == 'edit') {
+                      onEdit(event);
+                    } else if (value == 'delete') {
+                      onDelete(event);
+                    }
+                  },
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
+
+  String _formatTime(TimeOfDay time) {
+    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+    final minute = time.minute.toString().padLeft(2, '0');
+    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+    return '$hour:$minute $period';
   }
 }
 
