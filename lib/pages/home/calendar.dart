@@ -57,7 +57,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
   void _selectDate(DateTime date) {
     final now = DateTime.now();
-    
+
     // Check for double tap
     if (_lastTappedDate != null &&
         _lastTappedDate!.year == date.year &&
@@ -148,7 +148,8 @@ class _CalendarPageState extends State<CalendarPage> {
   Future<void> _showMonthPicker() async {
     final selectedMonth = await showDialog<int>(
       context: context,
-      builder: (context) => MonthPickerDialog(initialMonth: _focusedMonth.month),
+      builder: (context) =>
+          MonthPickerDialog(initialMonth: _focusedMonth.month),
     );
     if (selectedMonth != null) {
       setState(() {
@@ -308,10 +309,10 @@ class _CalendarPageState extends State<CalendarPage> {
                     padding: const EdgeInsets.all(8),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 7,
-                      mainAxisSpacing: 4,
-                      crossAxisSpacing: 4,
-                    ),
+                          crossAxisCount: 7,
+                          mainAxisSpacing: 4,
+                          crossAxisSpacing: 4,
+                        ),
                     itemCount: _getCalendarDaysCount(),
                     itemBuilder: (context, index) {
                       final date = _getDateForIndex(index);
@@ -325,8 +326,12 @@ class _CalendarPageState extends State<CalendarPage> {
                           date.month == DateTime.now().month &&
                           date.year == DateTime.now().year;
                       final eventsOnDay = _getEventsForDate(date);
-                      final eventCount = eventsOnDay.where((e) => e.type == EventType.event).length;
-                      final taskCount = eventsOnDay.where((e) => e.type == EventType.task).length;
+                      final eventCount = eventsOnDay
+                          .where((e) => e.type == EventType.event)
+                          .length;
+                      final taskCount = eventsOnDay
+                          .where((e) => e.type == EventType.task)
+                          .length;
 
                       return InkWell(
                         onTap: () => _selectDate(date),
@@ -355,8 +360,9 @@ class _CalendarPageState extends State<CalendarPage> {
                                       ? (isSelected
                                             ? colorScheme.onPrimaryContainer
                                             : colorScheme.onSurface)
-                                      : colorScheme.onSurfaceVariant
-                                            .withValues(alpha: 0.5),
+                                      : colorScheme.onSurfaceVariant.withValues(
+                                          alpha: 0.5,
+                                        ),
                                   fontWeight: isSelected || isToday
                                       ? FontWeight.bold
                                       : FontWeight.normal,
@@ -503,8 +509,10 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
                 // Events
                 ...dayEvents.where((e) => !e.isAllDay).map((event) {
-                  final startMinutes = (event.startTime!.hour * 60) + event.startTime!.minute;
-                  final endMinutes = (event.endTime!.hour * 60) + event.endTime!.minute;
+                  final startMinutes =
+                      (event.startTime!.hour * 60) + event.startTime!.minute;
+                  final endMinutes =
+                      (event.endTime!.hour * 60) + event.endTime!.minute;
                   final top = (startMinutes / 60) * 60.0;
                   final height = ((endMinutes - startMinutes) / 60) * 60.0;
 
@@ -572,7 +580,8 @@ class _CalendarPageState extends State<CalendarPage> {
                                 dense: true,
                                 title: Text(event.title),
                                 subtitle: Text(t.calendar.allDay),
-                                onTap: () => _showEventDialog(existingEvent: event),
+                                onTap: () =>
+                                    _showEventDialog(existingEvent: event),
                               ),
                             ),
                           )
@@ -593,12 +602,16 @@ class _CalendarPageState extends State<CalendarPage> {
 
   Widget _buildWeekView() {
     final colorScheme = Theme.of(context).colorScheme;
-    final weekStart = _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
+    final weekStart = _selectedDate.subtract(
+      Duration(days: _selectedDate.weekday % 7),
+    );
     final weekDays = List.generate(7, (i) => weekStart.add(Duration(days: i)));
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${_formatDate(weekDays.first)} - ${_formatDate(weekDays.last)}'),
+        title: Text(
+          '${_formatDate(weekDays.first)} - ${_formatDate(weekDays.last)}',
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -616,7 +629,8 @@ class _CalendarPageState extends State<CalendarPage> {
             padding: const EdgeInsets.symmetric(horizontal: 60),
             child: Row(
               children: weekDays.map((day) {
-                final isToday = day.day == DateTime.now().day &&
+                final isToday =
+                    day.day == DateTime.now().day &&
                     day.month == DateTime.now().month &&
                     day.year == DateTime.now().year;
                 return Expanded(
@@ -624,7 +638,15 @@ class _CalendarPageState extends State<CalendarPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day.weekday % 7],
+                        [
+                          'Sun',
+                          'Mon',
+                          'Tue',
+                          'Wed',
+                          'Thu',
+                          'Fri',
+                          'Sat',
+                        ][day.weekday % 7],
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: colorScheme.onSurfaceVariant,
@@ -640,8 +662,12 @@ class _CalendarPageState extends State<CalendarPage> {
                         child: Text(
                           '${day.day}',
                           style: TextStyle(
-                            color: isToday ? colorScheme.onPrimary : colorScheme.onSurface,
-                            fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                            color: isToday
+                                ? colorScheme.onPrimary
+                                : colorScheme.onSurface,
+                            fontWeight: isToday
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
                         ),
                       ),
@@ -698,7 +724,9 @@ class _CalendarPageState extends State<CalendarPage> {
                                 decoration: BoxDecoration(
                                   border: Border(
                                     right: BorderSide(
-                                      color: colorScheme.outline.withValues(alpha: 0.1),
+                                      color: colorScheme.outline.withValues(
+                                        alpha: 0.1,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -741,7 +769,10 @@ class _CalendarPageState extends State<CalendarPage> {
             icon: const Icon(Icons.chevron_left),
             onPressed: () {
               setState(() {
-                _focusedMonth = DateTime(_focusedMonth.year - 1, _focusedMonth.month);
+                _focusedMonth = DateTime(
+                  _focusedMonth.year - 1,
+                  _focusedMonth.month,
+                );
               });
             },
           ),
@@ -749,7 +780,10 @@ class _CalendarPageState extends State<CalendarPage> {
             icon: const Icon(Icons.chevron_right),
             onPressed: () {
               setState(() {
-                _focusedMonth = DateTime(_focusedMonth.year + 1, _focusedMonth.month);
+                _focusedMonth = DateTime(
+                  _focusedMonth.year + 1,
+                  _focusedMonth.month,
+                );
               });
             },
           ),
@@ -787,13 +821,24 @@ class _CalendarPageState extends State<CalendarPage> {
                     Expanded(
                       child: GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 7,
-                        ),
-                        itemCount: DateTime(_focusedMonth.year, month + 1, 0).day,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 7,
+                            ),
+                        itemCount: DateTime(
+                          _focusedMonth.year,
+                          month + 1,
+                          0,
+                        ).day,
                         itemBuilder: (context, day) {
-                          final date = DateTime(_focusedMonth.year, month, day + 1);
-                          final events = _monthEvents.where((e) => e.occursOn(date)).toList();
+                          final date = DateTime(
+                            _focusedMonth.year,
+                            month,
+                            day + 1,
+                          );
+                          final events = _monthEvents
+                              .where((e) => e.occursOn(date))
+                              .toList();
                           return Container(
                             alignment: Alignment.center,
                             child: Stack(
@@ -856,14 +901,24 @@ class _CalendarPageState extends State<CalendarPage> {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  List<String> get _daysOfWeek =>
-      ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  List<String> get _daysOfWeek => [
+    'Sun',
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+  ];
 
   int _getCalendarDaysCount() {
     final firstDayOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month);
     final firstWeekday = firstDayOfMonth.weekday % 7;
-    final daysInMonth =
-        DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0).day;
+    final daysInMonth = DateTime(
+      _focusedMonth.year,
+      _focusedMonth.month + 1,
+      0,
+    ).day;
     return ((firstWeekday + daysInMonth) / 7).ceil() * 7;
   }
 
@@ -913,7 +968,9 @@ class YearPickerDialog extends StatelessWidget {
                     color: isSelected
                         ? colorScheme.onPrimaryContainer
                         : colorScheme.onSurface,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                 ),
               ),
@@ -979,7 +1036,9 @@ class MonthPickerDialog extends StatelessWidget {
                     color: isSelected
                         ? colorScheme.onPrimaryContainer
                         : colorScheme.onSurface,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                 ),
               ),
@@ -1053,7 +1112,8 @@ class EventCard extends StatelessWidget {
                   ),
                 ),
               ),
-            if (event.recurrence != null && event.recurrence!.type != RecurrenceType.none)
+            if (event.recurrence != null &&
+                event.recurrence!.type != RecurrenceType.none)
               Text(
                 _getRecurrenceDescription(event.recurrence!),
                 style: TextStyle(
@@ -1096,7 +1156,9 @@ class EventCard extends StatelessWidget {
       case RecurrenceType.weekly:
         if (recurrence.weekdays != null && recurrence.weekdays!.isNotEmpty) {
           const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-          final selectedDays = recurrence.weekdays!.map((d) => days[d - 1]).join(', ');
+          final selectedDays = recurrence.weekdays!
+              .map((d) => days[d - 1])
+              .join(', ');
           return 'Repeats weekly on $selectedDays';
         }
         return 'Repeats weekly';
@@ -1219,7 +1281,9 @@ class _EventDialogState extends State<EventDialog> {
       recurrence = RecurrenceRule(
         type: _recurrenceType,
         interval: _recurrenceInterval,
-        weekdays: _recurrenceType == RecurrenceType.weekly && _selectedWeekdays.isNotEmpty
+        weekdays:
+            _recurrenceType == RecurrenceType.weekly &&
+                _selectedWeekdays.isNotEmpty
             ? _selectedWeekdays
             : null,
       );
@@ -1312,7 +1376,9 @@ class _EventDialogState extends State<EventDialog> {
                 onTap: _selectDate,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(color: Theme.of(context).colorScheme.outline),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -1328,7 +1394,9 @@ class _EventDialogState extends State<EventDialog> {
                 },
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(color: Theme.of(context).colorScheme.outline),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -1385,10 +1453,7 @@ class _EventDialogState extends State<EventDialog> {
               // Recurrence section
               const Divider(),
               const SizedBox(height: 8),
-              Text(
-                'Repeat',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              Text('Repeat', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               DropdownButtonFormField<RecurrenceType>(
                 value: _recurrenceType,
@@ -1438,7 +1503,10 @@ class _EventDialogState extends State<EventDialog> {
                   children: [
                     for (int i = 1; i <= 7; i++)
                       FilterChip(
-                        label: Text(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i - 1]),
+                        label: Text(
+                          ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i -
+                              1],
+                        ),
                         selected: _selectedWeekdays.contains(i),
                         onSelected: (selected) {
                           setState(() {
@@ -1463,10 +1531,7 @@ class _EventDialogState extends State<EventDialog> {
           onPressed: () => Navigator.pop(context),
           child: Text(t.common.cancel),
         ),
-        FilledButton(
-          onPressed: _save,
-          child: Text(t.common.save),
-        ),
+        FilledButton(onPressed: _save, child: Text(t.common.save)),
       ],
     );
   }
