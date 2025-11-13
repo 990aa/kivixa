@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 class Translations {
   final TranslationsCommon common = TranslationsCommon();
   final TranslationsHome home = TranslationsHome();
+  final TranslationsCalendar calendar = TranslationsCalendar();
   final TranslationsSentry sentry = TranslationsSentry();
   final TranslationsSettings settings = TranslationsSettings();
   final TranslationsLogs logs = TranslationsLogs();
@@ -25,6 +26,7 @@ class TranslationsCommon {
   String get rename => 'Rename';
   String get delete => 'Delete';
   String get error => 'Error';
+  String get save => 'Save';
 }
 
 class TranslationsHome {
@@ -60,6 +62,7 @@ class TranslationsHomeTabs {
   String get home => 'Home';
   String get browse => 'Browse';
   String get whiteboard => 'Whiteboard';
+  String get calendar => 'Calendar';
   String get settings => 'Settings';
 }
 
@@ -67,7 +70,29 @@ class TranslationsHomeTitles {
   String get home => 'Recent notes';
   String get browse => 'Browse';
   String get whiteboard => 'Whiteboard';
+  String get calendar => 'Calendar';
   String get settings => 'Settings';
+}
+
+class TranslationsCalendar {
+  String get calendar => 'Calendar';
+  String get event => 'Event';
+  String get task => 'Task';
+  String get newEvent => 'New Event';
+  String get editEvent => 'Edit Event';
+  String get deleteEvent => 'Delete Event';
+  String deleteConfirmation({required String title}) =>
+      'Are you sure you want to delete "$title"?';
+  String get title => 'Title';
+  String get description => 'Description';
+  String get date => 'Date';
+  String get startTime => 'Start Time';
+  String get endTime => 'End Time';
+  String get allDay => 'All Day';
+  String get meetingLink => 'Meeting Link';
+  String get joinMeeting => 'Join Meeting';
+  String get noEvents => 'No events for this date';
+  String get titleRequired => 'Title is required';
 }
 
 class TranslationsHomeTooltips {

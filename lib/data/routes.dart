@@ -32,26 +32,26 @@ abstract class RoutePaths {
 
 abstract class HomeRoutes {
   static String browseFilePath(String filePath) {
-    return '${getRoute(1)}?path=${Uri.encodeQueryComponent(filePath)}';
+    return '${getRoute(0)}?path=${Uri.encodeQueryComponent(filePath)}';
   }
 
   static final PathFunction _homeFunction = pathToFunction(RoutePaths.home);
 
   static List<_Route> get _routes => <_Route>[
     _Route(
-      routePath: _homeFunction({'subpage': HomePage.recentSubpage}),
-      label: t.home.tabs.home,
-      icon: const AdaptiveIcon(
-        icon: Icons.home,
-        cupertinoIcon: CupertinoIcons.house_fill,
-      ),
-    ),
-    _Route(
       routePath: _homeFunction({'subpage': HomePage.browseSubpage}),
       label: t.home.tabs.browse,
       icon: const AdaptiveIcon(
         icon: Icons.folder,
         cupertinoIcon: CupertinoIcons.folder_fill,
+      ),
+    ),
+    _Route(
+      routePath: _homeFunction({'subpage': HomePage.calendarSubpage}),
+      label: t.home.tabs.calendar,
+      icon: const AdaptiveIcon(
+        icon: Icons.calendar_month,
+        cupertinoIcon: CupertinoIcons.calendar,
       ),
     ),
     _Route(
