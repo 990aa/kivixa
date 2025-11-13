@@ -17,6 +17,7 @@ import 'package:kivixa/pages/editor/editor.dart';
 import 'package:kivixa/pages/home/home.dart';
 import 'package:kivixa/pages/logs.dart';
 import 'package:kivixa/pages/markdown/markdown_editor.dart';
+import 'package:kivixa/services/notification_service.dart';
 import 'package:logging/logging.dart';
 import 'package:path_to_regexp/path_to_regexp.dart';
 import 'package:pdfrx/pdfrx.dart';
@@ -102,6 +103,7 @@ Future<void> appRunner(List<String> args) async {
     Printing.info().then((info) {
       Editor.canRasterPdf = info.canRaster;
     }),
+    NotificationService.instance.initialize(),
   ]);
 
   stows.customDataDir.addListener(FileManager.migrateDataDir);

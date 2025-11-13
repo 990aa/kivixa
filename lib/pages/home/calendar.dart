@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kivixa/data/calendar_storage.dart';
 import 'package:kivixa/data/models/calendar_event.dart';
 import 'package:kivixa/i18n/strings.g.dart';
+import 'package:kivixa/services/notification_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum CalendarView { month, week, day, year }
@@ -107,6 +108,13 @@ class _CalendarPageState extends State<CalendarPage> {
         onToggleComplete: (event) async {
           final updated = event.copyWith(isCompleted: !event.isCompleted);
           await CalendarStorage.updateEvent(updated);
+          // Cancel overdue notifications if task is completed
+          if (updated.isCompleted) {
+            await NotificationService.instance.cancelEventNotifications(updated);
+          } else {
+            // Reschedule notifications if uncompleted
+            await NotificationService.instance.scheduleEventNotification(updated);
+          }
           await _refreshEvents();
           // Close and reopen dialog to show updated state
           if (context.mounted) {
@@ -127,9 +135,13 @@ class _CalendarPageState extends State<CalendarPage> {
         onSave: (event) async {
           if (existingEvent != null) {
             await CalendarStorage.updateEvent(event);
+            // Cancel old notifications and schedule new ones
+            await NotificationService.instance.cancelEventNotifications(existingEvent);
           } else {
             await CalendarStorage.addEvent(event);
           }
+          // Schedule notifications for the event
+          await NotificationService.instance.scheduleEventNotification(event);
           _refreshEvents();
         },
       ),
@@ -160,6 +172,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
     if (confirmed ?? false) {
       await CalendarStorage.deleteEvent(event.id);
+      await NotificationService.instance.cancelEventNotifications(event);
       _refreshEvents();
     }
   }
