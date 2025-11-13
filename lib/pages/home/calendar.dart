@@ -600,30 +600,35 @@ class _CalendarPageState extends State<CalendarPage> {
                             child: Padding(
                               padding: const EdgeInsets.all(8),
                               child: Column(
+                                mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    event.title,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: event.type == EventType.event
-                                          ? colorScheme.onPrimaryContainer
-                                          : colorScheme.onTertiaryContainer,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  if (height > 45 && event.description != null)
-                                    Text(
-                                      event.description!,
+                                  Flexible(
+                                    child: Text(
+                                      event.title,
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
                                         color: event.type == EventType.event
                                             ? colorScheme.onPrimaryContainer
                                             : colorScheme.onTertiaryContainer,
                                       ),
-                                      maxLines: 2,
+                                      maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  if (height > 45 && event.description != null)
+                                    Flexible(
+                                      child: Text(
+                                        event.description!,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: event.type == EventType.event
+                                              ? colorScheme.onPrimaryContainer
+                                              : colorScheme.onTertiaryContainer,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                 ],
                               ),
@@ -1074,7 +1079,9 @@ class _CalendarPageState extends State<CalendarPage> {
                     const SizedBox(height: 4),
                     // Weekday headers
                     Row(
-                      children: _daysOfWeek.map((day) {
+                      children: _daysOfWeek.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final day = entry.value;
                         return Expanded(
                           child: Center(
                             child: Text(
@@ -1082,7 +1089,9 @@ class _CalendarPageState extends State<CalendarPage> {
                               style: TextStyle(
                                 fontSize: 8,
                                 fontWeight: FontWeight.bold,
-                                color: colorScheme.onSurfaceVariant,
+                                color: index == 0
+                                    ? Colors.red
+                                    : colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ),
@@ -1129,7 +1138,36 @@ class _CalendarPageState extends State<CalendarPage> {
                               final events = _monthEvents
                                   .where((e) => e.occursOn(date))
                                   .toList();
-                              final hasEvents = events.isNotEmpty;
+                              final hasEvents = events
+                                  .where((e) => e.type == EventType.event)
+                                  .isNotEmpty;
+                              final hasTasks = events
+                                  .where((e) => e.type == EventType.task)
+                                  .isNotEmpty;
+                              final completedTasks = events.where(
+                                (e) =>
+                                    e.type == EventType.task && e.isCompleted,
+                              );
+                              final incompleteTasks = events.where(
+                                (e) =>
+                                    e.type == EventType.task && !e.isCompleted,
+                              );
+
+                              // Check for overdue tasks
+                              final hasOverdueTasks = incompleteTasks.any((
+                                task,
+                              ) {
+                                final taskDateTime = DateTime(
+                                  task.date.year,
+                                  task.date.month,
+                                  task.date.day,
+                                  task.endTime?.hour ?? 23,
+                                  task.endTime?.minute ?? 59,
+                                );
+                                return taskDateTime.isBefore(DateTime.now());
+                              });
+
+                              final isSunday = date.weekday == 7;
 
                               return GestureDetector(
                                 onTap: () {
@@ -1142,24 +1180,60 @@ class _CalendarPageState extends State<CalendarPage> {
                                 child: Container(
                                   margin: const EdgeInsets.all(1),
                                   alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: hasEvents
-                                        ? colorScheme.primaryContainer
-                                              .withValues(alpha: 0.5)
-                                        : null,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    '${date.day}',
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: hasEvents
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                      color: hasEvents
-                                          ? colorScheme.onPrimaryContainer
-                                          : colorScheme.onSurface,
-                                    ),
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Text(
+                                        '${date.day}',
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          color: isSunday
+                                              ? Colors.red
+                                              : colorScheme.onSurface,
+                                        ),
+                                      ),
+                                      // Event and task indicators at bottom
+                                      if (hasEvents || hasTasks)
+                                        Positioned(
+                                          bottom: 0,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              if (hasEvents)
+                                                Container(
+                                                  width: 3,
+                                                  height: 3,
+                                                  margin: const EdgeInsets.only(
+                                                    right: 1,
+                                                  ),
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                        color: Colors.orange,
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                ),
+                                              if (hasTasks)
+                                                Container(
+                                                  width: 3,
+                                                  height: 3,
+                                                  decoration: BoxDecoration(
+                                                    color: hasOverdueTasks
+                                                        ? Colors.red
+                                                        : (completedTasks
+                                                                      .length ==
+                                                                  incompleteTasks
+                                                                          .length +
+                                                                      completedTasks
+                                                                          .length
+                                                              ? Colors.grey
+                                                              : Colors.green),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 ),
                               );
@@ -1243,7 +1317,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
   bool _isOverdue(CalendarEvent event) {
     if (event.type != EventType.task || event.isCompleted) return false;
-    
+
     final now = DateTime.now();
     final eventDateTime = DateTime(
       event.date.year,
@@ -1252,13 +1326,13 @@ class _CalendarPageState extends State<CalendarPage> {
       event.endTime?.hour ?? 23,
       event.endTime?.minute ?? 59,
     );
-    
+
     return eventDateTime.isBefore(now);
   }
 }
 
 // Events List Popup Dialog
-class EventsListDialog extends StatelessWidget {
+class EventsListDialog extends StatefulWidget {
   const EventsListDialog({
     required this.date,
     required this.events,
@@ -1275,135 +1349,209 @@ class EventsListDialog extends StatelessWidget {
   final void Function(CalendarEvent) onToggleComplete;
 
   @override
+  State<EventsListDialog> createState() => _EventsListDialogState();
+}
+
+enum EventFilter { all, events, tasks }
+
+class _EventsListDialogState extends State<EventsListDialog> {
+  var _filter = EventFilter.all;
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
+    // Filter events based on selection
+    var filteredEvents = widget.events;
+    if (_filter == EventFilter.events) {
+      filteredEvents = widget.events
+          .where((e) => e.type == EventType.event)
+          .toList();
+    } else if (_filter == EventFilter.tasks) {
+      filteredEvents = widget.events
+          .where((e) => e.type == EventType.task)
+          .toList();
+    }
+
     // Sort events by time
-    final sortedEvents = List<CalendarEvent>.from(events)
+    final sortedEvents = List<CalendarEvent>.from(filteredEvents)
       ..sort((a, b) {
         if (a.isAllDay && !b.isAllDay) return -1;
         if (!a.isAllDay && b.isAllDay) return 1;
         if (a.isAllDay && b.isAllDay) return 0;
-        
-        final aMinutes = (a.startTime?.hour ?? 0) * 60 + (a.startTime?.minute ?? 0);
-        final bMinutes = (b.startTime?.hour ?? 0) * 60 + (b.startTime?.minute ?? 0);
+
+        final aMinutes =
+            (a.startTime?.hour ?? 0) * 60 + (a.startTime?.minute ?? 0);
+        final bMinutes =
+            (b.startTime?.hour ?? 0) * 60 + (b.startTime?.minute ?? 0);
         return aMinutes.compareTo(bMinutes);
       });
 
     return AlertDialog(
-      title: Text('${date.day}/${date.month}/${date.year}'),
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('${widget.date.day}/${widget.date.month}/${widget.date.year}'),
+          const SizedBox(height: 8),
+          SegmentedButton<EventFilter>(
+            segments: const [
+              ButtonSegment(
+                value: EventFilter.all,
+                label: Text('All'),
+                icon: Icon(Icons.list),
+              ),
+              ButtonSegment(
+                value: EventFilter.events,
+                label: Text('Events'),
+                icon: Icon(Icons.event),
+              ),
+              ButtonSegment(
+                value: EventFilter.tasks,
+                label: Text('Tasks'),
+                icon: Icon(Icons.task_alt),
+              ),
+            ],
+            selected: {_filter},
+            onSelectionChanged: (Set<EventFilter> newSelection) {
+              setState(() {
+                _filter = newSelection.first;
+              });
+            },
+          ),
+        ],
+      ),
       content: SizedBox(
         width: 400,
         height: 500,
-        child: ListView.builder(
-          itemCount: sortedEvents.length,
-          itemBuilder: (context, index) {
-            final event = sortedEvents[index];
-            final isOverdue = event.type == EventType.task &&
-                !event.isCompleted &&
-                DateTime.now().isAfter(
-                  DateTime(
-                    event.date.year,
-                    event.date.month,
-                    event.date.day,
-                    event.endTime?.hour ?? 23,
-                    event.endTime?.minute ?? 59,
-                  ),
-                );
-
-            return Card(
-              color: isOverdue
-                  ? Colors.red.withValues(alpha: 0.1)
-                  : (event.type == EventType.event
-                      ? colorScheme.primaryContainer.withValues(alpha: 0.3)
-                      : colorScheme.tertiaryContainer.withValues(alpha: 0.3)),
-              child: ListTile(
-                leading: event.type == EventType.task
-                    ? Checkbox(
-                        value: event.isCompleted,
-                        onChanged: (_) => onToggleComplete(event),
-                      )
-                    : Icon(
-                        Icons.event,
-                        color: colorScheme.primary,
-                      ),
-                title: Text(
-                  event.title,
-                  style: TextStyle(
-                    decoration: event.isCompleted
-                        ? TextDecoration.lineThrough
-                        : null,
-                  ),
+        child: sortedEvents.isEmpty
+            ? Center(
+                child: Text(
+                  _filter == EventFilter.events
+                      ? 'No events'
+                      : _filter == EventFilter.tasks
+                      ? 'No tasks'
+                      : 'No events or tasks',
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
                 ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (event.description != null && event.description!.isNotEmpty)
-                      Text(
-                        event.description!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    Text(
-                      event.isAllDay
-                          ? 'All Day'
-                          : '${_formatTime(event.startTime!)} - ${_formatTime(event.endTime!)}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isOverdue
-                            ? Colors.red
-                            : colorScheme.onSurfaceVariant,
-                        fontWeight: isOverdue ? FontWeight.bold : FontWeight.normal,
-                      ),
-                    ),
-                    if (isOverdue)
-                      Text(
-                        'OVERDUE',
+              )
+            : ListView.builder(
+                itemCount: sortedEvents.length,
+                itemBuilder: (context, index) {
+                  final event = sortedEvents[index];
+                  final isOverdue =
+                      event.type == EventType.task &&
+                      !event.isCompleted &&
+                      DateTime.now().isAfter(
+                        DateTime(
+                          event.date.year,
+                          event.date.month,
+                          event.date.day,
+                          event.endTime?.hour ?? 23,
+                          event.endTime?.minute ?? 59,
+                        ),
+                      );
+
+                  return Card(
+                    color: isOverdue
+                        ? Colors.red.withValues(alpha: 0.1)
+                        : (event.type == EventType.event
+                              ? colorScheme.primaryContainer.withValues(
+                                  alpha: 0.3,
+                                )
+                              : colorScheme.tertiaryContainer.withValues(
+                                  alpha: 0.3,
+                                )),
+                    child: ListTile(
+                      leading: event.type == EventType.task
+                          ? Checkbox(
+                              value: event.isCompleted,
+                              onChanged: (_) => widget.onToggleComplete(event),
+                            )
+                          : Icon(Icons.event, color: colorScheme.primary),
+                      title: Text(
+                        event.title,
                         style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
+                          decoration: event.isCompleted
+                              ? TextDecoration.lineThrough
+                              : null,
                         ),
                       ),
-                  ],
-                ),
-                trailing: PopupMenuButton(
-                  icon: const Icon(Icons.more_vert),
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 'edit',
-                      child: const Row(
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.edit),
-                          SizedBox(width: 8),
-                          Text('Edit'),
+                          if (event.description != null &&
+                              event.description!.isNotEmpty)
+                            Text(
+                              event.description!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          Text(
+                            event.isAllDay
+                                ? 'All Day'
+                                : '${_formatTime(event.startTime!)} - ${_formatTime(event.endTime!)}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isOverdue
+                                  ? Colors.red
+                                  : colorScheme.onSurfaceVariant,
+                              fontWeight: isOverdue
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                          if (isOverdue)
+                            const Text(
+                              'OVERDUE',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                         ],
                       ),
-                    ),
-                    PopupMenuItem(
-                      value: 'delete',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete, color: Colors.red),
-                          const SizedBox(width: 8),
-                          Text('Delete', style: TextStyle(color: Colors.red)),
+                      trailing: PopupMenuButton(
+                        icon: const Icon(Icons.more_vert),
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'edit',
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit),
+                                SizedBox(width: 8),
+                                Text('Edit'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete, color: Colors.red),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Delete',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            widget.onEdit(event);
+                          } else if (value == 'delete') {
+                            widget.onDelete(event);
+                          }
+                        },
                       ),
                     ),
-                  ],
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      onEdit(event);
-                    } else if (value == 'delete') {
-                      onDelete(event);
-                    }
-                  },
-                ),
+                  );
+                },
               ),
-            );
-          },
-        ),
       ),
       actions: [
         TextButton(
