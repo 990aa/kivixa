@@ -53,19 +53,24 @@ class CalendarStorage {
   ) async {
     final events = await loadEvents();
     final result = <CalendarEvent>[];
-    
+
     // Check each day of the month
     final firstDay = DateTime(year, month, 1);
     final lastDay = DateTime(year, month + 1, 0);
-    
-    for (var day = firstDay; day.isBefore(lastDay.add(const Duration(days: 1))); day = day.add(const Duration(days: 1))) {
+
+    for (
+      var day = firstDay;
+      day.isBefore(lastDay.add(const Duration(days: 1)));
+      day = day.add(const Duration(days: 1))
+    ) {
       for (final event in events) {
-        if (event.occursOn(day) && !result.any((e) => e.id == event.id && e.date == event.date)) {
+        if (event.occursOn(day) &&
+            !result.any((e) => e.id == event.id && e.date == event.date)) {
           result.add(event);
         }
       }
     }
-    
+
     return result;
   }
 }

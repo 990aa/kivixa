@@ -2,14 +2,7 @@ import 'package:flutter/material.dart';
 
 enum EventType { event, task }
 
-enum RecurrenceType {
-  none,
-  daily,
-  weekly,
-  monthly,
-  yearly,
-  custom,
-}
+enum RecurrenceType { none, daily, weekly, monthly, yearly, custom }
 
 class RecurrenceRule {
   final RecurrenceType type;
@@ -203,7 +196,7 @@ class CalendarEvent {
         return targetDate.day == eventDate.day &&
             (targetDate.year - eventDate.year) * 12 +
                     (targetDate.month - eventDate.month) %
-                recurrence!.interval ==
+                        recurrence!.interval ==
                 0;
 
       case RecurrenceType.yearly:
