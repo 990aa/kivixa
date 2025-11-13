@@ -6,8 +6,8 @@ import 'package:kivixa/pages/home/syncfusion_calendar_page.dart';
 
 void main() {
   group('CalendarEventDataSource Tests', () {
-    test('should convert CalendarEvent to Appointment correctly', () {
-      final event = CalendarEvent(
+    test('should convert model.CalendarEvent to Appointment correctly', () {
+      final event = model.CalendarEvent(
         id: 'test-1',
         title: 'Test Event',
         description: 'Test Description',
@@ -15,7 +15,7 @@ void main() {
         startTime: const TimeOfDay(hour: 9, minute: 0),
         endTime: const TimeOfDay(hour: 10, minute: 0),
         isAllDay: false,
-        type: EventType.event,
+        type: model.EventType.event,
       );
 
       final dataSource = CalendarEventDataSource([event]);
@@ -29,12 +29,12 @@ void main() {
     });
 
     test('should handle all-day events', () {
-      final event = CalendarEvent(
+      final event = model.CalendarEvent(
         id: 'test-2',
         title: 'All Day Event',
         date: DateTime(2025, 11, 15),
         isAllDay: true,
-        type: EventType.event,
+        type: model.EventType.event,
       );
 
       final dataSource = CalendarEventDataSource([event]);
@@ -43,32 +43,32 @@ void main() {
     });
 
     test('should generate daily recurrence rule correctly', () {
-      final event = CalendarEvent(
+      final event = model.CalendarEvent(
         id: 'test-3',
         title: 'Daily Event',
         date: DateTime(2025, 11, 15),
         startTime: const TimeOfDay(hour: 9, minute: 0),
         endTime: const TimeOfDay(hour: 10, minute: 0),
-        type: EventType.event,
-        recurrence: RecurrenceRule(type: RecurrenceType.daily, interval: 1),
+        type: model.EventType.event,
+        recurrence: model.RecurrenceRule(type: model.RecurrenceType.daily, interval: 1),
       );
 
       final dataSource = CalendarEventDataSource([event]);
       final appointment = dataSource.appointments!.first as Appointment;
-      expect(appointment.recurrenceRule, contains('FREQ=DAILY'));
-      expect(appointment.recurrenceRule, contains('INTERVAL=1'));
+      expect(appointment.model.RecurrenceRule, contains('FREQ=DAILY'));
+      expect(appointment.model.RecurrenceRule, contains('INTERVAL=1'));
     });
 
     test('should generate weekly recurrence rule with weekdays', () {
-      final event = CalendarEvent(
+      final event = model.CalendarEvent(
         id: 'test-4',
         title: 'Weekly Event',
         date: DateTime(2025, 11, 15),
         startTime: const TimeOfDay(hour: 9, minute: 0),
         endTime: const TimeOfDay(hour: 10, minute: 0),
-        type: EventType.event,
-        recurrence: RecurrenceRule(
-          type: RecurrenceType.weekly,
+        type: model.EventType.event,
+        recurrence: model.RecurrenceRule(
+          type: model.RecurrenceType.weekly,
           interval: 1,
           weekdays: [1, 3, 5], // Mon, Wed, Fri
         ),
@@ -76,40 +76,40 @@ void main() {
 
       final dataSource = CalendarEventDataSource([event]);
       final appointment = dataSource.appointments!.first as Appointment;
-      expect(appointment.recurrenceRule, contains('FREQ=WEEKLY'));
-      expect(appointment.recurrenceRule, contains('BYDAY=MO,WE,FR'));
+      expect(appointment.model.RecurrenceRule, contains('FREQ=WEEKLY'));
+      expect(appointment.model.RecurrenceRule, contains('BYDAY=MO,WE,FR'));
     });
 
     test('should generate monthly recurrence rule correctly', () {
-      final event = CalendarEvent(
+      final event = model.CalendarEvent(
         id: 'test-5',
         title: 'Monthly Event',
         date: DateTime(2025, 11, 15),
         startTime: const TimeOfDay(hour: 9, minute: 0),
         endTime: const TimeOfDay(hour: 10, minute: 0),
-        type: EventType.event,
-        recurrence: RecurrenceRule(type: RecurrenceType.monthly, interval: 1),
+        type: model.EventType.event,
+        recurrence: model.RecurrenceRule(type: model.RecurrenceType.monthly, interval: 1),
       );
 
       final dataSource = CalendarEventDataSource([event]);
       final appointment = dataSource.appointments!.first as Appointment;
-      expect(appointment.recurrenceRule, contains('FREQ=MONTHLY'));
+      expect(appointment.model.RecurrenceRule, contains('FREQ=MONTHLY'));
     });
 
     test('should generate yearly recurrence rule correctly', () {
-      final event = CalendarEvent(
+      final event = model.CalendarEvent(
         id: 'test-6',
         title: 'Yearly Event',
         date: DateTime(2025, 11, 15),
         startTime: const TimeOfDay(hour: 9, minute: 0),
         endTime: const TimeOfDay(hour: 10, minute: 0),
-        type: EventType.event,
-        recurrence: RecurrenceRule(type: RecurrenceType.yearly, interval: 1),
+        type: model.EventType.event,
+        recurrence: model.RecurrenceRule(type: model.RecurrenceType.yearly, interval: 1),
       );
 
       final dataSource = CalendarEventDataSource([event]);
       final appointment = dataSource.appointments!.first as Appointment;
-      expect(appointment.recurrenceRule, contains('FREQ=YEARLY'));
+      expect(appointment.model.RecurrenceRule, contains('FREQ=YEARLY'));
     });
 
     test('should handle empty event list', () {
@@ -119,21 +119,21 @@ void main() {
 
     test('should handle multiple events', () {
       final events = [
-        CalendarEvent(
+        model.CalendarEvent(
           id: 'test-7',
           title: 'Event 1',
           date: DateTime(2025, 11, 15),
           startTime: const TimeOfDay(hour: 9, minute: 0),
           endTime: const TimeOfDay(hour: 10, minute: 0),
-          type: EventType.event,
+          type: model.EventType.event,
         ),
-        CalendarEvent(
+        model.CalendarEvent(
           id: 'test-8',
           title: 'Event 2',
           date: DateTime(2025, 11, 16),
           startTime: const TimeOfDay(hour: 14, minute: 0),
           endTime: const TimeOfDay(hour: 15, minute: 0),
-          type: EventType.task,
+          type: model.EventType.task,
         ),
       ];
 
@@ -142,13 +142,13 @@ void main() {
     });
 
     test('should handle events without description', () {
-      final event = CalendarEvent(
+      final event = model.CalendarEvent(
         id: 'test-9',
         title: 'No Description Event',
         date: DateTime(2025, 11, 15),
         startTime: const TimeOfDay(hour: 9, minute: 0),
         endTime: const TimeOfDay(hour: 10, minute: 0),
-        type: EventType.event,
+        type: model.EventType.event,
       );
 
       final dataSource = CalendarEventDataSource([event]);
@@ -157,13 +157,13 @@ void main() {
     });
 
     test('should convert TimeOfDay to DateTime correctly', () {
-      final event = CalendarEvent(
+      final event = model.CalendarEvent(
         id: 'test-10',
         title: 'Time Test',
         date: DateTime(2025, 11, 15),
         startTime: const TimeOfDay(hour: 14, minute: 30),
         endTime: const TimeOfDay(hour: 16, minute: 45),
-        type: EventType.event,
+        type: model.EventType.event,
       );
 
       final dataSource = CalendarEventDataSource([event]);
@@ -469,14 +469,14 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify Task is now selected
-      final segmentedButton = find.byType(SegmentedButton<EventType>);
+      final segmentedButton = find.byType(SegmentedButton<model.EventType>);
       expect(segmentedButton, findsOneWidget);
     });
 
     testWidgets('should create event when valid data is entered', (
       WidgetTester tester,
     ) async {
-      CalendarEvent? savedEvent;
+      model.CalendarEvent? savedEvent;
 
       await tester.pumpWidget(
         MaterialApp(
