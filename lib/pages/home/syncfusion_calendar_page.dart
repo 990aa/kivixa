@@ -1,12 +1,13 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+
 import 'package:kivixa/data/calendar_storage.dart';
 import 'package:kivixa/data/models/calendar_event.dart' as model;
-import 'package:kivixa/services/notification_service.dart';
 import 'package:kivixa/i18n/strings.g.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:kivixa/services/notification_service.dart';
 
 /// Syncfusion Calendar Page with all comprehensive features
 class SyncfusionCalendarPage extends StatefulWidget {
@@ -40,8 +41,8 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
   var _nonWorkingDays = <int>[DateTime.saturday, DateTime.sunday];
   var _showWeekNumber = false;
   var _showTrailingAndLeadingDates = true;
-  var _blackoutDates = <DateTime>[];
-  var _specialTimeRegions = <TimeRegion>[];
+  final _blackoutDates = <DateTime>[];
+  final _specialTimeRegions = <TimeRegion>[];
 
   @override
   void initState() {
@@ -212,6 +213,8 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
         (e) => e.id == appointment.id.toString(),
       );
     }
+
+    if (!mounted) return;
 
     await showDialog(
       context: context,

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
+
 import 'package:kivixa/data/models/calendar_event.dart' as model;
 import 'package:kivixa/pages/home/syncfusion_calendar_page.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 void main() {
   group('CalendarEventDataSource Tests', () {
@@ -321,7 +322,7 @@ void main() {
               firstDayOfWeek: DateTime.sunday,
               startHour: 9.0,
               endHour: 17.0,
-              nonWorkingDays: [DateTime.saturday, DateTime.sunday],
+              nonWorkingDays: const [DateTime.saturday, DateTime.sunday],
               showWeekNumber: false,
               showTrailingAndLeadingDates: true,
               onSave: (_) {},
@@ -350,7 +351,7 @@ void main() {
               firstDayOfWeek: DateTime.sunday,
               startHour: 9.0,
               endHour: 17.0,
-              nonWorkingDays: [],
+              nonWorkingDays: const [],
               showWeekNumber: false,
               showTrailingAndLeadingDates: true,
               onSave: (_) {},
@@ -389,7 +390,7 @@ void main() {
               firstDayOfWeek: DateTime.sunday,
               startHour: 9.0,
               endHour: 17.0,
-              nonWorkingDays: [DateTime.saturday],
+              nonWorkingDays: const [DateTime.saturday],
               showWeekNumber: true,
               showTrailingAndLeadingDates: false,
               onSave: (settings) {
@@ -562,10 +563,7 @@ void main() {
 
     test('should generate RRULE for weekly recurrence with specific days', () {
       const interval = 1;
-      final weekdays = [1, 3, 5]; // Mon, Wed, Fri
-      final days = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
-      final selectedDays = weekdays.map((d) => days[d - 1]).join(',');
-      final rule = 'FREQ=WEEKLY;INTERVAL=$interval;BYDAY=$selectedDays';
+      const rule = 'FREQ=WEEKLY;INTERVAL=$interval;BYDAY=MO,WE,FR';
 
       expect(rule, 'FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,WE,FR');
     });
