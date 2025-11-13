@@ -694,7 +694,7 @@ class CalendarEventDataSource extends CalendarDataSource {
       if (event.recurrence != null &&
           event.recurrence!.type != model.RecurrenceType.none) {
         // Generate recurrence rule string
-        final model.RecurrenceRule = _generateRecurrenceRule(event.recurrence!);
+        final recurrenceRule = _generateRecurrenceRule(event.recurrence!);
 
         final appointment = Appointment(
           id: event.id,
@@ -716,7 +716,7 @@ class CalendarEventDataSource extends CalendarDataSource {
           notes: event.description ?? '',
           color: color,
           isAllDay: event.isAllDay,
-          model.RecurrenceRule: model.RecurrenceRule,
+          recurrenceRule: recurrenceRule,
         );
         appointments.add(appointment);
       } else {
@@ -811,7 +811,7 @@ class AppointmentDetailsDialog extends StatelessWidget {
               ),
             ],
           ),
-          if (appointment.model.RecurrenceRule != null)
+          if (appointment.recurrenceRule != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Row(
