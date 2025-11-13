@@ -290,7 +290,7 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<ProjectStatus>(
-                  value: selectedStatus,
+                  initialValue: selectedStatus,
                   decoration: const InputDecoration(
                     labelText: 'Status',
                     border: OutlineInputBorder(),
@@ -459,7 +459,7 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
       ),
     );
 
-    if (confirmed == true) {
+    if (confirmed ?? false) {
       await ProjectStorage.deleteProject(projectId);
       _loadProjects();
     }
@@ -490,7 +490,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   late TabController _tabController;
   late Project _project;
   List<CalendarEvent> _tasks = [];
-  bool _isLoading = true;
+  var _isLoading = true;
 
   @override
   void initState() {
@@ -527,8 +527,6 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(_project.title),
