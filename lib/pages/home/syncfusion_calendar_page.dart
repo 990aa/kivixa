@@ -1069,6 +1069,7 @@ class EventDialog extends StatefulWidget {
 class _EventDialogState extends State<EventDialog> {
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
+  late final TextEditingController _meetingLinkController;
   late DateTime _selectedDate;
   late TimeOfDay _startTime;
   late TimeOfDay _endTime;
@@ -1082,6 +1083,9 @@ class _EventDialogState extends State<EventDialog> {
     _descriptionController = TextEditingController(
       text: widget.event?.description ?? '',
     );
+    _meetingLinkController = TextEditingController(
+      text: widget.event?.meetingLink ?? '',
+    );
     _selectedDate = widget.event?.date ?? widget.initialDate;
     _startTime = widget.event?.startTime ?? const TimeOfDay(hour: 9, minute: 0);
     _endTime = widget.event?.endTime ?? const TimeOfDay(hour: 10, minute: 0);
@@ -1093,65 +1097,161 @@ class _EventDialogState extends State<EventDialog> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
+    _meetingLinkController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selectDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
+
+  Future<void> _selectTime(bool isStartTime) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: isStartTime ? _startTime : _endTime,
+    );
+    if (picked != null) {
+      setState(() {
+        if (isStartTime) {
+          _startTime = picked;
+        } else {
+          _endTime = picked;
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return AlertDialog(
       title: Text(widget.event == null ? 'New Event' : 'Edit Event'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Title',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
-            ),
-            const SizedBox(height: 16),
-            SegmentedButton<model.EventType>(
-              segments: const [
-                ButtonSegment(
-                  value: model.EventType.event,
-                  label: Text('Event'),
-                  icon: Icon(Icons.event),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600, minWidth: 500),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Title',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.title),
                 ),
-                ButtonSegment(
-                  value: model.EventType.task,
-                  label: Text('Task'),
-                  icon: Icon(Icons.task_alt),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.description),
+                ),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _meetingLinkController,
+                decoration: const InputDecoration(
+                  labelText: 'Meeting Link (optional)',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.link),
+                  hintText: 'https://meet.example.com/...',
+                ),
+                keyboardType: TextInputType.url,
+              ),
+              const SizedBox(height: 16),
+              // Date picker
+              ListTile(
+                leading: const Icon(Icons.calendar_today),
+                title: const Text('Date'),
+                subtitle: Text(
+                  '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}',
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: _selectDate,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: theme.dividerColor),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SegmentedButton<model.EventType>(
+                segments: const [
+                  ButtonSegment(
+                    value: model.EventType.event,
+                    label: Text('Event'),
+                    icon: Icon(Icons.event),
+                  ),
+                  ButtonSegment(
+                    value: model.EventType.task,
+                    label: Text('Task'),
+                    icon: Icon(Icons.task_alt),
+                  ),
+                ],
+                selected: {_eventType},
+                onSelectionChanged: (Set<model.EventType> newSelection) {
+                  setState(() {
+                    _eventType = newSelection.first;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              SwitchListTile(
+                title: const Text('All Day'),
+                value: _isAllDay,
+                onChanged: (value) {
+                  setState(() {
+                    _isAllDay = value;
+                  });
+                },
+              ),
+              if (!_isAllDay) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ListTile(
+                        leading: const Icon(Icons.access_time),
+                        title: const Text('Start Time'),
+                        subtitle: Text(_startTime.format(context)),
+                        onTap: () => _selectTime(true),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(color: theme.dividerColor),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ListTile(
+                        leading: const Icon(Icons.access_time),
+                        title: const Text('End Time'),
+                        subtitle: Text(_endTime.format(context)),
+                        onTap: () => _selectTime(false),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(color: theme.dividerColor),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
-              selected: {_eventType},
-              onSelectionChanged: (Set<model.EventType> newSelection) {
-                setState(() {
-                  _eventType = newSelection.first;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            SwitchListTile(
-              title: const Text('All Day'),
-              value: _isAllDay,
-              onChanged: (value) {
-                setState(() {
-                  _isAllDay = value;
-                });
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       actions: [
@@ -1159,7 +1259,7 @@ class _EventDialogState extends State<EventDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
-        TextButton(
+        FilledButton(
           onPressed: () {
             if (_titleController.text.trim().isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -1176,6 +1276,9 @@ class _EventDialogState extends State<EventDialog> {
               description: _descriptionController.text.trim().isEmpty
                   ? null
                   : _descriptionController.text.trim(),
+              meetingLink: _meetingLinkController.text.trim().isEmpty
+                  ? null
+                  : _meetingLinkController.text.trim(),
               date: _selectedDate,
               startTime: _isAllDay ? null : _startTime,
               endTime: _isAllDay ? null : _endTime,
