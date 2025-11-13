@@ -50,10 +50,7 @@ void main() {
         startTime: const TimeOfDay(hour: 9, minute: 0),
         endTime: const TimeOfDay(hour: 10, minute: 0),
         type: EventType.event,
-        recurrence: RecurrenceRule(
-          type: RecurrenceType.daily,
-          interval: 1,
-        ),
+        recurrence: RecurrenceRule(type: RecurrenceType.daily, interval: 1),
       );
 
       final dataSource = CalendarEventDataSource([event]);
@@ -91,10 +88,7 @@ void main() {
         startTime: const TimeOfDay(hour: 9, minute: 0),
         endTime: const TimeOfDay(hour: 10, minute: 0),
         type: EventType.event,
-        recurrence: RecurrenceRule(
-          type: RecurrenceType.monthly,
-          interval: 1,
-        ),
+        recurrence: RecurrenceRule(type: RecurrenceType.monthly, interval: 1),
       );
 
       final dataSource = CalendarEventDataSource([event]);
@@ -110,10 +104,7 @@ void main() {
         startTime: const TimeOfDay(hour: 9, minute: 0),
         endTime: const TimeOfDay(hour: 10, minute: 0),
         type: EventType.event,
-        recurrence: RecurrenceRule(
-          type: RecurrenceType.yearly,
-          interval: 1,
-        ),
+        recurrence: RecurrenceRule(type: RecurrenceType.yearly, interval: 1),
       );
 
       final dataSource = CalendarEventDataSource([event]);
@@ -177,7 +168,7 @@ void main() {
 
       final dataSource = CalendarEventDataSource([event]);
       final appointment = dataSource.appointments!.first as Appointment;
-      
+
       expect(appointment.startTime.hour, 14);
       expect(appointment.startTime.minute, 30);
       expect(appointment.endTime.hour, 16);
@@ -186,8 +177,9 @@ void main() {
   });
 
   group('AppointmentDetailsDialog Tests', () {
-    testWidgets('should display appointment details correctly',
-        (WidgetTester tester) async {
+    testWidgets('should display appointment details correctly', (
+      WidgetTester tester,
+    ) async {
       final appointment = Appointment(
         id: 'test-1',
         subject: 'Test Meeting',
@@ -216,8 +208,9 @@ void main() {
       expect(find.text('Close'), findsOneWidget);
     });
 
-    testWidgets('should display all-day event correctly',
-        (WidgetTester tester) async {
+    testWidgets('should display all-day event correctly', (
+      WidgetTester tester,
+    ) async {
       final appointment = Appointment(
         id: 'test-2',
         subject: 'All Day Event',
@@ -243,8 +236,9 @@ void main() {
       expect(find.text('All Day'), findsOneWidget);
     });
 
-    testWidgets('should call onEdit when Edit button is tapped',
-        (WidgetTester tester) async {
+    testWidgets('should call onEdit when Edit button is tapped', (
+      WidgetTester tester,
+    ) async {
       var editCalled = false;
       final appointment = Appointment(
         id: 'test-3',
@@ -274,8 +268,9 @@ void main() {
       expect(editCalled, true);
     });
 
-    testWidgets('should call onDelete when Delete button is tapped',
-        (WidgetTester tester) async {
+    testWidgets('should call onDelete when Delete button is tapped', (
+      WidgetTester tester,
+    ) async {
       var deleteCalled = false;
       final appointment = Appointment(
         id: 'test-4',
@@ -307,8 +302,9 @@ void main() {
   });
 
   group('CalendarSettingsDialog Tests', () {
-    testWidgets('should display all settings options',
-        (WidgetTester tester) async {
+    testWidgets('should display all settings options', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -335,8 +331,9 @@ void main() {
       expect(find.text('Cancel'), findsOneWidget);
     });
 
-    testWidgets('should toggle week number switch',
-        (WidgetTester tester) async {
+    testWidgets('should toggle week number switch', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -361,7 +358,7 @@ void main() {
       );
 
       expect(switchFinder, findsOneWidget);
-      
+
       // Tap the switch
       await tester.tap(switchFinder);
       await tester.pumpAndSettle();
@@ -371,8 +368,9 @@ void main() {
       expect(switchWidget.value, true);
     });
 
-    testWidgets('should save settings when Save button is tapped',
-        (WidgetTester tester) async {
+    testWidgets('should save settings when Save button is tapped', (
+      WidgetTester tester,
+    ) async {
       Map<String, dynamic>? savedSettings;
 
       await tester.pumpWidget(
@@ -404,8 +402,9 @@ void main() {
   });
 
   group('EventDialog Tests', () {
-    testWidgets('should display event creation form',
-        (WidgetTester tester) async {
+    testWidgets('should display event creation form', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -426,8 +425,9 @@ void main() {
       expect(find.text('Cancel'), findsOneWidget);
     });
 
-    testWidgets('should show validation error when title is empty',
-        (WidgetTester tester) async {
+    testWidgets('should show validation error when title is empty', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -447,8 +447,9 @@ void main() {
       expect(find.text('Title is required'), findsOneWidget);
     });
 
-    testWidgets('should toggle between Event and Task types',
-        (WidgetTester tester) async {
+    testWidgets('should toggle between Event and Task types', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -463,7 +464,7 @@ void main() {
       // Find and tap Task button
       final taskButton = find.widgetWithText(ButtonSegment, 'Task');
       expect(taskButton, findsOneWidget);
-      
+
       await tester.tap(taskButton);
       await tester.pumpAndSettle();
 
@@ -472,8 +473,9 @@ void main() {
       expect(segmentedButton, findsOneWidget);
     });
 
-    testWidgets('should create event when valid data is entered',
-        (WidgetTester tester) async {
+    testWidgets('should create event when valid data is entered', (
+      WidgetTester tester,
+    ) async {
       CalendarEvent? savedEvent;
 
       await tester.pumpWidget(
@@ -490,10 +492,7 @@ void main() {
       );
 
       // Enter title
-      await tester.enterText(
-        find.byType(TextField).first,
-        'Test Event',
-      );
+      await tester.enterText(find.byType(TextField).first, 'Test Event');
       await tester.pumpAndSettle();
 
       // Tap Save
@@ -513,27 +512,31 @@ void main() {
       final minute = time.minute.toString().padLeft(2, '0');
       final period = time.hour >= 12 ? 'PM' : 'AM';
       final formatted = '$hour:$minute $period';
-      
+
       expect(formatted, '2:30 PM');
     });
 
     test('should format time for midnight correctly', () {
       final time = DateTime(2025, 11, 15, 0, 0);
-      final hour = time.hour > 12 ? time.hour - 12 : (time.hour == 0 ? 12 : time.hour);
+      final hour = time.hour > 12
+          ? time.hour - 12
+          : (time.hour == 0 ? 12 : time.hour);
       final minute = time.minute.toString().padLeft(2, '0');
       final period = time.hour >= 12 ? 'PM' : 'AM';
       final formatted = '$hour:$minute $period';
-      
+
       expect(formatted, '12:00 AM');
     });
 
     test('should format time for noon correctly', () {
       final time = DateTime(2025, 11, 15, 12, 0);
-      final hour = time.hour > 12 ? time.hour - 12 : (time.hour == 0 ? 12 : time.hour);
+      final hour = time.hour > 12
+          ? time.hour - 12
+          : (time.hour == 0 ? 12 : time.hour);
       final minute = time.minute.toString().padLeft(2, '0');
       final period = time.hour >= 12 ? 'PM' : 'AM';
       final formatted = '$hour:$minute $period';
-      
+
       expect(formatted, '12:00 PM');
     });
   });
@@ -551,7 +554,7 @@ void main() {
       final days = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
       final selectedDays = weekdays.map((d) => days[d - 1]).join(',');
       final rule = 'FREQ=WEEKLY;INTERVAL=$interval;BYDAY=$selectedDays';
-      
+
       expect(rule, 'FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,WE,FR');
     });
 
