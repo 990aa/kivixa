@@ -467,7 +467,10 @@ void main() {
       );
 
       expect(find.text('New Event'), findsOneWidget);
-      expect(find.byType(TextField), findsNWidgets(2)); // Title and Description
+      expect(
+        find.byType(TextField),
+        findsNWidgets(3),
+      ); // Title, Description, and Meeting Link
       expect(find.text('Event'), findsOneWidget);
       expect(find.text('Task'), findsOneWidget);
       expect(find.text('All Day'), findsOneWidget);
