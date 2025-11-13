@@ -7,6 +7,7 @@ import 'package:kivixa/data/models/calendar_event.dart' as model;
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/services/notification_service.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Syncfusion Calendar Page with all comprehensive features
 class SyncfusionCalendarPage extends StatefulWidget {
