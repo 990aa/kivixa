@@ -199,11 +199,22 @@ void main() {
         color: Colors.blue,
       );
 
+      final event = model.CalendarEvent(
+        id: 'test-1',
+        title: 'Test Meeting',
+        description: 'Important meeting',
+        date: DateTime(2025, 11, 15),
+        startTime: const TimeOfDay(hour: 9, minute: 0),
+        endTime: const TimeOfDay(hour: 10, minute: 0),
+        type: model.EventType.event,
+      );
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: AppointmentDetailsDialog(
               appointment: appointment,
+              event: event,
               onEdit: () {},
               onDelete: () {},
             ),
