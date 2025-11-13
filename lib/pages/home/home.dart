@@ -7,6 +7,7 @@ import 'package:kivixa/pages/home/browse.dart';
 import 'package:kivixa/pages/home/settings.dart';
 import 'package:kivixa/pages/home/syncfusion_calendar_page.dart';
 import 'package:kivixa/pages/home/whiteboard.dart';
+import 'package:kivixa/pages/project_manager/project_manager_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.subpage, required this.path});
