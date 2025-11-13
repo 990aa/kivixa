@@ -788,12 +788,14 @@ class CalendarEventDataSource extends CalendarDataSource {
 class AppointmentDetailsDialog extends StatelessWidget {
   const AppointmentDetailsDialog({
     required this.appointment,
+    required this.event,
     required this.onEdit,
     required this.onDelete,
     super.key,
   });
 
   final Appointment appointment;
+  final model.CalendarEvent event;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
@@ -832,6 +834,20 @@ class AppointmentDetailsDialog extends StatelessWidget {
                   const SizedBox(width: 8),
                   const Text('Recurring event'),
                 ],
+              ),
+            ),
+          if (event.meetingLink != null && event.meetingLink!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  final url = Uri.parse(event.meetingLink!);
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                  }
+                },
+                icon: const Icon(Icons.link),
+                label: const Text('Join Meeting'),
               ),
             ),
         ],
