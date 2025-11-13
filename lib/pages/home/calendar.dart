@@ -1155,7 +1155,15 @@ class EventCard extends StatelessWidget {
         return 'Repeats daily';
       case RecurrenceType.weekly:
         if (recurrence.weekdays != null && recurrence.weekdays!.isNotEmpty) {
-          var days = <String>['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+          final days = <String>[
+            'Mon',
+            'Tue',
+            'Wed',
+            'Thu',
+            'Fri',
+            'Sat',
+            'Sun',
+          ];
           final selectedDays = recurrence.weekdays!
               .map((d) => days[d - 1])
               .join(', ');
@@ -1202,8 +1210,8 @@ class _EventDialogState extends State<EventDialog> {
   late bool _isAllDay;
   late EventType _eventType;
   late RecurrenceType _recurrenceType;
-  List<int> _selectedWeekdays = [];
-  int _recurrenceInterval = 1;
+  var _selectedWeekdays = <int>[];
+  var _recurrenceInterval = 1;
 
   @override
   void initState() {
