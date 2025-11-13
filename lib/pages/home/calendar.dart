@@ -107,7 +107,12 @@ class _CalendarPageState extends State<CalendarPage> {
         onToggleComplete: (event) async {
           final updated = event.copyWith(isCompleted: !event.isCompleted);
           await CalendarStorage.updateEvent(updated);
-          _refreshEvents();
+          await _refreshEvents();
+          // Close and reopen dialog to show updated state
+          if (context.mounted) {
+            Navigator.pop(context);
+            _showEventsPopup(date);
+          }
         },
       ),
     );
@@ -1358,18 +1363,39 @@ class _EventsListDialogState extends State<EventsListDialog> {
           .toList();
     }
 
-    // Sort events by time
+    // Sort events by time and tasks by deadline
     final sortedEvents = List<CalendarEvent>.from(filteredEvents)
       ..sort((a, b) {
-        if (a.isAllDay && !b.isAllDay) return -1;
-        if (!a.isAllDay && b.isAllDay) return 1;
-        if (a.isAllDay && b.isAllDay) return 0;
+        // Separate logic for events and tasks
+        if (a.type == EventType.task && b.type == EventType.task) {
+          // Both are tasks - sort by completion, then by deadline
+          if (a.isCompleted && !b.isCompleted) return 1; // Completed to bottom
+          if (!a.isCompleted && b.isCompleted) return -1; // Incomplete to top
 
-        final aMinutes =
-            (a.startTime?.hour ?? 0) * 60 + (a.startTime?.minute ?? 0);
-        final bMinutes =
-            (b.startTime?.hour ?? 0) * 60 + (b.startTime?.minute ?? 0);
-        return aMinutes.compareTo(bMinutes);
+          // Both same completion status - sort by deadline (endTime)
+          final aMinutes =
+              (a.endTime?.hour ?? 23) * 60 + (a.endTime?.minute ?? 59);
+          final bMinutes =
+              (b.endTime?.hour ?? 23) * 60 + (b.endTime?.minute ?? 59);
+          return aMinutes.compareTo(bMinutes);
+        }
+
+        if (a.type == EventType.event && b.type == EventType.event) {
+          // Both are events - sort by start time
+          if (a.isAllDay && !b.isAllDay) return -1;
+          if (!a.isAllDay && b.isAllDay) return 1;
+          if (a.isAllDay && b.isAllDay) return 0;
+
+          final aMinutes =
+              (a.startTime?.hour ?? 0) * 60 + (a.startTime?.minute ?? 0);
+          final bMinutes =
+              (b.startTime?.hour ?? 0) * 60 + (b.startTime?.minute ?? 0);
+          return aMinutes.compareTo(bMinutes);
+        }
+
+        // Mixed event and task - events first
+        if (a.type == EventType.event) return -1;
+        return 1;
       });
 
     return AlertDialog(
