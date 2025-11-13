@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:kivixa/data/calendar_storage.dart';
-import 'package:kivixa/data/models/calendar_event.dart';
+import 'package:kivixa/data/models/calendar_event.dart' as model;
 import 'package:kivixa/services/notification_service.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -113,7 +113,7 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
   }
 
   void _showAppointmentDetails(Appointment appointment) {
-    // Find the original CalendarEvent from the appointment
+    // Find the original model.CalendarEvent from the appointment
     final event = _dataSource.appointments!.cast<Appointment>().firstWhere(
       (app) => app.id == appointment.id,
     );
@@ -205,7 +205,7 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
     DateTime? initialDate,
     Appointment? appointment,
   }) async {
-    CalendarEvent? existingEvent;
+    model.CalendarEvent? existingEvent;
     if (appointment != null) {
       final events = await CalendarStorage.loadEvents();
       existingEvent = events.firstWhere(
@@ -665,11 +665,11 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
 
 /// Custom Calendar Data Source
 class CalendarEventDataSource extends CalendarDataSource {
-  CalendarEventDataSource(List<CalendarEvent> source) {
+  CalendarEventDataSource(List<model.CalendarEvent> source) {
     appointments = _convertToAppointments(source);
   }
 
-  List<Appointment> _convertToAppointments(List<CalendarEvent> events) {
+  List<Appointment> _convertToAppointments(List<model.CalendarEvent> events) {
     final appointments = <Appointment>[];
     final random = Random();
     final colorCollection = <Color>[
@@ -686,15 +686,15 @@ class CalendarEventDataSource extends CalendarDataSource {
     ];
 
     for (final event in events) {
-      final color = event.type == EventType.event
+      final color = event.type == model.EventType.event
           ? colorCollection[random.nextInt(colorCollection.length)]
           : colorCollection[random.nextInt(colorCollection.length)];
 
       // Handle recurring events - generate occurrences
       if (event.recurrence != null &&
-          event.recurrence!.type != RecurrenceType.none) {
+          event.recurrence!.type != model.RecurrenceType.none) {
         // Generate recurrence rule string
-        final recurrenceRule = _generateRecurrenceRule(event.recurrence!);
+        final model.RecurrenceRule = _generateRecurrenceRule(event.recurrence!);
 
         final appointment = Appointment(
           id: event.id,
@@ -716,7 +716,7 @@ class CalendarEventDataSource extends CalendarDataSource {
           notes: event.description ?? '',
           color: color,
           isAllDay: event.isAllDay,
-          recurrenceRule: recurrenceRule,
+          model.RecurrenceRule: model.RecurrenceRule,
         );
         appointments.add(appointment);
       } else {
@@ -749,11 +749,11 @@ class CalendarEventDataSource extends CalendarDataSource {
     return appointments;
   }
 
-  String _generateRecurrenceRule(RecurrenceRule recurrence) {
+  String _generateRecurrenceRule(model.RecurrenceRule recurrence) {
     switch (recurrence.type) {
-      case RecurrenceType.daily:
+      case model.RecurrenceType.daily:
         return 'FREQ=DAILY;INTERVAL=${recurrence.interval}';
-      case RecurrenceType.weekly:
+      case model.RecurrenceType.weekly:
         if (recurrence.weekdays != null && recurrence.weekdays!.isNotEmpty) {
           final days = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
           final selectedDays = recurrence.weekdays!
@@ -762,9 +762,9 @@ class CalendarEventDataSource extends CalendarDataSource {
           return 'FREQ=WEEKLY;INTERVAL=${recurrence.interval};BYDAY=$selectedDays';
         }
         return 'FREQ=WEEKLY;INTERVAL=${recurrence.interval}';
-      case RecurrenceType.monthly:
+      case model.RecurrenceType.monthly:
         return 'FREQ=MONTHLY;INTERVAL=${recurrence.interval}';
-      case RecurrenceType.yearly:
+      case model.RecurrenceType.yearly:
         return 'FREQ=YEARLY;INTERVAL=${recurrence.interval}';
       default:
         return '';
@@ -811,7 +811,7 @@ class AppointmentDetailsDialog extends StatelessWidget {
               ),
             ],
           ),
-          if (appointment.recurrenceRule != null)
+          if (appointment.model.RecurrenceRule != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Row(
@@ -1056,9 +1056,9 @@ class EventDialog extends StatefulWidget {
     super.key,
   });
 
-  final CalendarEvent? event;
+  final model.CalendarEvent? event;
   final DateTime initialDate;
-  final Function(CalendarEvent) onSave;
+  final Function(model.CalendarEvent) onSave;
 
   @override
   State<EventDialog> createState() => _EventDialogState();
@@ -1071,7 +1071,7 @@ class _EventDialogState extends State<EventDialog> {
   late TimeOfDay _startTime;
   late TimeOfDay _endTime;
   late bool _isAllDay;
-  late EventType _eventType;
+  late model.EventType _eventType;
 
   @override
   void initState() {
@@ -1084,7 +1084,7 @@ class _EventDialogState extends State<EventDialog> {
     _startTime = widget.event?.startTime ?? const TimeOfDay(hour: 9, minute: 0);
     _endTime = widget.event?.endTime ?? const TimeOfDay(hour: 10, minute: 0);
     _isAllDay = widget.event?.isAllDay ?? false;
-    _eventType = widget.event?.type ?? EventType.event;
+    _eventType = widget.event?.type ?? model.EventType.event;
   }
 
   @override
@@ -1119,21 +1119,21 @@ class _EventDialogState extends State<EventDialog> {
               maxLines: 3,
             ),
             const SizedBox(height: 16),
-            SegmentedButton<EventType>(
+            SegmentedButton<model.EventType>(
               segments: const [
                 ButtonSegment(
-                  value: EventType.event,
+                  value: model.EventType.event,
                   label: Text('Event'),
                   icon: Icon(Icons.event),
                 ),
                 ButtonSegment(
-                  value: EventType.task,
+                  value: model.EventType.task,
                   label: Text('Task'),
                   icon: Icon(Icons.task_alt),
                 ),
               ],
               selected: {_eventType},
-              onSelectionChanged: (Set<EventType> newSelection) {
+              onSelectionChanged: (Set<model.EventType> newSelection) {
                 setState(() {
                   _eventType = newSelection.first;
                 });
@@ -1166,7 +1166,7 @@ class _EventDialogState extends State<EventDialog> {
               return;
             }
 
-            final event = CalendarEvent(
+            final event = model.CalendarEvent(
               id:
                   widget.event?.id ??
                   DateTime.now().millisecondsSinceEpoch.toString(),

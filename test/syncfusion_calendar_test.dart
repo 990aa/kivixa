@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:kivixa/data/models/calendar_event.dart';
+import 'package:kivixa/data/models/calendar_event.dart' as model;
 import 'package:kivixa/pages/home/syncfusion_calendar_page.dart';
 
 void main() {
