@@ -639,9 +639,9 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage>
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showEventDialog(),
-        icon: const Icon(Icons.add),
+          _buildProjectsTab(),
+        ],
+      ),
         label: const Text('New Event'),
       ),
     );
