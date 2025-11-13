@@ -21,11 +21,13 @@ class HomePage extends StatefulWidget {
   static const browseSubpage = 'browse';
   static const calendarSubpage = 'calendar';
   static const whiteboardSubpage = 'whiteboard';
+  static const projectsSubpage = 'projects';
   static const settingsSubpage = 'settings';
   static const List<String> subpages = [
     browseSubpage,
     calendarSubpage,
     whiteboardSubpage,
+    projectsSubpage,
     settingsSubpage,
   ];
 }
@@ -55,6 +57,7 @@ class _HomePageState extends State<HomePage> {
         HomePage.browseSubpage => BrowsePage(path: widget.path),
         HomePage.calendarSubpage => const SyncfusionCalendarPage(),
         HomePage.whiteboardSubpage => const Whiteboard(),
+        HomePage.projectsSubpage => const ProjectManagerPage(),
         HomePage.settingsSubpage => const SettingsPage(),
         _ => const BrowsePage(path: null),
       },
