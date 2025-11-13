@@ -1102,6 +1102,8 @@ class _EventDialogState extends State<EventDialog> {
   late TimeOfDay _endTime;
   late bool _isAllDay;
   late model.EventType _eventType;
+  late model.RecurrenceType _recurrenceType;
+  DateTime? _recurrenceEndDate;
 
   @override
   void initState() {
@@ -1118,6 +1120,8 @@ class _EventDialogState extends State<EventDialog> {
     _endTime = widget.event?.endTime ?? const TimeOfDay(hour: 10, minute: 0);
     _isAllDay = widget.event?.isAllDay ?? false;
     _eventType = widget.event?.type ?? model.EventType.event;
+    _recurrenceType = widget.event?.recurrence?.type ?? model.RecurrenceType.none;
+    _recurrenceEndDate = widget.event?.recurrence?.endDate;
   }
 
   @override
@@ -1154,6 +1158,20 @@ class _EventDialogState extends State<EventDialog> {
         } else {
           _endTime = picked;
         }
+      });
+    }
+  }
+
+  Future<void> _selectRecurrenceEndDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _recurrenceEndDate ?? _selectedDate.add(const Duration(days: 30)),
+      firstDate: _selectedDate,
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        _recurrenceEndDate = picked;
       });
     }
   }
@@ -1245,6 +1263,75 @@ class _EventDialogState extends State<EventDialog> {
                   });
                 },
               ),
+              const SizedBox(height: 16),
+              // Recurrence selector
+              DropdownButtonFormField<model.RecurrenceType>(
+                decoration: const InputDecoration(
+                  labelText: 'Repeat',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.repeat),
+                ),
+                value: _recurrenceType,
+                items: const [
+                  DropdownMenuItem(
+                    value: model.RecurrenceType.none,
+                    child: Text('Does not repeat'),
+                  ),
+                  DropdownMenuItem(
+                    value: model.RecurrenceType.daily,
+                    child: Text('Daily'),
+                  ),
+                  DropdownMenuItem(
+                    value: model.RecurrenceType.weekly,
+                    child: Text('Weekly'),
+                  ),
+                  DropdownMenuItem(
+                    value: model.RecurrenceType.monthly,
+                    child: Text('Monthly'),
+                  ),
+                  DropdownMenuItem(
+                    value: model.RecurrenceType.yearly,
+                    child: Text('Yearly'),
+                  ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _recurrenceType = value;
+                      if (value == model.RecurrenceType.none) {
+                        _recurrenceEndDate = null;
+                      }
+                    });
+                  }
+                },
+              ),
+              if (_recurrenceType != model.RecurrenceType.none) ..[
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: const Icon(Icons.event_repeat),
+                  title: const Text('Ends on'),
+                  subtitle: Text(
+                    _recurrenceEndDate != null
+                        ? '${_recurrenceEndDate!.year}-${_recurrenceEndDate!.month.toString().padLeft(2, '0')}-${_recurrenceEndDate!.day.toString().padLeft(2, '0')}'
+                        : 'Never',
+                  ),
+                  trailing: _recurrenceEndDate != null
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, size: 20),
+                          onPressed: () {
+                            setState(() {
+                              _recurrenceEndDate = null;
+                            });
+                          },
+                        )
+                      : const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: _selectRecurrenceEndDate,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(color: theme.dividerColor),
+                  ),
+                ),
+              ],
               if (!_isAllDay) ...[
                 const SizedBox(height: 8),
                 Row(
@@ -1311,6 +1398,12 @@ class _EventDialogState extends State<EventDialog> {
               endTime: _isAllDay ? null : _endTime,
               isAllDay: _isAllDay,
               type: _eventType,
+              recurrence: _recurrenceType != model.RecurrenceType.none
+                  ? model.RecurrenceRule(
+                      type: _recurrenceType,
+                      endDate: _recurrenceEndDate,
+                    )
+                  : null,
             );
 
             widget.onSave(event);
