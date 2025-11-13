@@ -498,10 +498,10 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage>
           ),
         ],
       ),
-      body: Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: colorScheme.copyWith(primary: colorScheme.primary),
-        ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          Theme(
         child: SfCalendar(
           controller: _calendarController,
           view: _currentView,
