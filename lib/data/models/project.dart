@@ -81,7 +81,7 @@ class Project {
       'taskIds': taskIds,
       'createdAt': createdAt.toIso8601String(),
       'completedAt': completedAt?.toIso8601String(),
-      'color': color?.value,
+      'color': color?.toARGB32(),
     };
   }
 

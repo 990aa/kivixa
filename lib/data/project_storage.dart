@@ -4,7 +4,7 @@ import 'package:kivixa/data/models/project.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProjectStorage {
-  static const String _key = 'projects';
+  static const _key = 'projects';
 
   static Future<List<Project>> loadProjects() async {
     try {
