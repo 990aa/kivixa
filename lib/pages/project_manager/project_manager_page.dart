@@ -15,7 +15,7 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<Project> _allProjects = [];
-  bool _isLoading = true;
+  var _isLoading = true;
 
   @override
   void initState() {
