@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:kivixa/data/calendar_storage.dart';
 import 'package:kivixa/data/models/calendar_event.dart' as model;
+import 'package:kivixa/data/models/project.dart';
+import 'package:kivixa/data/project_storage.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/services/notification_service.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -17,11 +19,14 @@ class SyncfusionCalendarPage extends StatefulWidget {
   State<SyncfusionCalendarPage> createState() => _SyncfusionCalendarPageState();
 }
 
-class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
+class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage>
+    with SingleTickerProviderStateMixin {
   final _calendarController = CalendarController();
   late CalendarEventDataSource _dataSource;
   CalendarView _currentView = CalendarView.month;
   var _selectedDate = DateTime.now();
+  late TabController _tabController;
+  List<Project> _projects = [];
   final List<CalendarView> _allowedViews = [
     CalendarView.day,
     CalendarView.week,
@@ -47,10 +52,12 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     _calendarController.view = _currentView;
     _calendarController.displayDate = _selectedDate;
     _dataSource = CalendarEventDataSource([]);
     _loadEvents();
+    _loadProjects();
     _initializeSpecialRegions();
   }
 
@@ -58,6 +65,13 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
     final events = await CalendarStorage.loadEvents();
     setState(() {
       _dataSource = CalendarEventDataSource(events);
+    });
+  }
+
+  Future<void> _loadProjects() async {
+    final projects = await ProjectStorage.loadProjects();
+    setState(() {
+      _projects = projects;
     });
   }
 
@@ -1120,7 +1134,8 @@ class _EventDialogState extends State<EventDialog> {
     _endTime = widget.event?.endTime ?? const TimeOfDay(hour: 10, minute: 0);
     _isAllDay = widget.event?.isAllDay ?? false;
     _eventType = widget.event?.type ?? model.EventType.event;
-    _recurrenceType = widget.event?.recurrence?.type ?? model.RecurrenceType.none;
+    _recurrenceType =
+        widget.event?.recurrence?.type ?? model.RecurrenceType.none;
     _recurrenceEndDate = widget.event?.recurrence?.endDate;
   }
 
@@ -1165,7 +1180,8 @@ class _EventDialogState extends State<EventDialog> {
   Future<void> _selectRecurrenceEndDate() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _recurrenceEndDate ?? _selectedDate.add(const Duration(days: 30)),
+      initialDate:
+          _recurrenceEndDate ?? _selectedDate.add(const Duration(days: 30)),
       firstDate: _selectedDate,
       lastDate: DateTime(2100),
     );
