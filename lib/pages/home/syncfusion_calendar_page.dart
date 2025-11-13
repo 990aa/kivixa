@@ -112,23 +112,33 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage> {
     }
   }
 
-  void _showAppointmentDetails(Appointment appointment) {
-    // Find the original model.CalendarEvent from the appointment
-    final event = _dataSource.appointments!.cast<Appointment>().firstWhere(
-      (app) => app.id == appointment.id,
+  void _showAppointmentDetails(Appointment appointment) async {
+    // Find the original model.CalendarEvent from storage to get meeting link
+    final events = await CalendarStorage.loadEvents();
+    final event = events.firstWhere(
+      (e) => e.id == appointment.id.toString(),
+      orElse: () => model.CalendarEvent(
+        id: appointment.id.toString(),
+        title: appointment.subject,
+        date: appointment.startTime,
+        description: appointment.notes,
+      ),
     );
+
+    if (!mounted) return;
 
     showDialog(
       context: context,
       builder: (context) => AppointmentDetailsDialog(
-        appointment: event,
+        appointment: appointment,
+        event: event,
         onEdit: () {
           Navigator.pop(context);
-          _editAppointment(event);
+          _editAppointment(appointment);
         },
         onDelete: () {
           Navigator.pop(context);
-          _deleteAppointment(event);
+          _deleteAppointment(appointment);
         },
       ),
     );

@@ -11,7 +11,8 @@ class ProjectManagerPage extends StatefulWidget {
   State<ProjectManagerPage> createState() => _ProjectManagerPageState();
 }
 
-class _ProjectManagerPageState extends State<ProjectManagerPage> with SingleTickerProviderStateMixin {
+class _ProjectManagerPageState extends State<ProjectManagerPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<Project> _allProjects = [];
   bool _isLoading = true;
@@ -260,7 +261,9 @@ class _ProjectManagerPageState extends State<ProjectManagerPage> with SingleTick
 
   void _showProjectDialog(Project? project) {
     final titleController = TextEditingController(text: project?.title ?? '');
-    final descriptionController = TextEditingController(text: project?.description ?? '');
+    final descriptionController = TextEditingController(
+      text: project?.description ?? '',
+    );
     ProjectStatus selectedStatus = project?.status ?? ProjectStatus.upcoming;
     Color? selectedColor = project?.color;
 
@@ -321,7 +324,9 @@ class _ProjectManagerPageState extends State<ProjectManagerPage> with SingleTick
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: selectedColor ?? Theme.of(context).colorScheme.primary,
+                      color:
+                          selectedColor ??
+                          Theme.of(context).colorScheme.primary,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey),
                     ),
@@ -351,7 +356,9 @@ class _ProjectManagerPageState extends State<ProjectManagerPage> with SingleTick
                 }
 
                 final newProject = Project(
-                  id: project?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+                  id:
+                      project?.id ??
+                      DateTime.now().millisecondsSinceEpoch.toString(),
                   title: titleController.text.trim(),
                   description: descriptionController.text.trim().isEmpty
                       ? null
@@ -511,10 +518,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     final projectTasks = allTasks
         .where((task) => _project.taskIds.contains(task.id))
         .toList();
-    
+
     // Reload project to get latest changes
     final updatedProject = await ProjectStorage.getProjectById(_project.id);
-    
+
     setState(() {
       _tasks = projectTasks;
       if (updatedProject != null) {
@@ -580,8 +587,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           ],
           Text('Status', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
-          Text(_project.status.name[0].toUpperCase() +
-              _project.status.name.substring(1)),
+          Text(
+            _project.status.name[0].toUpperCase() +
+                _project.status.name.substring(1),
+          ),
           const SizedBox(height: 24),
           Text('Changes', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
@@ -591,8 +600,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           if (_project.pendingChanges.isNotEmpty) ...[
             const Divider(),
             const SizedBox(height: 16),
-            Text('Pending Changes',
-                style: Theme.of(context).textTheme.titleSmall),
+            Text(
+              'Pending Changes',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
             const SizedBox(height: 8),
             ...project.pendingChanges.map((change) => _buildChangeItem(change)),
           ],
@@ -612,8 +623,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         title: Text(
           change.description,
           style: TextStyle(
-            decoration:
-                change.isCompleted ? TextDecoration.lineThrough : null,
+            decoration: change.isCompleted ? TextDecoration.lineThrough : null,
           ),
         ),
         subtitle: Text(
@@ -636,8 +646,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           children: [
             Icon(Icons.task_alt, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            Text('No tasks linked to this project',
-                style: TextStyle(color: Colors.grey[600])),
+            Text(
+              'No tasks linked to this project',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
           ],
         ),
       );
@@ -678,8 +690,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           children: [
             Icon(Icons.timeline, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            Text('No changes recorded yet',
-                style: TextStyle(color: Colors.grey[600])),
+            Text(
+              'No changes recorded yet',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
           ],
         ),
       );
@@ -711,12 +725,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 ),
               ),
               if (!isLast)
-                Expanded(
-                  child: Container(
-                    width: 2,
-                    color: Colors.grey[300],
-                  ),
-                ),
+                Expanded(child: Container(width: 2, color: Colors.grey[300])),
             ],
           ),
           const SizedBox(width: 16),
@@ -733,9 +742,9 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                   const SizedBox(height: 4),
                   Text(
                     _formatDateTime(change.timestamp),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -793,7 +802,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   }
 
   Future<void> _deleteChange(ProjectChange change) async {
-    final changes = [..._project.changes]..removeWhere((c) => c.id == change.id);
+    final changes = [..._project.changes]
+      ..removeWhere((c) => c.id == change.id);
     await ProjectStorage.updateProject(_project.copyWith(changes: changes));
     _loadProjectData();
   }
