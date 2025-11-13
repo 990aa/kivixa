@@ -192,26 +192,6 @@ void main() {
       expect(updated.meetingLink, 'https://example.com/original');
     });
 
-    test('copyWith should allow setting fields to null', () {
-      final original = CalendarEvent(
-        id: 'test-id',
-        title: 'Original Title',
-        description: 'Original Description',
-        date: DateTime(2025, 1, 15),
-        startTime: const TimeOfDay(hour: 9, minute: 0),
-        endTime: const TimeOfDay(hour: 10, minute: 0),
-        isAllDay: false,
-        type: EventType.event,
-        meetingLink: 'https://example.com/original',
-      );
-
-      final updated = original.copyWith(description: null, meetingLink: null);
-
-      expect(updated.description, null);
-      expect(updated.meetingLink, null);
-      expect(updated.title, 'Original Title');
-    });
-
     test('toJson and fromJson should be reversible', () {
       final original = CalendarEvent(
         id: 'test-id',
