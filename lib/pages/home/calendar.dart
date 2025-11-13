@@ -12,8 +12,8 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  DateTime _selectedDate = DateTime.now();
-  DateTime _focusedMonth = DateTime.now();
+  var _selectedDate = DateTime.now();
+  var _focusedMonth = DateTime.now();
   var _monthEvents = <CalendarEvent>[];
 
   @override
