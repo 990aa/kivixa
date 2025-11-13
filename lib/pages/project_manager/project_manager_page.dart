@@ -605,7 +605,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               style: Theme.of(context).textTheme.titleSmall,
             ),
             const SizedBox(height: 8),
-            ...project.pendingChanges.map((change) => _buildChangeItem(change)),
+            ..._project.pendingChanges.map((change) => _buildChangeItem(change)),
           ],
         ],
       ),
