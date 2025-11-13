@@ -1271,7 +1271,7 @@ class _EventDialogState extends State<EventDialog> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.repeat),
                 ),
-                value: _recurrenceType,
+                initialValue: _recurrenceType,
                 items: const [
                   DropdownMenuItem(
                     value: model.RecurrenceType.none,
@@ -1305,7 +1305,7 @@ class _EventDialogState extends State<EventDialog> {
                   }
                 },
               ),
-              if (_recurrenceType != model.RecurrenceType.none) ..[
+              if (_recurrenceType != model.RecurrenceType.none) ...[
                 const SizedBox(height: 16),
                 ListTile(
                   leading: const Icon(Icons.event_repeat),
