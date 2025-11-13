@@ -1,10 +1,8 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kivixa/data/calendar_storage.dart';
 import 'package:kivixa/data/models/calendar_event.dart';
-import 'package:kivixa/data/models/notification_settings.dart';
 import 'package:kivixa/data/notification_settings_storage.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -13,12 +11,11 @@ import 'package:url_launcher/url_launcher.dart';
 class NotificationService {
   NotificationService._();
 
-  static final NotificationService instance = NotificationService._();
+  static final instance = NotificationService._();
 
-  final FlutterLocalNotificationsPlugin _notifications =
-      FlutterLocalNotificationsPlugin();
+  final _notifications = FlutterLocalNotificationsPlugin();
 
-  bool _initialized = false;
+  var _initialized = false;
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -76,13 +73,11 @@ class NotificationService {
           final url = parts[1];
           launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
         }
-        break;
       case 'complete_task':
         if (parts.length > 1) {
           final eventId = parts[1];
           _completeTask(eventId);
         }
-        break;
     }
   }
 
@@ -165,7 +160,7 @@ class NotificationService {
 
     if (event.meetingLink != null) {
       actions.add(
-        AndroidNotificationAction(
+        const AndroidNotificationAction(
           'open_link',
           'Join Meeting',
           showsUserInterface: true,

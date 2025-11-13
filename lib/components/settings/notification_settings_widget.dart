@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/settings/settings_subtitle.dart';
-import 'package:kivixa/components/settings/settings_switch.dart';
 import 'package:kivixa/data/models/notification_settings.dart';
 import 'package:kivixa/data/notification_settings_storage.dart';
 import 'package:kivixa/services/notification_service.dart';

@@ -553,7 +553,6 @@ void main() {
 
     test('Long text truncates with ellipsis', () {
       const longText = 'This is a very long text that would normally overflow';
-      const maxLines = 1;
 
       // TextOverflow.ellipsis ensures text doesn't overflow
       expect(longText.length > 20, true);
