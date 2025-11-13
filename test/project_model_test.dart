@@ -314,7 +314,7 @@ void main() {
       expect(project.taskIds, ['t1']);
       expect(project.createdAt, DateTime(2024, 1, 1));
       expect(project.completedAt, DateTime(2024, 2, 1));
-      expect(project.color?.value, Colors.green.value);
+      expect(project.color?.toARGB32(), Colors.green.toARGB32());
     });
 
     test('handles roundtrip JSON serialization', () {
@@ -354,7 +354,7 @@ void main() {
       expect(deserialized.taskIds, original.taskIds);
       expect(deserialized.createdAt, original.createdAt);
       expect(deserialized.completedAt, original.completedAt);
-      expect(deserialized.color?.value, original.color?.value);
+      expect(deserialized.color?.toARGB32(), original.color?.toARGB32());
     });
 
     test('handles null completedAt in JSON', () {

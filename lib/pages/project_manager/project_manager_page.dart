@@ -779,7 +779,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 );
                 await ProjectStorage.addChangeToProject(_project.id, change);
                 _loadProjectData();
-                if (mounted) Navigator.pop(context);
+                if (context.mounted) Navigator.pop(context);
               }
             },
             child: const Text('Add'),
