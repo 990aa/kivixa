@@ -1314,21 +1314,6 @@ class _CalendarPageState extends State<CalendarPage> {
     final minutes = now.hour * 60 + now.minute;
     return (minutes / 60) * 60.0; // 60 pixels per hour
   }
-
-  bool _isOverdue(CalendarEvent event) {
-    if (event.type != EventType.task || event.isCompleted) return false;
-
-    final now = DateTime.now();
-    final eventDateTime = DateTime(
-      event.date.year,
-      event.date.month,
-      event.date.day,
-      event.endTime?.hour ?? 23,
-      event.endTime?.minute ?? 59,
-    );
-
-    return eventDateTime.isBefore(now);
-  }
 }
 
 // Events List Popup Dialog
