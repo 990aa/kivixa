@@ -470,15 +470,18 @@ void main() {
         ),
       );
 
-      // Find and tap Task button
-      final taskButton = find.widgetWithText(ButtonSegment, 'Task');
+      // Find the segmented button
+      final segmentedButton = find.byType(SegmentedButton<model.EventType>);
+      expect(segmentedButton, findsOneWidget);
+
+      // Find and tap Task button by text
+      final taskButton = find.text('Task');
       expect(taskButton, findsOneWidget);
 
       await tester.tap(taskButton);
       await tester.pumpAndSettle();
 
-      // Verify Task is now selected
-      final segmentedButton = find.byType(SegmentedButton<model.EventType>);
+      // Verify the segmented button still exists
       expect(segmentedButton, findsOneWidget);
     });
 
