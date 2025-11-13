@@ -658,6 +658,30 @@ class _CalendarPageState extends State<CalendarPage> {
                               .toList(),
                         ),
                       ),
+                    // Current time indicator (red line)
+                    if (_isToday(_selectedDate))
+                      Positioned(
+                        top: _getCurrentTimePosition(),
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          height: 2,
+                          color: Colors.red,
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              Expanded(child: Container()),
+                            ],
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -688,11 +712,40 @@ class _CalendarPageState extends State<CalendarPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             setState(() {
-              _calendarView = CalendarView.month;
+              _calendarView = _previousView;
             });
           },
         ),
         actions: [
+          if (_calendarView != CalendarView.month)
+            IconButton(
+              icon: const Icon(Icons.home),
+              tooltip: 'Today',
+              onPressed: () {
+                setState(() {
+                  _selectedDate = DateTime.now();
+                  _focusedMonth = DateTime.now();
+                  _calendarView = CalendarView.month;
+                });
+                _refreshEvents();
+              },
+            ),
+          IconButton(
+            icon: const Icon(Icons.chevron_left),
+            onPressed: () {
+              setState(() {
+                _selectedDate = _selectedDate.subtract(const Duration(days: 7));
+              });
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            onPressed: () {
+              setState(() {
+                _selectedDate = _selectedDate.add(const Duration(days: 7));
+              });
+            },
+          ),
           PopupMenuButton<CalendarView>(
             icon: const Icon(Icons.view_module),
             onSelected: (view) {
@@ -757,45 +810,57 @@ class _CalendarPageState extends State<CalendarPage> {
                     day.day == DateTime.now().day &&
                     day.month == DateTime.now().month &&
                     day.year == DateTime.now().year;
+                final isSunday = day.weekday == 7;
                 return Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        [
-                          'Sun',
-                          'Mon',
-                          'Tue',
-                          'Wed',
-                          'Thu',
-                          'Fri',
-                          'Sat',
-                        ][day.weekday % 7],
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.only(top: 4),
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: isToday ? colorScheme.primary : null,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '${day.day}',
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _previousView = _calendarView;
+                        _selectedDate = day;
+                        _calendarView = CalendarView.day;
+                      });
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          [
+                            'Sun',
+                            'Mon',
+                            'Tue',
+                            'Wed',
+                            'Thu',
+                            'Fri',
+                            'Sat',
+                          ][day.weekday % 7],
                           style: TextStyle(
-                            color: isToday
-                                ? colorScheme.onPrimary
-                                : colorScheme.onSurface,
-                            fontWeight: isToday
-                                ? FontWeight.bold
-                                : FontWeight.normal,
+                            fontWeight: FontWeight.bold,
+                            color: isSunday
+                                ? Colors.red
+                                : colorScheme.onSurfaceVariant,
                           ),
                         ),
-                      ),
-                    ],
+                        Container(
+                          margin: const EdgeInsets.only(top: 4),
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: isToday ? colorScheme.primary : null,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '${day.day}',
+                            style: TextStyle(
+                              color: isToday
+                                  ? colorScheme.onPrimary
+                                  : (isSunday ? Colors.red : colorScheme.onSurface),
+                              fontWeight: isToday
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }).toList(),
@@ -884,11 +949,23 @@ class _CalendarPageState extends State<CalendarPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             setState(() {
-              _calendarView = CalendarView.month;
+              _calendarView = _previousView;
             });
           },
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.home),
+            tooltip: 'Today',
+            onPressed: () {
+              setState(() {
+                _selectedDate = DateTime.now();
+                _focusedMonth = DateTime.now();
+                _calendarView = CalendarView.month;
+              });
+              _refreshEvents();
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.chevron_left),
             onPressed: () {
@@ -977,6 +1054,7 @@ class _CalendarPageState extends State<CalendarPage> {
           return GestureDetector(
             onTap: () {
               setState(() {
+                _previousView = _calendarView;
                 _focusedMonth = DateTime(_focusedMonth.year, month);
                 _calendarView = CalendarView.month;
               });
