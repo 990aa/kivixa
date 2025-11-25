@@ -202,7 +202,7 @@ void main() {
       ];
 
       test('filters by search query in title', () {
-        final query = 'flutter';
+        const query = 'flutter';
         final filtered = projects.where((p) {
           return p.title.toLowerCase().contains(query.toLowerCase());
         }).toList();
@@ -212,7 +212,7 @@ void main() {
       });
 
       test('filters by search query in description', () {
-        final query = 'web';
+        const query = 'web';
         final filtered = projects.where((p) {
           return p.title.toLowerCase().contains(query.toLowerCase()) ||
               (p.description?.toLowerCase().contains(query.toLowerCase()) ??

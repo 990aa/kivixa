@@ -144,7 +144,7 @@ void main() {
     });
 
     test('currentTermsVersion is valid semantic version', () {
-      final version = TermsAndConditionsService.currentTermsVersion;
+      const version = TermsAndConditionsService.currentTermsVersion;
 
       // Should be in format X.Y.Z
       final parts = version.split('.');

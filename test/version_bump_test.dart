@@ -31,16 +31,12 @@ class Version {
         switch (key) {
           case 'MAJOR':
             major = value;
-            break;
           case 'MINOR':
             minor = value;
-            break;
           case 'PATCH':
             patch = value;
-            break;
           case 'BUILD_NUMBER':
             buildNumber = value;
-            break;
         }
       }
     }

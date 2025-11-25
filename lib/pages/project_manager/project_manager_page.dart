@@ -112,14 +112,15 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(120),
+          preferredSize: const Size.fromHeight(130),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Search bar
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 8,
+                  vertical: 4,
                 ),
                 child: TextField(
                   controller: _searchController,
