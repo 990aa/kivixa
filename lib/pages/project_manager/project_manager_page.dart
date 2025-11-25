@@ -1,8 +1,21 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:kivixa/data/calendar_storage.dart';
 import 'package:kivixa/data/models/calendar_event.dart';
 import 'package:kivixa/data/models/project.dart';
 import 'package:kivixa/data/project_storage.dart';
+
+/// Generates a random unique color for projects using HSL for vibrant colors
+Color generateRandomProjectColor() {
+  final random = Random();
+  // Generate vibrant colors by using HSL with high saturation
+  final hue = random.nextDouble() * 360;
+  final saturation = 0.6 + random.nextDouble() * 0.3; // 60-90%
+  final lightness = 0.4 + random.nextDouble() * 0.2; // 40-60%
+  return HSLColor.fromAHSL(1.0, hue, saturation, lightness).toColor();
+}
 
 class ProjectManagerPage extends StatefulWidget {
   const ProjectManagerPage({super.key});
@@ -16,6 +29,9 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
   late TabController _tabController;
   List<Project> _allProjects = [];
   var _isLoading = true;
+  var _searchQuery = '';
+  var _sortBy = 'lastActivity'; // 'lastActivity', 'name', 'created'
+  final _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -27,6 +43,7 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -39,28 +56,185 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
     });
   }
 
+  List<Project> get _filteredProjects {
+    var filtered = _allProjects.where((p) {
+      if (_searchQuery.isNotEmpty) {
+        final query = _searchQuery.toLowerCase();
+        return p.title.toLowerCase().contains(query) ||
+            (p.description?.toLowerCase().contains(query) ?? false);
+      }
+      return true;
+    }).toList();
+
+    // Sort projects
+    switch (_sortBy) {
+      case 'name':
+        filtered.sort((a, b) => a.title.compareTo(b.title));
+      case 'created':
+        filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      case 'lastActivity':
+      default:
+        filtered.sort((a, b) {
+          final aTime = a.lastActivityAt ?? a.createdAt;
+          final bTime = b.lastActivityAt ?? b.createdAt;
+          return bTime.compareTo(aTime);
+        });
+    }
+
+    return filtered;
+  }
+
   List<Project> get _upcomingProjects =>
-      _allProjects.where((p) => p.status == ProjectStatus.upcoming).toList();
+      _filteredProjects.where((p) => p.status == ProjectStatus.upcoming).toList();
 
   List<Project> get _ongoingProjects =>
-      _allProjects.where((p) => p.status == ProjectStatus.ongoing).toList();
+      _filteredProjects.where((p) => p.status == ProjectStatus.ongoing).toList();
 
   List<Project> get _completedProjects =>
-      _allProjects.where((p) => p.status == ProjectStatus.completed).toList();
+      _filteredProjects.where((p) => p.status == ProjectStatus.completed).toList();
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Project Manager'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'All', icon: Icon(Icons.folder)),
-            Tab(text: 'Upcoming', icon: Icon(Icons.schedule)),
-            Tab(text: 'Ongoing', icon: Icon(Icons.work)),
-            Tab(text: 'Completed', icon: Icon(Icons.check_circle)),
-          ],
+        title: const Text('Projects'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
+            onPressed: _loadProjects,
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(120),
+          child: Column(
+            children: [
+              // Search bar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Find a project...',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => _searchQuery = '');
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    filled: true,
+                    fillColor: colorScheme.surfaceContainerHighest,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                  onChanged: (value) => setState(() => _searchQuery = value),
+                ),
+              ),
+              // Stats row
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Row(
+                  children: [
+                    _buildStatChip(
+                      Icons.folder,
+                      '${_allProjects.length}',
+                      'Total',
+                      colorScheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    _buildStatChip(
+                      Icons.play_circle,
+                      '${_allProjects.where((p) => p.status == ProjectStatus.ongoing).length}',
+                      'Active',
+                      Colors.orange,
+                    ),
+                    const SizedBox(width: 8),
+                    _buildStatChip(
+                      Icons.check_circle,
+                      '${_allProjects.where((p) => p.status == ProjectStatus.completed).length}',
+                      'Done',
+                      Colors.green,
+                    ),
+                    const Spacer(),
+                    // Sort dropdown
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.sort),
+                      tooltip: 'Sort by',
+                      onSelected: (value) => setState(() => _sortBy = value),
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'lastActivity',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                color: _sortBy == 'lastActivity'
+                                    ? colorScheme.primary
+                                    : null,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text('Last activity'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'name',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.sort_by_alpha,
+                                color:
+                                    _sortBy == 'name' ? colorScheme.primary : null,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text('Name'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'created',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                color: _sortBy == 'created'
+                                    ? colorScheme.primary
+                                    : null,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text('Date created'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // Tabs
+              TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(text: 'All', icon: Icon(Icons.folder)),
+                  Tab(text: 'Upcoming', icon: Icon(Icons.schedule)),
+                  Tab(text: 'Active', icon: Icon(Icons.play_circle)),
+                  Tab(text: 'Done', icon: Icon(Icons.check_circle)),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
       body: _isLoading
@@ -68,7 +242,7 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
           : TabBarView(
               controller: _tabController,
               children: [
-                _buildProjectList(_allProjects),
+                _buildProjectList(_filteredProjects),
                 _buildProjectList(_upcomingProjects),
                 _buildProjectList(_ongoingProjects),
                 _buildProjectList(_completedProjects),
@@ -77,7 +251,36 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreateProjectDialog(),
         icon: const Icon(Icons.add),
-        label: const Text('New Project'),
+        label: const Text('New'),
+      ),
+    );
+  }
+
+  Widget _buildStatChip(
+    IconData icon,
+    String count,
+    String label,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 4),
+          Text(
+            count,
+            style: TextStyle(fontWeight: FontWeight.bold, color: color, fontSize: 12),
+          ),
+          const SizedBox(width: 2),
+          Text(label, style: TextStyle(color: color, fontSize: 11)),
+        ],
       ),
     );
   }
