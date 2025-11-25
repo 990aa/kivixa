@@ -32,14 +32,15 @@ class TextFileEditor extends StatefulWidget {
 class _TextFileEditorState extends State<TextFileEditor> {
   late QuillController _controller;
   late TextEditingController _fileNameController;
-  final FocusNode _editorFocusNode = FocusNode();
-  final ScrollController _scrollController = ScrollController();
+  final _editorFocusNode = FocusNode();
+  final _scrollController = ScrollController();
 
   var _isLoading = true;
   String? _currentFilePath;
   var _fileName = 'Untitled';
   Timer? _autosaveTimer;
   Timer? _renameTimer;
+  // ignore: unused_field
   var _isEditingFileName = false;
 
   final log = Logger('TextFileEditor');
@@ -266,8 +267,8 @@ class _TextFileEditorState extends State<TextFileEditor> {
     final archive = Archive();
 
     // Content Types
-    final contentTypes =
-        '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    const contentTypes = '''
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
   <Default Extension="xml" ContentType="application/xml"/>
@@ -282,7 +283,8 @@ class _TextFileEditorState extends State<TextFileEditor> {
     );
 
     // Relationships
-    final rels = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    const rels = '''
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
 </Relationships>''';
@@ -300,17 +302,15 @@ class _TextFileEditorState extends State<TextFileEditor> {
 
     // Encode as ZIP (DOCX is a ZIP file)
     final zipEncoder = ZipEncoder();
-    return Uint8List.fromList(zipEncoder.encode(archive) ?? []);
+    return Uint8List.fromList(zipEncoder.encode(archive));
   }
 
   String _convertDeltaToDocx() {
     final buffer = StringBuffer();
-    buffer.write(
-      '''
+    buffer.write('''
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:body>''',
-    );
+  <w:body>''');
 
     final delta = _controller.document.toDelta();
     var currentParagraph = StringBuffer();
@@ -347,11 +347,9 @@ class _TextFileEditorState extends State<TextFileEditor> {
       buffer.write('</w:p>');
     }
 
-    buffer.write(
-      '''
+    buffer.write('''
   </w:body>
-</w:document>''',
-    );
+</w:document>''');
 
     return buffer.toString();
   }
