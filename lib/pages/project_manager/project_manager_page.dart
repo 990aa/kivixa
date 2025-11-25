@@ -996,7 +996,11 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.folder, color: Colors.white, size: 24),
+                            const Icon(
+                              Icons.folder,
+                              color: Colors.white,
+                              size: 24,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -1151,15 +1155,15 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   }
 
   void _showAddTaskDialog() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Task creation coming soon!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Task creation coming soon!')));
   }
 
   void _showLinkNoteDialog() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Note linking coming soon!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Note linking coming soon!')));
   }
 
   Widget _buildOverviewTab() {
@@ -1213,21 +1217,19 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 _project.status == ProjectStatus.completed
                     ? Icons.check_circle
                     : _project.status == ProjectStatus.ongoing
-                        ? Icons.play_circle
-                        : Icons.schedule,
+                    ? Icons.play_circle
+                    : Icons.schedule,
                 color: _project.status == ProjectStatus.completed
                     ? Colors.green
                     : _project.status == ProjectStatus.ongoing
-                        ? Colors.orange
-                        : Colors.blue,
+                    ? Colors.orange
+                    : Colors.blue,
               ),
               title: Text(
                 _project.status.name[0].toUpperCase() +
                     _project.status.name.substring(1),
               ),
-              subtitle: Text(
-                'Created ${_formatDateTime(_project.createdAt)}',
-              ),
+              subtitle: Text('Created ${_formatDateTime(_project.createdAt)}'),
               trailing: Container(
                 width: 20,
                 height: 20,
@@ -1267,9 +1269,9 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               ),
             )
           else
-            ...(_project.timeline.take(5).map(
-              (change) => _buildRecentActivityItem(change),
-            )),
+            ...(_project.timeline
+                .take(5)
+                .map((change) => _buildRecentActivityItem(change))),
         ],
       ),
     );
@@ -1528,9 +1530,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 ),
               ),
               if (!isLast)
-                Expanded(
-                  child: Container(width: 2, color: Colors.grey[300]),
-                ),
+                Expanded(child: Container(width: 2, color: Colors.grey[300])),
             ],
           ),
           const SizedBox(width: 16),
