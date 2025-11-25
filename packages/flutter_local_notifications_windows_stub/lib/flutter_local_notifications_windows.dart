@@ -38,6 +38,10 @@ class WindowsNotificationDetails {
   final String? subtitle;
 }
 
+/// Callback for when a notification is received.
+typedef NotificationReceivedCallback = void Function(
+    NotificationResponse response);
+
 /// A stub implementation of [FlutterLocalNotificationsPlatform] for Windows.
 /// This implementation does nothing and is used to allow building on Windows
 /// without the ATL library requirement.
@@ -49,6 +53,14 @@ class FlutterLocalNotificationsWindows
         FlutterLocalNotificationsWindows();
   }
 
+  /// Initialize the plugin with the given settings.
+  Future<bool?> initialize(
+    WindowsInitializationSettings settings, {
+    NotificationReceivedCallback? onNotificationReceived,
+  }) async {
+    return true;
+  }
+
   @override
   Future<NotificationAppLaunchDetails?>
       getNotificationAppLaunchDetails() async {
@@ -57,7 +69,17 @@ class FlutterLocalNotificationsWindows
 
   @override
   Future<void> show(int id, String? title, String? body,
-      {String? payload}) async {}
+      {WindowsNotificationDetails? details, String? payload}) async {}
+
+  /// Schedule a notification to be shown at the given time.
+  Future<void> zonedSchedule(
+    int id,
+    String? title,
+    String? body,
+    dynamic scheduledDate,
+    WindowsNotificationDetails? details, {
+    String? payload,
+  }) async {}
 
   @override
   Future<void> periodicallyShow(
