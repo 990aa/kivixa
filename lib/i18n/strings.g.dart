@@ -211,6 +211,7 @@ class TranslationsSettingsPrefCategories {
   String get editor => 'Editor';
   String get performance => 'Performance';
   String get advanced => 'Advanced';
+  String get security => 'Security';
 }
 
 class TranslationsSettingsPrefLabels {
