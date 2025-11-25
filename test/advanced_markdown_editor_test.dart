@@ -216,6 +216,10 @@ void main() {
 
       await tester.pumpAndSettle();
 
+      // First tap on the code field to give it focus
+      await tester.tap(find.byType(CodeField));
+      await tester.pumpAndSettle();
+
       // Tap link button
       await tester.tap(find.byTooltip('Link (Ctrl+K)'));
       await tester.pumpAndSettle();
@@ -234,6 +238,10 @@ void main() {
         const MaterialApp(home: AdvancedMarkdownEditor(filePath: '/test')),
       );
 
+      await tester.pumpAndSettle();
+
+      // First tap on the code field to give it focus
+      await tester.tap(find.byType(CodeField));
       await tester.pumpAndSettle();
 
       // Open link dialog
@@ -255,6 +263,10 @@ void main() {
         const MaterialApp(home: AdvancedMarkdownEditor(filePath: '/test')),
       );
 
+      await tester.pumpAndSettle();
+
+      // First tap on the code field to give it focus
+      await tester.tap(find.byType(CodeField));
       await tester.pumpAndSettle();
 
       // Tap image button
