@@ -55,9 +55,13 @@ class Project {
   final ProjectStatus status;
   final List<ProjectChange> changes;
   final List<String> taskIds; // References to CalendarEvent IDs
+  final List<String> noteIds; // References to note file paths
   final DateTime createdAt;
   final DateTime? completedAt;
+  final DateTime? lastActivityAt;
   final Color? color;
+  final String? readme; // Project README content
+  final int starCount; // For pinned/starred projects
 
   Project({
     required this.id,
@@ -66,9 +70,13 @@ class Project {
     this.status = ProjectStatus.upcoming,
     this.changes = const [],
     this.taskIds = const [],
+    this.noteIds = const [],
     required this.createdAt,
     this.completedAt,
+    this.lastActivityAt,
     this.color,
+    this.readme,
+    this.starCount = 0,
   });
 
   Map<String, dynamic> toJson() {
@@ -79,9 +87,13 @@ class Project {
       'status': status.name,
       'changes': changes.map((c) => c.toJson()).toList(),
       'taskIds': taskIds,
+      'noteIds': noteIds,
       'createdAt': createdAt.toIso8601String(),
       'completedAt': completedAt?.toIso8601String(),
+      'lastActivityAt': lastActivityAt?.toIso8601String(),
       'color': color?.toARGB32(),
+      'readme': readme,
+      'starCount': starCount,
     };
   }
 
@@ -100,11 +112,17 @@ class Project {
               .toList() ??
           [],
       taskIds: (json['taskIds'] as List?)?.cast<String>() ?? [],
+      noteIds: (json['noteIds'] as List?)?.cast<String>() ?? [],
       createdAt: DateTime.parse(json['createdAt'] as String),
       completedAt: json['completedAt'] != null
           ? DateTime.parse(json['completedAt'] as String)
           : null,
+      lastActivityAt: json['lastActivityAt'] != null
+          ? DateTime.parse(json['lastActivityAt'] as String)
+          : null,
       color: json['color'] != null ? Color(json['color'] as int) : null,
+      readme: json['readme'] as String?,
+      starCount: json['starCount'] as int? ?? 0,
     );
   }
 
@@ -115,9 +133,13 @@ class Project {
     ProjectStatus? status,
     List<ProjectChange>? changes,
     List<String>? taskIds,
+    List<String>? noteIds,
     DateTime? createdAt,
     DateTime? completedAt,
+    DateTime? lastActivityAt,
     Color? color,
+    String? readme,
+    int? starCount,
   }) {
     return Project(
       id: id ?? this.id,
@@ -126,9 +148,13 @@ class Project {
       status: status ?? this.status,
       changes: changes ?? this.changes,
       taskIds: taskIds ?? this.taskIds,
+      noteIds: noteIds ?? this.noteIds,
       createdAt: createdAt ?? this.createdAt,
       completedAt: completedAt ?? this.completedAt,
+      lastActivityAt: lastActivityAt ?? this.lastActivityAt,
       color: color ?? this.color,
+      readme: readme ?? this.readme,
+      starCount: starCount ?? this.starCount,
     );
   }
 
