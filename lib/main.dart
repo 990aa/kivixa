@@ -18,6 +18,7 @@ import 'package:kivixa/pages/editor/editor.dart';
 import 'package:kivixa/pages/home/home.dart';
 import 'package:kivixa/pages/logs.dart';
 import 'package:kivixa/pages/markdown/markdown_editor.dart';
+import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:kivixa/services/notification_service.dart';
 import 'package:kivixa/services/terms_and_conditions_service.dart';
 import 'package:logging/logging.dart';
@@ -160,6 +161,11 @@ class App extends StatefulWidget {
       GoRoute(
         path: RoutePaths.logs,
         builder: (context, state) => const LogsPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.textFile,
+        builder: (context, state) =>
+            TextFileEditor(filePath: state.uri.queryParameters['path']),
       ),
     ],
   );
