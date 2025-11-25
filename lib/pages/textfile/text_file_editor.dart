@@ -866,9 +866,10 @@ class _FontFamilyDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 120,
+      width: 130,
       child: DropdownButtonFormField<String>(
         initialValue: _fontValues[0],
+        isExpanded: true,
         decoration: const InputDecoration(
           isDense: true,
           contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -877,7 +878,11 @@ class _FontFamilyDropdown extends StatelessWidget {
         items: List.generate(_fonts.length, (i) {
           return DropdownMenuItem(
             value: _fontValues[i],
-            child: Text(_fonts[i], style: const TextStyle(fontSize: 12)),
+            child: Text(
+              _fonts[i],
+              style: const TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+            ),
           );
         }),
         onChanged: (value) {
@@ -915,9 +920,10 @@ class _FontSizeDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 70,
+      width: 75,
       child: DropdownButtonFormField<String>(
         initialValue: '14',
+        isExpanded: true,
         decoration: const InputDecoration(
           isDense: true,
           contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -926,7 +932,11 @@ class _FontSizeDropdown extends StatelessWidget {
         items: _sizes.map((size) {
           return DropdownMenuItem(
             value: size,
-            child: Text(size, style: const TextStyle(fontSize: 12)),
+            child: Text(
+              size,
+              style: const TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+            ),
           );
         }).toList(),
         onChanged: (value) {
