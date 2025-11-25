@@ -762,16 +762,16 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
                     lastActivityAt: DateTime.now(),
                   );
                   await ProjectStorage.updateProject(updatedProject);
-                  if (mounted) {
-                    Navigator.pop(dialogContext);
-                    _loadProjects();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Updated notes for ${project.title}'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  }
+                  if (!dialogContext.mounted) return;
+                  Navigator.pop(dialogContext);
+                  _loadProjects();
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Updated notes for ${project.title}'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.save),
                 label: const Text('Save'),
