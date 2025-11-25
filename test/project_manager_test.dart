@@ -224,16 +224,18 @@ void main() {
       });
 
       test('filters by status - ongoing', () {
-        final filtered =
-            projects.where((p) => p.status == ProjectStatus.ongoing).toList();
+        final filtered = projects
+            .where((p) => p.status == ProjectStatus.ongoing)
+            .toList();
 
         expect(filtered, hasLength(1));
         expect(filtered.first.title, 'Flutter App');
       });
 
       test('filters by status - completed', () {
-        final filtered =
-            projects.where((p) => p.status == ProjectStatus.completed).toList();
+        final filtered = projects
+            .where((p) => p.status == ProjectStatus.completed)
+            .toList();
 
         expect(filtered, hasLength(1));
         expect(filtered.first.title, 'React Website');
@@ -338,9 +340,7 @@ void main() {
       });
 
       test('formats time in hours', () {
-        final threeHoursAgo = DateTime.now().subtract(
-          const Duration(hours: 3),
-        );
+        final threeHoursAgo = DateTime.now().subtract(const Duration(hours: 3));
         expect(formatRelativeTime(threeHoursAgo), '3h ago');
       });
 
