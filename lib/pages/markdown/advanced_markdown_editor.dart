@@ -138,10 +138,7 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     final selection = _codeController?.selection;
     _codeController?.removeListener(_onTextChanged);
     _codeController?.dispose();
-    _codeController = CodeController(
-      text: currentText,
-      language: markdown,
-    );
+    _codeController = CodeController(text: currentText, language: markdown);
     if (selection != null && selection.isValid) {
       try {
         _codeController!.selection = selection;
