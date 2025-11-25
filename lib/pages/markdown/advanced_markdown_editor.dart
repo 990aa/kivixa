@@ -530,10 +530,12 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
 
     final prefix = '${'#' * level} ';
     final selection = controller.selection;
+    if (!selection.isValid || selection.start < 0) return;
+
     final text = controller.text;
     final start = selection.start;
     final end = selection.end;
-    final selectedText = text.substring(start, end);
+    final selectedText = start < end ? text.substring(start, end) : '';
 
     final newText = '$prefix$selectedText';
     controller.text = text.replaceRange(start, end, newText);
