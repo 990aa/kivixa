@@ -231,9 +231,7 @@ class _AppState extends State<App> {
       return MaterialApp(
         title: 'kivixa',
         debugShowCheckedModeBanner: false,
-        home: const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
+        home: const Scaffold(body: Center(child: CircularProgressIndicator())),
       );
     }
 
