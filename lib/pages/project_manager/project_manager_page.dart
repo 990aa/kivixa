@@ -84,14 +84,17 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
     return filtered;
   }
 
-  List<Project> get _upcomingProjects =>
-      _filteredProjects.where((p) => p.status == ProjectStatus.upcoming).toList();
+  List<Project> get _upcomingProjects => _filteredProjects
+      .where((p) => p.status == ProjectStatus.upcoming)
+      .toList();
 
-  List<Project> get _ongoingProjects =>
-      _filteredProjects.where((p) => p.status == ProjectStatus.ongoing).toList();
+  List<Project> get _ongoingProjects => _filteredProjects
+      .where((p) => p.status == ProjectStatus.ongoing)
+      .toList();
 
-  List<Project> get _completedProjects =>
-      _filteredProjects.where((p) => p.status == ProjectStatus.completed).toList();
+  List<Project> get _completedProjects => _filteredProjects
+      .where((p) => p.status == ProjectStatus.completed)
+      .toList();
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +117,10 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
             children: [
               // Search bar
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
@@ -141,7 +147,10 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
               ),
               // Stats row
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 child: Row(
                   children: [
                     _buildStatChip(
@@ -193,8 +202,9 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
                             children: [
                               Icon(
                                 Icons.sort_by_alpha,
-                                color:
-                                    _sortBy == 'name' ? colorScheme.primary : null,
+                                color: _sortBy == 'name'
+                                    ? colorScheme.primary
+                                    : null,
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
@@ -276,7 +286,11 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
           const SizedBox(width: 4),
           Text(
             count,
-            style: TextStyle(fontWeight: FontWeight.bold, color: color, fontSize: 12),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: color,
+              fontSize: 12,
+            ),
           ),
           const SizedBox(width: 2),
           Text(label, style: TextStyle(color: color, fontSize: 11)),
@@ -291,9 +305,33 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.folder_open, size: 64, color: Colors.grey[400]),
+            Icon(
+              _searchQuery.isNotEmpty ? Icons.search_off : Icons.folder_open,
+              size: 80,
+              color: Colors.grey[400],
+            ),
             const SizedBox(height: 16),
-            Text('No projects yet', style: TextStyle(color: Colors.grey[600])),
+            Text(
+              _searchQuery.isNotEmpty
+                  ? 'No projects match "$_searchQuery"'
+                  : 'No projects yet',
+              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _searchQuery.isNotEmpty
+                  ? 'Try a different search term'
+                  : 'Create your first project to get started',
+              style: TextStyle(color: Colors.grey[500]),
+            ),
+            if (_searchQuery.isEmpty) ...[
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () => _showCreateProjectDialog(),
+                icon: const Icon(Icons.add),
+                label: const Text('New Project'),
+              ),
+            ],
           ],
         ),
       );
@@ -313,82 +351,149 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final projectColor = project.color ?? colorScheme.primary;
+    final lastActivity = project.lastActivityAt ?? project.createdAt;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => _showProjectDetails(project),
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Color bar at top (GitHub-style repo indicator)
+            Container(
+              height: 4,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    projectColor,
+                    projectColor.withValues(alpha: 0.5),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 4,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: projectColor,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
+                  // Title row with status badge
+                  Row(
+                    children: [
+                      Icon(Icons.folder, color: projectColor, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
                           project.title,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
+                            color: colorScheme.primary,
                           ),
                         ),
-                        if (project.description != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            project.description!,
-                            style: theme.textTheme.bodySmall,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ],
+                      ),
+                      _buildStatusChip(project.status),
+                    ],
+                  ),
+                  // Description
+                  if (project.description != null &&
+                      project.description!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      project.description!,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                  ],
+                  const SizedBox(height: 12),
+                  // Stats row (GitHub-style)
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 8,
+                    children: [
+                      _buildProjectStat(
+                        Icons.description,
+                        '${project.noteIds.length} notes',
+                      ),
+                      _buildProjectStat(
+                        Icons.task_alt,
+                        '${project.taskIds.length} tasks',
+                      ),
+                      _buildProjectStat(
+                        Icons.commit,
+                        '${project.changes.length} commits',
+                      ),
+                      _buildProjectStat(
+                        Icons.access_time,
+                        _formatRelativeTime(lastActivity),
+                      ),
+                    ],
                   ),
-                  _buildStatusChip(project.status),
                 ],
               ),
-              const SizedBox(height: 12),
-              Row(
+            ),
+            // Action bar
+            Container(
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Icon(Icons.task_alt, size: 16, color: Colors.grey[600]),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${project.taskIds.length} tasks',
-                    style: theme.textTheme.bodySmall,
+                  TextButton.icon(
+                    onPressed: () => _showEditProjectDialog(project),
+                    icon: const Icon(Icons.edit, size: 18),
+                    label: const Text('Edit'),
                   ),
-                  const SizedBox(width: 16),
-                  Icon(Icons.timeline, size: 16, color: Colors.grey[600]),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${project.changes.length} changes',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.more_vert),
+                  TextButton.icon(
                     onPressed: () => _showProjectMenu(project),
-                    iconSize: 20,
+                    icon: const Icon(Icons.more_horiz, size: 18),
+                    label: const Text('More'),
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  Widget _buildProjectStat(IconData icon, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: Colors.grey[600]),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+        ),
+      ],
+    );
+  }
+
+  String _formatRelativeTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays > 365) {
+      return '${(difference.inDays / 365).floor()}y ago';
+    } else if (difference.inDays > 30) {
+      return '${(difference.inDays / 30).floor()}mo ago';
+    } else if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
   }
 
   Widget _buildStatusChip(ProjectStatus status) {
@@ -403,49 +508,111 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
         label = 'Upcoming';
       case ProjectStatus.ongoing:
         color = Colors.orange;
-        icon = Icons.work;
-        label = 'Ongoing';
+        icon = Icons.play_circle_outline;
+        label = 'Active';
       case ProjectStatus.completed:
         color = Colors.green;
-        icon = Icons.check_circle;
-        label = 'Completed';
+        icon = Icons.check_circle_outline;
+        label = 'Done';
     }
 
-    return Chip(
-      avatar: Icon(icon, size: 16, color: color),
-      label: Text(label),
-      labelStyle: TextStyle(color: color, fontSize: 12),
-      backgroundColor: color.withValues(alpha: 0.1),
-      side: BorderSide.none,
-      visualDensity: VisualDensity.compact,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   void _showProjectMenu(Project project) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.edit),
-            title: const Text('Edit Project'),
-            onTap: () {
-              Navigator.pop(context);
-              _showEditProjectDialog(project);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.delete),
-            title: const Text('Delete Project'),
-            onTap: () {
-              Navigator.pop(context);
-              _deleteProject(project.id);
-            },
-          ),
-        ],
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Edit Project'),
+              onTap: () {
+                Navigator.pop(context);
+                _showEditProjectDialog(project);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.note_add),
+              title: const Text('Link Note'),
+              onTap: () {
+                Navigator.pop(context);
+                _showLinkNoteDialog(project);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.content_copy),
+              title: const Text('Duplicate Project'),
+              onTap: () {
+                Navigator.pop(context);
+                _duplicateProject(project);
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text(
+                'Delete Project',
+                style: TextStyle(color: Colors.red),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _deleteProject(project.id);
+              },
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  void _showLinkNoteDialog(Project project) {
+    // TODO: Implement note linking dialog
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Note linking coming soon!')),
+    );
+  }
+
+  Future<void> _duplicateProject(Project project) async {
+    final newProject = Project(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: '${project.title} (Copy)',
+      description: project.description,
+      status: ProjectStatus.upcoming,
+      changes: [],
+      taskIds: [],
+      noteIds: [],
+      createdAt: DateTime.now(),
+      lastActivityAt: DateTime.now(),
+      color: generateRandomProjectColor(),
+    );
+
+    await ProjectStorage.addProject(newProject);
+    _loadProjects();
   }
 
   void _showCreateProjectDialog() {
@@ -462,80 +629,157 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
       text: project?.description ?? '',
     );
     ProjectStatus selectedStatus = project?.status ?? ProjectStatus.upcoming;
-    Color? selectedColor = project?.color;
+    // Auto-generate random color for new projects
+    Color selectedColor = project?.color ?? generateRandomProjectColor();
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: Text(project == null ? 'Create Project' : 'Edit Project'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Title',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.title),
+          title: Row(
+            children: [
+              Icon(
+                project == null ? Icons.create_new_folder : Icons.edit,
+                color: selectedColor,
+              ),
+              const SizedBox(width: 8),
+              Text(project == null ? 'New Project' : 'Edit Project'),
+            ],
+          ),
+          content: ConstrainedBox(
+            // Make dialog wider
+            constraints: const BoxConstraints(minWidth: 500, maxWidth: 600),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: titleController,
+                    decoration: const InputDecoration(
+                      labelText: 'Project name',
+                      hintText: 'Enter a unique project name',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.folder),
+                    ),
+                    autofocus: true,
                   ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.description),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: descriptionController,
+                    decoration: const InputDecoration(
+                      labelText: 'Description (optional)',
+                      hintText: 'Brief description of your project',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.description),
+                    ),
+                    maxLines: 3,
                   ),
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<ProjectStatus>(
-                  initialValue: selectedStatus,
-                  decoration: const InputDecoration(
-                    labelText: 'Status',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.flag),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<ProjectStatus>(
+                    value: selectedStatus,
+                    decoration: const InputDecoration(
+                      labelText: 'Status',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.flag),
+                    ),
+                    items: ProjectStatus.values.map((status) {
+                      IconData icon;
+                      Color color;
+                      switch (status) {
+                        case ProjectStatus.upcoming:
+                          icon = Icons.schedule;
+                          color = Colors.blue;
+                        case ProjectStatus.ongoing:
+                          icon = Icons.play_circle;
+                          color = Colors.orange;
+                        case ProjectStatus.completed:
+                          icon = Icons.check_circle;
+                          color = Colors.green;
+                      }
+                      return DropdownMenuItem(
+                        value: status,
+                        child: Row(
+                          children: [
+                            Icon(icon, color: color, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              status.name[0].toUpperCase() +
+                                  status.name.substring(1),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => selectedStatus = value);
+                      }
+                    },
                   ),
-                  items: ProjectStatus.values.map((status) {
-                    return DropdownMenuItem(
-                      value: status,
-                      child: Text(
-                        status.name[0].toUpperCase() + status.name.substring(1),
+                  const SizedBox(height: 16),
+                  // Color picker section
+                  Text(
+                    'Project Color',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: () async {
+                      final color = await _showFullColorPicker(selectedColor);
+                      if (color != null) {
+                        setState(() => selectedColor = color);
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => selectedStatus = value);
-                    }
-                  },
-                ),
-                const SizedBox(height: 16),
-                ListTile(
-                  leading: const Icon(Icons.color_lens),
-                  title: const Text('Project Color'),
-                  trailing: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color:
-                          selectedColor ??
-                          Theme.of(context).colorScheme.primary,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: selectedColor,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey[300]!),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Click to change color'),
+                              Text(
+                                '#${selectedColor.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            icon: const Icon(Icons.shuffle),
+                            tooltip: 'Random color',
+                            onPressed: () {
+                              setState(
+                                () => selectedColor = generateRandomProjectColor(),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  onTap: () async {
-                    final color = await _showColorPicker(selectedColor);
-                    if (color != null) {
-                      setState(() => selectedColor = color);
-                    }
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           actions: [
@@ -543,11 +787,11 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
               onPressed: () => Navigator.pop(context),
               child: const Text('Cancel'),
             ),
-            FilledButton(
+            FilledButton.icon(
               onPressed: () {
                 if (titleController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Title is required')),
+                    const SnackBar(content: Text('Project name is required')),
                   );
                   return;
                 }
@@ -563,11 +807,15 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
                   status: selectedStatus,
                   changes: project?.changes ?? [],
                   taskIds: project?.taskIds ?? [],
+                  noteIds: project?.noteIds ?? [],
                   createdAt: project?.createdAt ?? DateTime.now(),
+                  lastActivityAt: DateTime.now(),
                   completedAt: selectedStatus == ProjectStatus.completed
                       ? DateTime.now()
                       : null,
                   color: selectedColor,
+                  readme: project?.readme,
+                  starCount: project?.starCount ?? 0,
                 );
 
                 if (project == null) {
@@ -579,7 +827,8 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
                 _loadProjects();
                 Navigator.pop(context);
               },
-              child: const Text('Save'),
+              icon: const Icon(Icons.save),
+              label: Text(project == null ? 'Create' : 'Save'),
             ),
           ],
         ),
@@ -587,55 +836,34 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
     );
   }
 
-  Future<Color?> _showColorPicker(Color? currentColor) async {
-    final colors = [
-      Colors.red,
-      Colors.pink,
-      Colors.purple,
-      Colors.deepPurple,
-      Colors.indigo,
-      Colors.blue,
-      Colors.lightBlue,
-      Colors.cyan,
-      Colors.teal,
-      Colors.green,
-      Colors.lightGreen,
-      Colors.lime,
-      Colors.yellow,
-      Colors.amber,
-      Colors.orange,
-      Colors.deepOrange,
-    ];
+  /// Full color spectrum picker using flutter_colorpicker
+  Future<Color?> _showFullColorPicker(Color currentColor) async {
+    Color pickedColor = currentColor;
 
     return showDialog<Color>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Choose Color'),
-        content: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: colors.map((color) {
-            final isSelected = currentColor == color;
-            return InkWell(
-              onTap: () => Navigator.pop(context, color),
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSelected ? Colors.white : Colors.grey,
-                    width: isSelected ? 3 : 1,
-                  ),
-                ),
-                child: isSelected
-                    ? const Icon(Icons.check, color: Colors.white)
-                    : null,
-              ),
-            );
-          }).toList(),
+        title: const Text('Pick a Color'),
+        content: SingleChildScrollView(
+          child: ColorPicker(
+            pickerColor: currentColor,
+            onColorChanged: (color) => pickedColor = color,
+            enableAlpha: false,
+            hexInputBar: true,
+            labelTypes: const [],
+            pickerAreaHeightPercent: 0.8,
+          ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, pickedColor),
+            child: const Text('Select'),
+          ),
+        ],
       ),
     );
   }
@@ -644,8 +872,17 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Project'),
-        content: const Text('Are you sure you want to delete this project?'),
+        title: const Row(
+          children: [
+            Icon(Icons.warning, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Delete Project'),
+          ],
+        ),
+        content: const Text(
+          'Are you sure you want to delete this project? '
+          'This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
