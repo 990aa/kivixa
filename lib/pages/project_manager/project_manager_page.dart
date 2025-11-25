@@ -1164,10 +1164,128 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     ).showSnackBar(const SnackBar(content: Text('Task creation coming soon!')));
   }
 
-  void _showLinkNoteDialog() {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Note linking coming soon!')));
+  void _showLinkNoteDialog() async {
+    // Get all available notes
+    final allFiles = await FileManager.getAllFiles(includeExtensions: true);
+    final noteFiles = allFiles.where((f) => 
+      f.endsWith('.kvx') || f.endsWith('.kvx1') || f.endsWith('.md')
+    ).toList();
+
+    if (!mounted) return;
+
+    if (noteFiles.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No notes found. Create a note first!')),
+      );
+      return;
+    }
+
+    // Track selected notes (start with currently linked ones)
+    final selectedNotes = Set<String>.from(_project.noteIds);
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.link, color: Colors.blue),
+              SizedBox(width: 8),
+              Text('Link Notes'),
+            ],
+          ),
+          content: SizedBox(
+            width: 400,
+            height: 400,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Select notes to link to this project:',
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${selectedNotes.length} note(s) selected',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const Divider(),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: noteFiles.length,
+                    itemBuilder: (context, index) {
+                      final noteId = noteFiles[index];
+                      final fileName = noteId.split('/').last;
+                      final isSelected = selectedNotes.contains(noteId);
+                      final isKvx = noteId.endsWith('.kvx') || noteId.endsWith('.kvx1');
+
+                      return CheckboxListTile(
+                        value: isSelected,
+                        onChanged: (value) {
+                          setState(() {
+                            if (value ?? false) {
+                              selectedNotes.add(noteId);
+                            } else {
+                              selectedNotes.remove(noteId);
+                            }
+                          });
+                        },
+                        secondary: Icon(
+                          isKvx ? Icons.draw : Icons.description,
+                          color: isKvx ? Colors.orange : Colors.blue,
+                        ),
+                        title: Text(
+                          fileName.replaceAll(RegExp(r'\.(kvx|kvx1|md)$'), ''),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        subtitle: Text(
+                          noteId,
+                          style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        dense: true,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton.icon(
+              onPressed: () async {
+                // Update project with new note links
+                final updatedProject = _project.copyWith(
+                  noteIds: selectedNotes.toList(),
+                  lastActivityAt: DateTime.now(),
+                );
+                await ProjectStorage.updateProject(updatedProject);
+                if (context.mounted) Navigator.pop(context);
+                _loadProjectData();
+                if (mounted) {
+                  ScaffoldMessenger.of(this.context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '${selectedNotes.length} note(s) linked to project',
+                      ),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              },
+              icon: const Icon(Icons.link),
+              label: const Text('Link Notes'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildOverviewTab() {
@@ -1403,22 +1521,93 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
       itemCount: _project.noteIds.length,
       itemBuilder: (context, index) {
         final noteId = _project.noteIds[index];
+        final fileName = noteId.split('/').last;
+        final isKvx = noteId.endsWith('.kvx') || noteId.endsWith('.kvx1');
+        final displayName = fileName.replaceAll(RegExp(r'\.(kvx|kvx1|md)$'), '');
+
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
           child: ListTile(
-            leading: const Icon(Icons.description),
-            title: Text(noteId.split('/').last),
-            subtitle: Text(noteId),
-            trailing: IconButton(
-              icon: const Icon(Icons.open_in_new),
-              onPressed: () {
-                // Open note
-              },
+            leading: Icon(
+              isKvx ? Icons.draw : Icons.description,
+              color: isKvx ? Colors.orange : Colors.blue,
             ),
+            title: Text(displayName),
+            subtitle: Text(noteId, style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.open_in_new),
+                  tooltip: 'Open note',
+                  onPressed: () => _openNote(noteId),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.link_off, color: Colors.red),
+                  tooltip: 'Unlink note',
+                  onPressed: () => _unlinkNote(noteId),
+                ),
+              ],
+            ),
+            onTap: () => _openNote(noteId),
           ),
         );
       },
     );
+  }
+
+  void _openNote(String noteId) {
+    // Remove extension for path
+    final pathWithoutExt = noteId.replaceAll(RegExp(r'\.(kvx|kvx1|md)$'), '');
+    
+    if (noteId.endsWith('.md')) {
+      // Open markdown editor
+      context.push(RoutePaths.markdownFilePath(pathWithoutExt));
+    } else {
+      // Open kvx editor
+      context.push(RoutePaths.editFilePath(pathWithoutExt));
+    }
+  }
+
+  Future<void> _unlinkNote(String noteId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Unlink Note'),
+        content: Text(
+          'Remove "${noteId.split('/').last}" from this project?\n\n'
+          'The note will not be deleted, just unlinked from this project.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Unlink'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) {
+      final updatedNoteIds = [..._project.noteIds]..remove(noteId);
+      final updatedProject = _project.copyWith(
+        noteIds: updatedNoteIds,
+        lastActivityAt: DateTime.now(),
+      );
+      await ProjectStorage.updateProject(updatedProject);
+      _loadProjectData();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Note unlinked from project'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildEmptyTab(
