@@ -55,7 +55,7 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
   final log = Logger('AdvancedMarkdownEditor');
 
   // Supported markdown types for toolbar
-  static const List<_ToolbarAction> _toolbarActions = [
+  static const _toolbarActions = <_ToolbarAction>[
     _ToolbarAction(
       icon: Icons.format_bold,
       tooltip: 'Bold (Ctrl+B)',
