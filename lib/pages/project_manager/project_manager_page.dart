@@ -976,7 +976,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
             floating: false,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              background: Container(
+              background: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,

@@ -19,7 +19,7 @@ void main() {
       test('generates a valid color', () {
         final color = generateRandomProjectColor();
         expect(color, isA<Color>());
-        expect(color.alpha, 255); // Full opacity
+        expect((color.a * 255).round(), 255); // Full opacity
       });
 
       test('generates different colors on multiple calls', () {
