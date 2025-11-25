@@ -82,6 +82,10 @@ dependencies:
   syncfusion_flutter_calendar: ^31.2.15
   flutter_markdown_plus: ^1.0.5
 
+dependency_overrides:
+  flutter_local_notifications_windows:
+    path: packages/flutter_local_notifications_windows_stub
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

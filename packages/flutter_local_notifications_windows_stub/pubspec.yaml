@@ -1,0 +1,19 @@
+name: flutter_local_notifications_windows
+description: A stub implementation of flutter_local_notifications_windows that does nothing.
+version: 0.0.1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_local_notifications_platform_interface: ^9.1.0
+
+flutter:
+  plugin:
+    implements: flutter_local_notifications
+    platforms:
+      windows:
+        dartPluginClass: FlutterLocalNotificationsWindows

@@ -17,8 +17,17 @@ class NotificationService {
 
   var _initialized = false;
 
+  /// Returns true if notifications are supported on the current platform
+  static bool get isSupported => Platform.isAndroid || Platform.isIOS;
+
   Future<void> initialize() async {
     if (_initialized) return;
+
+    // Notifications are only supported on mobile platforms
+    if (!isSupported) {
+      _initialized = true;
+      return;
+    }
 
     tz.initializeTimeZones();
 
@@ -260,6 +269,9 @@ class NotificationService {
     String? payload,
     List<AndroidNotificationAction>? actions,
   }) async {
+    // Don't schedule notifications on unsupported platforms
+    if (!isSupported) return;
+
     // Don't schedule notifications in the past
     if (scheduledDate.isBefore(DateTime.now())) return;
 
@@ -286,10 +298,12 @@ class NotificationService {
   }
 
   Future<void> cancelNotification(int id) async {
+    if (!isSupported) return;
     await _notifications.cancel(id);
   }
 
   Future<void> cancelEventNotifications(CalendarEvent event) async {
+    if (!isSupported) return;
     await cancelNotification(event.id.hashCode);
 
     // Cancel overdue notifications
@@ -337,6 +351,7 @@ class NotificationService {
   }
 
   Future<void> cancelAllNotifications() async {
+    if (!isSupported) return;
     await _notifications.cancelAll();
   }
 }
