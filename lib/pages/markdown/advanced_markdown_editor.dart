@@ -154,7 +154,7 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
 
   Future<void> _loadFile() async {
     String fileContent = '';
-    
+
     if (widget.filePath != null) {
       try {
         _currentFilePath = widget.filePath! + AdvancedMarkdownEditor.extension;
