@@ -8,6 +8,15 @@
         "**/.idea/": true,
         "**/.flutter-plugins-dependencies": true,
     },
+    "files.associations": {
+        "VERSION": "plaintext"
+    },
+    "dart.problemFilterScope": {
+        "excludePatterns": [
+            "**/VERSION",
+            "**/build.gradle.kts"
+        ]
+    },
     "editor.defaultFormatter": "Dart-Code.dart-code",
     "editor.formatOnSave": true,
     "dart.doNotFormat": [
