@@ -33,12 +33,11 @@ void main() {
       });
 
       test('descriptions contain expected keywords', () {
+        expect(DataType.notes.description.toLowerCase().contains('note'), true);
         expect(
-          DataType.notes.description.toLowerCase().contains('note'),
-          true,
-        );
-        expect(
-          DataType.calendarEvents.description.toLowerCase().contains('calendar'),
+          DataType.calendarEvents.description.toLowerCase().contains(
+            'calendar',
+          ),
           true,
         );
         expect(
@@ -58,7 +57,7 @@ void main() {
           success: true,
           message: 'Successfully cleared',
         );
-        
+
         expect(result.success, true);
         expect(result.error, null);
         expect(result.message, 'Successfully cleared');
@@ -70,7 +69,7 @@ void main() {
           message: 'Failed to clear',
           error: 'Permission denied',
         );
-        
+
         expect(result.success, false);
         expect(result.error, 'Permission denied');
         expect(result.message, 'Failed to clear');
@@ -80,7 +79,7 @@ void main() {
     group('Service methods existence', () {
       // These tests verify the service API exists
       // Actual clearing requires mocking file system and SharedPreferences
-      
+
       test('clearNotes method exists', () {
         expect(AppDataClearService.clearNotes, isA<Function>());
       });

@@ -10,44 +10,46 @@ void main() {
 
     test('hasAcceptedTerms returns false when terms not accepted', () async {
       SharedPreferences.setMockInitialValues({});
-      
+
       final result = await TermsAndConditionsService.hasAcceptedTerms();
-      
+
       expect(result, false);
     });
 
     test('hasAcceptedTerms returns true after acceptTerms is called', () async {
       SharedPreferences.setMockInitialValues({});
-      
+
       await TermsAndConditionsService.acceptTerms();
       final result = await TermsAndConditionsService.hasAcceptedTerms();
-      
+
       expect(result, true);
     });
 
     test('acceptTerms stores current terms version', () async {
       SharedPreferences.setMockInitialValues({});
-      
+
       await TermsAndConditionsService.acceptTerms();
-      
+
       final prefs = await SharedPreferences.getInstance();
       final storedVersion = prefs.getString('termsAcceptedVersion');
-      
+
       expect(storedVersion, TermsAndConditionsService.currentTermsVersion);
     });
 
     test('acceptTerms stores acceptance date', () async {
       SharedPreferences.setMockInitialValues({});
-      
+
       final beforeAccept = DateTime.now();
       await TermsAndConditionsService.acceptTerms();
       final afterAccept = DateTime.now();
-      
+
       final acceptedDate = await TermsAndConditionsService.getAcceptedDate();
-      
+
       expect(acceptedDate, isNotNull);
       expect(
-        acceptedDate!.isAfter(beforeAccept.subtract(const Duration(seconds: 1))),
+        acceptedDate!.isAfter(
+          beforeAccept.subtract(const Duration(seconds: 1)),
+        ),
         true,
       );
       expect(
@@ -58,22 +60,22 @@ void main() {
 
     test('getAcceptedDate returns null when terms not accepted', () async {
       SharedPreferences.setMockInitialValues({});
-      
+
       final result = await TermsAndConditionsService.getAcceptedDate();
-      
+
       expect(result, null);
     });
 
     test('resetAcceptance clears all terms data', () async {
       SharedPreferences.setMockInitialValues({});
-      
+
       // First accept terms
       await TermsAndConditionsService.acceptTerms();
       expect(await TermsAndConditionsService.hasAcceptedTerms(), true);
-      
+
       // Then reset
       await TermsAndConditionsService.resetAcceptance();
-      
+
       expect(await TermsAndConditionsService.hasAcceptedTerms(), false);
       expect(await TermsAndConditionsService.getAcceptedDate(), null);
     });
@@ -85,9 +87,9 @@ void main() {
         'termsAcceptedVersion': '0.9.0', // Old version
         'termsAcceptedDate': DateTime.now().toIso8601String(),
       });
-      
+
       final result = await TermsAndConditionsService.hasAcceptedTerms();
-      
+
       // Should return false because version doesn't match current
       expect(result, false);
     });
@@ -98,15 +100,15 @@ void main() {
         'termsAcceptedVersion': TermsAndConditionsService.currentTermsVersion,
         'termsAcceptedDate': DateTime.now().toIso8601String(),
       });
-      
+
       final result = await TermsAndConditionsService.hasAcceptedTerms();
-      
+
       expect(result, true);
     });
 
     test('getTermsText returns non-empty string', () {
       final terms = TermsAndConditionsService.getTermsText();
-      
+
       expect(terms, isNotEmpty);
       expect(terms.contains('KIVIXA'), true);
       expect(terms.contains('TERMS AND CONDITIONS'), true);
@@ -114,14 +116,14 @@ void main() {
 
     test('getPrivacyPolicyText returns non-empty string', () {
       final privacy = TermsAndConditionsService.getPrivacyPolicyText();
-      
+
       expect(privacy, isNotEmpty);
       expect(privacy.contains('PRIVACY POLICY'), true);
     });
 
     test('terms text contains required sections', () {
       final terms = TermsAndConditionsService.getTermsText();
-      
+
       // Check for key sections
       expect(terms.contains('ACCEPTANCE OF TERMS'), true);
       expect(terms.contains('LICENSE'), true);
@@ -134,7 +136,7 @@ void main() {
 
     test('privacy policy contains required sections', () {
       final privacy = TermsAndConditionsService.getPrivacyPolicyText();
-      
+
       expect(privacy.contains('INFORMATION WE COLLECT'), true);
       expect(privacy.contains('DATA STORAGE'), true);
       expect(privacy.contains('DATA SHARING'), true);
@@ -143,11 +145,11 @@ void main() {
 
     test('currentTermsVersion is valid semantic version', () {
       final version = TermsAndConditionsService.currentTermsVersion;
-      
+
       // Should be in format X.Y.Z
       final parts = version.split('.');
       expect(parts.length, 3);
-      
+
       for (final part in parts) {
         expect(int.tryParse(part), isNotNull);
       }
