@@ -969,7 +969,7 @@ class _TableInsertDialogState extends State<_TableInsertDialog> {
               SizedBox(
                 width: 60,
                 child: DropdownButtonFormField<int>(
-                  value: _rows,
+                  initialValue: _rows,
                   items: List.generate(10, (i) => i + 1).map((n) {
                     return DropdownMenuItem(value: n, child: Text('$n'));
                   }).toList(),
@@ -986,7 +986,7 @@ class _TableInsertDialogState extends State<_TableInsertDialog> {
               SizedBox(
                 width: 60,
                 child: DropdownButtonFormField<int>(
-                  value: _cols,
+                  initialValue: _cols,
                   items: List.generate(10, (i) => i + 1).map((n) {
                     return DropdownMenuItem(value: n, child: Text('$n'));
                   }).toList(),
