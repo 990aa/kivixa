@@ -715,11 +715,22 @@ class _PreviewCardState extends State<PreviewCard> {
         return;
       }
 
-      // Check if it's a markdown file
+      // Check file types
+      final textFile = FileManager.getFile(
+        '${widget.filePath}${TextFileEditor.internalExtension}',
+      );
+      final isTextFile = textFile.existsSync();
+
       final mdFile = FileManager.getFile('${widget.filePath}.md');
       final isMarkdown = mdFile.existsSync();
 
-      if (isMarkdown) {
+      if (isTextFile) {
+        // Move the text file
+        await FileManager.moveFile(
+          '${widget.filePath}${TextFileEditor.internalExtension}',
+          '$newPath${TextFileEditor.internalExtension}',
+        );
+      } else if (isMarkdown) {
         // Move the .md file
         await FileManager.moveFile('${widget.filePath}.md', '$newPath.md');
       } else {
@@ -776,11 +787,21 @@ class _PreviewCardState extends State<PreviewCard> {
 
   Future<void> _deleteFile() async {
     try {
-      // Check if it's a markdown file
+      // Check file types
+      final textFile = FileManager.getFile(
+        '${widget.filePath}${TextFileEditor.internalExtension}',
+      );
+      final isTextFile = textFile.existsSync();
+
       final mdFile = FileManager.getFile('${widget.filePath}.md');
       final isMarkdown = mdFile.existsSync();
 
-      if (isMarkdown) {
+      if (isTextFile) {
+        // Delete the text file
+        await FileManager.deleteFile(
+          '${widget.filePath}${TextFileEditor.internalExtension}',
+        );
+      } else if (isMarkdown) {
         // Delete the .md file (this will also delete the .p preview)
         await FileManager.deleteFile('${widget.filePath}.md');
       } else {
