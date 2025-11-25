@@ -590,12 +590,235 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
     );
   }
 
-  void _showLinkNoteDialogForProject(Project project) {
-    // Set the project state and call the main dialog
-    setState(() {
-      _selectedProjectId = project.id;
-    });
-    _showLinkNoteDialog();
+  void _showLinkNoteDialogForProject(Project project) async {
+    // Load all available notes
+    final allNotes = await FileManager.getAllFiles(includeExtensions: true);
+    final notes = allNotes
+        .where((f) => f.endsWith('.kvx') || f.endsWith('.md'))
+        .toList();
+
+    if (!mounted) return;
+
+    final currentLinkedNotes = Set<String>.from(project.noteIds);
+    final selectedNotes = Set<String>.from(currentLinkedNotes);
+    var searchQuery = '';
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) {
+          final filtered = notes.where((note) {
+            if (searchQuery.isEmpty) return true;
+            return note.toLowerCase().contains(searchQuery.toLowerCase());
+          }).toList();
+
+          final linkedNotes = filtered
+              .where((n) => selectedNotes.contains(n))
+              .toList();
+          final unlinkedNotes = filtered
+              .where((n) => !selectedNotes.contains(n))
+              .toList();
+
+          return AlertDialog(
+            title: Row(
+              children: [
+                const Icon(Icons.note_add),
+                const SizedBox(width: 8),
+                Text('Link Notes to ${project.title}'),
+              ],
+            ),
+            content: SizedBox(
+              width: 500,
+              height: 500,
+              child: Column(
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(
+                      hintText: 'Search notes...',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      setDialogState(() {
+                        searchQuery = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.link,
+                        size: 16,
+                        color: Theme.of(dialogContext).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${selectedNotes.length} linked',
+                        style: TextStyle(
+                          color: Theme.of(dialogContext).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Icon(Icons.notes, size: 16, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${notes.length} total notes',
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  Expanded(
+                    child: notes.isEmpty
+                        ? const Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.note_outlined,
+                                  size: 64,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'No notes found',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                                Text(
+                                  'Create notes in the editor first',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView(
+                            children: [
+                              if (linkedNotes.isNotEmpty) ...[
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                  ),
+                                  child: Text(
+                                    'Linked (${linkedNotes.length})',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(
+                                        dialogContext,
+                                      ).colorScheme.primary,
+                                    ),
+                                  ),
+                                ),
+                                ...linkedNotes.map(
+                                  (note) => _buildNoteCheckboxTile(
+                                    note,
+                                    selectedNotes,
+                                    setDialogState,
+                                    isLinked: true,
+                                  ),
+                                ),
+                              ],
+                              if (unlinkedNotes.isNotEmpty) ...[
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                  ),
+                                  child: Text(
+                                    'Available (${unlinkedNotes.length})',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                                ...unlinkedNotes.map(
+                                  (note) => _buildNoteCheckboxTile(
+                                    note,
+                                    selectedNotes,
+                                    setDialogState,
+                                    isLinked: false,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('Cancel'),
+              ),
+              FilledButton.icon(
+                onPressed: () async {
+                  final updatedProject = project.copyWith(
+                    noteIds: selectedNotes.toList(),
+                    lastActivityAt: DateTime.now(),
+                  );
+                  await ProjectStorage.updateProject(updatedProject);
+                  if (mounted) {
+                    Navigator.pop(dialogContext);
+                    _loadProjects();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Updated notes for ${project.title}'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.save),
+                label: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildNoteCheckboxTile(
+    String note,
+    Set<String> selectedNotes,
+    void Function(void Function()) setDialogState, {
+    required bool isLinked,
+  }) {
+    final noteName = note.split('/').last.split('\\').last;
+    return CheckboxListTile(
+      value: selectedNotes.contains(note),
+      onChanged: (value) {
+        setDialogState(() {
+          if (value == true) {
+            selectedNotes.add(note);
+          } else {
+            selectedNotes.remove(note);
+          }
+        });
+      },
+      title: Text(noteName, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: Text(
+        note,
+        style: const TextStyle(fontSize: 10, color: Colors.grey),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      secondary: Icon(
+        note.endsWith('.md') ? Icons.description : Icons.draw,
+        color: isLinked
+            ? Theme.of(
+                selectedNotes.contains(note) ? context : context,
+              ).colorScheme.primary
+            : Colors.grey,
+      ),
+      controlAffinity: ListTileControlAffinity.leading,
+      dense: true,
+    );
   }
 
   Future<void> _duplicateProject(Project project) async {
