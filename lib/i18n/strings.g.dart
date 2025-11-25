@@ -245,6 +245,10 @@ class TranslationsSettingsPrefLabels {
   String get customDataDir => 'Custom kivixa folder';
   String get pencilSoundSetting => 'Pencil sound effect';
   String get sentry => 'Error reporting';
+  String get appLock => 'App Lock';
+  String get appLockEnabled => 'Enable App Lock';
+  String get changePin => 'Change PIN';
+  String get removeAppLock => 'Remove App Lock';
 }
 
 class TranslationsSettingsPrefDescriptions {
