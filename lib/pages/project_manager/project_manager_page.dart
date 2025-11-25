@@ -1167,9 +1167,11 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   void _showLinkNoteDialog() async {
     // Get all available notes
     final allFiles = await FileManager.getAllFiles(includeExtensions: true);
-    final noteFiles = allFiles.where((f) => 
-      f.endsWith('.kvx') || f.endsWith('.kvx1') || f.endsWith('.md')
-    ).toList();
+    final noteFiles = allFiles
+        .where(
+          (f) => f.endsWith('.kvx') || f.endsWith('.kvx1') || f.endsWith('.md'),
+        )
+        .toList();
 
     if (!mounted) return;
 
@@ -1217,7 +1219,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                       final noteId = noteFiles[index];
                       final fileName = noteId.split('/').last;
                       final isSelected = selectedNotes.contains(noteId);
-                      final isKvx = noteId.endsWith('.kvx') || noteId.endsWith('.kvx1');
+                      final isKvx =
+                          noteId.endsWith('.kvx') || noteId.endsWith('.kvx1');
 
                       return CheckboxListTile(
                         value: isSelected,
@@ -1241,7 +1244,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                         ),
                         subtitle: Text(
                           noteId,
-                          style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[500],
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1523,7 +1529,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         final noteId = _project.noteIds[index];
         final fileName = noteId.split('/').last;
         final isKvx = noteId.endsWith('.kvx') || noteId.endsWith('.kvx1');
-        final displayName = fileName.replaceAll(RegExp(r'\.(kvx|kvx1|md)$'), '');
+        final displayName = fileName.replaceAll(
+          RegExp(r'\.(kvx|kvx1|md)$'),
+          '',
+        );
 
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
@@ -1533,7 +1542,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               color: isKvx ? Colors.orange : Colors.blue,
             ),
             title: Text(displayName),
-            subtitle: Text(noteId, style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+            subtitle: Text(
+              noteId,
+              style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -1559,7 +1571,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   void _openNote(String noteId) {
     // Remove extension for path
     final pathWithoutExt = noteId.replaceAll(RegExp(r'\.(kvx|kvx1|md)$'), '');
-    
+
     if (noteId.endsWith('.md')) {
       // Open markdown editor
       context.push(RoutePaths.markdownFilePath(pathWithoutExt));
