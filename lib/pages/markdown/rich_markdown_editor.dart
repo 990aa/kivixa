@@ -169,9 +169,7 @@ class _RichMarkdownEditorState extends State<RichMarkdownEditor> {
         final lines = markdownContent.split('\n');
         final nodes = <Node>[];
         for (final line in lines) {
-          nodes.add(
-            paragraphNode(text: line),
-          );
+          nodes.add(paragraphNode(text: line));
         }
         _editorState = EditorState(
           document: Document(root: pageNode(children: nodes)),

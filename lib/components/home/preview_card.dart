@@ -542,13 +542,28 @@ class _PreviewCardState extends State<PreviewCard> {
       valueListenable: expanded,
       builder: (context, expanded, _) {
         // Determine which editor to open based on actual file type
-        // Check if .md file exists (since extensions are stripped in file lists)
+        // Check file types (since extensions are stripped in file lists)
+        final textFile = FileManager.getFile(
+          '${widget.filePath}${TextFileEditor.internalExtension}',
+        );
+        final isTextFile = textFile.existsSync();
+
         final mdFile = FileManager.getFile('${widget.filePath}.md');
         final isMarkdown = mdFile.existsSync();
 
-        final editor = isMarkdown
-            ? RichMarkdownEditor(filePath: widget.filePath)
-            : Editor(path: widget.filePath);
+        final Widget editor;
+        final String routeName;
+
+        if (isTextFile) {
+          editor = TextFileEditor(filePath: widget.filePath);
+          routeName = RoutePaths.textFilePath(widget.filePath);
+        } else if (isMarkdown) {
+          editor = RichMarkdownEditor(filePath: widget.filePath);
+          routeName = RoutePaths.markdownFilePath(widget.filePath);
+        } else {
+          editor = Editor(path: widget.filePath);
+          routeName = RoutePaths.editFilePath(widget.filePath);
+        }
 
         return OpenContainer(
           closedColor: colorScheme.surface,
@@ -560,11 +575,7 @@ class _PreviewCardState extends State<PreviewCard> {
           openColor: colorScheme.surface,
           openBuilder: (context, action) => editor,
           transitionDuration: transitionDuration,
-          routeSettings: RouteSettings(
-            name: isMarkdown
-                ? RoutePaths.markdownFilePath(widget.filePath)
-                : RoutePaths.editFilePath(widget.filePath),
-          ),
+          routeSettings: RouteSettings(name: routeName),
           onClosed: (_) {
             thumbnail.image?.evict();
             thumbnail.markAsChanged();
@@ -628,11 +639,22 @@ class _PreviewCardState extends State<PreviewCard> {
       );
       final newPath = '$directory$newName';
 
-      // Check if it's a markdown file
+      // Check file types
+      final textFile = FileManager.getFile(
+        '${widget.filePath}${TextFileEditor.internalExtension}',
+      );
+      final isTextFile = textFile.existsSync();
+
       final mdFile = FileManager.getFile('${widget.filePath}.md');
       final isMarkdown = mdFile.existsSync();
 
-      if (isMarkdown) {
+      if (isTextFile) {
+        // Rename the text file
+        await FileManager.moveFile(
+          '${widget.filePath}${TextFileEditor.internalExtension}',
+          '$newPath${TextFileEditor.internalExtension}',
+        );
+      } else if (isMarkdown) {
         // Rename the .md file
         await FileManager.moveFile('${widget.filePath}.md', '$newPath.md');
       } else {
