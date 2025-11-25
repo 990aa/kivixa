@@ -302,6 +302,21 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  // App Lock settings
+  final appLockEnabled = PlainStow(
+    'appLockEnabled',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
+  // PIN is stored separately using FlutterSecureStorage for security
+  // This flag tracks if a PIN has been set
+  final appLockPinSet = PlainStow(
+    'appLockPinSet',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
   static bool get isDesktop => Platform.isWindows;
 }
 

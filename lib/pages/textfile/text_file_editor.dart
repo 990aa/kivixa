@@ -21,10 +21,7 @@ class _ImageEmbedBuilder extends EmbedBuilder {
   bool get expanded => false;
 
   @override
-  Widget build(
-    BuildContext context,
-    EmbedContext embedContext,
-  ) {
+  Widget build(BuildContext context, EmbedContext embedContext) {
     final imageUrl = embedContext.node.value.data;
 
     if (imageUrl is! String) {
@@ -748,9 +745,7 @@ class _TextFileEditorState extends State<TextFileEditor> {
                     padding: const EdgeInsets.all(16),
                     autoFocus: false,
                     expands: true,
-                    embedBuilders: [
-                      _ImageEmbedBuilder(),
-                    ],
+                    embedBuilders: [_ImageEmbedBuilder()],
                     customStyles: DefaultStyles(
                       paragraph: DefaultTextBlockStyle(
                         TextStyle(
