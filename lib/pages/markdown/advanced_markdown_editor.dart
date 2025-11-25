@@ -153,6 +153,8 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
   }
 
   Future<void> _loadFile() async {
+    String fileContent = '';
+    
     if (widget.filePath != null) {
       try {
         _currentFilePath = widget.filePath! + AdvancedMarkdownEditor.extension;
@@ -160,10 +162,8 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
         try {
           final content = await FileManager.readFile(_currentFilePath!);
           if (content != null) {
-            final fileContent = String.fromCharCodes(content);
-            _codeController.text = fileContent;
+            fileContent = String.fromCharCodes(content);
             _fileName = _getFileNameFromPath(_currentFilePath!);
-            _updateCounts();
           }
         } catch (e) {
           _currentFilePath =
@@ -176,13 +176,16 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
       }
     }
 
+    // Initialize code controller (will get proper theme in build)
+    _initCodeController(false, fileContent);
+    _updateCounts();
+
     setState(() {
       _isLoading = false;
     });
 
     _fileNameController.text = _fileName;
     _fileNameController.addListener(_onFileNameChanged);
-    _codeController.addListener(_onTextChanged);
   }
 
   String _getFileNameFromPath(String path) {
