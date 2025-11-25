@@ -86,36 +86,49 @@ class _RichMarkdownEditorState extends State<RichMarkdownEditor> {
         try {
           final content = await FileManager.readFile(_currentFilePath!);
           if (content != null) {
-            final jsonString = String.fromCharCodes(content);
-            final data = json.decode(jsonString);
+            final fileContent = String.fromCharCodes(content);
 
-            // Handle new format with document and textBoxes
-            if (data is Map && data.containsKey('document')) {
-              final document = Document.fromJson(
-                Map<String, Object>.from(data['document']),
-              );
-              _editorState = EditorState(document: document);
+            // First, try to parse as JSON (our internal format)
+            try {
+              final data = json.decode(fileContent);
 
-              // Load text boxes if available
-              if (data.containsKey('textBoxes')) {
-                for (final boxJson in data['textBoxes']) {
-                  _textBoxes.add(
-                    TextBoxData.fromJson(Map<String, dynamic>.from(boxJson)),
-                  );
+              // Handle new format with document and textBoxes
+              if (data is Map && data.containsKey('document')) {
+                final document = Document.fromJson(
+                  Map<String, Object>.from(data['document']),
+                );
+                _editorState = EditorState(document: document);
+
+                // Load text boxes if available
+                if (data.containsKey('textBoxes')) {
+                  for (final boxJson in data['textBoxes']) {
+                    _textBoxes.add(
+                      TextBoxData.fromJson(Map<String, dynamic>.from(boxJson)),
+                    );
+                  }
                 }
+              } else if (data is Map) {
+                // Handle old format (just document JSON)
+                final document = Document.fromJson(
+                  Map<String, Object>.from(data),
+                );
+                _editorState = EditorState(document: document);
+              } else {
+                // Unknown JSON format, treat as plain markdown
+                _loadPlainMarkdown(fileContent);
               }
-            } else {
-              // Handle old format (just document)
-              final document = Document.fromJson(
-                Map<String, Object>.from(data),
+            } catch (jsonError) {
+              // Not valid JSON - treat as plain markdown text
+              log.info(
+                'File is not JSON format, loading as plain markdown: $_currentFilePath',
               );
-              _editorState = EditorState(document: document);
+              _loadPlainMarkdown(fileContent);
             }
 
             _fileName = _getFileNameFromPath(_currentFilePath!);
           }
         } catch (e) {
-          // File doesn't exist or is in old format, create new editor
+          // File doesn't exist, create new editor
           _currentFilePath = widget.filePath! + RichMarkdownEditor.extension;
           _fileName = _getFileNameFromPath(widget.filePath!);
           _editorState = EditorState.blank();
@@ -138,6 +151,33 @@ class _RichMarkdownEditorState extends State<RichMarkdownEditor> {
     _editorState.transactionStream.listen((_) {
       _onEditorChanged();
     });
+  }
+
+  /// Load plain markdown text content into the editor
+  void _loadPlainMarkdown(String markdownContent) {
+    try {
+      // Convert markdown to AppFlowy document
+      final document = markdownToDocument(markdownContent);
+      _editorState = EditorState(document: document);
+      log.info('Successfully loaded plain markdown content');
+    } catch (e) {
+      log.severe('Error converting markdown to document', e);
+      // Fallback: create a document with the content as plain text
+      _editorState = EditorState.blank();
+      // Insert the text as a paragraph
+      if (markdownContent.isNotEmpty) {
+        final lines = markdownContent.split('\n');
+        final nodes = <Node>[];
+        for (final line in lines) {
+          nodes.add(
+            paragraphNode(text: line),
+          );
+        }
+        _editorState = EditorState(
+          document: Document(root: pageNode(children: nodes)),
+        );
+      }
+    }
   }
 
   String _getFileNameFromPath(String path) {

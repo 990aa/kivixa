@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:animations/animations.dart';
@@ -15,6 +16,7 @@ import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
 import 'package:kivixa/pages/markdown/rich_markdown_editor.dart';
+import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:logging/logging.dart';
 
 class PreviewCard extends StatefulWidget {
