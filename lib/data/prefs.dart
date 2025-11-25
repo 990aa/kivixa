@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kivixa/components/canvas/_canvas_background_painter.dart';
 import 'package:kivixa/components/navbar/responsive_navbar.dart';
 import 'package:kivixa/data/flavor_config.dart';
