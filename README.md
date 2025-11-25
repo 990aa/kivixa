@@ -13,8 +13,6 @@
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
 [![Version](https://img.shields.io/badge/Version-0.0.1-green)](CHANGELOG.md)
 
-[Features](#-features) • [Getting Started](#-getting-started) • [Contributing](#-contributing) • [Documentation](#-documentation)
-
 </div>
 
 ---
