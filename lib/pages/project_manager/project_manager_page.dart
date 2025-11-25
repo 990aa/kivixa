@@ -673,7 +673,7 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<ProjectStatus>(
-                    value: selectedStatus,
+                    initialValue: selectedStatus,
                     decoration: const InputDecoration(
                       labelText: 'Status',
                       border: OutlineInputBorder(),
