@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:code_text_field/code_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_highlight/themes/github.dart';
+import 'package:flutter_highlight/themes/vs2015.dart';
 import 'package:flutter_smooth_markdown/flutter_smooth_markdown.dart';
 import 'package:highlight/languages/markdown.dart';
-import 'package:flutter_highlight/themes/vs2015.dart';
-import 'package:flutter_highlight/themes/github.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:logging/logging.dart';
@@ -141,7 +141,6 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     _codeController = CodeController(
       text: currentText,
       language: markdown,
-      theme: isDark ? vs2015Theme : githubTheme,
     );
     if (selection != null && selection.isValid) {
       try {
@@ -703,28 +702,33 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
       return const Center(child: CircularProgressIndicator());
     }
 
+    final theme = isDark ? vs2015Theme : githubTheme;
+
     return ColoredBox(
       color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-      child: CodeField(
-        controller: controller,
-        textStyle: const TextStyle(
-          fontFamily: 'FiraCode',
-          fontSize: 14,
-          height: 1.5,
-        ),
-        lineNumberStyle: LineNumberStyle(
-          width: 48,
-          textStyle: TextStyle(
-            color: isDark ? Colors.grey[600] : Colors.grey[400],
-            fontSize: 12,
+      child: CodeTheme(
+        data: CodeThemeData(styles: theme),
+        child: CodeField(
+          controller: controller,
+          textStyle: const TextStyle(
+            fontFamily: 'FiraCode',
+            fontSize: 14,
+            height: 1.5,
           ),
-          background: isDark
-              ? const Color(0xFF252526)
-              : const Color(0xFFF5F5F5),
+          lineNumberStyle: LineNumberStyle(
+            width: 48,
+            textStyle: TextStyle(
+              color: isDark ? Colors.grey[600] : Colors.grey[400],
+              fontSize: 12,
+            ),
+            background: isDark
+                ? const Color(0xFF252526)
+                : const Color(0xFFF5F5F5),
+          ),
+          padding: const EdgeInsets.all(16),
+          expands: true,
+          wrap: true,
         ),
-        padding: const EdgeInsets.all(16),
-        expands: true,
-        wrap: true,
       ),
     );
   }
