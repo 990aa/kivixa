@@ -77,9 +77,7 @@ class _ClearAppDataWidgetState extends State<ClearAppDataWidget> {
               onPressed: _selectedTypes.isEmpty || _isClearing
                   ? null
                   : () => _showConfirmationDialog(context),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
               child: _isClearing
                   ? const SizedBox(
                       width: 20,
@@ -96,10 +94,13 @@ class _ClearAppDataWidgetState extends State<ClearAppDataWidget> {
 
   Widget _buildDataTypeOption(AppDataType type, StateSetter setState) {
     final size = _dataSizes?[type];
-    final sizeText = size != null ? ' (${AppDataClearService.formatBytes(size)})' : '';
+    final sizeText = size != null
+        ? ' (${AppDataClearService.formatBytes(size)})'
+        : '';
 
     return CheckboxListTile(
-      value: _selectedTypes.contains(type) ||
+      value:
+          _selectedTypes.contains(type) ||
           (type != AppDataType.all && _selectedTypes.contains(AppDataType.all)),
       onChanged: (value) {
         setState(() {
@@ -121,10 +122,7 @@ class _ClearAppDataWidgetState extends State<ClearAppDataWidget> {
         });
       },
       title: Text(type.displayName + sizeText),
-      subtitle: Text(
-        type.description,
-        style: const TextStyle(fontSize: 12),
-      ),
+      subtitle: Text(type.description, style: const TextStyle(fontSize: 12)),
       dense: true,
       controlAffinity: ListTileControlAffinity.leading,
     );
@@ -135,9 +133,7 @@ class _ClearAppDataWidgetState extends State<ClearAppDataWidget> {
         ? {AppDataType.all}
         : _selectedTypes;
 
-    final itemsList = typesToClear
-        .map((t) => '• ${t.displayName}')
-        .join('\n');
+    final itemsList = typesToClear.map((t) => '• ${t.displayName}').join('\n');
 
     showDialog(
       context: context,
@@ -155,10 +151,7 @@ class _ClearAppDataWidgetState extends State<ClearAppDataWidget> {
           children: [
             const Text(
               '⚠️ WARNING: This action is IRREVERSIBLE!',
-              style: TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             const Text('You are about to permanently delete:'),
@@ -183,9 +176,7 @@ class _ClearAppDataWidgetState extends State<ClearAppDataWidget> {
               Navigator.pop(context); // Close confirmation
               await _clearData(typesToClear);
             },
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Yes, Delete Permanently'),
           ),
         ],
@@ -198,9 +189,9 @@ class _ClearAppDataWidgetState extends State<ClearAppDataWidget> {
 
     try {
       final results = await AppDataClearService.clearData(types);
-      
+
       if (!mounted) return;
-      
+
       Navigator.pop(context); // Close the main dialog
 
       final successCount = results.values.where((v) => v).length;
@@ -221,7 +212,7 @@ class _ClearAppDataWidgetState extends State<ClearAppDataWidget> {
       await _loadDataSizes();
     } catch (e) {
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error clearing data: $e'),
