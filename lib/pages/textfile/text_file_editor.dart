@@ -868,7 +868,7 @@ class _FontFamilyDropdown extends StatelessWidget {
     return SizedBox(
       width: 120,
       child: DropdownButtonFormField<String>(
-        value: _fontValues[0],
+        initialValue: _fontValues[0],
         decoration: const InputDecoration(
           isDense: true,
           contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -917,7 +917,7 @@ class _FontSizeDropdown extends StatelessWidget {
     return SizedBox(
       width: 70,
       child: DropdownButtonFormField<String>(
-        value: '14',
+        initialValue: '14',
         decoration: const InputDecoration(
           isDense: true,
           contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
