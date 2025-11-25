@@ -661,7 +661,7 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
                         ),
                       ),
                       const SizedBox(width: 16),
-                      Icon(Icons.notes, size: 16, color: Colors.grey),
+                      const Icon(Icons.notes, size: 16, color: Colors.grey),
                       const SizedBox(width: 4),
                       Text(
                         '${notes.length} total notes',
@@ -794,7 +794,7 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
       value: selectedNotes.contains(note),
       onChanged: (value) {
         setDialogState(() {
-          if (value == true) {
+          if (value ?? false) {
             selectedNotes.add(note);
           } else {
             selectedNotes.remove(note);
