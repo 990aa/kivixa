@@ -11,11 +11,10 @@
     "files.associations": {
         "VERSION": "plaintext"
     },
-    "dart.problemFilterScope": {
-        "excludePatterns": [
-            "**/VERSION",
-            "**/build.gradle.kts"
-        ]
+    "problems.excludeGitIgnore": true,
+    "search.exclude": {
+        "**/VERSION": true,
+        "**/build.gradle.kts": true
     },
     "editor.defaultFormatter": "Dart-Code.dart-code",
     "editor.formatOnSave": true,
@@ -23,7 +22,8 @@
         "**/submodules/**",
     ],
     "dart.analysisExcludedFolders": [
-        "submodules"
+        "submodules",
+        "packages"
     ],
     "cmake.ignoreCMakeListsMissing": true
 }
