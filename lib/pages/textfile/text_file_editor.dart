@@ -612,7 +612,7 @@ class _TextFileEditorState extends State<TextFileEditor> {
                   controller: _controller,
                   focusNode: _editorFocusNode,
                   scrollController: _scrollController,
-                  configurations: QuillEditorConfigurations(
+                  config: QuillEditorConfig(
                     placeholder: 'Start typing...',
                     padding: const EdgeInsets.all(16),
                     autoFocus: false,
@@ -624,9 +624,9 @@ class _TextFileEditorState extends State<TextFileEditor> {
                           color: colorScheme.onSurface,
                           height: 1.5,
                         ),
-                        const HorizontalSpacing(0, 0),
+                        HorizontalSpacing.zero,
                         const VerticalSpacing(8, 8),
-                        const VerticalSpacing(0, 0),
+                        VerticalSpacing.zero,
                         null,
                       ),
                       h1: DefaultTextBlockStyle(
@@ -635,9 +635,9 @@ class _TextFileEditorState extends State<TextFileEditor> {
                           fontWeight: FontWeight.bold,
                           color: colorScheme.onSurface,
                         ),
-                        const HorizontalSpacing(0, 0),
+                        HorizontalSpacing.zero,
                         const VerticalSpacing(16, 8),
-                        const VerticalSpacing(0, 0),
+                        VerticalSpacing.zero,
                         null,
                       ),
                       h2: DefaultTextBlockStyle(
@@ -646,9 +646,9 @@ class _TextFileEditorState extends State<TextFileEditor> {
                           fontWeight: FontWeight.bold,
                           color: colorScheme.onSurface,
                         ),
-                        const HorizontalSpacing(0, 0),
+                        HorizontalSpacing.zero,
                         const VerticalSpacing(14, 6),
-                        const VerticalSpacing(0, 0),
+                        VerticalSpacing.zero,
                         null,
                       ),
                       h3: DefaultTextBlockStyle(
@@ -657,9 +657,9 @@ class _TextFileEditorState extends State<TextFileEditor> {
                           fontWeight: FontWeight.bold,
                           color: colorScheme.onSurface,
                         ),
-                        const HorizontalSpacing(0, 0),
+                        HorizontalSpacing.zero,
                         const VerticalSpacing(12, 4),
-                        const VerticalSpacing(0, 0),
+                        VerticalSpacing.zero,
                         null,
                       ),
                       code: DefaultTextBlockStyle(
@@ -669,9 +669,9 @@ class _TextFileEditorState extends State<TextFileEditor> {
                           color: colorScheme.onSurfaceVariant,
                           backgroundColor: colorScheme.surfaceContainerHighest,
                         ),
-                        const HorizontalSpacing(0, 0),
+                        HorizontalSpacing.zero,
                         const VerticalSpacing(8, 8),
-                        const VerticalSpacing(0, 0),
+                        VerticalSpacing.zero,
                         BoxDecoration(
                           color: colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(4),
@@ -749,14 +749,33 @@ class _TextFileEditorState extends State<TextFileEditor> {
               ),
             ),
             const VerticalDivider(),
-            // Alignment
-            QuillToolbarSelectAlignmentButtons(
+            // Alignment - using toggle buttons for each alignment
+            QuillToolbarToggleStyleButton(
               controller: _controller,
-              options: const QuillToolbarSelectAlignmentButtonOptions(
-                showLeftAlignment: true,
-                showCenterAlignment: true,
-                showRightAlignment: true,
-                showJustifyAlignment: true,
+              attribute: Attribute.leftAlignment,
+              options: const QuillToolbarToggleStyleButtonOptions(
+                iconData: Icons.format_align_left,
+              ),
+            ),
+            QuillToolbarToggleStyleButton(
+              controller: _controller,
+              attribute: Attribute.centerAlignment,
+              options: const QuillToolbarToggleStyleButtonOptions(
+                iconData: Icons.format_align_center,
+              ),
+            ),
+            QuillToolbarToggleStyleButton(
+              controller: _controller,
+              attribute: Attribute.rightAlignment,
+              options: const QuillToolbarToggleStyleButtonOptions(
+                iconData: Icons.format_align_right,
+              ),
+            ),
+            QuillToolbarToggleStyleButton(
+              controller: _controller,
+              attribute: Attribute.justifyAlignment,
+              options: const QuillToolbarToggleStyleButtonOptions(
+                iconData: Icons.format_align_justify,
               ),
             ),
             const VerticalDivider(),
