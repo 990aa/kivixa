@@ -25,6 +25,8 @@ import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/data/tools/shape_pen.dart';
 import 'package:kivixa/i18n/strings.g.dart';
+import 'package:kivixa/pages/lock_screen.dart';
+import 'package:kivixa/services/app_lock_service.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:stow/stow.dart';
 
@@ -470,6 +472,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       simplified ? Icons.grid_view : Symbols.browse,
                   pref: stows.simplifiedHomeLayout,
                 ),
+                SettingsSubtitle(subtitle: t.settings.prefCategories.security),
+                _AppLockSettingsSection(onChanged: () => setState(() {})),
                 SettingsSubtitle(subtitle: t.settings.prefCategories.advanced),
                 if (Platform.isAndroid)
                   SettingsDirectorySelector(
@@ -536,5 +540,128 @@ class _SettingsPageState extends State<SettingsPage> {
   void dispose() {
     UpdateManager.status.removeListener(onChanged);
     super.dispose();
+  }
+}
+
+/// Settings section for app lock functionality
+class _AppLockSettingsSection extends StatefulWidget {
+  const _AppLockSettingsSection({required this.onChanged});
+
+  final VoidCallback onChanged;
+
+  @override
+  State<_AppLockSettingsSection> createState() =>
+      _AppLockSettingsSectionState();
+}
+
+class _AppLockSettingsSectionState extends State<_AppLockSettingsSection> {
+  final _appLockService = AppLockService();
+
+  Future<void> _setupPin() async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const PinSetupDialog(),
+    );
+
+    if (result == true) {
+      setState(() {});
+      widget.onChanged();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('App lock enabled')),
+        );
+      }
+    }
+  }
+
+  Future<void> _changePin() async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const PinSetupDialog(isChanging: true),
+    );
+
+    if (result == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('PIN changed successfully')),
+      );
+    }
+  }
+
+  Future<void> _removePin() async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const RemovePinDialog(),
+    );
+
+    if (result == true) {
+      setState(() {});
+      widget.onChanged();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('App lock disabled')),
+        );
+      }
+    }
+  }
+
+  void _toggleAppLock(bool value) {
+    if (value && !_appLockService.isPinSet) {
+      _setupPin();
+    } else {
+      if (value) {
+        _appLockService.enable();
+      } else {
+        _appLockService.disable();
+      }
+      setState(() {});
+      widget.onChanged();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEnabled = _appLockService.isEnabled;
+    final isPinSet = _appLockService.isPinSet;
+
+    return Column(
+      children: [
+        // Main app lock toggle
+        SettingsSwitch(
+          title: t.settings.prefLabels.appLock,
+          subtitle: t.settings.prefDescriptions.appLock,
+          iconBuilder: (enabled) =>
+              enabled ? Icons.lock : Icons.lock_open,
+          pref: stows.appLockEnabled,
+          afterChange: _toggleAppLock,
+        ),
+
+        // Additional options when PIN is set
+        if (isPinSet) ...[
+          Collapsible(
+            collapsed: !isEnabled,
+            axis: CollapsibleAxis.vertical,
+            child: Column(
+              children: [
+                SettingsButton(
+                  title: t.settings.prefLabels.changePin,
+                  subtitle: t.settings.prefDescriptions.changePin,
+                  icon: Icons.pin,
+                  onPressed: _changePin,
+                ),
+                SettingsButton(
+                  title: t.settings.prefLabels.removeAppLock,
+                  subtitle: t.settings.prefDescriptions.removeAppLock,
+                  icon: Icons.no_encryption,
+                  onPressed: _removePin,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
   }
 }

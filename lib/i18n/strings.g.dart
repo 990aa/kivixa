@@ -278,6 +278,10 @@ class TranslationsSettingsPrefDescriptions {
   pencilSoundSetting = TranslationsSettingsPrefDescriptionsPencilSoundSetting();
   final TranslationsSettingsPrefDescriptionsSentry sentry =
       TranslationsSettingsPrefDescriptionsSentry();
+  String get appLock => 'Require PIN to open the app';
+  String get appLockEnabled => 'Enter PIN every time you open the app';
+  String get changePin => 'Update your security PIN';
+  String get removeAppLock => 'Disable app lock and remove PIN';
 }
 
 class TranslationsSettingsPrefDescriptionsHideFingerDrawing {
