@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:kivixa/data/calendar_storage.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/project_storage.dart';
-import 'package:kivixa/data/calendar_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Enum representing different types of app data that can be cleared

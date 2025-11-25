@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kivixa/services/terms_and_conditions_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('TermsAndConditionsService', () {

@@ -99,20 +99,19 @@ class _ClearAppDataWidgetState extends State<ClearAppDataWidget> {
         : '';
 
     return CheckboxListTile(
-      value:
-          _selectedTypes.contains(type) ||
+      value: _selectedTypes.contains(type) ||
           (type != AppDataType.all && _selectedTypes.contains(AppDataType.all)),
       onChanged: (value) {
         setState(() {
           if (type == AppDataType.all) {
-            if (value == true) {
+            if (value ?? false) {{
               _selectedTypes.clear();
               _selectedTypes.add(AppDataType.all);
             } else {
               _selectedTypes.remove(AppDataType.all);
             }
           } else {
-            if (value == true) {
+            if (value ?? false) {
               _selectedTypes.add(type);
               _selectedTypes.remove(AppDataType.all);
             } else {

@@ -57,7 +57,7 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
   }
 
   List<Project> get _filteredProjects {
-    var filtered = _allProjects.where((p) {
+    final filtered = _allProjects.where((p) {
       if (_searchQuery.isNotEmpty) {
         final query = _searchQuery.toLowerCase();
         return p.title.toLowerCase().contains(query) ||

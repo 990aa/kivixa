@@ -205,8 +205,8 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  bool _termsChecked = false;
-  bool _termsAccepted = false;
+  var _termsChecked = false;
+  var _termsAccepted = false;
 
   @override
   void initState() {
@@ -228,10 +228,10 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     // Show a loading screen while checking terms
     if (!_termsChecked) {
-      return MaterialApp(
+      return const MaterialApp(
         title: 'kivixa',
         debugShowCheckedModeBanner: false,
-        home: const Scaffold(body: Center(child: CircularProgressIndicator())),
+        home: Scaffold(body: Center(child: CircularProgressIndicator())),
       );
     }
 

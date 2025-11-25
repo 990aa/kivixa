@@ -34,12 +34,12 @@ class TermsAndConditionsDialog extends StatefulWidget {
 class _TermsAndConditionsDialogState extends State<TermsAndConditionsDialog>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool _hasReadTerms = false;
-  bool _hasReadPrivacy = false;
-  bool _agreedToTerms = false;
-  bool _agreedToPrivacy = false;
-  final ScrollController _termsScrollController = ScrollController();
-  final ScrollController _privacyScrollController = ScrollController();
+  var _hasReadTerms = false;
+  var _hasReadPrivacy = false;
+  var _agreedToTerms = false;
+  var _agreedToPrivacy = false;
+  final _termsScrollController = ScrollController();
+  final _privacyScrollController = ScrollController();
 
   @override
   void initState() {
@@ -115,10 +115,13 @@ class _TermsAndConditionsDialogState extends State<TermsAndConditionsDialog>
               ),
               child: Column(
                 children: [
-                  Icon(
-                    Icons.description_outlined,
-                    size: 48,
-                    color: colorScheme.onPrimaryContainer,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.asset(
+                      'assets/icon/icon.png',
+                      width: 64,
+                      height: 64,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
