@@ -155,7 +155,7 @@ class _LockScreenState extends State<LockScreen>
                       return Transform.translate(
                         offset: Offset(
                           _shakeAnimation.value *
-                              ((_shakeController.value * 10).toInt() % 2 == 0
+                              ((_shakeController.value * 10).toInt().isEven
                                   ? 1
                                   : -1),
                           0,
