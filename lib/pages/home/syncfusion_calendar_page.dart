@@ -501,8 +501,12 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage>
       body: TabBarView(
         controller: _tabController,
         children: [
+          // Calendar Tab
           Theme(
-        child: SfCalendar(
+            data: Theme.of(context).copyWith(
+              colorScheme: colorScheme.copyWith(primary: colorScheme.primary),
+            ),
+            child: SfCalendar(
           controller: _calendarController,
           view: _currentView,
           dataSource: _dataSource,
@@ -639,9 +643,13 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage>
           },
         ),
       ),
+          // Projects Tab
           _buildProjectsTab(),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showEventDialog(),
+        icon: const Icon(Icons.add),
         label: const Text('New Event'),
       ),
     );
