@@ -12,6 +12,135 @@ import 'package:kivixa/i18n/strings.g.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 
+/// Custom image embed builder for QuillEditor that handles local file images
+class _ImageEmbedBuilder extends EmbedBuilder {
+  @override
+  String get key => BlockEmbed.imageType;
+
+  @override
+  bool get expanded => false;
+
+  @override
+  Widget build(
+    BuildContext context,
+    EmbedContext embedContext,
+  ) {
+    final imageUrl = embedContext.node.value.data;
+
+    if (imageUrl is! String) {
+      return const SizedBox.shrink();
+    }
+
+    Widget imageWidget;
+
+    // Check if it's a local file path
+    if (imageUrl.startsWith('/') || imageUrl.contains(':\\')) {
+      final file = File(imageUrl);
+      if (file.existsSync()) {
+        imageWidget = Image.file(
+          file,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.errorContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.broken_image,
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Failed to load image',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onErrorContainer,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      } else {
+        imageWidget = Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.errorContainer,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.image_not_supported,
+                color: Theme.of(context).colorScheme.onErrorContainer,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Image not found',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onErrorContainer,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    } else if (imageUrl.startsWith('http://') ||
+        imageUrl.startsWith('https://')) {
+      imageWidget = Image.network(
+        imageUrl,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.errorContainer,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.broken_image,
+                  color: Theme.of(context).colorScheme.onErrorContainer,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Failed to load image',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    } else {
+      imageWidget = const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 400),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: imageWidget,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Text file editor with Microsoft Word-like rich text formatting.
 /// Files are saved as .docx format locally with full formatting preservation.
 class TextFileEditor extends StatefulWidget {
