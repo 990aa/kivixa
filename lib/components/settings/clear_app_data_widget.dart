@@ -104,7 +104,7 @@ class _ClearAppDataWidgetState extends State<ClearAppDataWidget> {
       onChanged: (value) {
         setState(() {
           if (type == AppDataType.all) {
-            if (value ?? false) {{
+            if (value ?? false) {
               _selectedTypes.clear();
               _selectedTypes.add(AppDataType.all);
             } else {
