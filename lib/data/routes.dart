@@ -10,6 +10,7 @@ abstract class RoutePaths {
   static const home = '$prefixOfHome/:subpage';
   static const edit = '/edit';
   static const markdown = '/markdown';
+  static const textFile = '/textfile';
   static const login = '/login';
   static const logs = '/logs';
 
@@ -27,6 +28,10 @@ abstract class RoutePaths {
 
   static String markdownFilePath(String filePath) {
     return '$markdown?path=${Uri.encodeQueryComponent(filePath)}';
+  }
+
+  static String textFilePath(String filePath) {
+    return '$textFile?path=${Uri.encodeQueryComponent(filePath)}';
   }
 }
 

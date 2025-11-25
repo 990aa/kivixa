@@ -39,8 +39,8 @@ class _NewNoteButtonState extends State<NewNoteButton> {
       },
       children: [
         SpeedDialChild(
-          child: const Icon(Icons.create),
-          label: t.home.create.newNote,
+          child: const Icon(Icons.draw),
+          label: 'New Handwritten Note',
           onTap: () async {
             if (widget.path == null) {
               context.push(RoutePaths.edit);
@@ -50,6 +50,19 @@ class _NewNoteButtonState extends State<NewNoteButton> {
               );
               if (!context.mounted) return;
               context.push(RoutePaths.editFilePath(newFilePath));
+            }
+          },
+        ),
+        SpeedDialChild(
+          child: const Icon(Icons.article),
+          label: 'New Text File',
+          onTap: () async {
+            if (widget.path == null) {
+              context.push(RoutePaths.textFile);
+            } else {
+              final basePath = await FileManager.newFilePath('${widget.path}/');
+              if (!context.mounted) return;
+              context.push(RoutePaths.textFilePath(basePath));
             }
           },
         ),
