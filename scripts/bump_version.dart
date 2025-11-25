@@ -1,28 +1,28 @@
 #!/usr/bin/env dart
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, avoid_slow_async_io
 
-/// Version Bump Script for Kivixa
-///
-/// This script reads the current version from VERSION file and updates
-/// all necessary files to ensure consistent versioning across the project.
-///
-/// Usage:
-///   dart run scripts/bump_version.dart [options]
-///
-/// Options:
-///   --help, -h     Show this help message
-///   --major        Bump major version (x.0.0)
-///   --minor        Bump minor version (0.x.0)
-///   --patch        Bump patch version (0.0.x)
-///   --build        Bump build number only
-///   --set          Set specific version (e.g., --set 2.0.0)
-///   --dry-run      Show what would change without making changes
-///
-/// Examples:
-///   dart run scripts/bump_version.dart --patch
-///   dart run scripts/bump_version.dart --minor
-///   dart run scripts/bump_version.dart --set 2.0.0
-///   dart run scripts/bump_version.dart --build --dry-run
+// Version Bump Script for Kivixa
+//
+// This script reads the current version from VERSION file and updates
+// all necessary files to ensure consistent versioning across the project.
+//
+// Usage:
+//   dart run scripts/bump_version.dart [options]
+//
+// Options:
+//   --help, -h     Show this help message
+//   --major        Bump major version (x.0.0)
+//   --minor        Bump minor version (0.x.0)
+//   --patch        Bump patch version (0.0.x)
+//   --build        Bump build number only
+//   --set          Set specific version (e.g., --set 2.0.0)
+//   --dry-run      Show what would change without making changes
+//
+// Examples:
+//   dart run scripts/bump_version.dart --patch
+//   dart run scripts/bump_version.dart --minor
+//   dart run scripts/bump_version.dart --set 2.0.0
+//   dart run scripts/bump_version.dart --build --dry-run
 
 import 'dart:io';
 
