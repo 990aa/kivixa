@@ -765,7 +765,8 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
                   if (!dialogContext.mounted) return;
                   Navigator.pop(dialogContext);
                   _loadProjects();
-                  if (!context.mounted) return;
+                  if (!mounted) return;
+                  // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Updated notes for ${project.title}'),
