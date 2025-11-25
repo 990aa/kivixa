@@ -172,10 +172,10 @@ flutter build ios --release
 | Platform | Status | Notes |
 |----------|--------|-------|
 |  **Windows** | Stable | Fully tested and optimized |
-|  **macOS** | Stable | Requires macOS |
-|  **Linux** | Stable | Requires Linux |
+|  **macOS** | - | Requires macOS |
+|  **Linux** | - | Requires Linux |
 |  **Android** | Stable | Android 7.0 (API 24)+ |
-|  **iOS** | Stable | Requires iOS |
+|  **iOS** | - | Requires iOS |
 |  **Web** | Experimental | Limited features |
 
 ---
