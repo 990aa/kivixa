@@ -366,10 +366,7 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
               height: 4,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    projectColor,
-                    projectColor.withValues(alpha: 0.5),
-                  ],
+                  colors: [projectColor, projectColor.withValues(alpha: 0.5)],
                 ),
               ),
             ),
@@ -438,7 +435,9 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
             // Action bar
             Container(
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.5,
+                ),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: Row(
@@ -469,10 +468,7 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
       children: [
         Icon(icon, size: 14, color: Colors.grey[600]),
         const SizedBox(width: 4),
-        Text(
-          label,
-          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-        ),
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       ],
     );
   }
@@ -592,9 +588,9 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
 
   void _showLinkNoteDialog(Project project) {
     // TODO: Implement note linking dialog
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Note linking coming soon!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Note linking coming soon!')));
   }
 
   Future<void> _duplicateProject(Project project) async {
@@ -770,7 +766,8 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
                             tooltip: 'Random color',
                             onPressed: () {
                               setState(
-                                () => selectedColor = generateRandomProjectColor(),
+                                () => selectedColor =
+                                    generateRandomProjectColor(),
                               );
                             },
                           ),
@@ -936,7 +933,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   void initState() {
     super.initState();
     _project = widget.project;
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _loadProjectData();
   }
 
@@ -967,41 +964,201 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final projectColor = _project.color ?? colorScheme.primary;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_project.title),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () => _editProject(),
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          SliverAppBar(
+            expandedHeight: 160,
+            floating: false,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      projectColor.withValues(alpha: 0.8),
+                      colorScheme.surface,
+                    ],
+                  ),
+                ),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(72, 16, 16, 60),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.folder, color: Colors.white, size: 24),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _project.title,
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (_project.description != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            _project.description!,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.9),
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () => _editProject(),
+              ),
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () => _showMoreOptions(),
+              ),
+            ],
+            bottom: TabBar(
+              controller: _tabController,
+              tabs: const [
+                Tab(icon: Icon(Icons.home), text: 'Overview'),
+                Tab(icon: Icon(Icons.description), text: 'Notes'),
+                Tab(icon: Icon(Icons.task_alt), text: 'Tasks'),
+                Tab(icon: Icon(Icons.history), text: 'Activity'),
+              ],
+            ),
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Overview'),
-            Tab(text: 'Tasks'),
-            Tab(text: 'Timeline'),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildOverviewTab(),
+                  _buildNotesTab(),
+                  _buildTasksTab(),
+                  _buildActivityTab(),
+                ],
+              ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showAddActionDialog(),
+        icon: const Icon(Icons.add),
+        label: const Text('Add'),
+      ),
+    );
+  }
+
+  void _showMoreOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.share),
+              title: const Text('Share Project'),
+              onTap: () => Navigator.pop(context),
+            ),
+            ListTile(
+              leading: const Icon(Icons.archive),
+              title: const Text('Archive Project'),
+              onTap: () => Navigator.pop(context),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text(
+                'Delete Project',
+                style: TextStyle(color: Colors.red),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                // Delete project and go back
+              },
+            ),
           ],
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildOverviewTab(),
-                _buildTasksTab(),
-                _buildTimelineTab(),
-              ],
+    );
+  }
+
+  void _showAddActionDialog() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Add to Project',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ),
-      floatingActionButton: _tabController.index == 0
-          ? FloatingActionButton.extended(
-              onPressed: () => _showAddChangeDialog(),
-              icon: const Icon(Icons.add),
-              label: const Text('Add Change'),
-            )
-          : null,
+            ListTile(
+              leading: const Icon(Icons.commit, color: Colors.green),
+              title: const Text('New Commit'),
+              subtitle: const Text('Record a change or progress'),
+              onTap: () {
+                Navigator.pop(context);
+                _showAddChangeDialog();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.task_alt, color: Colors.orange),
+              title: const Text('New Task'),
+              subtitle: const Text('Add a task to this project'),
+              onTap: () {
+                Navigator.pop(context);
+                _showAddTaskDialog();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.description, color: Colors.blue),
+              title: const Text('Link Note'),
+              subtitle: const Text('Connect an existing note'),
+              onTap: () {
+                Navigator.pop(context);
+                _showLinkNoteDialog();
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAddTaskDialog() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Task creation coming soon!')),
+    );
+  }
+
+  void _showLinkNoteDialog() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Note linking coming soon!')),
     );
   }
 
