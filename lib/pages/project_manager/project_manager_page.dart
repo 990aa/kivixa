@@ -1567,21 +1567,29 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add Change'),
+        title: const Row(
+          children: [
+            Icon(Icons.commit, color: Colors.green),
+            SizedBox(width: 8),
+            Text('New Commit'),
+          ],
+        ),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
-            labelText: 'Description',
+            labelText: 'Commit message',
+            hintText: 'Describe what changed...',
             border: OutlineInputBorder(),
           ),
           maxLines: 3,
+          autofocus: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          FilledButton(
+          FilledButton.icon(
             onPressed: () async {
               if (controller.text.trim().isNotEmpty) {
                 final change = ProjectChange(
@@ -1594,7 +1602,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 if (context.mounted) Navigator.pop(context);
               }
             },
-            child: const Text('Add'),
+            icon: const Icon(Icons.check),
+            label: const Text('Commit'),
           ),
         ],
       ),
