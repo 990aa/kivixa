@@ -561,7 +561,7 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
               title: const Text('Link Note'),
               onTap: () {
                 Navigator.pop(context);
-                _showLinkNoteDialog(project);
+                _showLinkNoteDialogForProject(project);
               },
             ),
             ListTile(
@@ -590,11 +590,12 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
     );
   }
 
-  void _showLinkNoteDialog(Project project) {
-    // TODO: Implement note linking dialog
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Note linking coming soon!')));
+  void _showLinkNoteDialogForProject(Project project) {
+    // Set the project state and call the main dialog
+    setState(() {
+      _selectedProjectId = project.id;
+    });
+    _showLinkNoteDialog();
   }
 
   Future<void> _duplicateProject(Project project) async {
