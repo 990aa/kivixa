@@ -2,10 +2,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kivixa/data/calendar_storage.dart';
+import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/models/calendar_event.dart';
 import 'package:kivixa/data/models/project.dart';
 import 'package:kivixa/data/project_storage.dart';
+import 'package:kivixa/data/routes.dart';
 
 /// Generates a random unique color for projects using HSL for vibrant colors
 Color generateRandomProjectColor() {
