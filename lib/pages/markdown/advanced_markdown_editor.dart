@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:code_text_field/code_text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_smooth_markdown/flutter_smooth_markdown.dart';
 import 'package:highlight/languages/markdown.dart';
 import 'package:flutter_highlight/themes/vs2015.dart';
@@ -36,7 +35,7 @@ enum EditorViewMode { edit, preview, split }
 
 class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     with SingleTickerProviderStateMixin {
-  late CodeController _codeController;
+  CodeController? _codeController;
   late TextEditingController _fileNameController;
   late TabController _tabController;
 
@@ -52,6 +51,7 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
   var _isEditingFileName = false;
   var _wordCount = 0;
   var _charCount = 0;
+  var _isDark = false;
 
   final log = Logger('AdvancedMarkdownEditor');
 
@@ -131,14 +131,19 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_onTabChanged);
 
-    // Initialize code controller with markdown highlighting
-    _codeController = CodeController(
-      text: '',
-      language: markdown,
-      theme: vs2015Theme,
-    );
-
     _loadFile();
+  }
+
+  void _initCodeController(bool isDark, [String text = '']) {
+    final currentText = _codeController?.text ?? text;
+    _codeController?.removeListener(_onTextChanged);
+    _codeController?.dispose();
+    _codeController = CodeController(
+      text: currentText,
+      language: markdown,
+      theme: isDark ? vs2015Theme : githubTheme,
+    );
+    _codeController!.addListener(_onTextChanged);
   }
 
   void _onTabChanged() {
