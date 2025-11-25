@@ -305,13 +305,15 @@ class _TextFileEditorState extends State<TextFileEditor> {
 
   String _convertDeltaToDocx() {
     final buffer = StringBuffer();
-    buffer.write('''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    buffer.write(
+      '''
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:body>''');
+  <w:body>''',
+    );
 
     final delta = _controller.document.toDelta();
     var currentParagraph = StringBuffer();
-    var currentRunProps = <String, bool>{};
 
     for (final op in delta.toList()) {
       if (op.isInsert) {
@@ -345,9 +347,11 @@ class _TextFileEditorState extends State<TextFileEditor> {
       buffer.write('</w:p>');
     }
 
-    buffer.write('''
+    buffer.write(
+      '''
   </w:body>
-</w:document>''');
+</w:document>''',
+    );
 
     return buffer.toString();
   }
