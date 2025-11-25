@@ -11,7 +11,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.9.0+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
-[![Version](https://img.shields.io/badge/Version-1.0.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-0.0.1-green)](CHANGELOG.md)
 
 [Features](#-features) • [Getting Started](#-getting-started) • [Contributing](#-contributing) • [Documentation](#-documentation)
 
@@ -29,7 +29,22 @@
   - Real-time autosave
 - **Floating Text Boxes** - Add moveable, resizable text boxes anywhere on the canvas
 - **File Organization** - Intuitive folder system with move, rename, and delete operations
-- **Multiple Formats** - Support for `.kvx` (native), `.md` (markdown), and PDF files
+- **Multiple Formats** - Support for `.kvx` (native), `.md` (markdown), `.txt` (text), and PDF files
+- **Text File Editor** - Full-featured text editor with syntax highlighting
+- **Note Linking** - Connect related notes together with bidirectional links
+
+### **Project Manager**
+- **Project Dashboard** - Organize your work into dedicated projects
+- **Task Management** - Create and track tasks within projects
+- **Progress Tracking** - Visual indicators for project completion status
+- **Project Categories** - Organize projects with custom categories
+
+### **Calendar & Events**
+- **Interactive Calendar** - View and manage events with day, week, and month views
+- **Event Management** - Create, edit, and delete events with custom colors
+- **Recurring Events** - Support for daily, weekly, monthly, and yearly recurrence
+- **Reminders** - Get notified before important events
+- **Calendar Navigation** - Easy navigation between dates with jump-to-date feature
 
 ### **Digital Canvas**
 - **Advanced Drawing Tools**
