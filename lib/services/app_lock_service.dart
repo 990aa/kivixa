@@ -14,7 +14,7 @@ class AppLockService {
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
 
-  static final AppLockService _instance = AppLockService._internal();
+  static final _instance = AppLockService._internal();
   factory AppLockService() => _instance;
   AppLockService._internal();
 

@@ -564,7 +564,7 @@ class _AppLockSettingsSectionState extends State<_AppLockSettingsSection> {
       builder: (context) => const PinSetupDialog(),
     );
 
-    if (result == true) {
+    if (result ?? false) {
       setState(() {});
       widget.onChanged();
       if (mounted) {
@@ -582,7 +582,7 @@ class _AppLockSettingsSectionState extends State<_AppLockSettingsSection> {
       builder: (context) => const PinSetupDialog(isChanging: true),
     );
 
-    if (result == true && mounted) {
+    if ((result ?? false) && mounted) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('PIN changed successfully')));
@@ -596,7 +596,7 @@ class _AppLockSettingsSectionState extends State<_AppLockSettingsSection> {
       builder: (context) => const RemovePinDialog(),
     );
 
-    if (result == true) {
+    if (result ?? false) {
       setState(() {});
       widget.onChanged();
       if (mounted) {

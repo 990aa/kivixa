@@ -481,10 +481,10 @@ class _RemovePinDialogState extends State<RemovePinDialog> {
             maxLength: 8,
             autofocus: true,
             style: const TextStyle(fontSize: 20, letterSpacing: 4),
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'PIN',
               counterText: '',
-              border: const OutlineInputBorder(),
+              border: OutlineInputBorder(),
             ),
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             onSubmitted: (_) => _removePin(),
