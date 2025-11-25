@@ -290,10 +290,13 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     if (controller == null) return;
 
     final selection = controller.selection;
+    // Guard against invalid selection
+    if (!selection.isValid || selection.start < 0) return;
+
     final text = controller.text;
     final start = selection.start;
     final end = selection.end;
-    final selectedText = text.substring(start, end);
+    final selectedText = start < end ? text.substring(start, end) : '';
 
     String newText;
     int newStart;
@@ -387,12 +390,16 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     final urlController = TextEditingController();
 
     final selection = controller.selection;
-    final selectedText = controller.text.substring(
-      selection.start,
-      selection.end,
-    );
-    if (selectedText.isNotEmpty) {
-      textController.text = selectedText;
+    if (selection.isValid &&
+        selection.start >= 0 &&
+        selection.start < selection.end) {
+      final selectedText = controller.text.substring(
+        selection.start,
+        selection.end,
+      );
+      if (selectedText.isNotEmpty) {
+        textController.text = selectedText;
+      }
     }
 
     showDialog(
