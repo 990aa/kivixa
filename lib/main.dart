@@ -16,9 +16,11 @@ import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/data/tools/stroke_properties.dart';
 import 'package:kivixa/pages/editor/editor.dart';
 import 'package:kivixa/pages/home/home.dart';
+import 'package:kivixa/pages/lock_screen.dart';
 import 'package:kivixa/pages/logs.dart';
 import 'package:kivixa/pages/markdown/markdown_editor.dart';
 import 'package:kivixa/pages/textfile/text_file_editor.dart';
+import 'package:kivixa/services/app_lock_service.dart';
 import 'package:kivixa/services/notification_service.dart';
 import 'package:kivixa/services/terms_and_conditions_service.dart';
 import 'package:logging/logging.dart';
@@ -213,11 +215,14 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   var _termsChecked = false;
   var _termsAccepted = false;
+  var _isLocked = false;
+  final _appLockService = AppLockService();
 
   @override
   void initState() {
     super.initState();
     _checkTermsAcceptance();
+    _checkLockStatus();
   }
 
   Future<void> _checkTermsAcceptance() async {
@@ -228,6 +233,19 @@ class _AppState extends State<App> {
         _termsAccepted = hasAccepted;
       });
     }
+  }
+
+  void _checkLockStatus() {
+    // Check if app lock is enabled
+    setState(() {
+      _isLocked = _appLockService.isEnabled;
+    });
+  }
+
+  void _onUnlocked() {
+    setState(() {
+      _isLocked = false;
+    });
   }
 
   @override
@@ -250,7 +268,18 @@ class _AppState extends State<App> {
       );
     }
 
-    // Terms accepted, show the main app
+    // If app is locked, show lock screen
+    if (_isLocked) {
+      return MaterialApp(
+        title: 'kivixa',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.light(useMaterial3: true),
+        darkTheme: ThemeData.dark(useMaterial3: true),
+        home: LockScreen(onUnlocked: _onUnlocked),
+      );
+    }
+
+    // Terms accepted and unlocked, show the main app
     return DynamicMaterialApp(title: 'kivixa', router: App._router);
   }
 }

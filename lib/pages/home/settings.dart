@@ -568,9 +568,9 @@ class _AppLockSettingsSectionState extends State<_AppLockSettingsSection> {
       setState(() {});
       widget.onChanged();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('App lock enabled')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('App lock enabled')));
       }
     }
   }
@@ -583,9 +583,9 @@ class _AppLockSettingsSectionState extends State<_AppLockSettingsSection> {
     );
 
     if (result == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('PIN changed successfully')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('PIN changed successfully')));
     }
   }
 
@@ -600,9 +600,9 @@ class _AppLockSettingsSectionState extends State<_AppLockSettingsSection> {
       setState(() {});
       widget.onChanged();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('App lock disabled')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('App lock disabled')));
       }
     }
   }
@@ -632,8 +632,7 @@ class _AppLockSettingsSectionState extends State<_AppLockSettingsSection> {
         SettingsSwitch(
           title: t.settings.prefLabels.appLock,
           subtitle: t.settings.prefDescriptions.appLock,
-          iconBuilder: (enabled) =>
-              enabled ? Icons.lock : Icons.lock_open,
+          iconBuilder: (enabled) => enabled ? Icons.lock : Icons.lock_open,
           pref: stows.appLockEnabled,
           afterChange: _toggleAppLock,
         ),
