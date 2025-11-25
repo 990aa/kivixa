@@ -84,6 +84,7 @@ dependencies:
   flutter_smooth_markdown: ^0.4.0
   code_text_field: ^1.1.0
   flutter_highlight: ^0.7.0
+  highlight: ^0.7.0
   highlighter: ^0.1.1
 
 dependency_overrides:
