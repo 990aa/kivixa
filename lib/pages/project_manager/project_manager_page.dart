@@ -1163,68 +1163,281 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   }
 
   Widget _buildOverviewTab() {
+    final theme = Theme.of(context);
+    final projectColor = _project.color ?? theme.colorScheme.primary;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (_project.description != null) ...[
-            Text('Description', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(_project.description!),
-            const SizedBox(height: 24),
-          ],
-          Text('Status', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Text(
-            _project.status.name[0].toUpperCase() +
-                _project.status.name.substring(1),
+          // Stats cards (GitHub-style)
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  'Notes',
+                  '${_project.noteIds.length}',
+                  Icons.description,
+                  Colors.blue,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatCard(
+                  'Tasks',
+                  '${_project.taskIds.length}',
+                  Icons.task_alt,
+                  Colors.orange,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatCard(
+                  'Commits',
+                  '${_project.changes.length}',
+                  Icons.commit,
+                  Colors.green,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 24),
-          Text('Changes', style: Theme.of(context).textTheme.titleMedium),
+
+          // Status section
+          Text('Status', style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
-          Text('Completed: ${_project.completedChanges.length}'),
-          Text('Pending: ${_project.pendingChanges.length}'),
-          const SizedBox(height: 16),
-          if (_project.pendingChanges.isNotEmpty) ...[
-            const Divider(),
-            const SizedBox(height: 16),
-            Text(
-              'Pending Changes',
-              style: Theme.of(context).textTheme.titleSmall,
+          Card(
+            child: ListTile(
+              leading: Icon(
+                _project.status == ProjectStatus.completed
+                    ? Icons.check_circle
+                    : _project.status == ProjectStatus.ongoing
+                        ? Icons.play_circle
+                        : Icons.schedule,
+                color: _project.status == ProjectStatus.completed
+                    ? Colors.green
+                    : _project.status == ProjectStatus.ongoing
+                        ? Colors.orange
+                        : Colors.blue,
+              ),
+              title: Text(
+                _project.status.name[0].toUpperCase() +
+                    _project.status.name.substring(1),
+              ),
+              subtitle: Text(
+                'Created ${_formatDateTime(_project.createdAt)}',
+              ),
+              trailing: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: projectColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
             ),
-            const SizedBox(height: 8),
-            ..._project.pendingChanges.map(
-              (change) => _buildChangeItem(change),
-            ),
-          ],
+          ),
+          const SizedBox(height: 24),
+
+          // Recent activity
+          Text('Recent Activity', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 8),
+          if (_project.changes.isEmpty)
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(Icons.history, size: 48, color: Colors.grey[400]),
+                      const SizedBox(height: 8),
+                      Text(
+                        'No activity yet',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                      const SizedBox(height: 16),
+                      FilledButton.tonal(
+                        onPressed: () => _showAddChangeDialog(),
+                        child: const Text('Add first commit'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          else
+            ...(_project.timeline.take(5).map(
+              (change) => _buildRecentActivityItem(change),
+            )),
         ],
       ),
     );
   }
 
-  Widget _buildChangeItem(ProjectChange change) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            Text(
+              label,
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentActivityItem(ProjectChange change) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        leading: Checkbox(
-          value: change.isCompleted,
-          onChanged: (value) => _toggleChangeStatus(change),
-        ),
-        title: Text(
-          change.description,
-          style: TextStyle(
-            decoration: change.isCompleted ? TextDecoration.lineThrough : null,
+        leading: CircleAvatar(
+          backgroundColor: change.isCompleted ? Colors.green : Colors.orange,
+          radius: 16,
+          child: Icon(
+            change.isCompleted ? Icons.check : Icons.commit,
+            size: 16,
+            color: Colors.white,
           ),
         ),
-        subtitle: Text(
-          _formatDateTime(change.timestamp),
-          style: const TextStyle(fontSize: 12),
-        ),
+        title: Text(change.description),
+        subtitle: Text(_formatRelativeTime(change.timestamp)),
         trailing: IconButton(
-          icon: const Icon(Icons.delete, size: 20),
-          onPressed: () => _deleteChange(change),
+          icon: const Icon(Icons.more_horiz, size: 20),
+          onPressed: () => _showChangeOptions(change),
         ),
+      ),
+    );
+  }
+
+  void _showChangeOptions(ProjectChange change) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(
+                change.isCompleted ? Icons.undo : Icons.check_circle,
+              ),
+              title: Text(
+                change.isCompleted ? 'Mark as pending' : 'Mark as completed',
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                await _toggleChangeStatus(change);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Delete', style: TextStyle(color: Colors.red)),
+              onTap: () async {
+                Navigator.pop(context);
+                await _deleteChange(change);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatRelativeTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays > 365) {
+      return '${(difference.inDays / 365).floor()} year(s) ago';
+    } else if (difference.inDays > 30) {
+      return '${(difference.inDays / 30).floor()} month(s) ago';
+    } else if (difference.inDays > 0) {
+      return '${difference.inDays} day(s) ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} hour(s) ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} minute(s) ago';
+    } else {
+      return 'Just now';
+    }
+  }
+
+  Widget _buildNotesTab() {
+    if (_project.noteIds.isEmpty) {
+      return _buildEmptyTab(
+        Icons.description,
+        'No notes linked',
+        'Link existing notes or create new ones for this project',
+        'Link Note',
+        () => _showLinkNoteDialog(),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: _project.noteIds.length,
+      itemBuilder: (context, index) {
+        final noteId = _project.noteIds[index];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 8),
+          child: ListTile(
+            leading: const Icon(Icons.description),
+            title: Text(noteId.split('/').last),
+            subtitle: Text(noteId),
+            trailing: IconButton(
+              icon: const Icon(Icons.open_in_new),
+              onPressed: () {
+                // Open note
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyTab(
+    IconData icon,
+    String title,
+    String subtitle,
+    String buttonLabel,
+    VoidCallback onPressed,
+  ) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 64, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(title, style: const TextStyle(fontSize: 18)),
+          const SizedBox(height: 8),
+          Text(subtitle, style: TextStyle(color: Colors.grey[600])),
+          const SizedBox(height: 24),
+          FilledButton.icon(
+            onPressed: onPressed,
+            icon: const Icon(Icons.add),
+            label: Text(buttonLabel),
+          ),
+        ],
       ),
     );
   }
@@ -1271,22 +1484,16 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     );
   }
 
-  Widget _buildTimelineTab() {
+  Widget _buildActivityTab() {
     final timeline = _project.timeline;
 
     if (timeline.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.timeline, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              'No changes recorded yet',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          ],
-        ),
+      return _buildEmptyTab(
+        Icons.history,
+        'No activity recorded',
+        'Commit changes to track project progress',
+        'Add Commit',
+        () => _showAddChangeDialog(),
       );
     }
 
@@ -1308,36 +1515,44 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           Column(
             children: [
               Container(
-                width: 12,
-                height: 12,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
                   color: change.isCompleted ? Colors.green : Colors.orange,
                   shape: BoxShape.circle,
                 ),
+                child: Icon(
+                  change.isCompleted ? Icons.check : Icons.commit,
+                  size: 16,
+                  color: Colors.white,
+                ),
               ),
               if (!isLast)
-                Expanded(child: Container(width: 2, color: Colors.grey[300])),
+                Expanded(
+                  child: Container(width: 2, color: Colors.grey[300]),
+                ),
             ],
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    change.description,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _formatDateTime(change.timestamp),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                  ),
-                ],
+            child: Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      change.description,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _formatRelativeTime(change.timestamp),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
