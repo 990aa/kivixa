@@ -1,5 +1,4 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:kivixa/data/version.dart';
 
 /// Service for managing Terms and Conditions acceptance
 class TermsAndConditionsService {
