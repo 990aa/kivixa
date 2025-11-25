@@ -205,8 +205,133 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
+  bool _termsChecked = false;
+  bool _termsAccepted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkTermsAcceptance();
+  }
+
+  Future<void> _checkTermsAcceptance() async {
+    final hasAccepted = await TermsAndConditionsService.hasAcceptedTerms();
+    if (mounted) {
+      setState(() {
+        _termsChecked = true;
+        _termsAccepted = hasAccepted;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Show a loading screen while checking terms
+    if (!_termsChecked) {
+      return MaterialApp(
+        title: 'kivixa',
+        debugShowCheckedModeBanner: false,
+        home: const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    // If terms not accepted, show the terms dialog wrapper
+    if (!_termsAccepted) {
+      return _TermsWrapper(
+        onAccepted: () {
+          setState(() => _termsAccepted = true);
+        },
+      );
+    }
+
+    // Terms accepted, show the main app
     return DynamicMaterialApp(title: 'kivixa', router: App._router);
+  }
+}
+
+class _TermsWrapper extends StatelessWidget {
+  const _TermsWrapper({required this.onAccepted});
+
+  final VoidCallback onAccepted;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'kivixa',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.light(useMaterial3: true),
+      darkTheme: ThemeData.dark(useMaterial3: true),
+      home: _TermsAcceptancePage(onAccepted: onAccepted),
+    );
+  }
+}
+
+class _TermsAcceptancePage extends StatefulWidget {
+  const _TermsAcceptancePage({required this.onAccepted});
+
+  final VoidCallback onAccepted;
+
+  @override
+  State<_TermsAcceptancePage> createState() => _TermsAcceptancePageState();
+}
+
+class _TermsAcceptancePageState extends State<_TermsAcceptancePage> {
+  @override
+  void initState() {
+    super.initState();
+    // Show terms dialog after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showTermsDialog();
+    });
+  }
+
+  Future<void> _showTermsDialog() async {
+    final accepted = await TermsAndConditionsDialog.showIfNeeded(context);
+    if (accepted) {
+      widget.onAccepted();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.description_outlined,
+              size: 64,
+              color: colorScheme.primary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Welcome to Kivixa',
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please accept our Terms and Conditions to continue',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: _showTermsDialog,
+              icon: const Icon(Icons.gavel),
+              label: const Text('View Terms'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
