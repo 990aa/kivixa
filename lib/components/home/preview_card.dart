@@ -15,7 +15,7 @@ import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
-import 'package:kivixa/pages/markdown/rich_markdown_editor.dart';
+import 'package:kivixa/pages/markdown/advanced_markdown_editor.dart';
 import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:logging/logging.dart';
 
@@ -558,7 +558,7 @@ class _PreviewCardState extends State<PreviewCard> {
           editor = TextFileEditor(filePath: widget.filePath);
           routeName = RoutePaths.textFilePath(widget.filePath);
         } else if (isMarkdown) {
-          editor = RichMarkdownEditor(filePath: widget.filePath);
+          editor = AdvancedMarkdownEditor(filePath: widget.filePath);
           routeName = RoutePaths.markdownFilePath(widget.filePath);
         } else {
           editor = Editor(path: widget.filePath);

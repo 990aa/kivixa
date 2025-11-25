@@ -18,7 +18,7 @@ import 'package:kivixa/pages/editor/editor.dart';
 import 'package:kivixa/pages/home/home.dart';
 import 'package:kivixa/pages/lock_screen.dart';
 import 'package:kivixa/pages/logs.dart';
-import 'package:kivixa/pages/markdown/markdown_editor.dart';
+import 'package:kivixa/pages/markdown/advanced_markdown_editor.dart';
 import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:kivixa/services/app_lock_service.dart';
 import 'package:kivixa/services/notification_service.dart';
@@ -158,7 +158,7 @@ class App extends StatefulWidget {
       GoRoute(
         path: RoutePaths.markdown,
         builder: (context, state) =>
-            MarkdownEditor(filePath: state.uri.queryParameters['path']),
+            AdvancedMarkdownEditor(filePath: state.uri.queryParameters['path']),
       ),
       GoRoute(
         path: RoutePaths.logs,
