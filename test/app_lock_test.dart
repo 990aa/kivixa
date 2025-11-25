@@ -11,9 +11,7 @@ void main() {
       var unlocked = false;
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: LockScreen(onUnlocked: () => unlocked = true),
-        ),
+        MaterialApp(home: LockScreen(onUnlocked: () => unlocked = true)),
       );
 
       // Should display lock icon
@@ -39,11 +37,7 @@ void main() {
     testWidgets('should show error when submitting empty PIN', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: LockScreen(onUnlocked: () {}),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: LockScreen(onUnlocked: () {})));
 
       // Tap unlock button without entering PIN
       await tester.tap(find.text('Unlock'));
@@ -56,11 +50,7 @@ void main() {
     testWidgets('should accept numeric input only', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: LockScreen(onUnlocked: () {}),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: LockScreen(onUnlocked: () {})));
 
       // Enter text with digits
       await tester.enterText(find.byType(TextField), '1234');
@@ -74,11 +64,7 @@ void main() {
     testWidgets('should have maximum length of 8 digits', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: LockScreen(onUnlocked: () {}),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: LockScreen(onUnlocked: () {})));
 
       // Try to enter more than 8 digits
       await tester.enterText(find.byType(TextField), '123456789');
@@ -90,11 +76,7 @@ void main() {
     });
 
     testWidgets('should obscure PIN input', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: LockScreen(onUnlocked: () {}),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: LockScreen(onUnlocked: () {})));
 
       final textField = tester.widget<TextField>(find.byType(TextField));
       expect(textField.obscureText, isTrue);
@@ -103,11 +85,7 @@ void main() {
     testWidgets('should have numeric keyboard type', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: LockScreen(onUnlocked: () {}),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: LockScreen(onUnlocked: () {})));
 
       final textField = tester.widget<TextField>(find.byType(TextField));
       expect(textField.keyboardType, equals(TextInputType.number));
@@ -256,9 +234,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: RemovePinDialog()),
-        ),
+        const MaterialApp(home: Scaffold(body: RemovePinDialog())),
       );
 
       // Should show title
@@ -278,13 +254,9 @@ void main() {
       expect(find.text('Remove'), findsOneWidget);
     });
 
-    testWidgets('should show error for short PIN', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should show error for short PIN', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: RemovePinDialog()),
-        ),
+        const MaterialApp(home: Scaffold(body: RemovePinDialog())),
       );
 
       // Enter short PIN
@@ -303,9 +275,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: RemovePinDialog()),
-        ),
+        const MaterialApp(home: Scaffold(body: RemovePinDialog())),
       );
 
       // Find the Remove button and check it's a FilledButton
@@ -320,11 +290,7 @@ void main() {
     testWidgets('lock screen should filter non-numeric input', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: LockScreen(onUnlocked: () {}),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: LockScreen(onUnlocked: () {})));
 
       final textField = tester.widget<TextField>(find.byType(TextField));
 
@@ -332,9 +298,7 @@ void main() {
       expect(textField.inputFormatters, isNotNull);
       expect(textField.inputFormatters!.length, greaterThan(0));
       expect(
-        textField.inputFormatters!.any(
-          (f) => f is FilteringTextInputFormatter,
-        ),
+        textField.inputFormatters!.any((f) => f is FilteringTextInputFormatter),
         isTrue,
       );
     });
@@ -353,9 +317,7 @@ void main() {
       // Check that inputFormatters include digits only filter
       expect(textField.inputFormatters, isNotNull);
       expect(
-        textField.inputFormatters!.any(
-          (f) => f is FilteringTextInputFormatter,
-        ),
+        textField.inputFormatters!.any((f) => f is FilteringTextInputFormatter),
         isTrue,
       );
     });
@@ -365,11 +327,7 @@ void main() {
     testWidgets('lock screen should have proper layout', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: LockScreen(onUnlocked: () {}),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: LockScreen(onUnlocked: () {})));
 
       // Should have SafeArea
       expect(find.byType(SafeArea), findsOneWidget);
@@ -388,11 +346,7 @@ void main() {
     testWidgets('PIN input should have centered text', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: LockScreen(onUnlocked: () {}),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: LockScreen(onUnlocked: () {})));
 
       final textField = tester.widget<TextField>(find.byType(TextField));
       expect(textField.textAlign, equals(TextAlign.center));
