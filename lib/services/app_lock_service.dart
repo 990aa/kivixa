@@ -6,14 +6,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kivixa/data/prefs.dart';
 
 /// Service to manage app lock functionality with PIN/password protection.
-/// 
+///
 /// Uses FlutterSecureStorage to securely store the hashed PIN.
 class AppLockService {
   static const _pinKey = 'app_lock_pin_hash';
   static const _storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      encryptedSharedPreferences: true,
-    ),
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
 
   static final AppLockService _instance = AppLockService._internal();
