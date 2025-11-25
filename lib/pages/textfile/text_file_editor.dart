@@ -748,6 +748,9 @@ class _TextFileEditorState extends State<TextFileEditor> {
                     padding: const EdgeInsets.all(16),
                     autoFocus: false,
                     expands: true,
+                    embedBuilders: [
+                      _ImageEmbedBuilder(),
+                    ],
                     customStyles: DefaultStyles(
                       paragraph: DefaultTextBlockStyle(
                         TextStyle(
