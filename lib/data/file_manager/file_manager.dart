@@ -10,6 +10,7 @@ import 'package:intl/intl.dart' show DateFormat;
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
+import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -482,6 +483,9 @@ class FileManager {
           late final iskvx = filePath.endsWith(Editor.extension);
           late final iskvx1 = filePath.endsWith(Editor.extensionOldJson);
           late final ismd = filePath.endsWith('.md');
+          late final iskvtx = filePath.endsWith(
+            TextFileEditor.internalExtension,
+          );
 
           if (!includeExtensions) {
             if (iskvx) {
@@ -496,11 +500,16 @@ class FileManager {
               );
             } else if (ismd) {
               return filePath.substring(0, filePath.length - '.md'.length);
+            } else if (iskvtx) {
+              return filePath.substring(
+                0,
+                filePath.length - TextFileEditor.internalExtension.length,
+              );
             } else {
               return null;
             }
           } else if (!includeAssets) {
-            final isAsset = !iskvx && !iskvx1 && !ismd;
+            final isAsset = !iskvx && !iskvx1 && !ismd && !iskvtx;
             if (isAsset) return null;
           }
 
@@ -572,6 +581,11 @@ class FileManager {
         );
       } else if (filePath.endsWith('.md')) {
         normalizedPath = filePath.substring(0, filePath.length - '.md'.length);
+      } else if (filePath.endsWith(TextFileEditor.internalExtension)) {
+        normalizedPath = filePath.substring(
+          0,
+          filePath.length - TextFileEditor.internalExtension.length,
+        );
       } else {
         normalizedPath = filePath;
       }
@@ -581,7 +595,8 @@ class FileManager {
       // Check if the file actually exists
       final fileExists =
           doesFileExist('$normalizedPath${Editor.extension}') ||
-          doesFileExist('$normalizedPath.md');
+          doesFileExist('$normalizedPath.md') ||
+          doesFileExist('$normalizedPath${TextFileEditor.internalExtension}');
 
       if (fileExists) {
         recentFiles.add(normalizedPath);

@@ -16,6 +16,7 @@ import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
+import 'package:kivixa/pages/textfile/text_file_editor.dart';
 
 class BrowsePage extends StatefulWidget {
   const BrowsePage({
@@ -42,7 +43,7 @@ class _BrowsePageState extends State<BrowsePage> {
   // Search, filter, and sort
   final _searchController = TextEditingController();
   var _isSearching = false;
-  var _filterType = FileFilterType.all; // all, notes, markdown
+  var _filterType = FileFilterType.all; // all, handwritten, markdown, text
   var _sortType = SortType.aToZ; // A-Z, Z-A, latest-oldest, oldest-latest
 
   @override
@@ -137,7 +138,7 @@ class _BrowsePageState extends State<BrowsePage> {
 
     // Apply file type filter
     switch (_filterType) {
-      case FileFilterType.notes:
+      case FileFilterType.handwritten:
         files = files.where((file) {
           // Check if .kvx file exists
           final fullPath = "${path ?? ""}/$file";
@@ -148,6 +149,14 @@ class _BrowsePageState extends State<BrowsePage> {
           // Check if .md file exists
           final fullPath = "${path ?? ""}/$file";
           return FileManager.doesFileExist('$fullPath.md');
+        }).toList();
+      case FileFilterType.text:
+        files = files.where((file) {
+          // Check if .kvtx file exists
+          final fullPath = "${path ?? ""}/$file";
+          return FileManager.doesFileExist(
+            '$fullPath${TextFileEditor.internalExtension}',
+          );
         }).toList();
       case FileFilterType.all:
     }
@@ -180,11 +189,17 @@ class _BrowsePageState extends State<BrowsePage> {
 
   DateTime _getFileModifiedTime(String filePath) {
     try {
-      // Check .kvx file first, then .md
+      // Check .kvx file first, then .md, then .kvtx
       if (FileManager.doesFileExist('$filePath${Editor.extension}')) {
         return FileManager.lastModified('$filePath${Editor.extension}');
       } else if (FileManager.doesFileExist('$filePath.md')) {
         return FileManager.lastModified('$filePath.md');
+      } else if (FileManager.doesFileExist(
+        '$filePath${TextFileEditor.internalExtension}',
+      )) {
+        return FileManager.lastModified(
+          '$filePath${TextFileEditor.internalExtension}',
+        );
       }
     } catch (e) {
       // Ignore errors
@@ -306,15 +321,15 @@ class _BrowsePageState extends State<BrowsePage> {
                             ),
                           ),
                           PopupMenuItem(
-                            value: FileFilterType.notes,
+                            value: FileFilterType.handwritten,
                             child: Row(
                               children: [
-                                if (_filterType == FileFilterType.notes)
+                                if (_filterType == FileFilterType.handwritten)
                                   const Icon(Icons.check, size: 20)
                                 else
                                   const SizedBox(width: 20),
                                 const SizedBox(width: 8),
-                                const Text('Notes Only'),
+                                const Text('Handwritten Notes'),
                               ],
                             ),
                           ),
@@ -327,7 +342,20 @@ class _BrowsePageState extends State<BrowsePage> {
                                 else
                                   const SizedBox(width: 20),
                                 const SizedBox(width: 8),
-                                const Text('Markdown Only'),
+                                const Text('Markdown Notes'),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: FileFilterType.text,
+                            child: Row(
+                              children: [
+                                if (_filterType == FileFilterType.text)
+                                  const Icon(Icons.check, size: 20)
+                                else
+                                  const SizedBox(width: 20),
+                                const SizedBox(width: 8),
+                                const Text('Text Notes'),
                               ],
                             ),
                           ),
@@ -513,6 +541,6 @@ class _BrowsePageState extends State<BrowsePage> {
   }
 }
 
-enum FileFilterType { all, notes, markdown }
+enum FileFilterType { all, handwritten, markdown, text }
 
 enum SortType { aToZ, zToA, latestFirst, oldestFirst }
