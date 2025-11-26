@@ -525,7 +525,8 @@ class FileManager {
             !directories.contains(child)) {
           directories.add(child);
         } else if (!includeAssets && assetFileRegex.hasMatch(child)) {
-        } else {
+        } else if (!files.contains(child)) {
+          // Only add if not already in the list (handles same base name with different extensions)
           files.add(child);
         }
       }),
@@ -598,9 +599,10 @@ class FileManager {
           doesFileExist('$normalizedPath.md') ||
           doesFileExist('$normalizedPath${TextFileEditor.internalExtension}');
 
-      if (fileExists) {
+      if (fileExists && !recentFiles.contains(normalizedPath)) {
+        // Only add if not already in the list (handles same base name with different extensions)
         recentFiles.add(normalizedPath);
-      } else {
+      } else if (!fileExists) {
         // Mark for removal from recent files list
         filesToRemove.add(filePath);
       }
