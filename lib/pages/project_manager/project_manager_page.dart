@@ -106,7 +106,6 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Projects'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

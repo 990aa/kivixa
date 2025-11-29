@@ -243,36 +243,76 @@ class _PreviewCardState extends State<PreviewCard> {
                   builder: (context, constraints) {
                     return SizedBox(
                       height: 200,
-                      child: IgnorePointer(
-                        child: Markdown(
-                          data: _markdownContent!,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          styleSheet: MarkdownStyleSheet(
-                            textScaler: const TextScaler.linear(0.7),
-                            p: TextStyle(
-                              fontSize: 10,
-                              color: colorScheme.onSurface,
-                            ),
-                            h1: TextStyle(
-                              fontSize: 14,
-                              color: colorScheme.primary,
-                            ),
-                            h2: TextStyle(
-                              fontSize: 13,
-                              color: colorScheme.primary,
-                            ),
-                            h3: TextStyle(
-                              fontSize: 12,
-                              color: colorScheme.primary,
-                            ),
-                            code: TextStyle(
-                              fontSize: 9,
-                              backgroundColor:
-                                  colorScheme.surfaceContainerHighest,
+                      child: Stack(
+                        children: [
+                          IgnorePointer(
+                            child: Markdown(
+                              data: _markdownContent!,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              styleSheet: MarkdownStyleSheet(
+                                textScaler: const TextScaler.linear(0.7),
+                                p: TextStyle(
+                                  fontSize: 10,
+                                  color: colorScheme.onSurface,
+                                ),
+                                h1: TextStyle(
+                                  fontSize: 14,
+                                  color: colorScheme.primary,
+                                ),
+                                h2: TextStyle(
+                                  fontSize: 13,
+                                  color: colorScheme.primary,
+                                ),
+                                h3: TextStyle(
+                                  fontSize: 12,
+                                  color: colorScheme.primary,
+                                ),
+                                code: TextStyle(
+                                  fontSize: 9,
+                                  backgroundColor:
+                                      colorScheme.surfaceContainerHighest,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                          // Markdown label
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colorScheme.tertiaryContainer.withValues(
+                                  alpha: 0.9,
+                                ),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.description,
+                                    size: 10,
+                                    color: colorScheme.onTertiaryContainer,
+                                  ),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    'Markdown',
+                                    style: TextStyle(
+                                      fontSize: 8,
+                                      color: colorScheme.onTertiaryContainer,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   },
@@ -282,7 +322,7 @@ class _PreviewCardState extends State<PreviewCard> {
     );
   }
 
-  Widget _buildNotePreview(bool invert) {
+  Widget _buildNotePreview(bool invert, ColorScheme colorScheme) {
     return AnimatedBuilder(
       animation: thumbnail,
       builder: (context, _) => AnimatedSwitcher(
@@ -291,15 +331,55 @@ class _PreviewCardState extends State<PreviewCard> {
           key: ValueKey(thumbnail.updateCount),
           constraints: const BoxConstraints(minHeight: 100, maxHeight: 200),
           child: ClipRect(
-            child: InvertWidget(
-              invert: invert,
-              child: thumbnail.doesImageExist
-                  ? Image(
-                      image: thumbnail.image!,
-                      fit: BoxFit.cover,
-                      alignment: Alignment.topCenter,
-                    )
-                  : const _FallbackThumbnail(),
+            child: Stack(
+              children: [
+                InvertWidget(
+                  invert: invert,
+                  child: thumbnail.doesImageExist
+                      ? Image(
+                          image: thumbnail.image!,
+                          fit: BoxFit.cover,
+                          alignment: Alignment.topCenter,
+                        )
+                      : const _FallbackThumbnail(),
+                ),
+                // Handwritten note label
+                Positioned(
+                  top: 4,
+                  left: 4,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withValues(
+                        alpha: 0.9,
+                      ),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.draw,
+                          size: 10,
+                          color: colorScheme.onPrimaryContainer,
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          'Handwritten',
+                          style: TextStyle(
+                            fontSize: 8,
+                            color: colorScheme.onPrimaryContainer,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -404,7 +484,7 @@ class _PreviewCardState extends State<PreviewCard> {
                           ).existsSync())
                         _buildMarkdownPreview(colorScheme)
                       else
-                        _buildNotePreview(invert),
+                        _buildNotePreview(invert, colorScheme),
                       Positioned.fill(
                         left: -1,
                         top: -1,
