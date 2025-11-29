@@ -2,16 +2,25 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kivixa/components/home/new_folder_dialog.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
 
 class NewNoteButton extends StatefulWidget {
-  const NewNoteButton({super.key, required this.cupertino, this.path});
+  const NewNoteButton({
+    super.key,
+    required this.cupertino,
+    this.path,
+    this.createFolder,
+    this.doesFolderExist,
+  });
 
   final bool cupertino;
   final String? path;
+  final void Function(String)? createFolder;
+  final bool Function(String)? doesFolderExist;
 
   @override
   State<NewNoteButton> createState() => _NewNoteButtonState();
@@ -81,6 +90,20 @@ class _NewNoteButtonState extends State<NewNoteButton> {
             }
           },
         ),
+        if (widget.createFolder != null && widget.doesFolderExist != null)
+          SpeedDialChild(
+            child: const Icon(Icons.create_new_folder),
+            label: t.home.newFolder.newFolder,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => NewFolderDialog(
+                  createFolder: widget.createFolder!,
+                  doesFolderExist: widget.doesFolderExist!,
+                ),
+              );
+            },
+          ),
         SpeedDialChild(
           child: const Icon(Icons.note_add),
           label: t.home.create.importNote,

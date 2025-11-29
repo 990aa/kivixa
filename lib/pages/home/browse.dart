@@ -438,7 +438,6 @@ class _BrowsePageState extends State<BrowsePage> {
                   isAtRoot: path?.isEmpty ?? true,
                   crossAxisCount: crossAxisCount,
                   onTap: onDirectoryTap,
-                  createFolder: createFolder,
                   doesFolderExist: (String folderName) {
                     return children?.directories.contains(folderName) ?? false;
                   },
@@ -494,7 +493,14 @@ class _BrowsePageState extends State<BrowsePage> {
           ),
         ],
       ),
-      floatingActionButton: NewNoteButton(cupertino: cupertino, path: path),
+      floatingActionButton: NewNoteButton(
+        cupertino: cupertino,
+        path: path,
+        createFolder: createFolder,
+        doesFolderExist: (String folderName) {
+          return children?.directories.contains(folderName) ?? false;
+        },
+      ),
       persistentFooterButtons: selectedFiles.value.isEmpty
           ? null
           : [

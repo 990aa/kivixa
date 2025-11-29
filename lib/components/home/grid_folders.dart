@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:kivixa/components/home/delete_folder_button.dart';
-import 'package:kivixa/components/home/new_folder_dialog.dart';
 import 'package:kivixa/components/home/rename_folder_button.dart';
 import 'package:kivixa/components/theming/adaptive_icon.dart';
 import 'package:kivixa/data/extensions/list_extensions.dart';
@@ -14,11 +13,10 @@ class GridFolders extends StatelessWidget {
     required this.isAtRoot,
     required this.onTap,
     required this.crossAxisCount,
-    required this.createFolder,
+    required this.doesFolderExist,
     required this.renameFolder,
     required this.isFolderEmpty,
     required this.deleteFolder,
-    required this.doesFolderExist,
     required this.folders,
   });
 
@@ -26,7 +24,6 @@ class GridFolders extends StatelessWidget {
   final Function(String) onTap;
   final int crossAxisCount;
 
-  final void Function(String) createFolder;
   final bool Function(String) doesFolderExist;
   final Future<void> Function(String oldName, String newName) renameFolder;
   final Future<bool> Function(String) isFolderEmpty;
@@ -39,7 +36,6 @@ class GridFolders extends StatelessWidget {
     /// The cards that come before the actual folders
     final extraCards = <_FolderCardType>[
       if (!isAtRoot) _FolderCardType.backFolder,
-      _FolderCardType.newFolder,
     ];
 
     return SliverPadding(
@@ -57,7 +53,6 @@ class GridFolders extends StatelessWidget {
           return _GridFolder(
             cardType: cardType,
             folderName: folderName,
-            createFolder: createFolder,
             doesFolderExist: doesFolderExist,
             renameFolder: renameFolder,
             isFolderEmpty: isFolderEmpty,
@@ -76,7 +71,6 @@ class _GridFolder extends StatefulWidget {
     super.key,
     required this.cardType,
     required this.folderName,
-    required this.createFolder,
     required this.doesFolderExist,
     required this.renameFolder,
     required this.isFolderEmpty,
@@ -89,7 +83,6 @@ class _GridFolder extends StatefulWidget {
 
   final _FolderCardType cardType;
   final String? folderName;
-  final void Function(String) createFolder;
   final bool Function(String) doesFolderExist;
   final Future<void> Function(String oldName, String newName) renameFolder;
   final Future<bool> Function(String) isFolderEmpty;
@@ -116,14 +109,6 @@ class _GridFolderState extends State<_GridFolder> {
         onTap: () {
           if (expanded.value) return;
           switch (widget.cardType) {
-            case _FolderCardType.newFolder:
-              showDialog(
-                context: context,
-                builder: (context) => NewFolderDialog(
-                  createFolder: widget.createFolder,
-                  doesFolderExist: widget.doesFolderExist,
-                ),
-              );
             case _FolderCardType.backFolder:
               widget.onTap('..');
             case _FolderCardType.realFolder:
@@ -151,22 +136,16 @@ class _GridFolderState extends State<_GridFolder> {
                         child: Tooltip(
                           message: switch (widget.cardType) {
                             _FolderCardType.backFolder => t.home.backFolder,
-                            _FolderCardType.newFolder =>
-                              t.home.newFolder.newFolder,
                             _FolderCardType.realFolder => '',
                           },
                           child: AdaptiveIcon(
                             icon: switch (widget.cardType) {
                               _FolderCardType.backFolder => Icons.folder_open,
-                              _FolderCardType.newFolder =>
-                                Icons.create_new_folder,
                               _FolderCardType.realFolder => Icons.folder,
                             },
                             cupertinoIcon: switch (widget.cardType) {
                               _FolderCardType.backFolder =>
                                 CupertinoIcons.folder_open,
-                              _FolderCardType.newFolder =>
-                                CupertinoIcons.folder_fill_badge_plus,
                               _FolderCardType.realFolder =>
                                 CupertinoIcons.folder_fill,
                             },
@@ -236,7 +215,6 @@ class _GridFolderState extends State<_GridFolder> {
                 const SizedBox(height: 8),
                 switch (widget.cardType) {
                   _FolderCardType.backFolder => const Icon(Icons.arrow_back),
-                  _FolderCardType.newFolder => Text(t.home.newFolder.newFolder),
                   _FolderCardType.realFolder => Text(widget.folderName!),
                 },
               ],
@@ -248,4 +226,4 @@ class _GridFolderState extends State<_GridFolder> {
   }
 }
 
-enum _FolderCardType { backFolder, newFolder, realFolder }
+enum _FolderCardType { backFolder, realFolder }
