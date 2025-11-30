@@ -13,6 +13,7 @@ abstract class RoutePaths {
   static const textFile = '/textfile';
   static const login = '/login';
   static const logs = '/logs';
+  static const splitScreen = '/split-screen';
 
   static const prefixOfHome = '/home';
 
