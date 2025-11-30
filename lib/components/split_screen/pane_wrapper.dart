@@ -46,53 +46,26 @@ class PaneWrapper extends StatelessWidget {
           children: [
             // Main content
             Positioned.fill(child: _buildContent(context)),
-            // Close button and pane indicator
+            // Close button
             if (showCloseButton && !paneState.isEmpty)
               Positioned(
                 top: 8,
                 right: 8,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Active indicator
-                    if (paneState.isActive)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'Active',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: colorScheme.onPrimaryContainer,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    const SizedBox(width: 8),
-                    // Close button
-                    Material(
-                      color: colorScheme.surface.withValues(alpha: 0.9),
-                      borderRadius: BorderRadius.circular(4),
-                      child: InkWell(
-                        onTap: onClose,
-                        borderRadius: BorderRadius.circular(4),
-                        child: Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: Icon(
-                            Icons.close,
-                            size: 18,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
+                child: Material(
+                  color: colorScheme.surface.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(4),
+                  child: InkWell(
+                    onTap: onClose,
+                    borderRadius: BorderRadius.circular(4),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.close,
+                        size: 18,
+                        color: colorScheme.onSurface,
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
           ],
