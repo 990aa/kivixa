@@ -249,7 +249,7 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('shows active indicator when pane is active', (tester) async {
+    testWidgets('renders active pane correctly', (tester) async {
       const paneState = PaneState(
         filePath: '/test.md',
         fileType: PaneFileType.markdown,
@@ -273,7 +273,9 @@ void main() {
         ),
       );
 
-      expect(find.text('Active'), findsOneWidget);
+      // Pane should render without error - we removed the Active indicator
+      // but active pane should still be tappable
+      expect(find.byType(PaneWrapper), findsOneWidget);
     });
   });
 

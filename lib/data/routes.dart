@@ -14,6 +14,8 @@ abstract class RoutePaths {
   static const login = '/login';
   static const logs = '/logs';
   static const splitScreen = '/split-screen';
+  static const plugins = '/plugins';
+  static const lifeGitHistory = '/life-git-history';
 
   static const prefixOfHome = '/home';
 
@@ -45,6 +47,11 @@ abstract class RoutePaths {
     }
     if (params.isEmpty) return splitScreen;
     return '$splitScreen?${params.join('&')}';
+  }
+
+  static String lifeGitHistoryPath({String? filePath}) {
+    if (filePath == null) return lifeGitHistory;
+    return '$lifeGitHistory?path=${Uri.encodeQueryComponent(filePath)}';
   }
 }
 
