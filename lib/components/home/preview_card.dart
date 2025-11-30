@@ -6,6 +6,7 @@ import 'package:animations/animations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kivixa/components/canvas/_stroke.dart';
 import 'package:kivixa/components/canvas/inner_canvas.dart';
 import 'package:kivixa/components/canvas/invert_widget.dart';
@@ -560,9 +561,30 @@ class _PreviewCardState extends State<PreviewCard> {
                           _showMoveDialog();
                         case 'delete':
                           _showDeleteDialog();
+                        case 'split-view':
+                          context.push(
+                            RoutePaths.splitScreenPath(
+                              leftPath: widget.filePath,
+                            ),
+                          );
                       }
                     },
                     itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'split-view',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.vertical_split,
+                              size: 20,
+                              color: colorScheme.onSurface,
+                            ),
+                            const SizedBox(width: 12),
+                            const Text('Open in Split View'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuDivider(),
                       PopupMenuItem(
                         value: 'rename',
                         child: Row(

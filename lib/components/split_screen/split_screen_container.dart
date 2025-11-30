@@ -51,7 +51,8 @@ class _SplitScreenContainerState extends State<SplitScreenContainer> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final controller = widget.controller;
-        final isWide = constraints.maxWidth >= SplitScreenController.minSplitWidth;
+        final isWide =
+            constraints.maxWidth >= SplitScreenController.minSplitWidth;
 
         // If split is not enabled or screen is too narrow, show single pane
         if (!controller.isSplitEnabled || !isWide) {
@@ -67,7 +68,8 @@ class _SplitScreenContainerState extends State<SplitScreenContainer> {
         }
 
         // Build split view
-        final isHorizontal = controller.splitDirection == SplitDirection.horizontal;
+        final isHorizontal =
+            controller.splitDirection == SplitDirection.horizontal;
 
         if (isHorizontal) {
           return _buildHorizontalSplit(constraints);
@@ -81,15 +83,17 @@ class _SplitScreenContainerState extends State<SplitScreenContainer> {
   Widget _buildHorizontalSplit(BoxConstraints constraints) {
     final controller = widget.controller;
     final totalWidth = constraints.maxWidth;
-    final dividerWidth = 8.0;
+    const dividerWidth = 8.0;
     final availableWidth = totalWidth - dividerWidth;
     final leftWidth = availableWidth * controller.splitRatio;
-    final rightWidth = availableWidth * (1 - controller.splitRatio);
 
     return Row(
       children: [
         SizedBox(
-          width: leftWidth.clamp(widget.minPaneWidth, availableWidth - widget.minPaneWidth),
+          width: leftWidth.clamp(
+            widget.minPaneWidth,
+            availableWidth - widget.minPaneWidth,
+          ),
           child: PaneWrapper(
             paneState: controller.leftPane,
             isRightPane: false,
@@ -116,14 +120,17 @@ class _SplitScreenContainerState extends State<SplitScreenContainer> {
   Widget _buildVerticalSplit(BoxConstraints constraints) {
     final controller = widget.controller;
     final totalHeight = constraints.maxHeight;
-    final dividerHeight = 8.0;
+    const dividerHeight = 8.0;
     final availableHeight = totalHeight - dividerHeight;
     final topHeight = availableHeight * controller.splitRatio;
 
     return Column(
       children: [
         SizedBox(
-          height: topHeight.clamp(widget.minPaneHeight, availableHeight - widget.minPaneHeight),
+          height: topHeight.clamp(
+            widget.minPaneHeight,
+            availableHeight - widget.minPaneHeight,
+          ),
           child: PaneWrapper(
             paneState: controller.leftPane,
             isRightPane: false,

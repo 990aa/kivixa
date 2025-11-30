@@ -32,8 +32,8 @@ class ResizableDivider extends StatefulWidget {
 }
 
 class _ResizableDividerState extends State<ResizableDivider> {
-  bool _isHovered = false;
-  bool _isDragging = false;
+  var _isHovered = false;
+  var _isDragging = false;
 
   @override
   Widget build(BuildContext context) {

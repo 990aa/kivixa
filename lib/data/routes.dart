@@ -34,6 +34,18 @@ abstract class RoutePaths {
   static String textFilePath(String filePath) {
     return '$textFile?path=${Uri.encodeQueryComponent(filePath)}';
   }
+
+  static String splitScreenPath({String? leftPath, String? rightPath}) {
+    final params = <String>[];
+    if (leftPath != null) {
+      params.add('left=${Uri.encodeQueryComponent(leftPath)}');
+    }
+    if (rightPath != null) {
+      params.add('right=${Uri.encodeQueryComponent(rightPath)}');
+    }
+    if (params.isEmpty) return splitScreen;
+    return '$splitScreen?${params.join('&')}';
+  }
 }
 
 abstract class HomeRoutes {

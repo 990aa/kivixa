@@ -5,11 +5,7 @@ import 'package:kivixa/data/routes.dart';
 
 /// A full-screen split view page for working with two files simultaneously
 class SplitScreenPage extends StatefulWidget {
-  const SplitScreenPage({
-    super.key,
-    this.leftFilePath,
-    this.rightFilePath,
-  });
+  const SplitScreenPage({super.key, this.leftFilePath, this.rightFilePath});
 
   final String? leftFilePath;
   final String? rightFilePath;
@@ -25,7 +21,7 @@ class _SplitScreenPageState extends State<SplitScreenPage> {
   void initState() {
     super.initState();
     _controller = SplitScreenController();
-    
+
     // Initialize with provided file paths
     if (widget.leftFilePath != null) {
       _controller.openFile(widget.leftFilePath!, inRightPane: false);
@@ -44,8 +40,6 @@ class _SplitScreenPageState extends State<SplitScreenPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -60,10 +54,7 @@ class _SplitScreenPageState extends State<SplitScreenPage> {
         ),
         title: const Text('Split View'),
         actions: [
-          SplitScreenToolbar(
-            controller: _controller,
-            compact: true,
-          ),
+          SplitScreenToolbar(controller: _controller, compact: true),
           const SizedBox(width: 8),
         ],
       ),
@@ -97,9 +88,11 @@ class _SplitScreenPageState extends State<SplitScreenPage> {
             ),
             ListTile(
               leading: const Icon(Icons.chevron_left),
-              title: Text(_controller.leftPane.isEmpty
-                  ? 'Left Pane (empty)'
-                  : 'Left Pane'),
+              title: Text(
+                _controller.leftPane.isEmpty
+                    ? 'Left Pane (empty)'
+                    : 'Left Pane',
+              ),
               subtitle: _controller.leftPane.filePath != null
                   ? Text(
                       _controller.leftPane.filePath!.split('/').last,
@@ -113,9 +106,11 @@ class _SplitScreenPageState extends State<SplitScreenPage> {
             ),
             ListTile(
               leading: const Icon(Icons.chevron_right),
-              title: Text(_controller.rightPane.isEmpty
-                  ? 'Right Pane (empty)'
-                  : 'Right Pane'),
+              title: Text(
+                _controller.rightPane.isEmpty
+                    ? 'Right Pane (empty)'
+                    : 'Right Pane',
+              ),
               subtitle: _controller.rightPane.filePath != null
                   ? Text(
                       _controller.rightPane.filePath!.split('/').last,

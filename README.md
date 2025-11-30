@@ -66,6 +66,11 @@
 
 ### **Productivity**
 - **Smart Autosave** - Never lose your work with automatic saving
+- **Split Screen View** - Open and edit two files simultaneously side-by-side
+  - Support for different file types (handwritten, markdown, text)
+  - Horizontal and vertical split modes
+  - Resizable panes with drag-to-adjust divider
+  - Swap panes functionality
 - **File Manager** - Powerful organization with search and filtering
 - **Recent Files** - Quick access to your latest work
 - **Cross-Platform Sync** - Work seamlessly across devices
@@ -141,7 +146,7 @@ flutter build macos --release
 # Linux
 flutter build linux --release
 
-# iOS (requires macOS)
+# iOS
 flutter build ios --release
 ```
 
@@ -202,7 +207,7 @@ Open to contributions from the community! Whether you're fixing bugs, adding fea
 1. **Fork the repository**
 2. **Create a feature branch**
    ```bash
-   git checkout -b feature/amazing-feature
+   git checkout -b feature/new-feature
    ```
 3. **Make your changes** and commit
    ```bash

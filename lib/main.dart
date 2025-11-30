@@ -19,6 +19,7 @@ import 'package:kivixa/pages/home/home.dart';
 import 'package:kivixa/pages/lock_screen.dart';
 import 'package:kivixa/pages/logs.dart';
 import 'package:kivixa/pages/markdown/advanced_markdown_editor.dart';
+import 'package:kivixa/pages/split_screen/split_screen_page.dart';
 import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:kivixa/services/app_lock_service.dart';
 import 'package:kivixa/services/notification_service.dart';
@@ -168,6 +169,13 @@ class App extends StatefulWidget {
         path: RoutePaths.textFile,
         builder: (context, state) =>
             TextFileEditor(filePath: state.uri.queryParameters['path']),
+      ),
+      GoRoute(
+        path: RoutePaths.splitScreen,
+        builder: (context, state) => SplitScreenPage(
+          leftFilePath: state.uri.queryParameters['left'],
+          rightFilePath: state.uri.queryParameters['right'],
+        ),
       ),
     ],
   );

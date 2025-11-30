@@ -28,7 +28,7 @@ class PaneWrapper extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.translucent,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           border: paneState.isActive
               ? Border.all(
@@ -40,9 +40,7 @@ class PaneWrapper extends StatelessWidget {
         child: Stack(
           children: [
             // Main content
-            Positioned.fill(
-              child: _buildContent(context),
-            ),
+            Positioned.fill(child: _buildContent(context)),
             // Close button and pane indicator
             if (showCloseButton && !paneState.isEmpty)
               Positioned(
@@ -120,7 +118,7 @@ class PaneWrapper extends StatelessWidget {
   Widget _buildEmptyPane(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
+    return ColoredBox(
       color: colorScheme.surfaceContainerLow,
       child: Center(
         child: Column(
@@ -169,7 +167,7 @@ class FileSelectorPane extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
+    return ColoredBox(
       color: colorScheme.surfaceContainerLow,
       child: Center(
         child: Column(

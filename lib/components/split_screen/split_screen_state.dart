@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/pages/editor/editor.dart';
-import 'package:kivixa/pages/markdown/advanced_markdown_editor.dart';
 import 'package:kivixa/pages/textfile/text_file_editor.dart';
 
 /// Represents the type of file that can be opened in a pane
@@ -51,28 +50,46 @@ class PaneState {
   int get hashCode => Object.hash(filePath, fileType, isActive);
 }
 
-/// Determines the file type from a file path
+/// Determines the file type from a file path based on extension
+/// This is a pure function that only checks the file extension
 PaneFileType getFileTypeFromPath(String filePath) {
-  // Check for actual file extensions
-  if (FileManager.doesFileExist('$filePath${Editor.extension}')) {
+  final lowerPath = filePath.toLowerCase();
+
+  // Check by extension first (pure, no file system access)
+  if (lowerPath.endsWith('.kvx') || lowerPath.endsWith(Editor.extension)) {
     return PaneFileType.handwritten;
-  } else if (FileManager.doesFileExist('$filePath.md') ||
-      filePath.endsWith('.md')) {
+  } else if (lowerPath.endsWith('.md')) {
     return PaneFileType.markdown;
-  } else if (FileManager.doesFileExist(
-        '$filePath${TextFileEditor.internalExtension}',
-      ) ||
-      filePath.endsWith(TextFileEditor.internalExtension)) {
+  } else if (lowerPath.endsWith('.kvtx') ||
+      lowerPath.endsWith(TextFileEditor.internalExtension)) {
     return PaneFileType.textDocument;
   }
 
-  // Fallback: try to determine from path suffix
-  if (filePath.endsWith('.kvx')) {
-    return PaneFileType.handwritten;
-  } else if (filePath.endsWith('.md')) {
-    return PaneFileType.markdown;
-  } else if (filePath.endsWith('.kvtx')) {
-    return PaneFileType.textDocument;
+  return PaneFileType.none;
+}
+
+/// Determines the file type by checking if actual files exist
+/// This requires FileManager to be initialized
+PaneFileType getFileTypeFromPathWithFileCheck(String filePath) {
+  // Try pure extension-based check first
+  final extensionType = getFileTypeFromPath(filePath);
+  if (extensionType != PaneFileType.none) {
+    return extensionType;
+  }
+
+  // If no extension, check for actual files
+  try {
+    if (FileManager.doesFileExist('$filePath${Editor.extension}')) {
+      return PaneFileType.handwritten;
+    } else if (FileManager.doesFileExist('$filePath.md')) {
+      return PaneFileType.markdown;
+    } else if (FileManager.doesFileExist(
+      '$filePath${TextFileEditor.internalExtension}',
+    )) {
+      return PaneFileType.textDocument;
+    }
+  } catch (e) {
+    // FileManager not initialized, fall back to none
   }
 
   return PaneFileType.none;
@@ -89,31 +106,31 @@ class SplitScreenController extends ChangeNotifier {
   SplitScreenController();
 
   /// Whether split screen mode is enabled
-  bool _isSplitEnabled = false;
+  var _isSplitEnabled = false;
   bool get isSplitEnabled => _isSplitEnabled;
 
   /// The direction of the split
-  SplitDirection _splitDirection = SplitDirection.horizontal;
+  var _splitDirection = SplitDirection.horizontal;
   SplitDirection get splitDirection => _splitDirection;
 
   /// The ratio of the first pane (0.0 to 1.0)
-  double _splitRatio = 0.5;
+  var _splitRatio = 0.5;
   double get splitRatio => _splitRatio;
 
   /// State of the left/top pane
-  PaneState _leftPane = const PaneState(isActive: true);
+  var _leftPane = const PaneState(isActive: true);
   PaneState get leftPane => _leftPane;
 
   /// State of the right/bottom pane
-  PaneState _rightPane = const PaneState();
+  var _rightPane = const PaneState();
   PaneState get rightPane => _rightPane;
 
   /// Minimum pane size ratio
-  static const double minPaneRatio = 0.2;
-  static const double maxPaneRatio = 0.8;
+  static const minPaneRatio = 0.2;
+  static const maxPaneRatio = 0.8;
 
   /// Minimum width for split screen to be available
-  static const double minSplitWidth = 600;
+  static const minSplitWidth = 600.0;
 
   /// Enable split screen mode
   void enableSplit() {

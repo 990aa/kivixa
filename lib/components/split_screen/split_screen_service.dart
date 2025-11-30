@@ -10,7 +10,8 @@ class SplitScreenService extends InheritedNotifier<SplitScreenController> {
   }) : super(notifier: controller);
 
   static SplitScreenController of(BuildContext context) {
-    final service = context.dependOnInheritedWidgetOfExactType<SplitScreenService>();
+    final service = context
+        .dependOnInheritedWidgetOfExactType<SplitScreenService>();
     if (service == null) {
       throw FlutterError(
         'SplitScreenService.of() called with a context that does not contain a SplitScreenService.\n'
@@ -22,17 +23,15 @@ class SplitScreenService extends InheritedNotifier<SplitScreenController> {
   }
 
   static SplitScreenController? maybeOf(BuildContext context) {
-    final service = context.dependOnInheritedWidgetOfExactType<SplitScreenService>();
+    final service = context
+        .dependOnInheritedWidgetOfExactType<SplitScreenService>();
     return service?.notifier;
   }
 }
 
 /// A widget that provides a split screen controller to its descendants
 class SplitScreenProvider extends StatefulWidget {
-  const SplitScreenProvider({
-    super.key,
-    required this.child,
-  });
+  const SplitScreenProvider({super.key, required this.child});
 
   final Widget child;
 
@@ -57,9 +56,6 @@ class _SplitScreenProviderState extends State<SplitScreenProvider> {
 
   @override
   Widget build(BuildContext context) {
-    return SplitScreenService(
-      controller: _controller,
-      child: widget.child,
-    );
+    return SplitScreenService(controller: _controller, child: widget.child);
   }
 }
