@@ -10,11 +10,13 @@ class SplitScreenContainer extends StatefulWidget {
     required this.controller,
     this.minPaneWidth = 200,
     this.minPaneHeight = 150,
+    this.showFileBrowserWhenEmpty = false,
   });
 
   final SplitScreenController controller;
   final double minPaneWidth;
   final double minPaneHeight;
+  final bool showFileBrowserWhenEmpty;
 
   @override
   State<SplitScreenContainer> createState() => _SplitScreenContainerState();
@@ -97,8 +99,14 @@ class _SplitScreenContainerState extends State<SplitScreenContainer> {
           child: PaneWrapper(
             paneState: controller.leftPane,
             isRightPane: false,
-            onClose: () => controller.closePane(isRightPane: false),
+            onClose: () => controller.closePane(
+              isRightPane: false,
+              keepSplitEnabled: widget.showFileBrowserWhenEmpty,
+            ),
             onTap: () => controller.setActivePane(isRightPane: false),
+            showFileBrowserWhenEmpty: widget.showFileBrowserWhenEmpty,
+            onFileSelected: (filePath) =>
+                controller.openFile(filePath, inRightPane: false),
           ),
         ),
         ResizableDivider(
@@ -109,8 +117,14 @@ class _SplitScreenContainerState extends State<SplitScreenContainer> {
           child: PaneWrapper(
             paneState: controller.rightPane,
             isRightPane: true,
-            onClose: () => controller.closePane(isRightPane: true),
+            onClose: () => controller.closePane(
+              isRightPane: true,
+              keepSplitEnabled: widget.showFileBrowserWhenEmpty,
+            ),
             onTap: () => controller.setActivePane(isRightPane: true),
+            showFileBrowserWhenEmpty: widget.showFileBrowserWhenEmpty,
+            onFileSelected: (filePath) =>
+                controller.openFile(filePath, inRightPane: true),
           ),
         ),
       ],
@@ -134,8 +148,14 @@ class _SplitScreenContainerState extends State<SplitScreenContainer> {
           child: PaneWrapper(
             paneState: controller.leftPane,
             isRightPane: false,
-            onClose: () => controller.closePane(isRightPane: false),
+            onClose: () => controller.closePane(
+              isRightPane: false,
+              keepSplitEnabled: widget.showFileBrowserWhenEmpty,
+            ),
             onTap: () => controller.setActivePane(isRightPane: false),
+            showFileBrowserWhenEmpty: widget.showFileBrowserWhenEmpty,
+            onFileSelected: (filePath) =>
+                controller.openFile(filePath, inRightPane: false),
           ),
         ),
         ResizableDivider(
@@ -146,8 +166,14 @@ class _SplitScreenContainerState extends State<SplitScreenContainer> {
           child: PaneWrapper(
             paneState: controller.rightPane,
             isRightPane: true,
-            onClose: () => controller.closePane(isRightPane: true),
+            onClose: () => controller.closePane(
+              isRightPane: true,
+              keepSplitEnabled: widget.showFileBrowserWhenEmpty,
+            ),
             onTap: () => controller.setActivePane(isRightPane: true),
+            showFileBrowserWhenEmpty: widget.showFileBrowserWhenEmpty,
+            onFileSelected: (filePath) =>
+                controller.openFile(filePath, inRightPane: true),
           ),
         ),
       ],

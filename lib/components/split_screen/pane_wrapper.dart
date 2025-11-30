@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kivixa/components/split_screen/embedded_file_browser.dart';
 import 'package:kivixa/components/split_screen/split_screen_state.dart';
 import 'package:kivixa/pages/editor/editor.dart';
 import 'package:kivixa/pages/markdown/advanced_markdown_editor.dart';
@@ -13,6 +14,8 @@ class PaneWrapper extends StatelessWidget {
     required this.onClose,
     required this.onTap,
     this.showCloseButton = true,
+    this.showFileBrowserWhenEmpty = false,
+    this.onFileSelected,
   });
 
   final PaneState paneState;
@@ -20,6 +23,8 @@ class PaneWrapper extends StatelessWidget {
   final VoidCallback onClose;
   final VoidCallback onTap;
   final bool showCloseButton;
+  final bool showFileBrowserWhenEmpty;
+  final void Function(String filePath)? onFileSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -116,6 +121,11 @@ class PaneWrapper extends StatelessWidget {
   }
 
   Widget _buildEmptyPane(BuildContext context) {
+    // If showFileBrowserWhenEmpty is true, show the embedded file browser
+    if (showFileBrowserWhenEmpty && onFileSelected != null) {
+      return EmbeddedFileBrowser(onFileSelected: onFileSelected!);
+    }
+
     final colorScheme = Theme.of(context).colorScheme;
 
     return ColoredBox(

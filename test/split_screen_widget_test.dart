@@ -340,5 +340,50 @@ void main() {
 
       controller.dispose();
     });
+
+    testWidgets('showFileBrowserWhenEmpty creates container with parameter', (
+      tester,
+    ) async {
+      final controller = SplitScreenController();
+      controller.enableSplit();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: SplitScreenContainer(
+                controller: controller,
+                showFileBrowserWhenEmpty: false,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      // Should show empty pane message, not file browser
+      expect(find.text('Open a file in this pane'), findsWidgets);
+
+      controller.dispose();
+    });
+
+    testWidgets('split mode persists when closePane with keepSplitEnabled', (
+      tester,
+    ) async {
+      final controller = SplitScreenController();
+      controller.enableSplit();
+      controller.openFile('/test.kvx');
+      controller.openFile('/test.md', inRightPane: true);
+
+      // Close right pane with keepSplitEnabled
+      controller.closePane(isRightPane: true, keepSplitEnabled: true);
+
+      // Should still be in split mode
+      expect(controller.isSplitEnabled, isTrue);
+      expect(controller.rightPane.isEmpty, isTrue);
+
+      controller.dispose();
+    });
   });
 }

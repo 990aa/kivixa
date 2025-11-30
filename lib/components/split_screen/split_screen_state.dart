@@ -242,8 +242,8 @@ class SplitScreenController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Close a pane
-  void closePane({required bool isRightPane}) {
+  /// Close a pane (clears its content but keeps split mode enabled)
+  void closePane({required bool isRightPane, bool keepSplitEnabled = false}) {
     if (isRightPane) {
       _rightPane = const PaneState();
       _leftPane = _leftPane.copyWith(isActive: true);
@@ -256,8 +256,8 @@ class SplitScreenController extends ChangeNotifier {
       }
     }
 
-    // If one pane is empty, disable split
-    if (_leftPane.isEmpty || _rightPane.isEmpty) {
+    // If one pane is empty and keepSplitEnabled is false, disable split
+    if (!keepSplitEnabled && (_leftPane.isEmpty || _rightPane.isEmpty)) {
       _isSplitEnabled = false;
     }
     notifyListeners();

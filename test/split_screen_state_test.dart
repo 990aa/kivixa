@@ -221,6 +221,38 @@ void main() {
       expect(controller.isSplitEnabled, isFalse);
     });
 
+    test('closePane with keepSplitEnabled keeps split mode active', () {
+      controller.enableSplit();
+      controller.openFile('/left.kvx');
+      controller.openFile('/right.md', inRightPane: true);
+
+      controller.closePane(isRightPane: true, keepSplitEnabled: true);
+      expect(controller.isSplitEnabled, isTrue);
+      expect(controller.rightPane.isEmpty, isTrue);
+      expect(controller.leftPane.filePath, '/left.kvx');
+    });
+
+    test('closePane with keepSplitEnabled false disables split', () {
+      controller.enableSplit();
+      controller.openFile('/left.kvx');
+      controller.openFile('/right.md', inRightPane: true);
+
+      controller.closePane(isRightPane: true, keepSplitEnabled: false);
+      expect(controller.isSplitEnabled, isFalse);
+    });
+
+    test('closePane left pane with keepSplitEnabled keeps split mode', () {
+      controller.enableSplit();
+      controller.openFile('/left.kvx');
+      controller.openFile('/right.md', inRightPane: true);
+
+      controller.closePane(isRightPane: false, keepSplitEnabled: true);
+      expect(controller.isSplitEnabled, isTrue);
+      // When closing left pane with content in right, right moves to left
+      expect(controller.leftPane.filePath, '/right.md');
+      expect(controller.rightPane.isEmpty, isTrue);
+    });
+
     test('swapPanes exchanges pane contents', () {
       controller.enableSplit();
       controller.openFile('/left.kvx');
