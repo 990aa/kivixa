@@ -1,3 +1,6 @@
+// ignore_for_file: avoid_slow_async_io
+// This service intentionally uses async I/O for content-addressable storage
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';

@@ -1,3 +1,6 @@
+// ignore_for_file: avoid_slow_async_io
+// This service intentionally uses async I/O for plugin file operations
+
 import 'dart:async';
 import 'dart:io';
 

@@ -31,6 +31,31 @@
 - **Text File Editor** - Full-featured text editor with syntax highlighting
 - **Note Linking** - Connect related notes together with bidirectional links
 
+### **Life Git (Version Control)**
+- **Time Travel** - Roll back any note to any previous version with an intuitive slider
+- **Auto-Snapshots** - Automatic versioning when you stop typing (2-second debounce)
+- **Content-Addressable Storage** - Git-like blob storage using SHA-256 hashing
+- **Commit History** - Browse all changes with timestamps and commit messages
+- **Version Comparison** - Preview any historical version before restoring
+- **Per-File History** - Track changes for individual files
+- **Zero Configuration** - Just write, Life Git handles versioning automatically
+
+### **Scriptable Plugin System**
+- **Lua Scripting** - Automate tasks with Lua 5.3 scripts
+- **Built-in App API** - Access your notes programmatically:
+  - `App:createNote(path)` - Create new notes
+  - `App:readNote(path)` - Read note content
+  - `App:writeNote(path, content)` - Write to notes
+  - `App:getAllNotes()` - List all notes
+  - `App:findNotes(query)` - Search notes
+  - `App:getRecentNotes(count)` - Get recent notes
+  - `App:moveNote(from, to)` - Move notes
+  - `App:deleteNote(path)` - Delete notes
+  - `App:getStats()` - Get workspace statistics
+- **Example Plugins Included** - Archive tasks, daily summaries, move overdue items
+- **Plugin Manager** - Enable/disable and run plugins from the UI
+- **Script Runner** - Execute ad-hoc Lua code directly
+
 ### **Project Manager**
 - **Project Dashboard** - Organize your work into dedicated projects
 - **Task Management** - Create and track tasks within projects
@@ -159,6 +184,7 @@ flutter build ios --release
 - **[Dart](https://dart.dev)** - Programming language
 - **[AppFlowy Editor](https://appflowy.io)** - Rich text editing
 - **[Perfect Freehand](https://github.com/steveruizok/perfect-freehand)** - Smooth drawing strokes
+- **[Lua Dardo](https://pub.dev/packages/lua_dardo)** - Pure Dart Lua 5.3 VM for plugin scripting
 
 ### Key Dependencies
 - **UI/UX**: `material_symbols_icons`, `dynamic_color`, `animations`
@@ -166,6 +192,8 @@ flutter build ios --release
 - **File Management**: `path_provider`, `file_picker`, `share_plus`
 - **PDF**: `pdf`, `pdfrx`, `printing`
 - **Storage**: `shared_preferences`, `flutter_secure_storage`
+- **Version Control**: `crypto` (SHA-256 for content-addressable storage)
+- **Scripting**: `lua_dardo` (Lua 5.3 interpreter)
 - **Utilities**: `go_router`, `url_launcher`, `screenshot`
 
 *Full dependency list available in [pubspec](pubspec.yaml)*
