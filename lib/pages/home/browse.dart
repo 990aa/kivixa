@@ -424,6 +424,14 @@ class _BrowsePageState extends State<BrowsePage> {
                           ),
                         ],
                       ),
+                      // Split View button
+                      IconButton(
+                        icon: const Icon(Icons.vertical_split),
+                        tooltip: 'Split View',
+                        onPressed: () {
+                          context.push(RoutePaths.splitScreen);
+                        },
+                      ),
                     ],
                   ],
                 ),

@@ -188,7 +188,8 @@ class SplitScreenController extends ChangeNotifier {
 
   /// Open a file in the specified pane (or the active pane if not specified)
   void openFile(String filePath, {bool? inRightPane}) {
-    final fileType = getFileTypeFromPath(filePath);
+    // Use file check version since file browser returns paths without extensions
+    final fileType = getFileTypeFromPathWithFileCheck(filePath);
     final paneState = PaneState(
       filePath: filePath,
       fileType: fileType,
@@ -213,7 +214,8 @@ class SplitScreenController extends ChangeNotifier {
       enableSplit();
     }
 
-    final fileType = getFileTypeFromPath(filePath);
+    // Use file check version since file browser returns paths without extensions
+    final fileType = getFileTypeFromPathWithFileCheck(filePath);
     final paneState = PaneState(
       filePath: filePath,
       fileType: fileType,
