@@ -193,7 +193,6 @@ class _MoveNoteDialogState extends State<_MoveNoteDialog> {
                         }
                       });
                     },
-                    createFolder: createFolder,
                     doesFolderExist: (String folderName) {
                       return currentFolderChildren?.directories.contains(
                             folderName,
