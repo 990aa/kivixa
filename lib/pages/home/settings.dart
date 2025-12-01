@@ -27,6 +27,7 @@ import 'package:kivixa/data/tools/shape_pen.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/lock_screen.dart';
 import 'package:kivixa/services/app_lock_service.dart';
+import 'package:kivixa/services/life_git/life_git_service.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:stow/stow.dart';
 
@@ -527,7 +528,23 @@ class _SettingsPageState extends State<SettingsPage> {
                   icon: Icons.receipt_long,
                   onPressed: () => context.push(RoutePaths.logs),
                 ),
+                const SettingsSubtitle(subtitle: 'Extensions'),
+                SettingsButton(
+                  title: 'Lua Plugins',
+                  subtitle: 'Automate tasks with Lua scripts',
+                  icon: Icons.extension,
+                  onPressed: () => context.push(RoutePaths.plugins),
+                ),
+                SettingsButton(
+                  title: 'Version History',
+                  subtitle: 'View file snapshots and commits',
+                  icon: Icons.history,
+                  onPressed: () => context.push(RoutePaths.lifeGitHistory),
+                ),
+                const _LifeGitAutoCleanupSetting(),
+                _LifeGitStatsWidget(),
                 const ClearAppDataWidget(),
+                const _ResetAllSettingsWidget(),
               ],
             ),
           ),
@@ -662,5 +679,360 @@ class _AppLockSettingsSectionState extends State<_AppLockSettingsSection> {
         ],
       ],
     );
+  }
+}
+
+/// Settings widget for Life Git auto-cleanup
+class _LifeGitAutoCleanupSetting extends StatefulWidget {
+  const _LifeGitAutoCleanupSetting();
+
+  @override
+  State<_LifeGitAutoCleanupSetting> createState() =>
+      _LifeGitAutoCleanupSettingState();
+}
+
+class _LifeGitAutoCleanupSettingState
+    extends State<_LifeGitAutoCleanupSetting> {
+  @override
+  void initState() {
+    super.initState();
+    stows.lifeGitAutoCleanupDays.addListener(_onChanged);
+  }
+
+  @override
+  void dispose() {
+    stows.lifeGitAutoCleanupDays.removeListener(_onChanged);
+    super.dispose();
+  }
+
+  void _onChanged() {
+    setState(() {});
+  }
+
+  String _getSubtitle() {
+    final days = stows.lifeGitAutoCleanupDays.value;
+    if (days <= 0) return 'Never';
+    return 'Delete commits older than $days days';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsButton(
+      title: 'Auto-cleanup old history',
+      subtitle: _getSubtitle(),
+      icon: Icons.auto_delete_outlined,
+      onPressed: () => _showAutoCleanupDialog(context),
+    );
+  }
+
+  Future<void> _showAutoCleanupDialog(BuildContext context) async {
+    final options = [
+      (value: 0, label: 'Never (keep all history)'),
+      (value: 7, label: 'After 7 days'),
+      (value: 14, label: 'After 14 days'),
+      (value: 30, label: 'After 30 days'),
+      (value: 60, label: 'After 60 days'),
+      (value: 90, label: 'After 90 days'),
+    ];
+
+    var currentValue = stows.lifeGitAutoCleanupDays.value;
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Auto-cleanup Settings'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Automatically delete old version history to save storage space.',
+              ),
+              const SizedBox(height: 16),
+              ...options.map(
+                (option) => RadioListTile<int>(
+                  title: Text(option.label),
+                  value: option.value,
+                  groupValue: currentValue,
+                  onChanged: (value) {
+                    if (value != null) {
+                      setDialogState(() => currentValue = value);
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                stows.lifeGitAutoCleanupDays.value = currentValue;
+                Navigator.pop(context);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Widget showing Life Git storage statistics
+class _LifeGitStatsWidget extends StatefulWidget {
+  @override
+  State<_LifeGitStatsWidget> createState() => _LifeGitStatsWidgetState();
+}
+
+class _LifeGitStatsWidgetState extends State<_LifeGitStatsWidget> {
+  Map<String, dynamic>? _stats;
+  var _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final stats = await LifeGitService.instance.getStorageStats();
+      if (mounted) {
+        setState(() {
+          _stats = stats;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  String _formatBytes(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
+    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.all(16),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_stats == null) {
+      return const SizedBox.shrink();
+    }
+
+    final colorScheme = ColorScheme.of(context);
+    final commitCount = _stats!['commitCount'] as int? ?? 0;
+    final objectCount = _stats!['objectCount'] as int? ?? 0;
+    final objectsSize = _stats!['objectsSize'] as int? ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.storage, color: colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Life Git Storage',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _StatItem(
+                    label: 'Commits',
+                    value: commitCount.toString(),
+                    icon: Icons.commit,
+                  ),
+                  _StatItem(
+                    label: 'Snapshots',
+                    value: objectCount.toString(),
+                    icon: Icons.photo_library,
+                  ),
+                  _StatItem(
+                    label: 'Size',
+                    value: _formatBytes(objectsSize),
+                    icon: Icons.data_usage,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  const _StatItem({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+    return Column(
+      children: [
+        Icon(icon, size: 20, color: colorScheme.primary),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+        ),
+      ],
+    );
+  }
+}
+
+/// Widget to reset all settings to their default values
+class _ResetAllSettingsWidget extends StatelessWidget {
+  const _ResetAllSettingsWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Card(
+        child: ListTile(
+          leading: Icon(
+            Icons.settings_backup_restore,
+            color: colorScheme.error,
+          ),
+          title: const Text('Reset All Settings'),
+          subtitle: const Text('Restore all settings to default values'),
+          trailing: Icon(
+            Icons.chevron_right,
+            color: colorScheme.onSurfaceVariant,
+          ),
+          onTap: () => _showResetConfirmation(context),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showResetConfirmation(BuildContext context) async {
+    final colorScheme = ColorScheme.of(context);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset All Settings?'),
+        content: const Text(
+          'This will restore all settings to their default values. '
+          'This action cannot be undone.\n\n'
+          'Note: This will not delete your files or app data, only preferences.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: colorScheme.error),
+            child: const Text('Reset All'),
+          ),
+        ],
+      ),
+    );
+
+    if ((confirmed ?? false) && context.mounted) {
+      _resetAllSettings();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('All settings have been reset to defaults'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
+  void _resetAllSettings() {
+    // Reset all user-facing preferences to their defaults
+    stows.appTheme.value = stows.appTheme.defaultValue;
+    stows.platform.value = stows.platform.defaultValue;
+    stows.layoutSize.value = stows.layoutSize.defaultValue;
+    stows.accentColor.value = stows.accentColor.defaultValue;
+    stows.hyperlegibleFont.value = stows.hyperlegibleFont.defaultValue;
+    stows.editorToolbarAlignment.value =
+        stows.editorToolbarAlignment.defaultValue;
+    stows.editorToolbarShowInFullscreen.value =
+        stows.editorToolbarShowInFullscreen.defaultValue;
+    stows.editorFingerDrawing.value = stows.editorFingerDrawing.defaultValue;
+    stows.editorAutoInvert.value = stows.editorAutoInvert.defaultValue;
+    stows.preferGreyscale.value = stows.preferGreyscale.defaultValue;
+    stows.editorPromptRename.value = stows.editorPromptRename.defaultValue;
+    stows.autosaveDelay.value = stows.autosaveDelay.defaultValue;
+    stows.shapeRecognitionDelay.value =
+        stows.shapeRecognitionDelay.defaultValue;
+    stows.autoStraightenLines.value = stows.autoStraightenLines.defaultValue;
+    stows.simplifiedHomeLayout.value = stows.simplifiedHomeLayout.defaultValue;
+    stows.printPageIndicators.value = stows.printPageIndicators.defaultValue;
+    stows.maxImageSize.value = stows.maxImageSize.defaultValue;
+    stows.autoClearWhiteboardOnExit.value =
+        stows.autoClearWhiteboardOnExit.defaultValue;
+    stows.disableEraserAfterUse.value =
+        stows.disableEraserAfterUse.defaultValue;
+    stows.hideFingerDrawingToggle.value =
+        stows.hideFingerDrawingToggle.defaultValue;
+    stows.recentColorsLength.value = stows.recentColorsLength.defaultValue;
+    stows.recentColorsDontSavePresets.value =
+        stows.recentColorsDontSavePresets.defaultValue;
+    stows.shouldCheckForUpdates.value =
+        stows.shouldCheckForUpdates.defaultValue;
+    stows.shouldAlwaysAlertForUpdates.value =
+        stows.shouldAlwaysAlertForUpdates.defaultValue;
+    stows.lifeGitAutoCleanupDays.value =
+        stows.lifeGitAutoCleanupDays.defaultValue;
+
+    // Note: We intentionally do NOT reset:
+    // - appLockEnabled/appLockPinSet (security settings)
+    // - customDataDir (data location)
+    // - recentFiles (user data)
+    // - Tool colors/options (user preferences that are editor-specific)
   }
 }

@@ -16,13 +16,17 @@ import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/data/tools/stroke_properties.dart';
 import 'package:kivixa/pages/editor/editor.dart';
 import 'package:kivixa/pages/home/home.dart';
+import 'package:kivixa/pages/life_git/life_git_history_page.dart';
 import 'package:kivixa/pages/lock_screen.dart';
 import 'package:kivixa/pages/logs.dart';
 import 'package:kivixa/pages/markdown/advanced_markdown_editor.dart';
+import 'package:kivixa/pages/plugins/plugins_page.dart';
 import 'package:kivixa/pages/split_screen/split_screen_page.dart';
 import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:kivixa/services/app_lock_service.dart';
+import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:kivixa/services/notification_service.dart';
+import 'package:kivixa/services/plugins/plugins.dart';
 import 'package:kivixa/services/terms_and_conditions_service.dart';
 import 'package:logging/logging.dart';
 import 'package:path_to_regexp/path_to_regexp.dart';
@@ -112,6 +116,10 @@ Future<void> appRunner(List<String> args) async {
     NotificationService.instance.initialize(),
   ]);
 
+  // Initialize Life Git and Plugin services after FileManager is ready
+  await LifeGitService.instance.initialize();
+  await PluginService.instance.initialize();
+
   stows.customDataDir.addListener(FileManager.migrateDataDir);
   pdfrxFlutterInitialize(dismissPdfiumWasmWarnings: true);
 
@@ -176,6 +184,15 @@ class App extends StatefulWidget {
           leftFilePath: state.uri.queryParameters['left'],
           rightFilePath: state.uri.queryParameters['right'],
         ),
+      ),
+      GoRoute(
+        path: RoutePaths.plugins,
+        builder: (context, state) => const PluginsPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.lifeGitHistory,
+        builder: (context, state) =>
+            LifeGitHistoryPage(filePath: state.uri.queryParameters['path']),
       ),
     ],
   );

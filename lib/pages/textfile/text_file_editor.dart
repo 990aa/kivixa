@@ -7,8 +7,12 @@ import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:go_router/go_router.dart';
+import 'package:kivixa/components/life_git/time_travel_slider.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
+import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
+import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -169,6 +173,10 @@ class _TextFileEditorState extends State<TextFileEditor> {
   // ignore: unused_field
   var _isEditingFileName = false;
 
+  // Time Travel state
+  var _isTimeTraveling = false;
+  Document? _originalDocument;
+
   final log = Logger('TextFileEditor');
 
   @override
@@ -323,6 +331,184 @@ class _TextFileEditorState extends State<TextFileEditor> {
       log.info('File saved: $_currentFilePath');
     } catch (e) {
       log.severe('Error saving file', e);
+    }
+  }
+
+  Future<void> _commitVersion() async {
+    if (_currentFilePath == null) return;
+
+    // Show dialog to get optional commit message
+    final messageController = TextEditingController();
+    final shouldCommit = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Commit Version'),
+        content: TextField(
+          controller: messageController,
+          decoration: const InputDecoration(
+            labelText: 'Commit message (optional)',
+            hintText: 'Describe your changes...',
+            border: OutlineInputBorder(),
+          ),
+          maxLines: 2,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Commit'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldCommit != true) {
+      messageController.dispose();
+      return;
+    }
+
+    final customMessage = messageController.text.trim();
+    messageController.dispose();
+
+    // Save first to ensure latest content is on disk
+    await _saveFile();
+
+    try {
+      final snapshot = await LifeGitService.instance.snapshotFile(
+        _currentFilePath!,
+      );
+      if (snapshot.exists) {
+        final message = customMessage.isNotEmpty
+            ? customMessage
+            : 'Commit: $_fileName';
+        await LifeGitService.instance.createCommit(
+          snapshots: [snapshot],
+          message: message,
+        );
+        log.info('Life Git commit created for: $_currentFilePath');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Version committed'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      log.warning('Failed to create Life Git commit', e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to commit: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _enterTimeTravel() {
+    if (_currentFilePath == null) return;
+    setState(() {
+      _isTimeTraveling = true;
+      _originalDocument = _controller.document;
+    });
+  }
+
+  void _exitTimeTravel() {
+    setState(() {
+      _isTimeTraveling = false;
+      if (_originalDocument != null) {
+        _controller = QuillController(
+          document: _originalDocument!,
+          selection: const TextSelection.collapsed(offset: 0),
+        );
+      }
+      _originalDocument = null;
+    });
+  }
+
+  void _onTimeTravelContent(Uint8List content, LifeGitCommit commit) {
+    try {
+      final jsonString = String.fromCharCodes(content);
+      final data = json.decode(jsonString);
+
+      if (data is Map && data.containsKey('document')) {
+        final document = Document.fromJson(
+          List<Map<String, dynamic>>.from(
+            (data['document'] as List).map(
+              (e) => Map<String, dynamic>.from(e as Map),
+            ),
+          ),
+        );
+        setState(() {
+          _controller = QuillController(
+            document: document,
+            selection: const TextSelection.collapsed(offset: 0),
+          );
+        });
+      }
+    } catch (e) {
+      log.warning('Failed to parse historical version', e);
+    }
+  }
+
+  void _onRestoreVersion(Uint8List content, LifeGitCommit commit) {
+    try {
+      final jsonString = String.fromCharCodes(content);
+      final data = json.decode(jsonString);
+
+      if (data is Map && data.containsKey('document')) {
+        final document = Document.fromJson(
+          List<Map<String, dynamic>>.from(
+            (data['document'] as List).map(
+              (e) => Map<String, dynamic>.from(e as Map),
+            ),
+          ),
+        );
+        setState(() {
+          _controller = QuillController(
+            document: document,
+            selection: const TextSelection.collapsed(offset: 0),
+          );
+          _originalDocument = document;
+          _isTimeTraveling = false;
+        });
+        _saveFile(); // Save the restored version
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Restored to: ${commit.message}')),
+          );
+        }
+      }
+    } catch (e) {
+      log.warning('Failed to restore historical version', e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to restore version: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _restoreHistoricalVersion() {
+    setState(() {
+      _originalDocument = _controller.document;
+      _isTimeTraveling = false;
+    });
+    _saveFile(); // Save the restored version
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Historical version restored')),
+      );
     }
   }
 
@@ -708,29 +894,76 @@ class _TextFileEditorState extends State<TextFileEditor> {
                 ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.image),
-            tooltip: 'Insert Image',
-            onPressed: _insertImage,
-          ),
-          IconButton(
-            icon: const Icon(Icons.table_chart),
-            tooltip: 'Insert Table',
-            onPressed: _insertTable,
-          ),
-          IconButton(
-            icon: const Icon(Icons.file_download),
-            tooltip: 'Export',
-            onPressed: _showExportMenu,
-          ),
+          if (!_isTimeTraveling) ...[
+            IconButton(
+              icon: const Icon(Icons.image),
+              tooltip: 'Insert Image',
+              onPressed: _insertImage,
+            ),
+            IconButton(
+              icon: const Icon(Icons.table_chart),
+              tooltip: 'Insert Table',
+              onPressed: _insertTable,
+            ),
+            // Time Travel button
+            IconButton(
+              icon: const Icon(Icons.history),
+              tooltip: 'Time Travel',
+              onPressed: _currentFilePath != null ? _enterTimeTravel : null,
+            ),
+            // View full history
+            IconButton(
+              icon: const Icon(Icons.manage_history),
+              tooltip: 'View History',
+              onPressed: _currentFilePath != null
+                  ? () => context.push(
+                      RoutePaths.lifeGitHistoryPath(filePath: _currentFilePath),
+                    )
+                  : null,
+            ),
+            // Commit version button
+            IconButton(
+              icon: const Icon(Icons.commit),
+              tooltip: 'Commit Version',
+              onPressed: _commitVersion,
+            ),
+            IconButton(
+              icon: const Icon(Icons.file_download),
+              tooltip: 'Export',
+              onPressed: _showExportMenu,
+            ),
+          ] else ...[
+            // Time Travel mode actions
+            IconButton(
+              icon: const Icon(Icons.restore),
+              tooltip: 'Restore this version',
+              onPressed: _restoreHistoricalVersion,
+            ),
+            IconButton(
+              icon: const Icon(Icons.close),
+              tooltip: 'Exit Time Travel',
+              onPressed: _exitTimeTravel,
+            ),
+          ],
         ],
       ),
       body: SafeArea(
         child: Column(
           children: [
-            // Rich toolbar with all formatting options
-            _buildToolbar(colorScheme),
-            const Divider(height: 1),
+            // Time Travel slider when in time travel mode
+            if (_isTimeTraveling && _currentFilePath != null)
+              TimeTravelSlider(
+                filePath: _currentFilePath!,
+                onHistoryContent: _onTimeTravelContent,
+                onExitTimeTravel: _exitTimeTravel,
+                onRestoreVersion: _onRestoreVersion,
+                showCommitDetails: true,
+              ),
+            // Rich toolbar with all formatting options (hidden during time travel)
+            if (!_isTimeTraveling) ...[
+              _buildToolbar(colorScheme),
+              const Divider(height: 1),
+            ],
             // Editor
             Expanded(
               child: Container(

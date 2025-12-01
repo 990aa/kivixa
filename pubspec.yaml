@@ -81,11 +81,12 @@ dependencies:
   timezone: ^0.10.1
   syncfusion_flutter_calendar: ^31.2.15
   flutter_markdown_plus: ^1.0.5
-  flutter_smooth_markdown: ^0.4.0
+  flutter_smooth_markdown: ^0.5.1
   code_text_field: ^1.1.0
   flutter_highlight: ^0.7.0
   highlight: ^0.7.0
   highlighter: ^0.1.1
+  lua_dardo: ^0.0.5
 
 dependency_overrides:
   flutter_local_notifications_windows:
