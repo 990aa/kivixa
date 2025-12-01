@@ -544,6 +544,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 const _LifeGitAutoCleanupSetting(),
                 _LifeGitStatsWidget(),
                 const ClearAppDataWidget(),
+                const _ResetAllSettingsWidget(),
               ],
             ),
           ),
@@ -922,5 +923,116 @@ class _StatItem extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+/// Widget to reset all settings to their default values
+class _ResetAllSettingsWidget extends StatelessWidget {
+  const _ResetAllSettingsWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Card(
+        child: ListTile(
+          leading: Icon(
+            Icons.settings_backup_restore,
+            color: colorScheme.error,
+          ),
+          title: const Text('Reset All Settings'),
+          subtitle: const Text('Restore all settings to default values'),
+          trailing: Icon(
+            Icons.chevron_right,
+            color: colorScheme.onSurfaceVariant,
+          ),
+          onTap: () => _showResetConfirmation(context),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showResetConfirmation(BuildContext context) async {
+    final colorScheme = ColorScheme.of(context);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset All Settings?'),
+        content: const Text(
+          'This will restore all settings to their default values. '
+          'This action cannot be undone.\n\n'
+          'Note: This will not delete your files or app data, only preferences.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: colorScheme.error),
+            child: const Text('Reset All'),
+          ),
+        ],
+      ),
+    );
+
+    if ((confirmed ?? false) && context.mounted) {
+      _resetAllSettings();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('All settings have been reset to defaults'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
+  void _resetAllSettings() {
+    // Reset all user-facing preferences to their defaults
+    stows.appTheme.value = stows.appTheme.defaultValue;
+    stows.platform.value = stows.platform.defaultValue;
+    stows.layoutSize.value = stows.layoutSize.defaultValue;
+    stows.accentColor.value = stows.accentColor.defaultValue;
+    stows.hyperlegibleFont.value = stows.hyperlegibleFont.defaultValue;
+    stows.editorToolbarAlignment.value =
+        stows.editorToolbarAlignment.defaultValue;
+    stows.editorToolbarShowInFullscreen.value =
+        stows.editorToolbarShowInFullscreen.defaultValue;
+    stows.editorFingerDrawing.value = stows.editorFingerDrawing.defaultValue;
+    stows.editorAutoInvert.value = stows.editorAutoInvert.defaultValue;
+    stows.preferGreyscale.value = stows.preferGreyscale.defaultValue;
+    stows.editorPromptRename.value = stows.editorPromptRename.defaultValue;
+    stows.autosaveDelay.value = stows.autosaveDelay.defaultValue;
+    stows.shapeRecognitionDelay.value =
+        stows.shapeRecognitionDelay.defaultValue;
+    stows.autoStraightenLines.value = stows.autoStraightenLines.defaultValue;
+    stows.simplifiedHomeLayout.value = stows.simplifiedHomeLayout.defaultValue;
+    stows.printPageIndicators.value = stows.printPageIndicators.defaultValue;
+    stows.maxImageSize.value = stows.maxImageSize.defaultValue;
+    stows.autoClearWhiteboardOnExit.value =
+        stows.autoClearWhiteboardOnExit.defaultValue;
+    stows.disableEraserAfterUse.value =
+        stows.disableEraserAfterUse.defaultValue;
+    stows.hideFingerDrawingToggle.value =
+        stows.hideFingerDrawingToggle.defaultValue;
+    stows.recentColorsLength.value = stows.recentColorsLength.defaultValue;
+    stows.recentColorsDontSavePresets.value =
+        stows.recentColorsDontSavePresets.defaultValue;
+    stows.shouldCheckForUpdates.value =
+        stows.shouldCheckForUpdates.defaultValue;
+    stows.shouldAlwaysAlertForUpdates.value =
+        stows.shouldAlwaysAlertForUpdates.defaultValue;
+    stows.lifeGitAutoCleanupDays.value =
+        stows.lifeGitAutoCleanupDays.defaultValue;
+
+    // Note: We intentionally do NOT reset:
+    // - appLockEnabled/appLockPinSet (security settings)
+    // - customDataDir (data location)
+    // - recentFiles (user data)
+    // - Tool colors/options (user preferences that are editor-specific)
   }
 }

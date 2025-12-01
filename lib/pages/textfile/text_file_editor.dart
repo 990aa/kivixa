@@ -337,6 +337,43 @@ class _TextFileEditorState extends State<TextFileEditor> {
   Future<void> _commitVersion() async {
     if (_currentFilePath == null) return;
 
+    // Show dialog to get optional commit message
+    final messageController = TextEditingController();
+    final shouldCommit = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Commit Version'),
+        content: TextField(
+          controller: messageController,
+          decoration: const InputDecoration(
+            labelText: 'Commit message (optional)',
+            hintText: 'Describe your changes...',
+            border: OutlineInputBorder(),
+          ),
+          maxLines: 2,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Commit'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldCommit != true) {
+      messageController.dispose();
+      return;
+    }
+
+    final customMessage = messageController.text.trim();
+    messageController.dispose();
+
     // Save first to ensure latest content is on disk
     await _saveFile();
 
@@ -345,9 +382,12 @@ class _TextFileEditorState extends State<TextFileEditor> {
         _currentFilePath!,
       );
       if (snapshot.exists) {
+        final message = customMessage.isNotEmpty
+            ? customMessage
+            : 'Commit: $_fileName';
         await LifeGitService.instance.createCommit(
           snapshots: [snapshot],
-          message: 'Commit: $_fileName',
+          message: message,
         );
         log.info('Life Git commit created for: $_currentFilePath');
         if (mounted) {
