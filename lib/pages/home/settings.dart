@@ -837,8 +837,8 @@ class _LifeGitStatsWidgetState extends State<_LifeGitStatsWidget> {
 
     final colorScheme = ColorScheme.of(context);
     final commitCount = _stats!['commitCount'] as int? ?? 0;
-    final blobCount = _stats!['blobCount'] as int? ?? 0;
-    final totalSize = _stats!['totalSize'] as int? ?? 0;
+    final objectCount = _stats!['objectCount'] as int? ?? 0;
+    final objectsSize = _stats!['objectsSize'] as int? ?? 0;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -872,12 +872,12 @@ class _LifeGitStatsWidgetState extends State<_LifeGitStatsWidget> {
                   ),
                   _StatItem(
                     label: 'Snapshots',
-                    value: blobCount.toString(),
+                    value: objectCount.toString(),
                     icon: Icons.photo_library,
                   ),
                   _StatItem(
                     label: 'Size',
-                    value: _formatBytes(totalSize),
+                    value: _formatBytes(objectsSize),
                     icon: Icons.data_usage,
                   ),
                 ],

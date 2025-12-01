@@ -282,30 +282,50 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
       final content = controller.text.codeUnits;
       await FileManager.writeFile(_currentFilePath!, content, awaitWrite: true);
       log.info('File saved: $_currentFilePath');
-
-      // Create Life Git snapshot on save
-      if (!_isTimeTraveling) {
-        try {
-          final snapshot = await LifeGitService.instance.snapshotFile(
-            _currentFilePath!,
-          );
-          if (snapshot.exists) {
-            await LifeGitService.instance.createCommit(
-              snapshots: [snapshot],
-              message: 'Auto-save: $_fileName',
-            );
-            log.info('Life Git snapshot created for: $_currentFilePath');
-          }
-        } catch (e) {
-          log.warning('Failed to create Life Git snapshot', e);
-        }
-      }
     } catch (e) {
       log.severe('Error saving file', e);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error saving file: $e')));
+      }
+    }
+  }
+
+  Future<void> _commitVersion() async {
+    if (_currentFilePath == null) return;
+
+    // Save first to ensure latest content is on disk
+    await _saveFile();
+
+    try {
+      final snapshot = await LifeGitService.instance.snapshotFile(
+        _currentFilePath!,
+      );
+      if (snapshot.exists) {
+        await LifeGitService.instance.createCommit(
+          snapshots: [snapshot],
+          message: 'Commit: $_fileName',
+        );
+        log.info('Life Git commit created for: $_currentFilePath');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Version committed'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      log.warning('Failed to create Life Git commit', e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to commit: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -350,6 +370,22 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
           const SnackBar(content: Text('Historical version restored')),
         );
       }
+    }
+  }
+
+  void _onRestoreVersion(Uint8List content, LifeGitCommit commit) {
+    final textContent = String.fromCharCodes(content);
+    setState(() {
+      _codeController?.text = textContent;
+      _originalContent = textContent;
+      _isTimeTraveling = false;
+      _timeTravelContent = null;
+    });
+    _saveFile(); // Save the restored version
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Restored to: ${commit.message}')));
     }
   }
 
@@ -686,10 +722,11 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
                     )
                   : null,
             ),
+            // Commit version button (replaces save icon)
             IconButton(
-              icon: const Icon(Icons.save),
-              tooltip: 'Save',
-              onPressed: _saveFile,
+              icon: const Icon(Icons.commit),
+              tooltip: 'Commit Version',
+              onPressed: _commitVersion,
             ),
           ] else ...[
             // Time Travel mode actions
@@ -714,6 +751,7 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
               filePath: _currentFilePath!,
               onHistoryContent: _onTimeTravelContent,
               onExitTimeTravel: _exitTimeTravel,
+              onRestoreVersion: _onRestoreVersion,
               showCommitDetails: true,
             ),
 
@@ -833,7 +871,7 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
             height: 1.5,
           ),
           lineNumberStyle: LineNumberStyle(
-            width: 48,
+            width: 56, // Increased width to accommodate larger line numbers
             textStyle: TextStyle(
               color: isDark ? Colors.grey[600] : Colors.grey[400],
               fontSize: 12,
@@ -845,6 +883,7 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
           padding: const EdgeInsets.all(16),
           expands: true,
           wrap: true,
+          minLines: null, // Allow dynamic line count
         ),
       ),
     );

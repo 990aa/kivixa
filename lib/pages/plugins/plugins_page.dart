@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_slow_async_io, use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:io';
 
@@ -56,6 +58,98 @@ class _PluginsPageState extends State<PluginsPage> {
           backgroundColor: result.success ? Colors.green : Colors.red,
         ),
       );
+    }
+  }
+
+  void _showResultDetails(BuildContext context, PluginResult result) {
+    final colorScheme = Theme.of(context).colorScheme;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(
+              result.success ? Icons.check_circle : Icons.error,
+              color: result.success ? Colors.green : colorScheme.error,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(result.plugin.name, overflow: TextOverflow.ellipsis),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 500,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Executed at ${_formatTimestamp(result.timestamp)}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Result:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                constraints: const BoxConstraints(maxHeight: 300),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(12),
+                  child: SelectableText(
+                    result.message,
+                    style: TextStyle(
+                      fontFamily: 'FiraMono',
+                      fontSize: 13,
+                      color: result.success
+                          ? colorScheme.onSurface
+                          : colorScheme.error,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+          OutlinedButton.icon(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _runPlugin(result.plugin);
+            },
+            icon: const Icon(Icons.replay, size: 18),
+            label: const Text('Run Again'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatTimestamp(DateTime timestamp) {
+    final now = DateTime.now();
+    final diff = now.difference(timestamp);
+
+    if (diff.inSeconds < 60) {
+      return 'just now';
+    } else if (diff.inMinutes < 60) {
+      return '${diff.inMinutes}m ago';
+    } else if (diff.inHours < 24) {
+      return '${diff.inHours}h ago';
+    } else {
+      return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
     }
   }
 
@@ -151,45 +245,48 @@ class _PluginsPageState extends State<PluginsPage> {
                 itemCount: _recentResults.length,
                 itemBuilder: (context, index) {
                   final result = _recentResults[index];
-                  return Card(
-                    margin: const EdgeInsets.only(right: 8),
-                    color: result.success
-                        ? colorScheme.primaryContainer
-                        : colorScheme.errorContainer,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: SizedBox(
-                        width: 150,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              result.plugin.name,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: result.success
-                                    ? colorScheme.onPrimaryContainer
-                                    : colorScheme.onErrorContainer,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Flexible(
-                              child: Text(
-                                result.message,
+                  return GestureDetector(
+                    onTap: () => _showResultDetails(context, result),
+                    child: Card(
+                      margin: const EdgeInsets.only(right: 8),
+                      color: result.success
+                          ? colorScheme.primaryContainer
+                          : colorScheme.errorContainer,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: SizedBox(
+                          width: 150,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                result.plugin.name,
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
                                   color: result.success
                                       ? colorScheme.onPrimaryContainer
                                       : colorScheme.onErrorContainer,
                                 ),
-                                maxLines: 2,
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 4),
+                              Flexible(
+                                child: Text(
+                                  result.message,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: result.success
+                                        ? colorScheme.onPrimaryContainer
+                                        : colorScheme.onErrorContainer,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -294,23 +391,21 @@ class _PluginsPageState extends State<PluginsPage> {
     final nameController = TextEditingController();
     final descController = TextEditingController();
     final scriptController = TextEditingController(
-      text: '''-- My Plugin
--- Enter your Lua script here
-
-_PLUGIN = {
-    name = "My Plugin",
-    description = "A custom plugin",
-    version = "1.0",
-    author = "You"
-}
-
-function run()
-    -- Your code here
-    local notes = App:getRecentNotes(5)
-    App:log("Found " .. #notes .. " recent notes")
-    return "Plugin completed!"
-end
-''',
+      text:
+          '-- My Plugin\n'
+          '-- Enter your Lua script here\n\n'
+          '_PLUGIN = {\n'
+          '    name = "My Plugin",\n'
+          '    description = "A custom plugin",\n'
+          '    version = "1.0",\n'
+          '    author = "You"\n'
+          '}\n\n'
+          'function run()\n'
+          '    -- Your code here\n'
+          '    local notes = App:getRecentNotes(5)\n'
+          '    App:log("Found " .. #notes .. " recent notes")\n'
+          '    return "Plugin completed!"\n'
+          'end\n',
     );
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -370,7 +465,7 @@ end
               ),
               const SizedBox(height: 8),
               Expanded(
-                child: Container(
+                child: DecoratedBox(
                   decoration: BoxDecoration(
                     border: Border.all(color: colorScheme.outline),
                     borderRadius: BorderRadius.circular(4),
@@ -517,7 +612,7 @@ end
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: Container(
+                child: DecoratedBox(
                   decoration: BoxDecoration(
                     border: Border.all(color: colorScheme.outline),
                     borderRadius: BorderRadius.circular(4),

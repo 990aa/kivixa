@@ -329,6 +329,7 @@ end
   /// Execute a Lua script
   Future<PluginResult> _executeScript(String script, Plugin plugin) async {
     final state = LuaState.newState();
+    final logs = <String>[];
 
     try {
       // Open standard libraries
@@ -337,37 +338,65 @@ end
       // Register the App API
       PluginApi.register(state);
 
-      // Load and run the script
-      state.loadString(script);
-      state.call(0, 0);
-
-      // Call the run() function if it exists
-      state.getGlobal('run');
-      if (state.isFunction(-1)) {
-        state.pCall(0, 1, 0);
-
-        // Get the result
-        String resultMessage = 'Plugin executed successfully';
-        if (state.isString(-1)) {
-          resultMessage = state.toStr(-1) ?? resultMessage;
+      // Override print to capture output
+      state.register('print', (LuaState ls) {
+        final nArgs = ls.getTop();
+        final parts = <String>[];
+        for (var i = 1; i <= nArgs; i++) {
+          parts.add(ls.toStr(i) ?? 'nil');
         }
-        state.pop(1);
+        logs.add(parts.join('\t'));
+        return 0;
+      });
 
-        return PluginResult(
-          plugin: plugin,
-          success: true,
-          message: resultMessage,
-          timestamp: DateTime.now(),
-        );
-      } else {
+      // Load the script
+      state.loadString(script);
+
+      // Run the script, expecting 1 return value
+      state.pCall(0, 1, 0);
+
+      // Check if the script returned a value directly
+      String resultMessage = '';
+      if (!state.isNil(-1)) {
+        resultMessage = state.toStr(-1) ?? '';
         state.pop(1);
-        return PluginResult(
-          plugin: plugin,
-          success: true,
-          message: 'Plugin loaded (no run function)',
-          timestamp: DateTime.now(),
-        );
       }
+
+      // If no direct return, try calling run() function
+      if (resultMessage.isEmpty) {
+        state.getGlobal('run');
+        if (state.isFunction(-1)) {
+          state.pCall(0, 1, 0);
+
+          // Get the result from run()
+          if (state.isString(-1)) {
+            resultMessage = state.toStr(-1) ?? 'Plugin executed successfully';
+          } else {
+            resultMessage = 'Plugin executed successfully';
+          }
+          state.pop(1);
+        } else {
+          state.pop(1);
+          // No run function and no direct return
+          if (logs.isNotEmpty) {
+            resultMessage = logs.join('\n');
+          } else {
+            resultMessage = 'Plugin loaded (no run function or return value)';
+          }
+        }
+      }
+
+      // Append logs if there are any and not already included
+      if (logs.isNotEmpty && !resultMessage.contains(logs.first)) {
+        resultMessage = '${logs.join('\n')}\n\n$resultMessage';
+      }
+
+      return PluginResult(
+        plugin: plugin,
+        success: true,
+        message: resultMessage,
+        timestamp: DateTime.now(),
+      );
     } catch (e) {
       return PluginResult(
         plugin: plugin,

@@ -519,10 +519,15 @@ class FileManager {
         .map((file) => file!.substring(directoryPrefixLength))
         .toList();
 
+    // Hidden directories that should not appear in the browse view
+    const hiddenDirectories = {'plugins', '.lifegit'};
+
     await Future.wait(
       allChildren.map((child) async {
         if (FileManager.isDirectory(directory + child) &&
             !directories.contains(child)) {
+          // Skip hidden directories
+          if (hiddenDirectories.contains(child)) return;
           directories.add(child);
         } else if (!includeAssets && assetFileRegex.hasMatch(child)) {
         } else if (!files.contains(child)) {

@@ -11,6 +11,7 @@ class TimeTravelSlider extends StatefulWidget {
     required this.filePath,
     required this.onHistoryContent,
     required this.onExitTimeTravel,
+    this.onRestoreVersion,
     this.showCommitDetails = true,
   });
 
@@ -22,6 +23,10 @@ class TimeTravelSlider extends StatefulWidget {
 
   /// Called when user exits time travel mode
   final VoidCallback onExitTimeTravel;
+
+  /// Called when user wants to restore a version (if null, exits time travel after restore)
+  final void Function(Uint8List content, LifeGitCommit commit)?
+  onRestoreVersion;
 
   /// Whether to show commit details below the slider
   final bool showCommitDetails;
@@ -382,15 +387,20 @@ class _TimeTravelSliderState extends State<TimeTravelSlider> {
   Future<void> _restoreVersion() async {
     if (_selectedCommit == null) return;
 
-    // The parent widget should handle the actual restoration
+    // Get the content at this commit
     final content = await LifeGitService.instance.getFileAtCommit(
       widget.filePath,
       _selectedCommit!.hash,
     );
 
     if (content != null && mounted) {
-      widget.onHistoryContent(content, _selectedCommit!);
-      widget.onExitTimeTravel();
+      // If a restore callback is provided, use it; otherwise update content and exit
+      if (widget.onRestoreVersion != null) {
+        widget.onRestoreVersion!(content, _selectedCommit!);
+      } else {
+        widget.onHistoryContent(content, _selectedCommit!);
+        widget.onExitTimeTravel();
+      }
     }
   }
 }

@@ -163,14 +163,16 @@ void main() {
       expect(find.text('Heading 6'), findsOneWidget);
     });
 
-    testWidgets('should have save button', (WidgetTester tester) async {
+    testWidgets('should have commit version button', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(home: AdvancedMarkdownEditor(filePath: '/test')),
       );
 
       await tester.pumpAndSettle();
 
-      expect(find.byTooltip('Save'), findsOneWidget);
+      expect(find.byTooltip('Commit Version'), findsOneWidget);
     });
   });
 

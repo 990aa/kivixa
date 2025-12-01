@@ -329,26 +329,46 @@ class _TextFileEditorState extends State<TextFileEditor> {
       final jsonString = json.encode(fullData);
       await FileManager.writeFile(_currentFilePath!, utf8.encode(jsonString));
       log.info('File saved: $_currentFilePath');
+    } catch (e) {
+      log.severe('Error saving file', e);
+    }
+  }
 
-      // Create Life Git snapshot on save
-      if (!_isTimeTraveling) {
-        try {
-          final snapshot = await LifeGitService.instance.snapshotFile(
-            _currentFilePath!,
+  Future<void> _commitVersion() async {
+    if (_currentFilePath == null) return;
+
+    // Save first to ensure latest content is on disk
+    await _saveFile();
+
+    try {
+      final snapshot = await LifeGitService.instance.snapshotFile(
+        _currentFilePath!,
+      );
+      if (snapshot.exists) {
+        await LifeGitService.instance.createCommit(
+          snapshots: [snapshot],
+          message: 'Commit: $_fileName',
+        );
+        log.info('Life Git commit created for: $_currentFilePath');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Version committed'),
+              backgroundColor: Colors.green,
+            ),
           );
-          if (snapshot.exists) {
-            await LifeGitService.instance.createCommit(
-              snapshots: [snapshot],
-              message: 'Auto-save: $_fileName',
-            );
-            log.info('Life Git snapshot created for: $_currentFilePath');
-          }
-        } catch (e) {
-          log.warning('Failed to create Life Git snapshot', e);
         }
       }
     } catch (e) {
-      log.severe('Error saving file', e);
+      log.warning('Failed to create Life Git commit', e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to commit: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -395,6 +415,47 @@ class _TextFileEditorState extends State<TextFileEditor> {
       }
     } catch (e) {
       log.warning('Failed to parse historical version', e);
+    }
+  }
+
+  void _onRestoreVersion(Uint8List content, LifeGitCommit commit) {
+    try {
+      final jsonString = String.fromCharCodes(content);
+      final data = json.decode(jsonString);
+
+      if (data is Map && data.containsKey('document')) {
+        final document = Document.fromJson(
+          List<Map<String, dynamic>>.from(
+            (data['document'] as List).map(
+              (e) => Map<String, dynamic>.from(e as Map),
+            ),
+          ),
+        );
+        setState(() {
+          _controller = QuillController(
+            document: document,
+            selection: const TextSelection.collapsed(offset: 0),
+          );
+          _originalDocument = document;
+          _isTimeTraveling = false;
+        });
+        _saveFile(); // Save the restored version
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Restored to: ${commit.message}')),
+          );
+        }
+      }
+    } catch (e) {
+      log.warning('Failed to restore historical version', e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to restore version: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -820,6 +881,12 @@ class _TextFileEditorState extends State<TextFileEditor> {
                     )
                   : null,
             ),
+            // Commit version button
+            IconButton(
+              icon: const Icon(Icons.commit),
+              tooltip: 'Commit Version',
+              onPressed: _commitVersion,
+            ),
             IconButton(
               icon: const Icon(Icons.file_download),
               tooltip: 'Export',
@@ -849,6 +916,7 @@ class _TextFileEditorState extends State<TextFileEditor> {
                 filePath: _currentFilePath!,
                 onHistoryContent: _onTimeTravelContent,
                 onExitTimeTravel: _exitTimeTravel,
+                onRestoreVersion: _onRestoreVersion,
                 showCommitDetails: true,
               ),
             // Rich toolbar with all formatting options (hidden during time travel)

@@ -522,7 +522,7 @@ class _LifeGitHistoryPageState extends State<LifeGitHistoryPage> {
       ),
     );
 
-    if (confirmed == true) {
+    if ((confirmed ?? false) == true) {
       try {
         await LifeGitService.instance.deleteAllHistory();
         if (mounted) {
@@ -587,7 +587,7 @@ class _LifeGitHistoryPageState extends State<LifeGitHistoryPage> {
       ),
     );
 
-    if (confirmed == true) {
+    if ((confirmed ?? false) == true) {
       final days = int.tryParse(daysController.text) ?? 30;
       try {
         final deleted = await LifeGitService.instance.deleteHistoryOlderThan(
