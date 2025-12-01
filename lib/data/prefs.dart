@@ -316,6 +316,21 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  // Life Git auto-cleanup settings
+  // Set to 0 to disable auto-cleanup
+  final lifeGitAutoCleanupDays = PlainStow(
+    'lifeGitAutoCleanupDays',
+    0, // 0 = disabled, otherwise delete commits older than this many days
+    volatile: !_isOnMainIsolate,
+  );
+
+  // Last time auto-cleanup was run
+  final lifeGitLastAutoCleanup = PlainStow<String?>(
+    'lifeGitLastAutoCleanup',
+    null,
+    volatile: !_isOnMainIsolate,
+  );
+
   static bool get isDesktop => Platform.isWindows;
 }
 

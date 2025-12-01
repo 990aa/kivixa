@@ -528,7 +528,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   icon: Icons.receipt_long,
                   onPressed: () => context.push(RoutePaths.logs),
                 ),
-                SettingsSubtitle(subtitle: 'Extensions'),
+                const SettingsSubtitle(subtitle: 'Extensions'),
                 SettingsButton(
                   title: 'Lua Plugins',
                   subtitle: 'Automate tasks with Lua scripts',
@@ -541,6 +541,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   icon: Icons.history,
                   onPressed: () => context.push(RoutePaths.lifeGitHistory),
                 ),
+                const _LifeGitAutoCleanupSetting(),
                 _LifeGitStatsWidget(),
                 const ClearAppDataWidget(),
               ],
@@ -676,6 +677,106 @@ class _AppLockSettingsSectionState extends State<_AppLockSettingsSection> {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// Settings widget for Life Git auto-cleanup
+class _LifeGitAutoCleanupSetting extends StatefulWidget {
+  const _LifeGitAutoCleanupSetting();
+
+  @override
+  State<_LifeGitAutoCleanupSetting> createState() =>
+      _LifeGitAutoCleanupSettingState();
+}
+
+class _LifeGitAutoCleanupSettingState
+    extends State<_LifeGitAutoCleanupSetting> {
+  @override
+  void initState() {
+    super.initState();
+    stows.lifeGitAutoCleanupDays.addListener(_onChanged);
+  }
+
+  @override
+  void dispose() {
+    stows.lifeGitAutoCleanupDays.removeListener(_onChanged);
+    super.dispose();
+  }
+
+  void _onChanged() {
+    setState(() {});
+  }
+
+  String _getSubtitle() {
+    final days = stows.lifeGitAutoCleanupDays.value;
+    if (days <= 0) return 'Never';
+    return 'Delete commits older than $days days';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsButton(
+      title: 'Auto-cleanup old history',
+      subtitle: _getSubtitle(),
+      icon: Icons.auto_delete_outlined,
+      onPressed: () => _showAutoCleanupDialog(context),
+    );
+  }
+
+  Future<void> _showAutoCleanupDialog(BuildContext context) async {
+    final options = [
+      (value: 0, label: 'Never (keep all history)'),
+      (value: 7, label: 'After 7 days'),
+      (value: 14, label: 'After 14 days'),
+      (value: 30, label: 'After 30 days'),
+      (value: 60, label: 'After 60 days'),
+      (value: 90, label: 'After 90 days'),
+    ];
+
+    var currentValue = stows.lifeGitAutoCleanupDays.value;
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Auto-cleanup Settings'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Automatically delete old version history to save storage space.',
+              ),
+              const SizedBox(height: 16),
+              ...options.map(
+                (option) => RadioListTile<int>(
+                  title: Text(option.label),
+                  value: option.value,
+                  groupValue: currentValue,
+                  onChanged: (value) {
+                    if (value != null) {
+                      setDialogState(() => currentValue = value);
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                stows.lifeGitAutoCleanupDays.value = currentValue;
+                Navigator.pop(context);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

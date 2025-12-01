@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:kivixa/services/plugins/plugins.dart';
@@ -157,35 +158,39 @@ class _PluginsPageState extends State<PluginsPage> {
                         : colorScheme.errorContainer,
                     child: Padding(
                       padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            result.plugin.name,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: result.success
-                                  ? colorScheme.onPrimaryContainer
-                                  : colorScheme.onErrorContainer,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          SizedBox(
-                            width: 150,
-                            child: Text(
-                              result.message,
+                      child: SizedBox(
+                        width: 150,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              result.plugin.name,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
                                 color: result.success
                                     ? colorScheme.onPrimaryContainer
                                     : colorScheme.onErrorContainer,
                               ),
-                              maxLines: 2,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Flexible(
+                              child: Text(
+                                result.message,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: result.success
+                                      ? colorScheme.onPrimaryContainer
+                                      : colorScheme.onErrorContainer,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -227,24 +232,14 @@ class _PluginsPageState extends State<PluginsPage> {
           backgroundColor: colorScheme.primaryContainer,
           child: Icon(Icons.extension, color: colorScheme.onPrimaryContainer),
         ),
-        title: Text(plugin.name),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (plugin.description.isNotEmpty)
-              Text(
-                plugin.description,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            Text(
-              'v${plugin.version} by ${plugin.author}',
-              style: TextStyle(
-                fontSize: 11,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
+        title: Text(plugin.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+        subtitle: Text(
+          plugin.description.isNotEmpty
+              ? '${plugin.description}\nv${plugin.version} by ${plugin.author}'
+              : 'v${plugin.version} by ${plugin.author}',
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
@@ -298,42 +293,154 @@ class _PluginsPageState extends State<PluginsPage> {
   Future<void> _showCreatePluginDialog(BuildContext context) async {
     final nameController = TextEditingController();
     final descController = TextEditingController();
+    final scriptController = TextEditingController(
+      text: '''-- My Plugin
+-- Enter your Lua script here
+
+_PLUGIN = {
+    name = "My Plugin",
+    description = "A custom plugin",
+    version = "1.0",
+    author = "You"
+}
+
+function run()
+    -- Your code here
+    local notes = App:getRecentNotes(5)
+    App:log("Found " .. #notes .. " recent notes")
+    return "Plugin completed!"
+end
+''',
+    );
+    final colorScheme = Theme.of(context).colorScheme;
 
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Create Plugin'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Plugin Name',
-                hintText: 'My Plugin',
+      builder: (context) => Dialog(
+        child: Container(
+          width: 600,
+          height: 650,
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.add_circle, color: colorScheme.primary),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Create Plugin',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
-              autofocus: true,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: descController,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                hintText: 'What does this plugin do?',
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Plugin Name',
+                        hintText: 'My Plugin',
+                        border: OutlineInputBorder(),
+                        isDense: true,
+                      ),
+                      autofocus: true,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextField(
+                      controller: descController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                        hintText: 'What does this plugin do?',
+                        border: OutlineInputBorder(),
+                        isDense: true,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              const Text(
+                'Lua Script:',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: colorScheme.outline),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: TextField(
+                    controller: scriptController,
+                    maxLines: null,
+                    expands: true,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(12),
+                    ),
+                    style: const TextStyle(
+                      fontFamily: 'FiraMono',
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Use App:readNote, App:writeNote, App:findNotes, App:log, etc.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      if (scriptController.text.isNotEmpty) {
+                        final result = await PluginService.instance.runScript(
+                          scriptController.text,
+                          name: nameController.text.isNotEmpty
+                              ? nameController.text
+                              : 'Test Script',
+                        );
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(result.message),
+                              backgroundColor: result.success
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.play_arrow, size: 18),
+                    label: const Text('Test'),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Create'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Create'),
-          ),
-        ],
       ),
     );
 
@@ -341,22 +448,172 @@ class _PluginsPageState extends State<PluginsPage> {
       await PluginService.instance.createPlugin(
         name: nameController.text,
         description: descController.text,
+        content: scriptController.text,
       );
       await _loadPlugins();
     }
 
     nameController.dispose();
     descController.dispose();
+    scriptController.dispose();
   }
 
   Future<void> _showEditPluginDialog(
     BuildContext context,
     Plugin plugin,
   ) async {
-    // In a real implementation, this would open a code editor
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Edit plugin at: ${plugin.fullPath}')),
+    final colorScheme = Theme.of(context).colorScheme;
+    final scriptController = TextEditingController();
+
+    // Load the current script content
+    try {
+      final file = File(plugin.fullPath);
+      if (await file.exists()) {
+        scriptController.text = await file.readAsString();
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading plugin: $e')));
+      }
+      return;
+    }
+
+    await showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Container(
+          width: 700,
+          height: 650,
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.edit, color: colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Edit: ${plugin.name}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                plugin.fullPath,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: colorScheme.outline),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: TextField(
+                    controller: scriptController,
+                    maxLines: null,
+                    expands: true,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(12),
+                    ),
+                    style: const TextStyle(
+                      fontFamily: 'FiraMono',
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Use App:readNote, App:writeNote, App:findNotes, App:log, etc.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      if (scriptController.text.isNotEmpty) {
+                        final result = await PluginService.instance.runScript(
+                          scriptController.text,
+                          name: plugin.name,
+                        );
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(result.message),
+                              backgroundColor: result.success
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.play_arrow, size: 18),
+                    label: const Text('Run'),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: () async {
+                      try {
+                        final file = File(plugin.fullPath);
+                        await file.writeAsString(scriptController.text);
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Plugin saved'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error saving: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    child: const Text('Save'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
+
+    scriptController.dispose();
+    await _loadPlugins();
   }
 
   Future<void> _showDeletePluginDialog(

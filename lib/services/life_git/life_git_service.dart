@@ -9,6 +9,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
+import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/life_git/models/commit.dart';
 import 'package:kivixa/services/life_git/models/snapshot.dart';
 import 'package:logging/logging.dart';
@@ -70,6 +71,39 @@ class LifeGitService {
     }
 
     _log.info('Life Git initialized at $_gitDir');
+
+    // Run auto-cleanup if enabled
+    await _runAutoCleanupIfNeeded();
+  }
+
+  /// Run auto-cleanup if configured and enough time has passed
+  Future<void> _runAutoCleanupIfNeeded() async {
+    final days = stows.lifeGitAutoCleanupDays.value;
+    if (days <= 0) return; // Auto-cleanup disabled
+
+    // Check if we already ran cleanup today
+    final lastCleanup = stows.lifeGitLastAutoCleanup.value;
+    if (lastCleanup != null) {
+      final lastDate = DateTime.tryParse(lastCleanup);
+      if (lastDate != null) {
+        final today = DateTime.now();
+        if (lastDate.year == today.year &&
+            lastDate.month == today.month &&
+            lastDate.day == today.day) {
+          _log.fine('Auto-cleanup already ran today, skipping');
+          return;
+        }
+      }
+    }
+
+    try {
+      _log.info('Running auto-cleanup for commits older than $days days');
+      final deleted = await deleteHistoryOlderThan(days);
+      stows.lifeGitLastAutoCleanup.value = DateTime.now().toIso8601String();
+      _log.info('Auto-cleanup completed: deleted $deleted commits');
+    } catch (e) {
+      _log.warning('Auto-cleanup failed: $e');
+    }
   }
 
   /// Compute SHA-256 hash of content
@@ -112,10 +146,17 @@ class LifeGitService {
 
   /// Create a snapshot of a single file
   Future<FileSnapshot> snapshotFile(String filePath) async {
-    final fullPath = p.join(FileManager.documentsDirectory, filePath);
+    // Normalize the path - remove leading slash if present since we're joining with documentsDirectory
+    final normalizedPath = filePath.startsWith('/')
+        ? filePath.substring(1)
+        : filePath;
+    final fullPath = p.join(FileManager.documentsDirectory, normalizedPath);
     final file = File(fullPath);
 
+    _log.fine('Snapshotting file: $filePath -> $fullPath');
+
     if (!await file.exists()) {
+      _log.fine('File does not exist: $fullPath');
       return FileSnapshot(
         path: filePath,
         blobHash: '',
@@ -127,6 +168,10 @@ class LifeGitService {
     final content = await file.readAsBytes();
     final blobHash = await _storeBlob(content);
     final stat = await file.stat();
+
+    _log.fine(
+      'Created snapshot for: $filePath with hash: ${blobHash.substring(0, 8)}',
+    );
 
     return FileSnapshot(
       path: filePath,
@@ -143,19 +188,34 @@ class LifeGitService {
 
     if (!await dir.exists()) return snapshots;
 
-    await for (final entity in dir.list(recursive: true)) {
-      if (entity is File) {
-        final relativePath = p.relative(
-          entity.path,
-          from: FileManager.documentsDirectory,
-        );
+    try {
+      await for (final entity in dir.list(
+        recursive: true,
+        followLinks: false,
+      )) {
+        if (entity is File) {
+          try {
+            final relativePath = p.relative(
+              entity.path,
+              from: FileManager.documentsDirectory,
+            );
 
-        // Skip .lifegit directory
-        if (relativePath.startsWith('.lifegit')) continue;
+            // Skip .lifegit directory and system files
+            if (relativePath.startsWith('.lifegit')) continue;
+            if (relativePath.contains(r'$'))
+              continue; // Skip system files like $Recycle.Bin
+            if (relativePath.startsWith('.')) continue; // Skip hidden files
 
-        final snapshot = await snapshotFile(relativePath);
-        snapshots.add(snapshot);
+            final snapshot = await snapshotFile(relativePath);
+            snapshots.add(snapshot);
+          } catch (e) {
+            // Skip files that can't be accessed
+            _log.fine('Skipping inaccessible file: ${entity.path} - $e');
+          }
+        }
       }
+    } catch (e) {
+      _log.warning('Error listing directory $dirPath: $e');
     }
 
     return snapshots;
@@ -167,8 +227,19 @@ class LifeGitService {
     required String message,
     String? parentHash,
   }) async {
+    if (snapshots.isEmpty) {
+      _log.warning('createCommit called with empty snapshots list');
+    }
+
+    // Filter out snapshots where file doesn't exist (unless tracking deletions)
+    final validSnapshots = snapshots.where((s) => s.exists).toList();
+    if (validSnapshots.isEmpty && snapshots.isNotEmpty) {
+      _log.warning('All snapshots have exists=false, files may not be found');
+    }
+
     // Get parent hash from current HEAD if not provided
     parentHash ??= await _getCurrentCommitHash();
+    _log.fine('Parent hash: $parentHash');
 
     final commit = LifeGitCommit(
       hash: '', // Will be computed
@@ -188,11 +259,14 @@ class LifeGitService {
     // Store commit
     final commitFile = File(p.join(_commitsDir, commitHash));
     await commitFile.writeAsString(jsonEncode(commitWithHash.toJson()));
+    _log.fine('Stored commit at: ${commitFile.path}');
 
     // Update HEAD
     await _updateHead(commitHash);
 
-    _log.info('Created commit: $commitHash - $message');
+    _log.info(
+      'Created commit: $commitHash - $message (${snapshots.length} files)',
+    );
 
     return commitWithHash;
   }
@@ -428,5 +502,95 @@ class LifeGitService {
 
     _log.info('Garbage collection removed $removedCount objects');
     return removedCount;
+  }
+
+  /// Delete all history (commits and objects)
+  Future<void> deleteAllHistory() async {
+    _log.warning('Deleting all Life Git history');
+
+    // Delete all commits
+    final commitsDir = Directory(_commitsDir);
+    if (await commitsDir.exists()) {
+      await for (final file in commitsDir.list()) {
+        if (file is File) {
+          await file.delete();
+        }
+      }
+    }
+
+    // Delete all objects
+    final objectsDir = Directory(_objectsDir);
+    if (await objectsDir.exists()) {
+      await for (final subDir in objectsDir.list()) {
+        if (subDir is Directory) {
+          await subDir.delete(recursive: true);
+        }
+      }
+    }
+
+    // Reset branch reference
+    final mainRef = File(p.join(_refsDir, 'main'));
+    if (await mainRef.exists()) {
+      await mainRef.writeAsString('');
+    }
+
+    _log.info('All Life Git history deleted');
+  }
+
+  /// Delete history older than a specified number of days
+  Future<int> deleteHistoryOlderThan(int days) async {
+    final cutoffDate = DateTime.now().subtract(Duration(days: days));
+    final commits = await getHistory(limit: 10000);
+    int deletedCount = 0;
+
+    // Find commits to delete (older than cutoff)
+    final commitsToDelete = commits
+        .where((c) => c.timestamp.isBefore(cutoffDate))
+        .toList();
+
+    for (final commit in commitsToDelete) {
+      final commitFile = File(p.join(_commitsDir, commit.hash));
+      if (await commitFile.exists()) {
+        await commitFile.delete();
+        deletedCount++;
+      }
+    }
+
+    // Run garbage collection to clean up orphaned blobs
+    if (deletedCount > 0) {
+      await garbageCollect();
+    }
+
+    _log.info('Deleted $deletedCount commits older than $days days');
+    return deletedCount;
+  }
+
+  /// Delete history for a specific file
+  Future<int> deleteFileHistory(String filePath) async {
+    final commits = await getHistory(limit: 10000);
+    int deletedCount = 0;
+
+    for (final commit in commits) {
+      // Check if this commit only contains the specified file
+      final hasOnlyThisFile =
+          commit.snapshots.length == 1 &&
+          commit.snapshots.first.path == filePath;
+
+      if (hasOnlyThisFile) {
+        final commitFile = File(p.join(_commitsDir, commit.hash));
+        if (await commitFile.exists()) {
+          await commitFile.delete();
+          deletedCount++;
+        }
+      }
+    }
+
+    // Run garbage collection to clean up orphaned blobs
+    if (deletedCount > 0) {
+      await garbageCollect();
+    }
+
+    _log.info('Deleted $deletedCount commits for file: $filePath');
+    return deletedCount;
   }
 }

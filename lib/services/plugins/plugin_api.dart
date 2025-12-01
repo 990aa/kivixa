@@ -8,6 +8,10 @@ import 'package:lua_dardo/lua.dart';
 import 'package:path/path.dart' as p;
 
 /// API exposed to Lua plugins
+///
+/// Note: When Lua calls methods with `:` syntax (App:method(args)),
+/// the first argument at index 1 is `self` (the App table),
+/// and actual arguments start at index 2.
 class PluginApi {
   static final _log = Logger('PluginApi');
 
@@ -46,9 +50,11 @@ class PluginApi {
 
   /// Read the content of a note
   /// Lua: App:readNote(path) -> string or nil
+  /// Note: Index 1 is self, index 2 is path
   static int _readNote(LuaState state) {
-    final path = state.checkString(1);
-    if (path == null) {
+    // When called with :, index 1 is self (App table), index 2 is the path
+    final path = state.toStr(2);
+    if (path == null || path.isEmpty) {
       state.pushNil();
       return 1;
     }
@@ -96,11 +102,12 @@ class PluginApi {
 
   /// Write content to a note (creates or updates)
   /// Lua: App:writeNote(path, content) -> boolean
+  /// Note: Index 1 is self, index 2 is path, index 3 is content
   static int _writeNote(LuaState state) {
-    final path = state.checkString(1);
-    final content = state.checkString(2);
+    final path = state.toStr(2);
+    final content = state.toStr(3);
 
-    if (path == null || content == null) {
+    if (path == null || path.isEmpty || content == null) {
       state.pushBoolean(false);
       return 1;
     }
@@ -138,10 +145,11 @@ class PluginApi {
 
   /// Delete a note
   /// Lua: App:deleteNote(path) -> boolean
+  /// Note: Index 1 is self, index 2 is path
   static int _deleteNote(LuaState state) {
-    final path = state.checkString(1);
+    final path = state.toStr(2);
 
-    if (path == null) {
+    if (path == null || path.isEmpty) {
       state.pushBoolean(false);
       return 1;
     }
@@ -174,8 +182,9 @@ class PluginApi {
 
   /// Find notes matching a pattern
   /// Lua: App:findNotes(pattern) -> table of paths
+  /// Note: Index 1 is self, index 2 is pattern
   static int _findNotes(LuaState state) {
-    final pattern = state.checkString(1) ?? '';
+    final pattern = state.toStr(2) ?? '';
 
     try {
       final matches = <String>[];
@@ -242,8 +251,12 @@ class PluginApi {
 
   /// Get recently modified notes
   /// Lua: App:getRecentNotes(count) -> table of paths
+  /// Note: Index 1 is self, index 2 is count
   static int _getRecentNotes(LuaState state) {
-    final count = state.checkInteger(1) ?? 10;
+    var count = 10;
+    if (state.isNumber(2)) {
+      count = state.toInteger(2);
+    }
 
     try {
       final notes = <MapEntry<String, DateTime>>[];
@@ -306,8 +319,12 @@ class PluginApi {
 
   /// Get notes older than X days
   /// Lua: App:getNotesOlderThan(days) -> table of paths
+  /// Note: Index 1 is self, index 2 is days
   static int _getNotesOlderThan(LuaState state) {
-    final days = state.checkInteger(1) ?? 7;
+    var days = 7;
+    if (state.isNumber(2)) {
+      days = state.toInteger(2);
+    }
     final cutoff = DateTime.now().subtract(Duration(days: days));
 
     try {
@@ -374,10 +391,11 @@ class PluginApi {
 
   /// Create a folder
   /// Lua: App:createFolder(path) -> boolean
+  /// Note: Index 1 is self, index 2 is path
   static int _createFolder(LuaState state) {
-    final path = state.checkString(1);
+    final path = state.toStr(2);
 
-    if (path == null) {
+    if (path == null || path.isEmpty) {
       state.pushBoolean(false);
       return 1;
     }
@@ -396,11 +414,15 @@ class PluginApi {
 
   /// Move a note to a new location
   /// Lua: App:moveNote(fromPath, toPath) -> boolean
+  /// Note: Index 1 is self, index 2 is fromPath, index 3 is toPath
   static int _moveNote(LuaState state) {
-    final fromPath = state.checkString(1);
-    final toPath = state.checkString(2);
+    final fromPath = state.toStr(2);
+    final toPath = state.toStr(3);
 
-    if (fromPath == null || toPath == null) {
+    if (fromPath == null ||
+        fromPath.isEmpty ||
+        toPath == null ||
+        toPath.isEmpty) {
       state.pushBoolean(false);
       return 1;
     }
@@ -482,16 +504,18 @@ class PluginApi {
 
   /// Log a message (for debugging)
   /// Lua: App:log(message)
+  /// Note: Index 1 is self, index 2 is message
   static int _luaLog(LuaState state) {
-    final message = state.checkString(1) ?? '';
+    final message = state.toStr(2) ?? '';
     _log.info('[Plugin] $message');
     return 0;
   }
 
   /// Show a notification (placeholder - actual implementation depends on UI)
   /// Lua: App:notify(message)
+  /// Note: Index 1 is self, index 2 is message
   static int _notify(LuaState state) {
-    final message = state.checkString(1) ?? '';
+    final message = state.toStr(2) ?? '';
     _log.info('[Plugin Notification] $message');
     // In a real implementation, this would show a snackbar or notification
     return 0;

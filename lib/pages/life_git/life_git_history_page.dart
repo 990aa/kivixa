@@ -87,6 +87,10 @@ class _LifeGitHistoryPageState extends State<LifeGitHistoryPage> {
                   await _createBackup();
                 case 'gc':
                   await _runGarbageCollection();
+                case 'delete_all':
+                  await _confirmDeleteAllHistory();
+                case 'delete_old':
+                  await _showDeleteOldHistoryDialog();
               }
             },
             itemBuilder: (context) => [
@@ -107,6 +111,45 @@ class _LifeGitHistoryPageState extends State<LifeGitHistoryPage> {
                     Icon(Icons.cleaning_services, size: 20),
                     SizedBox(width: 8),
                     Text('Clean Up Storage'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem(
+                value: 'delete_old',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.auto_delete,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Delete Old History...',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'delete_all',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.delete_forever,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Delete All History',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -452,6 +495,127 @@ class _LifeGitHistoryPageState extends State<LifeGitHistoryPage> {
         );
       }
     }
+  }
+
+  Future<void> _confirmDeleteAllHistory() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete All History?'),
+        content: const Text(
+          'This will permanently delete all version history and cannot be undone. '
+          'Your current files will not be affected.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Delete All'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await LifeGitService.instance.deleteAllHistory();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('All history deleted'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          await _loadHistory();
+          await _loadStats();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete history: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _showDeleteOldHistoryDialog() async {
+    final daysController = TextEditingController(text: '30');
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Old History'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Delete commits older than:'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: daysController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Days',
+                suffixText: 'days',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final days = int.tryParse(daysController.text) ?? 30;
+      try {
+        final deleted = await LifeGitService.instance.deleteHistoryOlderThan(
+          days,
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Deleted $deleted commits older than $days days'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          await _loadHistory();
+          await _loadStats();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete history: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+
+    daysController.dispose();
   }
 
   String _formatDate(DateTime date) {
