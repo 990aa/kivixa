@@ -27,6 +27,7 @@ import 'package:kivixa/data/tools/shape_pen.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/lock_screen.dart';
 import 'package:kivixa/services/app_lock_service.dart';
+import 'package:kivixa/services/life_git/life_git_service.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:stow/stow.dart';
 
@@ -527,6 +528,20 @@ class _SettingsPageState extends State<SettingsPage> {
                   icon: Icons.receipt_long,
                   onPressed: () => context.push(RoutePaths.logs),
                 ),
+                SettingsSubtitle(subtitle: 'Extensions'),
+                SettingsButton(
+                  title: 'Lua Plugins',
+                  subtitle: 'Automate tasks with Lua scripts',
+                  icon: Icons.extension,
+                  onPressed: () => context.push(RoutePaths.plugins),
+                ),
+                SettingsButton(
+                  title: 'Version History',
+                  subtitle: 'View file snapshots and commits',
+                  icon: Icons.history,
+                  onPressed: () => context.push(RoutePaths.lifeGitHistory),
+                ),
+                _LifeGitStatsWidget(),
                 const ClearAppDataWidget(),
               ],
             ),
@@ -660,6 +675,150 @@ class _AppLockSettingsSectionState extends State<_AppLockSettingsSection> {
             ),
           ),
         ],
+      ],
+    );
+  }
+}
+
+/// Widget showing Life Git storage statistics
+class _LifeGitStatsWidget extends StatefulWidget {
+  @override
+  State<_LifeGitStatsWidget> createState() => _LifeGitStatsWidgetState();
+}
+
+class _LifeGitStatsWidgetState extends State<_LifeGitStatsWidget> {
+  Map<String, dynamic>? _stats;
+  var _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final stats = await LifeGitService.instance.getStorageStats();
+      if (mounted) {
+        setState(() {
+          _stats = stats;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  String _formatBytes(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
+    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.all(16),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_stats == null) {
+      return const SizedBox.shrink();
+    }
+
+    final colorScheme = ColorScheme.of(context);
+    final commitCount = _stats!['commitCount'] as int? ?? 0;
+    final blobCount = _stats!['blobCount'] as int? ?? 0;
+    final totalSize = _stats!['totalSize'] as int? ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.storage, color: colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Life Git Storage',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _StatItem(
+                    label: 'Commits',
+                    value: commitCount.toString(),
+                    icon: Icons.commit,
+                  ),
+                  _StatItem(
+                    label: 'Snapshots',
+                    value: blobCount.toString(),
+                    icon: Icons.photo_library,
+                  ),
+                  _StatItem(
+                    label: 'Size',
+                    value: _formatBytes(totalSize),
+                    icon: Icons.data_usage,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  const _StatItem({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+    return Column(
+      children: [
+        Icon(icon, size: 20, color: colorScheme.primary),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+        ),
       ],
     );
   }

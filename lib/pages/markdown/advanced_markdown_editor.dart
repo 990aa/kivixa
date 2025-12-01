@@ -1,13 +1,18 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:code_text_field/code_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_highlight/themes/github.dart';
 import 'package:flutter_highlight/themes/vs2015.dart';
 import 'package:flutter_smooth_markdown/flutter_smooth_markdown.dart';
+import 'package:go_router/go_router.dart';
 import 'package:highlight/languages/markdown.dart';
+import 'package:kivixa/components/life_git/time_travel_slider.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
+import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
+import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:logging/logging.dart';
 
 /// Advanced VS Code-like Markdown editor with:
@@ -51,6 +56,11 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
   var _wordCount = 0;
   var _charCount = 0;
   var _lastThemeIsDark = false;
+
+  // Time Travel state
+  var _isTimeTraveling = false;
+  String? _originalContent;
+  String? _timeTravelContent;
 
   final log = Logger('AdvancedMarkdownEditor');
 
@@ -269,18 +279,76 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     _currentFilePath ??= '/Untitled${AdvancedMarkdownEditor.extension}';
 
     try {
-      await FileManager.writeFile(
-        _currentFilePath!,
-        controller.text.codeUnits,
-        awaitWrite: true,
-      );
+      final content = controller.text.codeUnits;
+      await FileManager.writeFile(_currentFilePath!, content, awaitWrite: true);
       log.info('File saved: $_currentFilePath');
+
+      // Create Life Git snapshot on save
+      if (!_isTimeTraveling) {
+        try {
+          final snapshot = await LifeGitService.instance.snapshotFile(
+            _currentFilePath!,
+          );
+          if (snapshot.exists) {
+            await LifeGitService.instance.createCommit(
+              snapshots: [snapshot],
+              message: 'Auto-save: $_fileName',
+            );
+            log.info('Life Git snapshot created for: $_currentFilePath');
+          }
+        } catch (e) {
+          log.warning('Failed to create Life Git snapshot', e);
+        }
+      }
     } catch (e) {
       log.severe('Error saving file', e);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error saving file: $e')));
+      }
+    }
+  }
+
+  void _enterTimeTravel() {
+    if (_currentFilePath == null) return;
+    setState(() {
+      _isTimeTraveling = true;
+      _originalContent = _codeController?.text;
+    });
+  }
+
+  void _exitTimeTravel() {
+    setState(() {
+      _isTimeTraveling = false;
+      if (_originalContent != null && _codeController != null) {
+        _codeController!.text = _originalContent!;
+      }
+      _originalContent = null;
+      _timeTravelContent = null;
+    });
+  }
+
+  void _onTimeTravelContent(Uint8List content, LifeGitCommit commit) {
+    final textContent = String.fromCharCodes(content);
+    setState(() {
+      _timeTravelContent = textContent;
+      _codeController?.text = textContent;
+    });
+  }
+
+  void _restoreHistoricalVersion() {
+    if (_timeTravelContent != null) {
+      setState(() {
+        _originalContent = _timeTravelContent;
+        _isTimeTraveling = false;
+        _timeTravelContent = null;
+      });
+      _saveFile(); // Save the restored version
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Historical version restored')),
+        );
       }
     }
   }
@@ -576,41 +644,84 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     return Scaffold(
       appBar: AppBar(
         title: _buildTitleWidget(),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(icon: Icon(Icons.edit), text: 'Edit'),
-            Tab(icon: Icon(Icons.preview), text: 'Preview'),
-            Tab(icon: Icon(Icons.splitscreen), text: 'Split'),
-          ],
-        ),
+        bottom: _isTimeTraveling
+            ? null
+            : TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(icon: Icon(Icons.edit), text: 'Edit'),
+                  Tab(icon: Icon(Icons.preview), text: 'Preview'),
+                  Tab(icon: Icon(Icons.splitscreen), text: 'Split'),
+                ],
+              ),
         actions: [
-          // Heading dropdown
-          PopupMenuButton<int>(
-            icon: const Icon(Icons.title),
-            tooltip: 'Insert Heading',
-            onSelected: _insertHeading,
-            itemBuilder: (context) => [
-              const PopupMenuItem(value: 1, child: Text('Heading 1')),
-              const PopupMenuItem(value: 2, child: Text('Heading 2')),
-              const PopupMenuItem(value: 3, child: Text('Heading 3')),
-              const PopupMenuItem(value: 4, child: Text('Heading 4')),
-              const PopupMenuItem(value: 5, child: Text('Heading 5')),
-              const PopupMenuItem(value: 6, child: Text('Heading 6')),
-            ],
-          ),
-          IconButton(
-            icon: const Icon(Icons.save),
-            tooltip: 'Save',
-            onPressed: _saveFile,
-          ),
+          if (!_isTimeTraveling) ...[
+            // Heading dropdown
+            PopupMenuButton<int>(
+              icon: const Icon(Icons.title),
+              tooltip: 'Insert Heading',
+              onSelected: _insertHeading,
+              itemBuilder: (context) => [
+                const PopupMenuItem(value: 1, child: Text('Heading 1')),
+                const PopupMenuItem(value: 2, child: Text('Heading 2')),
+                const PopupMenuItem(value: 3, child: Text('Heading 3')),
+                const PopupMenuItem(value: 4, child: Text('Heading 4')),
+                const PopupMenuItem(value: 5, child: Text('Heading 5')),
+                const PopupMenuItem(value: 6, child: Text('Heading 6')),
+              ],
+            ),
+            // Time Travel button
+            IconButton(
+              icon: const Icon(Icons.history),
+              tooltip: 'Time Travel',
+              onPressed: _currentFilePath != null ? _enterTimeTravel : null,
+            ),
+            // View full history
+            IconButton(
+              icon: const Icon(Icons.manage_history),
+              tooltip: 'View History',
+              onPressed: _currentFilePath != null
+                  ? () => context.push(
+                      RoutePaths.lifeGitHistoryPath(filePath: _currentFilePath),
+                    )
+                  : null,
+            ),
+            IconButton(
+              icon: const Icon(Icons.save),
+              tooltip: 'Save',
+              onPressed: _saveFile,
+            ),
+          ] else ...[
+            // Time Travel mode actions
+            IconButton(
+              icon: const Icon(Icons.restore),
+              tooltip: 'Restore this version',
+              onPressed: _restoreHistoricalVersion,
+            ),
+            IconButton(
+              icon: const Icon(Icons.close),
+              tooltip: 'Exit Time Travel',
+              onPressed: _exitTimeTravel,
+            ),
+          ],
         ],
       ),
       body: Column(
         children: [
-          // Formatting toolbar
-          _buildToolbar(colorScheme),
-          const Divider(height: 1),
+          // Time Travel slider when in time travel mode
+          if (_isTimeTraveling && _currentFilePath != null)
+            TimeTravelSlider(
+              filePath: _currentFilePath!,
+              onHistoryContent: _onTimeTravelContent,
+              onExitTimeTravel: _exitTimeTravel,
+              showCommitDetails: true,
+            ),
+
+          // Formatting toolbar (hidden during time travel)
+          if (!_isTimeTraveling) ...[
+            _buildToolbar(colorScheme),
+            const Divider(height: 1),
+          ],
 
           // Editor content
           Expanded(child: _buildContent(isDark)),

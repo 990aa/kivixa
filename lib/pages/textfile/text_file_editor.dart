@@ -7,8 +7,12 @@ import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:go_router/go_router.dart';
+import 'package:kivixa/components/life_git/time_travel_slider.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
+import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
+import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -169,6 +173,10 @@ class _TextFileEditorState extends State<TextFileEditor> {
   // ignore: unused_field
   var _isEditingFileName = false;
 
+  // Time Travel state
+  var _isTimeTraveling = false;
+  Document? _originalDocument;
+
   final log = Logger('TextFileEditor');
 
   @override
@@ -321,8 +329,85 @@ class _TextFileEditorState extends State<TextFileEditor> {
       final jsonString = json.encode(fullData);
       await FileManager.writeFile(_currentFilePath!, utf8.encode(jsonString));
       log.info('File saved: $_currentFilePath');
+
+      // Create Life Git snapshot on save
+      if (!_isTimeTraveling) {
+        try {
+          final snapshot = await LifeGitService.instance.snapshotFile(
+            _currentFilePath!,
+          );
+          if (snapshot.exists) {
+            await LifeGitService.instance.createCommit(
+              snapshots: [snapshot],
+              message: 'Auto-save: $_fileName',
+            );
+            log.info('Life Git snapshot created for: $_currentFilePath');
+          }
+        } catch (e) {
+          log.warning('Failed to create Life Git snapshot', e);
+        }
+      }
     } catch (e) {
       log.severe('Error saving file', e);
+    }
+  }
+
+  void _enterTimeTravel() {
+    if (_currentFilePath == null) return;
+    setState(() {
+      _isTimeTraveling = true;
+      _originalDocument = _controller.document;
+    });
+  }
+
+  void _exitTimeTravel() {
+    setState(() {
+      _isTimeTraveling = false;
+      if (_originalDocument != null) {
+        _controller = QuillController(
+          document: _originalDocument!,
+          selection: const TextSelection.collapsed(offset: 0),
+        );
+      }
+      _originalDocument = null;
+    });
+  }
+
+  void _onTimeTravelContent(Uint8List content, LifeGitCommit commit) {
+    try {
+      final jsonString = String.fromCharCodes(content);
+      final data = json.decode(jsonString);
+
+      if (data is Map && data.containsKey('document')) {
+        final document = Document.fromJson(
+          List<Map<String, dynamic>>.from(
+            (data['document'] as List).map(
+              (e) => Map<String, dynamic>.from(e as Map),
+            ),
+          ),
+        );
+        setState(() {
+          _controller = QuillController(
+            document: document,
+            selection: const TextSelection.collapsed(offset: 0),
+          );
+        });
+      }
+    } catch (e) {
+      log.warning('Failed to parse historical version', e);
+    }
+  }
+
+  void _restoreHistoricalVersion() {
+    setState(() {
+      _originalDocument = _controller.document;
+      _isTimeTraveling = false;
+    });
+    _saveFile(); // Save the restored version
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Historical version restored')),
+      );
     }
   }
 
@@ -708,29 +793,69 @@ class _TextFileEditorState extends State<TextFileEditor> {
                 ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.image),
-            tooltip: 'Insert Image',
-            onPressed: _insertImage,
-          ),
-          IconButton(
-            icon: const Icon(Icons.table_chart),
-            tooltip: 'Insert Table',
-            onPressed: _insertTable,
-          ),
-          IconButton(
-            icon: const Icon(Icons.file_download),
-            tooltip: 'Export',
-            onPressed: _showExportMenu,
-          ),
+          if (!_isTimeTraveling) ...[
+            IconButton(
+              icon: const Icon(Icons.image),
+              tooltip: 'Insert Image',
+              onPressed: _insertImage,
+            ),
+            IconButton(
+              icon: const Icon(Icons.table_chart),
+              tooltip: 'Insert Table',
+              onPressed: _insertTable,
+            ),
+            // Time Travel button
+            IconButton(
+              icon: const Icon(Icons.history),
+              tooltip: 'Time Travel',
+              onPressed: _currentFilePath != null ? _enterTimeTravel : null,
+            ),
+            // View full history
+            IconButton(
+              icon: const Icon(Icons.manage_history),
+              tooltip: 'View History',
+              onPressed: _currentFilePath != null
+                  ? () => context.push(
+                      RoutePaths.lifeGitHistoryPath(filePath: _currentFilePath),
+                    )
+                  : null,
+            ),
+            IconButton(
+              icon: const Icon(Icons.file_download),
+              tooltip: 'Export',
+              onPressed: _showExportMenu,
+            ),
+          ] else ...[
+            // Time Travel mode actions
+            IconButton(
+              icon: const Icon(Icons.restore),
+              tooltip: 'Restore this version',
+              onPressed: _restoreHistoricalVersion,
+            ),
+            IconButton(
+              icon: const Icon(Icons.close),
+              tooltip: 'Exit Time Travel',
+              onPressed: _exitTimeTravel,
+            ),
+          ],
         ],
       ),
       body: SafeArea(
         child: Column(
           children: [
-            // Rich toolbar with all formatting options
-            _buildToolbar(colorScheme),
-            const Divider(height: 1),
+            // Time Travel slider when in time travel mode
+            if (_isTimeTraveling && _currentFilePath != null)
+              TimeTravelSlider(
+                filePath: _currentFilePath!,
+                onHistoryContent: _onTimeTravelContent,
+                onExitTimeTravel: _exitTimeTravel,
+                showCommitDetails: true,
+              ),
+            // Rich toolbar with all formatting options (hidden during time travel)
+            if (!_isTimeTraveling) ...[
+              _buildToolbar(colorScheme),
+              const Divider(height: 1),
+            ],
             // Editor
             Expanded(
               child: Container(
