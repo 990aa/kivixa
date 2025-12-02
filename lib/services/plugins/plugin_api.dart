@@ -12,8 +12,51 @@ import 'package:path/path.dart' as p;
 /// Note: When Lua calls methods with `:` syntax (App:method(args)),
 /// the first argument at index 1 is `self` (the App table),
 /// and actual arguments start at index 2.
+///
+/// SECURITY: All file operations are sandboxed within the Kivixa documents
+/// folder. Paths are normalized and validated to prevent directory traversal
+/// attacks or access to files outside the app's data folder.
 class PluginApi {
   static final _log = Logger('PluginApi');
+
+  /// Sanitize and validate a path to ensure it stays within the Kivixa sandbox.
+  /// Returns null if the path is invalid or attempts to escape the sandbox.
+  static String? _sandboxPath(String? inputPath) {
+    if (inputPath == null || inputPath.isEmpty) {
+      return null;
+    }
+
+    // Remove leading slashes and backslashes to prevent absolute path interpretation
+    var cleanPath = inputPath;
+    while (cleanPath.startsWith('/') || cleanPath.startsWith('\\')) {
+      cleanPath = cleanPath.substring(1);
+    }
+
+    // Reject paths with parent directory traversal
+    if (cleanPath.contains('..')) {
+      _log.warning('Path traversal attempt blocked: $inputPath');
+      return null;
+    }
+
+    // Build the full path within the documents directory
+    final fullPath = p.normalize(p.join(FileManager.documentsDirectory, cleanPath));
+
+    // Verify the path is still within the documents directory
+    final docsDir = p.normalize(FileManager.documentsDirectory);
+    if (!fullPath.startsWith(docsDir)) {
+      _log.warning('Path escape attempt blocked: $inputPath -> $fullPath');
+      return null;
+    }
+
+    return fullPath;
+  }
+
+  /// Check if a path would escape the sandbox (for warning purposes)
+  static bool _wouldEscapeSandbox(String? inputPath) {
+    if (inputPath == null || inputPath.isEmpty) return false;
+    return inputPath.contains('..') ||
+        (inputPath.startsWith('/') && !inputPath.startsWith('//'));
+  }
 
   /// Register the App API with a Lua state
   static void register(LuaState state) {
@@ -54,15 +97,14 @@ class PluginApi {
   static int _readNote(LuaState state) {
     // When called with :, index 1 is self (App table), index 2 is the path
     final path = state.toStr(2);
-    if (path == null || path.isEmpty) {
+    final basePath = _sandboxPath(path);
+    
+    if (basePath == null) {
       state.pushNil();
       return 1;
     }
 
     try {
-      // Try to find the file with various extensions
-      final basePath = p.join(FileManager.documentsDirectory, path);
-
       String? content;
 
       // Try markdown
@@ -106,15 +148,14 @@ class PluginApi {
   static int _writeNote(LuaState state) {
     final path = state.toStr(2);
     final content = state.toStr(3);
+    final basePath = _sandboxPath(path);
 
-    if (path == null || path.isEmpty || content == null) {
+    if (basePath == null || content == null) {
       state.pushBoolean(false);
       return 1;
     }
 
     try {
-      final basePath = p.join(FileManager.documentsDirectory, path);
-
       // Determine file type based on existing file or default to markdown
       String filePath;
 
@@ -148,14 +189,14 @@ class PluginApi {
   /// Note: Index 1 is self, index 2 is path
   static int _deleteNote(LuaState state) {
     final path = state.toStr(2);
+    final basePath = _sandboxPath(path);
 
-    if (path == null || path.isEmpty) {
+    if (basePath == null) {
       state.pushBoolean(false);
       return 1;
     }
 
     try {
-      final basePath = p.join(FileManager.documentsDirectory, path);
       bool deleted = false;
 
       // Try all extensions
