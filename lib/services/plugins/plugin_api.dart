@@ -435,14 +435,14 @@ class PluginApi {
   /// Note: Index 1 is self, index 2 is path
   static int _createFolder(LuaState state) {
     final path = state.toStr(2);
+    final fullPath = _sandboxPath(path);
 
-    if (path == null || path.isEmpty) {
+    if (fullPath == null) {
       state.pushBoolean(false);
       return 1;
     }
 
     try {
-      final fullPath = p.join(FileManager.documentsDirectory, path);
       Directory(fullPath).createSync(recursive: true);
       state.pushBoolean(true);
     } catch (e) {
@@ -459,18 +459,15 @@ class PluginApi {
   static int _moveNote(LuaState state) {
     final fromPath = state.toStr(2);
     final toPath = state.toStr(3);
+    final fromBase = _sandboxPath(fromPath);
+    final toBase = _sandboxPath(toPath);
 
-    if (fromPath == null ||
-        fromPath.isEmpty ||
-        toPath == null ||
-        toPath.isEmpty) {
+    if (fromBase == null || toBase == null) {
       state.pushBoolean(false);
       return 1;
     }
 
     try {
-      final fromBase = p.join(FileManager.documentsDirectory, fromPath);
-      final toBase = p.join(FileManager.documentsDirectory, toPath);
       bool moved = false;
 
       // Try to move files with various extensions
