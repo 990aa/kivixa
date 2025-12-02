@@ -331,6 +331,15 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  // Delete app data folder on uninstall (Android only - controlled via hasFragileUserData)
+  // When true, user has opted to allow data deletion when app is uninstalled
+  // Default is false - keep data after uninstall
+  final deleteDataOnUninstall = PlainStow(
+    'deleteDataOnUninstall',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
   static bool get isDesktop => Platform.isWindows;
 }
 

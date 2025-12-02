@@ -543,6 +543,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 const _LifeGitAutoCleanupSetting(),
                 _LifeGitStatsWidget(),
+                const SettingsSubtitle(subtitle: 'Data Management'),
+                const _DeleteDataOnUninstallWidget(),
                 const ClearAppDataWidget(),
                 const _ResetAllSettingsWidget(),
               ],
@@ -1028,11 +1030,147 @@ class _ResetAllSettingsWidget extends StatelessWidget {
         stows.shouldAlwaysAlertForUpdates.defaultValue;
     stows.lifeGitAutoCleanupDays.value =
         stows.lifeGitAutoCleanupDays.defaultValue;
+    stows.deleteDataOnUninstall.value =
+        stows.deleteDataOnUninstall.defaultValue;
 
     // Note: We intentionally do NOT reset:
     // - appLockEnabled/appLockPinSet (security settings)
     // - customDataDir (data location)
     // - recentFiles (user data)
     // - Tool colors/options (user preferences that are editor-specific)
+  }
+}
+
+/// Widget to control whether app data is deleted on uninstall
+class _DeleteDataOnUninstallWidget extends StatefulWidget {
+  const _DeleteDataOnUninstallWidget();
+
+  @override
+  State<_DeleteDataOnUninstallWidget> createState() =>
+      _DeleteDataOnUninstallWidgetState();
+}
+
+class _DeleteDataOnUninstallWidgetState
+    extends State<_DeleteDataOnUninstallWidget> {
+  @override
+  void initState() {
+    super.initState();
+    stows.deleteDataOnUninstall.addListener(_onChanged);
+  }
+
+  @override
+  void dispose() {
+    stows.deleteDataOnUninstall.removeListener(_onChanged);
+    super.dispose();
+  }
+
+  void _onChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _toggleSetting() async {
+    final currentValue = stows.deleteDataOnUninstall.value;
+
+    if (!currentValue) {
+      // User is trying to enable deletion - show warning
+      final confirmed = await _showWarningDialog();
+      if (confirmed ?? false) {
+        stows.deleteDataOnUninstall.value = true;
+      }
+    } else {
+      // User is disabling - no warning needed
+      stows.deleteDataOnUninstall.value = false;
+    }
+  }
+
+  Future<bool?> _showWarningDialog() async {
+    final colorScheme = ColorScheme.of(context);
+
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: Icon(
+          Icons.warning_amber_rounded,
+          color: colorScheme.error,
+          size: 48,
+        ),
+        title: const Text('Delete All Data on Uninstall?'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'WARNING: If you enable this option, ALL your data will be '
+              'permanently deleted when you uninstall the app. This includes:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 12),
+            Text('• All your notes and documents'),
+            Text('• All canvas drawings'),
+            Text('• Version history'),
+            Text('• Plugins and scripts'),
+            Text('• All app settings'),
+            SizedBox(height: 16),
+            Text(
+              'It is strongly recommended that you backup your important '
+              'files before enabling this option.',
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
+            SizedBox(height: 12),
+            Text(
+              'This action cannot be undone after uninstall.',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: colorScheme.error),
+            child: const Text('I Understand, Enable'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+    final isEnabled = stows.deleteDataOnUninstall.value;
+
+    // Only show on Android where this setting is relevant
+    if (!Platform.isAndroid) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Card(
+        color: isEnabled ? colorScheme.errorContainer : null,
+        child: ListTile(
+          leading: Icon(
+            isEnabled ? Icons.delete_forever : Icons.folder_off,
+            color: isEnabled ? colorScheme.error : colorScheme.primary,
+          ),
+          title: const Text('Delete Data on Uninstall'),
+          subtitle: Text(
+            isEnabled
+                ? 'All data will be deleted when app is uninstalled'
+                : 'Data will be kept when app is uninstalled (recommended)',
+          ),
+          trailing: Switch(
+            value: isEnabled,
+            onChanged: (_) => _toggleSetting(),
+            activeTrackColor: colorScheme.error,
+          ),
+          onTap: _toggleSetting,
+        ),
+      ),
+    );
   }
 }
