@@ -39,7 +39,9 @@ class PluginApi {
     }
 
     // Build the full path within the documents directory
-    final fullPath = p.normalize(p.join(FileManager.documentsDirectory, cleanPath));
+    final fullPath = p.normalize(
+      p.join(FileManager.documentsDirectory, cleanPath),
+    );
 
     // Verify the path is still within the documents directory
     final docsDir = p.normalize(FileManager.documentsDirectory);
@@ -49,13 +51,6 @@ class PluginApi {
     }
 
     return fullPath;
-  }
-
-  /// Check if a path would escape the sandbox (for warning purposes)
-  static bool _wouldEscapeSandbox(String? inputPath) {
-    if (inputPath == null || inputPath.isEmpty) return false;
-    return inputPath.contains('..') ||
-        (inputPath.startsWith('/') && !inputPath.startsWith('//'));
   }
 
   /// Register the App API with a Lua state
@@ -98,7 +93,7 @@ class PluginApi {
     // When called with :, index 1 is self (App table), index 2 is the path
     final path = state.toStr(2);
     final basePath = _sandboxPath(path);
-    
+
     if (basePath == null) {
       state.pushNil();
       return 1;
