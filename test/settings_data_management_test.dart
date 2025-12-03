@@ -1,6 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:kivixa/data/prefs.dart';
-import 'package:stow/stow.dart';
 import 'package:stow_plain/stow_plain.dart';
 
 void main() {

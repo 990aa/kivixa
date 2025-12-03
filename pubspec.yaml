@@ -60,6 +60,7 @@ dependencies:
   logging: ^1.2.0
   fixnum: ^1.1.0
   device_info_plus: ^11.1.1
+  wakelock_plus: ^1.2.10
   one_dollar_unistroke_recognizer: ^1.1.1
   meta: ^1.0.0
   mutex: ^3.1.0
