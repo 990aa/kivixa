@@ -2,11 +2,23 @@
 //
 // Bridges Rust streaming graph simulation to Flutter.
 // Polls visible nodes at 60fps and updates the CustomPainter.
+//
+// Setup:
+// 1. Build Rust: cd native && cargo build --release
+// 2. Generate bindings: flutter_rust_bridge_codegen generate
+// 3. Uncomment the native.* calls below
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/ai/knowledge_graph_painter.dart';
+
+// Flutter Rust Bridge generated imports
+// Uncomment after running: flutter_rust_bridge_codegen generate
+// import 'package:kivixa/src/rust/api/api.dart' as native;
+
+/// Whether Flutter Rust Bridge bindings are available
+const kRustBridgeAvailable = false;
 
 /// Service for managing the knowledge graph streaming simulation
 class KnowledgeGraphStreamingService {
@@ -210,7 +222,12 @@ class KnowledgeGraphStreamingService {
       );
     } catch (e) {
       debugPrint('[KnowledgeGraph] Failed to get stats: $e');
-      return const GraphStats(nodeCount: 0, edgeCount: 0, visibleCount: 0, fps: 0);
+      return const GraphStats(
+        nodeCount: 0,
+        edgeCount: 0,
+        visibleCount: 0,
+        fps: 0,
+      );
     }
   }
 

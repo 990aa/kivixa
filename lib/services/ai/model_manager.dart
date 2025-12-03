@@ -239,6 +239,7 @@ class ModelManager {
       baseDir = await getApplicationSupportDirectory();
     }
     final modelsDir = Directory('${baseDir.path}/kivixa/models');
+    // ignore: avoid_slow_async_io
     if (!await modelsDir.exists()) {
       await modelsDir.create(recursive: true);
     }
@@ -257,9 +258,11 @@ class ModelManager {
     model ??= defaultModel;
     final path = await getModelPath(model);
     final file = File(path);
+    // ignore: avoid_slow_async_io
     if (!await file.exists()) return false;
 
     // Verify file size (at least 90% of expected to account for compression differences)
+    // ignore: avoid_slow_async_io
     final stat = await file.stat();
     return stat.size >= model.sizeBytes * 0.9;
   }
@@ -269,7 +272,9 @@ class ModelManager {
     model ??= defaultModel;
     final path = await getModelPath(model);
     final file = File(path);
+    // ignore: avoid_slow_async_io
     if (!await file.exists()) return 0;
+    // ignore: avoid_slow_async_io
     final stat = await file.stat();
     return stat.size;
   }
@@ -368,6 +373,7 @@ class ModelManager {
     model ??= defaultModel;
     final path = await getModelPath(model);
     final file = File(path);
+    // ignore: avoid_slow_async_io
     if (await file.exists()) {
       await file.delete();
     }

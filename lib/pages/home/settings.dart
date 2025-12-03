@@ -744,26 +744,28 @@ class _LifeGitAutoCleanupSettingState
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           title: const Text('Auto-cleanup Settings'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Automatically delete old version history to save storage space.',
-              ),
-              const SizedBox(height: 16),
-              ...options.map(
-                (option) => RadioListTile<int>(
-                  title: Text(option.label),
-                  value: option.value,
-                  groupValue: currentValue,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setDialogState(() => currentValue = value);
-                    }
-                  },
+          content: RadioGroup<int>(
+            groupValue: currentValue,
+            onChanged: (value) {
+              if (value != null) {
+                setDialogState(() => currentValue = value);
+              }
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Automatically delete old version history to save storage space.',
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                ...options.map(
+                  (option) => RadioListTile<int>(
+                    title: Text(option.label),
+                    value: option.value,
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(

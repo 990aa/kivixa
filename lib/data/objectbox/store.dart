@@ -5,15 +5,13 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:kivixa/objectbox.g.dart';
 import 'package:path_provider/path_provider.dart';
-
-// Generated file - run `dart run build_runner build` to generate
-// import 'package:kivixa/objectbox.g.dart';
 
 /// Manages the ObjectBox store instance
 class ObjectBoxStore {
   static ObjectBoxStore? _instance;
-  // late final Store store;
+  late final Store store;
 
   ObjectBoxStore._();
 
@@ -35,12 +33,12 @@ class ObjectBoxStore {
     final docsDir = await getApplicationDocumentsDirectory();
     final dbDir = Directory('${docsDir.path}/objectbox');
 
+    // ignore: avoid_slow_async_io
     if (!await dbDir.exists()) {
       await dbDir.create(recursive: true);
     }
 
-    // TODO: Uncomment when objectbox.g.dart is generated
-    // store = await openStore(directory: dbDir.path);
+    store = await openStore(directory: dbDir.path);
 
     _isInitialized = true;
     debugPrint('ObjectBox store initialized at: ${dbDir.path}');
@@ -50,7 +48,7 @@ class ObjectBoxStore {
   void close() {
     if (!_isInitialized) return;
 
-    // store.close();
+    store.close();
     _isInitialized = false;
     debugPrint('ObjectBox store closed');
   }

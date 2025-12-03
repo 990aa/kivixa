@@ -7,22 +7,19 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
-
+import 'package:kivixa/data/objectbox/entities.dart';
 import 'package:kivixa/data/objectbox/store.dart';
+import 'package:kivixa/objectbox.g.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 
-// Note: Import entities when objectbox.g.dart is generated:
-// import 'package:kivixa/data/objectbox/entities.dart';
-// import 'package:kivixa/objectbox.g.dart';
-
 /// Result of a semantic search
-class SearchResult {
+class VectorSearchResult {
   final String noteId;
   final String title;
   final double score; // Distance converted to similarity (0.0 to 1.0)
   final String? preview;
 
-  const SearchResult({
+  const VectorSearchResult({
     required this.noteId,
     required this.title,
     required this.score,
@@ -31,18 +28,18 @@ class SearchResult {
 }
 
 /// Vector Database Service using ObjectBox HNSW index
-class VectorDBService {
-  static final _instance = VectorDBService._internal();
-  factory VectorDBService() => _instance;
-  VectorDBService._internal();
+class VectorDBObjectBoxService {
+  static final _instance = VectorDBObjectBoxService._internal();
+  factory VectorDBObjectBoxService() => _instance;
+  VectorDBObjectBoxService._internal();
 
   final _inference = InferenceService();
   final _store = ObjectBoxStore.instance;
 
-  // TODO: Uncomment when objectbox.g.dart is generated
-  // late final Box<NoteEmbedding> _noteBox;
-  // late final Box<TopicHub> _topicBox;
-  // late final Box<NoteTopicLink> _linkBox;
+  late final Box<NoteEmbedding> _noteBox;
+  late final Box<TopicHub> _topicBox;
+  late final Box<NoteTopicLink> _linkBox;
+  late final Box<NoteLinkEntity> _noteLinkBox;
 
   var _isInitialized = false;
 
@@ -52,8 +49,7 @@ class VectorDBService {
   /// Number of indexed notes
   int get indexedCount {
     if (!_isInitialized) return 0;
-    // return _noteBox.count();
-    return 0; // Placeholder
+    return _noteBox.count();
   }
 
   /// Initialize the vector database
@@ -62,13 +58,15 @@ class VectorDBService {
 
     await _store.initialize();
 
-    // TODO: Uncomment when objectbox.g.dart is generated
-    // _noteBox = _store.store.box<NoteEmbedding>();
-    // _topicBox = _store.store.box<TopicHub>();
-    // _linkBox = _store.store.box<NoteTopicLink>();
+    _noteBox = _store.store.box<NoteEmbedding>();
+    _topicBox = _store.store.box<TopicHub>();
+    _linkBox = _store.store.box<NoteTopicLink>();
+    _noteLinkBox = _store.store.box<NoteLinkEntity>();
 
     _isInitialized = true;
-    debugPrint('VectorDBService (ObjectBox) initialized');
+    debugPrint(
+      'VectorDBObjectBoxService initialized with ${_noteBox.count()} notes',
+    );
   }
 
   /// Index a note (compute and store its embedding)
@@ -96,46 +94,70 @@ class VectorDBService {
           ? '${content.substring(0, 200)}...'
           : content;
 
-      // Store embedding (when ObjectBox is configured)
-      _storeEmbedding(noteId, title, contentPreview, embedding);
+      // Check if note already exists
+      final query = _noteBox
+          .query(NoteEmbedding_.noteId.equals(noteId))
+          .build();
+      final existing = query.findFirst();
+      query.close();
 
-      debugPrint('Indexed note: $noteId');
+      if (existing != null) {
+        // Update existing embedding
+        existing.title = title;
+        existing.preview = contentPreview;
+        existing.vector = embedding;
+        existing.updatedAt = DateTime.now();
+        _noteBox.put(existing);
+      } else {
+        // Create new embedding
+        final noteEmbedding = NoteEmbedding(
+          noteId: noteId,
+          title: title,
+          preview: contentPreview,
+          vector: embedding,
+        );
+        _noteBox.put(noteEmbedding);
+      }
+
+      debugPrint('Indexed note: $noteId (${embedding.length} dims)');
     } catch (e) {
       debugPrint('Failed to index note $noteId: $e');
     }
-  }
-
-  /// Store embedding in ObjectBox (placeholder until generated code ready)
-  void _storeEmbedding(
-    String noteId,
-    String title,
-    String preview,
-    List<double> embedding,
-  ) {
-    // Will be implemented when objectbox.g.dart is generated
-    debugPrint('Storing embedding for $noteId (${embedding.length} dims)');
   }
 
   /// Remove a note from the index
   Future<void> removeNote(String noteId) async {
     await initialize();
 
-    // TODO: Uncomment when objectbox.g.dart is generated
-    // final query = _noteBox.query(
-    //   NoteEmbedding_.noteId.equals(noteId)
-    // ).build();
-    // final existing = query.findFirst();
-    // if (existing != null) {
-    //   _noteBox.remove(existing.id);
-    // }
-    // query.close();
-    //
-    // // Also remove topic links
-    // final linkQuery = _linkBox.query(
-    //   NoteTopicLink_.noteId.equals(noteId)
-    // ).build();
-    // _linkBox.removeMany(linkQuery.findIds());
-    // linkQuery.close();
+    // Remove the note embedding
+    final query = _noteBox.query(NoteEmbedding_.noteId.equals(noteId)).build();
+    final existing = query.findFirst();
+    query.close();
+
+    if (existing != null) {
+      _noteBox.remove(existing.id);
+    }
+
+    // Also remove topic links
+    final linkQuery = _linkBox
+        .query(NoteTopicLink_.noteId.equals(noteId))
+        .build();
+    final linkIds = linkQuery.findIds();
+    linkQuery.close();
+    _linkBox.removeMany(linkIds);
+
+    // Remove note links (both directions)
+    final srcLinkQuery = _noteLinkBox
+        .query(NoteLinkEntity_.sourceNoteId.equals(noteId))
+        .build();
+    final tgtLinkQuery = _noteLinkBox
+        .query(NoteLinkEntity_.targetNoteId.equals(noteId))
+        .build();
+
+    _noteLinkBox.removeMany(srcLinkQuery.findIds());
+    _noteLinkBox.removeMany(tgtLinkQuery.findIds());
+    srcLinkQuery.close();
+    tgtLinkQuery.close();
 
     debugPrint('Removed note from index: $noteId');
   }
@@ -143,7 +165,7 @@ class VectorDBService {
   /// Semantic search using ObjectBox HNSW nearest neighbor
   ///
   /// This is blazing fast: <10ms for 1M vectors
-  Future<List<SearchResult>> search(
+  Future<List<VectorSearchResult>> search(
     String query, {
     int topK = 10,
     double threshold = 0.5,
@@ -155,75 +177,89 @@ class VectorDBService {
       return [];
     }
 
+    if (_noteBox.isEmpty()) {
+      return [];
+    }
+
     try {
       // Get embedding for query from Rust
       final queryEmbedding = await _inference.getEmbedding(query);
 
-      // Perform HNSW search (placeholder until ObjectBox is configured)
-      return _searchWithEmbedding(queryEmbedding, topK, threshold);
+      // Perform HNSW nearest neighbor search
+      final searchQuery = _noteBox
+          .query(
+            NoteEmbedding_.vector.nearestNeighborsF32(queryEmbedding, topK),
+          )
+          .build();
+
+      final results = searchQuery.findWithScores();
+      searchQuery.close();
+
+      // Convert to SearchResult, filtering by threshold
+      return results
+          .where((r) => distanceToSimilarity(r.score) >= threshold)
+          .map(
+            (r) => VectorSearchResult(
+              noteId: r.object.noteId,
+              title: r.object.title,
+              score: distanceToSimilarity(r.score),
+              preview: r.object.preview,
+            ),
+          )
+          .toList();
     } catch (e) {
       debugPrint('Search failed: $e');
       return [];
     }
   }
 
-  /// Search with embedding vector (placeholder)
-  List<SearchResult> _searchWithEmbedding(
-    List<double> queryEmbedding,
-    int topK,
-    double threshold,
-  ) {
-    // Will use ObjectBox HNSW when configured
-    debugPrint(
-      'Searching with ${queryEmbedding.length}-dim vector, topK=$topK',
-    );
-    return [];
-  }
-
   /// Find notes similar to a given note
-  Future<List<SearchResult>> findSimilar(
+  Future<List<VectorSearchResult>> findSimilar(
     String noteId, {
     int topK = 5,
     double threshold = 0.6,
   }) async {
     await initialize();
 
-    // TODO: Uncomment when objectbox.g.dart is generated
-    // // Get the note's embedding
-    // final noteQuery = _noteBox.query(
-    //   NoteEmbedding_.noteId.equals(noteId)
-    // ).build();
-    // final note = noteQuery.findFirst();
-    // noteQuery.close();
-    //
-    // if (note == null || note.vector == null) {
-    //   debugPrint('Note not indexed: $noteId');
-    //   return [];
-    // }
-    //
-    // // Search for similar notes
-    // final searchQuery = _noteBox.query(
-    //   NoteEmbedding_.vector.nearestNeighborsF32(note.vector!, topK + 1)
-    // ).build();
-    //
-    // final results = searchQuery.findWithScores();
-    // searchQuery.close();
-    //
-    // // Filter out self and apply threshold
-    // return results
-    //     .where((r) =>
-    //         r.object.noteId != noteId &&
-    //         _distanceToSimilarity(r.score) >= threshold)
-    //     .take(topK)
-    //     .map((r) => SearchResult(
-    //           noteId: r.object.noteId,
-    //           title: r.object.title,
-    //           score: _distanceToSimilarity(r.score),
-    //           preview: r.object.preview,
-    //         ))
-    //     .toList();
+    // Get the note's embedding
+    final noteQuery = _noteBox
+        .query(NoteEmbedding_.noteId.equals(noteId))
+        .build();
+    final note = noteQuery.findFirst();
+    noteQuery.close();
 
-    return []; // Placeholder
+    if (note == null || note.vector == null) {
+      debugPrint('Note not indexed: $noteId');
+      return [];
+    }
+
+    // Search for similar notes (get extra to filter out self)
+    final searchQuery = _noteBox
+        .query(
+          NoteEmbedding_.vector.nearestNeighborsF32(note.vector!, topK + 1),
+        )
+        .build();
+
+    final results = searchQuery.findWithScores();
+    searchQuery.close();
+
+    // Filter out self and apply threshold
+    return results
+        .where(
+          (r) =>
+              r.object.noteId != noteId &&
+              distanceToSimilarity(r.score) >= threshold,
+        )
+        .take(topK)
+        .map(
+          (r) => VectorSearchResult(
+            noteId: r.object.noteId,
+            title: r.object.title,
+            score: distanceToSimilarity(r.score),
+            preview: r.object.preview,
+          ),
+        )
+        .toList();
   }
 
   /// Link a note to topics (for knowledge graph)
@@ -232,56 +268,160 @@ class VectorDBService {
 
     for (final topic in topics) {
       final normalizedId = _normalizeTopicId(topic);
-      _createTopicLink(noteId, normalizedId, topic);
-    }
-  }
 
-  /// Create topic link (placeholder)
-  void _createTopicLink(String noteId, String topicId, String label) {
-    debugPrint('Linking note $noteId to topic $topicId ($label)');
-    // Will be implemented when objectbox.g.dart is generated
+      // Get or create topic hub
+      final topicQuery = _topicBox
+          .query(TopicHub_.topicId.equals(normalizedId))
+          .build();
+      var topicHub = topicQuery.findFirst();
+      topicQuery.close();
+
+      if (topicHub == null) {
+        topicHub = TopicHub(
+          topicId: normalizedId,
+          label: topic,
+          color: generateTopicColor(topic),
+          noteCount: 0,
+        );
+        _topicBox.put(topicHub);
+      }
+
+      // Check if link already exists
+      final linkQuery = _linkBox
+          .query(
+            NoteTopicLink_.noteId.equals(noteId) &
+                NoteTopicLink_.topicId.equals(normalizedId),
+          )
+          .build();
+      final existingLink = linkQuery.findFirst();
+      linkQuery.close();
+
+      if (existingLink == null) {
+        // Create new link
+        final link = NoteTopicLink(
+          noteId: noteId,
+          topicId: normalizedId,
+          weight: 1.0,
+        );
+        _linkBox.put(link);
+
+        // Update topic note count
+        topicHub.noteCount++;
+        _topicBox.put(topicHub);
+      }
+    }
   }
 
   /// Get all topics with their note counts
   Future<List<Map<String, dynamic>>> getTopics() async {
     await initialize();
 
-    // TODO: Uncomment when objectbox.g.dart is generated
-    // final hubs = _topicBox.getAll();
-    // return hubs.map((h) => {
-    //   'id': h.topicId,
-    //   'label': h.label,
-    //   'color': h.color,
-    //   'noteCount': h.noteCount,
-    // }).toList();
-
-    return []; // Placeholder
+    final hubs = _topicBox.getAll();
+    return hubs
+        .map(
+          (h) => {
+            'id': h.topicId,
+            'label': h.label,
+            'color': h.color,
+            'noteCount': h.noteCount,
+          },
+        )
+        .toList();
   }
 
   /// Get notes for a specific topic
   Future<List<String>> getNotesForTopic(String topicId) async {
     await initialize();
 
-    // TODO: Uncomment when objectbox.g.dart is generated
-    // final query = _linkBox.query(
-    //   NoteTopicLink_.topicId.equals(topicId)
-    // ).build();
-    // final links = query.find();
-    // query.close();
-    //
-    // return links.map((l) => l.noteId).toList();
+    final query = _linkBox
+        .query(NoteTopicLink_.topicId.equals(topicId))
+        .build();
+    final links = query.find();
+    query.close();
 
-    return []; // Placeholder
+    return links.map((l) => l.noteId).toList();
+  }
+
+  /// Add a direct link between two notes
+  Future<void> addNoteLink({
+    required String sourceNoteId,
+    required String targetNoteId,
+    required String linkType,
+    double? similarityScore,
+  }) async {
+    await initialize();
+
+    // Check if link already exists
+    final query = _noteLinkBox
+        .query(
+          NoteLinkEntity_.sourceNoteId.equals(sourceNoteId) &
+              NoteLinkEntity_.targetNoteId.equals(targetNoteId),
+        )
+        .build();
+    final existing = query.findFirst();
+    query.close();
+
+    if (existing != null) {
+      // Update existing link
+      existing.linkType = linkType;
+      existing.similarityScore = similarityScore;
+      _noteLinkBox.put(existing);
+    } else {
+      // Create new link
+      final link = NoteLinkEntity(
+        sourceNoteId: sourceNoteId,
+        targetNoteId: targetNoteId,
+        linkType: linkType,
+        similarityScore: similarityScore,
+      );
+      _noteLinkBox.put(link);
+    }
+  }
+
+  /// Get all links for a note
+  Future<List<Map<String, dynamic>>> getNoteLinks(String noteId) async {
+    await initialize();
+
+    final srcQuery = _noteLinkBox
+        .query(NoteLinkEntity_.sourceNoteId.equals(noteId))
+        .build();
+    final tgtQuery = _noteLinkBox
+        .query(NoteLinkEntity_.targetNoteId.equals(noteId))
+        .build();
+
+    final srcLinks = srcQuery.find();
+    final tgtLinks = tgtQuery.find();
+    srcQuery.close();
+    tgtQuery.close();
+
+    return [
+      ...srcLinks.map(
+        (l) => {
+          'targetNoteId': l.targetNoteId,
+          'linkType': l.linkType,
+          'similarityScore': l.similarityScore,
+          'direction': 'outgoing',
+        },
+      ),
+      ...tgtLinks.map(
+        (l) => {
+          'targetNoteId': l.sourceNoteId,
+          'linkType': l.linkType,
+          'similarityScore': l.similarityScore,
+          'direction': 'incoming',
+        },
+      ),
+    ];
   }
 
   /// Clear all data
   Future<void> clear() async {
     await initialize();
 
-    // TODO: Uncomment when objectbox.g.dart is generated
-    // _noteBox.removeAll();
-    // _topicBox.removeAll();
-    // _linkBox.removeAll();
+    _noteBox.removeAll();
+    _topicBox.removeAll();
+    _linkBox.removeAll();
+    _noteLinkBox.removeAll();
 
     debugPrint('VectorDB cleared');
   }

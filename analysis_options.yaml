@@ -4,6 +4,7 @@ analyzer:
   exclude:
     - submodules/**
     - lib/i18n/strings.g.dart
+    - lib/objectbox.g.dart
     - backup/
 
 linter:

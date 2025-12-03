@@ -352,6 +352,7 @@ class VectorDBService {
   Future<void> _loadFromDisk() async {
     try {
       final file = await _getCacheFile();
+      // ignore: avoid_slow_async_io
       if (!await file.exists()) return;
 
       final content = await file.readAsString();
