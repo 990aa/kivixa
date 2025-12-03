@@ -19,6 +19,40 @@
 
 ## Features
 
+### **🤖 On-Device AI (NEW)**
+Kivixa features a powerful on-device AI engine powered by Microsoft's Phi-4 model, providing intelligent features without requiring an internet connection.
+
+- **Smart Model Manager**
+  - Automatic download with resume support for the 2.4GB AI model
+  - Background downloading - continues even when app is minimized
+  - Progress tracking with speed and ETA display
+  - GPU acceleration via Vulkan (Android/Windows/Linux) and Metal (macOS)
+
+- **AI-Powered Features**
+  - **Semantic Search** - Find notes by meaning, not just keywords
+  - **Auto-Categorization** - Automatic topic extraction for organization
+  - **Smart Summaries** - Generate concise summaries of long notes
+  - **Question Answering** - Ask questions about your note content
+  - **Title Suggestions** - AI-generated title recommendations
+
+- **Knowledge Graph Visualization**
+  - Physics-based graph layout using force-directed simulation
+  - Notes automatically cluster around topic hubs
+  - Visual representation of note relationships
+  - Interactive exploration of your knowledge base
+
+- **Vector Database**
+  - Local vector embeddings for all your notes
+  - Lightning-fast similarity search
+  - Automatic clustering of related content
+  - Persistent cache for instant startup
+
+- **Privacy-First AI**
+  - Runs 100% on-device - no data leaves your device
+  - No internet required after initial model download
+  - No API keys or subscriptions needed
+  - Your notes stay private
+
 ### **Notes & Documents**
 - **Rich Markdown Editor** - Create beautiful formatted documents with AppFlowy Editor
   - Text formatting (bold, italic, underline, strikethrough)
@@ -121,11 +155,12 @@
 
 - [Flutter](https://flutter.dev/docs/get-started/install) 3.35.0 or higher
 - [Dart](https://dart.dev/get-dart) 3.9.0 or higher
+- [Rust](https://rustup.rs/) (for building native AI engine)
 - Platform-specific requirements:
-  - **Windows**: Visual Studio 2022 with C++ desktop development
-  - **macOS**: Xcode 15+
-  - **Linux**: Standard build tools (`clang`, `cmake`, `ninja-build`)
-  - **Android**: Android Studio / Android SDK
+  - **Windows**: Visual Studio 2022 with C++ desktop development, Vulkan SDK
+  - **macOS**: Xcode 15+, Rust with aarch64-apple-darwin target
+  - **Linux**: Standard build tools (`clang`, `cmake`, `ninja-build`), Vulkan SDK
+  - **Android**: Android Studio / Android SDK, NDK for Rust cross-compilation
   - **iOS**: Xcode 15+ and CocoaPods
 
 ### Installation
@@ -141,7 +176,17 @@
    flutter pub get
    ```
 
-3. **Run the app**
+3. **Build native Rust library** (required for AI features)
+   ```bash
+   cd native
+   cargo build --release
+   cd ..
+   
+   # Generate Dart bindings
+   flutter_rust_bridge_codegen generate
+   ```
+
+4. **Run the app**
    ```bash
    # For desktop (Windows/macOS/Linux)
    flutter run -d windows  # or macos, linux
@@ -182,11 +227,15 @@ flutter build ios --release
 ### Core Technologies
 - **[Flutter](https://flutter.dev)** - Cross-platform UI framework
 - **[Dart](https://dart.dev)** - Programming language
+- **[Rust](https://www.rust-lang.org)** - Native AI engine via flutter_rust_bridge
+- **[llama.cpp](https://github.com/ggerganov/llama.cpp)** - Efficient LLM inference
+- **[Phi-4 Mini](https://huggingface.co/microsoft/phi-4)** - Microsoft's efficient on-device AI model
 - **[AppFlowy Editor](https://appflowy.io)** - Rich text editing
 - **[Perfect Freehand](https://github.com/steveruizok/perfect-freehand)** - Smooth drawing strokes
 - **[Lua Dardo](https://pub.dev/packages/lua_dardo)** - Pure Dart Lua 5.3 VM for plugin scripting
 
 ### Key Dependencies
+- **AI/ML**: `flutter_rust_bridge`, `llama-cpp-2` (Rust), `fdg-sim` (graph physics)
 - **UI/UX**: `material_symbols_icons`, `dynamic_color`, `animations`
 - **Drawing**: `perfect_freehand`, `vector_math`, `flutter_quill`
 - **File Management**: `path_provider`, `file_picker`, `share_plus`
