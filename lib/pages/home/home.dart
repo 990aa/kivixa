@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:kivixa/components/navbar/responsive_navbar.dart';
 import 'package:kivixa/components/settings/update_manager.dart';
 import 'package:kivixa/components/theming/dynamic_material_app.dart';
+import 'package:kivixa/pages/home/ai_chat.dart';
 import 'package:kivixa/pages/home/browse.dart';
 import 'package:kivixa/pages/home/settings.dart';
 import 'package:kivixa/pages/home/syncfusion_calendar_page.dart';
@@ -22,12 +23,14 @@ class HomePage extends StatefulWidget {
   static const calendarSubpage = 'calendar';
   static const whiteboardSubpage = 'whiteboard';
   static const projectsSubpage = 'projects';
+  static const aiChatSubpage = 'ai-chat';
   static const settingsSubpage = 'settings';
   static const List<String> subpages = [
     browseSubpage,
     calendarSubpage,
     whiteboardSubpage,
     projectsSubpage,
+    aiChatSubpage,
     settingsSubpage,
   ];
 }
@@ -58,6 +61,7 @@ class _HomePageState extends State<HomePage> {
         HomePage.calendarSubpage => const SyncfusionCalendarPage(),
         HomePage.whiteboardSubpage => const Whiteboard(),
         HomePage.projectsSubpage => const ProjectManagerPage(),
+        HomePage.aiChatSubpage => const AIChatPage(),
         HomePage.settingsSubpage => const SettingsPage(),
         _ => const BrowsePage(path: null),
       },

@@ -8,11 +8,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
-import 'package:kivixa/data/objectbox/entities.dart';
 import 'package:kivixa/data/objectbox/store.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 
-// TODO: Uncomment when objectbox.g.dart is generated
+// Note: Import entities when objectbox.g.dart is generated:
+// import 'package:kivixa/data/objectbox/entities.dart';
 // import 'package:kivixa/objectbox.g.dart';
 
 /// Result of a semantic search
@@ -89,41 +89,31 @@ class VectorDBService {
       final text = '$title\n\n$content';
 
       // Get embedding from Rust via inference service
-      final vector = await _inference.getEmbedding(text);
+      final embedding = await _inference.getEmbedding(text);
 
       // Create preview
-      final preview = content.length > 200
+      final contentPreview = content.length > 200
           ? '${content.substring(0, 200)}...'
           : content;
 
-      // TODO: Uncomment when objectbox.g.dart is generated
-      // // Check if note exists
-      // final existing = _noteBox.query(
-      //   NoteEmbedding_.noteId.equals(noteId)
-      // ).build().findFirst();
-      //
-      // if (existing != null) {
-      //   // Update existing
-      //   existing.title = title;
-      //   existing.preview = preview;
-      //   existing.vector = vector;
-      //   existing.updatedAt = DateTime.now();
-      //   _noteBox.put(existing);
-      // } else {
-      //   // Create new
-      //   final embedding = NoteEmbedding(
-      //     noteId: noteId,
-      //     title: title,
-      //     preview: preview,
-      //     vector: vector,
-      //   );
-      //   _noteBox.put(embedding);
-      // }
+      // Store embedding (when ObjectBox is configured)
+      _storeEmbedding(noteId, title, contentPreview, embedding);
 
       debugPrint('Indexed note: $noteId');
     } catch (e) {
       debugPrint('Failed to index note $noteId: $e');
     }
+  }
+
+  /// Store embedding in ObjectBox (placeholder until generated code ready)
+  void _storeEmbedding(
+    String noteId,
+    String title,
+    String preview,
+    List<double> embedding,
+  ) {
+    // Will be implemented when objectbox.g.dart is generated
+    debugPrint('Storing embedding for $noteId (${embedding.length} dims)');
   }
 
   /// Remove a note from the index
@@ -167,34 +157,27 @@ class VectorDBService {
 
     try {
       // Get embedding for query from Rust
-      final queryVector = await _inference.getEmbedding(query);
+      final queryEmbedding = await _inference.getEmbedding(query);
 
-      // TODO: Uncomment when objectbox.g.dart is generated
-      // // Use ObjectBox native HNSW search
-      // final query = _noteBox.query(
-      //   NoteEmbedding_.vector.nearestNeighborsF32(queryVector, topK * 2)
-      // ).build();
-      //
-      // final results = query.findWithScores();
-      // query.close();
-      //
-      // return results
-      //     .where((r) => _distanceToSimilarity(r.score) >= threshold)
-      //     .take(topK)
-      //     .map((r) => SearchResult(
-      //           noteId: r.object.noteId,
-      //           title: r.object.title,
-      //           score: _distanceToSimilarity(r.score),
-      //           preview: r.object.preview,
-      //         ))
-      //     .toList();
-
-      // Placeholder - will be replaced when ObjectBox is set up
-      return [];
+      // Perform HNSW search (placeholder until ObjectBox is configured)
+      return _searchWithEmbedding(queryEmbedding, topK, threshold);
     } catch (e) {
       debugPrint('Search failed: $e');
       return [];
     }
+  }
+
+  /// Search with embedding vector (placeholder)
+  List<SearchResult> _searchWithEmbedding(
+    List<double> queryEmbedding,
+    int topK,
+    double threshold,
+  ) {
+    // Will use ObjectBox HNSW when configured
+    debugPrint(
+      'Searching with ${queryEmbedding.length}-dim vector, topK=$topK',
+    );
+    return [];
   }
 
   /// Find notes similar to a given note
@@ -248,36 +231,15 @@ class VectorDBService {
     await initialize();
 
     for (final topic in topics) {
-      final topicId = _normalizeTopicId(topic);
-
-      // TODO: Uncomment when objectbox.g.dart is generated
-      // // Get or create topic hub
-      // var hubQuery = _topicBox.query(
-      //   TopicHub_.topicId.equals(topicId)
-      // ).build();
-      // var hub = hubQuery.findFirst();
-      // hubQuery.close();
-      //
-      // if (hub == null) {
-      //   hub = TopicHub(
-      //     topicId: topicId,
-      //     label: topic,
-      //     color: _generateTopicColor(topic),
-      //   );
-      //   _topicBox.put(hub);
-      // }
-      //
-      // // Create link
-      // final link = NoteTopicLink(
-      //   noteId: noteId,
-      //   topicId: topicId,
-      // );
-      // _linkBox.put(link);
-      //
-      // // Update note count
-      // hub.noteCount++;
-      // _topicBox.put(hub);
+      final normalizedId = _normalizeTopicId(topic);
+      _createTopicLink(noteId, normalizedId, topic);
     }
+  }
+
+  /// Create topic link (placeholder)
+  void _createTopicLink(String noteId, String topicId, String label) {
+    debugPrint('Linking note $noteId to topic $topicId ($label)');
+    // Will be implemented when objectbox.g.dart is generated
   }
 
   /// Get all topics with their note counts
@@ -344,21 +306,21 @@ class VectorDBService {
     debugPrint('Re-indexed $indexedCount notes');
   }
 
+  /// Normalize topic ID
+  String _normalizeTopicId(String topic) {
+    return 'hub_${topic.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_')}';
+  }
+
   /// Convert HNSW distance to similarity score (0.0 to 1.0)
-  double _distanceToSimilarity(double distance) {
+  double distanceToSimilarity(double distance) {
     // HNSW uses L2 distance by default
     // Convert to similarity: smaller distance = higher similarity
     // Using exponential decay: sim = e^(-distance)
     return math.exp(-distance);
   }
 
-  /// Normalize topic ID
-  String _normalizeTopicId(String topic) {
-    return 'hub_${topic.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_')}';
-  }
-
   /// Generate a consistent color for a topic based on its name
-  String _generateTopicColor(String topic) {
+  String generateTopicColor(String topic) {
     // Hash the topic name to get a consistent hue
     final hash = topic.hashCode.abs();
     final hue = (hash % 360).toDouble();

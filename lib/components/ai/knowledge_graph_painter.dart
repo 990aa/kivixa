@@ -3,9 +3,7 @@
 // High-performance graph visualization using CustomPainter.
 // Receives node positions from Rust at 60fps and renders circles.
 
-import 'dart:math' as math;
-import 'dart:ui' as ui;
-
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 

@@ -96,6 +96,14 @@ abstract class HomeRoutes {
       ),
     ),
     _Route(
+      routePath: _homeFunction({'subpage': HomePage.aiChatSubpage}),
+      label: 'AI Chat',
+      icon: const AdaptiveIcon(
+        icon: Icons.smart_toy,
+        cupertinoIcon: CupertinoIcons.chat_bubble_2_fill,
+      ),
+    ),
+    _Route(
       routePath: _homeFunction({'subpage': HomePage.settingsSubpage}),
       label: t.home.tabs.settings,
       icon: const AdaptiveIcon(

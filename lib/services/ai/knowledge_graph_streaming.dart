@@ -6,6 +6,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import '../../components/ai/knowledge_graph_painter.dart';
 
@@ -26,11 +27,16 @@ class KnowledgeGraphStreamingService {
   // Timer for polling Rust
   Timer? _pollTimer;
 
-  // Current viewport state
+  // Current viewport state (used when Rust bridge is connected)
+  // ignore: unused_field
   double _viewportX = 0;
+  // ignore: unused_field
   double _viewportY = 0;
+  // ignore: unused_field
   double _viewportWidth = 1920;
+  // ignore: unused_field
   double _viewportHeight = 1080;
+  // ignore: unused_field
   double _viewportScale = 1.0;
 
   // Stats
