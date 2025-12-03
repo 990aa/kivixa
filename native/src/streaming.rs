@@ -11,7 +11,6 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tokio::sync::mpsc;
 
-use crate::graph::{self, GraphEdge, GraphNode};
 use crate::quadtree::{Bounds, QuadTree, SpatialPoint};
 
 /// Position data sent to Flutter (minimal for performance)
@@ -460,7 +459,7 @@ fn send_frame() -> Result<()> {
     let nodes = SIM_STATE.stream_nodes.read();
     let edges = SIM_STATE.stream_edges.read();
     let viewport = SIM_STATE.current_viewport.read().clone();
-    let bounds = viewport.to_bounds();
+    let _bounds = viewport.to_bounds();
 
     // Get visible IDs for edge filtering
     let visible_ids: std::collections::HashSet<_> = visible.iter().map(|n| n.id.clone()).collect();

@@ -6,13 +6,12 @@
 //! - Layout is computed in Rust for performance
 
 use anyhow::Result;
-use fdg_sim::petgraph::graph::{NodeIndex, UnGraph};
+use fdg_sim::petgraph::graph::NodeIndex;
 use fdg_sim::petgraph::visit::{EdgeRef, IntoEdgeReferences};
 use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::Arc;
 
 /// A node in the knowledge graph
 #[derive(Debug, Clone, Serialize, Deserialize)]
