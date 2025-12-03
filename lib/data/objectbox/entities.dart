@@ -7,13 +7,13 @@ import 'package:objectbox/objectbox.dart';
 
 /// Embedding dimension for Phi-4 Mini model
 /// Note: Verify this by checking the actual model output dimension
-const int kEmbeddingDimension = 3072;
+const kEmbeddingDimension = 3072;
 
 /// A note with its vector embedding for semantic search
 @Entity()
 class NoteEmbedding {
   @Id()
-  int id = 0;
+  var id = 0;
 
   /// The unique identifier of the note (e.g., file path or UUID)
   @Unique()
@@ -52,7 +52,7 @@ class NoteEmbedding {
 @Entity()
 class TopicHub {
   @Id()
-  int id = 0;
+  var id = 0;
 
   /// Unique topic identifier (lowercase, underscored)
   @Unique()
@@ -85,7 +85,7 @@ class TopicHub {
 @Entity()
 class NoteTopicLink {
   @Id()
-  int id = 0;
+  var id = 0;
 
   /// The note ID
   String noteId;
@@ -107,7 +107,7 @@ class NoteTopicLink {
 @Entity()
 class NoteLinkEntity {
   @Id()
-  int id = 0;
+  var id = 0;
 
   /// Source note ID
   String sourceNoteId;

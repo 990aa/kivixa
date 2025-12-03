@@ -32,7 +32,7 @@ class AIChatPage extends StatefulWidget {
 class _AIChatPageState extends State<AIChatPage> {
   late AIChatController _chatController;
   late ModelManager _modelManager;
-  bool _isModelReady = false;
+  var _isModelReady = false;
   String? _modelError;
 
   @override
@@ -178,19 +178,19 @@ class _AIChatPageState extends State<AIChatPage> {
             ),
           ),
           const SizedBox(height: 32),
-          _FeatureCard(
+          const _FeatureCard(
             icon: Icons.search,
             title: 'Smart Search',
             description: 'Find related notes and ideas',
           ),
           const SizedBox(height: 12),
-          _FeatureCard(
+          const _FeatureCard(
             icon: Icons.summarize,
             title: 'Summarize',
             description: 'Get quick summaries of your notes',
           ),
           const SizedBox(height: 12),
-          _FeatureCard(
+          const _FeatureCard(
             icon: Icons.lightbulb_outline,
             title: 'Discover',
             description: 'Explore connections between topics',
@@ -323,9 +323,9 @@ class _ModelSelectionPage extends StatefulWidget {
 }
 
 class _ModelSelectionPageState extends State<_ModelSelectionPage> {
-  final ModelManager _modelManager = ModelManager();
+  final _modelManager = ModelManager();
   List<AIModel> _availableModels = [];
-  bool _isLoading = false;
+  var _isLoading = false;
   String? _error;
 
   @override

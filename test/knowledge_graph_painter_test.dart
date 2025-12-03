@@ -113,30 +113,13 @@ void main() {
       expect(frame.isRunning, true);
     });
 
-    test('fromRust should parse map correctly', () {
-      final data = {
-        'nodes': [
-          {'id': 'n1', 'x': 0.0, 'y': 0.0},
-          {'id': 'n2', 'x': 50.0, 'y': 50.0},
-        ],
-        'edges': [
-          {
-            'source_x': 0.0,
-            'source_y': 0.0,
-            'target_x': 50.0,
-            'target_y': 50.0,
-          },
-        ],
-        'frame_number': 42,
-        'is_running': true,
-      };
+    test('empty factory should create empty frame', () {
+      final frame = GraphFrame.empty();
 
-      final frame = GraphFrame.fromRust(data);
-
-      expect(frame.nodes.length, 2);
-      expect(frame.edges.length, 1);
-      expect(frame.frameNumber, 42);
-      expect(frame.isRunning, true);
+      expect(frame.nodes, isEmpty);
+      expect(frame.edges, isEmpty);
+      expect(frame.frameNumber, 0);
+      expect(frame.isRunning, false);
     });
   });
 

@@ -97,19 +97,19 @@ class KnowledgeGraphPainter extends CustomPainter {
   final TextStyle? labelStyle;
 
   // Pre-allocated paints for performance
-  static final Paint _edgePaint = Paint()
+  static final _edgePaint = Paint()
     ..color = Colors.grey.withValues(alpha: 0.3)
     ..strokeWidth = 1.5
     ..style = PaintingStyle.stroke;
 
-  static final Paint _nodePaint = Paint()..style = PaintingStyle.fill;
+  static final _nodePaint = Paint()..style = PaintingStyle.fill;
 
-  static final Paint _selectedPaint = Paint()
+  static final _selectedPaint = Paint()
     ..color = Colors.orange
     ..strokeWidth = 3.0
     ..style = PaintingStyle.stroke;
 
-  static final Paint _hoverPaint = Paint()
+  static final _hoverPaint = Paint()
     ..color = Colors.white.withValues(alpha: 0.3)
     ..style = PaintingStyle.fill;
 
@@ -282,7 +282,7 @@ class _KnowledgeGraphWidgetState extends State<KnowledgeGraphWidget>
   late List<GraphEdgePosition> _edges;
 
   Offset _panOffset = Offset.zero;
-  double _scale = 1.0;
+  var _scale = 1.0;
   String? _selectedNodeId;
   String? _hoveredNodeId;
 
@@ -292,7 +292,7 @@ class _KnowledgeGraphWidgetState extends State<KnowledgeGraphWidget>
 
   // Ticker for 60fps updates
   Ticker? _ticker;
-  bool _needsRepaint = false;
+  var _needsRepaint = false;
 
   @override
   void initState() {
@@ -449,7 +449,7 @@ class _KnowledgeGraphWidgetState extends State<KnowledgeGraphWidget>
             onScaleEnd: _onScaleEnd,
             onTapUp: _onTapUp,
             onDoubleTap: _onDoubleTap,
-            child: Container(
+            child: ColoredBox(
               color: widget.backgroundColor,
               child: CustomPaint(
                 painter: KnowledgeGraphPainter(

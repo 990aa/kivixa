@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:kivixa/services/ai/knowledge_graph_streaming.dart';
 import 'package:kivixa/components/ai/knowledge_graph_painter.dart';
+import 'package:kivixa/services/ai/knowledge_graph_streaming.dart';
 
 void main() {
   group('KnowledgeGraphStreamingService', () {

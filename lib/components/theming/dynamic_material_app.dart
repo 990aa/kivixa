@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kivixa/components/overlay/global_overlay.dart';
 import 'package:kivixa/components/theming/kivixa_theme.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:window_manager/window_manager.dart';
@@ -196,6 +197,10 @@ class ExplicitlyThemedApp extends StatelessWidget {
       highContrastTheme: highContrastTheme,
       highContrastDarkTheme: highContrastDarkTheme,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        // Wrap the app content with the global overlay system
+        return GlobalOverlay(child: child ?? const SizedBox.shrink());
+      },
     );
   }
 }

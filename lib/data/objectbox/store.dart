@@ -23,7 +23,7 @@ class ObjectBoxStore {
     return _instance!;
   }
 
-  bool _isInitialized = false;
+  var _isInitialized = false;
 
   /// Whether the store is initialized
   bool get isInitialized => _isInitialized;

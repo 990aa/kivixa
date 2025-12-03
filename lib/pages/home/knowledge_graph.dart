@@ -36,8 +36,8 @@ class KnowledgeGraphPage extends StatefulWidget {
 class _KnowledgeGraphPageState extends State<KnowledgeGraphPage> {
   final KnowledgeGraphStreamingService _streamingService =
       KnowledgeGraphStreamingService.instance;
-  final KnowledgeGraphService _graphService = KnowledgeGraphService();
-  final KnowledgeGraphController _graphController = KnowledgeGraphController();
+  final _graphService = KnowledgeGraphService();
+  final _graphController = KnowledgeGraphController();
 
   StreamSubscription<GraphFrame>? _frameSubscription;
   GraphFrame? _currentFrame;
@@ -46,12 +46,12 @@ class _KnowledgeGraphPageState extends State<KnowledgeGraphPage> {
   // Viewport state (used for zoom controls)
   // ignore: unused_field
   Offset _offset = Offset.zero;
-  double _scale = 1.0;
+  var _scale = 1.0;
 
   // Filter state
   String? _selectedTopic;
   List<String> _availableTopics = [];
-  bool _isLoading = true;
+  var _isLoading = true;
 
   @override
   void initState() {

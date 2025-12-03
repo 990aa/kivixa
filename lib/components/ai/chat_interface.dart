@@ -48,7 +48,7 @@ class AIChatMessage {
 class AIChatController extends ChangeNotifier {
   final InferenceService _inferenceService;
   final List<AIChatMessage> _messages = [];
-  bool _isGenerating = false;
+  var _isGenerating = false;
   String? _systemPrompt;
 
   AIChatController({InferenceService? inferenceService, String? systemPrompt})
@@ -174,6 +174,7 @@ class AIChatInterface extends StatefulWidget {
   final bool showHeader;
   final String? title;
   final VoidCallback? onClear;
+  final bool compact;
 
   const AIChatInterface({
     super.key,
@@ -183,6 +184,7 @@ class AIChatInterface extends StatefulWidget {
     this.showHeader = true,
     this.title,
     this.onClear,
+    this.compact = false,
   });
 
   @override
@@ -190,9 +192,9 @@ class AIChatInterface extends StatefulWidget {
 }
 
 class _AIChatInterfaceState extends State<AIChatInterface> {
-  final TextEditingController _textController = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
-  final ScrollController _scrollController = ScrollController();
+  final _textController = TextEditingController();
+  final _focusNode = FocusNode();
+  final _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -245,13 +247,18 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isCompact = widget.compact;
+    final padding = isCompact ? 8.0 : 16.0;
 
     return Column(
       children: [
         // Header
         if (widget.showHeader)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(
+              horizontal: padding,
+              vertical: isCompact ? 8 : 12,
+            ),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest,
               border: Border(
@@ -260,24 +267,35 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
             ),
             child: Row(
               children: [
-                Icon(Icons.smart_toy, color: colorScheme.primary),
+                Icon(
+                  Icons.smart_toy,
+                  color: colorScheme.primary,
+                  size: isCompact ? 18 : 24,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   widget.title ?? 'AI Assistant',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style:
+                      (isCompact
+                              ? theme.textTheme.titleSmall
+                              : theme.textTheme.titleMedium)
+                          ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
                 if (!widget.controller.isModelLoaded)
                   Chip(
-                    label: const Text('Model not loaded'),
+                    label: Text(isCompact ? 'No model' : 'Model not loaded'),
                     backgroundColor: colorScheme.errorContainer,
-                    labelStyle: TextStyle(color: colorScheme.onErrorContainer),
+                    labelStyle: TextStyle(
+                      color: colorScheme.onErrorContainer,
+                      fontSize: isCompact ? 10 : null,
+                    ),
+                    padding: isCompact ? EdgeInsets.zero : null,
                   ),
                 if (widget.controller.messages.isNotEmpty)
                   IconButton(
                     icon: const Icon(Icons.delete_outline),
+                    iconSize: isCompact ? 18 : 24,
                     onPressed: () {
                       widget.controller.clearMessages();
                       widget.onClear?.call();
@@ -294,11 +312,12 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
               ? _buildEmptyState(context)
               : ListView.builder(
                   controller: _scrollController,
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(padding),
                   itemCount: widget.controller.messages.length,
                   itemBuilder: (context, index) {
                     return _ChatMessageBubble(
                       message: widget.controller.messages[index],
+                      compact: isCompact,
                       onRetry:
                           index == widget.controller.messages.length - 1 &&
                               widget.controller.messages[index].isAssistant &&
@@ -315,7 +334,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
 
         // Input area
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(padding),
           decoration: BoxDecoration(
             color: colorScheme.surface,
             border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
@@ -327,35 +346,46 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                 child: TextField(
                   controller: _textController,
                   focusNode: _focusNode,
-                  maxLines: 5,
+                  maxLines: isCompact ? 3 : 5,
                   minLines: 1,
+                  style: isCompact ? theme.textTheme.bodySmall : null,
                   textInputAction: TextInputAction.send,
                   onSubmitted: (_) => _handleSubmit(),
                   decoration: InputDecoration(
-                    hintText: widget.placeholder ?? 'Ask me anything...',
+                    hintText:
+                        widget.placeholder ??
+                        (isCompact ? 'Ask...' : 'Ask me anything...'),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(isCompact ? 16 : 24),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: isCompact ? 12 : 16,
+                      vertical: isCompact ? 8 : 12,
                     ),
+                    isDense: isCompact,
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              FloatingActionButton(
-                onPressed: widget.controller.isGenerating
-                    ? null
-                    : _handleSubmit,
-                elevation: 0,
-                child: widget.controller.isGenerating
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.send),
+              SizedBox(width: isCompact ? 4 : 8),
+              SizedBox(
+                width: isCompact ? 36 : 56,
+                height: isCompact ? 36 : 56,
+                child: FloatingActionButton(
+                  onPressed: widget.controller.isGenerating
+                      ? null
+                      : _handleSubmit,
+                  elevation: 0,
+                  mini: isCompact,
+                  child: widget.controller.isGenerating
+                      ? SizedBox(
+                          width: isCompact ? 16 : 24,
+                          height: isCompact ? 16 : 24,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Icon(Icons.send, size: isCompact ? 18 : 24),
+                ),
               ),
             ],
           ),
@@ -442,17 +472,27 @@ class _ChatMessageBubble extends StatelessWidget {
   final AIChatMessage message;
   final VoidCallback? onRetry;
   final VoidCallback? onCopy;
+  final bool compact;
 
-  const _ChatMessageBubble({required this.message, this.onRetry, this.onCopy});
+  const _ChatMessageBubble({
+    required this.message,
+    this.onRetry,
+    this.onCopy,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isUser = message.isUser;
+    final avatarRadius = compact ? 12.0 : 16.0;
+    final iconSize = compact ? 14.0 : 18.0;
+    final horizontalPadding = compact ? 10.0 : 16.0;
+    final verticalPadding = compact ? 8.0 : 12.0;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: compact ? 8 : 12),
       child: Row(
         mainAxisAlignment: isUser
             ? MainAxisAlignment.end
@@ -461,28 +501,33 @@ class _ChatMessageBubble extends StatelessWidget {
         children: [
           if (!isUser) ...[
             CircleAvatar(
-              radius: 16,
+              radius: avatarRadius,
               backgroundColor: colorScheme.primaryContainer,
               child: Icon(
                 Icons.smart_toy,
-                size: 18,
+                size: iconSize,
                 color: colorScheme.onPrimaryContainer,
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: compact ? 6 : 8),
           ],
           Flexible(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: verticalPadding,
+              ),
               decoration: BoxDecoration(
                 color: isUser
                     ? colorScheme.primaryContainer
                     : colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(16),
-                  topRight: const Radius.circular(16),
-                  bottomLeft: Radius.circular(isUser ? 16 : 4),
-                  bottomRight: Radius.circular(isUser ? 4 : 16),
+                  topLeft: Radius.circular(compact ? 12 : 16),
+                  topRight: Radius.circular(compact ? 12 : 16),
+                  bottomLeft: Radius.circular(isUser ? (compact ? 12 : 16) : 4),
+                  bottomRight: Radius.circular(
+                    isUser ? 4 : (compact ? 12 : 16),
+                  ),
                 ),
               ),
               child: Column(
@@ -493,19 +538,20 @@ class _ChatMessageBubble extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SizedBox(
-                          width: 16,
-                          height: 16,
+                          width: compact ? 12 : 16,
+                          height: compact ? 12 : 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             color: colorScheme.primary,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: compact ? 6 : 8),
                         Text(
                           'Thinking...',
                           style: TextStyle(
                             color: colorScheme.onSurfaceVariant,
                             fontStyle: FontStyle.italic,
+                            fontSize: compact ? 12 : null,
                           ),
                         ),
                       ],
@@ -517,33 +563,34 @@ class _ChatMessageBubble extends StatelessWidget {
                         color: isUser
                             ? colorScheme.onPrimaryContainer
                             : colorScheme.onSurface,
+                        fontSize: compact ? 13 : null,
                       ),
                     ),
                   if (!message.isLoading && !isUser) ...[
-                    const SizedBox(height: 8),
+                    SizedBox(height: compact ? 4 : 8),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (onCopy != null)
                           IconButton(
-                            icon: const Icon(Icons.copy, size: 16),
+                            icon: Icon(Icons.copy, size: compact ? 12 : 16),
                             onPressed: onCopy,
                             tooltip: 'Copy',
                             padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
+                            constraints: BoxConstraints(
+                              minWidth: compact ? 24 : 32,
+                              minHeight: compact ? 24 : 32,
                             ),
                           ),
                         if (onRetry != null)
                           IconButton(
-                            icon: const Icon(Icons.refresh, size: 16),
+                            icon: Icon(Icons.refresh, size: compact ? 12 : 16),
                             onPressed: onRetry,
                             tooltip: 'Retry',
                             padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
+                            constraints: BoxConstraints(
+                              minWidth: compact ? 24 : 32,
+                              minHeight: compact ? 24 : 32,
                             ),
                           ),
                       ],
@@ -554,13 +601,13 @@ class _ChatMessageBubble extends StatelessWidget {
             ),
           ),
           if (isUser) ...[
-            const SizedBox(width: 8),
+            SizedBox(width: compact ? 6 : 8),
             CircleAvatar(
-              radius: 16,
+              radius: avatarRadius,
               backgroundColor: colorScheme.secondaryContainer,
               child: Icon(
                 Icons.person,
-                size: 18,
+                size: iconSize,
                 color: colorScheme.onSecondaryContainer,
               ),
             ),

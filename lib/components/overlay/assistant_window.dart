@@ -1,0 +1,174 @@
+import 'package:flutter/material.dart';
+import 'package:kivixa/components/ai/chat_interface.dart';
+import 'package:kivixa/components/overlay/floating_window.dart';
+import 'package:kivixa/services/overlay/overlay_controller.dart';
+
+/// A floating AI assistant window that provides quick access to AI chat.
+///
+/// This window floats above the main app content and can be moved/resized.
+/// It uses the same chat interface as the full AI chat page.
+class AssistantWindow extends StatefulWidget {
+  const AssistantWindow({super.key});
+
+  @override
+  State<AssistantWindow> createState() => _AssistantWindowState();
+}
+
+class _AssistantWindowState extends State<AssistantWindow> {
+  final _chatController = AIChatController();
+
+  @override
+  void initState() {
+    super.initState();
+    OverlayController.instance.addListener(_onOverlayChanged);
+  }
+
+  void _onOverlayChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    OverlayController.instance.removeListener(_onOverlayChanged);
+    _chatController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = OverlayController.instance;
+
+    if (!controller.assistantOpen) {
+      return const SizedBox.shrink();
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenSize = Size(constraints.maxWidth, constraints.maxHeight);
+
+        // Clamp window to screen bounds
+        final clampedRect = controller.clampToScreen(
+          controller.assistantWindowRect,
+          screenSize,
+        );
+
+        return FloatingWindow(
+          rect: clampedRect,
+          onRectChanged: (newRect) {
+            controller.updateAssistantRect(
+              controller.clampToScreen(newRect, screenSize),
+            );
+          },
+          onClose: controller.closeAssistant,
+          title: 'AI Assistant',
+          icon: Icons.smart_toy_rounded,
+          minWidth: 350,
+          minHeight: 400,
+          child: _buildAssistantContent(context),
+        );
+      },
+    );
+  }
+
+  Widget _buildAssistantContent(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      children: [
+        // Quick actions bar
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerLow,
+            border: Border(
+              bottom: BorderSide(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              _QuickActionChip(
+                icon: Icons.summarize_rounded,
+                label: 'Summarize',
+                onTap: () =>
+                    _sendQuickAction('Please summarize the current context.'),
+              ),
+              const SizedBox(width: 4),
+              _QuickActionChip(
+                icon: Icons.code_rounded,
+                label: 'Code',
+                onTap: () => _sendQuickAction('Help me with code.'),
+              ),
+              const SizedBox(width: 4),
+              _QuickActionChip(
+                icon: Icons.lightbulb_outline_rounded,
+                label: 'Ideas',
+                onTap: () => _sendQuickAction('Give me some ideas.'),
+              ),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.delete_outline_rounded),
+                iconSize: 18,
+                tooltip: 'Clear chat',
+                onPressed: _chatController.clearMessages,
+              ),
+            ],
+          ),
+        ),
+        // Chat interface
+        Expanded(
+          child: AIChatInterface(controller: _chatController, compact: true),
+        ),
+      ],
+    );
+  }
+
+  void _sendQuickAction(String prompt) {
+    _chatController.sendMessage(prompt);
+  }
+}
+
+class _QuickActionChip extends StatelessWidget {
+  const _QuickActionChip({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Material(
+      color: colorScheme.surfaceContainerHigh,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 14, color: colorScheme.primary),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -5,10 +5,8 @@
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
-import '../../components/ai/knowledge_graph_painter.dart';
+import 'package:kivixa/components/ai/knowledge_graph_painter.dart';
 
 /// Service for managing the knowledge graph streaming simulation
 class KnowledgeGraphStreamingService {
@@ -37,10 +35,10 @@ class KnowledgeGraphStreamingService {
   // ignore: unused_field
   double _viewportHeight = 1080;
   // ignore: unused_field
-  double _viewportScale = 1.0;
+  var _viewportScale = 1.0;
 
   // Stats
-  int _frameCount = 0;
+  var _frameCount = 0;
   DateTime? _lastFrameTime;
   double _currentFps = 0;
 
@@ -212,7 +210,7 @@ class KnowledgeGraphStreamingService {
       );
     } catch (e) {
       debugPrint('[KnowledgeGraph] Failed to get stats: $e');
-      return GraphStats(nodeCount: 0, edgeCount: 0, visibleCount: 0, fps: 0);
+      return const GraphStats(nodeCount: 0, edgeCount: 0, visibleCount: 0, fps: 0);
     }
   }
 
