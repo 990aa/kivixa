@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// A floating window that can be dragged and resized.
@@ -15,7 +16,11 @@ class FloatingWindow extends StatefulWidget {
     required this.child,
     this.minWidth = 300,
     this.minHeight = 200,
+    this.maxWidth,
+    this.maxHeight,
     this.resizable = true,
+    this.onMinimize,
+    this.showMinimizeButton = false,
   });
 
   /// Current position and size of the window.
@@ -26,6 +31,9 @@ class FloatingWindow extends StatefulWidget {
 
   /// Called when the close button is pressed.
   final VoidCallback onClose;
+
+  /// Called when the minimize button is pressed.
+  final VoidCallback? onMinimize;
 
   /// Title displayed in the title bar.
   final String title;
@@ -42,8 +50,17 @@ class FloatingWindow extends StatefulWidget {
   /// Minimum height constraint.
   final double minHeight;
 
+  /// Maximum width constraint.
+  final double? maxWidth;
+
+  /// Maximum height constraint.
+  final double? maxHeight;
+
   /// Whether the window can be resized.
   final bool resizable;
+
+  /// Whether to show a minimize button.
+  final bool showMinimizeButton;
 
   @override
   State<FloatingWindow> createState() => _FloatingWindowState();
@@ -51,6 +68,13 @@ class FloatingWindow extends StatefulWidget {
 
 class _FloatingWindowState extends State<FloatingWindow> {
   var _isDragging = false;
+  var _isResizing = false;
+
+  /// Whether we're on a desktop platform with mouse support.
+  bool get _isDesktop =>
+      defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.macOS ||
+      defaultTargetPlatform == TargetPlatform.linux;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +82,7 @@ class _FloatingWindowState extends State<FloatingWindow> {
     final colorScheme = theme.colorScheme;
 
     Widget windowContent = Material(
-      elevation: _isDragging ? 12 : 8,
+      elevation: _isDragging || _isResizing ? 16 : 8,
       borderRadius: BorderRadius.circular(12),
       color: colorScheme.surface,
       clipBehavior: Clip.antiAlias,
@@ -66,7 +90,12 @@ class _FloatingWindowState extends State<FloatingWindow> {
         width: widget.rect.width,
         height: widget.rect.height,
         decoration: BoxDecoration(
-          border: Border.all(color: colorScheme.outlineVariant, width: 1),
+          border: Border.all(
+            color: _isDragging || _isResizing
+                ? colorScheme.primary.withValues(alpha: 0.5)
+                : colorScheme.outlineVariant,
+            width: _isDragging || _isResizing ? 2 : 1,
+          ),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -95,6 +124,10 @@ class _FloatingWindowState extends State<FloatingWindow> {
         onRectChanged: widget.onRectChanged,
         minWidth: widget.minWidth,
         minHeight: widget.minHeight,
+        maxWidth: widget.maxWidth,
+        maxHeight: widget.maxHeight,
+        onResizeStart: () => setState(() => _isResizing = true),
+        onResizeEnd: () => setState(() => _isResizing = false),
         child: windowContent,
       );
     }
@@ -110,57 +143,90 @@ class _FloatingWindowState extends State<FloatingWindow> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return GestureDetector(
-      onPanStart: (details) {
-        setState(() => _isDragging = true);
-      },
-      onPanUpdate: (details) {
-        final newRect = widget.rect.translate(
-          details.delta.dx,
-          details.delta.dy,
-        );
-        widget.onRectChanged(newRect);
-      },
-      onPanEnd: (details) {
-        setState(() => _isDragging = false);
-      },
-      child: Container(
-        height: 40,
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(11),
-            topRight: Radius.circular(11),
+    return MouseRegion(
+      cursor: SystemMouseCursors.move,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onPanStart: (details) {
+          setState(() => _isDragging = true);
+        },
+        onPanUpdate: (details) {
+          final newRect = widget.rect.translate(
+            details.delta.dx,
+            details.delta.dy,
+          );
+          widget.onRectChanged(newRect);
+        },
+        onPanEnd: (details) {
+          setState(() => _isDragging = false);
+        },
+        child: Container(
+          height: _isDesktop ? 36 : 44,
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(11),
+              topRight: Radius.circular(11),
+            ),
+          ),
+          child: Row(
+            children: [
+              const SizedBox(width: 12),
+              Icon(widget.icon, size: 18, color: colorScheme.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  widget.title,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              // Minimize button
+              if (widget.showMinimizeButton && widget.onMinimize != null)
+                _TitleBarButton(
+                  icon: Icons.remove_rounded,
+                  tooltip: 'Minimize',
+                  onPressed: widget.onMinimize!,
+                ),
+              // Close button
+              _TitleBarButton(
+                icon: Icons.close_rounded,
+                tooltip: 'Close',
+                onPressed: widget.onClose,
+              ),
+              const SizedBox(width: 4),
+            ],
           ),
         ),
-        child: Row(
-          children: [
-            const SizedBox(width: 12),
-            Icon(widget.icon, size: 18, color: colorScheme.primary),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                widget.title,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.w500,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            // Close button
-            IconButton(
-              icon: const Icon(Icons.close_rounded),
-              iconSize: 18,
-              onPressed: widget.onClose,
-              tooltip: 'Close',
-              style: IconButton.styleFrom(padding: const EdgeInsets.all(8)),
-            ),
-            const SizedBox(width: 4),
-          ],
-        ),
       ),
+    );
+  }
+}
+
+/// A button for the title bar.
+class _TitleBarButton extends StatelessWidget {
+  const _TitleBarButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(icon),
+      iconSize: 18,
+      onPressed: onPressed,
+      tooltip: tooltip,
+      style: IconButton.styleFrom(padding: const EdgeInsets.all(8)),
     );
   }
 }
@@ -174,6 +240,10 @@ class ResizableWindowContainer extends StatefulWidget {
     required this.child,
     this.minWidth = 300,
     this.minHeight = 200,
+    this.maxWidth,
+    this.maxHeight,
+    this.onResizeStart,
+    this.onResizeEnd,
   });
 
   final Rect rect;
@@ -181,6 +251,10 @@ class ResizableWindowContainer extends StatefulWidget {
   final Widget child;
   final double minWidth;
   final double minHeight;
+  final double? maxWidth;
+  final double? maxHeight;
+  final VoidCallback? onResizeStart;
+  final VoidCallback? onResizeEnd;
 
   @override
   State<ResizableWindowContainer> createState() =>
@@ -188,9 +262,16 @@ class ResizableWindowContainer extends StatefulWidget {
 }
 
 class _ResizableWindowContainerState extends State<ResizableWindowContainer> {
+  /// Whether we're on a desktop platform with mouse support.
+  bool get _isDesktop =>
+      defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.macOS ||
+      defaultTargetPlatform == TargetPlatform.linux;
+
   @override
   Widget build(BuildContext context) {
-    const handleSize = 8.0;
+    // Larger touch targets on desktop for better mouse interaction
+    final handleSize = _isDesktop ? 12.0 : 8.0;
 
     return Stack(
       clipBehavior: Clip.none,
@@ -220,18 +301,22 @@ class _ResizableWindowContainerState extends State<ResizableWindowContainer> {
 
     return Positioned(
       left: corner == _Corner.topLeft || corner == _Corner.bottomLeft
-          ? 0
+          ? -size / 2
           : null,
       right: corner == _Corner.topRight || corner == _Corner.bottomRight
-          ? 0
+          ? -size / 2
           : null,
-      top: corner == _Corner.topLeft || corner == _Corner.topRight ? 0 : null,
+      top: corner == _Corner.topLeft || corner == _Corner.topRight
+          ? -size / 2
+          : null,
       bottom: corner == _Corner.bottomLeft || corner == _Corner.bottomRight
-          ? 0
+          ? -size / 2
           : null,
       child: MouseRegion(
         cursor: cursor,
         child: GestureDetector(
+          onPanStart: (_) => widget.onResizeStart?.call(),
+          onPanEnd: (_) => widget.onResizeEnd?.call(),
           onPanUpdate: (details) {
             double left = widget.rect.left;
             double top = widget.rect.top;
@@ -253,7 +338,7 @@ class _ResizableWindowContainerState extends State<ResizableWindowContainer> {
                 bottom += details.delta.dy;
             }
 
-            // Apply constraints
+            // Apply min constraints
             if (right - left < widget.minWidth) {
               if (corner == _Corner.topLeft || corner == _Corner.bottomLeft) {
                 left = right - widget.minWidth;
@@ -269,9 +354,29 @@ class _ResizableWindowContainerState extends State<ResizableWindowContainer> {
               }
             }
 
+            // Apply max constraints
+            if (widget.maxWidth != null && right - left > widget.maxWidth!) {
+              if (corner == _Corner.topLeft || corner == _Corner.bottomLeft) {
+                left = right - widget.maxWidth!;
+              } else {
+                right = left + widget.maxWidth!;
+              }
+            }
+            if (widget.maxHeight != null && bottom - top > widget.maxHeight!) {
+              if (corner == _Corner.topLeft || corner == _Corner.topRight) {
+                top = bottom - widget.maxHeight!;
+              } else {
+                bottom = top + widget.maxHeight!;
+              }
+            }
+
             widget.onRectChanged(Rect.fromLTRB(left, top, right, bottom));
           },
-          child: SizedBox(width: size * 2, height: size * 2),
+          child: Container(
+            width: size * 2,
+            height: size * 2,
+            color: Colors.transparent,
+          ),
         ),
       ),
     );
@@ -284,13 +389,23 @@ class _ResizableWindowContainerState extends State<ResizableWindowContainer> {
     };
 
     return Positioned(
-      left: edge == _Edge.left ? 0 : (edge == _Edge.right ? null : size * 2),
-      right: edge == _Edge.right ? 0 : (edge == _Edge.left ? null : size * 2),
-      top: edge == _Edge.top ? 0 : (edge == _Edge.bottom ? null : size * 2),
-      bottom: edge == _Edge.bottom ? 0 : (edge == _Edge.top ? null : size * 2),
+      left: edge == _Edge.left
+          ? -size / 2
+          : (edge == _Edge.right ? null : size * 1.5),
+      right: edge == _Edge.right
+          ? -size / 2
+          : (edge == _Edge.left ? null : size * 1.5),
+      top: edge == _Edge.top
+          ? -size / 2
+          : (edge == _Edge.bottom ? null : size * 1.5),
+      bottom: edge == _Edge.bottom
+          ? -size / 2
+          : (edge == _Edge.top ? null : size * 1.5),
       child: MouseRegion(
         cursor: cursor,
         child: GestureDetector(
+          onPanStart: (_) => widget.onResizeStart?.call(),
+          onPanEnd: (_) => widget.onResizeEnd?.call(),
           onPanUpdate: (details) {
             double left = widget.rect.left;
             double top = widget.rect.top;
@@ -308,7 +423,7 @@ class _ResizableWindowContainerState extends State<ResizableWindowContainer> {
                 right += details.delta.dx;
             }
 
-            // Apply constraints
+            // Apply min constraints
             if (right - left < widget.minWidth) {
               if (edge == _Edge.left) {
                 left = right - widget.minWidth;
@@ -324,11 +439,28 @@ class _ResizableWindowContainerState extends State<ResizableWindowContainer> {
               }
             }
 
+            // Apply max constraints
+            if (widget.maxWidth != null && right - left > widget.maxWidth!) {
+              if (edge == _Edge.left) {
+                left = right - widget.maxWidth!;
+              } else if (edge == _Edge.right) {
+                right = left + widget.maxWidth!;
+              }
+            }
+            if (widget.maxHeight != null && bottom - top > widget.maxHeight!) {
+              if (edge == _Edge.top) {
+                top = bottom - widget.maxHeight!;
+              } else if (edge == _Edge.bottom) {
+                bottom = top + widget.maxHeight!;
+              }
+            }
+
             widget.onRectChanged(Rect.fromLTRB(left, top, right, bottom));
           },
-          child: SizedBox(
+          child: Container(
             width: edge == _Edge.top || edge == _Edge.bottom ? null : size,
             height: edge == _Edge.left || edge == _Edge.right ? null : size,
+            color: Colors.transparent,
           ),
         ),
       ),

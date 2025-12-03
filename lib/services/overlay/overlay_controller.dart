@@ -1,7 +1,27 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Represents a tool that can be shown in the hub menu.
+class OverlayTool {
+  const OverlayTool({
+    required this.id,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isActive,
+  });
+
+  final String id;
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool Function()? isActive;
+
+  bool get active => isActive?.call() ?? false;
+}
 
 /// Controller for the global overlay system.
 ///
@@ -14,6 +34,16 @@ class OverlayController extends ChangeNotifier {
 
   /// Singleton instance of the overlay controller.
   static OverlayController get instance => _instance;
+
+  // ============================================================
+  // Configuration
+  // ============================================================
+
+  /// Debounce duration for persistence writes (200-500ms recommended).
+  static const _debounceDuration = Duration(milliseconds: 300);
+
+  /// Whether to auto-reopen windows on app launch.
+  var _autoReopenWindows = true;
 
   // ============================================================
   // State fields
@@ -46,8 +76,14 @@ class OverlayController extends ChangeNotifier {
   /// Map of custom tool window states.
   final Map<String, _ToolWindowState> _toolWindows = {};
 
+  /// Registered overlay tools for the hub menu.
+  final List<OverlayTool> _registeredTools = [];
+
   /// Whether the overlay system is initialized.
   var _initialized = false;
+
+  /// Debounce timer for persistence.
+  Timer? _saveTimer;
 
   // ============================================================
   // Getters
@@ -62,6 +98,8 @@ class OverlayController extends ChangeNotifier {
   bool get browserOpen => _browserOpen;
   Rect get browserWindowRect => _browserWindowRect;
   bool get initialized => _initialized;
+  bool get autoReopenWindows => _autoReopenWindows;
+  List<OverlayTool> get registeredTools => List.unmodifiable(_registeredTools);
 
   // ============================================================
   // Initialization
@@ -72,6 +110,66 @@ class OverlayController extends ChangeNotifier {
     if (_initialized) return;
     await loadState();
     _initialized = true;
+  }
+
+  /// Set whether windows should auto-reopen on app launch.
+  void setAutoReopenWindows(bool value) {
+    _autoReopenWindows = value;
+    _scheduleSave();
+  }
+
+  // ============================================================
+  // Tool Registration
+  // ============================================================
+
+  /// Register a tool to be shown in the hub menu.
+  void registerTool(OverlayTool tool) {
+    // Remove existing tool with same id
+    _registeredTools.removeWhere((t) => t.id == tool.id);
+    _registeredTools.add(tool);
+    notifyListeners();
+  }
+
+  /// Unregister a tool from the hub menu.
+  void unregisterTool(String toolId) {
+    _registeredTools.removeWhere((t) => t.id == toolId);
+    notifyListeners();
+  }
+
+  /// Get all registered tools.
+  List<OverlayTool> getTools() => List.unmodifiable(_registeredTools);
+
+  /// Register the default built-in tools.
+  void registerDefaultTools() {
+    registerTool(
+      OverlayTool(
+        id: 'assistant',
+        icon: Icons.smart_toy_rounded,
+        label: 'AI Assistant',
+        onTap: toggleAssistant,
+        isActive: () => assistantOpen,
+      ),
+    );
+    registerTool(
+      OverlayTool(
+        id: 'browser',
+        icon: Icons.language_rounded,
+        label: 'Browser',
+        onTap: toggleBrowser,
+        isActive: () => browserOpen,
+      ),
+    );
+    registerTool(
+      OverlayTool(
+        id: 'knowledge_graph',
+        icon: Icons.hub_rounded,
+        label: 'Knowledge Graph',
+        onTap: () => isToolWindowOpen('knowledge_graph')
+            ? closeToolWindow('knowledge_graph')
+            : openToolWindow('knowledge_graph'),
+        isActive: () => isToolWindowOpen('knowledge_graph'),
+      ),
+    );
   }
 
   // ============================================================
@@ -296,40 +394,56 @@ class OverlayController extends ChangeNotifier {
   // ============================================================
 
   static const _prefsKey = 'overlay_state';
-  var _saveScheduled = false;
 
   /// Set to true in tests to disable SharedPreferences calls
   static var testMode = false;
 
+  /// Schedule a debounced save operation.
+  /// Uses a timer to avoid excessive writes when dragging.
   void _scheduleSave() {
-    if (_saveScheduled || testMode) return;
-    _saveScheduled = true;
-    Future.delayed(const Duration(milliseconds: 500), () {
-      _saveScheduled = false;
+    if (testMode) return;
+
+    // Cancel existing timer
+    _saveTimer?.cancel();
+
+    // Schedule new save
+    _saveTimer = Timer(_debounceDuration, () {
       saveState();
     });
+  }
+
+  /// Force an immediate save, cancelling any pending debounced save.
+  Future<void> forceSave() async {
+    _saveTimer?.cancel();
+    _saveTimer = null;
+    await saveState();
   }
 
   /// Save state to shared preferences.
   Future<void> saveState() async {
     if (testMode) return;
-    final prefs = await SharedPreferences.getInstance();
-    final data = {
-      'hubPosition': {'dx': _hubPosition.dx, 'dy': _hubPosition.dy},
-      'hubScale': _hubScale,
-      'hubOpacity': _hubOpacity,
-      'assistantOpen': _assistantOpen,
-      'assistantWindowRect': _rectToJson(_assistantWindowRect),
-      'browserOpen': _browserOpen,
-      'browserWindowRect': _rectToJson(_browserWindowRect),
-      'toolWindows': _toolWindows.map(
-        (key, value) => MapEntry(key, {
-          'isOpen': value.isOpen,
-          'rect': _rectToJson(value.rect),
-        }),
-      ),
-    };
-    await prefs.setString(_prefsKey, jsonEncode(data));
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final data = {
+        'hubPosition': {'dx': _hubPosition.dx, 'dy': _hubPosition.dy},
+        'hubScale': _hubScale,
+        'hubOpacity': _hubOpacity,
+        'autoReopenWindows': _autoReopenWindows,
+        'assistantOpen': _assistantOpen,
+        'assistantWindowRect': _rectToJson(_assistantWindowRect),
+        'browserOpen': _browserOpen,
+        'browserWindowRect': _rectToJson(_browserWindowRect),
+        'toolWindows': _toolWindows.map(
+          (key, value) => MapEntry(key, {
+            'isOpen': value.isOpen,
+            'rect': _rectToJson(value.rect),
+          }),
+        ),
+      };
+      await prefs.setString(_prefsKey, jsonEncode(data));
+    } catch (e) {
+      debugPrint('Failed to save overlay state: $e');
+    }
   }
 
   /// Load state from shared preferences.
@@ -337,11 +451,16 @@ class OverlayController extends ChangeNotifier {
     if (testMode) return;
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString(_prefsKey);
-    if (jsonString == null) return;
+    if (jsonString == null) {
+      // No saved state, register default tools
+      registerDefaultTools();
+      return;
+    }
 
     try {
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
 
+      // Load hub position
       if (data['hubPosition'] is Map) {
         final pos = data['hubPosition'] as Map<String, dynamic>;
         _hubPosition = Offset(
@@ -350,17 +469,17 @@ class OverlayController extends ChangeNotifier {
         );
       }
 
+      // Load hub settings
       _hubScale = (data['hubScale'] as num?)?.toDouble() ?? 1.0;
       _hubOpacity = (data['hubOpacity'] as num?)?.toDouble() ?? 0.7;
-      _assistantOpen = data['assistantOpen'] as bool? ?? false;
+      _autoReopenWindows = data['autoReopenWindows'] as bool? ?? true;
 
+      // Load window rects (always restore position/size)
       if (data['assistantWindowRect'] is Map) {
         _assistantWindowRect = _rectFromJson(
           data['assistantWindowRect'] as Map<String, dynamic>,
         );
       }
-
-      _browserOpen = data['browserOpen'] as bool? ?? false;
 
       if (data['browserWindowRect'] is Map) {
         _browserWindowRect = _rectFromJson(
@@ -368,13 +487,22 @@ class OverlayController extends ChangeNotifier {
         );
       }
 
+      // Conditionally restore open states based on autoReopenWindows
+      if (_autoReopenWindows) {
+        _assistantOpen = data['assistantOpen'] as bool? ?? false;
+        _browserOpen = data['browserOpen'] as bool? ?? false;
+      }
+
+      // Load tool windows
       if (data['toolWindows'] is Map) {
         final windows = data['toolWindows'] as Map<String, dynamic>;
         _toolWindows.clear();
         windows.forEach((key, value) {
           if (value is Map<String, dynamic>) {
             _toolWindows[key] = _ToolWindowState(
-              isOpen: value['isOpen'] as bool? ?? false,
+              isOpen: _autoReopenWindows
+                  ? (value['isOpen'] as bool? ?? false)
+                  : false,
               rect: value['rect'] is Map
                   ? _rectFromJson(value['rect'] as Map<String, dynamic>)
                   : const Rect.fromLTWH(150, 150, 400, 400),
@@ -383,10 +511,14 @@ class OverlayController extends ChangeNotifier {
         });
       }
 
+      // Register default tools
+      registerDefaultTools();
+
       notifyListeners();
     } catch (e) {
-      // Ignore corrupted state
+      // Ignore corrupted state, register default tools
       debugPrint('Failed to load overlay state: $e');
+      registerDefaultTools();
     }
   }
 
@@ -410,6 +542,7 @@ class OverlayController extends ChangeNotifier {
 
   /// Reset all overlay state to defaults.
   void reset() {
+    _saveTimer?.cancel();
     _hubPosition = const Offset(0.95, 0.5);
     _hubScale = 1.0;
     _hubOpacity = 0.7;
@@ -419,8 +552,21 @@ class OverlayController extends ChangeNotifier {
     _browserOpen = false;
     _browserWindowRect = const Rect.fromLTWH(200, 100, 600, 500);
     _toolWindows.clear();
+    _autoReopenWindows = true;
     notifyListeners();
     _scheduleSave();
+  }
+
+  /// Cancel any pending save operations.
+  void cancelPendingSave() {
+    _saveTimer?.cancel();
+    _saveTimer = null;
+  }
+
+  @override
+  void dispose() {
+    _saveTimer?.cancel();
+    super.dispose();
   }
 }
 

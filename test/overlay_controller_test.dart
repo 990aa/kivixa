@@ -262,14 +262,8 @@ void main() {
         controller.openBrowser();
         controller.openToolWindow('test');
 
-        // Reset manually (to avoid SharedPreferences in unit tests)
-        controller.updateHubPosition(const Offset(0.95, 0.5));
-        controller.setHubScale(1.0);
-        controller.setHubOpacity(0.7);
-        if (controller.hubMenuExpanded) controller.toggleHubMenu();
-        if (controller.assistantOpen) controller.closeAssistant();
-        if (controller.browserOpen) controller.closeBrowser();
-        controller.closeToolWindow('test');
+        // Reset
+        controller.reset();
 
         // Allow debounced save to complete
         await Future.delayed(const Duration(milliseconds: 600));
@@ -283,6 +277,95 @@ void main() {
         expect(controller.assistantOpen, false);
         expect(controller.browserOpen, false);
         expect(controller.isToolWindowOpen('test'), false);
+        expect(controller.autoReopenWindows, true);
+      });
+    });
+
+    group('Tool Registration', () {
+      test('registerDefaultTools adds AI, browser, and knowledge graph', () {
+        controller.registerDefaultTools();
+        final tools = controller.registeredTools;
+
+        expect(tools.length, 3);
+        expect(tools.any((t) => t.id == 'assistant'), true);
+        expect(tools.any((t) => t.id == 'browser'), true);
+        expect(tools.any((t) => t.id == 'knowledge_graph'), true);
+      });
+
+      test('registerTool adds custom tools', () {
+        controller.registerTool(
+          OverlayTool(
+            id: 'custom_tool',
+            icon: Icons.star,
+            label: 'Custom Tool',
+            onTap: () {},
+          ),
+        );
+
+        expect(
+          controller.registeredTools.any((t) => t.id == 'custom_tool'),
+          true,
+        );
+      });
+
+      test('unregisterTool removes tools', () {
+        controller.registerDefaultTools();
+        expect(
+          controller.registeredTools.any((t) => t.id == 'assistant'),
+          true,
+        );
+
+        controller.unregisterTool('assistant');
+        expect(
+          controller.registeredTools.any((t) => t.id == 'assistant'),
+          false,
+        );
+      });
+
+      test('tool isActive callback works correctly', () {
+        controller.registerDefaultTools();
+        final assistantTool = controller.registeredTools.firstWhere(
+          (t) => t.id == 'assistant',
+        );
+
+        expect(assistantTool.active, false);
+        controller.openAssistant();
+        expect(assistantTool.active, true);
+      });
+    });
+
+    group('Auto-Reopen Windows', () {
+      test('autoReopenWindows defaults to true', () {
+        expect(controller.autoReopenWindows, true);
+      });
+
+      test('setAutoReopenWindows updates the setting', () {
+        controller.setAutoReopenWindows(false);
+        expect(controller.autoReopenWindows, false);
+
+        controller.setAutoReopenWindows(true);
+        expect(controller.autoReopenWindows, true);
+      });
+    });
+
+    group('Debounced Save', () {
+      test('cancelPendingSave cancels scheduled saves', () async {
+        // Make a change that schedules a save
+        controller.updateHubPosition(const Offset(0.5, 0.5));
+
+        // Cancel the pending save
+        controller.cancelPendingSave();
+
+        // Wait for potential save
+        await Future.delayed(const Duration(milliseconds: 600));
+
+        // No exception means success (testMode prevents actual save)
+      });
+
+      test('forceSave completes immediately', () async {
+        controller.updateHubPosition(const Offset(0.5, 0.5));
+        await controller.forceSave();
+        // Should complete without delay
       });
     });
 
