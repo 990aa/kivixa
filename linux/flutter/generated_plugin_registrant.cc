@@ -11,6 +11,7 @@
 #include <flutter_secure_storage_linux/flutter_secure_storage_linux_plugin.h>
 #include <gtk/gtk_plugin.h>
 #include <irondash_engine_context/irondash_engine_context_plugin.h>
+#include <objectbox_flutter_libs/objectbox_flutter_libs_plugin.h>
 #include <open_file_linux/open_file_linux_plugin.h>
 #include <printing/printing_plugin.h>
 #include <screen_retriever_linux/screen_retriever_linux_plugin.h>
@@ -36,6 +37,9 @@ void fl_register_plugins(FlPluginRegistry* registry) {
   g_autoptr(FlPluginRegistrar) irondash_engine_context_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "IrondashEngineContextPlugin");
   irondash_engine_context_plugin_register_with_registrar(irondash_engine_context_registrar);
+  g_autoptr(FlPluginRegistrar) objectbox_flutter_libs_registrar =
+      fl_plugin_registry_get_registrar_for_plugin(registry, "ObjectboxFlutterLibsPlugin");
+  objectbox_flutter_libs_plugin_register_with_registrar(objectbox_flutter_libs_registrar);
   g_autoptr(FlPluginRegistrar) open_file_linux_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "OpenFileLinuxPlugin");
   open_file_linux_plugin_register_with_registrar(open_file_linux_registrar);

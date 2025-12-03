@@ -106,7 +106,11 @@ pub fn find_similar(
         .collect();
 
     // Sort by score descending
-    results.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    results.sort_by(|a, b| {
+        b.score
+            .partial_cmp(&a.score)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
 
     // Take top-k
     results.truncate(top_k);
@@ -138,10 +142,7 @@ pub fn semantic_search(
 /// Cluster embeddings by similarity
 ///
 /// Simple clustering: group embeddings that are above threshold similarity
-pub fn cluster_embeddings(
-    entries: &[EmbeddingEntry],
-    threshold: f32,
-) -> Vec<Vec<String>> {
+pub fn cluster_embeddings(entries: &[EmbeddingEntry], threshold: f32) -> Vec<Vec<String>> {
     let n = entries.len();
     let mut visited = vec![false; n];
     let mut clusters = Vec::new();

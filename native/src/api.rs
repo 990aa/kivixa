@@ -9,6 +9,7 @@ use flutter_rust_bridge::frb;
 use crate::embeddings::{self, EmbeddingEntry, SimilarityResult};
 use crate::graph::{self, GraphEdge, GraphNode, GraphState};
 use crate::inference::{self, InferenceConfig};
+use crate::streaming::{self, NodePosition, ViewportUpdate};
 
 // ============================================================================
 // Initialization
@@ -244,4 +245,109 @@ pub fn health_check() -> String {
 #[frb(sync)]
 pub fn get_version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
+}
+
+// ============================================================================
+// Streaming Graph (60fps viewport-culled simulation)
+// ============================================================================
+
+/// Start the graph streaming simulation
+/// This runs physics simulation at 60fps and streams visible nodes
+#[frb]
+pub fn start_graph_stream() -> Result<()> {
+    streaming::start_stream()
+}
+
+/// Stop the graph streaming simulation
+#[frb(sync)]
+pub fn stop_graph_stream() {
+    streaming::stop_stream()
+}
+
+/// Check if the graph stream is currently running
+#[frb(sync)]
+pub fn is_graph_stream_running() -> bool {
+    streaming::is_stream_running()
+}
+
+/// Update the viewport for culling
+/// Only nodes within the viewport will be sent to Flutter
+#[frb]
+pub fn update_graph_viewport(x: f32, y: f32, width: f32, height: f32, scale: f32) -> Result<()> {
+    streaming::update_viewport(ViewportUpdate {
+        x,
+        y,
+        width,
+        height,
+        scale,
+    })
+}
+
+/// Get visible nodes within the current viewport
+/// Returns positions for nodes that should be rendered
+#[frb]
+pub fn get_visible_graph_nodes() -> Vec<NodePosition> {
+    streaming::get_visible_nodes()
+}
+
+/// Add a node to the streaming graph
+#[frb]
+pub fn add_stream_node(id: String, x: f32, y: f32, radius: f32, color: u32) -> Result<()> {
+    streaming::add_node(id, x, y, radius, color)
+}
+
+/// Remove a node from the streaming graph
+#[frb]
+pub fn remove_stream_node(id: String) -> Result<()> {
+    streaming::remove_node(id)
+}
+
+/// Add an edge to the streaming graph
+#[frb]
+pub fn add_stream_edge(from_id: String, to_id: String, strength: f32) -> Result<()> {
+    streaming::add_edge(from_id, to_id, strength)
+}
+
+/// Remove an edge from the streaming graph
+#[frb]
+pub fn remove_stream_edge(from_id: String, to_id: String) -> Result<()> {
+    streaming::remove_edge(from_id, to_id)
+}
+
+/// Pin a node at its current position (stops physics for that node)
+#[frb]
+pub fn pin_stream_node(id: String, pinned: bool) -> Result<()> {
+    streaming::pin_node(id, pinned)
+}
+
+/// Set node position (for dragging)
+#[frb]
+pub fn set_stream_node_position(id: String, x: f32, y: f32) -> Result<()> {
+    streaming::set_node_position(id, x, y)
+}
+
+/// Clear all nodes and edges from the streaming graph
+#[frb(sync)]
+pub fn clear_stream_graph() {
+    streaming::clear_graph()
+}
+
+/// Get stats about the streaming graph
+#[frb(sync)]
+pub fn get_stream_graph_stats() -> StreamGraphStats {
+    let (node_count, edge_count, visible_count) = streaming::get_stats();
+    StreamGraphStats {
+        node_count,
+        edge_count,
+        visible_count,
+    }
+}
+
+/// Statistics about the streaming graph
+#[derive(Debug, Clone)]
+#[frb]
+pub struct StreamGraphStats {
+    pub node_count: usize,
+    pub edge_count: usize,
+    pub visible_count: usize,
 }

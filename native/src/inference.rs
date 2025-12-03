@@ -80,7 +80,10 @@ pub fn init_phi4(model_path: String, config: Option<InferenceConfig>) -> Result<
     let model = LlamaModel::load_from_file(&backend, Path::new(&model_path), &model_params)
         .map_err(|e| anyhow!("Failed to load model: {:?}", e))?;
 
-    log::info!("Model loaded successfully. Vocabulary size: {}", model.n_vocab());
+    log::info!(
+        "Model loaded successfully. Vocabulary size: {}",
+        model.n_vocab()
+    );
 
     // Store state globally
     *AI_STATE.lock() = Some(Arc::new(ModelState {
@@ -331,8 +334,13 @@ pub fn extract_topics(text: String, num_topics: Option<u32>) -> Result<Vec<Strin
     let response = chat_completion(messages, Some(100))?;
 
     // Parse JSON response
-    let topics: Vec<String> = serde_json::from_str(&response.trim())
-        .map_err(|e| anyhow!("Failed to parse topics JSON: {}. Response was: {}", e, response))?;
+    let topics: Vec<String> = serde_json::from_str(&response.trim()).map_err(|e| {
+        anyhow!(
+            "Failed to parse topics JSON: {}. Response was: {}",
+            e,
+            response
+        )
+    })?;
 
     Ok(topics)
 }

@@ -88,6 +88,8 @@ dependencies:
   highlight: ^0.7.0
   highlighter: ^0.1.1
   lua_dardo: ^0.0.5
+  objectbox: ^4.0.3
+  objectbox_flutter_libs: ^4.0.3
 
 dependency_overrides:
   flutter_local_notifications_windows:
@@ -106,6 +108,8 @@ dev_dependencies:
   golden_screenshot: ^8.1.0
   path_provider_platform_interface: ^2.0.0
   plugin_platform_interface: ^2.0.0
+  objectbox_generator: ^4.0.3
+  build_runner: ^2.4.0
 
 flutter:
   uses-material-design: true

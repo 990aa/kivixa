@@ -8,6 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_secure_storage_linux
   gtk
   irondash_engine_context
+  objectbox_flutter_libs
   open_file_linux
   printing
   screen_retriever_linux

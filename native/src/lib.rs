@@ -4,10 +4,14 @@
 //! - Phi-4 inference engine with llama.cpp
 //! - Knowledge graph with force-directed layout
 //! - Vector embeddings for semantic search
+//! - Quadtree spatial indexing for viewport culling
+//! - Streaming graph simulation at 60fps
 
 pub mod api;
-pub mod inference;
-pub mod graph;
 pub mod embeddings;
+pub mod graph;
+pub mod inference;
+pub mod quadtree;
+pub mod streaming;
 
 pub use api::*;
