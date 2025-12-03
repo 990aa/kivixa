@@ -198,8 +198,15 @@ class ExplicitlyThemedApp extends StatelessWidget {
       highContrastDarkTheme: highContrastDarkTheme,
       debugShowCheckedModeBanner: false,
       builder: (context, child) {
-        // Wrap the app content with the global overlay system
-        return GlobalOverlay(child: child ?? const SizedBox.shrink());
+        // Wrap the app content with Overlay (for Tooltip support) and global overlay system
+        return Overlay(
+          initialEntries: [
+            OverlayEntry(
+              builder: (context) =>
+                  GlobalOverlay(child: child ?? const SizedBox.shrink()),
+            ),
+          ],
+        );
       },
     );
   }

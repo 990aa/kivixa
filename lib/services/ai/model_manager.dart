@@ -167,7 +167,8 @@ class ModelManager {
       StreamController<ModelDownloadProgress>.broadcast();
 
   /// Stream of download progress updates
-  Stream<ModelDownloadProgress> get progressStream => _progressController.stream;
+  Stream<ModelDownloadProgress> get progressStream =>
+      _progressController.stream;
 
   /// Current download state
   var _currentProgress = const ModelDownloadProgress(
@@ -210,10 +211,12 @@ class ModelManager {
     // Check if model is already downloaded
     final isDownloaded = await isModelDownloaded();
     if (isDownloaded) {
-      _updateProgress(const ModelDownloadProgress(
-        state: ModelDownloadState.completed,
-        progress: 1.0,
-      ));
+      _updateProgress(
+        const ModelDownloadProgress(
+          state: ModelDownloadState.completed,
+          progress: 1.0,
+        ),
+      );
     }
 
     // Listen for background download updates
@@ -222,10 +225,20 @@ class ModelManager {
     _isInitialized = true;
   }
 
-  /// Returns the directory where models are stored
+  /// Returns the directory where models are stored.
+  /// On Android: /storage/emulated/0/Android/data/com.kivixa.app/files/kivixa/models
+  /// On Windows/macOS/Linux: Application support directory/kivixa/models
   Future<Directory> getModelsDirectory() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final modelsDir = Directory('${dir.path}/models');
+    Directory baseDir;
+    if (Platform.isAndroid) {
+      // Use external storage on Android for easier access
+      final externalDir = await getExternalStorageDirectory();
+      baseDir = externalDir ?? await getApplicationSupportDirectory();
+    } else {
+      // Use application support directory on desktop
+      baseDir = await getApplicationSupportDirectory();
+    }
+    final modelsDir = Directory('${baseDir.path}/kivixa/models');
     if (!await modelsDir.exists()) {
       await modelsDir.create(recursive: true);
     }
@@ -268,10 +281,12 @@ class ModelManager {
 
     // Check if already downloaded
     if (await isModelDownloaded(model)) {
-      _updateProgress(const ModelDownloadProgress(
-        state: ModelDownloadState.completed,
-        progress: 1.0,
-      ));
+      _updateProgress(
+        const ModelDownloadProgress(
+          state: ModelDownloadState.completed,
+          progress: 1.0,
+        ),
+      );
       return;
     }
 
@@ -282,9 +297,9 @@ class ModelManager {
       debugPrint('Failed to enable wakelock: $e');
     }
 
-    _updateProgress(const ModelDownloadProgress(
-      state: ModelDownloadState.queued,
-    ));
+    _updateProgress(
+      const ModelDownloadProgress(state: ModelDownloadState.queued),
+    );
 
     // Create download task with resume support
     _activeTask = DownloadTask(
@@ -301,10 +316,12 @@ class ModelManager {
     // Enqueue the download (handles resume automatically)
     final result = await FileDownloader().enqueue(_activeTask!);
     if (!result) {
-      _updateProgress(const ModelDownloadProgress(
-        state: ModelDownloadState.failed,
-        errorMessage: 'Failed to start download',
-      ));
+      _updateProgress(
+        const ModelDownloadProgress(
+          state: ModelDownloadState.failed,
+          errorMessage: 'Failed to start download',
+        ),
+      );
       await _disableWakelock();
     }
   }
@@ -313,9 +330,9 @@ class ModelManager {
   Future<void> pauseDownload() async {
     if (_activeTask != null) {
       await FileDownloader().pause(_activeTask!);
-      _updateProgress(_currentProgress.copyWith(
-        state: ModelDownloadState.paused,
-      ));
+      _updateProgress(
+        _currentProgress.copyWith(state: ModelDownloadState.paused),
+      );
     }
   }
 
@@ -324,9 +341,9 @@ class ModelManager {
     if (_activeTask != null) {
       final resumed = await FileDownloader().resume(_activeTask!);
       if (resumed) {
-        _updateProgress(_currentProgress.copyWith(
-          state: ModelDownloadState.downloading,
-        ));
+        _updateProgress(
+          _currentProgress.copyWith(state: ModelDownloadState.downloading),
+        );
       }
     } else {
       // If no active task, start a new download
@@ -339,9 +356,9 @@ class ModelManager {
     if (_activeTask != null) {
       await FileDownloader().cancelTaskWithId(_activeTask!.taskId);
       _activeTask = null;
-      _updateProgress(const ModelDownloadProgress(
-        state: ModelDownloadState.notDownloaded,
-      ));
+      _updateProgress(
+        const ModelDownloadProgress(state: ModelDownloadState.notDownloaded),
+      );
       await _disableWakelock();
     }
   }
@@ -354,9 +371,9 @@ class ModelManager {
     if (await file.exists()) {
       await file.delete();
     }
-    _updateProgress(const ModelDownloadProgress(
-      state: ModelDownloadState.notDownloaded,
-    ));
+    _updateProgress(
+      const ModelDownloadProgress(state: ModelDownloadState.notDownloaded),
+    );
   }
 
   /// Handles updates from the background downloader
@@ -371,42 +388,48 @@ class ModelManager {
   void _handleStatusUpdate(TaskStatusUpdate update) {
     switch (update.status) {
       case TaskStatus.enqueued:
-        _updateProgress(_currentProgress.copyWith(
-          state: ModelDownloadState.queued,
-        ));
+        _updateProgress(
+          _currentProgress.copyWith(state: ModelDownloadState.queued),
+        );
       case TaskStatus.running:
-        _updateProgress(_currentProgress.copyWith(
-          state: ModelDownloadState.downloading,
-        ));
+        _updateProgress(
+          _currentProgress.copyWith(state: ModelDownloadState.downloading),
+        );
       case TaskStatus.paused:
-        _updateProgress(_currentProgress.copyWith(
-          state: ModelDownloadState.paused,
-        ));
+        _updateProgress(
+          _currentProgress.copyWith(state: ModelDownloadState.paused),
+        );
       case TaskStatus.complete:
-        _updateProgress(const ModelDownloadProgress(
-          state: ModelDownloadState.completed,
-          progress: 1.0,
-        ));
+        _updateProgress(
+          const ModelDownloadProgress(
+            state: ModelDownloadState.completed,
+            progress: 1.0,
+          ),
+        );
         _activeTask = null;
         _disableWakelock();
       case TaskStatus.failed:
-        _updateProgress(ModelDownloadProgress(
-          state: ModelDownloadState.failed,
-          errorMessage: update.exception?.description ?? 'Download failed',
-        ));
+        _updateProgress(
+          ModelDownloadProgress(
+            state: ModelDownloadState.failed,
+            errorMessage: update.exception?.description ?? 'Download failed',
+          ),
+        );
         _activeTask = null;
         _disableWakelock();
       case TaskStatus.canceled:
-        _updateProgress(const ModelDownloadProgress(
-          state: ModelDownloadState.notDownloaded,
-        ));
+        _updateProgress(
+          const ModelDownloadProgress(state: ModelDownloadState.notDownloaded),
+        );
         _activeTask = null;
         _disableWakelock();
       case TaskStatus.notFound:
-        _updateProgress(const ModelDownloadProgress(
-          state: ModelDownloadState.failed,
-          errorMessage: 'Model file not found on server',
-        ));
+        _updateProgress(
+          const ModelDownloadProgress(
+            state: ModelDownloadState.failed,
+            errorMessage: 'Model file not found on server',
+          ),
+        );
         _activeTask = null;
         _disableWakelock();
       case TaskStatus.waitingToRetry:
@@ -428,13 +451,15 @@ class ModelManager {
     final downloadedBytes = (progress * model.sizeBytes).round();
     final networkSpeed = update.networkSpeed; // bytes per second
 
-    _updateProgress(ModelDownloadProgress(
-      state: ModelDownloadState.downloading,
-      progress: progress,
-      downloadedBytes: downloadedBytes,
-      totalBytes: model.sizeBytes,
-      networkSpeed: networkSpeed,
-    ));
+    _updateProgress(
+      ModelDownloadProgress(
+        state: ModelDownloadState.downloading,
+        progress: progress,
+        downloadedBytes: downloadedBytes,
+        totalBytes: model.sizeBytes,
+        networkSpeed: networkSpeed,
+      ),
+    );
   }
 
   void _updateProgress(ModelDownloadProgress progress) {
