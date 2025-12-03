@@ -78,12 +78,12 @@ class GraphState {
 
 /// Knowledge Graph Service singleton
 class KnowledgeGraphService {
-  static final KnowledgeGraphService _instance =
+  static final _instance =
       KnowledgeGraphService._internal();
   factory KnowledgeGraphService() => _instance;
   KnowledgeGraphService._internal();
 
-  bool _isInitialized = false;
+  var _isInitialized = false;
 
   final _stateController = StreamController<GraphState>.broadcast();
 
@@ -91,7 +91,7 @@ class KnowledgeGraphService {
   Stream<GraphState> get stateStream => _stateController.stream;
 
   /// Current graph state (cached)
-  GraphState _currentState = GraphState.empty();
+  var _currentState = GraphState.empty();
   GraphState get currentState => _currentState;
 
   /// Whether the service is initialized

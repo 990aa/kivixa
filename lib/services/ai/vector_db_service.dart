@@ -66,17 +66,17 @@ class SearchResult {
 
 /// Vector Database Service singleton
 class VectorDBService {
-  static final VectorDBService _instance = VectorDBService._internal();
+  static final _instance = VectorDBService._internal();
   factory VectorDBService() => _instance;
   VectorDBService._internal();
 
-  final InferenceService _inference = InferenceService();
+  final _inference = InferenceService();
 
-  bool _isInitialized = false;
+  var _isInitialized = false;
   final Map<String, NoteEmbedding> _embeddings = {};
 
   /// Embedding dimension (from the model)
-  int _dimension = 3072; // Phi-4 default, will be updated when model loads
+  var _dimension = 3072; // Phi-4 default, will be updated when model loads
 
   /// Whether the service is initialized
   bool get isInitialized => _isInitialized;

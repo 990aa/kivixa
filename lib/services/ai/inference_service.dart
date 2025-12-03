@@ -58,12 +58,12 @@ class ChatMessage {
 
 /// AI Inference Service singleton
 class InferenceService {
-  static final InferenceService _instance = InferenceService._internal();
+  static final _instance = InferenceService._internal();
   factory InferenceService() => _instance;
   InferenceService._internal();
 
-  bool _isInitialized = false;
-  bool _isModelLoaded = false;
+  var _isInitialized = false;
+  var _isModelLoaded = false;
   int? _embeddingDimension;
 
   /// Whether the service is initialized

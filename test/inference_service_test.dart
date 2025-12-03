@@ -51,7 +51,7 @@ void main() {
     });
 
     test('should convert to tuple', () {
-      final msg = ChatMessage(role: 'user', content: 'Test');
+      const msg = ChatMessage(role: 'user', content: 'Test');
       final tuple = msg.toTuple();
       expect(tuple.$1, 'user');
       expect(tuple.$2, 'Test');
