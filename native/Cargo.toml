@@ -11,13 +11,14 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 # Flutter Rust Bridge for Dart interop
-flutter_rust_bridge = "2.0.0"
+flutter_rust_bridge = "=2.11.1"
 
 # Error handling
 anyhow = "1.0"
 
 # Llama.cpp bindings for Phi-4 inference
-llama-cpp-2 = "0.1.79"
+# Default: CPU mode (no GPU features) - safe for all platforms
+llama-cpp-2 = { version = "0.1.79", default-features = false }
 
 # Force-directed graph simulation for knowledge graph
 fdg-sim = "0.9"
@@ -39,20 +40,21 @@ once_cell = "1.19"
 # Async runtime (for streaming responses)
 tokio = { version = "1", features = ["rt-multi-thread", "sync"] }
 
+# ============================================================================
+# Platform-Specific GPU Backends (Hybrid Performance Strategy)
+# ============================================================================
+
+# Windows/Linux: CPU mode only (AVX2 auto-detected, no SDK required)
+# llama.cpp is highly optimized for CPUs - 10-15 tokens/sec on modern CPUs
+[target.'cfg(any(target_os = "windows", target_os = "linux"))'.dependencies]
+llama-cpp-sys-2 = { version = "0.1.79", default-features = false }
+
+# Android: Vulkan for GPU acceleration (NDK includes Vulkan headers)
 [target.'cfg(target_os = "android")'.dependencies]
-# Android-specific: Use Vulkan for GPU acceleration
 llama-cpp-sys-2 = { version = "0.1.79", features = ["vulkan"] }
 
-[target.'cfg(target_os = "windows")'.dependencies]
-# Windows: CUDA for NVIDIA GPUs, Vulkan as fallback
-llama-cpp-sys-2 = { version = "0.1.79", features = ["vulkan"] }
-
-[target.'cfg(target_os = "linux")'.dependencies]
-# Linux: Vulkan for broad compatibility
-llama-cpp-sys-2 = { version = "0.1.79", features = ["vulkan"] }
-
-[target.'cfg(target_os = "macos")'.dependencies]
-# macOS: Metal for Apple Silicon
+# macOS/iOS: Metal for Apple Silicon GPU acceleration
+[target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
 llama-cpp-sys-2 = { version = "0.1.79", features = ["metal"] }
 
 [build-dependencies]

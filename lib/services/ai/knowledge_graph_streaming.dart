@@ -2,11 +2,6 @@
 //
 // Bridges Rust streaming graph simulation to Flutter.
 // Polls visible nodes at 60fps and updates the CustomPainter.
-//
-// Setup:
-// 1. Build Rust: cd native && cargo build --release
-// 2. Generate bindings: flutter_rust_bridge_codegen generate
-// 3. Uncomment the native.* calls below
 
 import 'dart:async';
 
@@ -14,11 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:kivixa/components/ai/knowledge_graph_painter.dart';
 
 // Flutter Rust Bridge generated imports
-// Uncomment after running: flutter_rust_bridge_codegen generate
-// import 'package:kivixa/src/rust/api/api.dart' as native;
+import 'package:kivixa/src/rust/api.dart' as native;
+import 'package:kivixa/src/rust/streaming.dart' show NodePosition;
 
 /// Whether Flutter Rust Bridge bindings are available
-const kRustBridgeAvailable = false;
+const kRustBridgeAvailable = true;
 
 /// Service for managing the knowledge graph streaming simulation
 class KnowledgeGraphStreamingService {
@@ -69,7 +64,7 @@ class KnowledgeGraphStreamingService {
 
     try {
       // Start Rust simulation
-      // TODO: Call native.startGraphStream() when flutter_rust_bridge is set up
+      await native.startGraphStream();
       debugPrint('[KnowledgeGraph] Starting streaming simulation');
 
       // Start polling for visible nodes at 60fps
@@ -93,7 +88,7 @@ class KnowledgeGraphStreamingService {
 
     try {
       // Stop Rust simulation
-      // TODO: Call native.stopGraphStream() when flutter_rust_bridge is set up
+      native.stopGraphStream();
       debugPrint('[KnowledgeGraph] Stopped streaming simulation');
     } catch (e) {
       debugPrint('[KnowledgeGraph] Error stopping stream: $e');
@@ -116,7 +111,13 @@ class KnowledgeGraphStreamingService {
 
     try {
       // Update Rust viewport
-      // TODO: Call native.updateGraphViewport(x, y, width, height, scale)
+      await native.updateGraphViewport(
+        x: x,
+        y: y,
+        width: width,
+        height: height,
+        scale: scale,
+      );
     } catch (e) {
       debugPrint('[KnowledgeGraph] Failed to update viewport: $e');
     }
@@ -131,7 +132,13 @@ class KnowledgeGraphStreamingService {
     int color = 0xFF2196F3,
   }) async {
     try {
-      // TODO: Call native.addStreamNode(id, x, y, radius, color)
+      await native.addStreamNode(
+        id: id,
+        x: x,
+        y: y,
+        radius: radius,
+        color: color,
+      );
       debugPrint('[KnowledgeGraph] Added node: $id');
     } catch (e) {
       debugPrint('[KnowledgeGraph] Failed to add node: $e');
@@ -142,7 +149,7 @@ class KnowledgeGraphStreamingService {
   /// Remove a node from the graph
   Future<void> removeNode(String id) async {
     try {
-      // TODO: Call native.removeStreamNode(id)
+      await native.removeStreamNode(id: id);
       debugPrint('[KnowledgeGraph] Removed node: $id');
     } catch (e) {
       debugPrint('[KnowledgeGraph] Failed to remove node: $e');
@@ -157,7 +164,11 @@ class KnowledgeGraphStreamingService {
     double strength = 1.0,
   }) async {
     try {
-      // TODO: Call native.addStreamEdge(fromId, toId, strength)
+      await native.addStreamEdge(
+        fromId: fromId,
+        toId: toId,
+        strength: strength,
+      );
       debugPrint('[KnowledgeGraph] Added edge: $fromId -> $toId');
     } catch (e) {
       debugPrint('[KnowledgeGraph] Failed to add edge: $e');
@@ -168,7 +179,7 @@ class KnowledgeGraphStreamingService {
   /// Remove an edge between two nodes
   Future<void> removeEdge(String fromId, String toId) async {
     try {
-      // TODO: Call native.removeStreamEdge(fromId, toId)
+      await native.removeStreamEdge(fromId: fromId, toId: toId);
       debugPrint('[KnowledgeGraph] Removed edge: $fromId -> $toId');
     } catch (e) {
       debugPrint('[KnowledgeGraph] Failed to remove edge: $e');
@@ -179,7 +190,7 @@ class KnowledgeGraphStreamingService {
   /// Pin a node at its current position
   Future<void> pinNode(String id, bool pinned) async {
     try {
-      // TODO: Call native.pinStreamNode(id, pinned)
+      await native.pinStreamNode(id: id, pinned: pinned);
       debugPrint(
         '[KnowledgeGraph] ${pinned ? 'Pinned' : 'Unpinned'} node: $id',
       );
@@ -192,7 +203,7 @@ class KnowledgeGraphStreamingService {
   /// Set node position (for dragging)
   Future<void> setNodePosition(String id, double x, double y) async {
     try {
-      // TODO: Call native.setStreamNodePosition(id, x, y)
+      await native.setStreamNodePosition(id: id, x: x, y: y);
     } catch (e) {
       debugPrint('[KnowledgeGraph] Failed to set node position: $e');
       rethrow;
@@ -202,7 +213,7 @@ class KnowledgeGraphStreamingService {
   /// Clear all nodes and edges
   Future<void> clearGraph() async {
     try {
-      // TODO: Call native.clearStreamGraph()
+      native.clearStreamGraph();
       debugPrint('[KnowledgeGraph] Cleared graph');
     } catch (e) {
       debugPrint('[KnowledgeGraph] Failed to clear graph: $e');
@@ -213,11 +224,11 @@ class KnowledgeGraphStreamingService {
   /// Get graph statistics
   Future<GraphStats> getStats() async {
     try {
-      // TODO: Call native.getStreamGraphStats()
+      final stats = native.getStreamGraphStats();
       return GraphStats(
-        nodeCount: 0,
-        edgeCount: 0,
-        visibleCount: 0,
+        nodeCount: stats.nodeCount.toInt(),
+        edgeCount: stats.edgeCount.toInt(),
+        visibleCount: stats.visibleCount.toInt(),
         fps: _currentFps,
       );
     } catch (e) {
@@ -231,15 +242,28 @@ class KnowledgeGraphStreamingService {
     }
   }
 
-  void _pollVisibleNodes(Timer timer) {
+  void _pollVisibleNodes(Timer timer) async {
     try {
-      // TODO: Get visible nodes from Rust
-      // final nodes = native.getVisibleGraphNodes();
+      // Get visible nodes from Rust
+      final List<NodePosition> nodes = await native.getVisibleGraphNodes();
 
-      // For now, create an empty frame (will be populated when Rust bridge is ready)
+      // Convert NodePosition to GraphNodePosition
+      final graphNodes = nodes
+          .map(
+            (pos) => GraphNodePosition(
+              id: pos.id,
+              x: pos.x,
+              y: pos.y,
+              color: Color(pos.color),
+              radius: pos.radius,
+              nodeType: pos.nodeType,
+            ),
+          )
+          .toList();
+
       final frame = GraphFrame(
-        nodes: [],
-        edges: [],
+        nodes: graphNodes,
+        edges: [], // Edges are computed from node connections
         frameNumber: _frameCount,
         isRunning: true,
       );

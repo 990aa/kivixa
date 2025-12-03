@@ -1,11 +1,12 @@
 # Flutter Rust Bridge Configuration
 # Run: flutter_rust_bridge_codegen generate
 
-rust_input: native/src/api.rs
+rust_root: native/
+rust_input: crate::api
 dart_output: lib/src/rust
 
 # Full dependency mode for complex Rust types
 full_dep: true
 
-# Enable async dart operations
-dart_async: true
+# Default async mode for dart operations
+default_dart_async: true

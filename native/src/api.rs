@@ -27,7 +27,7 @@ pub fn init_model_with_config(
     model_path: String,
     n_gpu_layers: u32,
     n_ctx: u32,
-    n_threads: u32,
+    n_threads: i32,
     temperature: f32,
     top_p: f32,
     max_tokens: u32,
@@ -123,10 +123,21 @@ pub fn semantic_search(
     embeddings::semantic_search(query_text, &entries, top_k)
 }
 
+/// A cluster of embedding IDs
+#[derive(Debug, Clone)]
+#[frb]
+pub struct EmbeddingCluster {
+    /// IDs of embeddings in this cluster
+    pub ids: Vec<String>,
+}
+
 /// Cluster embeddings by similarity
 #[frb]
-pub fn cluster_embeddings(entries: Vec<EmbeddingEntry>, threshold: f32) -> Vec<Vec<String>> {
+pub fn cluster_embeddings(entries: Vec<EmbeddingEntry>, threshold: f32) -> Vec<EmbeddingCluster> {
     embeddings::cluster_embeddings(&entries, threshold)
+        .into_iter()
+        .map(|ids| EmbeddingCluster { ids })
+        .collect()
 }
 
 /// Compute cosine similarity between two vectors

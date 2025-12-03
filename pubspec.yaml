@@ -112,6 +112,7 @@ dev_dependencies:
   plugin_platform_interface: ^2.0.0
   objectbox_generator: ^5.0.3
   build_runner: ^2.4.13
+  ffigen: ^20.1.1
 
 flutter:
   uses-material-design: true

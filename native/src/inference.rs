@@ -24,7 +24,7 @@ pub struct InferenceConfig {
     /// Context size (tokens)
     pub n_ctx: u32,
     /// Number of CPU threads for processing
-    pub n_threads: u32,
+    pub n_threads: i32,
     /// Temperature for sampling (0.0 = deterministic, 1.0 = creative)
     pub temperature: f32,
     /// Top-p sampling (nucleus sampling)
@@ -161,16 +161,20 @@ pub fn generate_text(prompt: String, max_tokens: Option<u32>) -> Result<String> 
     let mut output_tokens = Vec::new();
     let mut n_cur = tokens.len();
 
+    // Use a simple random seed for sampling
+    let mut rng_seed: u32 = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs() as u32;
+
     for _ in 0..max_tokens {
         // Sample next token
         let candidates = ctx.candidates_ith(batch.n_tokens() - 1);
         let mut candidates_array = LlamaTokenDataArray::from_iter(candidates, false);
 
-        // Apply temperature and top-p sampling
-        candidates_array.sample_temp(Some(&mut ctx), state.config.temperature);
-        candidates_array.sample_top_p(Some(&mut ctx), state.config.top_p, 1);
-
-        let new_token = candidates_array.sample_token(&mut ctx);
+        // Sample with random seed
+        rng_seed = rng_seed.wrapping_mul(1103515245).wrapping_add(12345);
+        let new_token = candidates_array.sample_token(rng_seed);
 
         // Check for end of generation
         if state.model.is_eog_token(new_token) {

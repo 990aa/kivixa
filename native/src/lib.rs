@@ -7,6 +7,8 @@
 //! - Quadtree spatial indexing for viewport culling
 //! - Streaming graph simulation at 60fps
 
+mod frb_generated;
+
 pub mod api;
 pub mod embeddings;
 pub mod graph;

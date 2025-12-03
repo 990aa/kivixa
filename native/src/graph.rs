@@ -7,7 +7,7 @@
 
 use anyhow::Result;
 use fdg_sim::petgraph::graph::{NodeIndex, UnGraph};
-use fdg_sim::petgraph::visit::EdgeRef;
+use fdg_sim::petgraph::visit::{EdgeRef, IntoEdgeReferences};
 use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
@@ -54,6 +54,7 @@ pub struct GraphState {
 }
 
 /// Internal graph representation
+#[derive(Clone)]
 struct InternalGraph {
     graph: ForceGraph<String, f32>,
     node_map: HashMap<String, NodeIndex>,
@@ -61,7 +62,7 @@ struct InternalGraph {
 }
 
 /// Global graph state
-static GRAPH_STATE: RwLock<Option<Arc<InternalGraph>>> = RwLock::new(None);
+static GRAPH_STATE: RwLock<Option<InternalGraph>> = RwLock::new(None);
 
 /// Initialize a new empty graph
 pub fn init_graph() {
@@ -70,7 +71,7 @@ pub fn init_graph() {
         node_map: HashMap::new(),
         nodes_data: HashMap::new(),
     };
-    *GRAPH_STATE.write() = Some(Arc::new(internal));
+    *GRAPH_STATE.write() = Some(internal);
     log::info!("Knowledge graph initialized");
 }
 
@@ -81,11 +82,8 @@ pub fn add_node(node: GraphNode) -> Result<()> {
         .as_mut()
         .ok_or_else(|| anyhow::anyhow!("Graph not initialized"))?;
 
-    // We need to clone and modify
-    let state = Arc::make_mut(state);
-
-    // Add to petgraph
-    let idx = state.graph.add_force_node(node.id.clone(), ());
+    // Add to petgraph with node.id as both name and data
+    let idx = state.graph.add_force_node(node.id.clone(), node.id.clone());
     state.node_map.insert(node.id.clone(), idx);
     state.nodes_data.insert(node.id.clone(), node);
 
@@ -107,8 +105,6 @@ pub fn remove_node(node_id: String) -> Result<()> {
         .as_mut()
         .ok_or_else(|| anyhow::anyhow!("Graph not initialized"))?;
 
-    let state = Arc::make_mut(state);
-
     if let Some(idx) = state.node_map.remove(&node_id) {
         state.graph.remove_node(idx);
         state.nodes_data.remove(&node_id);
@@ -123,8 +119,6 @@ pub fn add_edge(edge: GraphEdge) -> Result<()> {
     let state = guard
         .as_mut()
         .ok_or_else(|| anyhow::anyhow!("Graph not initialized"))?;
-
-    let state = Arc::make_mut(state);
 
     let source_idx = state
         .node_map
@@ -163,13 +157,12 @@ pub fn compute_layout(iterations: Option<u32>) -> Result<GraphState> {
         .as_mut()
         .ok_or_else(|| anyhow::anyhow!("Graph not initialized"))?;
 
-    let state = Arc::make_mut(state);
-
     // Configure simulation parameters
     let params = SimulationParameters::default();
 
-    // Create and run simulation
-    let mut simulation = Simulation::from_graph(&state.graph, params);
+    // Create and run simulation - clone the graph since Simulation takes ownership
+    let graph_clone = state.graph.clone();
+    let mut simulation = Simulation::from_graph(graph_clone, params);
 
     for _ in 0..iterations {
         simulation.update(0.016); // ~60fps timestep
@@ -180,7 +173,8 @@ pub fn compute_layout(iterations: Option<u32>) -> Result<GraphState> {
     let mut edges = Vec::new();
 
     for node_idx in state.graph.node_indices() {
-        let id = state.graph.node_weight(node_idx).unwrap();
+        let node = state.graph.node_weight(node_idx).unwrap();
+        let id = &node.name;
         let pos = simulation.get_graph().node_weight(node_idx).unwrap();
 
         if let Some(mut node_data) = state.nodes_data.get(id).cloned() {
@@ -195,12 +189,12 @@ pub fn compute_layout(iterations: Option<u32>) -> Result<GraphState> {
 
     // Collect edges
     for edge in state.graph.edge_references() {
-        let source_id = state.graph.node_weight(edge.source()).unwrap();
-        let target_id = state.graph.node_weight(edge.target()).unwrap();
+        let source_node = state.graph.node_weight(edge.source()).unwrap();
+        let target_node = state.graph.node_weight(edge.target()).unwrap();
 
         edges.push(GraphEdge {
-            source: source_id.clone(),
-            target: target_id.clone(),
+            source: source_node.name.clone(),
+            target: target_node.name.clone(),
             weight: *edge.weight(),
             edge_type: "link".to_string(),
         });
@@ -224,12 +218,12 @@ pub fn get_graph_state() -> Result<GraphState> {
     }
 
     for edge in state.graph.edge_references() {
-        let source_id = state.graph.node_weight(edge.source()).unwrap();
-        let target_id = state.graph.node_weight(edge.target()).unwrap();
+        let source_node = state.graph.node_weight(edge.source()).unwrap();
+        let target_node = state.graph.node_weight(edge.target()).unwrap();
 
         edges.push(GraphEdge {
-            source: source_id.clone(),
-            target: target_id.clone(),
+            source: source_node.name.clone(),
+            target: target_node.name.clone(),
             weight: *edge.weight(),
             edge_type: "link".to_string(),
         });

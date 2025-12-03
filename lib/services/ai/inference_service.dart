@@ -2,24 +2,17 @@
 //
 // Provides a high-level Dart API for AI model inference.
 // Uses flutter_rust_bridge to call the native Rust engine.
-//
-// Setup:
-// 1. Build Rust: cd native && cargo build --release
-// 2. Generate bindings: flutter_rust_bridge_codegen generate
-// 3. The imports below will work after step 2
 
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
 // Flutter Rust Bridge generated imports
-// Uncomment after running: flutter_rust_bridge_codegen generate
-// import 'package:kivixa/src/rust/api/api.dart' as native;
-// import 'package:kivixa/src/rust/frb_generated.dart';
+import 'package:kivixa/src/rust/api.dart' as native;
+import 'package:kivixa/src/rust/frb_generated.dart';
 
 /// Whether Flutter Rust Bridge bindings are available
-/// Set to true after running flutter_rust_bridge_codegen generate
-const kRustBridgeAvailable = false;
+const kRustBridgeAvailable = true;
 
 /// Configuration for inference operations
 class InferenceConfig {
@@ -90,7 +83,7 @@ class InferenceService {
     if (_isInitialized) return;
 
     // Initialize flutter_rust_bridge
-    // await RustLib.init();
+    await RustLib.init();
 
     _isInitialized = true;
     debugPrint('InferenceService initialized');
@@ -103,21 +96,21 @@ class InferenceService {
     config ??= const InferenceConfig();
 
     try {
-      // TODO: Uncomment when flutter_rust_bridge is set up
-      // await native.initModelWithConfig(
-      //   modelPath: modelPath,
-      //   nGpuLayers: config.nGpuLayers,
-      //   nCtx: config.nCtx,
-      //   nThreads: config.nThreads,
-      //   temperature: config.temperature,
-      //   topP: config.topP,
-      //   maxTokens: config.maxTokens,
-      // );
+      await native.initModelWithConfig(
+        modelPath: modelPath,
+        nGpuLayers: config.nGpuLayers,
+        nCtx: config.nCtx,
+        nThreads: config.nThreads,
+        temperature: config.temperature,
+        topP: config.topP,
+        maxTokens: config.maxTokens,
+      );
 
       _isModelLoaded = true;
 
       // Get embedding dimension
-      // _embeddingDimension = native.getEmbeddingDimension();
+      final dimension = native.getEmbeddingDimension();
+      _embeddingDimension = dimension.toInt();
 
       debugPrint('Model loaded from: $modelPath');
       debugPrint('Embedding dimension: $_embeddingDimension');
@@ -129,7 +122,7 @@ class InferenceService {
 
   /// Unload the model and free resources
   void unloadModel() {
-    // native.unloadModel();
+    native.unloadModel();
     _isModelLoaded = false;
     _embeddingDimension = null;
     debugPrint('Model unloaded');
@@ -139,42 +132,30 @@ class InferenceService {
   Future<String> generateText(String prompt, {int? maxTokens}) async {
     _ensureModelLoaded();
 
-    // return await native.generateText(prompt: prompt, maxTokens: maxTokens);
-    // Placeholder for now
-    return 'Generated text for: $prompt';
+    return await native.generateText(prompt: prompt, maxTokens: maxTokens);
   }
 
   /// Chat completion with conversation history
   Future<String> chat(List<ChatMessage> messages, {int? maxTokens}) async {
     _ensureModelLoaded();
 
-    // TODO: Uncomment when flutter_rust_bridge is set up
-    // final tuples = messages.map((m) => m.toTuple()).toList();
-    // return await native.chatCompletion(messages: tuples, maxTokens: maxTokens);
-
-    // Placeholder for now
-    return 'Chat response';
+    final tuples = messages.map((m) => m.toTuple()).toList();
+    return await native.chatCompletion(messages: tuples, maxTokens: maxTokens);
   }
 
   /// Get embedding for text (for semantic search)
   Future<List<double>> getEmbedding(String text) async {
     _ensureModelLoaded();
 
-    // final floats = await native.getEmbedding(text: text);
-    // return floats.map((f) => f.toDouble()).toList();
-
-    // Placeholder - return empty embedding
-    return List.filled(_embeddingDimension ?? 3072, 0.0);
+    final floats = await native.getEmbedding(text: text);
+    return floats.map((f) => f.toDouble()).toList();
   }
 
   /// Extract topics from note content
   Future<List<String>> extractTopics(String text, {int numTopics = 3}) async {
     _ensureModelLoaded();
 
-    // return await native.extractTopics(text: text, numTopics: numTopics);
-
-    // Placeholder
-    return ['topic1', 'topic2', 'topic3'];
+    return await native.extractTopics(text: text, numTopics: numTopics);
   }
 
   /// Summarize text
@@ -246,12 +227,21 @@ class InferenceService {
   Future<bool> healthCheck() async {
     try {
       await initialize();
-      // final result = native.healthCheck();
-      // return result == 'Kivixa Native OK';
-      return true;
+      final result = native.healthCheck();
+      return result == 'Kivixa Native OK';
     } catch (e) {
       debugPrint('Health check failed: $e');
       return false;
     }
+  }
+
+  /// Get version info from native library
+  String getVersion() {
+    return native.getVersion();
+  }
+
+  /// Check if model is loaded via native call
+  bool checkModelLoaded() {
+    return native.isModelLoaded();
   }
 }
