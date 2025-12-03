@@ -340,6 +340,28 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  // Floating hub settings
+  // Whether the floating hub is visible
+  final floatingHubEnabled = PlainStow(
+    'floatingHubEnabled',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
+  // Floating hub size (0 = small, 1 = medium, 2 = large)
+  final floatingHubSize = PlainStow(
+    'floatingHubSize',
+    1, // Default: medium
+    volatile: !_isOnMainIsolate,
+  );
+
+  // Floating hub transparency (0 = most transparent, 2 = opaque)
+  final floatingHubTransparency = PlainStow(
+    'floatingHubTransparency',
+    1, // Default: medium transparency
+    volatile: !_isOnMainIsolate,
+  );
+
   static bool get isDesktop => Platform.isWindows;
 }
 

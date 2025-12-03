@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kivixa/components/overlay/assistant_window.dart';
 import 'package:kivixa/components/overlay/browser_window.dart';
 import 'package:kivixa/components/overlay/floating_hub.dart';
+import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
 
 /// The main global overlay widget that provides floating tools.
@@ -35,6 +36,21 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
   void initState() {
     super.initState();
     _initialize();
+    stows.floatingHubEnabled.addListener(_onSettingsChanged);
+    stows.floatingHubSize.addListener(_onSettingsChanged);
+    stows.floatingHubTransparency.addListener(_onSettingsChanged);
+  }
+
+  @override
+  void dispose() {
+    stows.floatingHubEnabled.removeListener(_onSettingsChanged);
+    stows.floatingHubSize.removeListener(_onSettingsChanged);
+    stows.floatingHubTransparency.removeListener(_onSettingsChanged);
+    super.dispose();
+  }
+
+  void _onSettingsChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _initialize() async {
@@ -49,6 +65,45 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
     // Show content without overlay until initialized
     if (!_initialized) {
       return widget.child;
+    }
+
+    // If floating hub is disabled, don't show the overlay
+    if (!stows.floatingHubEnabled.value) {
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          widget.child,
+          const AssistantWindow(),
+          const BrowserWindow(),
+        ],
+      );
+    }
+
+    // Apply size and transparency settings to the controller
+    final controller = OverlayController.instance;
+    final sizeValue = stows.floatingHubSize.value;
+    final transparencyValue = stows.floatingHubTransparency.value;
+
+    // Map size preference to scale (0.75, 1.0, 1.25)
+    final scale = switch (sizeValue) {
+      0 => 0.75,
+      1 => 1.0,
+      _ => 1.25,
+    };
+
+    // Map transparency preference to opacity (0.4, 0.7, 1.0)
+    final opacity = switch (transparencyValue) {
+      0 => 0.4,
+      1 => 0.7,
+      _ => 1.0,
+    };
+
+    // Update controller if values changed
+    if (controller.hubScale != scale) {
+      controller.setHubScale(scale);
+    }
+    if (controller.hubOpacity != opacity) {
+      controller.setHubOpacity(opacity);
     }
 
     return FloatingHubOverlay(

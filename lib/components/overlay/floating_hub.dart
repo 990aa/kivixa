@@ -164,7 +164,8 @@ class _FloatingHubOverlayState extends State<FloatingHubOverlay>
                 Padding(
                   padding: EdgeInsets.all(touchPadding),
                   child: GestureDetector(
-                    onPanStart: (_) {
+                    behavior: HitTestBehavior.opaque,
+                    onPanStart: (details) {
                       _isDragging = true;
                       _hoverController.forward();
                     },
@@ -181,7 +182,7 @@ class _FloatingHubOverlayState extends State<FloatingHubOverlay>
                           (screenSize.height - hubSize);
                       controller.updateHubPosition(Offset(newX, newY));
                     },
-                    onPanEnd: (_) {
+                    onPanEnd: (details) {
                       _isDragging = false;
                       if (!_isHovering) {
                         _hoverController.reverse();

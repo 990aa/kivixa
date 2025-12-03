@@ -153,9 +153,9 @@ class ModelManager {
       description:
           'Microsoft Phi-4 Mini Instruct - Compact and efficient model for on-device AI',
       url:
-          'https://huggingface.co/bartowski/Phi-4-mini-instruct-GGUF/resolve/main/Phi-4-mini-instruct-Q4_K_M.gguf',
-      fileName: 'phi4_mini_q4km.gguf',
-      sizeBytes: 2576980378, // ~2.4 GB
+          'https://huggingface.co/bartowski/microsoft_Phi-4-mini-instruct-GGUF/resolve/main/microsoft_Phi-4-mini-instruct-Q4_K_M.gguf',
+      fileName: 'microsoft_Phi-4-mini-instruct-Q4_K_M.gguf',
+      sizeBytes: 2671771648, // ~2.49 GB
     ),
   ];
 

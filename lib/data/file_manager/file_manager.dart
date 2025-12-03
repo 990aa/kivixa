@@ -520,7 +520,7 @@ class FileManager {
         .toList();
 
     // Hidden directories that should not appear in the browse view
-    const hiddenDirectories = {'plugins', '.lifegit'};
+    const hiddenDirectories = {'plugins', '.lifegit', 'models'};
 
     await Future.wait(
       allChildren.map((child) async {
