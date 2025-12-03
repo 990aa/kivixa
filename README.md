@@ -19,7 +19,7 @@
 
 ## Features
 
-### **🤖 On-Device AI (NEW)**
+### **On-Device AI (NEW)**
 Kivixa features a powerful on-device AI engine powered by Microsoft's Phi-4 model, providing intelligent features without requiring an internet connection.
 
 - **Smart Model Manager**
