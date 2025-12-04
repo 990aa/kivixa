@@ -11,6 +11,51 @@ import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// Console log entry for developer tools
+class ConsoleLogEntry {
+  final String message;
+  final ConsoleMessageLevel level;
+  final DateTime timestamp;
+
+  ConsoleLogEntry({
+    required this.message,
+    required this.level,
+    DateTime? timestamp,
+  }) : timestamp = timestamp ?? DateTime.now();
+
+  Color get color {
+    switch (level) {
+      case ConsoleMessageLevel.ERROR:
+        return Colors.red;
+      case ConsoleMessageLevel.WARNING:
+        return Colors.orange;
+      case ConsoleMessageLevel.DEBUG:
+        return Colors.blue;
+      case ConsoleMessageLevel.LOG:
+      case ConsoleMessageLevel.TIP:
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String get levelName {
+    switch (level) {
+      case ConsoleMessageLevel.ERROR:
+        return 'ERROR';
+      case ConsoleMessageLevel.WARNING:
+        return 'WARN';
+      case ConsoleMessageLevel.DEBUG:
+        return 'DEBUG';
+      case ConsoleMessageLevel.LOG:
+        return 'LOG';
+      case ConsoleMessageLevel.TIP:
+        return 'TIP';
+      default:
+        return 'LOG';
+    }
+  }
+}
+
 /// Browser page with full web browsing capabilities.
 class BrowserPage extends StatefulWidget {
   /// Optional initial URL to load
@@ -34,10 +79,14 @@ class _BrowserPageState extends State<BrowserPage> {
   var _isSecure = false;
   var _isLoading = false;
   var _showFindBar = false;
+  var _showConsole = false;
   var _findResultCount = 0;
   var _currentFindResult = 0;
-  String _currentUrl = '';
-  String _pageTitle = '';
+  var _currentUrl = '';
+  var _pageTitle = '';
+
+  /// Console log entries
+  final _consoleLogs = <ConsoleLogEntry>[];
 
   /// Whether we're on a desktop platform
   bool get _isDesktop =>
@@ -71,29 +120,128 @@ class _BrowserPageState extends State<BrowserPage> {
     super.dispose();
   }
 
+  /// Handle Android back button
+  Future<bool> _onWillPop() async {
+    if (_showFindBar) {
+      _closeFindBar();
+      return false;
+    }
+    if (_showConsole) {
+      setState(() => _showConsole = false);
+      return false;
+    }
+    if (_webViewController != null && await _webViewController!.canGoBack()) {
+      _webViewController!.goBack();
+      return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          // Browser toolbar
-          _buildToolbar(context),
+    // Keyboard shortcuts for desktop
+    return Shortcuts(
+      shortcuts: _isDesktop
+          ? <ShortcutActivator, Intent>{
+              LogicalKeySet(
+                LogicalKeyboardKey.control,
+                LogicalKeyboardKey.keyL,
+              ): const _FocusUrlBarIntent(),
+              LogicalKeySet(
+                LogicalKeyboardKey.control,
+                LogicalKeyboardKey.keyF,
+              ): const _ToggleFindBarIntent(),
+              LogicalKeySet(
+                LogicalKeyboardKey.control,
+                LogicalKeyboardKey.keyR,
+              ): const _RefreshIntent(),
+              LogicalKeySet(LogicalKeyboardKey.escape): const _EscapeIntent(),
+              LogicalKeySet(
+                LogicalKeyboardKey.control,
+                LogicalKeyboardKey.shift,
+                LogicalKeyboardKey.keyJ,
+              ): const _ToggleConsoleIntent(),
+            }
+          : <ShortcutActivator, Intent>{},
+      child: Actions(
+        actions: <Type, Action<Intent>>{
+          _FocusUrlBarIntent: CallbackAction<_FocusUrlBarIntent>(
+            onInvoke: (_) => _focusUrlBar(),
+          ),
+          _ToggleFindBarIntent: CallbackAction<_ToggleFindBarIntent>(
+            onInvoke: (_) => _toggleFindBar(),
+          ),
+          _RefreshIntent: CallbackAction<_RefreshIntent>(
+            onInvoke: (_) => _refresh(),
+          ),
+          _EscapeIntent: CallbackAction<_EscapeIntent>(
+            onInvoke: (_) => _handleEscape(),
+          ),
+          _ToggleConsoleIntent: CallbackAction<_ToggleConsoleIntent>(
+            onInvoke: (_) => _toggleConsole(),
+          ),
+        },
+        child: Focus(
+          autofocus: true,
+          child: PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) async {
+              if (didPop) return;
+              final shouldPop = await _onWillPop();
+              if (shouldPop && context.mounted) {
+                Navigator.of(context).pop();
+              }
+            },
+            child: Scaffold(
+              body: Column(
+                children: [
+                  // Browser toolbar
+                  _buildToolbar(context),
 
-          // Progress indicator
-          if (_isLoading)
-            LinearProgressIndicator(
-              value: _progress > 0 ? _progress : null,
-              minHeight: 2,
+                  // Progress indicator
+                  if (_isLoading)
+                    LinearProgressIndicator(
+                      value: _progress > 0 ? _progress : null,
+                      minHeight: 2,
+                    ),
+
+                  // Find in page bar
+                  if (_showFindBar) _buildFindBar(context),
+
+                  // WebView content
+                  Expanded(child: _buildWebView()),
+
+                  // Console panel
+                  if (_showConsole) _buildConsolePanel(context),
+                ],
+              ),
             ),
-
-          // Find in page bar
-          if (_showFindBar) _buildFindBar(context),
-
-          // WebView content
-          Expanded(child: _buildWebView()),
-        ],
+          ),
+        ),
       ),
     );
+  }
+
+  void _focusUrlBar() {
+    _urlFocusNode.requestFocus();
+    _urlController.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: _urlController.text.length,
+    );
+  }
+
+  void _handleEscape() {
+    if (_showFindBar) {
+      _closeFindBar();
+    } else if (_showConsole) {
+      setState(() => _showConsole = false);
+    } else if (_urlFocusNode.hasFocus) {
+      _urlFocusNode.unfocus();
+    }
+  }
+
+  void _toggleConsole() {
+    setState(() => _showConsole = !_showConsole);
   }
 
   Widget _buildToolbar(BuildContext context) {
@@ -220,6 +368,24 @@ class _BrowserPageState extends State<BrowserPage> {
                 child: ListTile(
                   leading: Icon(Icons.code),
                   title: Text('View source'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'console',
+                child: ListTile(
+                  leading: Icon(Icons.terminal),
+                  title: Text('Developer console'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'inject_dark_mode',
+                child: ListTile(
+                  leading: Icon(Icons.dark_mode),
+                  title: Text('Toggle dark mode'),
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -378,6 +544,8 @@ class _BrowserPageState extends State<BrowserPage> {
         mediaPlaybackRequiresUserGesture: false,
         transparentBackground: false,
         useShouldOverrideUrlLoading: true,
+        allowFileAccess: true,
+        allowContentAccess: true,
         // Desktop-like user agent for better compatibility
         userAgent: _isDesktop
             ? null // Use default WebView2 user agent on Windows
@@ -415,6 +583,96 @@ class _BrowserPageState extends State<BrowserPage> {
       onReceivedError: (controller, request, error) {
         // Handle errors - could show error page
         debugPrint('WebView error: ${error.description}');
+        _addConsoleLog(
+          'Error: ${error.description}',
+          ConsoleMessageLevel.ERROR,
+        );
+      },
+      // Console message logging
+      onConsoleMessage: (controller, consoleMessage) {
+        _addConsoleLog(consoleMessage.message, consoleMessage.messageLevel);
+      },
+      // JavaScript alert dialog
+      onJsAlert: (controller, jsAlertRequest) async {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Alert'),
+            content: Text(jsAlertRequest.message ?? ''),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return JsAlertResponse(handledByClient: true);
+      },
+      // JavaScript confirm dialog
+      onJsConfirm: (controller, jsConfirmRequest) async {
+        final result = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Confirm'),
+            content: Text(jsConfirmRequest.message ?? ''),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return JsConfirmResponse(
+          handledByClient: true,
+          action: (result ?? false)
+              ? JsConfirmResponseAction.CONFIRM
+              : JsConfirmResponseAction.CANCEL,
+        );
+      },
+      // JavaScript prompt dialog
+      onJsPrompt: (controller, jsPromptRequest) async {
+        final textController = TextEditingController(
+          text: jsPromptRequest.defaultValue,
+        );
+        final result = await showDialog<String>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Prompt'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (jsPromptRequest.message != null)
+                  Text(jsPromptRequest.message!),
+                const SizedBox(height: 8),
+                TextField(controller: textController),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(null),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(textController.text),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return JsPromptResponse(
+          handledByClient: true,
+          action: result != null
+              ? JsPromptResponseAction.CONFIRM
+              : JsPromptResponseAction.CANCEL,
+          value: result,
+        );
       },
       shouldOverrideUrlLoading: (controller, navigationAction) async {
         final url = navigationAction.request.url;
@@ -440,6 +698,186 @@ class _BrowserPageState extends State<BrowserPage> {
               });
             }
           },
+      // Android permission request handling
+      onPermissionRequest: (controller, request) async {
+        // Show permission dialog to user
+        final granted = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Permission Request'),
+            content: Text(
+              'This website wants to access: ${request.resources.map((r) => r.toString().split('.').last).join(", ")}',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Deny'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Allow'),
+              ),
+            ],
+          ),
+        );
+        return PermissionResponse(
+          resources: request.resources,
+          action: (granted ?? false)
+              ? PermissionResponseAction.GRANT
+              : PermissionResponseAction.DENY,
+        );
+      },
+      // Download handling
+      onDownloadStartRequest: (controller, downloadStartRequest) async {
+        final url = downloadStartRequest.url.toString();
+        final filename = downloadStartRequest.suggestedFilename ?? 'download';
+
+        // Ask user if they want to download
+        final shouldDownload = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Download'),
+            content: Text('Download "$filename"?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Download'),
+              ),
+            ],
+          ),
+        );
+
+        if (shouldDownload ?? false) {
+          // Open in external browser for download
+          final uri = Uri.tryParse(url);
+          if (uri != null) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          }
+        }
+      },
+    );
+  }
+
+  void _addConsoleLog(String message, ConsoleMessageLevel level) {
+    setState(() {
+      _consoleLogs.add(ConsoleLogEntry(message: message, level: level));
+      // Keep only last 100 logs
+      if (_consoleLogs.length > 100) {
+        _consoleLogs.removeAt(0);
+      }
+    });
+  }
+
+  Widget _buildConsolePanel(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      height: 200,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLowest,
+        border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Console header
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerLow,
+              border: Border(
+                bottom: BorderSide(color: colorScheme.outlineVariant),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.terminal, size: 16, color: colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Console',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  iconSize: 18,
+                  tooltip: 'Clear console',
+                  onPressed: () => setState(() => _consoleLogs.clear()),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  iconSize: 18,
+                  tooltip: 'Close console',
+                  onPressed: () => setState(() => _showConsole = false),
+                ),
+              ],
+            ),
+          ),
+          // Console logs
+          Expanded(
+            child: _consoleLogs.isEmpty
+                ? Center(
+                    child: Text(
+                      'No console messages',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(8),
+                    itemCount: _consoleLogs.length,
+                    itemBuilder: (context, index) {
+                      final log = _consoleLogs[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: log.color.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                log.levelName,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: log.color,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: SelectableText(
+                                log.message,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -664,6 +1102,42 @@ class _BrowserPageState extends State<BrowserPage> {
         _toggleDesktopMode();
       case 'view_source':
         _viewPageSource();
+      case 'console':
+        _toggleConsole();
+      case 'inject_dark_mode':
+        _injectDarkMode();
+    }
+  }
+
+  Future<void> _injectDarkMode() async {
+    const darkModeCSS = '''
+      html {
+        filter: invert(1) hue-rotate(180deg);
+      }
+      img, video, picture, canvas, iframe {
+        filter: invert(1) hue-rotate(180deg);
+      }
+    ''';
+    await _webViewController?.evaluateJavascript(
+      source:
+          '''
+      (function() {
+        var style = document.getElementById('kivixa-dark-mode');
+        if (style) {
+          style.remove();
+        } else {
+          style = document.createElement('style');
+          style.id = 'kivixa-dark-mode';
+          style.textContent = `$darkModeCSS`;
+          document.head.appendChild(style);
+        }
+      })();
+    ''',
+    );
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Dark mode toggled')));
     }
   }
 
@@ -771,4 +1245,25 @@ class _QuickLinkCard extends StatelessWidget {
       ),
     );
   }
+}
+
+// Keyboard shortcut intents
+class _FocusUrlBarIntent extends Intent {
+  const _FocusUrlBarIntent();
+}
+
+class _ToggleFindBarIntent extends Intent {
+  const _ToggleFindBarIntent();
+}
+
+class _RefreshIntent extends Intent {
+  const _RefreshIntent();
+}
+
+class _EscapeIntent extends Intent {
+  const _EscapeIntent();
+}
+
+class _ToggleConsoleIntent extends Intent {
+  const _ToggleConsoleIntent();
 }

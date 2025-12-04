@@ -28,7 +28,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
   var _canGoBack = false;
   var _canGoForward = false;
   var _isSecure = false;
-  String _currentUrl = 'https://www.google.com';
+  var _currentUrl = 'https://www.google.com';
 
   /// Whether we're on a desktop platform
   bool get _isDesktop =>
