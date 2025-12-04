@@ -9,6 +9,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:kivixa/services/browser_service.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Console log entry for developer tools
@@ -69,6 +71,7 @@ class BrowserPage extends StatefulWidget {
 
 class _BrowserPageState extends State<BrowserPage> {
   InAppWebViewController? _webViewController;
+  FindInteractionController? _findInteractionController;
   final _urlController = TextEditingController();
   final _urlFocusNode = FocusNode();
   final _searchController = TextEditingController();
@@ -110,6 +113,12 @@ class _BrowserPageState extends State<BrowserPage> {
     super.initState();
     _currentUrl = widget.initialUrl ?? _homePage;
     _urlController.text = _currentUrl;
+    _initBrowserService();
+  }
+
+  Future<void> _initBrowserService() async {
+    await BrowserService.instance.init();
+    if (mounted) setState(() {});
   }
 
   @override
@@ -550,7 +559,27 @@ class _BrowserPageState extends State<BrowserPage> {
         userAgent: _isDesktop
             ? null // Use default WebView2 user agent on Windows
             : null,
+        isFindInteractionEnabled: true,
       ),
+      findInteractionController: _findInteractionController =
+          FindInteractionController(
+            onFindResultReceived:
+                (
+                  controller,
+                  activeMatchOrdinal,
+                  numberOfMatches,
+                  isDoneCounting,
+                ) {
+                  if (isDoneCounting) {
+                    setState(() {
+                      _findResultCount = numberOfMatches;
+                      _currentFindResult = numberOfMatches > 0
+                          ? activeMatchOrdinal + 1
+                          : 0;
+                    });
+                  }
+                },
+          ),
       onWebViewCreated: (controller) {
         _webViewController = controller;
       },
@@ -563,12 +592,17 @@ class _BrowserPageState extends State<BrowserPage> {
         });
       },
       onLoadStop: (controller, url) async {
+        final urlString = url?.toString() ?? '';
         setState(() {
           _isLoading = false;
-          _currentUrl = url?.toString() ?? '';
-          _updateUrlBar(url?.toString() ?? '');
+          _currentUrl = urlString;
+          _updateUrlBar(urlString);
         });
         await _updateNavigationState();
+        // Add to history
+        if (urlString.isNotEmpty && !urlString.startsWith('about:')) {
+          await BrowserService.instance.addToHistory(urlString);
+        }
       },
       onProgressChanged: (controller, progress) {
         setState(() {
@@ -687,17 +721,6 @@ class _BrowserPageState extends State<BrowserPage> {
 
         return NavigationActionPolicy.ALLOW;
       },
-      onFindResultReceived:
-          (controller, activeMatchOrdinal, numberOfMatches, isDoneCounting) {
-            if (isDoneCounting) {
-              setState(() {
-                _findResultCount = numberOfMatches;
-                _currentFindResult = numberOfMatches > 0
-                    ? activeMatchOrdinal + 1
-                    : 0;
-              });
-            }
-          },
       // Android permission request handling
       onPermissionRequest: (controller, request) async {
         // Show permission dialog to user
@@ -1031,11 +1054,16 @@ class _BrowserPageState extends State<BrowserPage> {
     _navigateToUrl(_homePage);
   }
 
+  /// Load a URL in the browser
+  void _loadUrl(String url) {
+    _navigateToUrl(url);
+  }
+
   void _toggleFindBar() {
     setState(() {
       _showFindBar = !_showFindBar;
       if (!_showFindBar) {
-        _webViewController?.clearMatches();
+        _findInteractionController?.clearMatches();
         _searchController.clear();
         _findResultCount = 0;
         _currentFindResult = 0;
@@ -1046,7 +1074,7 @@ class _BrowserPageState extends State<BrowserPage> {
   void _closeFindBar() {
     setState(() {
       _showFindBar = false;
-      _webViewController?.clearMatches();
+      _findInteractionController?.clearMatches();
       _searchController.clear();
       _findResultCount = 0;
       _currentFindResult = 0;
@@ -1055,42 +1083,34 @@ class _BrowserPageState extends State<BrowserPage> {
 
   void _findInPage(String query) {
     if (query.isEmpty) {
-      _webViewController?.clearMatches();
+      _findInteractionController?.clearMatches();
       setState(() {
         _findResultCount = 0;
         _currentFindResult = 0;
       });
       return;
     }
-    _webViewController?.findAllAsync(find: query);
+    _findInteractionController?.findAll(find: query);
   }
 
   void _findNext() {
-    _webViewController?.findNext(forward: true);
+    _findInteractionController?.findNext(forward: true);
   }
 
   void _findPrevious() {
-    _webViewController?.findNext(forward: false);
+    _findInteractionController?.findNext(forward: false);
   }
 
   void _handleMenuAction(String action) {
     switch (action) {
       case 'new_tab':
-        // TODO: Implement tabs
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Tabs coming soon!')));
+        _openNewTab();
       case 'bookmark':
-        // TODO: Implement bookmarks
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Bookmarked: $_pageTitle')));
+        _toggleBookmark();
+      case 'bookmarks':
+        _showBookmarksSheet();
       case 'share':
-        // TODO: Share URL
-        Clipboard.setData(ClipboardData(text: _currentUrl));
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('URL copied to clipboard')),
-        );
+        _shareUrl();
       case 'copy_url':
         Clipboard.setData(ClipboardData(text: _currentUrl));
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1106,6 +1126,157 @@ class _BrowserPageState extends State<BrowserPage> {
         _toggleConsole();
       case 'inject_dark_mode':
         _injectDarkMode();
+      case 'history':
+        _showHistorySheet();
+      case 'clear_data':
+        _showClearDataDialog();
+    }
+  }
+
+  /// Open a new tab
+  Future<void> _openNewTab() async {
+    await BrowserService.instance.createTab();
+    if (mounted) {
+      setState(() {
+        _currentUrl = 'https://www.google.com';
+        _urlController.text = _currentUrl;
+        _pageTitle = 'New Tab';
+      });
+      // Load the new tab URL
+      _webViewController?.loadUrl(
+        urlRequest: URLRequest(url: WebUri(_currentUrl)),
+      );
+    }
+  }
+
+  /// Toggle bookmark for current page
+  Future<void> _toggleBookmark() async {
+    final service = BrowserService.instance;
+    if (service.isBookmarked(_currentUrl)) {
+      await service.removeBookmark(_currentUrl);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Bookmark removed')));
+      }
+    } else {
+      await service.addBookmark(
+        title: _pageTitle.isNotEmpty ? _pageTitle : _currentUrl,
+        url: _currentUrl,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Bookmarked: $_pageTitle')));
+      }
+    }
+    setState(() {}); // Refresh UI
+  }
+
+  /// Show bookmarks bottom sheet
+  void _showBookmarksSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.3,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => _BookmarksSheet(
+          scrollController: scrollController,
+          onBookmarkTap: (url) {
+            Navigator.of(context).pop();
+            _loadUrl(url);
+          },
+        ),
+      ),
+    );
+  }
+
+  /// Show history bottom sheet
+  void _showHistorySheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.3,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => _HistorySheet(
+          scrollController: scrollController,
+          onHistoryTap: (url) {
+            Navigator.of(context).pop();
+            _loadUrl(url);
+          },
+        ),
+      ),
+    );
+  }
+
+  /// Share the current URL
+  Future<void> _shareUrl() async {
+    if (_currentUrl.isEmpty) return;
+
+    try {
+      await SharePlus.instance.share(
+        ShareParams(
+          text: _pageTitle.isNotEmpty
+              ? '$_pageTitle\n$_currentUrl'
+              : _currentUrl,
+        ),
+      );
+    } catch (e) {
+      // Fallback to clipboard if share fails
+      await Clipboard.setData(ClipboardData(text: _currentUrl));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('URL copied to clipboard')),
+        );
+      }
+    }
+  }
+
+  /// Show clear browsing data dialog
+  void _showClearDataDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear Browsing Data'),
+        content: const Text(
+          'This will clear your browsing history, cookies, and cache.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await _clearBrowsingData();
+            },
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Clear all browsing data
+  Future<void> _clearBrowsingData() async {
+    // Clear WebView data
+    await InAppWebViewController.clearAllCache();
+    await CookieManager.instance().deleteAllCookies();
+
+    // Clear history
+    await BrowserService.instance.clearHistory();
+
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Browsing data cleared')));
     }
   }
 
@@ -1266,4 +1437,281 @@ class _EscapeIntent extends Intent {
 
 class _ToggleConsoleIntent extends Intent {
   const _ToggleConsoleIntent();
+}
+
+/// Bookmarks bottom sheet
+class _BookmarksSheet extends StatelessWidget {
+  final ScrollController scrollController;
+  final void Function(String url) onBookmarkTap;
+
+  const _BookmarksSheet({
+    required this.scrollController,
+    required this.onBookmarkTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final bookmarks = BrowserService.instance.bookmarks;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Column(
+        children: [
+          // Handle bar
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          // Title
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Icon(Icons.bookmark, color: colorScheme.primary),
+                const SizedBox(width: 8),
+                Text('Bookmarks', style: theme.textTheme.titleLarge),
+                const Spacer(),
+                if (bookmarks.isNotEmpty)
+                  TextButton(
+                    onPressed: () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Clear All Bookmarks'),
+                          content: const Text(
+                            'Are you sure you want to delete all bookmarks?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('Clear All'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirmed ?? false) {
+                        await BrowserService.instance.clearBookmarks();
+                      }
+                    },
+                    child: const Text('Clear All'),
+                  ),
+              ],
+            ),
+          ),
+          const Divider(),
+          // Bookmarks list
+          Expanded(
+            child: bookmarks.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.bookmark_border,
+                          size: 64,
+                          color: colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No bookmarks yet',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tap the bookmark icon to save pages',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant.withValues(
+                              alpha: 0.7,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    controller: scrollController,
+                    itemCount: bookmarks.length,
+                    itemBuilder: (context, index) {
+                      final bookmark = bookmarks[index];
+                      return ListTile(
+                        leading: const Icon(Icons.bookmark),
+                        title: Text(
+                          bookmark.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        subtitle: Text(
+                          bookmark.url,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: colorScheme.onSurfaceVariant,
+                            fontSize: 12,
+                          ),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () async {
+                            await BrowserService.instance.removeBookmarkById(
+                              bookmark.id,
+                            );
+                          },
+                        ),
+                        onTap: () => onBookmarkTap(bookmark.url),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// History bottom sheet
+class _HistorySheet extends StatelessWidget {
+  final ScrollController scrollController;
+  final void Function(String url) onHistoryTap;
+
+  const _HistorySheet({
+    required this.scrollController,
+    required this.onHistoryTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final history = BrowserService.instance.history;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Column(
+        children: [
+          // Handle bar
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          // Title
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Icon(Icons.history, color: colorScheme.primary),
+                const SizedBox(width: 8),
+                Text('History', style: theme.textTheme.titleLarge),
+                const Spacer(),
+                if (history.isNotEmpty)
+                  TextButton(
+                    onPressed: () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Clear History'),
+                          content: const Text(
+                            'Are you sure you want to clear your browsing history?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('Clear'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirmed ?? false) {
+                        await BrowserService.instance.clearHistory();
+                      }
+                    },
+                    child: const Text('Clear'),
+                  ),
+              ],
+            ),
+          ),
+          const Divider(),
+          // History list
+          Expanded(
+            child: history.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.history,
+                          size: 64,
+                          color: colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No history yet',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Pages you visit will appear here',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant.withValues(
+                              alpha: 0.7,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    controller: scrollController,
+                    itemCount: history.length,
+                    itemBuilder: (context, index) {
+                      final url = history[index];
+                      return ListTile(
+                        leading: const Icon(Icons.language),
+                        title: Text(
+                          url,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        onTap: () => onHistoryTap(url),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
 }

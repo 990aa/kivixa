@@ -4,6 +4,8 @@
 
 # Kivixa
 
+*Pronounced: kee-VEE-ha (/kiˈviːhɑː/)*
+
 ### A Modern Cross-Platform Notes & Productivity Application
 
 *Seamlessly blend notes, sketches, and creativity across all your devices*
