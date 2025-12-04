@@ -89,25 +89,36 @@ class _AssistantWindowState extends State<AssistantWindow> {
           ),
           child: Row(
             children: [
-              _QuickActionChip(
-                icon: Icons.summarize_rounded,
-                label: 'Summarize',
-                onTap: () =>
-                    _sendQuickAction('Please summarize the current context.'),
+              Flexible(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _QuickActionChip(
+                        icon: Icons.summarize_rounded,
+                        label: 'Summarize',
+                        onTap: () => _sendQuickAction(
+                          'Please summarize the current context.',
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      _QuickActionChip(
+                        icon: Icons.code_rounded,
+                        label: 'Code',
+                        onTap: () => _sendQuickAction('Help me with code.'),
+                      ),
+                      const SizedBox(width: 4),
+                      _QuickActionChip(
+                        icon: Icons.lightbulb_outline_rounded,
+                        label: 'Ideas',
+                        onTap: () => _sendQuickAction('Give me some ideas.'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(width: 4),
-              _QuickActionChip(
-                icon: Icons.code_rounded,
-                label: 'Code',
-                onTap: () => _sendQuickAction('Help me with code.'),
-              ),
-              const SizedBox(width: 4),
-              _QuickActionChip(
-                icon: Icons.lightbulb_outline_rounded,
-                label: 'Ideas',
-                onTap: () => _sendQuickAction('Give me some ideas.'),
-              ),
-              const Spacer(),
               IconButton(
                 icon: const Icon(Icons.delete_outline_rounded),
                 iconSize: 18,

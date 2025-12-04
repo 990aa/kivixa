@@ -9,6 +9,7 @@
 #include <desktop_webview_window/desktop_webview_window_plugin.h>
 #include <dynamic_color/dynamic_color_plugin.h>
 #include <flutter_secure_storage_linux/flutter_secure_storage_linux_plugin.h>
+#include <gtk/gtk_plugin.h>
 #include <irondash_engine_context/irondash_engine_context_plugin.h>
 #include <objectbox_flutter_libs/objectbox_flutter_libs_plugin.h>
 #include <open_file_linux/open_file_linux_plugin.h>
@@ -18,6 +19,7 @@
 #include <url_launcher_linux/url_launcher_plugin.h>
 #include <window_manager/window_manager_plugin.h>
 #include <window_to_front/window_to_front_plugin.h>
+#include <yaru_window_linux/yaru_window_linux_plugin.h>
 
 void fl_register_plugins(FlPluginRegistry* registry) {
   g_autoptr(FlPluginRegistrar) desktop_webview_window_registrar =
@@ -29,6 +31,9 @@ void fl_register_plugins(FlPluginRegistry* registry) {
   g_autoptr(FlPluginRegistrar) flutter_secure_storage_linux_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "FlutterSecureStorageLinuxPlugin");
   flutter_secure_storage_linux_plugin_register_with_registrar(flutter_secure_storage_linux_registrar);
+  g_autoptr(FlPluginRegistrar) gtk_registrar =
+      fl_plugin_registry_get_registrar_for_plugin(registry, "GtkPlugin");
+  gtk_plugin_register_with_registrar(gtk_registrar);
   g_autoptr(FlPluginRegistrar) irondash_engine_context_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "IrondashEngineContextPlugin");
   irondash_engine_context_plugin_register_with_registrar(irondash_engine_context_registrar);
@@ -56,4 +61,7 @@ void fl_register_plugins(FlPluginRegistry* registry) {
   g_autoptr(FlPluginRegistrar) window_to_front_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "WindowToFrontPlugin");
   window_to_front_plugin_register_with_registrar(window_to_front_registrar);
+  g_autoptr(FlPluginRegistrar) yaru_window_linux_registrar =
+      fl_plugin_registry_get_registrar_for_plugin(registry, "YaruWindowLinuxPlugin");
+  yaru_window_linux_plugin_register_with_registrar(yaru_window_linux_registrar);
 }

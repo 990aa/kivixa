@@ -226,8 +226,8 @@ class ModelManager {
   }
 
   /// Returns the directory where models are stored.
-  /// On Android: /storage/emulated/0/Android/data/com.kivixa.app/files/kivixa/models
-  /// On Windows/macOS/Linux: Application support directory/kivixa/models
+  /// On Android: /storage/emulated/0/Android/data/com.kivixa.app/files/models
+  /// On Windows/macOS/Linux: Application support directory/models
   Future<Directory> getModelsDirectory() async {
     Directory baseDir;
     if (Platform.isAndroid) {
@@ -238,7 +238,11 @@ class ModelManager {
       // Use application support directory on desktop
       baseDir = await getApplicationSupportDirectory();
     }
-    final modelsDir = Directory('${baseDir.path}/kivixa/models');
+    // Note: Don't add 'kivixa' subdirectory - getApplicationSupportDirectory
+    // already includes the app-specific folder
+    final modelsDir = Directory(
+      '${baseDir.path}${Platform.pathSeparator}models',
+    );
     // ignore: avoid_slow_async_io
     if (!await modelsDir.exists()) {
       await modelsDir.create(recursive: true);
@@ -250,7 +254,7 @@ class ModelManager {
   Future<String> getModelPath([AIModel? model]) async {
     model ??= defaultModel;
     final modelsDir = await getModelsDirectory();
-    return '${modelsDir.path}/${model.fileName}';
+    return '${modelsDir.path}${Platform.pathSeparator}${model.fileName}';
   }
 
   /// Checks if a model exists locally

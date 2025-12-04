@@ -10,6 +10,11 @@ set(BINARY_NAME "kivixa")
 # versions of CMake.
 cmake_policy(VERSION 3.14...3.25)
 
+# Suppress FetchContent_Populate deprecation warning from objectbox plugin
+if(POLICY CMP0169)
+  cmake_policy(SET CMP0169 OLD)
+endif()
+
 # Define build configuration option.
 get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(IS_MULTICONFIG)
