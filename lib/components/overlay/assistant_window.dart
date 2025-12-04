@@ -52,19 +52,24 @@ class _AssistantWindowState extends State<AssistantWindow> {
           screenSize,
         );
 
-        return FloatingWindow(
-          rect: clampedRect,
-          onRectChanged: (newRect) {
-            controller.updateAssistantRect(
-              controller.clampToScreen(newRect, screenSize),
-            );
-          },
-          onClose: controller.closeAssistant,
-          title: 'AI Assistant',
-          icon: Icons.smart_toy_rounded,
-          minWidth: 350,
-          minHeight: 400,
-          child: _buildAssistantContent(context),
+        // FloatingWindow returns a Positioned widget, which must be inside a Stack
+        return Stack(
+          children: [
+            FloatingWindow(
+              rect: clampedRect,
+              onRectChanged: (newRect) {
+                controller.updateAssistantRect(
+                  controller.clampToScreen(newRect, screenSize),
+                );
+              },
+              onClose: controller.closeAssistant,
+              title: 'AI Assistant',
+              icon: Icons.smart_toy_rounded,
+              minWidth: 350,
+              minHeight: 400,
+              child: _buildAssistantContent(context),
+            ),
+          ],
         );
       },
     );

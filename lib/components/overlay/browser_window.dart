@@ -57,19 +57,24 @@ class _BrowserWindowState extends State<BrowserWindow> {
           screenSize,
         );
 
-        return FloatingWindow(
-          rect: clampedRect,
-          onRectChanged: (newRect) {
-            controller.updateBrowserRect(
-              controller.clampToScreen(newRect, screenSize),
-            );
-          },
-          onClose: controller.closeBrowser,
-          title: 'Browser',
-          icon: Icons.language_rounded,
-          minWidth: 400,
-          minHeight: 300,
-          child: _buildBrowserContent(context),
+        // FloatingWindow returns a Positioned widget, which must be inside a Stack
+        return Stack(
+          children: [
+            FloatingWindow(
+              rect: clampedRect,
+              onRectChanged: (newRect) {
+                controller.updateBrowserRect(
+                  controller.clampToScreen(newRect, screenSize),
+                );
+              },
+              onClose: controller.closeBrowser,
+              title: 'Browser',
+              icon: Icons.language_rounded,
+              minWidth: 400,
+              minHeight: 300,
+              child: _buildBrowserContent(context),
+            ),
+          ],
         );
       },
     );

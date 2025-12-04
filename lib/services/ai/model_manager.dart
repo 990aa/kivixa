@@ -315,7 +315,7 @@ class ModelManager {
       url: model.url,
       filename: model.fileName,
       directory: 'models',
-      baseDirectory: BaseDirectory.applicationDocuments,
+      baseDirectory: BaseDirectory.applicationSupport,
       updates: Updates.statusAndProgress,
       allowPause: true,
       retries: 3,
