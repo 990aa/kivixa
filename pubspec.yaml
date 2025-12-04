@@ -90,6 +90,7 @@ dependencies:
   objectbox: ^5.0.3
   objectbox_flutter_libs: ^5.0.3
   flutter_rust_bridge: ^2.10.0
+  flutter_inappwebview: ^6.1.5
   rust_lib_kivixa:
     path: rust_builder
 

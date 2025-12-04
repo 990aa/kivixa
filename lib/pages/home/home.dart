@@ -5,6 +5,7 @@ import 'package:kivixa/components/settings/update_manager.dart';
 import 'package:kivixa/components/theming/dynamic_material_app.dart';
 import 'package:kivixa/pages/home/ai_chat.dart';
 import 'package:kivixa/pages/home/browse.dart';
+import 'package:kivixa/pages/home/browser.dart';
 import 'package:kivixa/pages/home/settings.dart';
 import 'package:kivixa/pages/home/syncfusion_calendar_page.dart';
 import 'package:kivixa/pages/home/whiteboard.dart';
@@ -24,6 +25,7 @@ class HomePage extends StatefulWidget {
   static const whiteboardSubpage = 'whiteboard';
   static const projectsSubpage = 'projects';
   static const aiChatSubpage = 'ai-chat';
+  static const browserSubpage = 'browser';
   static const settingsSubpage = 'settings';
   static const List<String> subpages = [
     browseSubpage,
@@ -31,6 +33,7 @@ class HomePage extends StatefulWidget {
     whiteboardSubpage,
     projectsSubpage,
     aiChatSubpage,
+    browserSubpage,
     settingsSubpage,
   ];
 }
@@ -62,6 +65,7 @@ class _HomePageState extends State<HomePage> {
         HomePage.whiteboardSubpage => const Whiteboard(),
         HomePage.projectsSubpage => const ProjectManagerPage(),
         HomePage.aiChatSubpage => const AIChatPage(),
+        HomePage.browserSubpage => const BrowserPage(),
         HomePage.settingsSubpage => const SettingsPage(),
         _ => const BrowsePage(path: null),
       },

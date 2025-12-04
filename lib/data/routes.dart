@@ -104,6 +104,14 @@ abstract class HomeRoutes {
       ),
     ),
     _Route(
+      routePath: _homeFunction({'subpage': HomePage.browserSubpage}),
+      label: 'Browser',
+      icon: const AdaptiveIcon(
+        icon: Icons.language,
+        cupertinoIcon: CupertinoIcons.globe,
+      ),
+    ),
+    _Route(
       routePath: _homeFunction({'subpage': HomePage.settingsSubpage}),
       label: t.home.tabs.settings,
       icon: const AdaptiveIcon(
