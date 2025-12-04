@@ -111,7 +111,7 @@ class _AIChatPageState extends State<AIChatPage> {
       // Navigate to model manager to load a model
       if (mounted) {
         await Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const _ModelSelectionPage()),
+          MaterialPageRoute(builder: (context) => const ModelSelectionPage()),
         );
         _checkModelStatus();
       }
@@ -315,14 +315,14 @@ class _FeatureCard extends StatelessWidget {
 }
 
 /// Model selection page
-class _ModelSelectionPage extends StatefulWidget {
-  const _ModelSelectionPage();
+class ModelSelectionPage extends StatefulWidget {
+  const ModelSelectionPage({super.key});
 
   @override
-  State<_ModelSelectionPage> createState() => _ModelSelectionPageState();
+  State<ModelSelectionPage> createState() => _ModelSelectionPageState();
 }
 
-class _ModelSelectionPageState extends State<_ModelSelectionPage> {
+class _ModelSelectionPageState extends State<ModelSelectionPage> {
   final _modelManager = ModelManager();
   List<AIModel> _availableModels = [];
   var _isLoading = false;

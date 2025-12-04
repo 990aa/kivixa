@@ -7,6 +7,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kivixa/pages/home/ai_chat.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 
 /// A single message in the chat
@@ -283,7 +284,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                 ),
                 const Spacer(),
                 if (!widget.controller.isModelLoaded)
-                  Chip(
+                  ActionChip(
                     label: Text(isCompact ? 'No model' : 'Model not loaded'),
                     backgroundColor: colorScheme.errorContainer,
                     labelStyle: TextStyle(
@@ -291,6 +292,13 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                       fontSize: isCompact ? 10 : null,
                     ),
                     padding: isCompact ? EdgeInsets.zero : null,
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const ModelSelectionPage(),
+                        ),
+                      );
+                    },
                   ),
                 if (widget.controller.messages.isNotEmpty)
                   IconButton(
@@ -403,54 +411,57 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
     final colorScheme = theme.colorScheme;
 
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.chat_bubble_outline,
-              size: 64,
-              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Start a conversation',
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: colorScheme.onSurfaceVariant,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.chat_bubble_outline,
+                size: 64,
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Ask questions about your notes, get summaries, or explore ideas.',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+              const SizedBox(height: 16),
+              Text(
+                'Start a conversation',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              alignment: WrapAlignment.center,
-              children: [
-                _SuggestionChip(
-                  label: 'Summarize my notes',
-                  onTap: () =>
-                      _textController.text = 'Summarize my recent notes',
+              const SizedBox(height: 8),
+              Text(
+                'Ask questions about your notes, get summaries, or explore ideas.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                 ),
-                _SuggestionChip(
-                  label: 'Find related topics',
-                  onTap: () =>
-                      _textController.text = 'What topics are related to ',
-                ),
-                _SuggestionChip(
-                  label: 'Help me write',
-                  onTap: () => _textController.text = 'Help me write about ',
-                ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(height: 24),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.center,
+                children: [
+                  _SuggestionChip(
+                    label: 'Summarize my notes',
+                    onTap: () =>
+                        _textController.text = 'Summarize my recent notes',
+                  ),
+                  _SuggestionChip(
+                    label: 'Find related topics',
+                    onTap: () =>
+                        _textController.text = 'What topics are related to ',
+                  ),
+                  _SuggestionChip(
+                    label: 'Help me write',
+                    onTap: () => _textController.text = 'Help me write about ',
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
