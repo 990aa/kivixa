@@ -47,4 +47,4 @@ app.*.map.json
 
 md_files/
 
-native/target/
+*target/

@@ -755,10 +755,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_smooth_markdown
-      sha256: "68ca2a79d3dda3268c78b45d6f8b83b38275be028e4946571753b3bb5b8cca7d"
+      sha256: "3cccc86a276d77e2cd9c501427c5d7b93b00750569e494d7cc1eb164a9693b68"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.1"
+    version: "0.5.2"
   flutter_speed_dial:
     dependency: "direct main"
     description:
