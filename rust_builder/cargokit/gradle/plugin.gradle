@@ -1,0 +1,53 @@
+// Cargokit Gradle plugin for building Rust native libraries
+// This is a simplified version that integrates Rust builds with Android Gradle
+
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.api.tasks.Exec
+
+class CargokitPlugin implements Plugin<Project> {
+    void apply(Project project) {
+        def extension = project.extensions.create('cargokit', CargokitExtension)
+
+        project.afterEvaluate {
+            def manifestDir = extension.manifestDir ?: "../"
+            def libname = extension.libname ?: "rust_lib"
+
+            // Register build tasks for each ABI
+            ['arm64-v8a', 'armeabi-v7a', 'x86_64', 'x86'].each { abi ->
+                def rustTarget = abiToRustTarget(abi)
+                def taskName = "cargokitBuild${abi.replace('-', '')}"
+
+                project.tasks.register(taskName, Exec) {
+                    workingDir new File(project.projectDir, manifestDir)
+                    
+                    def cargoArgs = ['cargo', 'build', '--release', '--target', rustTarget]
+                    
+                    if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+                        commandLine 'cmd', '/c', cargoArgs.join(' ')
+                    } else {
+                        commandLine cargoArgs
+                    }
+                }
+            }
+        }
+    }
+
+    static String abiToRustTarget(String abi) {
+        switch (abi) {
+            case 'arm64-v8a': return 'aarch64-linux-android'
+            case 'armeabi-v7a': return 'armv7-linux-androideabi'
+            case 'x86_64': return 'x86_64-linux-android'
+            case 'x86': return 'i686-linux-android'
+            default: throw new IllegalArgumentException("Unknown ABI: $abi")
+        }
+    }
+}
+
+class CargokitExtension {
+    String manifestDir
+    String libname
+}
+
+// Apply the plugin
+apply plugin: CargokitPlugin
