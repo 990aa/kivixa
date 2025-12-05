@@ -343,4 +343,18 @@ class BrowserService extends ChangeNotifier {
     if (progress != null) tab.progress = progress;
     notifyListeners();
   }
+
+  /// Clear all browser data (bookmarks, history, tabs)
+  Future<void> clearAll() async {
+    _bookmarks.clear();
+    _history.clear();
+    _tabs.clear();
+    _tabs.add(BrowserTab.create()); // Keep one empty tab
+    _currentTabIndex = 0;
+
+    await _saveBookmarks();
+    await _saveHistory();
+    await _saveTabs();
+    notifyListeners();
+  }
 }

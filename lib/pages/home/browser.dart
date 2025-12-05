@@ -559,27 +559,30 @@ class _BrowserPageState extends State<BrowserPage> {
         userAgent: _isDesktop
             ? null // Use default WebView2 user agent on Windows
             : null,
-        isFindInteractionEnabled: true,
+        // FindInteractionController is not supported on desktop platforms
+        isFindInteractionEnabled: !_isDesktop,
       ),
-      findInteractionController: _findInteractionController =
-          FindInteractionController(
-            onFindResultReceived:
-                (
-                  controller,
-                  activeMatchOrdinal,
-                  numberOfMatches,
-                  isDoneCounting,
-                ) {
-                  if (isDoneCounting) {
-                    setState(() {
-                      _findResultCount = numberOfMatches;
-                      _currentFindResult = numberOfMatches > 0
-                          ? activeMatchOrdinal + 1
-                          : 0;
-                    });
-                  }
-                },
-          ),
+      // FindInteractionController is only supported on mobile platforms
+      findInteractionController: _isDesktop
+          ? null
+          : (_findInteractionController = FindInteractionController(
+              onFindResultReceived:
+                  (
+                    controller,
+                    activeMatchOrdinal,
+                    numberOfMatches,
+                    isDoneCounting,
+                  ) {
+                    if (isDoneCounting) {
+                      setState(() {
+                        _findResultCount = numberOfMatches;
+                        _currentFindResult = numberOfMatches > 0
+                            ? activeMatchOrdinal + 1
+                            : 0;
+                      });
+                    }
+                  },
+            )),
       onWebViewCreated: (controller) {
         _webViewController = controller;
       },
@@ -1060,6 +1063,16 @@ class _BrowserPageState extends State<BrowserPage> {
   }
 
   void _toggleFindBar() {
+    // Find-in-page is not supported on desktop platforms
+    if (_isDesktop) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Find in page is not supported on desktop yet'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
     setState(() {
       _showFindBar = !_showFindBar;
       if (!_showFindBar) {
