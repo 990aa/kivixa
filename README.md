@@ -4,6 +4,8 @@
 
 # Kivixa
 
+*Pronounced: kee-VEE-ha (/kiˈviːhɑː/)*
+
 ### A Modern Cross-Platform Notes & Productivity Application
 
 *Seamlessly blend notes, sketches, and creativity across all your devices*
@@ -147,6 +149,54 @@ Kivixa features a powerful on-device AI engine powered by Microsoft's Phi-4 mode
 - **No Cloud Dependencies** - Works completely offline
 - **Export Control** - You own your data, export anytime
 
+### **In-App Browser (NEW)**
+A fully-featured web browser built into Kivixa for seamless research and reference.
+
+- **Core Browser Features**
+  - **WebView2 Engine** (Windows) / Native WebView (Android) via flutter_inappwebview
+  - Full navigation controls (back, forward, reload, home)
+  - URL bar with security indicators (🔒 for HTTPS)
+  - Loading progress indicator
+  - Page title display
+
+- **Find in Page**
+  - Search text within web pages
+  - Match count display with navigation (previous/next)
+  - Keyboard shortcut support (Ctrl+F)
+
+- **Developer Console**
+  - JavaScript console log viewer
+  - Color-coded log levels (Error, Warning, Debug, Log, Tip)
+  - Timestamps for each log entry
+  - Clear console functionality
+  - Toggle with Ctrl+Shift+J
+
+- **Smart Features**
+  - **Dark Mode Injection** - Force dark mode on any website via CSS
+  - **Permission Handling** - Camera, microphone, and location permission dialogs
+  - **Download Support** - External browser handoff for downloads
+  - **JavaScript Dialogs** - Alert, confirm, and prompt support
+
+- **Keyboard Shortcuts**
+  - `Ctrl+L` - Focus URL bar
+  - `Ctrl+F` - Toggle find-in-page
+  - `Ctrl+R` or `F5` - Reload page
+  - `Ctrl+Shift+J` - Toggle console
+  - `Escape` - Close panels
+
+- **Quick Links**
+  - Google, GitHub, Stack Overflow, Wikipedia, YouTube, Reddit
+  - Shown on new tab/home page
+
+- **Android Integration**
+  - Back button navigation (go back in history first)
+  - Gesture handling
+
+- **Floating Browser Window**
+  - Quick access browser overlay
+  - Resizable and moveable
+  - Separate browsing session
+
 ---
 
 ## Getting Started
@@ -243,6 +293,7 @@ flutter build ios --release
 - **Storage**: `shared_preferences`, `flutter_secure_storage`
 - **Version Control**: `crypto` (SHA-256 for content-addressable storage)
 - **Scripting**: `lua_dardo` (Lua 5.3 interpreter)
+- **Browser**: `flutter_inappwebview` (WebView2/WebView integration)
 - **Utilities**: `go_router`, `url_launcher`, `screenshot`
 
 *Full dependency list available in [pubspec](pubspec.yaml)*

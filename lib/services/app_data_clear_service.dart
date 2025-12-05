@@ -1,8 +1,11 @@
 import 'dart:io';
 
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:kivixa/data/calendar_storage.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/project_storage.dart';
+import 'package:kivixa/services/ai/vector_db_service.dart';
+import 'package:kivixa/services/browser_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Enum representing different types of app data that can be cleared
@@ -13,6 +16,8 @@ enum AppDataType {
   calendar('Calendar Events', 'All calendar events and tasks'),
   preferences('Preferences', 'All app settings and preferences'),
   recentFiles('Recent Files', 'Recently accessed files list'),
+  aiData('AI Data', 'AI embeddings, vector database, and chat history'),
+  browserData('Browser Data', 'Bookmarks, history, cache, and cookies'),
   all('All Data', 'Clear all app data completely');
 
   final String displayName;
@@ -50,6 +55,12 @@ class AppDataClearService {
             results[dataType] = true;
           case AppDataType.recentFiles:
             await _clearRecentFiles();
+            results[dataType] = true;
+          case AppDataType.aiData:
+            await _clearAIData();
+            results[dataType] = true;
+          case AppDataType.browserData:
+            await _clearBrowserData();
             results[dataType] = true;
           case AppDataType.all:
             await _clearAllData();
@@ -113,6 +124,39 @@ class AppDataClearService {
     await prefs.remove('recentFiles');
   }
 
+  /// Clears AI data (vector embeddings, cached results)
+  static Future<void> _clearAIData() async {
+    try {
+      // Clear vector database embeddings
+      final vectorDb = VectorDBService();
+      await vectorDb.clear();
+
+      // Clear any AI-related SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final aiKeys = prefs.getKeys().where((k) => k.startsWith('ai_')).toList();
+      for (final key in aiKeys) {
+        await prefs.remove(key);
+      }
+    } catch (e) {
+      // Vector DB might not be initialized, that's okay
+    }
+  }
+
+  /// Clears browser data (bookmarks, history, cache, cookies)
+  static Future<void> _clearBrowserData() async {
+    try {
+      // Clear browser service data (bookmarks, history, tabs)
+      final browserService = BrowserService.instance;
+      await browserService.clearAll();
+
+      // Clear WebView cache and cookies
+      await InAppWebViewController.clearAllCache();
+      await CookieManager.instance().deleteAllCookies();
+    } catch (e) {
+      // Browser service might not be initialized, that's okay
+    }
+  }
+
   /// Clears all app data
   static Future<void> _clearAllData() async {
     // Clear all files in the documents directory
@@ -141,6 +185,12 @@ class AppDataClearService {
     // Clear projects and calendar
     await _clearProjects();
     await _clearCalendar();
+
+    // Clear AI data
+    await _clearAIData();
+
+    // Clear browser data
+    await _clearBrowserData();
   }
 
   /// Gets the estimated size of each data type
