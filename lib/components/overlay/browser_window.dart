@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:kivixa/components/overlay/floating_window.dart';
+import 'package:kivixa/services/browser_service.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// A floating browser window for quick web access.
@@ -203,6 +205,71 @@ class _BrowserWindowState extends State<BrowserWindow> {
                 tooltip: 'Open in system browser',
                 onPressed: _openInSystemBrowser,
               ),
+              // Menu button
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert),
+                iconSize: 18,
+                tooltip: 'More options',
+                onSelected: _handleMenuAction,
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'bookmark',
+                    child: ListTile(
+                      leading: Icon(Icons.bookmark_border),
+                      title: Text('Bookmark'),
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'share',
+                    child: ListTile(
+                      leading: Icon(Icons.share),
+                      title: Text('Share'),
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'copy_url',
+                    child: ListTile(
+                      leading: Icon(Icons.content_copy),
+                      title: Text('Copy URL'),
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  const PopupMenuDivider(),
+                  const PopupMenuItem(
+                    value: 'bookmarks',
+                    child: ListTile(
+                      leading: Icon(Icons.bookmark),
+                      title: Text('Bookmarks'),
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'history',
+                    child: ListTile(
+                      leading: Icon(Icons.history),
+                      title: Text('History'),
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  const PopupMenuDivider(),
+                  const PopupMenuItem(
+                    value: 'clear_data',
+                    child: ListTile(
+                      leading: Icon(Icons.delete_sweep),
+                      title: Text('Clear browsing data'),
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -350,6 +417,210 @@ class _BrowserWindowState extends State<BrowserWindow> {
     final uri = Uri.tryParse(_currentUrl);
     if (uri != null) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  /// Handle menu item selection
+  Future<void> _handleMenuAction(String action) async {
+    switch (action) {
+      case 'bookmark':
+        await _addBookmark();
+      case 'share':
+        await _shareUrl();
+      case 'copy_url':
+        _copyUrl();
+      case 'bookmarks':
+        _showBookmarks();
+      case 'history':
+        _showHistory();
+      case 'clear_data':
+        await _clearBrowsingData();
+    }
+  }
+
+  Future<void> _addBookmark() async {
+    final browserService = BrowserService.instance;
+    final title = _urlController.text.split('/').last;
+    final pageTitle = title.isNotEmpty ? title : 'Bookmark';
+
+    await browserService.addBookmark(title: pageTitle, url: _currentUrl);
+
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Bookmark added')));
+    }
+  }
+
+  Future<void> _shareUrl() async {
+    await SharePlus.instance.share(ShareParams(text: _currentUrl));
+  }
+
+  void _copyUrl() {
+    Clipboard.setData(ClipboardData(text: _currentUrl));
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('URL copied to clipboard')));
+    }
+  }
+
+  void _showBookmarks() {
+    final browserService = BrowserService.instance;
+    final bookmarks = browserService.bookmarks;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Bookmarks'),
+        content: SizedBox(
+          width: 400,
+          height: 300,
+          child: bookmarks.isEmpty
+              ? const Center(child: Text('No bookmarks yet'))
+              : ListView.builder(
+                  itemCount: bookmarks.length,
+                  itemBuilder: (context, index) {
+                    final bookmark = bookmarks[index];
+                    return ListTile(
+                      leading: const Icon(Icons.bookmark),
+                      title: Text(
+                        bookmark.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(
+                        bookmark.url,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _navigateTo(bookmark.url);
+                      },
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () async {
+                          await browserService.removeBookmarkById(bookmark.id);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            _showBookmarks(); // Refresh
+                          }
+                        },
+                      ),
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showHistory() {
+    final browserService = BrowserService.instance;
+    final history = browserService.history;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('History'),
+        content: SizedBox(
+          width: 400,
+          height: 300,
+          child: history.isEmpty
+              ? const Center(child: Text('No history yet'))
+              : ListView.builder(
+                  itemCount: history.length,
+                  itemBuilder: (context, index) {
+                    final url = history[index];
+                    // Extract domain from URL for display
+                    final uri = Uri.tryParse(url);
+                    final displayTitle = uri?.host ?? url;
+                    return ListTile(
+                      leading: const Icon(Icons.history),
+                      title: Text(
+                        displayTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(
+                        url,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _navigateTo(url);
+                      },
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          if (history.isNotEmpty)
+            TextButton(
+              onPressed: () async {
+                await browserService.clearHistory();
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Clear History'),
+            ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _clearBrowsingData() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear Browsing Data'),
+        content: const Text(
+          'This will clear all browsing data including:\n'
+          '• History\n'
+          '• Bookmarks\n'
+          '• Cache & Cookies\n\n'
+          'This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Clear All'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) {
+      final browserService = BrowserService.instance;
+      await browserService.clearAll();
+      await InAppWebViewController.clearAllCache();
+      await CookieManager.instance().deleteAllCookies();
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Browsing data cleared')));
+      }
     }
   }
 }

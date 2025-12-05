@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:kivixa/services/browser_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -87,6 +88,8 @@ class _BrowserPageState extends State<BrowserPage> {
   var _currentFindResult = 0;
   var _currentUrl = '';
   var _pageTitle = '';
+  var _desktopModeEnabled = false;
+  final _showTabBar = true;
 
   /// Console log entries
   final _consoleLogs = <ConsoleLogEntry>[];
@@ -94,6 +97,16 @@ class _BrowserPageState extends State<BrowserPage> {
   /// Whether we're on a desktop platform
   bool get _isDesktop =>
       !kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux);
+
+  /// Desktop user agent for desktop mode toggle
+  static const _desktopUserAgent =
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+      '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
+  /// Mobile user agent for mobile mode
+  static const _mobileUserAgent =
+      'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 '
+      '(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
 
   /// Default home page
   static const _homePage = 'https://www.google.com';
@@ -114,15 +127,28 @@ class _BrowserPageState extends State<BrowserPage> {
     _currentUrl = widget.initialUrl ?? _homePage;
     _urlController.text = _currentUrl;
     _initBrowserService();
+    BrowserService.instance.addListener(_onBrowserServiceChanged);
+  }
+
+  void _onBrowserServiceChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _initBrowserService() async {
     await BrowserService.instance.init();
+    // Load current tab URL
+    final currentTab = BrowserService.instance.currentTab;
+    if (currentTab != null && currentTab.url.isNotEmpty) {
+      _currentUrl = currentTab.url;
+      _pageTitle = currentTab.title;
+      _urlController.text = _currentUrl;
+    }
     if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    BrowserService.instance.removeListener(_onBrowserServiceChanged);
     _urlController.dispose();
     _urlFocusNode.dispose();
     _searchController.dispose();
@@ -164,12 +190,34 @@ class _BrowserPageState extends State<BrowserPage> {
                 LogicalKeyboardKey.control,
                 LogicalKeyboardKey.keyR,
               ): const _RefreshIntent(),
+              // F5 for refresh
+              const SingleActivator(LogicalKeyboardKey.f5):
+                  const _RefreshIntent(),
               LogicalKeySet(LogicalKeyboardKey.escape): const _EscapeIntent(),
               LogicalKeySet(
                 LogicalKeyboardKey.control,
                 LogicalKeyboardKey.shift,
                 LogicalKeyboardKey.keyJ,
               ): const _ToggleConsoleIntent(),
+              // Ctrl+T for new tab
+              LogicalKeySet(
+                LogicalKeyboardKey.control,
+                LogicalKeyboardKey.keyT,
+              ): const _NewTabIntent(),
+              // Ctrl+W to close tab
+              LogicalKeySet(
+                LogicalKeyboardKey.control,
+                LogicalKeyboardKey.keyW,
+              ): const _CloseTabIntent(),
+              // Ctrl+Tab for next tab
+              LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.tab):
+                  const _NextTabIntent(),
+              // Ctrl+Shift+Tab for previous tab
+              LogicalKeySet(
+                LogicalKeyboardKey.control,
+                LogicalKeyboardKey.shift,
+                LogicalKeyboardKey.tab,
+              ): const _PreviousTabIntent(),
             }
           : <ShortcutActivator, Intent>{},
       child: Actions(
@@ -189,6 +237,18 @@ class _BrowserPageState extends State<BrowserPage> {
           _ToggleConsoleIntent: CallbackAction<_ToggleConsoleIntent>(
             onInvoke: (_) => _toggleConsole(),
           ),
+          _NewTabIntent: CallbackAction<_NewTabIntent>(
+            onInvoke: (_) => _openNewTab(),
+          ),
+          _CloseTabIntent: CallbackAction<_CloseTabIntent>(
+            onInvoke: (_) => _closeCurrentTab(),
+          ),
+          _NextTabIntent: CallbackAction<_NextTabIntent>(
+            onInvoke: (_) => _nextTab(),
+          ),
+          _PreviousTabIntent: CallbackAction<_PreviousTabIntent>(
+            onInvoke: (_) => _previousTab(),
+          ),
         },
         child: Focus(
           autofocus: true,
@@ -204,6 +264,9 @@ class _BrowserPageState extends State<BrowserPage> {
             child: Scaffold(
               body: Column(
                 children: [
+                  // Tab bar
+                  if (_showTabBar) _buildTabBar(context),
+
                   // Browser toolbar
                   _buildToolbar(context),
 
@@ -253,6 +316,122 @@ class _BrowserPageState extends State<BrowserPage> {
     setState(() => _showConsole = !_showConsole);
   }
 
+  /// Build the tab bar showing all open tabs
+  Widget _buildTabBar(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final tabs = BrowserService.instance.tabs;
+    final currentIndex = BrowserService.instance.currentTabIndex;
+
+    return Container(
+      height: 40,
+      padding: EdgeInsets.only(
+        left: 8,
+        right: 8,
+        top: MediaQuery.of(context).padding.top,
+      ),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
+      ),
+      child: Row(
+        children: [
+          // Tab list
+          Expanded(
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: tabs.length,
+              itemBuilder: (context, index) {
+                final tab = tabs[index];
+                final isSelected = index == currentIndex;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Material(
+                    color: isSelected
+                        ? colorScheme.primaryContainer
+                        : colorScheme.surfaceContainerLow,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(8),
+                    ),
+                    child: InkWell(
+                      onTap: () => _switchToTab(index),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(8),
+                      ),
+                      child: Container(
+                        constraints: const BoxConstraints(
+                          maxWidth: 180,
+                          minWidth: 100,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              tab.isLoading
+                                  ? Icons.hourglass_empty
+                                  : Icons.language,
+                              size: 14,
+                              color: isSelected
+                                  ? colorScheme.onPrimaryContainer
+                                  : colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                tab.title.isEmpty ? 'New Tab' : tab.title,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                  color: isSelected
+                                      ? colorScheme.onPrimaryContainer
+                                      : colorScheme.onSurfaceVariant,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            InkWell(
+                              onTap: () => _closeTab(index),
+                              borderRadius: BorderRadius.circular(10),
+                              child: Padding(
+                                padding: const EdgeInsets.all(2),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 14,
+                                  color: isSelected
+                                      ? colorScheme.onPrimaryContainer
+                                      : colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          // New tab button
+          IconButton(
+            icon: const Icon(Icons.add),
+            iconSize: 20,
+            tooltip: 'New Tab (Ctrl+T)',
+            onPressed: _openNewTab,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildToolbar(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -261,7 +440,7 @@ class _BrowserPageState extends State<BrowserPage> {
       padding: EdgeInsets.only(
         left: 8,
         right: 8,
-        top: MediaQuery.of(context).padding.top + 8,
+        top: _showTabBar ? 8 : MediaQuery.of(context).padding.top + 8,
         bottom: 8,
       ),
       decoration: BoxDecoration(
@@ -364,10 +543,35 @@ class _BrowserPageState extends State<BrowserPage> {
               ),
               const PopupMenuDivider(),
               const PopupMenuItem(
+                value: 'bookmarks',
+                child: ListTile(
+                  leading: Icon(Icons.bookmark),
+                  title: Text('Bookmarks'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'history',
+                child: ListTile(
+                  leading: Icon(Icons.history),
+                  title: Text('History'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem(
                 value: 'desktop_mode',
                 child: ListTile(
-                  leading: Icon(Icons.desktop_windows),
-                  title: Text('Desktop mode'),
+                  leading: Icon(
+                    _desktopModeEnabled
+                        ? Icons.phone_android
+                        : Icons.desktop_windows,
+                  ),
+                  title: Text(
+                    _desktopModeEnabled ? 'Mobile mode' : 'Desktop mode',
+                  ),
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -395,6 +599,16 @@ class _BrowserPageState extends State<BrowserPage> {
                 child: ListTile(
                   leading: Icon(Icons.dark_mode),
                   title: Text('Toggle dark mode'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: 'clear_data',
+                child: ListTile(
+                  leading: Icon(Icons.delete_sweep),
+                  title: Text('Clear browsing data'),
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -587,12 +801,21 @@ class _BrowserPageState extends State<BrowserPage> {
         _webViewController = controller;
       },
       onLoadStart: (controller, url) {
+        final urlString = url?.toString() ?? '';
         setState(() {
           _isLoading = true;
-          _currentUrl = url?.toString() ?? '';
-          _updateUrlBar(url?.toString() ?? '');
+          _currentUrl = urlString;
+          _updateUrlBar(urlString);
           _isSecure = url?.scheme == 'https';
         });
+        // Update current tab loading state
+        final currentTab = BrowserService.instance.currentTab;
+        if (currentTab != null) {
+          BrowserService.instance.updateTabLoading(
+            currentTab.id,
+            isLoading: true,
+          );
+        }
       },
       onLoadStop: (controller, url) async {
         final urlString = url?.toString() ?? '';
@@ -602,6 +825,19 @@ class _BrowserPageState extends State<BrowserPage> {
           _updateUrlBar(urlString);
         });
         await _updateNavigationState();
+        // Update current tab info
+        final currentTab = BrowserService.instance.currentTab;
+        if (currentTab != null) {
+          BrowserService.instance.updateTabLoading(
+            currentTab.id,
+            isLoading: false,
+          );
+          BrowserService.instance.updateTabInfo(
+            currentTab.id,
+            url: urlString,
+            title: _pageTitle,
+          );
+        }
         // Add to history
         if (urlString.isNotEmpty && !urlString.startsWith('about:')) {
           await BrowserService.instance.addToHistory(urlString);
@@ -611,11 +847,24 @@ class _BrowserPageState extends State<BrowserPage> {
         setState(() {
           _progress = progress / 100;
         });
+        // Update tab progress
+        final currentTab = BrowserService.instance.currentTab;
+        if (currentTab != null) {
+          BrowserService.instance.updateTabLoading(
+            currentTab.id,
+            progress: progress / 100,
+          );
+        }
       },
       onTitleChanged: (controller, title) {
         setState(() {
           _pageTitle = title ?? '';
         });
+        // Update current tab title
+        final currentTab = BrowserService.instance.currentTab;
+        if (currentTab != null && title != null && title.isNotEmpty) {
+          BrowserService.instance.updateTabInfo(currentTab.id, title: title);
+        }
       },
       onReceivedError: (controller, request, error) {
         // Handle errors - could show error page
@@ -724,34 +973,9 @@ class _BrowserPageState extends State<BrowserPage> {
 
         return NavigationActionPolicy.ALLOW;
       },
-      // Android permission request handling
+      // Android/iOS permission request handling with native permission requests
       onPermissionRequest: (controller, request) async {
-        // Show permission dialog to user
-        final granted = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Permission Request'),
-            content: Text(
-              'This website wants to access: ${request.resources.map((r) => r.toString().split('.').last).join(", ")}',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Deny'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Allow'),
-              ),
-            ],
-          ),
-        );
-        return PermissionResponse(
-          resources: request.resources,
-          action: (granted ?? false)
-              ? PermissionResponseAction.GRANT
-              : PermissionResponseAction.DENY,
-        );
+        return await _handlePermissionRequest(request);
       },
       // Download handling
       onDownloadStartRequest: (controller, downloadStartRequest) async {
@@ -785,6 +1009,127 @@ class _BrowserPageState extends State<BrowserPage> {
           }
         }
       },
+    );
+  }
+
+  /// Handle web permission requests with native permission handling
+  Future<PermissionResponse> _handlePermissionRequest(
+    PermissionRequest request,
+  ) async {
+    // Request native permissions based on the web permission request
+    final permissions = <Permission>[];
+    final resourceNames = <String>[];
+
+    for (final resource in request.resources) {
+      final resourceName = resource.toString().split('.').last;
+      resourceNames.add(resourceName);
+
+      // Map web permissions to native permissions
+      if (resourceName.contains('CAMERA')) {
+        permissions.add(Permission.camera);
+      }
+      if (resourceName.contains('MICROPHONE')) {
+        permissions.add(Permission.microphone);
+      }
+      if (resourceName.contains('GEOLOCATION') ||
+          resourceName.contains('LOCATION')) {
+        permissions.add(Permission.location);
+      }
+    }
+
+    // If we have native permissions to request, do that first
+    if (permissions.isNotEmpty && !_isDesktop) {
+      // Check current permission status
+      final statuses = await Future.wait(permissions.map((p) => p.status));
+
+      // Check if any permissions are denied
+      final needsRequest = statuses.any(
+        (s) => s.isDenied || s.isPermanentlyDenied,
+      );
+
+      if (needsRequest) {
+        // Request permissions
+        final results = await permissions.request();
+
+        // Check if all permissions were granted
+        final allGranted = results.values.every(
+          (status) => status.isGranted || status.isLimited,
+        );
+
+        if (!allGranted) {
+          // Show dialog explaining permissions are needed
+          if (!mounted) {
+            return PermissionResponse(
+              resources: request.resources,
+              action: PermissionResponseAction.DENY,
+            );
+          }
+          final tryAgain = await showDialog<bool>(
+            context: context,
+            builder: (dialogContext) => AlertDialog(
+              title: const Text('Permissions Required'),
+              content: Text(
+                'This website needs access to: ${resourceNames.join(", ")}.\n\n'
+                'Please grant the required permissions in your device settings.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  child: const Text('Deny'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    openAppSettings();
+                    Navigator.of(dialogContext).pop(true);
+                  },
+                  child: const Text('Open Settings'),
+                ),
+              ],
+            ),
+          );
+
+          if (tryAgain != true) {
+            return PermissionResponse(
+              resources: request.resources,
+              action: PermissionResponseAction.DENY,
+            );
+          }
+        }
+      }
+    }
+
+    // Show web permission dialog
+    if (!mounted) {
+      return PermissionResponse(
+        resources: request.resources,
+        action: PermissionResponseAction.DENY,
+      );
+    }
+    final granted = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Website Permission'),
+        content: Text(
+          'This website wants to access:\n• ${resourceNames.join("\n• ")}\n\n'
+          'Do you want to allow this?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Deny'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Allow'),
+          ),
+        ],
+      ),
+    );
+    return PermissionResponse(
+      resources: request.resources,
+      action: (granted ?? false)
+          ? PermissionResponseAction.GRANT
+          : PermissionResponseAction.DENY,
     );
   }
 
@@ -1148,17 +1493,79 @@ class _BrowserPageState extends State<BrowserPage> {
 
   /// Open a new tab
   Future<void> _openNewTab() async {
-    await BrowserService.instance.createTab();
+    final tab = await BrowserService.instance.createTab();
     if (mounted) {
       setState(() {
-        _currentUrl = 'https://www.google.com';
+        _currentUrl = tab.url;
         _urlController.text = _currentUrl;
         _pageTitle = 'New Tab';
       });
-      // Load the new tab URL
+      // Load the new tab page
       _webViewController?.loadUrl(
         urlRequest: URLRequest(url: WebUri(_currentUrl)),
       );
+    }
+  }
+
+  /// Switch to a specific tab
+  Future<void> _switchToTab(int index) async {
+    final tabs = BrowserService.instance.tabs;
+    if (index >= 0 && index < tabs.length) {
+      await BrowserService.instance.switchTab(index);
+      final tab = tabs[index];
+      if (mounted) {
+        setState(() {
+          _currentUrl = tab.url;
+          _urlController.text = tab.url;
+          _pageTitle = tab.title;
+        });
+        // Load the tab's URL
+        _webViewController?.loadUrl(
+          urlRequest: URLRequest(url: WebUri(tab.url)),
+        );
+      }
+    }
+  }
+
+  /// Close a specific tab
+  Future<void> _closeTab(int index) async {
+    await BrowserService.instance.closeTab(index);
+    final currentTab = BrowserService.instance.currentTab;
+    if (currentTab != null && mounted) {
+      setState(() {
+        _currentUrl = currentTab.url;
+        _urlController.text = currentTab.url;
+        _pageTitle = currentTab.title;
+      });
+      _webViewController?.loadUrl(
+        urlRequest: URLRequest(url: WebUri(currentTab.url)),
+      );
+    }
+  }
+
+  /// Close the current tab
+  Future<void> _closeCurrentTab() async {
+    final currentIndex = BrowserService.instance.currentTabIndex;
+    await _closeTab(currentIndex);
+  }
+
+  /// Switch to next tab
+  Future<void> _nextTab() async {
+    final tabs = BrowserService.instance.tabs;
+    final currentIndex = BrowserService.instance.currentTabIndex;
+    if (tabs.length > 1) {
+      final nextIndex = (currentIndex + 1) % tabs.length;
+      await _switchToTab(nextIndex);
+    }
+  }
+
+  /// Switch to previous tab
+  Future<void> _previousTab() async {
+    final tabs = BrowserService.instance.tabs;
+    final currentIndex = BrowserService.instance.currentTabIndex;
+    if (tabs.length > 1) {
+      final prevIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+      await _switchToTab(prevIndex);
     }
   }
 
@@ -1332,12 +1739,40 @@ class _BrowserPageState extends State<BrowserPage> {
     }
   }
 
-  void _toggleDesktopMode() {
-    // Toggle user agent between mobile and desktop
-    // This would require recreating the webview with different settings
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Desktop mode toggle coming soon!')),
+  /// Toggle between desktop and mobile user agent
+  Future<void> _toggleDesktopMode() async {
+    setState(() {
+      _desktopModeEnabled = !_desktopModeEnabled;
+    });
+
+    final userAgent = _desktopModeEnabled
+        ? _desktopUserAgent
+        : _mobileUserAgent;
+
+    // Update the user agent via JavaScript
+    await _webViewController?.evaluateJavascript(
+      source:
+          '''
+        Object.defineProperty(navigator, 'userAgent', {
+          get: function() { return '$userAgent'; }
+        });
+      ''',
     );
+
+    // Reload page with new user agent setting
+    await _webViewController?.reload();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _desktopModeEnabled
+                ? 'Desktop mode enabled'
+                : 'Mobile mode enabled',
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _viewPageSource() async {
@@ -1450,6 +1885,22 @@ class _EscapeIntent extends Intent {
 
 class _ToggleConsoleIntent extends Intent {
   const _ToggleConsoleIntent();
+}
+
+class _NewTabIntent extends Intent {
+  const _NewTabIntent();
+}
+
+class _CloseTabIntent extends Intent {
+  const _CloseTabIntent();
+}
+
+class _NextTabIntent extends Intent {
+  const _NextTabIntent();
+}
+
+class _PreviousTabIntent extends Intent {
+  const _PreviousTabIntent();
 }
 
 /// Bookmarks bottom sheet

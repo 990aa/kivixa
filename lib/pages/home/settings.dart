@@ -4,6 +4,7 @@ import 'package:collapsible/collapsible.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kivixa/components/navbar/responsive_navbar.dart';
@@ -27,6 +28,7 @@ import 'package:kivixa/data/tools/shape_pen.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/lock_screen.dart';
 import 'package:kivixa/services/app_lock_service.dart';
+import 'package:kivixa/services/browser_service.dart';
 import 'package:kivixa/services/life_git/life_git_service.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:stow/stow.dart';
@@ -582,6 +584,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 const _LifeGitAutoCleanupSetting(),
                 _LifeGitStatsWidget(),
+                const SettingsSubtitle(subtitle: 'Browser'),
+                const _BrowserSettingsSection(),
                 const SettingsSubtitle(subtitle: 'Data Management'),
                 const _DeleteDataOnUninstallWidget(),
                 const ClearAppDataWidget(),
@@ -1212,6 +1216,258 @@ class _DeleteDataOnUninstallWidgetState
           onTap: _toggleSetting,
         ),
       ),
+    );
+  }
+}
+
+/// Browser settings section
+class _BrowserSettingsSection extends StatefulWidget {
+  const _BrowserSettingsSection();
+
+  @override
+  State<_BrowserSettingsSection> createState() =>
+      _BrowserSettingsSectionState();
+}
+
+class _BrowserSettingsSectionState extends State<_BrowserSettingsSection> {
+  final _browserService = BrowserService.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _browserService.addListener(_onChanged);
+  }
+
+  @override
+  void dispose() {
+    _browserService.removeListener(_onChanged);
+    super.dispose();
+  }
+
+  void _onChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _clearHistory() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear History'),
+        content: const Text(
+          'Are you sure you want to clear your browsing history?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) {
+      await _browserService.clearHistory();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Browsing history cleared')),
+        );
+      }
+    }
+  }
+
+  Future<void> _clearBookmarks() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear Bookmarks'),
+        content: const Text('Are you sure you want to delete all bookmarks?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete All'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) {
+      await _browserService.clearBookmarks();
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('All bookmarks deleted')));
+      }
+    }
+  }
+
+  Future<void> _clearTabs() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Close All Tabs'),
+        content: const Text('Are you sure you want to close all open tabs?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Close All'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) {
+      // Close all tabs and create a fresh one
+      final tabs = _browserService.tabs;
+      for (var i = tabs.length - 1; i > 0; i--) {
+        await _browserService.closeTab(i);
+      }
+      if (tabs.isNotEmpty) {
+        await _browserService.closeTab(0);
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('All tabs closed')));
+      }
+    }
+  }
+
+  Future<void> _clearCache() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear Cache'),
+        content: const Text(
+          'Are you sure you want to clear all browser cache and cookies?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) {
+      await InAppWebViewController.clearAllCache();
+      await CookieManager.instance().deleteAllCookies();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Browser cache and cookies cleared')),
+        );
+      }
+    }
+  }
+
+  Future<void> _clearAllBrowserData() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear All Browser Data'),
+        content: const Text(
+          'This will clear all browsing data including:\n'
+          '• History\n'
+          '• Bookmarks\n'
+          '• Tabs\n'
+          '• Cache & Cookies\n\n'
+          'This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Clear All'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) {
+      await _browserService.clearAll();
+      await InAppWebViewController.clearAllCache();
+      await CookieManager.instance().deleteAllCookies();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('All browser data cleared')),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+    final historyCount = _browserService.history.length;
+    final bookmarkCount = _browserService.bookmarks.length;
+    final tabCount = _browserService.tabs.length;
+
+    return Column(
+      children: [
+        SettingsButton(
+          title: 'Clear History',
+          subtitle: '$historyCount items',
+          icon: Icons.history,
+          onPressed: historyCount > 0 ? _clearHistory : null,
+        ),
+        SettingsButton(
+          title: 'Clear Bookmarks',
+          subtitle: '$bookmarkCount bookmarks',
+          icon: Icons.bookmark,
+          onPressed: bookmarkCount > 0 ? _clearBookmarks : null,
+        ),
+        SettingsButton(
+          title: 'Close All Tabs',
+          subtitle: '$tabCount tabs open',
+          icon: Icons.tab,
+          onPressed: tabCount > 1 ? _clearTabs : null,
+        ),
+        SettingsButton(
+          title: 'Clear Cache & Cookies',
+          subtitle: 'Remove cached data and cookies',
+          icon: Icons.delete_outline,
+          onPressed: _clearCache,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: Card(
+            color: colorScheme.errorContainer,
+            child: ListTile(
+              leading: Icon(Icons.delete_forever, color: colorScheme.error),
+              title: const Text('Clear All Browser Data'),
+              subtitle: const Text('History, bookmarks, tabs, cache'),
+              onTap: _clearAllBrowserData,
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: colorScheme.error,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
