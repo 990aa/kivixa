@@ -452,9 +452,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
     await browserService.addBookmark(title: pageTitle, url: _currentUrl);
 
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Bookmark added')));
+      _showMessage('Bookmark added');
     }
   }
 
@@ -465,9 +463,54 @@ class _BrowserWindowState extends State<BrowserWindow> {
   void _copyUrl() {
     Clipboard.setData(ClipboardData(text: _currentUrl));
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('URL copied to clipboard')));
+      _showMessage('URL copied to clipboard');
+    }
+  }
+
+  /// Show a message using ScaffoldMessenger if available, or fallback to overlay
+  void _showMessage(String message) {
+    final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
+    if (scaffoldMessenger != null) {
+      scaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
+    } else {
+      // Fallback: Show a temporary overlay message
+      final overlay = Overlay.maybeOf(context);
+      if (overlay != null) {
+        late OverlayEntry entry;
+        entry = OverlayEntry(
+          builder: (context) => Positioned(
+            bottom: 50,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.inverseSurface,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    message,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onInverseSurface,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        overlay.insert(entry);
+        Future.delayed(const Duration(seconds: 2), () {
+          entry.remove();
+        });
+      }
     }
   }
 
@@ -477,7 +520,8 @@ class _BrowserWindowState extends State<BrowserWindow> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      useRootNavigator: true,
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Bookmarks'),
         content: SizedBox(
           width: 400,
@@ -501,15 +545,15 @@ class _BrowserWindowState extends State<BrowserWindow> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.pop(dialogContext);
                         _navigateTo(bookmark.url);
                       },
                       trailing: IconButton(
                         icon: const Icon(Icons.delete),
                         onPressed: () async {
                           await browserService.removeBookmarkById(bookmark.id);
-                          if (context.mounted) {
-                            Navigator.pop(context);
+                          if (dialogContext.mounted) {
+                            Navigator.pop(dialogContext);
                             _showBookmarks(); // Refresh
                           }
                         },
@@ -520,7 +564,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Close'),
           ),
         ],
@@ -534,7 +578,8 @@ class _BrowserWindowState extends State<BrowserWindow> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      useRootNavigator: true,
+      builder: (dialogContext) => AlertDialog(
         title: const Text('History'),
         content: SizedBox(
           width: 400,
@@ -543,7 +588,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
               ? const Center(child: Text('No history yet'))
               : ListView.builder(
                   itemCount: history.length,
-                  itemBuilder: (context, index) {
+                  itemBuilder: (_, index) {
                     final url = history[index];
                     // Extract domain from URL for display
                     final uri = Uri.tryParse(url);
@@ -561,7 +606,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.pop(dialogContext);
                         _navigateTo(url);
                       },
                     );
@@ -573,14 +618,14 @@ class _BrowserWindowState extends State<BrowserWindow> {
             TextButton(
               onPressed: () async {
                 await browserService.clearHistory();
-                if (context.mounted) {
-                  Navigator.pop(context);
+                if (dialogContext.mounted) {
+                  Navigator.pop(dialogContext);
                 }
               },
               child: const Text('Clear History'),
             ),
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Close'),
           ),
         ],
@@ -591,7 +636,8 @@ class _BrowserWindowState extends State<BrowserWindow> {
   Future<void> _clearBrowsingData() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      useRootNavigator: true,
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Clear Browsing Data'),
         content: const Text(
           'This will clear all browsing data including:\n'
@@ -602,13 +648,13 @@ class _BrowserWindowState extends State<BrowserWindow> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(dialogContext, false),
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(dialogContext, true),
             style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(dialogContext).colorScheme.error,
             ),
             child: const Text('Clear All'),
           ),
@@ -623,9 +669,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
       await CookieManager.instance().deleteAllCookies();
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Browsing data cleared')));
+        _showMessage('Browsing data cleared');
       }
     }
   }
