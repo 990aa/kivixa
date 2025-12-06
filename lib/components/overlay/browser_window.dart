@@ -41,6 +41,12 @@ class _BrowserWindowState extends State<BrowserWindow> {
     super.initState();
     OverlayController.instance.addListener(_onOverlayChanged);
     _urlController.text = _currentUrl;
+    _initBrowserService();
+  }
+
+  Future<void> _initBrowserService() async {
+    await BrowserService.instance.init();
+    if (mounted) setState(() {});
   }
 
   void _onOverlayChanged() {

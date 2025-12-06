@@ -1408,20 +1408,21 @@ class _BrowserPageState extends State<BrowserPage> {
   }
 
   void _toggleFindBar() {
-    // Find-in-page is not supported on desktop platforms
-    if (_isDesktop) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Find in page is not supported on desktop yet'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
     setState(() {
       _showFindBar = !_showFindBar;
       if (!_showFindBar) {
-        _findInteractionController?.clearMatches();
+        if (_isDesktop) {
+          // Clear JavaScript-based find highlighting
+          _webViewController?.evaluateJavascript(source: '''
+            (function() {
+              if (window.__kivixaFindHighlight) {
+                window.__kivixaFindHighlight.clear();
+              }
+            })();
+          ''');
+        } else {
+          _findInteractionController?.clearMatches();
+        }
         _searchController.clear();
         _findResultCount = 0;
         _currentFindResult = 0;
@@ -1432,7 +1433,18 @@ class _BrowserPageState extends State<BrowserPage> {
   void _closeFindBar() {
     setState(() {
       _showFindBar = false;
-      _findInteractionController?.clearMatches();
+      if (_isDesktop) {
+        // Clear JavaScript-based find highlighting
+        _webViewController?.evaluateJavascript(source: '''
+          (function() {
+            if (window.__kivixaFindHighlight) {
+              window.__kivixaFindHighlight.clear();
+            }
+          })();
+        ''');
+      } else {
+        _findInteractionController?.clearMatches();
+      }
       _searchController.clear();
       _findResultCount = 0;
       _currentFindResult = 0;
@@ -1441,22 +1453,183 @@ class _BrowserPageState extends State<BrowserPage> {
 
   void _findInPage(String query) {
     if (query.isEmpty) {
-      _findInteractionController?.clearMatches();
+      if (_isDesktop) {
+        _webViewController?.evaluateJavascript(source: '''
+          (function() {
+            if (window.__kivixaFindHighlight) {
+              window.__kivixaFindHighlight.clear();
+            }
+          })();
+        ''');
+      } else {
+        _findInteractionController?.clearMatches();
+      }
       setState(() {
         _findResultCount = 0;
         _currentFindResult = 0;
       });
       return;
     }
-    _findInteractionController?.findAll(find: query);
+    if (_isDesktop) {
+      _findInPageDesktop(query);
+    } else {
+      _findInteractionController?.findAll(find: query);
+    }
+  }
+
+  /// JavaScript-based find in page for desktop platforms
+  Future<void> _findInPageDesktop(String query) async {
+    final escapedQuery = query.replaceAll("'", "\\'").replaceAll('"', '\\"');
+    final result = await _webViewController?.evaluateJavascript(source: '''
+      (function() {
+        // Initialize find highlight helper
+        if (!window.__kivixaFindHighlight) {
+          window.__kivixaFindHighlight = {
+            matches: [],
+            currentIndex: -1,
+            originalStyles: [],
+            clear: function() {
+              for (var i = 0; i < this.matches.length; i++) {
+                var match = this.matches[i];
+                if (match.parentNode) {
+                  match.parentNode.replaceChild(document.createTextNode(match.textContent), match);
+                }
+              }
+              this.matches = [];
+              this.currentIndex = -1;
+            },
+            highlight: function(query) {
+              this.clear();
+              if (!query) return { count: 0, current: 0 };
+              
+              var body = document.body;
+              var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, null, false);
+              var nodes = [];
+              while (walker.nextNode()) {
+                if (walker.currentNode.textContent.toLowerCase().indexOf(query.toLowerCase()) !== -1) {
+                  nodes.push(walker.currentNode);
+                }
+              }
+              
+              for (var i = 0; i < nodes.length; i++) {
+                var node = nodes[i];
+                var text = node.textContent;
+                var lowerText = text.toLowerCase();
+                var lowerQuery = query.toLowerCase();
+                var idx = lowerText.indexOf(lowerQuery);
+                while (idx !== -1) {
+                  var before = text.substring(0, idx);
+                  var match = text.substring(idx, idx + query.length);
+                  var after = text.substring(idx + query.length);
+                  
+                  var span = document.createElement('span');
+                  span.style.backgroundColor = '#ffeb3b';
+                  span.style.color = 'black';
+                  span.textContent = match;
+                  span.className = '__kivixa_find_match';
+                  this.matches.push(span);
+                  
+                  var parent = node.parentNode;
+                  parent.insertBefore(document.createTextNode(before), node);
+                  parent.insertBefore(span, node);
+                  node.textContent = after;
+                  text = after;
+                  lowerText = text.toLowerCase();
+                  idx = lowerText.indexOf(lowerQuery);
+                }
+              }
+              
+              if (this.matches.length > 0) {
+                this.currentIndex = 0;
+                this.matches[0].style.backgroundColor = '#ff9800';
+                this.matches[0].scrollIntoView({ block: 'center', behavior: 'smooth' });
+              }
+              
+              return { count: this.matches.length, current: this.matches.length > 0 ? 1 : 0 };
+            },
+            next: function() {
+              if (this.matches.length === 0) return { count: 0, current: 0 };
+              this.matches[this.currentIndex].style.backgroundColor = '#ffeb3b';
+              this.currentIndex = (this.currentIndex + 1) % this.matches.length;
+              this.matches[this.currentIndex].style.backgroundColor = '#ff9800';
+              this.matches[this.currentIndex].scrollIntoView({ block: 'center', behavior: 'smooth' });
+              return { count: this.matches.length, current: this.currentIndex + 1 };
+            },
+            prev: function() {
+              if (this.matches.length === 0) return { count: 0, current: 0 };
+              this.matches[this.currentIndex].style.backgroundColor = '#ffeb3b';
+              this.currentIndex = (this.currentIndex - 1 + this.matches.length) % this.matches.length;
+              this.matches[this.currentIndex].style.backgroundColor = '#ff9800';
+              this.matches[this.currentIndex].scrollIntoView({ block: 'center', behavior: 'smooth' });
+              return { count: this.matches.length, current: this.currentIndex + 1 };
+            }
+          };
+        }
+        return JSON.stringify(window.__kivixaFindHighlight.highlight('$escapedQuery'));
+      })();
+    ''');
+    
+    if (result != null) {
+      try {
+        final jsonStr = result.toString().replaceAll('"', '').replaceAll("'", '"');
+        if (jsonStr.contains('count')) {
+          final match = RegExp(r'count:\s*(\d+)').firstMatch(jsonStr);
+          final currentMatch = RegExp(r'current:\s*(\d+)').firstMatch(jsonStr);
+          if (match != null) {
+            setState(() {
+              _findResultCount = int.tryParse(match.group(1) ?? '0') ?? 0;
+              _currentFindResult = int.tryParse(currentMatch?.group(1) ?? '0') ?? 0;
+            });
+          }
+        }
+      } catch (e) {
+        debugPrint('Find parse error: $e');
+      }
+    }
   }
 
   void _findNext() {
-    _findInteractionController?.findNext(forward: true);
+    if (_isDesktop) {
+      _findNextDesktop(forward: true);
+    } else {
+      _findInteractionController?.findNext(forward: true);
+    }
   }
 
   void _findPrevious() {
-    _findInteractionController?.findNext(forward: false);
+    if (_isDesktop) {
+      _findNextDesktop(forward: false);
+    } else {
+      _findInteractionController?.findNext(forward: false);
+    }
+  }
+
+  Future<void> _findNextDesktop({required bool forward}) async {
+    final method = forward ? 'next' : 'prev';
+    final result = await _webViewController?.evaluateJavascript(source: '''
+      (function() {
+        if (window.__kivixaFindHighlight) {
+          return JSON.stringify(window.__kivixaFindHighlight.$method());
+        }
+        return '{"count":0,"current":0}';
+      })();
+    ''');
+    
+    if (result != null) {
+      try {
+        final jsonStr = result.toString();
+        final match = RegExp(r'count[":]\s*(\d+)').firstMatch(jsonStr);
+        final currentMatch = RegExp(r'current[":]\s*(\d+)').firstMatch(jsonStr);
+        if (match != null) {
+          setState(() {
+            _findResultCount = int.tryParse(match.group(1) ?? '0') ?? 0;
+            _currentFindResult = int.tryParse(currentMatch?.group(1) ?? '0') ?? 0;
+          });
+        }
+      } catch (e) {
+        debugPrint('Find next parse error: $e');
+      }
+    }
   }
 
   void _handleMenuAction(String action) {

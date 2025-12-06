@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kivixa/pages/home/ai_chat.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
+import 'package:kivixa/services/ai/model_manager.dart';
 
 /// A single message in the chat
 class AIChatMessage {
@@ -48,18 +49,62 @@ class AIChatMessage {
 /// Controller for managing chat state
 class AIChatController extends ChangeNotifier {
   final InferenceService _inferenceService;
+  final _modelManager = ModelManager();
   final List<AIChatMessage> _messages = [];
   var _isGenerating = false;
+  var _isInitializing = false;
   String? _systemPrompt;
+  String? _loadedModelName;
 
   AIChatController({InferenceService? inferenceService, String? systemPrompt})
     : _inferenceService = inferenceService ?? InferenceService(),
-      _systemPrompt = systemPrompt;
+      _systemPrompt = systemPrompt {
+    _initializeModel();
+  }
 
   List<AIChatMessage> get messages => List.unmodifiable(_messages);
   bool get isGenerating => _isGenerating;
   bool get isModelLoaded => _inferenceService.isModelLoaded;
+  bool get isInitializing => _isInitializing;
+  String? get loadedModelName => _loadedModelName;
   String? get systemPrompt => _systemPrompt;
+
+  /// Initialize and auto-load model if downloaded
+  Future<void> _initializeModel() async {
+    _isInitializing = true;
+    notifyListeners();
+
+    try {
+      await _modelManager.initialize();
+      await _inferenceService.initialize();
+
+      // Check if model is already loaded in native
+      if (_inferenceService.isModelLoaded) {
+        _loadedModelName = ModelManager.defaultModel.name;
+        _isInitializing = false;
+        notifyListeners();
+        return;
+      }
+
+      // Check if model is downloaded and auto-load it
+      final isDownloaded = await _modelManager.isModelDownloaded();
+      if (isDownloaded) {
+        final modelPath = await _modelManager.getModelPath();
+        await _inferenceService.loadModel(modelPath);
+        _loadedModelName = ModelManager.defaultModel.name;
+      }
+    } catch (e) {
+      debugPrint('Failed to initialize model: $e');
+    } finally {
+      _isInitializing = false;
+      notifyListeners();
+    }
+  }
+
+  /// Retry loading the model
+  Future<void> retryLoadModel() async {
+    await _initializeModel();
+  }
 
   set systemPrompt(String? value) {
     _systemPrompt = value;
@@ -283,7 +328,52 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                           ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
-                if (!widget.controller.isModelLoaded)
+                // Model status chip
+                if (widget.controller.isInitializing)
+                  Chip(
+                    label: Text(isCompact ? 'Loading...' : 'Loading model...'),
+                    backgroundColor: colorScheme.secondaryContainer,
+                    labelStyle: TextStyle(
+                      color: colorScheme.onSecondaryContainer,
+                      fontSize: isCompact ? 10 : null,
+                    ),
+                    padding: isCompact ? EdgeInsets.zero : null,
+                    avatar: SizedBox(
+                      width: isCompact ? 12 : 16,
+                      height: isCompact ? 12 : 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colorScheme.onSecondaryContainer,
+                      ),
+                    ),
+                  )
+                else if (widget.controller.isModelLoaded)
+                  ActionChip(
+                    label: Text(
+                      isCompact
+                          ? (widget.controller.loadedModelName ?? 'Ready')
+                          : '${widget.controller.loadedModelName ?? 'Model'} loaded',
+                    ),
+                    backgroundColor: colorScheme.primaryContainer,
+                    labelStyle: TextStyle(
+                      color: colorScheme.onPrimaryContainer,
+                      fontSize: isCompact ? 10 : null,
+                    ),
+                    padding: isCompact ? EdgeInsets.zero : null,
+                    avatar: Icon(
+                      Icons.check_circle,
+                      size: isCompact ? 14 : 18,
+                      color: colorScheme.onPrimaryContainer,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const ModelSelectionPage(),
+                        ),
+                      );
+                    },
+                  )
+                else
                   ActionChip(
                     label: Text(isCompact ? 'No model' : 'Model not loaded'),
                     backgroundColor: colorScheme.errorContainer,
