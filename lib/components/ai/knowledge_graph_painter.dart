@@ -3,6 +3,10 @@
 // High-performance graph visualization using CustomPainter.
 // Receives node positions from Rust at 60fps and renders circles.
 
+import 'dart:math' show cos, sin;
+import 'dart:typed_data';
+import 'dart:ui';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -228,6 +232,161 @@ class KnowledgeGraphPainter extends CustomPainter {
         scale != oldDelegate.scale ||
         selectedNodeId != oldDelegate.selectedNodeId ||
         hoveredNodeId != oldDelegate.hoveredNodeId;
+  }
+}
+
+/// High-performance painter using instanced drawing (drawVertices)
+///
+/// For graphs with 10,000+ nodes, this uses GPU-accelerated rendering
+/// by batching all circles into a single draw call using triangles.
+class InstancedKnowledgeGraphPainter extends CustomPainter {
+  final List<GraphNodePosition> nodes;
+  final List<GraphEdgePosition> edges;
+  final Offset panOffset;
+  final double scale;
+  final String? selectedNodeId;
+  final bool showLabels;
+
+  // Cache for vertex data
+  Float32List? _vertexCache;
+  Int32List? _colorCache;
+  var _cachedNodeCount = 0;
+
+  InstancedKnowledgeGraphPainter({
+    required this.nodes,
+    required this.edges,
+    this.panOffset = Offset.zero,
+    this.scale = 1.0,
+    this.selectedNodeId,
+    this.showLabels = false,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+
+    canvas.save();
+    canvas.translate(center.dx + panOffset.dx, center.dy + panOffset.dy);
+    canvas.scale(scale);
+
+    // Draw edges first (still using lines - minimal overhead)
+    _drawEdgesBatched(canvas);
+
+    // Draw nodes using instanced rendering
+    _drawNodesInstanced(canvas);
+
+    canvas.restore();
+  }
+
+  void _drawEdgesBatched(Canvas canvas) {
+    if (edges.isEmpty) return;
+
+    final paint = Paint()
+      ..color =
+          const Color(0x4D9E9E9E) // grey with 0.3 opacity
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+
+    final path = Path();
+    for (final edge in edges) {
+      path.moveTo(edge.sourceX, edge.sourceY);
+      path.lineTo(edge.targetX, edge.targetY);
+    }
+    canvas.drawPath(path, paint);
+  }
+
+  void _drawNodesInstanced(Canvas canvas) {
+    if (nodes.isEmpty) return;
+
+    // For each node, create a quad (2 triangles = 6 vertices) representing a circle
+    // We approximate circles as hexagons for better GPU performance
+    const int verticesPerNode = 18; // 6 triangles for hexagon = 18 vertices
+    final int totalVertices = nodes.length * verticesPerNode;
+
+    // Check if cache needs rebuild
+    if (_vertexCache == null ||
+        _cachedNodeCount != nodes.length ||
+        _vertexCache!.length != totalVertices * 2) {
+      _buildVertexCache();
+    }
+
+    if (_vertexCache == null || _colorCache == null) return;
+
+    // Create vertices object
+    final vertices = Vertices.raw(
+      VertexMode.triangles,
+      _vertexCache!,
+      colors: _colorCache!,
+    );
+
+    canvas.drawVertices(vertices, BlendMode.srcOver, Paint());
+
+    // Draw selection ring separately (rare operation)
+    if (selectedNodeId != null) {
+      final selectedNode = nodes.cast<GraphNodePosition?>().firstWhere(
+        (n) => n?.id == selectedNodeId,
+        orElse: () => null,
+      );
+      if (selectedNode != null) {
+        canvas.drawCircle(
+          Offset(selectedNode.x, selectedNode.y),
+          selectedNode.radius + 3,
+          Paint()
+            ..color = Colors.orange
+            ..strokeWidth = 3.0
+            ..style = PaintingStyle.stroke,
+        );
+      }
+    }
+  }
+
+  void _buildVertexCache() {
+    const int verticesPerNode = 18;
+    final int totalVertices = nodes.length * verticesPerNode;
+
+    _vertexCache = Float32List(totalVertices * 2); // x, y pairs
+    _colorCache = Int32List(totalVertices);
+    _cachedNodeCount = nodes.length;
+
+    int vertexIndex = 0;
+    int colorIndex = 0;
+
+    for (final node in nodes) {
+      final cx = node.x;
+      final cy = node.y;
+      final r = node.radius;
+      final color = node.color.toARGB32();
+
+      // Create hexagon (6 triangles from center)
+      for (int i = 0; i < 6; i++) {
+        final angle1 = (i * 60) * 3.14159 / 180;
+        final angle2 = ((i + 1) * 60) * 3.14159 / 180;
+
+        // Center vertex
+        _vertexCache![vertexIndex++] = cx;
+        _vertexCache![vertexIndex++] = cy;
+        _colorCache![colorIndex++] = color;
+
+        // First edge vertex
+        _vertexCache![vertexIndex++] = cx + r * cos(angle1);
+        _vertexCache![vertexIndex++] = cy + r * sin(angle1);
+        _colorCache![colorIndex++] = color;
+
+        // Second edge vertex
+        _vertexCache![vertexIndex++] = cx + r * cos(angle2);
+        _vertexCache![vertexIndex++] = cy + r * sin(angle2);
+        _colorCache![colorIndex++] = color;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(InstancedKnowledgeGraphPainter oldDelegate) {
+    return nodes != oldDelegate.nodes ||
+        edges != oldDelegate.edges ||
+        panOffset != oldDelegate.panOffset ||
+        scale != oldDelegate.scale ||
+        selectedNodeId != oldDelegate.selectedNodeId;
   }
 }
 

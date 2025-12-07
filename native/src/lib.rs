@@ -4,12 +4,14 @@
 //! - Phi-4 inference engine with llama.cpp
 //! - Knowledge graph with force-directed layout
 //! - Vector embeddings for semantic search
+//! - K-Means clustering for automatic note grouping
 //! - Quadtree spatial indexing for viewport culling
 //! - Streaming graph simulation at 60fps
 
 mod frb_generated;
 
 pub mod api;
+pub mod clustering;
 pub mod embeddings;
 pub mod graph;
 pub mod inference;

@@ -6,6 +6,7 @@
 use anyhow::Result;
 use flutter_rust_bridge::frb;
 
+use crate::clustering;
 use crate::embeddings::{self, EmbeddingEntry, SimilarityResult};
 use crate::graph::{self, GraphEdge, GraphNode, GraphState};
 use crate::inference::{self, InferenceConfig};
@@ -361,4 +362,76 @@ pub struct StreamGraphStats {
     pub node_count: usize,
     pub edge_count: usize,
     pub visible_count: usize,
+}
+
+// ============================================================================
+// AI Clustering & Semantic Edges
+// ============================================================================
+
+pub use crate::clustering::{ClusterAssignment, ClusterInfo, ClusteringResult, SemanticEdge, SemanticEdgeResult};
+
+/// Run K-Means clustering on note embeddings
+/// 
+/// # Arguments
+/// * `entries` - List of embedding entries to cluster
+/// * `k` - Number of clusters (if None, auto-detect based on data size)
+/// * `max_iterations` - Maximum K-Means iterations (default: 100)
+///
+/// # Returns
+/// * Clustering result with assignments and metadata
+#[frb]
+pub fn cluster_notes(
+    entries: Vec<EmbeddingEntry>,
+    k: Option<usize>,
+    max_iterations: Option<usize>,
+) -> Result<ClusteringResult> {
+    clustering::cluster_embeddings_kmeans(&entries, k, max_iterations)
+}
+
+/// Discover semantic edges between notes based on embedding similarity
+///
+/// # Arguments
+/// * `entries` - List of embedding entries
+/// * `threshold` - Minimum similarity for edge creation (default: 0.85)
+/// * `existing_links` - Optional list of existing hard links (source, target pairs)
+///
+/// # Returns
+/// * Semantic edges with similarity scores
+#[frb]
+pub fn discover_semantic_edges(
+    entries: Vec<EmbeddingEntry>,
+    threshold: Option<f32>,
+    existing_links: Option<Vec<(String, String)>>,
+) -> SemanticEdgeResult {
+    let links_ref = existing_links.as_ref().map(|v| v.as_slice());
+    clustering::discover_semantic_edges(&entries, threshold, links_ref)
+}
+
+/// Analyze knowledge graph: cluster and find semantic edges in one pass
+///
+/// More efficient than calling both functions separately
+#[frb]
+pub fn analyze_knowledge_graph(
+    entries: Vec<EmbeddingEntry>,
+    k: Option<usize>,
+    similarity_threshold: Option<f32>,
+    existing_links: Option<Vec<(String, String)>>,
+) -> Result<KnowledgeGraphAnalysis> {
+    let links_ref = existing_links.as_ref().map(|v| v.as_slice());
+    let (clustering, edges) = clustering::analyze_knowledge_graph(&entries, k, similarity_threshold, links_ref)?;
+    
+    Ok(KnowledgeGraphAnalysis {
+        clustering,
+        semantic_edges: edges,
+    })
+}
+
+/// Combined result of knowledge graph analysis
+#[derive(Debug, Clone)]
+#[frb]
+pub struct KnowledgeGraphAnalysis {
+    /// Cluster assignments for each note
+    pub clustering: ClusteringResult,
+    /// Discovered semantic edges
+    pub semantic_edges: SemanticEdgeResult,
 }

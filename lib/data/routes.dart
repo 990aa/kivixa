@@ -96,6 +96,14 @@ abstract class HomeRoutes {
       ),
     ),
     _Route(
+      routePath: _homeFunction({'subpage': HomePage.knowledgeGraphSubpage}),
+      label: 'Knowledge Graph',
+      icon: const AdaptiveIcon(
+        icon: Icons.hub,
+        cupertinoIcon: CupertinoIcons.circle_grid_hex_fill,
+      ),
+    ),
+    _Route(
       routePath: _homeFunction({'subpage': HomePage.aiChatSubpage}),
       label: 'AI Chat',
       icon: const AdaptiveIcon(

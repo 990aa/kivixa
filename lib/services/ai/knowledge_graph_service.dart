@@ -4,6 +4,7 @@
 // Uses force-directed graph layout computed in native Rust.
 
 import 'dart:async';
+import 'dart:math' show sqrt;
 
 import 'package:flutter/foundation.dart';
 
@@ -78,8 +79,7 @@ class GraphState {
 
 /// Knowledge Graph Service singleton
 class KnowledgeGraphService {
-  static final _instance =
-      KnowledgeGraphService._internal();
+  static final _instance = KnowledgeGraphService._internal();
   factory KnowledgeGraphService() => _instance;
   KnowledgeGraphService._internal();
 
@@ -327,8 +327,258 @@ class KnowledgeGraphService {
     await computeLayout();
   }
 
+  /// Cluster notes using K-Means on embeddings
+  ///
+  /// Groups similar notes into clusters and assigns colors.
+  /// Requires embeddings to be pre-computed for each note.
+  ///
+  /// Returns map of noteId -> (clusterId, color)
+  Future<Map<String, ClusterAssignment>> clusterNotes({
+    required List<NoteEmbedding> embeddings,
+    int? k,
+  }) async {
+    if (embeddings.isEmpty) return {};
+
+    try {
+      // Call native clustering
+      // final result = await native.clusterNotes(
+      //   entries: embeddings.map((e) => native.EmbeddingEntry(
+      //     id: e.noteId,
+      //     vector: e.embedding,
+      //     textPreview: e.preview,
+      //   )).toList(),
+      //   k: k,
+      // );
+
+      // Placeholder: simple hash-based clustering
+      final assignments = <String, ClusterAssignment>{};
+      final clusterColors = [
+        '#FF6B6B',
+        '#4ECDC4',
+        '#45B7D1',
+        '#96CEB4',
+        '#FFEAA7',
+        '#DDA0DD',
+        '#FF8C42',
+        '#98D8C8',
+      ];
+
+      for (var i = 0; i < embeddings.length; i++) {
+        final entry = embeddings[i];
+        final clusterId = i % (k ?? 8);
+        assignments[entry.noteId] = ClusterAssignment(
+          noteId: entry.noteId,
+          clusterId: clusterId,
+          color: clusterColors[clusterId % clusterColors.length],
+        );
+      }
+
+      // Update node colors in current state
+      final updatedNodes = _currentState.nodes.map((node) {
+        final assignment = assignments[node.id];
+        if (assignment != null) {
+          return node.copyWith(color: assignment.color);
+        }
+        return node;
+      }).toList();
+
+      _currentState = GraphState(
+        nodes: updatedNodes,
+        edges: _currentState.edges,
+      );
+      _stateController.add(_currentState);
+
+      return assignments;
+    } catch (e) {
+      debugPrint('Clustering failed: $e');
+      return {};
+    }
+  }
+
+  /// Discover semantic edges between similar notes
+  ///
+  /// Finds notes with high embedding similarity that aren't explicitly linked.
+  /// Creates "ghost edges" for these hidden connections.
+  ///
+  /// [threshold] - Minimum similarity (0-1) for edge creation (default: 0.85)
+  Future<List<SemanticEdgeResult>> discoverSemanticEdges({
+    required List<NoteEmbedding> embeddings,
+    double threshold = 0.85,
+  }) async {
+    if (embeddings.length < 2) return [];
+
+    try {
+      // Get existing links
+      final existingLinks = _currentState.edges
+          .map((e) => (e.source, e.target))
+          .toList();
+
+      // Call native semantic edge discovery
+      // final result = await native.discoverSemanticEdges(
+      //   entries: embeddings.map((e) => native.EmbeddingEntry(
+      //     id: e.noteId,
+      //     vector: e.embedding,
+      //     textPreview: e.preview,
+      //   )).toList(),
+      //   threshold: threshold,
+      //   existingLinks: existingLinks,
+      // );
+
+      // Placeholder: simple cosine similarity
+      final semanticEdges = <SemanticEdgeResult>[];
+
+      for (var i = 0; i < embeddings.length; i++) {
+        for (var j = i + 1; j < embeddings.length; j++) {
+          final similarity = _cosineSimilarity(
+            embeddings[i].embedding,
+            embeddings[j].embedding,
+          );
+
+          if (similarity >= threshold) {
+            final source = embeddings[i].noteId;
+            final target = embeddings[j].noteId;
+
+            // Check if explicit link exists
+            final isGhost = !existingLinks.any(
+              (link) =>
+                  (link.$1 == source && link.$2 == target) ||
+                  (link.$1 == target && link.$2 == source),
+            );
+
+            semanticEdges.add(
+              SemanticEdgeResult(
+                source: source,
+                target: target,
+                similarity: similarity,
+                isGhost: isGhost,
+              ),
+            );
+          }
+        }
+      }
+
+      // Add ghost edges to graph
+      for (final edge in semanticEdges.where((e) => e.isGhost)) {
+        final graphEdge = GraphEdge(
+          source: edge.source,
+          target: edge.target,
+          weight: edge.similarity,
+          edgeType: 'similarity',
+        );
+
+        _currentState = GraphState(
+          nodes: _currentState.nodes,
+          edges: [..._currentState.edges, graphEdge],
+        );
+      }
+
+      if (semanticEdges.any((e) => e.isGhost)) {
+        _stateController.add(_currentState);
+      }
+
+      return semanticEdges;
+    } catch (e) {
+      debugPrint('Semantic edge discovery failed: $e');
+      return [];
+    }
+  }
+
+  /// Calculate cosine similarity between two vectors
+  double _cosineSimilarity(List<double> a, List<double> b) {
+    if (a.length != b.length) return 0.0;
+
+    var dotProduct = 0.0;
+    var normA = 0.0;
+    var normB = 0.0;
+
+    for (var i = 0; i < a.length; i++) {
+      dotProduct += a[i] * b[i];
+      normA += a[i] * a[i];
+      normB += b[i] * b[i];
+    }
+
+    if (normA == 0 || normB == 0) return 0.0;
+    return dotProduct / sqrt(normA * normB);
+  }
+
+  /// Full analysis: cluster notes and find semantic edges
+  Future<GraphAnalysisResult> analyzeGraph({
+    required List<NoteEmbedding> embeddings,
+    int? k,
+    double similarityThreshold = 0.85,
+  }) async {
+    final clusters = await clusterNotes(embeddings: embeddings, k: k);
+    final semanticEdges = await discoverSemanticEdges(
+      embeddings: embeddings,
+      threshold: similarityThreshold,
+    );
+
+    return GraphAnalysisResult(
+      clusters: clusters,
+      semanticEdges: semanticEdges,
+      clusterCount: clusters.values.map((c) => c.clusterId).toSet().length,
+      ghostEdgeCount: semanticEdges.where((e) => e.isGhost).length,
+    );
+  }
+
   /// Dispose resources
   void dispose() {
     _stateController.close();
   }
+}
+
+/// Note embedding data for clustering
+class NoteEmbedding {
+  final String noteId;
+  final List<double> embedding;
+  final String? preview;
+
+  const NoteEmbedding({
+    required this.noteId,
+    required this.embedding,
+    this.preview,
+  });
+}
+
+/// Cluster assignment for a note
+class ClusterAssignment {
+  final String noteId;
+  final int clusterId;
+  final String color;
+
+  const ClusterAssignment({
+    required this.noteId,
+    required this.clusterId,
+    required this.color,
+  });
+}
+
+/// Semantic edge discovery result
+class SemanticEdgeResult {
+  final String source;
+  final String target;
+  final double similarity;
+  final bool isGhost;
+
+  const SemanticEdgeResult({
+    required this.source,
+    required this.target,
+    required this.similarity,
+    required this.isGhost,
+  });
+}
+
+/// Full graph analysis result
+class GraphAnalysisResult {
+  final Map<String, ClusterAssignment> clusters;
+  final List<SemanticEdgeResult> semanticEdges;
+  final int clusterCount;
+  final int ghostEdgeCount;
+
+  const GraphAnalysisResult({
+    required this.clusters,
+    required this.semanticEdges,
+    required this.clusterCount,
+    required this.ghostEdgeCount,
+  });
 }
