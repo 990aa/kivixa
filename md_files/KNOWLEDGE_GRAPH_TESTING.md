@@ -17,11 +17,14 @@ This document provides detailed instructions for testing every feature of the Ne
 | Demo Mode | 5 tests | High |
 | Node Management | 12 tests | High |
 | Link Management | 10 tests | High |
+| Link Editing & Branching (NEW) | 10 tests | High |
 | Node Shapes | 6 tests | High |
 | Link Styles | 8 tests | High |
-| Navigation & Gestures | 8 tests | Medium |
-| Physics Simulation | 4 tests | Medium |
+| Note Linking | 12 tests | High |
+| Navigation & Gestures | 10 tests | Medium |
+| Grid & Canvas | 4 tests | Medium |
 | Visual Rendering | 6 tests | Medium |
+| Data Persistence | 4 tests | High |
 
 ---
 
@@ -313,6 +316,123 @@ This document provides detailed instructions for testing every feature of the Ne
 
 ---
 
+## 3.5. Link Editing & Branching Tests (NEW)
+
+### Test 3.5.1: Select Link by Tapping
+**Steps:**
+1. Have a graph with at least one link
+2. Tap on a link (the line between nodes)
+
+**Expected Results:**
+- Link becomes selected (highlighted with glow)
+- Edge details panel appears at bottom
+- Shows link label, type, style, arrow style
+- Shows source → target connection
+- Edit, Branch, and Delete buttons visible
+
+### Test 3.5.2: Edit Link Label
+**Steps:**
+1. Select a link by tapping on it
+2. Click "Edit" button
+3. Change the label to "new label"
+4. Click "Save"
+
+**Expected Results:**
+- Edit Link dialog opens
+- Label field editable
+- After save, label updates on the graph
+- Details panel shows updated label
+
+### Test 3.5.3: Edit Link Style
+**Steps:**
+1. Select a link and click Edit
+2. Change style from Normal to Thick
+3. Change arrow from None to Single
+4. Select a different color
+5. Click "Save"
+
+**Expected Results:**
+- Style changes reflected immediately on graph
+- Link appears thicker
+- Arrow appears on link
+- Link color changes
+
+### Test 3.5.4: Create Branch Link
+**Steps:**
+1. Select a link between Node A and Node B
+2. Click "Branch" button
+3. Select Node C from the list
+
+**Expected Results:**
+- "Add Branch" dialog appears
+- Lists all available nodes (excluding A, B, and existing branches)
+- After selection, dashed line appears from source to Node C
+- "Branched to Node C" message shown
+
+### Test 3.5.5: View Branch Information
+**Steps:**
+1. Select a link that has branches
+2. View the details panel
+
+**Expected Results:**
+- "Branches to X additional node(s)" section visible
+- Chips showing branch target nodes with icons
+- Branch targets display their shapes and colors
+
+### Test 3.5.6: Multiple Branches
+**Steps:**
+1. Select a link with one branch
+2. Click "Branch" and add Node D
+3. Click "Branch" and add Node E
+
+**Expected Results:**
+- Multiple dashed lines emanate from source node
+- Details panel shows all branch targets
+- Each branch has an arrow if main link has arrows
+
+### Test 3.5.7: Branch Visual Style
+**Steps:**
+1. Create branches on a link
+2. Observe the visual appearance
+
+**Expected Results:**
+- Main link is solid line
+- Branch links are dashed lines
+- Branch links are slightly thinner
+- Branch links have arrows if main link has arrows
+
+### Test 3.5.8: Delete Link with Branches
+**Steps:**
+1. Select a link that has branches
+2. Click "Delete"
+
+**Expected Results:**
+- Main link is deleted
+- All branch links are also deleted
+- "Link deleted" message shown
+
+### Test 3.5.9: Branch Link Hit Testing
+**Steps:**
+1. Create a link with branches
+2. Tap on a branch line (dashed)
+
+**Expected Results:**
+- The parent link becomes selected
+- Same details panel appears for the main link
+- All branches are shown in details
+
+### Test 3.5.10: Close Edge Details Panel
+**Steps:**
+1. Select a link
+2. Click the X button on the details panel
+
+**Expected Results:**
+- Panel closes
+- Link is deselected
+- Selection glow removed from link
+
+---
+
 ## 4. Node Shapes Tests
 
 ### Test 4.1: Circle Shape
@@ -426,6 +546,135 @@ This document provides detailed instructions for testing every feature of the Ne
 
 ---
 
+## 5.5 Note Linking Tests (NEW)
+
+### Test 5.5.1: Link Notes Button Visibility
+**Steps:**
+1. Create a node of type "Note"
+2. Select the note node
+3. Look at the details panel
+
+**Expected Results:**
+- "Link Notes" or "Edit Notes" button visible
+- Button only appears for Note type nodes
+
+### Test 5.5.2: Open Link Notes Dialog
+**Steps:**
+1. Select a Note type node
+2. Click "Link Notes" button
+
+**Expected Results:**
+- Dialog opens with title "Link Notes"
+- Search field at top
+- List of all notes from Browse section
+- Notes show name, type, and path
+
+### Test 5.5.3: Search Notes in Dialog
+**Steps:**
+1. Open Link Notes dialog
+2. Type a search term in the search field
+
+**Expected Results:**
+- Note list filters in real-time
+- Only matching notes shown
+- Case-insensitive search
+
+### Test 5.5.4: Select Notes to Link
+**Steps:**
+1. Open Link Notes dialog
+2. Check several notes using checkboxes
+3. Observe the counter at bottom
+
+**Expected Results:**
+- Checkboxes toggle correctly
+- Counter shows "X note(s) linked"
+- Multiple notes can be selected
+
+### Test 5.5.5: Save Linked Notes
+**Steps:**
+1. Select some notes in the dialog
+2. Click "Save"
+
+**Expected Results:**
+- Dialog closes
+- Node details panel shows linked notes count
+- Linked notes indicator appears
+
+### Test 5.5.6: View Linked Notes
+**Steps:**
+1. Select a node with linked notes
+2. Tap the "X linked note(s) - tap to view" area
+
+**Expected Results:**
+- "Notes in [Node Title]" dialog opens
+- Lists all linked notes with icons
+- Shows note type (Handwritten, Markdown, Text)
+
+### Test 5.5.7: Open Linked Note
+**Steps:**
+1. View linked notes dialog
+2. Tap on a note in the list
+
+**Expected Results:**
+- Dialog closes
+- Note opens in appropriate editor:
+  - .kvx → Handwritten editor
+  - .md → Markdown editor
+  - .kvtx → Text editor
+
+### Test 5.5.8: Navigate Back from Note
+**Steps:**
+1. Open a linked note from the graph
+2. Use back navigation
+
+**Expected Results:**
+- Returns to Knowledge Graph page
+- Graph state preserved
+- Selected node still visible
+
+### Test 5.5.9: Note Type Icons
+**Steps:**
+1. Link different types of notes to a node
+2. View linked notes dialog
+
+**Expected Results:**
+- Handwritten notes: ✏️ Draw icon
+- Markdown notes: 📄 Description icon
+- Text notes: 📝 Text snippet icon
+
+### Test 5.5.10: Edit Linked Notes
+**Steps:**
+1. Select a node with linked notes
+2. Click "Edit Notes" button
+
+**Expected Results:**
+- Link Notes dialog opens
+- Previously linked notes are pre-checked
+- Can add/remove notes
+
+### Test 5.5.11: Remove Linked Note
+**Steps:**
+1. Open Edit Notes dialog
+2. Uncheck a previously linked note
+3. Save
+
+**Expected Results:**
+- Note is unlinked from node
+- Linked count decreases
+- Original note file unchanged
+
+### Test 5.5.12: Link Notes Persistence
+**Steps:**
+1. Link some notes to a node
+2. Close and reopen the app
+3. Navigate to Knowledge Graph
+
+**Expected Results:**
+- Linked notes are preserved
+- All links restored correctly
+
+---
+
 ## 6. Navigation & Gesture Tests
 
 ### Test 6.1: Pan Canvas
@@ -497,41 +746,68 @@ This document provides detailed instructions for testing every feature of the Ne
 - Any selected node is deselected
 - Details panel closes
 
+### Test 6.9: Drag Node to Reposition
+**Steps:**
+1. Press and hold on a node
+2. Drag to a new position
+3. Release
+
+**Expected Results:**
+- Node moves with finger/cursor
+- Node stays at new position after release
+- Position is automatically saved
+
+### Test 6.10: Drag vs Pan Distinction
+**Steps:**
+1. Drag starting on a node
+2. Drag starting on empty canvas
+
+**Expected Results:**
+- Starting on node: moves the node
+- Starting on canvas: pans the view
+- Clear distinction between the two
+
 ---
 
-## 7. Physics Simulation Tests
+## 7. Grid & Canvas Tests
 
-### Test 7.1: Initial Node Movement
+### Test 7.1: Toggle Grid On
 **Steps:**
-1. Load graph and observe immediately
+1. Click the grid icon in app bar
 
 **Expected Results:**
-- Nodes drift slightly as physics settles
-- Motion is smooth (~60fps)
+- Grid lines appear on canvas
+- Icon changes to show grid is on
+- Tooltip changes to "Hide grid"
 
-### Test 7.2: Repulsion Force
+### Test 7.2: Toggle Grid Off
 **Steps:**
-1. Create two nodes very close together
+1. With grid visible, click grid icon again
 
 **Expected Results:**
-- Nodes push apart automatically
-- Minimum spacing maintained
+- Grid lines disappear
+- Icon shows grid is off
+- Tooltip shows "Show grid"
 
-### Test 7.3: Attraction Force
+### Test 7.3: Grid Alignment
 **Steps:**
-1. Observe linked nodes
+1. Enable grid
+2. Pan the canvas
 
 **Expected Results:**
-- Linked nodes stay relatively close
-- Spring-like attraction
+- Grid moves with pan
+- Lines stay aligned with viewport
+- Origin crosshair visible
 
-### Test 7.4: Physics Settling
+### Test 7.4: Grid Persistence
 **Steps:**
-1. Wait 10-20 seconds
+1. Enable grid
+2. Close and reopen app
+3. Navigate to Knowledge Graph
 
 **Expected Results:**
-- Nodes eventually stop moving
-- Graph reaches stable state
+- Grid state is remembered
+- Grid appears if it was enabled
 
 ---
 
@@ -583,7 +859,51 @@ This document provides detailed instructions for testing every feature of the Ne
 **Expected Results:**
 - Bottom sheet with node info
 - Shows: title, type, shape, link count
-- Action buttons: Edit, Link, Focus, Delete
+- Action buttons: Edit, Link Node, Link Notes (for Note type), Focus, Delete
+
+---
+
+## 9. Data Persistence Tests
+
+### Test 9.1: Node Persistence
+**Steps:**
+1. Create several nodes
+2. Close the app completely
+3. Reopen and navigate to Knowledge Graph
+
+**Expected Results:**
+- All nodes are restored
+- Positions, shapes, colors preserved
+- Titles and descriptions intact
+
+### Test 9.2: Edge Persistence
+**Steps:**
+1. Create links between nodes
+2. Close and reopen app
+
+**Expected Results:**
+- All links are restored
+- Labels, styles, arrows preserved
+- Link colors intact
+
+### Test 9.3: Linked Notes Persistence
+**Steps:**
+1. Link notes to a Note node
+2. Close and reopen app
+
+**Expected Results:**
+- Linked notes are preserved
+- Can view and open linked notes
+
+### Test 9.4: Empty Graph Start
+**Steps:**
+1. Clear all app data (uninstall/reinstall)
+2. Open Knowledge Graph
+
+**Expected Results:**
+- Graph starts empty (no demo auto-load)
+- "Load Demo" button available
+- Empty state message shown
 
 ---
 
@@ -665,6 +985,36 @@ flutter test test/knowledge_graph_test.dart --name "GraphNode"
 | 5.7 Link Label Display | ☐ | |
 | 5.8 Link Label Zoom Scaling | ☐ | |
 
+### Note Linking (NEW)
+| Test | Status | Notes |
+|------|--------|-------|
+| 5.5.1 Link Notes Button Visibility | ☐ | |
+| 5.5.2 Open Link Notes Dialog | ☐ | |
+| 5.5.3 Search Notes in Dialog | ☐ | |
+| 5.5.4 Select Notes to Link | ☐ | |
+| 5.5.5 Save Linked Notes | ☐ | |
+| 5.5.6 View Linked Notes | ☐ | |
+| 5.5.7 Open Linked Note | ☐ | |
+| 5.5.8 Navigate Back from Note | ☐ | |
+| 5.5.9 Note Type Icons | ☐ | |
+| 5.5.10 Edit Linked Notes | ☐ | |
+| 5.5.11 Remove Linked Note | ☐ | |
+| 5.5.12 Link Notes Persistence | ☐ | |
+
+### Link Editing & Branching (NEW)
+| Test | Status | Notes |
+|------|--------|-------|
+| 3.5.1 Select Link by Tapping | ☐ | |
+| 3.5.2 Edit Link Label | ☐ | |
+| 3.5.3 Edit Link Style | ☐ | |
+| 3.5.4 Create Branch Link | ☐ | |
+| 3.5.5 View Branch Information | ☐ | |
+| 3.5.6 Multiple Branches | ☐ | |
+| 3.5.7 Branch Visual Style | ☐ | |
+| 3.5.8 Delete Link with Branches | ☐ | |
+| 3.5.9 Branch Link Hit Testing | ☐ | |
+| 3.5.10 Close Edge Details Panel | ☐ | |
+
 ### Navigation & Gestures
 | Test | Status | Notes |
 |------|--------|-------|
@@ -676,6 +1026,16 @@ flutter test test/knowledge_graph_test.dart --name "GraphNode"
 | 6.6 Zoom Limits | ☐ | |
 | 6.7 Node Tap Selection | ☐ | |
 | 6.8 Empty Canvas Tap | ☐ | |
+| 6.9 Drag Node to Reposition | ☐ | |
+| 6.10 Drag vs Pan Distinction | ☐ | |
+
+### Grid & Canvas
+| Test | Status | Notes |
+|------|--------|-------|
+| 7.1 Toggle Grid On | ☐ | |
+| 7.2 Toggle Grid Off | ☐ | |
+| 7.3 Grid Alignment | ☐ | |
+| 7.4 Grid Persistence | ☐ | |
 
 ### Physics Simulation
 | Test | Status | Notes |
@@ -694,6 +1054,14 @@ flutter test test/knowledge_graph_test.dart --name "GraphNode"
 | 8.4 Linking Glow | ☐ | |
 | 8.5 Theme Compatibility | ☐ | |
 | 8.6 Details Panel | ☐ | |
+
+### Data Persistence
+| Test | Status | Notes |
+|------|--------|-------|
+| 9.1 Node Persistence | ☐ | |
+| 9.2 Edge Persistence | ☐ | |
+| 9.3 Linked Notes Persistence | ☐ | |
+| 9.4 Empty Graph Start | ☐ | |
 
 ---
 
@@ -730,6 +1098,6 @@ What actually happened
 
 - **Feature Branch:** `feature/knowledge-graph`
 - **Last Updated:** December 2024
-- **Flutter Version:** 3.24+
-- **Total Manual Tests:** 53
+- **Flutter Version:** 3.35+
+- **Total Manual Tests:** 87
 - **Unit Tests:** test/knowledge_graph_test.dart

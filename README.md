@@ -38,10 +38,33 @@ Kivixa features a powerful on-device AI engine powered by Microsoft's Phi-4 mode
   - **Title Suggestions** - AI-generated title recommendations
 
 - **Knowledge Graph Visualization**
-  - Physics-based graph layout using force-directed simulation
-  - Notes automatically cluster around topic hubs
-  - Visual representation of note relationships
-  - Interactive exploration of your knowledge base
+  - **Interactive Mind Mapping** - Create visual knowledge networks
+    - Pan and zoom navigation with touch/mouse gestures
+    - Drag nodes to reposition them on the canvas
+    - Grid background toggle for precise alignment
+  - **Multiple Node Types**
+    - Hub nodes for central topics
+    - Note nodes that can link to your actual notes
+    - Idea nodes for brainstorming
+    - 6 shape options: Circle, Square, Diamond, Hexagon, Star, Rectangle
+    - 8 color options with visual customization
+  - **Rich Node Content**
+    - Add titles and descriptions to each node
+    - Link Note nodes to actual notes from your Browse section
+    - View and open linked notes directly from the graph
+    - Supports handwritten (.kvx), markdown (.md), and text files
+  - **Flexible Link System**
+    - Connect nodes with customizable links
+    - Add text labels to links (e.g., "relates to", "depends on")
+    - 3 line thickness options: Thin, Normal, Thick
+    - Arrow styles: None, Single Arrow, Double Arrow
+    - Custom link colors
+    - Manage links dialog to view/delete connections
+  - **Navigation & Organization**
+    - Recenter view to all nodes
+    - Focus on selected node
+    - Clear all nodes/links or load demo data
+    - Persistent storage - your graph is saved automatically
 
 - **Vector Database**
   - Local vector embeddings for all your notes

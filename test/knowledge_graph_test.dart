@@ -8,7 +8,6 @@
 // - Viewport navigation (pan, zoom, recenter)
 // - Physics simulation
 
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
