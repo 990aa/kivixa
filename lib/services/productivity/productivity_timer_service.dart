@@ -3,7 +3,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:kivixa/services/productivity/timer_context_tag.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+export 'package:kivixa/services/productivity/timer_context_tag.dart';
 
 /// Types of timer sessions
 enum SessionType {
@@ -220,6 +223,12 @@ class ProductivityTimerService extends ChangeNotifier {
   var _currentCycle = 1;
   var _totalCycles = 4;
   TimerTemplate? _activeTemplate;
+  QuickPreset? _activePreset;
+
+  // Context tags
+  TimerContextTag? _currentContextTag;
+  final List<TimerContextTag> _customTags = [];
+  final Map<String, int> _tagMinutes = {}; // tagId -> total minutes
 
   // Statistics
   var _stats = SessionStats();
@@ -231,6 +240,7 @@ class ProductivityTimerService extends ChangeNotifier {
   var _soundEnabled = true;
   var _showPreEndWarning = true;
   var _preEndWarningMinutes = 5;
+  var _notificationsPermissionGranted = false;
 
   // Settings
   var _autoStartBreak = true;
@@ -242,6 +252,8 @@ class ProductivityTimerService extends ChangeNotifier {
   static const _statsKey = 'productivity_stats';
   static const _goalKey = 'productivity_goal';
   static const _settingsKey = 'productivity_settings';
+  static const _tagsKey = 'productivity_tags';
+  static const _tagMinutesKey = 'productivity_tag_minutes';
   var _initialized = false;
 
   // Callbacks for UI updates
@@ -258,6 +270,8 @@ class ProductivityTimerService extends ChangeNotifier {
   int get currentCycle => _currentCycle;
   int get totalCycles => _totalCycles;
   TimerTemplate? get activeTemplate => _activeTemplate;
+  QuickPreset? get activePreset => _activePreset;
+  TimerContextTag? get currentContextTag => _currentContextTag;
   SessionStats get stats => _stats;
   ProductivityGoal get goal => _goal;
   bool get soundEnabled => _soundEnabled;
@@ -265,9 +279,25 @@ class ProductivityTimerService extends ChangeNotifier {
   int get preEndWarningMinutes => _preEndWarningMinutes;
   bool get autoStartBreak => _autoStartBreak;
   bool get autoStartNextSession => _autoStartNextSession;
+  bool get notificationsPermissionGranted => _notificationsPermissionGranted;
   bool get microBreaksEnabled => _microBreaksEnabled;
   int get microBreakIntervalMinutes => _microBreakIntervalMinutes;
   bool get initialized => _initialized;
+
+  /// Get all available context tags (default + custom)
+  List<TimerContextTag> get allContextTags => [
+    ...TimerContextTag.defaultTags,
+    ..._customTags,
+  ];
+
+  /// Get all available quick presets (default + custom)
+  List<QuickPreset> get allQuickPresets => QuickPreset.defaultPresets;
+
+  /// Get tag minutes statistics
+  Map<String, int> get tagMinutes => Map.unmodifiable(_tagMinutes);
+
+  /// Get minutes for a specific tag
+  int getMinutesForTag(String tagId) => _tagMinutes[tagId] ?? 0;
 
   double get progress {
     if (_totalDuration.inSeconds == 0) return 0;
@@ -291,6 +321,8 @@ class ProductivityTimerService extends ChangeNotifier {
 
     await _loadStats();
     await _loadSettings();
+    await _loadTags();
+    await _loadTagMinutes();
     await _initializeNotifications();
 
     _checkDayReset();
@@ -369,11 +401,24 @@ class ProductivityTimerService extends ChangeNotifier {
     SessionType? type,
     Duration? duration,
     TimerTemplate? template,
+    QuickPreset? preset,
+    TimerContextTag? contextTag,
   }) {
     _sessionType = type ?? _sessionType;
+    _currentContextTag = contextTag ?? _currentContextTag;
 
-    if (template != null) {
+    if (preset != null) {
+      _activePreset = preset;
+      _activeTemplate = null;
+      _totalDuration = Duration(minutes: preset.workMinutes);
+      _breakDuration = Duration(minutes: preset.breakMinutes);
+      _totalCycles = preset.totalCycles;
+      _currentCycle = 1;
+      _autoStartBreak = preset.autoStartBreak;
+      _autoStartNextSession = preset.autoStartNextSession;
+    } else if (template != null) {
       _activeTemplate = template;
+      _activePreset = null;
       _totalDuration = Duration(minutes: template.workMinutes);
       _breakDuration = Duration(minutes: template.breakMinutes);
       _totalCycles = template.cycles;
@@ -381,6 +426,7 @@ class ProductivityTimerService extends ChangeNotifier {
     } else if (duration != null) {
       _totalDuration = duration;
       _activeTemplate = null;
+      _activePreset = null;
     }
 
     _remainingTime = _totalDuration;
@@ -389,8 +435,11 @@ class ProductivityTimerService extends ChangeNotifier {
     _startTimer();
     notifyListeners();
 
+    final tagInfo = _currentContextTag != null
+        ? ' (${_currentContextTag!.name})'
+        : '';
     _showNotification(
-      title: '${_sessionType.label} Started',
+      title: '${_sessionType.label} Started$tagInfo',
       body: 'Focus time: ${_totalDuration.inMinutes} minutes',
     );
   }
@@ -575,6 +624,13 @@ class ProductivityTimerService extends ChangeNotifier {
     final typeKey = _sessionType.name;
     _stats.sessionsByType[typeKey] = (_stats.sessionsByType[typeKey] ?? 0) + 1;
 
+    // Update context tag minutes
+    if (_currentContextTag != null) {
+      _tagMinutes[_currentContextTag!.id] =
+          (_tagMinutes[_currentContextTag!.id] ?? 0) + focusMinutes;
+      _saveTagMinutes();
+    }
+
     // Update streak
     final yesterday = now.subtract(const Duration(days: 1));
     final yesterdayKey =
@@ -687,6 +743,68 @@ class ProductivityTimerService extends ChangeNotifier {
   }
 
   // ============================================================
+  // Context Tags
+  // ============================================================
+
+  /// Set the current context tag
+  void setContextTag(TimerContextTag? tag) {
+    _currentContextTag = tag;
+    notifyListeners();
+  }
+
+  /// Add a custom context tag
+  void addCustomTag(TimerContextTag tag) {
+    _customTags.add(tag);
+    _saveTags();
+    notifyListeners();
+  }
+
+  /// Remove a custom context tag
+  void removeCustomTag(String tagId) {
+    _customTags.removeWhere((t) => t.id == tagId);
+    _saveTags();
+    notifyListeners();
+  }
+
+  /// Get stats filtered by tag
+  int getMinutesByTag(String tagId) {
+    return _tagMinutes[tagId] ?? 0;
+  }
+
+  /// Get top tags by usage
+  List<MapEntry<String, int>> getTopTags({int limit = 5}) {
+    final entries = _tagMinutes.entries.toList();
+    entries.sort((a, b) => b.value.compareTo(a.value));
+    return entries.take(limit).toList();
+  }
+
+  // ============================================================
+  // Quick Presets
+  // ============================================================
+
+  /// Start a session with a quick preset
+  void startWithPreset(QuickPreset preset, {TimerContextTag? contextTag}) {
+    startSession(preset: preset, contextTag: contextTag);
+  }
+
+  /// Request notification permission
+  Future<bool> requestNotificationPermission() async {
+    try {
+      final result = await _notifications
+          ?.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.requestNotificationsPermission();
+      _notificationsPermissionGranted = result ?? false;
+      notifyListeners();
+      return _notificationsPermissionGranted;
+    } catch (e) {
+      debugPrint('Failed to request notification permission: $e');
+      return false;
+    }
+  }
+
+  // ============================================================
   // Persistence
   // ============================================================
 
@@ -773,10 +891,63 @@ class ProductivityTimerService extends ChangeNotifier {
     }
   }
 
+  Future<void> _loadTags() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final json = prefs.getString(_tagsKey);
+      if (json != null) {
+        final list = jsonDecode(json) as List;
+        _customTags.clear();
+        for (final item in list) {
+          _customTags.add(
+            TimerContextTag.fromJson(item as Map<String, dynamic>),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to load tags: $e');
+    }
+  }
+
+  Future<void> _saveTags() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = _customTags.map((t) => t.toJson()).toList();
+      await prefs.setString(_tagsKey, jsonEncode(list));
+    } catch (e) {
+      debugPrint('Failed to save tags: $e');
+    }
+  }
+
+  Future<void> _loadTagMinutes() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final json = prefs.getString(_tagMinutesKey);
+      if (json != null) {
+        final map = jsonDecode(json) as Map<String, dynamic>;
+        _tagMinutes.clear();
+        map.forEach((k, v) => _tagMinutes[k] = v as int);
+      }
+    } catch (e) {
+      debugPrint('Failed to load tag minutes: $e');
+    }
+  }
+
+  Future<void> _saveTagMinutes() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_tagMinutesKey, jsonEncode(_tagMinutes));
+    } catch (e) {
+      debugPrint('Failed to save tag minutes: $e');
+    }
+  }
+
   /// Reset all statistics
   Future<void> resetStats() async {
     _stats = SessionStats();
+    _tagMinutes.clear();
     await _saveStats();
+    await _saveTagMinutes();
     notifyListeners();
   }
 

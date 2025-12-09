@@ -30,6 +30,7 @@ import 'package:kivixa/pages/lock_screen.dart';
 import 'package:kivixa/services/app_lock_service.dart';
 import 'package:kivixa/services/browser_service.dart';
 import 'package:kivixa/services/life_git/life_git_service.dart';
+import 'package:kivixa/services/productivity/productivity_timer_service.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:stow/stow.dart';
 
@@ -514,6 +515,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     ToggleButtonsOption(2, Icon(Icons.blur_off)),
                   ],
                 ),
+                const SettingsSubtitle(subtitle: 'Productivity Timer'),
+                const _ProductivityTimerSettingsSection(),
                 SettingsSubtitle(subtitle: t.settings.prefCategories.security),
                 _AppLockSettingsSection(onChanged: () => setState(() {})),
                 SettingsSubtitle(subtitle: t.settings.prefCategories.advanced),
@@ -1468,6 +1471,218 @@ class _BrowserSettingsSectionState extends State<_BrowserSettingsSection> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Productivity Timer Settings Section
+class _ProductivityTimerSettingsSection extends StatefulWidget {
+  const _ProductivityTimerSettingsSection();
+
+  @override
+  State<_ProductivityTimerSettingsSection> createState() =>
+      _ProductivityTimerSettingsSectionState();
+}
+
+class _ProductivityTimerSettingsSectionState
+    extends State<_ProductivityTimerSettingsSection> {
+  final _timerService = ProductivityTimerService.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _timerService.addListener(_onUpdate);
+    _timerService.initialize();
+  }
+
+  void _onUpdate() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _timerService.removeListener(_onUpdate);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Notification permission
+        ListTile(
+          leading: const Icon(Icons.notifications),
+          title: const Text('Notification Permission'),
+          subtitle: Text(
+            _timerService.notificationsPermissionGranted
+                ? 'Granted - Timer notifications enabled'
+                : 'Not granted - Tap to enable timer notifications',
+          ),
+          trailing: _timerService.notificationsPermissionGranted
+              ? Icon(Icons.check_circle, color: Colors.green[700])
+              : TextButton(
+                  onPressed: () async {
+                    await _timerService.requestNotificationPermission();
+                    if (mounted) setState(() {});
+                  },
+                  child: const Text('Enable'),
+                ),
+        ),
+        // Sound enabled
+        SwitchListTile(
+          secondary: const Icon(Icons.volume_up),
+          title: const Text('Sound Notifications'),
+          subtitle: const Text('Play sound when timer completes'),
+          value: _timerService.soundEnabled,
+          onChanged: (value) => _timerService.setSoundEnabled(value),
+        ),
+        // Pre-end warning
+        SwitchListTile(
+          secondary: const Icon(Icons.warning_amber),
+          title: const Text('Pre-End Warning'),
+          subtitle: Text(
+            'Notify ${_timerService.preEndWarningMinutes} min before session ends',
+          ),
+          value: _timerService.showPreEndWarning,
+          onChanged: (value) => _timerService.setPreEndWarning(value),
+        ),
+        // Auto-start break
+        SwitchListTile(
+          secondary: const Icon(Icons.coffee),
+          title: const Text('Auto-Start Break'),
+          subtitle: const Text('Start break automatically after focus session'),
+          value: _timerService.autoStartBreak,
+          onChanged: (value) => _timerService.setAutoStartBreak(value),
+        ),
+        // Auto-start next session
+        SwitchListTile(
+          secondary: const Icon(Icons.play_circle),
+          title: const Text('Auto-Start Next Session'),
+          subtitle: const Text('Start next focus session after break'),
+          value: _timerService.autoStartNextSession,
+          onChanged: (value) => _timerService.setAutoStartNextSession(value),
+        ),
+        // Daily focus goal
+        ListTile(
+          leading: const Icon(Icons.flag),
+          title: const Text('Daily Focus Goal'),
+          subtitle: Text('${_timerService.goal.dailyFocusMinutes} minutes'),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.remove),
+                onPressed: () {
+                  if (_timerService.goal.dailyFocusMinutes > 30) {
+                    _timerService.setGoal(
+                      _timerService.goal.copyWith(
+                        dailyFocusMinutes:
+                            _timerService.goal.dailyFocusMinutes - 30,
+                      ),
+                    );
+                  }
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: () {
+                  _timerService.setGoal(
+                    _timerService.goal.copyWith(
+                      dailyFocusMinutes:
+                          _timerService.goal.dailyFocusMinutes + 30,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        // Daily sessions goal
+        ListTile(
+          leading: const Icon(Icons.check_circle_outline),
+          title: const Text('Daily Sessions Goal'),
+          subtitle: Text('${_timerService.goal.dailySessions} sessions'),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.remove),
+                onPressed: () {
+                  if (_timerService.goal.dailySessions > 1) {
+                    _timerService.setGoal(
+                      _timerService.goal.copyWith(
+                        dailySessions: _timerService.goal.dailySessions - 1,
+                      ),
+                    );
+                  }
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: () {
+                  _timerService.setGoal(
+                    _timerService.goal.copyWith(
+                      dailySessions: _timerService.goal.dailySessions + 1,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        // Reset statistics
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Card(
+            color: colorScheme.errorContainer,
+            child: ListTile(
+              leading: Icon(Icons.delete_outline, color: colorScheme.error),
+              title: const Text('Reset Timer Statistics'),
+              subtitle: const Text('Clear all session history and streaks'),
+              onTap: () => _showResetConfirmation(context),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: colorScheme.error,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showResetConfirmation(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Statistics?'),
+        content: const Text(
+          'This will permanently delete all your session history, streaks, and progress. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              _timerService.resetStats();
+              Navigator.pop(context);
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Statistics reset')));
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
     );
   }
 }
