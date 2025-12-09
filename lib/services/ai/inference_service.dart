@@ -93,6 +93,12 @@ class InferenceService {
   Future<void> loadModel(String modelPath, [InferenceConfig? config]) async {
     await initialize();
 
+    // Skip if model is already loaded to prevent BackendAlreadyInitialized error
+    if (_isModelLoaded) {
+      debugPrint('Model already loaded, skipping initialization');
+      return;
+    }
+
     config ??= const InferenceConfig();
 
     try {
