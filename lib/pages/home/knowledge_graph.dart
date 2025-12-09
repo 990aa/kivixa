@@ -87,7 +87,7 @@ class _KnowledgeGraphPageState extends State<KnowledgeGraphPage>
     final topics = ['Recipes', 'Code', 'Ideas', 'Research', 'Projects'];
     for (var i = 0; i < topics.length; i++) {
       final angle = (i / topics.length) * 2 * pi;
-      final radius = 150.0;
+      const radius = 150.0;
       _nodes.add(
         GraphNodePosition(
           id: 'hub_${topics[i].toLowerCase()}',
