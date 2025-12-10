@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kivixa/components/quick_notes/quick_note_canvas.dart';
 import 'package:kivixa/services/quick_notes/quick_notes_service.dart';
 
 /// A floating quick notes window that can be shown as an overlay.
@@ -18,6 +19,7 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
   final _textController = TextEditingController();
   final _focusNode = FocusNode();
   late final TabController _tabController;
+  final _canvasKey = GlobalKey<QuickNoteCanvasState>();
 
   var _isHandwritingMode = false;
 
@@ -43,11 +45,31 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
   }
 
   void _addNote() {
-    final content = _textController.text.trim();
-    if (content.isEmpty) return;
+    if (_isHandwritingMode) {
+      final canvasState = _canvasKey.currentState;
+      if (canvasState == null || canvasState.data.isEmpty) return;
 
-    _service.addNote(content: content, isHandwritten: _isHandwritingMode);
-    _textController.clear();
+      _service.addNote(
+        content: 'Handwritten note',
+        isHandwritten: true,
+        handwrittenData: canvasState.data.toJsonString(),
+      );
+      canvasState.clear();
+    } else {
+      final content = _textController.text.trim();
+      if (content.isEmpty) return;
+
+      _service.addNote(content: content);
+      _textController.clear();
+    }
+  }
+
+  bool _canAddNote() {
+    if (_isHandwritingMode) {
+      final canvasState = _canvasKey.currentState;
+      return canvasState != null && canvasState.data.isNotEmpty;
+    }
+    return _textController.text.trim().isNotEmpty;
   }
 
   void _clearAll() {
@@ -267,7 +289,7 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
 
           // Add button
           FilledButton.icon(
-            onPressed: _textController.text.isNotEmpty ? _addNote : null,
+            onPressed: _canAddNote() ? _addNote : null,
             icon: const Icon(Icons.add),
             label: const Text('Add Quick Note'),
           ),
@@ -297,42 +319,29 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
   }
 
   Widget _buildHandwritingArea(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = ColorScheme.of(context);
 
-    // Placeholder for handwriting - would integrate with the actual handwriting canvas
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline),
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
+      children: [
+        Expanded(
+          child: QuickNoteCanvas(
+            key: _canvasKey,
+            strokeColor: colorScheme.onSurface,
+            strokeWidth: 2.0,
+            onChanged: (_) => setState(() {}),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
           children: [
-            Icon(
-              Icons.draw,
-              size: 48,
-              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Handwriting mode',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Coming soon - use text mode for now',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-              ),
+            TextButton.icon(
+              onPressed: () => _canvasKey.currentState?.clear(),
+              icon: const Icon(Icons.clear, size: 16),
+              label: const Text('Clear Canvas'),
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 }
@@ -405,16 +414,31 @@ class _QuickNoteCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              note.content,
-              style: theme.textTheme.bodyMedium,
-              maxLines: 5,
-              overflow: TextOverflow.ellipsis,
-            ),
+            if (note.isHandwritten && note.handwrittenData != null)
+              _buildHandwritingPreview(note.handwrittenData!)
+            else
+              Text(
+                note.content,
+                style: theme.textTheme.bodyMedium,
+                maxLines: 5,
+                overflow: TextOverflow.ellipsis,
+              ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildHandwritingPreview(String jsonData) {
+    try {
+      final data = QuickNoteHandwritingData.fromJsonString(jsonData);
+      return QuickNoteHandwritingPreview(data: data, height: 80);
+    } catch (e) {
+      return const SizedBox(
+        height: 80,
+        child: Center(child: Icon(Icons.draw, size: 32)),
+      );
+    }
   }
 
   Color _getExpirationColor(Duration remaining, ColorScheme colorScheme) {

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -27,9 +28,9 @@ class SecondaryTimer {
 
   Duration _remainingTime = Duration.zero;
   Timer? _timer;
-  bool _isRunning = false;
-  bool _isPaused = false;
-  bool _isCompleted = false;
+  var _isRunning = false;
+  var _isPaused = false;
+  var _isCompleted = false;
 
   Duration get remainingTime => _remainingTime;
   bool get isRunning => _isRunning;
@@ -285,18 +286,21 @@ class MultiTimerService extends ChangeNotifier {
   Future<void> initialize() async {
     if (_initialized) return;
 
-    _notifications = FlutterLocalNotificationsPlugin();
-    const androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
-    );
-    const initSettings = InitializationSettings(android: androidSettings);
-
-    try {
-      await _notifications?.initialize(initSettings);
-    } catch (e) {
-      debugPrint(
-        'Failed to initialize notifications for MultiTimerService: $e',
+    // Only initialize notifications on supported platforms
+    if (Platform.isAndroid || Platform.isIOS) {
+      _notifications = FlutterLocalNotificationsPlugin();
+      const androidSettings = AndroidInitializationSettings(
+        '@mipmap/ic_launcher',
       );
+      const initSettings = InitializationSettings(android: androidSettings);
+
+      try {
+        await _notifications?.initialize(initSettings);
+      } catch (e) {
+        debugPrint(
+          'Failed to initialize notifications for MultiTimerService: $e',
+        );
+      }
     }
 
     await _loadTimers();
