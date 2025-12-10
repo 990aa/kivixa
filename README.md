@@ -218,6 +218,31 @@ A comprehensive productivity timer system with advanced features for focused wor
   - **Clock Page** - Full sidebar page with tabs (Timer, Multi-Timer, Routines, Stats, Settings)
   - **Synchronized State** - Changes in either view reflect in the other
 
+### **Quick Notes (NEW)**
+Ephemeral note-taking for those quick thoughts that don't need permanent storage.
+
+- **Instant Access**
+  - **Floating Hub Integration** - One-tap access from the floating menu
+  - **Browse Page Widget** - Collapsible card above your files
+  - **Real-Time Sync** - Changes reflect immediately across all views
+
+- **Auto-Expiration**
+  - **Configurable Retention** - Notes auto-delete after a set time
+  - **Preset Durations** - 15min, 30min, 1hr, 4hr, 12hr, 24hr, 3 days, 1 week
+  - **Expiry Countdown** - Visual indicator showing time remaining
+  - **Manual Override** - Disable auto-delete if needed
+
+- **Input Modes**
+  - **Text Mode** - Quick text entry with instant save
+  - **Handwriting Mode** - Sketch quick diagrams or handwritten notes
+  - **Mode Toggle** - Easy switch between input types
+
+- **Management**
+  - **Clear All** - Quickly remove all quick notes
+  - **Delete Individual** - Remove specific notes
+  - **Note Count Badge** - See how many quick notes you have
+  - **Settings Integration** - Configure retention from Settings page
+
 ### **Customization**
 - **Dynamic Theming** - Material You dynamic color support
 - **Dark & Light Modes** - Easy on the eyes, any time of day

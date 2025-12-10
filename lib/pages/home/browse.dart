@@ -12,6 +12,7 @@ import 'package:kivixa/components/home/new_note_button.dart';
 import 'package:kivixa/components/home/no_files.dart';
 import 'package:kivixa/components/home/path_components.dart';
 import 'package:kivixa/components/home/rename_note_button.dart';
+import 'package:kivixa/components/quick_notes/inline_quick_notes.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
@@ -435,6 +436,8 @@ class _BrowsePageState extends State<BrowsePage> {
                     ],
                   ],
                 ),
+                // Quick Notes section
+                const SliverToBoxAdapter(child: InlineQuickNotes()),
                 SliverToBoxAdapter(
                   child: PathComponents(
                     path,
