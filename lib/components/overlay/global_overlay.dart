@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/overlay/assistant_window.dart';
 import 'package:kivixa/components/overlay/browser_window.dart';
+import 'package:kivixa/components/overlay/floating_clock.dart';
 import 'package:kivixa/components/overlay/floating_hub.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
@@ -75,6 +76,7 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
           widget.child,
           const AssistantWindow(),
           const BrowserWindow(),
+          const _ClockWindowWrapper(),
         ],
       );
     }
@@ -116,9 +118,47 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
           // Floating windows
           const AssistantWindow(),
           const BrowserWindow(),
+          const _ClockWindowWrapper(),
         ],
       ),
     );
+  }
+}
+
+/// Wrapper for the clock window that handles visibility
+class _ClockWindowWrapper extends StatefulWidget {
+  const _ClockWindowWrapper();
+
+  @override
+  State<_ClockWindowWrapper> createState() => _ClockWindowWrapperState();
+}
+
+class _ClockWindowWrapperState extends State<_ClockWindowWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    OverlayController.instance.addListener(_onOverlayChanged);
+  }
+
+  void _onOverlayChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    OverlayController.instance.removeListener(_onOverlayChanged);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = OverlayController.instance;
+
+    if (!controller.isToolWindowOpen('clock')) {
+      return const SizedBox.shrink();
+    }
+
+    return const FloatingClockWindow();
   }
 }
 

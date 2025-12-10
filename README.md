@@ -160,6 +160,64 @@ Kivixa features a powerful on-device AI engine powered by Microsoft's Phi-4 mode
 - **Cross-Platform Sync** - Work seamlessly across devices
 - **Keyboard Shortcuts** - Boost productivity with keybindings
 
+### **Productivity Clock (NEW)**
+A comprehensive productivity timer system with advanced features for focused work sessions.
+
+- **Core Timer Features**
+  - **Pomodoro Technique** - Classic 25-minute focus sessions with breaks
+  - **Multiple Timer Templates** - Pomodoro (25/5), 52/17 Method, Ultradian (90/20)
+  - **Custom Durations** - Set any work/break duration you prefer
+  - **Session Types** - Focus, Short Break, Long Break, Flow, and Custom modes
+  - **Progress Tracking** - Visual circular progress indicator
+  - **Floating Clock Widget** - Always-visible timer overlay while working
+
+- **Context-Aware Timers**
+  - **Session Tags** - Tag sessions with context (Coding, Reading, Writing, Meeting, Research, Design, Learning, Planning, Exercise)
+  - **Filter Stats by Tag** - Analyze productivity by activity type
+  - **Custom Tags** - Create your own context tags with custom colors and icons
+
+- **Quick-Switch Presets**
+  - **Code Preset** - 90-minute deep work with 20-minute breaks
+  - **Reading Preset** - 45-minute reading with 10-minute breaks
+  - **Deep Design Preset** - 2-hour creative sessions with 25-minute breaks
+  - **Sprint Preset** - Quick 25-minute bursts with 5-minute breaks
+  - **Meetings Preset** - 30-minute time-boxed meetings with 5-minute prep
+
+- **Multi-Timer Orchestration**
+  - **Parallel Clocks** - Run main focus timer with secondary reminders
+  - **Built-in Presets** - Tea timer, Commit reminder, Eye rest (20-20-20), Stretch, Water break, Standup, Posture check, Meeting alert
+  - **Custom Timers** - Create unlimited secondary countdown timers
+  - **Independent Control** - Start, pause, stop each timer separately
+
+- **Chained Routines**
+  - **Sequential Timed Blocks** - Create routines as a sequence of activities
+  - **Built-in Routines**:
+    - Morning Routine (Meditate → Exercise → Journal → Plan Day)
+    - Evening Wind-Down (Review Day → Light Reading → Gratitude → Breathe)
+    - Study Session (Review Notes → Active Learning → Practice → Quiz)
+    - Creative Session (Warm Up → Deep Work → Review → Document)
+    - Work Sprint (Plan → Sprint 1 → Break → Sprint 2 → Review)
+  - **Auto-Advance** - Automatically transitions between blocks
+  - **Custom Routines** - Create your own structured workflows
+
+- **Statistics & Analytics**
+  - **Daily Goals** - Set and track focus time goals
+  - **Session History** - View completed sessions with duration and tags
+  - **Completion Rate** - Track session completion percentage
+  - **Tag Analytics** - See time distribution across activities
+  - **Progress Visualization** - Charts and graphs for productivity insights
+
+- **Smart Notifications**
+  - **Session Reminders** - Notification when sessions complete
+  - **Break Alerts** - Reminders to take breaks
+  - **Routine Progress** - Updates on routine block transitions
+  - **Permission Controls** - Enable/disable notifications from settings
+
+- **Dual Access**
+  - **Floating Clock** - Compact overlay accessible from any screen
+  - **Clock Page** - Full sidebar page with tabs (Timer, Multi-Timer, Routines, Stats, Settings)
+  - **Synchronized State** - Changes in either view reflect in the other
+
 ### **Customization**
 - **Dynamic Theming** - Material You dynamic color support
 - **Dark & Light Modes** - Easy on the eyes, any time of day

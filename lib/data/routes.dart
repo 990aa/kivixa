@@ -96,6 +96,14 @@ abstract class HomeRoutes {
       ),
     ),
     _Route(
+      routePath: _homeFunction({'subpage': HomePage.clockSubpage}),
+      label: 'Productivity',
+      icon: const AdaptiveIcon(
+        icon: Icons.timer,
+        cupertinoIcon: CupertinoIcons.timer,
+      ),
+    ),
+    _Route(
       routePath: _homeFunction({'subpage': HomePage.knowledgeGraphSubpage}),
       label: 'Knowledge Graph',
       icon: const AdaptiveIcon(

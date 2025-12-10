@@ -161,13 +161,13 @@ class OverlayController extends ChangeNotifier {
     );
     registerTool(
       OverlayTool(
-        id: 'knowledge_graph',
-        icon: Icons.hub_rounded,
-        label: 'Knowledge Graph',
-        onTap: () => isToolWindowOpen('knowledge_graph')
-            ? closeToolWindow('knowledge_graph')
-            : openToolWindow('knowledge_graph'),
-        isActive: () => isToolWindowOpen('knowledge_graph'),
+        id: 'clock',
+        icon: Icons.timer_rounded,
+        label: 'Productivity Timer',
+        onTap: () => isToolWindowOpen('clock')
+            ? closeToolWindow('clock')
+            : openToolWindow('clock'),
+        isActive: () => isToolWindowOpen('clock'),
       ),
     );
   }
