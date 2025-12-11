@@ -8,10 +8,11 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kivixa/components/navbar/responsive_navbar.dart';
-import 'package:kivixa/components/settings/app_info.dart';
+import 'package:kivixa/components/dialogs/legal_documents_viewer.dart';
 import 'package:kivixa/components/settings/clear_app_data_widget.dart';
 import 'package:kivixa/components/settings/notification_settings_widget.dart';
 import 'package:kivixa/components/settings/settings_button.dart';
+import 'package:kivixa/components/settings/update_dialog.dart';
 import 'package:kivixa/components/settings/settings_color.dart';
 import 'package:kivixa/components/settings/settings_directory_selector.dart';
 import 'package:kivixa/components/settings/settings_selection.dart';
@@ -174,7 +175,51 @@ class _SettingsPageState extends State<SettingsPage> {
           SliverSafeArea(
             sliver: SliverList.list(
               children: [
-                const Padding(padding: EdgeInsets.all(8), child: AppInfo()),
+                // Legal documents section
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () =>
+                              LegalDocumentsViewer.showTerms(context),
+                          icon: const Icon(Icons.gavel, size: 18),
+                          label: const Text('Terms & Conditions'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () =>
+                              LegalDocumentsViewer.showPrivacyPolicy(context),
+                          icon: const Icon(
+                            Icons.privacy_tip_outlined,
+                            size: 18,
+                          ),
+                          label: const Text('Privacy Policy'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => showDialog(
+                            context: context,
+                            builder: (context) => const UpdateDialog(),
+                          ),
+                          icon: const Icon(
+                            Icons.new_releases_outlined,
+                            size: 18,
+                          ),
+                          label: const Text('Release Notes'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 SettingsSubtitle(subtitle: t.settings.prefCategories.general),
                 SettingsSelection(
                   title: t.settings.prefLabels.appTheme,
