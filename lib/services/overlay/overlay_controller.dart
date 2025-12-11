@@ -170,6 +170,17 @@ class OverlayController extends ChangeNotifier {
         isActive: () => isToolWindowOpen('clock'),
       ),
     );
+    registerTool(
+      OverlayTool(
+        id: 'quick_notes',
+        icon: Icons.sticky_note_2_rounded,
+        label: 'Quick Notes',
+        onTap: () => isToolWindowOpen('quick_notes')
+            ? closeToolWindow('quick_notes')
+            : openToolWindow('quick_notes'),
+        isActive: () => isToolWindowOpen('quick_notes'),
+      ),
+    );
   }
 
   // ============================================================

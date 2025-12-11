@@ -3,8 +3,10 @@ import 'package:kivixa/components/overlay/assistant_window.dart';
 import 'package:kivixa/components/overlay/browser_window.dart';
 import 'package:kivixa/components/overlay/floating_clock.dart';
 import 'package:kivixa/components/overlay/floating_hub.dart';
+import 'package:kivixa/components/quick_notes/floating_quick_notes.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
+import 'package:kivixa/services/quick_notes/quick_notes_service.dart';
 
 /// The main global overlay widget that provides floating tools.
 ///
@@ -56,6 +58,7 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
 
   Future<void> _initialize() async {
     await OverlayController.instance.initialize();
+    await QuickNotesService.instance.initialize();
     if (mounted) {
       setState(() => _initialized = true);
     }
@@ -77,6 +80,7 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
           const AssistantWindow(),
           const BrowserWindow(),
           const _ClockWindowWrapper(),
+          const _QuickNotesWindowWrapper(),
         ],
       );
     }
@@ -119,6 +123,7 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
           const AssistantWindow(),
           const BrowserWindow(),
           const _ClockWindowWrapper(),
+          const _QuickNotesWindowWrapper(),
         ],
       ),
     );
@@ -174,4 +179,60 @@ class GlobalOverlayScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(covariant InheritedWidget oldWidget) => false;
+}
+
+/// Wrapper for the quick notes window that handles visibility and positioning
+class _QuickNotesWindowWrapper extends StatefulWidget {
+  const _QuickNotesWindowWrapper();
+
+  @override
+  State<_QuickNotesWindowWrapper> createState() =>
+      _QuickNotesWindowWrapperState();
+}
+
+class _QuickNotesWindowWrapperState extends State<_QuickNotesWindowWrapper> {
+  var _position = const Offset(100, 100);
+
+  @override
+  void initState() {
+    super.initState();
+    OverlayController.instance.addListener(_onOverlayChanged);
+  }
+
+  void _onOverlayChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    OverlayController.instance.removeListener(_onOverlayChanged);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = OverlayController.instance;
+
+    if (!controller.isToolWindowOpen('quick_notes')) {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned(
+      left: _position.dx,
+      top: _position.dy,
+      child: GestureDetector(
+        onPanUpdate: (details) {
+          setState(() {
+            _position = Offset(
+              _position.dx + details.delta.dx,
+              _position.dy + details.delta.dy,
+            );
+          });
+        },
+        child: FloatingQuickNotes(
+          onClose: () => controller.closeToolWindow('quick_notes'),
+        ),
+      ),
+    );
+  }
 }

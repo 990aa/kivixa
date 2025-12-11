@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -331,6 +332,12 @@ class ProductivityTimerService extends ChangeNotifier {
 
   /// Initialize notifications
   Future<void> _initializeNotifications() async {
+    // Skip notifications on unsupported platforms
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      _notificationsInitialized = false;
+      return;
+    }
+
     _notifications = FlutterLocalNotificationsPlugin();
 
     const androidSettings = AndroidInitializationSettings(

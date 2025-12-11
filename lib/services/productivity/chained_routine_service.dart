@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -84,14 +85,14 @@ class ChainedRoutine {
   int get totalMinutes => totalDuration.inMinutes;
 
   /// Morning routine preset
-  static final morningRoutine = ChainedRoutine(
+  static const morningRoutine = ChainedRoutine(
     id: 'morning_routine',
     name: 'Morning Routine',
     icon: Icons.wb_sunny,
-    color: const Color(0xFFFF9800),
+    color: Color(0xFFFF9800),
     description: 'Start your day right',
     isDefault: true,
-    blocks: const [
+    blocks: [
       RoutineBlock(
         name: 'Meditate',
         durationMinutes: 10,
@@ -124,14 +125,14 @@ class ChainedRoutine {
   );
 
   /// Evening wind-down routine
-  static final eveningRoutine = ChainedRoutine(
+  static const eveningRoutine = ChainedRoutine(
     id: 'evening_routine',
     name: 'Evening Wind-Down',
     icon: Icons.nights_stay,
-    color: const Color(0xFF673AB7),
+    color: Color(0xFF673AB7),
     description: 'Prepare for restful sleep',
     isDefault: true,
-    blocks: const [
+    blocks: [
       RoutineBlock(
         name: 'Review Day',
         durationMinutes: 10,
@@ -164,14 +165,14 @@ class ChainedRoutine {
   );
 
   /// Study session routine
-  static final studySession = ChainedRoutine(
+  static const studySession = ChainedRoutine(
     id: 'study_session',
     name: 'Study Session',
     icon: Icons.school,
-    color: const Color(0xFF2196F3),
+    color: Color(0xFF2196F3),
     description: 'Structured learning blocks',
     isDefault: true,
-    blocks: const [
+    blocks: [
       RoutineBlock(
         name: 'Review Notes',
         durationMinutes: 15,
@@ -204,14 +205,14 @@ class ChainedRoutine {
   );
 
   /// Creative work session
-  static final creativeSession = ChainedRoutine(
+  static const creativeSession = ChainedRoutine(
     id: 'creative_session',
     name: 'Creative Session',
     icon: Icons.palette,
-    color: const Color(0xFFE91E63),
+    color: Color(0xFFE91E63),
     description: 'Structured creative work',
     isDefault: true,
-    blocks: const [
+    blocks: [
       RoutineBlock(
         name: 'Warm Up',
         durationMinutes: 10,
@@ -244,14 +245,14 @@ class ChainedRoutine {
   );
 
   /// Work sprint routine
-  static final workSprint = ChainedRoutine(
+  static const workSprint = ChainedRoutine(
     id: 'work_sprint',
     name: 'Work Sprint',
     icon: Icons.flash_on,
-    color: const Color(0xFFF44336),
+    color: Color(0xFFF44336),
     description: 'High-intensity work blocks',
     isDefault: true,
-    blocks: const [
+    blocks: [
       RoutineBlock(
         name: 'Plan Sprint',
         durationMinutes: 5,
@@ -353,7 +354,7 @@ class ChainedRoutineService extends ChangeNotifier {
 
   // Routine state
   ChainedRoutine? _currentRoutine;
-  int _currentBlockIndex = 0;
+  var _currentBlockIndex = 0;
   RoutineState _state = RoutineState.idle;
   Duration _remainingTime = Duration.zero;
   Timer? _timer;
@@ -422,18 +423,21 @@ class ChainedRoutineService extends ChangeNotifier {
   Future<void> initialize() async {
     if (_initialized) return;
 
-    _notifications = FlutterLocalNotificationsPlugin();
-    const androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
-    );
-    const initSettings = InitializationSettings(android: androidSettings);
-
-    try {
-      await _notifications?.initialize(initSettings);
-    } catch (e) {
-      debugPrint(
-        'Failed to initialize notifications for ChainedRoutineService: $e',
+    // Only initialize notifications on supported platforms
+    if (Platform.isAndroid || Platform.isIOS) {
+      _notifications = FlutterLocalNotificationsPlugin();
+      const androidSettings = AndroidInitializationSettings(
+        '@mipmap/ic_launcher',
       );
+      const initSettings = InitializationSettings(android: androidSettings);
+
+      try {
+        await _notifications?.initialize(initSettings);
+      } catch (e) {
+        debugPrint(
+          'Failed to initialize notifications for ChainedRoutineService: $e',
+        );
+      }
     }
 
     await _loadRoutines();
@@ -529,7 +533,7 @@ class ChainedRoutineService extends ChangeNotifier {
       _state = RoutineState.completed;
       _showNotification(
         title: '${_currentRoutine!.name} Complete! 🎉',
-        body: 'Great job! You completed all ${totalBlocks} blocks.',
+        body: 'Great job! You completed all $totalBlocks blocks.',
       );
       notifyListeners();
       return;

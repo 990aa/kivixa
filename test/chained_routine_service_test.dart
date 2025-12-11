@@ -89,10 +89,10 @@ void main() {
 
   group('ChainedRoutine', () {
     test('creates with required properties', () {
-      final routine = ChainedRoutine(
+      const routine = ChainedRoutine(
         id: 'test_routine',
         name: 'Test Routine',
-        blocks: const [RoutineBlock(name: 'Block 1', durationMinutes: 10)],
+        blocks: [RoutineBlock(name: 'Block 1', durationMinutes: 10)],
       );
 
       expect(routine.id, 'test_routine');
@@ -104,10 +104,10 @@ void main() {
     });
 
     test('creates default routine', () {
-      final routine = ChainedRoutine(
+      const routine = ChainedRoutine(
         id: 'default',
         name: 'Default',
-        blocks: const [],
+        blocks: [],
         isDefault: true,
       );
 
@@ -115,10 +115,10 @@ void main() {
     });
 
     test('totalDuration sums all blocks', () {
-      final routine = ChainedRoutine(
+      const routine = ChainedRoutine(
         id: 'test',
         name: 'Test',
-        blocks: const [
+        blocks: [
           RoutineBlock(name: 'B1', durationMinutes: 10),
           RoutineBlock(name: 'B2', durationMinutes: 15),
           RoutineBlock(name: 'B3', durationMinutes: 5),
@@ -129,10 +129,10 @@ void main() {
     });
 
     test('totalMinutes returns correct value', () {
-      final routine = ChainedRoutine(
+      const routine = ChainedRoutine(
         id: 'test',
         name: 'Test',
-        blocks: const [
+        blocks: [
           RoutineBlock(name: 'B1', durationMinutes: 10),
           RoutineBlock(name: 'B2', durationMinutes: 15),
         ],
@@ -142,12 +142,12 @@ void main() {
     });
 
     test('toJson and fromJson work correctly', () {
-      final routine = ChainedRoutine(
+      const routine = ChainedRoutine(
         id: 'test',
         name: 'Test Routine',
         description: 'A test routine',
         icon: Icons.star,
-        blocks: const [RoutineBlock(name: 'Block 1', durationMinutes: 10)],
+        blocks: [RoutineBlock(name: 'Block 1', durationMinutes: 10)],
         isDefault: false,
       );
       final json = routine.toJson();
@@ -162,10 +162,10 @@ void main() {
     });
 
     test('copyWith creates modified copy', () {
-      final routine = ChainedRoutine(
+      const routine = ChainedRoutine(
         id: 'original',
         name: 'Original',
-        blocks: const [],
+        blocks: [],
       );
       final copy = routine.copyWith(
         name: 'Modified',
@@ -180,35 +180,35 @@ void main() {
 
   group('Default Routines', () {
     test('morning routine exists', () {
-      final routine = ChainedRoutine.morningRoutine;
+      const routine = ChainedRoutine.morningRoutine;
       expect(routine.name, 'Morning Routine');
       expect(routine.blocks.isNotEmpty, true);
       expect(routine.isDefault, true);
     });
 
     test('evening routine exists', () {
-      final routine = ChainedRoutine.eveningRoutine;
+      const routine = ChainedRoutine.eveningRoutine;
       expect(routine.name, 'Evening Wind-Down');
       expect(routine.blocks.isNotEmpty, true);
       expect(routine.isDefault, true);
     });
 
     test('study session exists', () {
-      final routine = ChainedRoutine.studySession;
+      const routine = ChainedRoutine.studySession;
       expect(routine.name, 'Study Session');
       expect(routine.blocks.isNotEmpty, true);
       expect(routine.isDefault, true);
     });
 
     test('creative session exists', () {
-      final routine = ChainedRoutine.creativeSession;
+      const routine = ChainedRoutine.creativeSession;
       expect(routine.name, 'Creative Session');
       expect(routine.blocks.isNotEmpty, true);
       expect(routine.isDefault, true);
     });
 
     test('work sprint exists', () {
-      final routine = ChainedRoutine.workSprint;
+      const routine = ChainedRoutine.workSprint;
       expect(routine.name, 'Work Sprint');
       expect(routine.blocks.isNotEmpty, true);
       expect(routine.isDefault, true);
@@ -278,7 +278,7 @@ void main() {
       final service = ChainedRoutineService.instance;
       service.stop();
 
-      final routine = ChainedRoutine.morningRoutine;
+      const routine = ChainedRoutine.morningRoutine;
       service.startRoutine(routine);
 
       expect(service.currentRoutine?.id, routine.id);

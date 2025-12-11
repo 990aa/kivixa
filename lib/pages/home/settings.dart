@@ -31,6 +31,7 @@ import 'package:kivixa/services/app_lock_service.dart';
 import 'package:kivixa/services/browser_service.dart';
 import 'package:kivixa/services/life_git/life_git_service.dart';
 import 'package:kivixa/services/productivity/productivity_timer_service.dart';
+import 'package:kivixa/services/quick_notes/quick_notes_service.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:stow/stow.dart';
 
@@ -517,6 +518,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 const SettingsSubtitle(subtitle: 'Productivity Timer'),
                 const _ProductivityTimerSettingsSection(),
+                const SettingsSubtitle(subtitle: 'Quick Notes'),
+                const _QuickNotesSettingsSection(),
                 SettingsSubtitle(subtitle: t.settings.prefCategories.security),
                 _AppLockSettingsSection(onChanged: () => setState(() {})),
                 SettingsSubtitle(subtitle: t.settings.prefCategories.advanced),
@@ -1680,6 +1683,154 @@ class _ProductivityTimerSettingsSectionState
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
             child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Settings section for Quick Notes auto-deletion
+class _QuickNotesSettingsSection extends StatefulWidget {
+  const _QuickNotesSettingsSection();
+
+  @override
+  State<_QuickNotesSettingsSection> createState() =>
+      _QuickNotesSettingsSectionState();
+}
+
+class _QuickNotesSettingsSectionState
+    extends State<_QuickNotesSettingsSection> {
+  final _service = QuickNotesService.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _service.addListener(_onChanged);
+  }
+
+  @override
+  void dispose() {
+    _service.removeListener(_onChanged);
+    super.dispose();
+  }
+
+  void _onChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Enable auto-delete
+        SwitchListTile(
+          secondary: const Icon(Icons.auto_delete),
+          title: const Text('Auto-Delete Notes'),
+          subtitle: Text(
+            _service.autoDeleteEnabled
+                ? 'Notes automatically deleted after ${QuickNoteAutoDeletePresets.formatDuration(_service.autoDeleteDuration)}'
+                : 'Notes persist until manually deleted',
+          ),
+          value: _service.autoDeleteEnabled,
+          onChanged: (value) => _service.setAutoDeleteEnabled(value),
+        ),
+        // Auto-delete duration
+        if (_service.autoDeleteEnabled)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.timer, color: colorScheme.primary),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Auto-Delete After',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: QuickNoteAutoDeletePresets.presets.map((
+                        duration,
+                      ) {
+                        final isSelected =
+                            _service.autoDeleteDuration == duration;
+                        return ChoiceChip(
+                          label: Text(
+                            QuickNoteAutoDeletePresets.formatDuration(duration),
+                          ),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            if (selected) {
+                              _service.setAutoDeleteDuration(duration);
+                            }
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        // Current notes count
+        ListTile(
+          leading: Icon(Icons.sticky_note_2, color: colorScheme.primary),
+          title: const Text('Current Quick Notes'),
+          subtitle: Text(
+            _service.isEmpty
+                ? 'No quick notes'
+                : '${_service.count} note${_service.count > 1 ? 's' : ''}',
+          ),
+          trailing: _service.isEmpty
+              ? null
+              : TextButton.icon(
+                  icon: const Icon(Icons.delete_outline),
+                  label: const Text('Clear All'),
+                  onPressed: () => _showClearConfirmation(context),
+                ),
+        ),
+      ],
+    );
+  }
+
+  void _showClearConfirmation(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear All Quick Notes?'),
+        content: const Text(
+          'This will permanently delete all your quick notes. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              _service.clearAllNotes();
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('All quick notes cleared')),
+              );
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Clear All'),
           ),
         ],
       ),

@@ -97,7 +97,7 @@ void main() {
     });
 
     test('toJson and fromJson work correctly', () {
-      final tag = TimerContextTag(
+      const tag = TimerContextTag(
         id: 'test_tag',
         name: 'Test Tag',
         icon: Icons.star,
@@ -112,19 +112,19 @@ void main() {
     });
 
     test('equality works correctly', () {
-      final tag1 = TimerContextTag(
+      const tag1 = TimerContextTag(
         id: 'test',
         name: 'Test',
         icon: Icons.star,
         color: Colors.blue,
       );
-      final tag2 = TimerContextTag(
+      const tag2 = TimerContextTag(
         id: 'test',
         name: 'Different Name',
         icon: Icons.circle,
         color: Colors.red,
       );
-      final tag3 = TimerContextTag(
+      const tag3 = TimerContextTag(
         id: 'other',
         name: 'Test',
         icon: Icons.star,
@@ -176,7 +176,7 @@ void main() {
     });
 
     test('toJson and fromJson work correctly', () {
-      final preset = QuickPreset.code;
+      const preset = QuickPreset.code;
       final json = preset.toJson();
       final restored = QuickPreset.fromJson(json);
 
