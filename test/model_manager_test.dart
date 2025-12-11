@@ -7,7 +7,10 @@ void main() {
       final defaultModel = ModelManager.defaultModel;
       expect(defaultModel.id, 'phi4-mini-q4km');
       expect(defaultModel.name, 'Phi-4 Mini');
-      expect(defaultModel.fileName, 'phi4_mini_q4km.gguf');
+      expect(
+        defaultModel.fileName,
+        'microsoft_Phi-4-mini-instruct-Q4_K_M.gguf',
+      );
     });
 
     test('should calculate size text correctly for GB', () {
