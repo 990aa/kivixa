@@ -534,6 +534,9 @@ class TranslationsEditorMenu {
   String get insertPage => 'Insert page below';
   String get duplicatePage => 'Duplicate page';
   String get deletePage => 'Delete page';
+  String get choosePageOrientation => 'Choose page orientation';
+  String get portrait => 'Portrait';
+  String get landscape => 'Landscape';
   String get lineHeight => 'Line height';
   String get lineHeightDescription =>
       'Also controls the text size for typed notes';

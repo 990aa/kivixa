@@ -4,6 +4,7 @@ import 'package:kivixa/components/canvas/canvas_gesture_detector.dart';
 import 'package:kivixa/components/canvas/canvas_preview.dart';
 import 'package:kivixa/components/theming/adaptive_icon.dart';
 import 'package:kivixa/data/editor/editor_core_info.dart';
+import 'package:kivixa/data/editor/page.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 
 class EditorPageManager extends StatefulWidget {
@@ -23,7 +24,7 @@ class EditorPageManager extends StatefulWidget {
   final int? currentPageIndex;
   final VoidCallback redrawAndSave;
 
-  final void Function(int) insertPageAfter;
+  final void Function(int, {PageOrientation? orientation}) insertPageAfter;
   final void Function(int) duplicatePage;
   final void Function(int) clearPage;
   final void Function(int) deletePage;
@@ -41,6 +42,57 @@ class _EditorPageManagerState extends State<EditorPageManager> {
     screenWidth: MediaQuery.sizeOf(context).width,
     transformationController: widget.transformationController,
   );
+
+  Future<void> _showInsertPageDialog(int pageIndex) async {
+    // Get current page orientation as default
+    final currentOrientation =
+        pageIndex >= 0 && pageIndex < widget.coreInfo.pages.length
+        ? widget.coreInfo.pages[pageIndex].orientation
+        : PageOrientation.portrait;
+
+    final result = await showDialog<PageOrientation>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t.editor.menu.insertPage),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(t.editor.menu.choosePageOrientation),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _OrientationOption(
+                  orientation: PageOrientation.portrait,
+                  isSelected: currentOrientation == PageOrientation.portrait,
+                  onTap: () => Navigator.pop(context, PageOrientation.portrait),
+                ),
+                _OrientationOption(
+                  orientation: PageOrientation.landscape,
+                  isSelected: currentOrientation == PageOrientation.landscape,
+                  onTap: () =>
+                      Navigator.pop(context, PageOrientation.landscape),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t.common.cancel),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        widget.insertPageAfter(pageIndex, orientation: result);
+        scrollToPage(pageIndex + 1);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,10 +156,7 @@ class _EditorPageManagerState extends State<EditorPageManager> {
                           icon: Icons.insert_page_break,
                           cupertinoIcon: CupertinoIcons.add,
                         ),
-                        onPressed: () => setState(() {
-                          widget.insertPageAfter(pageIndex);
-                          scrollToPage(pageIndex + 1);
-                        }),
+                        onPressed: () => _showInsertPageDialog(pageIndex),
                       ),
                       IconButton(
                         tooltip: t.editor.menu.duplicatePage,
@@ -175,6 +224,68 @@ class _EditorPageManagerState extends State<EditorPageManager> {
 
           widget.redrawAndSave();
         },
+      ),
+    );
+  }
+}
+
+/// Widget for displaying a page orientation option in the dialog.
+class _OrientationOption extends StatelessWidget {
+  const _OrientationOption({
+    required this.orientation,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final PageOrientation orientation;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+    final isPortrait = orientation == PageOrientation.portrait;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isSelected ? colorScheme.primary : colorScheme.outline,
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          color: isSelected
+              ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+              : null,
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: isPortrait ? 40 : 56,
+              height: isPortrait ? 56 : 40,
+              decoration: BoxDecoration(
+                border: Border.all(color: colorScheme.onSurface),
+                borderRadius: BorderRadius.circular(4),
+                color: colorScheme.surface,
+              ),
+              child: Icon(
+                isPortrait ? Icons.crop_portrait : Icons.crop_landscape,
+                size: 20,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              isPortrait ? t.editor.menu.portrait : t.editor.menu.landscape,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : null,
+                color: isSelected ? colorScheme.primary : null,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
