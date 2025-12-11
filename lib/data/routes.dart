@@ -19,8 +19,12 @@ abstract class RoutePaths {
 
   static const prefixOfHome = '/home';
 
-  static String editFilePath(String filePath) {
-    return '$edit?path=${Uri.encodeQueryComponent(filePath)}';
+  static String editFilePath(String filePath, {bool? landscape}) {
+    final params = ['path=${Uri.encodeQueryComponent(filePath)}'];
+    if (landscape != null) {
+      params.add('landscape=$landscape');
+    }
+    return '$edit?${params.join('&')}';
   }
 
   static String editImportPdf(String filePath, String pdfPath) {

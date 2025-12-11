@@ -162,6 +162,11 @@ class App extends StatefulWidget {
         builder: (context, state) => Editor(
           path: state.uri.queryParameters['path'],
           pdfPath: state.uri.queryParameters['pdfPath'],
+          initialLandscape: state.uri.queryParameters['landscape'] == 'true'
+              ? true
+              : state.uri.queryParameters['landscape'] == 'false'
+              ? false
+              : null,
         ),
       ),
       GoRoute(

@@ -5,13 +5,15 @@ void main() {
   group('AppDataClearService', () {
     group('AppDataType enum', () {
       test('has all expected data types', () {
-        expect(AppDataType.values.length, 7);
+        expect(AppDataType.values.length, 9);
         expect(AppDataType.values.contains(AppDataType.notes), true);
         expect(AppDataType.values.contains(AppDataType.markdown), true);
         expect(AppDataType.values.contains(AppDataType.projects), true);
         expect(AppDataType.values.contains(AppDataType.calendar), true);
         expect(AppDataType.values.contains(AppDataType.preferences), true);
         expect(AppDataType.values.contains(AppDataType.recentFiles), true);
+        expect(AppDataType.values.contains(AppDataType.aiData), true);
+        expect(AppDataType.values.contains(AppDataType.browserData), true);
         expect(AppDataType.values.contains(AppDataType.all), true);
       });
 
@@ -22,6 +24,8 @@ void main() {
         expect(AppDataType.calendar.displayName, 'Calendar Events');
         expect(AppDataType.preferences.displayName, 'Preferences');
         expect(AppDataType.recentFiles.displayName, 'Recent Files');
+        expect(AppDataType.aiData.displayName, 'AI Data');
+        expect(AppDataType.browserData.displayName, 'Browser Data');
         expect(AppDataType.all.displayName, 'All Data');
       });
 

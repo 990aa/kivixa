@@ -53,17 +53,26 @@ import 'package:super_clipboard/super_clipboard.dart';
 typedef _PhotoInfo = ({Uint8List bytes, String extension});
 
 class Editor extends StatefulWidget {
-  Editor({super.key, String? path, this.customTitle, this.pdfPath})
-    : initialPath = path != null
-          ? Future.value(path)
-          : FileManager.newFilePath('/'),
-      needsNaming = path == null;
+  Editor({
+    super.key,
+    String? path,
+    this.customTitle,
+    this.pdfPath,
+    this.initialLandscape,
+  }) : initialPath = path != null
+           ? Future.value(path)
+           : FileManager.newFilePath('/'),
+       needsNaming = path == null;
 
   final Future<String> initialPath;
   final bool needsNaming;
 
   final String? customTitle;
   final String? pdfPath;
+
+  /// Initial page orientation. If true, new pages start as landscape.
+  /// If null, defaults to portrait.
+  final bool? initialLandscape;
 
   /// The file extension used by the app.
   /// Files with this extension are
@@ -283,13 +292,19 @@ class EditorState extends State<Editor> {
 
   /// Creates pages until the given page index exists,
   /// plus an extra blank page.
-  /// New pages will match the orientation of the last page in the document.
+  /// New pages will match the orientation of the last page in the document,
+  /// or use [widget.initialLandscape] for the first page if provided.
   void createPage(int pageIndex) {
     while (pageIndex >= coreInfo.pages.length - 1) {
-      // Match orientation of the last existing page, or default to portrait
-      final orientation = coreInfo.pages.isNotEmpty
-          ? coreInfo.pages.last.orientation
-          : PageOrientation.portrait;
+      // Match orientation of the last existing page, or use initial orientation
+      final PageOrientation orientation;
+      if (coreInfo.pages.isNotEmpty) {
+        orientation = coreInfo.pages.last.orientation;
+      } else if (widget.initialLandscape ?? false) {
+        orientation = PageOrientation.landscape;
+      } else {
+        orientation = PageOrientation.portrait;
+      }
       final page = EditorPage(orientation: orientation);
       coreInfo.pages.add(page);
       listenToQuillChanges(page.quill, coreInfo.pages.length - 1);
