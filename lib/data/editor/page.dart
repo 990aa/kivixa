@@ -20,13 +20,49 @@ class HasSize {
   final Size size;
 }
 
+/// Defines the orientation of a page.
+enum PageOrientation {
+  /// Portrait orientation (taller than wide). Default.
+  portrait,
+
+  /// Landscape orientation (wider than tall).
+  landscape;
+
+  /// Returns the appropriate size for the given orientation.
+  Size get defaultSize => switch (this) {
+    PageOrientation.portrait => EditorPage.defaultPortraitSize,
+    PageOrientation.landscape => EditorPage.defaultLandscapeSize,
+  };
+
+  /// Returns the opposite orientation.
+  PageOrientation get opposite => switch (this) {
+    PageOrientation.portrait => PageOrientation.landscape,
+    PageOrientation.landscape => PageOrientation.portrait,
+  };
+}
+
 class EditorPage extends ChangeNotifier implements HasSize {
   static const double defaultWidth = 1000;
   static const double defaultHeight = defaultWidth * 1.4;
   static const defaultSize = Size(defaultWidth, defaultHeight);
 
+  /// Portrait page size (taller than wide).
+  static const defaultPortraitSize = Size(defaultWidth, defaultHeight);
+
+  /// Landscape page size (wider than tall).
+  static const defaultLandscapeSize = Size(defaultHeight, defaultWidth);
+
   @override
   final Size size;
+
+  /// The orientation of this page.
+  final PageOrientation orientation;
+
+  /// Whether this page is in landscape orientation.
+  bool get isLandscape => orientation == PageOrientation.landscape;
+
+  /// Whether this page is in portrait orientation.
+  bool get isPortrait => orientation == PageOrientation.portrait;
 
   late final CanvasKey innerCanvasKey = CanvasKey();
   RenderBox? _renderBox;
@@ -108,6 +144,7 @@ class EditorPage extends ChangeNotifier implements HasSize {
     Size? size,
     double? width,
     double? height,
+    PageOrientation? orientation,
     List<Stroke>? strokes,
     List<EditorImage>? images,
     QuillStruct? quill,
@@ -116,7 +153,21 @@ class EditorPage extends ChangeNotifier implements HasSize {
          (size == null) || (width == null && height == null),
          "size and width/height shouldn't both be specified",
        ),
-       size = size ?? Size(width ?? defaultWidth, height ?? defaultHeight),
+       // Determine orientation from explicit parameter, size, or default to portrait
+       orientation =
+           orientation ??
+           (size != null
+               ? (size.width > size.height
+                     ? PageOrientation.landscape
+                     : PageOrientation.portrait)
+               : (width != null && height != null && width > height
+                     ? PageOrientation.landscape
+                     : PageOrientation.portrait)),
+       size =
+           size ??
+           (orientation != null
+               ? orientation.defaultSize
+               : Size(width ?? defaultWidth, height ?? defaultHeight)),
        strokes = strokes ?? [],
        laserStrokes = [],
        images = images ?? [],
@@ -136,8 +187,15 @@ class EditorPage extends ChangeNotifier implements HasSize {
     required AssetCache assetCache,
   }) {
     final size = Size(json['w'] ?? defaultWidth, json['h'] ?? defaultHeight);
+    // Determine orientation from stored value, or infer from dimensions
+    final orientation = json['o'] != null
+        ? PageOrientation.values[json['o'] as int]
+        : (size.width > size.height
+              ? PageOrientation.landscape
+              : PageOrientation.portrait);
     return EditorPage(
       size: size,
+      orientation: orientation,
       strokes: parseStrokesJson(
         json['s'] as List?,
         page: HasSize(size),
@@ -176,6 +234,8 @@ class EditorPage extends ChangeNotifier implements HasSize {
   Map<String, dynamic> toJson(OrderedAssetCache assets) => {
     'w': size.width,
     'h': size.height,
+    // Only store orientation if it's landscape (portrait is default)
+    if (orientation == PageOrientation.landscape) 'o': orientation.index,
     if (strokes.isNotEmpty)
       's': strokes.map((stroke) => stroke.toJson()).toList(),
     if (images.isNotEmpty)
@@ -294,12 +354,14 @@ class EditorPage extends ChangeNotifier implements HasSize {
 
   EditorPage copyWith({
     Size? size,
+    PageOrientation? orientation,
     List<Stroke>? strokes,
     List<EditorImage>? images,
     QuillStruct? quill,
     EditorImage? backgroundImage,
   }) => EditorPage(
     size: size ?? this.size,
+    orientation: orientation ?? this.orientation,
     strokes: strokes ?? this.strokes,
     images: images ?? this.images,
     quill: quill ?? this.quill,

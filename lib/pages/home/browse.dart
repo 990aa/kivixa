@@ -245,22 +245,10 @@ class _BrowsePageState extends State<BrowsePage> {
               slivers: [
                 SliverAppBar(
                   collapsedHeight: kToolbarHeight,
-                  expandedHeight: _isSearching ? kToolbarHeight : 200 - 8,
+                  expandedHeight: kToolbarHeight,
                   pinned: true,
                   scrolledUnderElevation: 1,
-                  flexibleSpace: _isSearching
-                      ? null
-                      : FlexibleSpaceBar(
-                          title: Text(
-                            t.home.titles.browse,
-                            style: TextStyle(color: colorScheme.onSurface),
-                          ),
-                          centerTitle: false,
-                          titlePadding: const EdgeInsetsDirectional.only(
-                            start: 16,
-                            bottom: 8,
-                          ),
-                        ),
+                  flexibleSpace: null,
                   title: _isSearching
                       ? TextField(
                           controller: _searchController,

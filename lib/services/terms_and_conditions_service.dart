@@ -54,7 +54,7 @@ class TermsAndConditionsService {
     return '''
 KIVIXA TERMS AND CONDITIONS
 
-Last Updated: November 2025
+Last Updated: December 2025
 Version: $currentTermsVersion
 
 By using Kivixa, you agree to these terms and conditions.

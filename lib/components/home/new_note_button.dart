@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kivixa/components/home/new_folder_dialog.dart';
+import 'package:kivixa/data/editor/page.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
@@ -29,6 +30,28 @@ class NewNoteButton extends StatefulWidget {
 class _NewNoteButtonState extends State<NewNoteButton> {
   final ValueNotifier<bool> isDialOpen = ValueNotifier(false);
 
+  Future<void> _createHandwrittenNote() async {
+    // Show orientation dialog
+    final orientation = await showDialog<PageOrientation>(
+      context: context,
+      builder: (context) => _PageOrientationDialog(),
+    );
+
+    if (orientation == null || !mounted) return;
+
+    final isLandscape = orientation == PageOrientation.landscape;
+
+    if (widget.path == null) {
+      context.push('${RoutePaths.edit}?landscape=$isLandscape');
+    } else {
+      final newFilePath = await FileManager.newFilePath('${widget.path}/');
+      if (!mounted) return;
+      context.push(
+        RoutePaths.editFilePath(newFilePath, landscape: isLandscape),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SpeedDial(
@@ -50,17 +73,7 @@ class _NewNoteButtonState extends State<NewNoteButton> {
         SpeedDialChild(
           child: const Icon(Icons.draw),
           label: 'New Handwritten Note',
-          onTap: () async {
-            if (widget.path == null) {
-              context.push(RoutePaths.edit);
-            } else {
-              final newFilePath = await FileManager.newFilePath(
-                '${widget.path}/',
-              );
-              if (!context.mounted) return;
-              context.push(RoutePaths.editFilePath(newFilePath));
-            }
-          },
+          onTap: _createHandwrittenNote,
         ),
         SpeedDialChild(
           child: const Icon(Icons.article),
@@ -156,6 +169,99 @@ class _NewNoteButtonState extends State<NewNoteButton> {
           },
         ),
       ],
+    );
+  }
+}
+
+/// Dialog for selecting page orientation when creating a new note.
+class _PageOrientationDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+
+    return AlertDialog(
+      title: Text(t.editor.menu.choosePageOrientation),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _OrientationOption(
+                orientation: PageOrientation.portrait,
+                onTap: () => Navigator.pop(context, PageOrientation.portrait),
+                colorScheme: colorScheme,
+              ),
+              _OrientationOption(
+                orientation: PageOrientation.landscape,
+                onTap: () => Navigator.pop(context, PageOrientation.landscape),
+                colorScheme: colorScheme,
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(t.common.cancel),
+        ),
+      ],
+    );
+  }
+}
+
+class _OrientationOption extends StatelessWidget {
+  const _OrientationOption({
+    required this.orientation,
+    required this.onTap,
+    required this.colorScheme,
+  });
+
+  final PageOrientation orientation;
+  final VoidCallback onTap;
+  final ColorScheme colorScheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final isPortrait = orientation == PageOrientation.portrait;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: colorScheme.outline),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: isPortrait ? 50 : 70,
+              height: isPortrait ? 70 : 50,
+              decoration: BoxDecoration(
+                border: Border.all(color: colorScheme.onSurface, width: 2),
+                borderRadius: BorderRadius.circular(4),
+                color: colorScheme.surface,
+              ),
+              child: Icon(
+                isPortrait ? Icons.crop_portrait : Icons.crop_landscape,
+                size: 24,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              isPortrait ? t.editor.menu.portrait : t.editor.menu.landscape,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

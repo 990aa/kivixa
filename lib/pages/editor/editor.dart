@@ -53,17 +53,26 @@ import 'package:super_clipboard/super_clipboard.dart';
 typedef _PhotoInfo = ({Uint8List bytes, String extension});
 
 class Editor extends StatefulWidget {
-  Editor({super.key, String? path, this.customTitle, this.pdfPath})
-    : initialPath = path != null
-          ? Future.value(path)
-          : FileManager.newFilePath('/'),
-      needsNaming = path == null;
+  Editor({
+    super.key,
+    String? path,
+    this.customTitle,
+    this.pdfPath,
+    this.initialLandscape,
+  }) : initialPath = path != null
+           ? Future.value(path)
+           : FileManager.newFilePath('/'),
+       needsNaming = path == null;
 
   final Future<String> initialPath;
   final bool needsNaming;
 
   final String? customTitle;
   final String? pdfPath;
+
+  /// Initial page orientation. If true, new pages start as landscape.
+  /// If null, defaults to portrait.
+  final bool? initialLandscape;
 
   /// The file extension used by the app.
   /// Files with this extension are
@@ -282,10 +291,21 @@ class EditorState extends State<Editor> {
   }
 
   /// Creates pages until the given page index exists,
-  /// plus an extra blank page
+  /// plus an extra blank page.
+  /// New pages will match the orientation of the last page in the document,
+  /// or use [widget.initialLandscape] for the first page if provided.
   void createPage(int pageIndex) {
     while (pageIndex >= coreInfo.pages.length - 1) {
-      final page = EditorPage();
+      // Match orientation of the last existing page, or use initial orientation
+      final PageOrientation orientation;
+      if (coreInfo.pages.isNotEmpty) {
+        orientation = coreInfo.pages.last.orientation;
+      } else if (widget.initialLandscape ?? false) {
+        orientation = PageOrientation.landscape;
+      } else {
+        orientation = PageOrientation.portrait;
+      }
+      final page = EditorPage(orientation: orientation);
       coreInfo.pages.add(page);
       listenToQuillChanges(page.quill, coreInfo.pages.length - 1);
     }
@@ -1665,7 +1685,16 @@ class EditorState extends State<Editor> {
                     tooltip: t.editor.menu.insertPage,
                     onPressed: () => setState(() {
                       final currentPageIndex = this.currentPageIndex;
-                      insertPageAfter(currentPageIndex);
+                      // Match orientation of current page
+                      final orientation =
+                          currentPageIndex >= 0 &&
+                              currentPageIndex < coreInfo.pages.length
+                          ? coreInfo.pages[currentPageIndex].orientation
+                          : PageOrientation.portrait;
+                      insertPageAfter(
+                        currentPageIndex,
+                        orientation: orientation,
+                      );
                       CanvasGestureDetector.scrollToPage(
                         pageIndex: currentPageIndex + 1,
                         pages: coreInfo.pages,
@@ -1921,22 +1950,29 @@ class EditorState extends State<Editor> {
     );
   }
 
-  void insertPageAfter(int pageIndex) => setState(() {
-    if (coreInfo.readOnly) return;
-    final page = EditorPage();
-    coreInfo.pages.insert(pageIndex + 1, page);
-    listenToQuillChanges(page.quill, pageIndex + 1);
-    history.recordChange(
-      EditorHistoryItem(
-        type: EditorHistoryItemType.insertPage,
-        pageIndex: pageIndex + 1,
-        strokes: const [],
-        images: const [],
-        page: page,
-      ),
-    );
-    autosaveAfterDelay();
-  });
+  void insertPageAfter(int pageIndex, {PageOrientation? orientation}) =>
+      setState(() {
+        if (coreInfo.readOnly) return;
+        // Default to the orientation of the page we're inserting after,
+        // or the current page's orientation if available
+        final defaultOrientation =
+            pageIndex >= 0 && pageIndex < coreInfo.pages.length
+            ? coreInfo.pages[pageIndex].orientation
+            : PageOrientation.portrait;
+        final page = EditorPage(orientation: orientation ?? defaultOrientation);
+        coreInfo.pages.insert(pageIndex + 1, page);
+        listenToQuillChanges(page.quill, pageIndex + 1);
+        history.recordChange(
+          EditorHistoryItem(
+            type: EditorHistoryItemType.insertPage,
+            pageIndex: pageIndex + 1,
+            strokes: const [],
+            images: const [],
+            page: page,
+          ),
+        );
+        autosaveAfterDelay();
+      });
 
   void clearPage(int pageIndex) {
     if (coreInfo.readOnly) return;
