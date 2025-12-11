@@ -15,8 +15,6 @@
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
 [![Version](https://img.shields.io/badge/Version-0.1.0-green)](CHANGELOG.md)
 
-![LOC](https://tokei.rs/b1/github/990aa/kivixa?style=flat)
-
 </div>
 
 ---
