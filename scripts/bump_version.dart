@@ -509,11 +509,11 @@ Future<void> main(List<String> args) async {
 
   if (currentVersion == null) {
     print('Error: Could not determine current version.');
-    print('Creating VERSION file with default version 1.0.0...');
+    print('Creating VERSION file with default version 0.1.0...');
 
     final defaultVersion = Version(
-      major: 1,
-      minor: 0,
+      major: 0,
+      minor: 1,
       patch: 0,
       buildNumber: 100000,
     );
