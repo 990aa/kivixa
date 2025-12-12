@@ -374,6 +374,20 @@ flutter build linux --release
 
 # iOS
 flutter build ios --release
+
+### Windows Installer (Inno Setup)
+
+For Windows distribution, we use [Inno Setup](https://jrsoftware.org/isinfo.php) to create a professional installer.
+
+*   **Script:** `windows/installer/kivixa-installer.iss`
+*   **Output:** `build/windows/installer/`
+*   **Versioning:** Automatically synced with the `VERSION` file.
+
+To build the installer:
+1.  Run `flutter build windows --release`
+2.  Run `iscc windows/installer/kivixa-installer.iss` (requires Inno Setup)
+
+The installer includes a custom uninstaller that allows users to optionally wipe their data (`Documents\Kivixa`) upon removal. See [md_files/installer_guide.md](md_files/installer_guide.md) for details.
 ```
 
 ---
