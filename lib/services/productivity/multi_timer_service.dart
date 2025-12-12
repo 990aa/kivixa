@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:kivixa/services/productivity/material_icon_codec.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A secondary timer that runs in parallel with the main focus timer
@@ -136,7 +137,10 @@ class SecondaryTimer {
       id: json['id'] as String,
       name: json['name'] as String,
       duration: Duration(seconds: json['durationSeconds'] as int),
-      icon: IconData(json['icon'] as int, fontFamily: 'MaterialIcons'),
+      icon: MaterialIconCodec.fromCodePoint(
+        json['icon'] as int,
+        fallback: Icons.timer,
+      ),
       color: Color(json['color'] as int),
       message: json['message'] as String?,
       repeat: json['repeat'] as bool? ?? false,

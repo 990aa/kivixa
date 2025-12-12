@@ -87,10 +87,11 @@ void main() {
       controller.toggleHubMenu();
       await tester.pumpAndSettle();
 
-      // Should show AI, Browser, and Knowledge Graph icons
+      // Should show AI, Browser, Clock, and Quick Notes icons
       expect(find.byIcon(Icons.smart_toy_rounded), findsOneWidget);
       expect(find.byIcon(Icons.language_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.hub_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.timer_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.sticky_note_2_rounded), findsOneWidget);
     });
 
     testWidgets('tapping AI button opens assistant', (tester) async {

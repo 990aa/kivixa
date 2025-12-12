@@ -282,14 +282,15 @@ void main() {
     });
 
     group('Tool Registration', () {
-      test('registerDefaultTools adds AI, browser, and knowledge graph', () {
+      test('registerDefaultTools adds AI, browser, clock, and quick_notes', () {
         controller.registerDefaultTools();
         final tools = controller.registeredTools;
 
-        expect(tools.length, 3);
+        expect(tools.length, 4);
         expect(tools.any((t) => t.id == 'assistant'), true);
         expect(tools.any((t) => t.id == 'browser'), true);
-        expect(tools.any((t) => t.id == 'knowledge_graph'), true);
+        expect(tools.any((t) => t.id == 'clock'), true);
+        expect(tools.any((t) => t.id == 'quick_notes'), true);
       });
 
       test('registerTool adds custom tools', () {

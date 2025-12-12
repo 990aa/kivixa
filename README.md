@@ -13,7 +13,10 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.9.0+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
-[![Version](https://img.shields.io/badge/Version-0.1.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-0.1.0%2B1--beta-orange)](CHANGELOG.md)
+
+[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.1.0+1/Kivixa-Setup-0.1.0.exe)
+[![Download Android](https://img.shields.io/badge/Download-Android-2ea44f?logo=android)](https://github.com/990aa/kivixa/releases/download/v0.1.0+1/kivixa_v0.1.0+1.apk)
 
 </div>
 
@@ -21,7 +24,7 @@
 
 ## Features
 
-### **On-Device AI (NEW)**
+### **On-Device AI**
 Kivixa features a powerful on-device AI engine powered by Microsoft's Phi-4 model, providing intelligent features without requiring an internet connection.
 
 - **Smart Model Manager**
@@ -160,7 +163,7 @@ Kivixa features a powerful on-device AI engine powered by Microsoft's Phi-4 mode
 - **Cross-Platform Sync** - Work seamlessly across devices
 - **Keyboard Shortcuts** - Boost productivity with keybindings
 
-### **Productivity Clock (NEW)**
+### **Productivity Clock**
 A comprehensive productivity timer system with advanced features for focused work sessions.
 
 - **Core Timer Features**
@@ -218,7 +221,7 @@ A comprehensive productivity timer system with advanced features for focused wor
   - **Clock Page** - Full sidebar page with tabs (Timer, Multi-Timer, Routines, Stats, Settings)
   - **Synchronized State** - Changes in either view reflect in the other
 
-### **Quick Notes (NEW)**
+### **Quick Notes**
 Ephemeral note-taking for those quick thoughts that don't need permanent storage.
 
 - **Instant Access**
@@ -255,7 +258,7 @@ Ephemeral note-taking for those quick thoughts that don't need permanent storage
 - **No Cloud Dependencies** - Works completely offline
 - **Export Control** - You own your data, export anytime
 
-### **In-App Browser (NEW)**
+### **In-App Browser**
 A fully-featured web browser built into Kivixa for seamless research and reference.
 
 - **Core Browser Features**
@@ -374,6 +377,20 @@ flutter build linux --release
 
 # iOS
 flutter build ios --release
+
+### Windows Installer (Inno Setup)
+
+For Windows distribution, we use [Inno Setup](https://jrsoftware.org/isinfo.php) to create a professional installer.
+
+*   **Script:** `windows/installer/kivixa-installer.iss`
+*   **Output:** `build/windows/installer/`
+*   **Versioning:** Automatically synced with the `VERSION` file.
+
+To build the installer:
+1.  Run `flutter build windows --release`
+2.  Run `iscc windows/installer/kivixa-installer.iss` (requires Inno Setup)
+
+The installer includes a custom uninstaller that allows users to optionally wipe their data (`Documents\Kivixa`) upon removal. See [md_files/installer_guide.md](md_files/installer_guide.md) for details.
 ```
 
 ---
