@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:kivixa/services/productivity/material_icon_codec.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A single block in a routine chain
@@ -35,7 +36,10 @@ class RoutineBlock {
     return RoutineBlock(
       name: json['name'] as String,
       durationMinutes: json['durationMinutes'] as int,
-      icon: IconData(json['icon'] as int, fontFamily: 'MaterialIcons'),
+      icon: MaterialIconCodec.fromCodePoint(
+        json['icon'] as int,
+        fallback: Icons.timer,
+      ),
       color: Color(json['color'] as int),
       description: json['description'] as String?,
     );
@@ -314,7 +318,10 @@ class ChainedRoutine {
       blocks: (json['blocks'] as List)
           .map((b) => RoutineBlock.fromJson(b as Map<String, dynamic>))
           .toList(),
-      icon: IconData(json['icon'] as int, fontFamily: 'MaterialIcons'),
+      icon: MaterialIconCodec.fromCodePoint(
+        json['icon'] as int,
+        fallback: Icons.playlist_play,
+      ),
       color: Color(json['color'] as int),
       description: json['description'] as String?,
       isDefault: json['isDefault'] as bool? ?? false,

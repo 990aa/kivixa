@@ -1,73 +1,65 @@
 #define MyAppName "Kivixa"
 #define MyAppPublisher "990aa"
 #define MyAppURL "https://github.com/990aa/kivixa"
-#define MyAppExeName "Kivixa.exe"
+#define MyAppExeName "kivixa.exe"
 #define MyAppDesc "A Modern Cross-Platform Notes & Productivity Application"
 
 ; ------------------------------------------------------------------------------
-; Version Parser
+; Paths & Versioning
 ; ------------------------------------------------------------------------------
-#define VersionInfoFile "..\..\VERSION"
+#define RootDir "..\.."
+#define RunnerDir "..\runner"
+#define AssetDir RootDir + "\assets"
+#define BuildDir RootDir + "\build\windows\x64\runner\Release"
+#define VersionInfoFile RootDir + "\VERSION"
+
+; Parse Version
 #define FileHandle FileOpen(VersionInfoFile)
-
-; Skip header comments (4 lines)
 #expr FileRead(FileHandle)
 #expr FileRead(FileHandle)
 #expr FileRead(FileHandle)
 #expr FileRead(FileHandle)
-
-; Read Version Definitions
 #define MajorLine FileRead(FileHandle)
 #define MinorLine FileRead(FileHandle)
 #define PatchLine FileRead(FileHandle)
 #define BuildLine FileRead(FileHandle)
 #expr FileClose(FileHandle)
-
-; Parse Values
 #define Major Copy(MajorLine, Pos("=", MajorLine) + 1)
 #define Minor Copy(MinorLine, Pos("=", MinorLine) + 1)
 #define Patch Copy(PatchLine, Pos("=", PatchLine) + 1)
 #define Build Copy(BuildLine, Pos("=", BuildLine) + 1)
-
 #define AppVersion Major + "." + Minor + "." + Patch
-#define VersionInfoVersion Major + "." + Minor + "." + Patch + "." + Build
 
 ; ------------------------------------------------------------------------------
-; Main Setup Configuration
+; Setup Configuration
 ; ------------------------------------------------------------------------------
 [Setup]
 AppId={{D37F2C99-F354-4632-A626-68E2F29D6E5A}
 AppName={#MyAppName}
 AppVersion={#AppVersion}
-AppVerName={#MyAppName} {#AppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}/issues
 AppUpdatesURL={#MyAppURL}
-AppComments={#MyAppDesc}
-VersionInfoVersion={#VersionInfoVersion}
-
-; Directory Settings
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 AllowNoIcons=yes
-
-; Output Settings
-OutputDir=..\..\build\windows\installer
+OutputDir={#RootDir}\build\windows\installer
 OutputBaseFilename={#MyAppName}-Setup-{#AppVersion}
 Compression=lzma2/ultra64
 SolidCompression=yes
 
-; Visual & Style Settings
+; Visual Settings
 WizardStyle=modern
-SetupIconFile=..\runner\resources\app_icon.ico
+SetupIconFile={#RunnerDir}\resources\app_icon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
-WindowVisible=yes
+; REMOVED: WizardSmallImageFile (This was causing the crash)
+DisableWelcomePage=yes
 
 ; Architecture
-ArchitecturesAllowed=x64
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -76,139 +68,196 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-; Main Application Files
-Source: "..\..\build\windows\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#BuildDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\\{#MyAppName}"; Filename: "{app}\\{#MyAppExeName}"; IconFilename: "{app}\\{#MyAppExeName}"
-Name: "{autodesktop}\\{#MyAppName}"; Filename: "{app}\\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\\{#MyAppExeName}"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#MyAppExeName}"
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\{#MyAppExeName}"
 
 [Run]
-Filename: "{app}\\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 ; ------------------------------------------------------------------------------
-; Code Section
+; Code Section: Modern Dark UI
 ; ------------------------------------------------------------------------------
 [Code]
-// -----------------------------------------------------------------------------
-// Visual Styling: Gradient Background
-// -----------------------------------------------------------------------------
+
+var
+  CustomWelcomePage: TWizardPage;
+  WelcomeTitle, WelcomeDesc, WelcomeDev: TNewStaticText;
+  FooterPanel: TPanel;
+  FooterImage: TBitmapImage;
+  FooterBitmap: TBitmap;
+
+// ---------------------------------------------------------
+// Helper: Gradient Drawing Function
+// ---------------------------------------------------------
 procedure DrawGradient(Canvas: TCanvas; Rect: TRect; StartColor, EndColor: TColor);
 var
-  Y: Integer;
+  X, Width: Integer;
   R0, G0, B0, R1, G1, B1: Integer;
   R, G, B: Integer;
-  LineColor: TColor;
 begin
-  R0 := (StartColor) and $FF;
-  G0 := (StartColor shr 8) and $FF;
-  B0 := (StartColor shr 16) and $FF;
-  
-  R1 := (EndColor) and $FF;
-  G1 := (EndColor shr 8) and $FF;
-  B1 := (EndColor shr 16) and $FF;
+  R0 := (StartColor) and $FF; G0 := (StartColor shr 8) and $FF; B0 := (StartColor shr 16) and $FF;
+  R1 := (EndColor) and $FF;   G1 := (EndColor shr 8) and $FF;   B1 := (EndColor shr 16) and $FF;
+  Width := Rect.Right - Rect.Left;
+  if Width = 0 then Exit;
 
-  for Y := Rect.Top to Rect.Bottom do
+  for X := Rect.Left to Rect.Right do
   begin
-    R := R0 + MulDiv(Y - Rect.Top, R1 - R0, Rect.Bottom - Rect.Top);
-    G := G0 + MulDiv(Y - Rect.Top, G1 - G0, Rect.Bottom - Rect.Top);
-    B := B0 + MulDiv(Y - Rect.Top, B1 - B0, Rect.Bottom - Rect.Top);
-    
-    LineColor := RGB(R, G, B);
-    Canvas.Pen.Color := LineColor;
-    Canvas.MoveTo(Rect.Left, Y);
-    Canvas.LineTo(Rect.Right, Y);
+    R := R0 + ((X - Rect.Left) * (R1 - R0)) div Width;
+    G := G0 + ((X - Rect.Left) * (G1 - G0)) div Width;
+    B := B0 + ((X - Rect.Left) * (B1 - B0)) div Width;
+    Canvas.Pen.Color := (R or (G shl 8) or (B shl 16));
+    Canvas.MoveTo(X, Rect.Top);
+    Canvas.LineTo(X, Rect.Bottom);
   end;
 end;
 
-var
-  BackgroundBitmap: TBitmap;
-  BackgroundPanel: TPanel;
+// ---------------------------------------------------------
+// Helper: Create Rect
+// ---------------------------------------------------------
+function Rect(ALeft, ATop, ARight, ABottom: Integer): TRect;
+begin
+  Result.Left := ALeft;
+  Result.Top := ATop;
+  Result.Right := ARight;
+  Result.Bottom := ABottom;
+end;
 
+// ---------------------------------------------------------
+// UI Initialization
+// ---------------------------------------------------------
 procedure InitializeWizard;
 var
-  WWidth, WHeight: Integer;
+  FooterHeight: Integer;
 begin
-  ; Create a subtle gradient panel behind the wizard content
-  ; Note: VCL styling in Inno is limited. We'll apply this to the main form background.
+  // 1. Set Global Dark Theme Colors
+  WizardForm.Color := $282828; 
+  WizardForm.InnerPage.Color := $282828;
+  WizardForm.MainPanel.Color := $282828;
+
+  // 2. Create the Footer Panel Gradient Accent
+  FooterHeight := 45; 
   
-  WWidth := WizardForm.ClientWidth;
-  WHeight := WizardForm.ClientHeight;
-  
-  BackgroundPanel := TPanel.Create(WizardForm);
-  BackgroundPanel.Parent := WizardForm;
-  BackgroundPanel.SetBounds(0, 0, WWidth, WHeight);
-  BackgroundPanel.SendToBack; 
-  ; Anchor to ensure it resizes (though Wizard is usually fixed size)
-  BackgroundPanel.Anchors := [akLeft, akTop, akRight, akBottom];
-  
-  ; Prepare the bitmap
-  BackgroundBitmap := TBitmap.Create;
-  BackgroundBitmap.Width := WWidth;
-  BackgroundBitmap.Height := WHeight;
-  
-  ; Draw Gradient: Deep Purple/Blue to Lighter Blue (Modern Tech Feel)
-  ; Start: #2c3e50 (Dark Blue/Grey) -> End: #4ca1af (Teal/Blue)
-  ; Converting Hex to RGB Int: $00503E2C (BGR) -> $00AF014C
-  ; Let's use standard Windows colors or RGB helper
-  ; Start: RGB(30, 30, 50) -> End: RGB(60, 60, 100)
-  
-  DrawGradient(BackgroundBitmap.Canvas, Rect(0, 0, WWidth, WHeight), $503030, $905050); ; BGR format in Pascal? No, TColor is RGB usually, let's verify.
-  ; Actually Inno TColor is usually $00BBGGRR.
-  ; Let's try a safe "Kivixa Blue" gradient.
-  ; Start: Dark Blue ($330000 -> B=33)
-  ; End: Lighter Blue ($662200 -> B=66, G=22)
-  
-  DrawGradient(BackgroundBitmap.Canvas, Rect(0, 0, WWidth, WHeight), $6A2B35, $C26B22); ; Just some pleasant values
-  
-  ; Assign to panel? TPanel doesn't have a Bitmap property directly exposed easily for background.
-  ; Easier: Image object.
-  with TBitmapImage.Create(WizardForm) do
+  FooterPanel := TPanel.Create(WizardForm);
+  with FooterPanel do
   begin
-    Parent := BackgroundPanel;
+    Parent := WizardForm;
+    SetBounds(0, WizardForm.ClientHeight - FooterHeight, WizardForm.ClientWidth, FooterHeight);
+    Anchors := [akLeft, akRight, akBottom];
+    BevelOuter := bvNone;
+    SendToBack; 
+  end;
+
+  // Draw Gradient on Footer
+  FooterBitmap := TBitmap.Create;
+  FooterBitmap.Width := WizardForm.ClientWidth;
+  FooterBitmap.Height := FooterHeight;
+  DrawGradient(FooterBitmap.Canvas, Rect(0, 0, FooterBitmap.Width, FooterBitmap.Height), $301E14, $553B24);
+
+  FooterImage := TBitmapImage.Create(WizardForm);
+  with FooterImage do
+  begin
+    Parent := FooterPanel;
     Align := alClient;
-    Bitmap := BackgroundBitmap;
+    Bitmap := FooterBitmap;
     Stretch := True;
   end;
+
+  // Hide standard lines
+  WizardForm.Bevel.Visible := False;
+  WizardForm.BeveledLabel.Visible := False;
+
+  // 3. Create Custom Welcome Page
+  CustomWelcomePage := CreateCustomPage(wpWelcome, '', '');
+
+  // Title Label
+  WelcomeTitle := TNewStaticText.Create(WizardForm);
+  with WelcomeTitle do
+  begin
+    Parent := CustomWelcomePage.Surface;
+    Caption := 'Welcome to {#MyAppName}';
+    Font.Name := 'Segoe UI'; 
+    Font.Style := [fsBold];
+    Font.Size := 22;
+    Font.Color := clWhite;
+    Top := 40;
+    Left := 20;
+    Color := WizardForm.Color; 
+  end;
+
+  // Description Label
+  WelcomeDesc := TNewStaticText.Create(WizardForm);
+  with WelcomeDesc do
+  begin
+    Parent := CustomWelcomePage.Surface;
+    Caption := 'A Modern Cross-Platform Notes & Productivity App.' + #13#10 + #13#10 +
+               'This wizard will install {#MyAppName} on your computer.' + #13#10 +
+               'Click Next to continue.';
+    Font.Name := 'Segoe UI';
+    Font.Size := 11;
+    Font.Color := $E0E0E0; // Light gray
+    Top := 100;
+    Left := 20;
+    Width := CustomWelcomePage.Surface.Width - 40;
+    WordWrap := True;
+    Color := WizardForm.Color;
+  end;
+
+  // Developer Footer
+  WelcomeDev := TNewStaticText.Create(WizardForm);
+  with WelcomeDev do
+  begin
+    Parent := CustomWelcomePage.Surface;
+    Caption := 'Developed by {#MyAppPublisher}';
+    Font.Size := 9;
+    Font.Color := clSilver;
+    Top := CustomWelcomePage.Surface.Height - 30;
+    Left := 20;
+    Color := WizardForm.Color;
+  end;
+end;
+
+// ---------------------------------------------------------
+// Page Handling: Apply Dark Mode text colors dynamically
+// ---------------------------------------------------------
+procedure CurPageChanged(CurPageID: Integer);
+begin
+  // 1. Handle Custom Welcome Page Visibility
+  if CurPageID = CustomWelcomePage.ID then
+  begin
+    WizardForm.MainPanel.Visible := False; 
+  end
+  else
+  begin
+    WizardForm.MainPanel.Visible := True; 
+  end;
+
+  // 2. Force Labels to White for Dark Mode
+  WizardForm.PageNameLabel.Font.Color := clWhite;
+  WizardForm.PageDescriptionLabel.Font.Color := clSilver;
   
-  ; Make labels transparent so they look good on gradient
-  WizardForm.WelcomeLabel1.Color := clNone;
-  WizardForm.WelcomeLabel2.Color := clNone;
-  WizardForm.FinishedLabel.Color := clNone;
-  WizardForm.FinishedHeadingLabel.Color := clNone;
+  // Input fields
+  WizardForm.DirEdit.Color := $383838;
+  WizardForm.DirEdit.Font.Color := clWhite;
+  
+  // Text labels on pages
+  WizardForm.SelectDirLabel.Font.Color := clWhite;
+  
+  // Tasks List (Checkboxes)
+  if WizardForm.TasksList <> nil then
+  begin
+    WizardForm.TasksList.Color := $282828;
+    WizardForm.TasksList.Font.Color := clWhite;
+  end;
+
+  // Finished Page
+  WizardForm.FinishedLabel.Font.Color := clWhite;
+  WizardForm.FinishedHeadingLabel.Font.Color := clWhite;
 end;
 
 procedure DeinitializeSetup;
 begin
-  if Assigned(BackgroundBitmap) then BackgroundBitmap.Free;
-end;
-
-; -----------------------------------------------------------------------------
-; Uninstall Logic: Cleanup User Data
-; -----------------------------------------------------------------------------
-procedure CleanupUserData;
-var
-  AppDataPath: String;
-begin
-  ; Kivixa stores data in Documents\Kivixa
-  AppDataPath := ExpandConstant('{userdocs}\{#MyAppName}');
-  
-  if DirExists(AppDataPath) then
-  begin
-    ; Recursively delete the directory
-    DelTree(AppDataPath, True, True, True);
-  end;
-end;
-
-procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
-begin
-  if CurUninstallStep = usUninstall then
-  begin
-    ; Prompt the user
-    if MsgBox('Do you also want to delete all user data (notes, sketches) stored in Documents\Kivixa?' + #13#10 +
-              'This action cannot be undone.', mbConfirmation, MB_YESNO) = IDYES then
-    begin
-      CleanupUserData();
-    end;
-  end;
+  if Assigned(FooterBitmap) then FooterBitmap.Free;
 end;

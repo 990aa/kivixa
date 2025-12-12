@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/settings/app_info.dart';
+import 'package:kivixa/components/settings/update_loading_page.dart';
 import 'package:kivixa/components/settings/update_manager.dart';
 import 'package:kivixa/components/theming/adaptive_alert_dialog.dart';
 import 'package:kivixa/components/theming/adaptive_linear_progress_indicator.dart';
@@ -67,17 +68,9 @@ class _UpdateDialogState extends State<UpdateDialog> {
     }
     if (!mounted) return;
 
-    await UpdateManager.directlyDownloadUpdate(
-      directDownloadLink!,
-      onStatus: (status) {
-        directDownloadStatus = status;
-        if (mounted) setState(() {});
-      },
-      onProgress: (progress) {
-        directDownloadProgress.value = progress;
-      },
-    );
-    if (mounted) setState(() {});
+    Navigator.of(context).pop();
+    if (!mounted) return;
+    await UpdateLoadingPage.open(context);
   }
 
   @override

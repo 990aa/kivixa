@@ -83,16 +83,62 @@ abstract class UpdateManager {
   static Future<int?> getNewestVersion([String? latestVersionFile]) async {
     latestVersionFile ??= await _downloadLatestVersionFileFromGitHub();
 
-    // extract the number from the latest version.dart
-    final RegExp numberRegex = RegExp(r'(\d+)');
-    final RegExpMatch? newestVersionMatch = numberRegex.firstMatch(
-      latestVersionFile,
-    );
-    if (newestVersionMatch == null) return null;
+    // Some tests (and potential callers) pass the GitHub Releases API JSON.
+    // If this looks like JSON, try to parse tag_name (e.g. "v1.0.0").
+    final trimmed = latestVersionFile.trimLeft();
+    if (trimmed.startsWith('{')) {
+      try {
+        final Map<String, dynamic> json = jsonDecode(latestVersionFile);
+        final String? tagName =
+            (json['tag_name'] as String?) ?? (json['name'] as String?);
+        if (tagName != null) {
+          final match = RegExp(
+            r'v?(\d+\.\d+\.\d+)(?:\+(\d+))?',
+          ).firstMatch(tagName);
+          final versionName = match?.group(1);
+          final buildMeta = match?.group(2);
+          if (versionName != null) {
+            final revision = int.tryParse(buildMeta ?? '0') ?? 0;
+            return KivixaVersion.fromName(
+              versionName,
+            ).copyWith(revision: revision).buildNumber;
+          }
+        }
 
-    final int newestVersion = int.tryParse(newestVersionMatch[0] ?? '0') ?? 0;
+        // Final fallback: parse from an asset download URL like
+        // https://github.com/<org>/<repo>/releases/download/v100000/<asset>
+        final assets = json['assets'];
+        if (assets is List && assets.isNotEmpty) {
+          for (final asset in assets) {
+            if (asset is! Map) continue;
+            final url = asset['browser_download_url'];
+            if (url is! String) continue;
+            final m = RegExp(r'releases/download/v(\d+)/').firstMatch(url);
+            final v = int.tryParse(m?.group(1) ?? '');
+            if (v != null && v > 0) return v;
+          }
+        }
+
+        // Last resort: parse a numeric tag_name like "v1000".
+        if (tagName != null) {
+          final numericTag = RegExp(r'v(\d+)').firstMatch(tagName)?.group(1);
+          final numericTagValue = int.tryParse(numericTag ?? '');
+          if (numericTagValue != null && numericTagValue > 0) {
+            return numericTagValue;
+          }
+        }
+      } catch (_) {
+        // Fall through to the version.dart parsing logic below.
+      }
+    }
+
+    // Extract buildNumber from a version.dart-like file.
+    final buildNumberMatch = RegExp(
+      r'const\s+buildNumber\s*=\s*(\d+)\s*;',
+    ).firstMatch(latestVersionFile);
+    final int newestVersion =
+        int.tryParse(buildNumberMatch?.group(1) ?? '0') ?? 0;
     if (newestVersion == 0) return null;
-
     return newestVersion;
   }
 
@@ -186,7 +232,10 @@ abstract class UpdateManager {
     TargetPlatform.windows: RegExp(r'\.exe'),
 
     // e.g. kivixa_v0.9.8.apk not kivixa_FOSS_v0.9.8.apk
-    TargetPlatform.android: RegExp(r'kivixa_v.*\.apk'),
+    TargetPlatform.android: RegExp(
+      r'^(?!.*FOSS).*\.apk$',
+      caseSensitive: false,
+    ),
   };
 
   /// Downloads the update file from [downloadUrl] and installs it.

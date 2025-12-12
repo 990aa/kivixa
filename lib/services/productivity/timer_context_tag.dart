@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kivixa/services/productivity/material_icon_codec.dart';
 
 /// Context tags for categorizing timer sessions
 class TimerContextTag {
@@ -121,7 +122,10 @@ class TimerContextTag {
     return TimerContextTag(
       id: json['id'] as String,
       name: json['name'] as String,
-      icon: IconData(json['icon'] as int, fontFamily: 'MaterialIcons'),
+      icon: MaterialIconCodec.fromCodePoint(
+        json['icon'] as int,
+        fallback: Icons.timer,
+      ),
       color: Color(json['color'] as int),
       isDefault: json['isDefault'] as bool? ?? false,
     );
@@ -273,7 +277,10 @@ class QuickPreset {
     return QuickPreset(
       id: json['id'] as String,
       name: json['name'] as String,
-      icon: IconData(json['icon'] as int, fontFamily: 'MaterialIcons'),
+      icon: MaterialIconCodec.fromCodePoint(
+        json['icon'] as int,
+        fallback: Icons.timer,
+      ),
       workMinutes: json['workMinutes'] as int,
       breakMinutes: json['breakMinutes'] as int,
       longBreakMinutes: json['longBreakMinutes'] as int?,
