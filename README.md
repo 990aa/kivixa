@@ -16,7 +16,7 @@
 [![Version](https://img.shields.io/badge/Version-0.1.0%2B1--beta-orange)](CHANGELOG.md)
 
 [![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.1.0+1/Kivixa-Setup-0.1.0.exe)
-[![Download Android](https://img.shields.io/badge/Download-Android-2ea44f?logo=android)](https://github.com/990aa/kivixa/releases/download/v0.1.0+1/kivixa_v0.1.0+1.apk)
+[![Download Android](https://img.shields.io/badge/Download-Android-2ea44f?logo=android)](https://github.com/990aa/kivixa/releases/download/v0.1.0+1/Kivixa-Android-0.1.0.apk)
 
 </div>
 
