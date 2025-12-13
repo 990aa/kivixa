@@ -1,0 +1,67 @@
+name: Build Windows
+
+on:
+  workflow_call:
+    outputs:
+      artifact-name:
+        description: 'Name of the uploaded artifact'
+        value: ${{ jobs.build.outputs.artifact-name }}
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'native/**'
+      - 'windows/**'
+      - 'pubspec.yaml'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    outputs:
+      artifact-name: kivixa-windows
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Setup Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          toolchain: stable
+          targets: x86_64-pc-windows-msvc
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: native -> target
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Build Rust library
+        run: |
+          cd native
+          cargo build --release --target x86_64-pc-windows-msvc
+
+      - name: Build Windows app
+        run: flutter build windows --release
+
+      - name: Copy Rust DLL to release folder
+        run: |
+          copy native\target\x86_64-pc-windows-msvc\release\kivixa_native.dll build\windows\x64\runner\Release\
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kivixa-windows
+          path: build/windows/x64/runner/Release/
+          retention-days: 30

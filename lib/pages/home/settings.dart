@@ -11,13 +11,13 @@ import 'package:kivixa/components/dialogs/legal_documents_viewer.dart';
 import 'package:kivixa/components/navbar/responsive_navbar.dart';
 import 'package:kivixa/components/settings/clear_app_data_widget.dart';
 import 'package:kivixa/components/settings/notification_settings_widget.dart';
+import 'package:kivixa/components/settings/release_notes_dialog.dart';
 import 'package:kivixa/components/settings/settings_button.dart';
 import 'package:kivixa/components/settings/settings_color.dart';
 import 'package:kivixa/components/settings/settings_directory_selector.dart';
 import 'package:kivixa/components/settings/settings_selection.dart';
 import 'package:kivixa/components/settings/settings_subtitle.dart';
 import 'package:kivixa/components/settings/settings_switch.dart';
-import 'package:kivixa/components/settings/update_dialog.dart';
 import 'package:kivixa/components/settings/update_manager.dart';
 import 'package:kivixa/components/theming/adaptive_alert_dialog.dart';
 import 'package:kivixa/components/theming/adaptive_toggle_buttons.dart';
@@ -143,7 +143,7 @@ class _SettingsPageState extends State<SettingsPage> {
             padding: const EdgeInsets.only(bottom: 8),
             sliver: SliverAppBar(
               collapsedHeight: kToolbarHeight,
-              expandedHeight: 200,
+              expandedHeight: 100,
               pinned: true,
               scrolledUnderElevation: 1,
               flexibleSpace: FlexibleSpaceBar(
@@ -208,7 +208,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         child: OutlinedButton.icon(
                           onPressed: () => showDialog(
                             context: context,
-                            builder: (context) => const UpdateDialog(),
+                            builder: (context) => const ReleaseNotesDialog(),
                           ),
                           icon: const Icon(
                             Icons.new_releases_outlined,

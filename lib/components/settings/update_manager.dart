@@ -41,7 +41,7 @@ abstract class UpdateManager {
 
       if (status.value == UpdateStatus.upToDate) {
         // check for updates if not already done
-        status.value = await _checkForUpdate();
+        status.value = await checkForUpdate();
       }
       if (status.value != UpdateStatus.updateRecommended)
         return; // no update available
@@ -56,7 +56,9 @@ abstract class UpdateManager {
     );
   }
 
-  static Future<UpdateStatus> _checkForUpdate() async {
+  /// Checks for updates and populates [newestVersion].
+  /// Returns the update status.
+  static Future<UpdateStatus> checkForUpdate() async {
     const int currentVersion = version.buildNumber;
 
     try {

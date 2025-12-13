@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v0.1.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  # Build Windows
+  build-windows:
+    uses: ./.github/workflows/build-windows.yml
+
+  # Build Android
+  build-android:
+    uses: ./.github/workflows/build-android.yml
+
+  # Create Release
+  release:
+    needs: [build-windows, build-android]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "VERSION=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: kivixa-windows
+          path: windows-build
+
+      - name: Download Android artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: kivixa-android
+          path: android-build
+
+      - name: Create Windows ZIP
+        run: |
+          cd windows-build
+          zip -r ../kivixa_${{ steps.version.outputs.VERSION }}_windows.zip .
+
+      - name: Get changelog
+        id: changelog
+        run: |
+          # Try to get changelog from metadata folder
+          BUILD_NUMBER=$(grep 'const buildNumber' lib/data/version.dart | grep -oE '[0-9]+')
+          CHANGELOG_FILE="metadata/en-US/changelogs/${BUILD_NUMBER}.txt"
+          if [ -f "$CHANGELOG_FILE" ]; then
+            echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+            cat "$CHANGELOG_FILE" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "CHANGELOG=Release ${{ steps.version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          name: Kivixa ${{ steps.version.outputs.VERSION }}
+          body: |
+            ## What's New
+            ${{ steps.changelog.outputs.CHANGELOG }}
+            
+            ## Downloads
+            - **Windows**: Download `kivixa_${{ steps.version.outputs.VERSION }}_windows.zip`
+            - **Android**: Download the APK file
+          files: |
+            kivixa_${{ steps.version.outputs.VERSION }}_windows.zip
+            android-build/*.apk
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.VERSION, '-') }}

@@ -1,5 +1,7 @@
 // The Android side of the rust_lib_kivixa plugin.
 // This is a FFI plugin placeholder - the actual Rust build is handled separately.
+// For local development: The app will work without native AI features
+// For releases: GitHub Actions builds and bundles the native .so files
 
 group 'com.kivixa.rust_lib_kivixa'
 version '1.0'
@@ -33,10 +35,24 @@ android {
 
     defaultConfig {
         minSdk 21
+        
+        // Specify the ABIs we support for native libraries
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86_64'
+        }
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+    
+    // Source sets for native libraries
+    sourceSets {
+        main {
+            // JNI libraries are placed in jniLibs by the build process
+            jniLibs.srcDirs = ['src/main/jniLibs']
+        }
+    }
 }
+

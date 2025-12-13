@@ -10,3 +10,6 @@ full_dep: true
 
 # Default async mode for dart operations
 default_dart_async: true
+
+# Note: Do NOT set ioDirectory here - let FRB use platform defaults
+# so the library is loaded from the bundled location on installed apps
