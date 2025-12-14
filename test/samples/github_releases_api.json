@@ -1,14 +1,14 @@
 {
   "tag_name": "v1000",
-  "name": "Release v0.1.0",
+  "name": "Release v0.1.1",
   "assets": [
     {
       "name": "kivixa-windows.exe",
       "browser_download_url": "https://github.com/example/kivixa/releases/download/v100000/kivixa-windows.exe"
     },
     {
-      "name": "kivixa_v0.1.0.apk",
-      "browser_download_url": "https://github.com/example/kivixa/releases/download/v100000/kivixa_v0.1.0.apk"
+      "name": "kivixa_v0.1.1.apk",
+      "browser_download_url": "https://github.com/example/kivixa/releases/download/v100000/kivixa_v0.1.1.apk"
     }
   ]
 }
