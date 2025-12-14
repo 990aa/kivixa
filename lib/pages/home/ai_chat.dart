@@ -204,33 +204,88 @@ class _AIChatPageState extends State<AIChatPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // Check if this is a DLL loading error
+    final isDllError =
+        _modelError != null &&
+        (_modelError!.contains('kivixa_native') ||
+            _modelError!.contains('error code 126') ||
+            _modelError!.contains('dynamic library') ||
+            _modelError!.contains('DllNotFoundException'));
+
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.model_training,
+              isDllError ? Icons.error_outline : Icons.model_training,
               size: 80,
-              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+              color: isDllError
+                  ? colorScheme.error.withValues(alpha: 0.7)
+                  : colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 24),
             Text(
-              'AI Model Not Loaded',
+              isDllError ? 'AI Engine Not Available' : 'AI Model Not Loaded',
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Load an AI model to start chatting with Kivixa AI.',
+              isDllError
+                  ? 'The native AI library could not be loaded.'
+                  : 'Load an AI model to start chatting with Kivixa AI.',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
-            if (_modelError != null) ...[
+            if (isDllError) ...[
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: colorScheme.outline),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Possible Solutions:',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSolutionItem(
+                      theme,
+                      '1',
+                      'Install Visual C++ Redistributable',
+                      'Download from Microsoft\'s website',
+                    ),
+                    const SizedBox(height: 8),
+                    _buildSolutionItem(
+                      theme,
+                      '2',
+                      'Reinstall the application',
+                      'The native library may be missing',
+                    ),
+                    const SizedBox(height: 8),
+                    _buildSolutionItem(
+                      theme,
+                      '3',
+                      'Check antivirus software',
+                      'It may be blocking the library',
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            if (_modelError != null && !isDllError) ...[
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -244,20 +299,85 @@ class _AIChatPageState extends State<AIChatPage> {
                 ),
               ),
             ],
+            if (_modelError != null && isDllError) ...[
+              const SizedBox(height: 16),
+              ExpansionTile(
+                title: Text(
+                  'Technical Details',
+                  style: theme.textTheme.bodySmall,
+                ),
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.errorContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: SelectableText(
+                      _modelError!,
+                      style: TextStyle(
+                        color: colorScheme.onErrorContainer,
+                        fontFamily: 'monospace',
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: _loadModel,
-              icon: const Icon(Icons.download),
-              label: const Text('Load Model'),
-            ),
-            const SizedBox(height: 12),
+            if (!isDllError) ...[
+              FilledButton.icon(
+                onPressed: _loadModel,
+                icon: const Icon(Icons.download),
+                label: const Text('Load Model'),
+              ),
+              const SizedBox(height: 12),
+            ],
             OutlinedButton(
               onPressed: _checkModelStatus,
-              child: const Text('Refresh Status'),
+              child: const Text('Retry'),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSolutionItem(
+    ThemeData theme,
+    String number,
+    String title,
+    String subtitle,
+  ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CircleAvatar(
+          radius: 12,
+          child: Text(number, style: const TextStyle(fontSize: 12)),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

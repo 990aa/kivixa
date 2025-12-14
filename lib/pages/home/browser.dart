@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:kivixa/components/overlay/browser_window.dart';
 import 'package:kivixa/services/browser_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
@@ -537,6 +538,15 @@ class _BrowserPageState extends State<BrowserPage> {
                 child: ListTile(
                   leading: Icon(Icons.open_in_new),
                   title: Text('Open in browser'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'open_from_floating',
+                child: ListTile(
+                  leading: Icon(Icons.open_in_browser),
+                  title: Text('Open from floating browser'),
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -1413,13 +1423,15 @@ class _BrowserPageState extends State<BrowserPage> {
       if (!_showFindBar) {
         if (_isDesktop) {
           // Clear JavaScript-based find highlighting
-          _webViewController?.evaluateJavascript(source: '''
+          _webViewController?.evaluateJavascript(
+            source: '''
             (function() {
               if (window.__kivixaFindHighlight) {
                 window.__kivixaFindHighlight.clear();
               }
             })();
-          ''');
+          ''',
+          );
         } else {
           _findInteractionController?.clearMatches();
         }
@@ -1435,13 +1447,15 @@ class _BrowserPageState extends State<BrowserPage> {
       _showFindBar = false;
       if (_isDesktop) {
         // Clear JavaScript-based find highlighting
-        _webViewController?.evaluateJavascript(source: '''
+        _webViewController?.evaluateJavascript(
+          source: '''
           (function() {
             if (window.__kivixaFindHighlight) {
               window.__kivixaFindHighlight.clear();
             }
           })();
-        ''');
+        ''',
+        );
       } else {
         _findInteractionController?.clearMatches();
       }
@@ -1454,13 +1468,15 @@ class _BrowserPageState extends State<BrowserPage> {
   void _findInPage(String query) {
     if (query.isEmpty) {
       if (_isDesktop) {
-        _webViewController?.evaluateJavascript(source: '''
+        _webViewController?.evaluateJavascript(
+          source: '''
           (function() {
             if (window.__kivixaFindHighlight) {
               window.__kivixaFindHighlight.clear();
             }
           })();
-        ''');
+        ''',
+        );
       } else {
         _findInteractionController?.clearMatches();
       }
@@ -1480,7 +1496,9 @@ class _BrowserPageState extends State<BrowserPage> {
   /// JavaScript-based find in page for desktop platforms
   Future<void> _findInPageDesktop(String query) async {
     final escapedQuery = query.replaceAll("'", "\\'").replaceAll('"', '\\"');
-    final result = await _webViewController?.evaluateJavascript(source: '''
+    final result = await _webViewController?.evaluateJavascript(
+      source:
+          '''
       (function() {
         // Initialize find highlight helper
         if (!window.__kivixaFindHighlight) {
@@ -1567,18 +1585,23 @@ class _BrowserPageState extends State<BrowserPage> {
         }
         return JSON.stringify(window.__kivixaFindHighlight.highlight('$escapedQuery'));
       })();
-    ''');
-    
+    ''',
+    );
+
     if (result != null) {
       try {
-        final jsonStr = result.toString().replaceAll('"', '').replaceAll("'", '"');
+        final jsonStr = result
+            .toString()
+            .replaceAll('"', '')
+            .replaceAll("'", '"');
         if (jsonStr.contains('count')) {
           final match = RegExp(r'count:\s*(\d+)').firstMatch(jsonStr);
           final currentMatch = RegExp(r'current:\s*(\d+)').firstMatch(jsonStr);
           if (match != null) {
             setState(() {
               _findResultCount = int.tryParse(match.group(1) ?? '0') ?? 0;
-              _currentFindResult = int.tryParse(currentMatch?.group(1) ?? '0') ?? 0;
+              _currentFindResult =
+                  int.tryParse(currentMatch?.group(1) ?? '0') ?? 0;
             });
           }
         }
@@ -1606,15 +1629,18 @@ class _BrowserPageState extends State<BrowserPage> {
 
   Future<void> _findNextDesktop({required bool forward}) async {
     final method = forward ? 'next' : 'prev';
-    final result = await _webViewController?.evaluateJavascript(source: '''
+    final result = await _webViewController?.evaluateJavascript(
+      source:
+          '''
       (function() {
         if (window.__kivixaFindHighlight) {
           return JSON.stringify(window.__kivixaFindHighlight.$method());
         }
         return '{"count":0,"current":0}';
       })();
-    ''');
-    
+    ''',
+    );
+
     if (result != null) {
       try {
         final jsonStr = result.toString();
@@ -1623,7 +1649,8 @@ class _BrowserPageState extends State<BrowserPage> {
         if (match != null) {
           setState(() {
             _findResultCount = int.tryParse(match.group(1) ?? '0') ?? 0;
-            _currentFindResult = int.tryParse(currentMatch?.group(1) ?? '0') ?? 0;
+            _currentFindResult =
+                int.tryParse(currentMatch?.group(1) ?? '0') ?? 0;
           });
         }
       } catch (e) {
@@ -1649,6 +1676,8 @@ class _BrowserPageState extends State<BrowserPage> {
         );
       case 'open_external':
         _openInExternalBrowser();
+      case 'open_from_floating':
+        _openFromFloatingBrowser();
       case 'desktop_mode':
         _toggleDesktopMode();
       case 'view_source':
@@ -1678,6 +1707,33 @@ class _BrowserPageState extends State<BrowserPage> {
         urlRequest: URLRequest(url: WebUri(_currentUrl)),
       );
     }
+  }
+
+  /// Open URL from floating browser in main browser
+  void _openFromFloatingBrowser() {
+    final floatingUrl = BrowserWindow.currentTabUrl;
+    if (floatingUrl == null || floatingUrl.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No URL open in floating browser')),
+      );
+      return;
+    }
+
+    // Create new tab with the floating browser's URL
+    BrowserService.instance.createTab(url: floatingUrl).then((_) {
+      if (mounted) {
+        setState(() {
+          _currentUrl = floatingUrl;
+          _urlController.text = floatingUrl;
+        });
+        _webViewController?.loadUrl(
+          urlRequest: URLRequest(url: WebUri(floatingUrl)),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Opened from floating browser')),
+        );
+      }
+    });
   }
 
   /// Switch to a specific tab

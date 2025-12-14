@@ -136,7 +136,7 @@ _PLUGIN = {
     name = "Archive Tasks",
     description = "Moves completed tasks to archive",
     version = "2.0",
-    author = "Kivixa Team"
+    author = "990aa"
 }
 
 function run()
@@ -174,7 +174,7 @@ end
         r'author\s*=\s*"([^"]+)"',
       ).firstMatch(metadata);
       expect(authorMatch, isNotNull);
-      expect(authorMatch!.group(1), 'Kivixa Team');
+      expect(authorMatch!.group(1), '990aa');
     });
 
     test('handles missing optional metadata fields', () {

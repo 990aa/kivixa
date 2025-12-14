@@ -270,8 +270,9 @@ class _ResizableWindowContainerState extends State<ResizableWindowContainer> {
 
   @override
   Widget build(BuildContext context) {
-    // Larger touch targets on desktop for better mouse interaction
-    final handleSize = _isDesktop ? 12.0 : 8.0;
+    // Larger touch targets for better interaction
+    // 24px on desktop, 20px on mobile for easier grabbing
+    final handleSize = _isDesktop ? 24.0 : 20.0;
 
     return Stack(
       clipBehavior: Clip.none,

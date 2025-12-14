@@ -3,7 +3,10 @@ name = "kivixa_native"
 version = "1.0.0"
 edition = "2021"
 description = "Native Rust engine for Kivixa AI features"
-authors = ["Kivixa Team"]
+authors = ["990aa"]
+
+[patch.crates-io]
+cmake = "0.1.54"
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
