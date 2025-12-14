@@ -50,6 +50,8 @@ cargo clean
 # 4. Build for Windows
 if (-not $SkipWindows) {
     Write-Host "=== Building Rust library for Windows ($winTarget) ===" -ForegroundColor Yellow
+    $env:CMAKE_GENERATOR = "Ninja"
+    $env:CMAKE_MAKE_PROGRAM = "ninja"
     cargo build --release --target $winTarget
 
     if (-not (Test-Path $winDllPath)) {
