@@ -233,6 +233,98 @@ final kivixaVersion = KivixaVersion.fromNumber(buildNumber);
     return true;
   }
 
+  /// Update lib/services/terms_and_conditions_service.dart
+  Future<bool> updateTermsAndConditions() async {
+    const filePath = 'lib/services/terms_and_conditions_service.dart';
+    final file = File(filePath);
+
+    if (!await file.exists()) {
+      errors.add('$filePath not found');
+      return false;
+    }
+
+    var content = await file.readAsString();
+    var modified = false;
+
+    final pattern = RegExp(r"static const currentTermsVersion = '[^']*';");
+    if (pattern.hasMatch(content)) {
+      content = content.replaceFirst(
+        pattern,
+        "static const currentTermsVersion = '${version.versionString}';",
+      );
+      modified = true;
+    }
+
+    if (modified) {
+      if (!dryRun) {
+        await file.writeAsString(content);
+      }
+      updatedFiles.add(filePath);
+    } else {
+      errors.add('$filePath: Could not find currentTermsVersion pattern');
+    }
+    return true;
+  }
+
+  /// Update test/samples/github_releases_api.json
+  Future<bool> updateGithubReleasesApiSample() async {
+    const filePath = 'test/samples/github_releases_api.json';
+    final file = File(filePath);
+
+    if (!await file.exists()) {
+      // This might be optional, but user asked for it
+      errors.add('$filePath not found');
+      return false;
+    }
+
+    var content = await file.readAsString();
+    var modified = false;
+
+    // Update "name": "Release vX.Y.Z"
+    final namePattern = RegExp(r'"name": "Release v[^"]*"');
+    if (namePattern.hasMatch(content)) {
+      content = content.replaceFirst(
+        namePattern,
+        '"name": "Release v${version.versionString}"',
+      );
+      modified = true;
+    }
+
+    // Update apk name "name": "kivixa_vX.Y.Z.apk"
+    final apkNamePattern = RegExp(r'"name": "kivixa_v[^"]*\.apk"');
+    if (apkNamePattern.hasMatch(content)) {
+      content = content.replaceFirst(
+        apkNamePattern,
+        '"name": "kivixa_v${version.versionString}.apk"',
+      );
+      modified = true;
+    }
+
+    // Update download URL version part /vX.Y.Z+B/
+    // Note: The sample might use a different build number or format, but we'll try to match generic
+    // The sample has: .../releases/download/v100000/kivixa_v0.1.0.apk
+    // It seems to use build number in path? v100000.
+    // Let's try to update what we can identify.
+
+    // Update apk filename in url
+    final apkUrlPattern = RegExp(r'kivixa_v[^"]*\.apk');
+    if (apkUrlPattern.hasMatch(content)) {
+      content = content.replaceAll(
+        apkUrlPattern,
+        'kivixa_v${version.versionString}.apk',
+      );
+      modified = true;
+    }
+
+    if (modified) {
+      if (!dryRun) {
+        await file.writeAsString(content);
+      }
+      updatedFiles.add(filePath);
+    }
+    return true;
+  }
+
   /// Update VERSION file
   Future<bool> updateVersionFile() async {
     const filePath = 'VERSION';
@@ -400,6 +492,8 @@ final kivixaVersion = KivixaVersion.fromNumber(buildNumber);
     await updateVersionFile();
     await updatePubspec();
     await updateVersionDart();
+    await updateTermsAndConditions();
+    await updateGithubReleasesApiSample();
     await updateAndroidBuildGradle();
     await updateIOSPlist();
     await updateWindowsRunner();
@@ -454,6 +548,8 @@ Files Updated:
   • VERSION                         - Source of truth for version
   • pubspec.yaml                    - Flutter project version
   • lib/data/version.dart           - Dart version constants
+  • lib/services/terms_and_conditions_service.dart - Terms version
+  • test/samples/github_releases_api.json - Test sample data
   • android/app/build.gradle.kts    - Android version (if hardcoded)
   • ios/Runner/Info.plist           - iOS version
   • macos/Runner/Info.plist         - macOS version
