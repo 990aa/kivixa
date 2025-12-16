@@ -121,6 +121,7 @@ flutter:
 
   assets:
     - assets/icon/icon.svg
+    - assets/icon/icon.png
     - assets/images/
     - assets/google_fonts/Atkinson_Hyperlegible_Next/OFL.txt
     - assets/google_fonts/Dekko/OFL.txt
