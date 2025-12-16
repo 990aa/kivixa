@@ -60,7 +60,7 @@ llama-cpp-sys-2 = { version = "0.1.79", default-features = false }
 
 # Android: Vulkan for GPU acceleration (NDK includes Vulkan headers)
 [target.'cfg(target_os = "android")'.dependencies]
-llama-cpp-sys-2 = { version = "0.1.79", features = ["vulkan"] }
+llama-cpp-sys-2 = { version = "0.1.130" }
 
 # macOS/iOS: Metal for Apple Silicon GPU acceleration
 [target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
@@ -74,3 +74,6 @@ lto = true
 codegen-units = 1
 opt-level = 3
 strip = true
+
+[patch.crates-io]
+llama-cpp-sys-2 = { path = "vendor/llama-cpp-sys-2" }
