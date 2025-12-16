@@ -79,7 +79,7 @@ dependencies:
   appflowy_editor: ^6.1.0
   flutter_local_notifications: ^19.5.0
   timezone: ^0.10.1
-  syncfusion_flutter_calendar: ^31.2.15
+  syncfusion_flutter_calendar: ^32.1.19
   flutter_markdown_plus: ^1.0.5
   flutter_smooth_markdown: ^0.5.1
   code_text_field: ^1.1.0

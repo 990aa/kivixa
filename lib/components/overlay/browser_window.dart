@@ -186,7 +186,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Column(
+    final content = Column(
       children: [
         // Tab bar
         if (_tabs.length > 1) _buildTabBar(context),
@@ -290,6 +290,9 @@ class _BrowserWindowState extends State<BrowserWindow> {
                 iconSize: 18,
                 tooltip: 'More options',
                 onSelected: _handleMenuAction,
+                position: PopupMenuPosition.under,
+                clipBehavior: Clip.none,
+                constraints: const BoxConstraints(minWidth: 220, maxWidth: 280),
                 itemBuilder: (context) => [
                   const PopupMenuItem(
                     value: 'new_tab',
@@ -408,6 +411,11 @@ class _BrowserWindowState extends State<BrowserWindow> {
         // WebView content
         Expanded(child: _buildWebView()),
       ],
+    );
+
+    // Wrap in Overlay to ensure PopupMenu displays correctly within the floating window
+    return Overlay(
+      initialEntries: [OverlayEntry(builder: (context) => content)],
     );
   }
 

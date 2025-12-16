@@ -362,6 +362,15 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  // Browser background audio setting
+  // When enabled, audio from the floating browser continues playing even when
+  // the browser window is closed or loses focus
+  final browserBackgroundAudio = PlainStow(
+    'browserBackgroundAudio',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
   static bool get isDesktop => Platform.isWindows;
 }
 

@@ -274,15 +274,18 @@ class _ResizableWindowContainerState extends State<ResizableWindowContainer> {
     // 24px on desktop, 20px on mobile for easier grabbing
     final handleSize = _isDesktop ? 24.0 : 20.0;
 
+    // Title bar height - handles should not overlap with title bar buttons
+    final titleBarHeight = _isDesktop ? 36.0 : 44.0;
+
     return Stack(
       clipBehavior: Clip.none,
       children: [
         widget.child,
-        // Corner handles
-        _buildCornerHandle(_Corner.topLeft, handleSize),
-        _buildCornerHandle(_Corner.topRight, handleSize),
-        _buildCornerHandle(_Corner.bottomLeft, handleSize),
-        _buildCornerHandle(_Corner.bottomRight, handleSize),
+        // Corner handles - top corners avoid title bar area
+        _buildCornerHandle(_Corner.topLeft, handleSize, titleBarHeight),
+        _buildCornerHandle(_Corner.topRight, handleSize, titleBarHeight),
+        _buildCornerHandle(_Corner.bottomLeft, handleSize, 0),
+        _buildCornerHandle(_Corner.bottomRight, handleSize, 0),
         // Edge handles
         _buildEdgeHandle(_Edge.top, handleSize),
         _buildEdgeHandle(_Edge.bottom, handleSize),
@@ -292,13 +295,17 @@ class _ResizableWindowContainerState extends State<ResizableWindowContainer> {
     );
   }
 
-  Widget _buildCornerHandle(_Corner corner, double size) {
+  Widget _buildCornerHandle(_Corner corner, double size, double topOffset) {
     final cursor = switch (corner) {
       _Corner.topLeft ||
       _Corner.bottomRight => SystemMouseCursors.resizeUpLeftDownRight,
       _Corner.topRight ||
       _Corner.bottomLeft => SystemMouseCursors.resizeUpRightDownLeft,
     };
+
+    // For top corners, offset by titleBarHeight to avoid overlapping with title bar buttons
+    final isTopCorner = corner == _Corner.topLeft || corner == _Corner.topRight;
+    final effectiveTopOffset = isTopCorner ? topOffset - size / 2 : null;
 
     return Positioned(
       left: corner == _Corner.topLeft || corner == _Corner.bottomLeft
@@ -307,9 +314,7 @@ class _ResizableWindowContainerState extends State<ResizableWindowContainer> {
       right: corner == _Corner.topRight || corner == _Corner.bottomRight
           ? -size / 2
           : null,
-      top: corner == _Corner.topLeft || corner == _Corner.topRight
-          ? -size / 2
-          : null,
+      top: isTopCorner ? effectiveTopOffset : null,
       bottom: corner == _Corner.bottomLeft || corner == _Corner.bottomRight
           ? -size / 2
           : null,

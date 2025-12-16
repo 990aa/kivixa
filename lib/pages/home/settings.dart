@@ -1128,6 +1128,8 @@ class _ResetAllSettingsWidget extends StatelessWidget {
         stows.lifeGitAutoCleanupDays.defaultValue;
     stows.deleteDataOnUninstall.value =
         stows.deleteDataOnUninstall.defaultValue;
+    stows.browserBackgroundAudio.value =
+        stows.browserBackgroundAudio.defaultValue;
 
     // Note: We intentionally do NOT reset:
     // - appLockEnabled/appLockPinSet (security settings)
@@ -1477,6 +1479,13 @@ class _BrowserSettingsSectionState extends State<_BrowserSettingsSection> {
 
     return Column(
       children: [
+        SettingsSwitch(
+          title: 'Background Audio',
+          subtitle:
+              'Continue playing audio when floating browser is closed or loses focus',
+          icon: Icons.volume_up,
+          pref: stows.browserBackgroundAudio,
+        ),
         SettingsButton(
           title: 'Clear History',
           subtitle: '$historyCount items',

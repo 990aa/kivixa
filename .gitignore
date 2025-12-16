@@ -49,3 +49,6 @@ md_files/
 
 *target/
 .github/workflows/
+build_windows_installer/
+*.cargo/
+*vendor/

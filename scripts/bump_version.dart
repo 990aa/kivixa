@@ -485,6 +485,124 @@ final kivixaVersion = KivixaVersion.fromNumber(buildNumber);
     return true;
   }
 
+  /// Update README.md version badges
+  Future<bool> updateReadme() async {
+    const filePath = 'README.md';
+    final file = File(filePath);
+
+    if (!await file.exists()) {
+      errors.add('$filePath not found');
+      return false;
+    }
+
+    var content = await file.readAsString();
+    var modified = false;
+
+    // Update Version badge: [![Version](https://img.shields.io/badge/Version-X.Y.Z%2BN--beta-orange)]
+    final versionBadgePattern = RegExp(
+      r'\[!\[Version\]\(https://img\.shields\.io/badge/Version-[^)]+\)\]',
+    );
+    if (versionBadgePattern.hasMatch(content)) {
+      final encodedVersion =
+          '${version.versionString}%2B${version.buildNumber}--beta';
+      content = content.replaceFirst(
+        versionBadgePattern,
+        '[![Version](https://img.shields.io/badge/Version-$encodedVersion-orange)]',
+      );
+      modified = true;
+    }
+
+    // Update Download Windows badge URL
+    final windowsDownloadPattern = RegExp(
+      r'\[!\[Download Windows\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/v[^/]+/Kivixa-Setup-[^)]+\.exe\)',
+    );
+    if (windowsDownloadPattern.hasMatch(content)) {
+      content = content.replaceFirst(
+        windowsDownloadPattern,
+        '[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v${version.versionString}+${version.buildNumber}/Kivixa-Setup-${version.versionString}.exe)',
+      );
+      modified = true;
+    }
+
+    // Update Download Android badge URL
+    final androidDownloadPattern = RegExp(
+      r'\[!\[Download Android\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/v[^/]+/Kivixa-Android-[^)]+\.apk\)',
+    );
+    if (androidDownloadPattern.hasMatch(content)) {
+      content = content.replaceFirst(
+        androidDownloadPattern,
+        '[![Download Android](https://img.shields.io/badge/Download-Android-2ea44f?logo=android)](https://github.com/990aa/kivixa/releases/download/v${version.versionString}+${version.buildNumber}/Kivixa-Android-${version.versionString}.apk)',
+      );
+      modified = true;
+    }
+
+    if (modified) {
+      if (!dryRun) {
+        await file.writeAsString(content);
+      }
+      updatedFiles.add(filePath);
+    } else {
+      errors.add('$filePath: Could not find version patterns to update');
+    }
+    return true;
+  }
+
+  /// Update CHANGELOG.md with new version entry
+  Future<bool> updateChangelog() async {
+    const filePath = 'CHANGELOG.md';
+    final file = File(filePath);
+
+    if (!await file.exists()) {
+      errors.add('$filePath not found');
+      return false;
+    }
+
+    var content = await file.readAsString();
+
+    // Get current date in YYYY-MM-DD format
+    final now = DateTime.now();
+    final dateStr =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+
+    // Check if this version already exists in changelog
+    final versionPattern = RegExp(
+      r'\[' + RegExp.escape(version.versionString) + r'\]',
+    );
+    if (versionPattern.hasMatch(content)) {
+      // Version already exists, skip
+      return true;
+    }
+
+    // Find the line after the header section (after the format description)
+    // Insert new version entry after "## [X.Y.Z] - DATE" pattern or before "## Template"
+    final templatePattern = RegExp(r'\n## Template for Future Entries');
+    final insertPoint = templatePattern.firstMatch(content);
+
+    if (insertPoint != null) {
+      final newEntry =
+          '''
+
+## [${version.versionString}] - $dateStr
+
+### Changed
+- Version bump to ${version.versionString}
+''';
+
+      content =
+          content.substring(0, insertPoint.start) +
+          newEntry +
+          content.substring(insertPoint.start);
+
+      if (!dryRun) {
+        await file.writeAsString(content);
+      }
+      updatedFiles.add(filePath);
+    } else {
+      errors.add('$filePath: Could not find insertion point for new version');
+    }
+    return true;
+  }
+
   /// Run all updates
   Future<void> runAll() async {
     print('Updating to version ${version.fullVersionString}...\n');
@@ -497,6 +615,8 @@ final kivixaVersion = KivixaVersion.fromNumber(buildNumber);
     await updateAndroidBuildGradle();
     await updateIOSPlist();
     await updateWindowsRunner();
+    await updateReadme();
+    await updateChangelog();
 
     if (dryRun) {
       print('DRY RUN - No files were modified.\n');
@@ -554,6 +674,8 @@ Files Updated:
   • ios/Runner/Info.plist           - iOS version
   • macos/Runner/Info.plist         - macOS version
   • windows/runner/Runner.rc        - Windows version
+  • README.md                       - Version badges and download links
+  • CHANGELOG.md                    - Version changelog entries
 ''');
 }
 

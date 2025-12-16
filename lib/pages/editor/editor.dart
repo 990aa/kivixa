@@ -691,9 +691,10 @@ class EditorState extends State<Editor> {
         );
       } else if (currentTool is Eraser) {
         final erased = (currentTool as Eraser).onDragEnd();
-        if (tmpTool != null &&
-            (stylusButtonPressed || stows.disableEraserAfterUse.value)) {
-          // restore previous tool
+        // Only restore previous tool if eraser was activated via stylus button
+        // (tmpTool is only set in onStylusButtonChanged, not when selected from toolbar)
+        if (tmpTool != null && stylusButtonPressed) {
+          // restore previous tool after stylus-button-activated erase
           stylusButtonPressed = false;
           currentTool = tmpTool!;
           tmpTool = null;
@@ -1428,13 +1429,13 @@ class EditorState extends State<Editor> {
               if (tool is Eraser) {
                 // setTool(Eraser) is called to toggle eraser
                 if (currentTool is Eraser && tmpTool != null) {
-                  // switch to previous tool
+                  // Clicking eraser again while eraser is active: switch to previous tool
                   tool = tmpTool!;
                   tmpTool = null;
-                } else {
-                  // store previous tool to restore it later
-                  tmpTool = currentTool;
                 }
+                // Note: We do NOT set tmpTool when selecting eraser from toolbar
+                // This ensures eraser stays active until user explicitly selects another tool
+                // tmpTool is only set via stylus button (onStylusButtonChanged)
               }
 
               currentTool = tool;
