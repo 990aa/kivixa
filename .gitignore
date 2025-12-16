@@ -48,3 +48,4 @@ app.*.map.json
 md_files/
 
 *target/
+.github/workflows/
