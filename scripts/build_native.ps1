@@ -77,8 +77,55 @@ if (-not $SkipWindows) {
 if (-not $SkipAndroid) {
     Write-Host "=== Building Rust library for Android targets ===" -ForegroundColor Yellow
 
+    # Detect NDK path
+    $ndkPath = $env:ANDROID_NDK_HOME
+    if (-not $ndkPath) {
+        $ndkPath = $env:NDK_HOME
+    }
+    if (-not $ndkPath) {
+        # Try common locations
+        $sdkPath = $env:ANDROID_SDK_ROOT
+        if (-not $sdkPath) {
+            $sdkPath = "$env:LOCALAPPDATA\Android\Sdk"
+        }
+        # Find latest NDK version
+        $ndkDir = Join-Path $sdkPath "ndk"
+        if (Test-Path $ndkDir) {
+            $latestNdk = Get-ChildItem $ndkDir -Directory | Sort-Object Name -Descending | Select-Object -First 1
+            if ($latestNdk) {
+                $ndkPath = $latestNdk.FullName
+            }
+        }
+    }
+
+    if (-not $ndkPath -or -not (Test-Path $ndkPath)) {
+        throw "Android NDK not found. Set ANDROID_NDK_HOME environment variable."
+    }
+    Write-Host "Using Android NDK: $ndkPath"
+
+    # Set up toolchain paths for NDK r25+
+    $toolchainDir = Join-Path $ndkPath "toolchains\llvm\prebuilt\windows-x86_64"
+    $binDir = Join-Path $toolchainDir "bin"
+    
+    # API level (minimum 23 for most features)
+    $apiLevel = 23
+
+    # Set environment for cross-compilation
+    # IMPORTANT: Add NDK bin to PATH and set ANDROID_NDK for build.rs to find toolchain
+    $env:PATH = "$binDir;$env:PATH"
+    $env:ANDROID_NDK = $ndkPath
+    $env:ANDROID_NDK_ROOT = $ndkPath
+    $env:ANDROID_PLATFORM = "android-$apiLevel"
+    
+    # Clear any conflicting CLANG_PATH that might interfere
+    $env:CLANG_PATH = $null
+
     # arm64-v8a
     Write-Host "-> Building for $androidArm64Target"
+    $env:CC_aarch64_linux_android = Join-Path $binDir "aarch64-linux-android$apiLevel-clang.cmd"
+    $env:AR_aarch64_linux_android = Join-Path $binDir "llvm-ar.exe"
+    $env:CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER = Join-Path $binDir "aarch64-linux-android$apiLevel-clang.cmd"
+    # Note: We do NOT set CFLAGS here - the CMake Android toolchain file handles sysroot configuration
     cargo build --release --target $androidArm64Target
 
     if (-not (Test-Path $androidArm64SoPath)) {
@@ -87,6 +134,10 @@ if (-not $SkipAndroid) {
 
     # armeabi-v7a
     Write-Host "-> Building for $androidArmv7Target"
+    $env:CC_armv7_linux_androideabi = Join-Path $binDir "armv7a-linux-androideabi$apiLevel-clang.cmd"
+    $env:AR_armv7_linux_androideabi = Join-Path $binDir "llvm-ar.exe"
+    $env:CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER = Join-Path $binDir "armv7a-linux-androideabi$apiLevel-clang.cmd"
+    # Note: We do NOT set CFLAGS here - the CMake Android toolchain file handles sysroot configuration
     cargo build --release --target $androidArmv7Target
 
     if (-not (Test-Path $androidArmv7SoPath)) {

@@ -413,9 +413,14 @@ class _BrowserWindowState extends State<BrowserWindow> {
       ],
     );
 
-    // Wrap in Overlay to ensure PopupMenu displays correctly within the floating window
-    return Overlay(
-      initialEntries: [OverlayEntry(builder: (context) => content)],
+    // Wrap in Navigator to provide context for PopupMenuButton
+    // This is necessary because the floating window is rendered in an overlay
+    // and doesn't have access to the root Navigator
+    return Navigator(
+      onGenerateRoute: (_) => MaterialPageRoute<void>(
+        builder: (context) =>
+            Material(type: MaterialType.transparency, child: content),
+      ),
     );
   }
 
