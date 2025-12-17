@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:kivixa/components/overlay/floating_window.dart';
+import 'package:kivixa/main.dart';
 import 'package:kivixa/pages/home/browser.dart';
 import 'package:kivixa/services/browser_service.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
@@ -59,6 +60,9 @@ class _BrowserWindowState extends State<BrowserWindow> {
 
   final _urlController = TextEditingController();
   final _urlFocusNode = FocusNode();
+  final _stateNotifier = ValueNotifier<int>(
+    0,
+  ); // Triggers rebuild inside nested Navigator
 
   // Independent tab system for floating browser
   final List<FloatingBrowserTab> _tabs = [];
@@ -93,11 +97,17 @@ class _BrowserWindowState extends State<BrowserWindow> {
 
   Future<void> _initBrowserService() async {
     await BrowserService.instance.init();
-    if (mounted) setState(() {});
+    if (mounted)
+      setState(() {
+        _stateNotifier.value++;
+      });
   }
 
   void _onOverlayChanged() {
-    if (mounted) setState(() {});
+    if (mounted)
+      setState(() {
+        _stateNotifier.value++;
+      });
   }
 
   @override
@@ -106,6 +116,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
     OverlayController.instance.removeListener(_onOverlayChanged);
     _urlController.dispose();
     _urlFocusNode.dispose();
+    _stateNotifier.dispose();
     super.dispose();
   }
 
@@ -119,6 +130,10 @@ class _BrowserWindowState extends State<BrowserWindow> {
       _tabs.add(tab);
       _currentTabIndex = _tabs.length - 1;
       _urlController.text = url;
+      // Reset navigation state for new tab
+      _canGoForward = false;
+      _isLoading = true;
+      _stateNotifier.value++;
     });
   }
 
@@ -130,6 +145,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
         _currentTabIndex = _tabs.length - 1;
       }
       _urlController.text = _currentTab?.url ?? '';
+      _stateNotifier.value++;
     });
   }
 
@@ -138,6 +154,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
     setState(() {
       _currentTabIndex = index;
       _urlController.text = _currentTab?.url ?? '';
+      _stateNotifier.value++;
     });
   }
 
@@ -148,6 +165,11 @@ class _BrowserWindowState extends State<BrowserWindow> {
     if (!controller.browserOpen) {
       return const SizedBox.shrink();
     }
+
+    // Notify update merely to ensure we're fresh
+    // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+    // _stateNotifier.notifyListeners();
+    // ^ Avoiding direct notification properly, relying on setState calls elsewhere
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -183,10 +205,28 @@ class _BrowserWindowState extends State<BrowserWindow> {
   }
 
   Widget _buildBrowserContent(BuildContext context) {
+    // Wrap in Navigator to provide context for PopupMenuButton
+    // This is necessary because the floating window is rendered in an overlay
+    // and doesn't have access to the root Navigator
+    return Navigator(
+      onGenerateRoute: (_) => MaterialPageRoute<void>(
+        builder: (navContext) => ValueListenableBuilder(
+          valueListenable: _stateNotifier,
+          builder: (context, _, _) => Material(
+            type: MaterialType.transparency,
+            child: _buildInnerUi(context), // Extracted method for clarity
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Extracted original content builder to be called inside ValueListenableBuilder
+  Widget _buildInnerUi(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final content = Column(
+    return Column(
       children: [
         // Tab bar
         if (_tabs.length > 1) _buildTabBar(context),
@@ -289,7 +329,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
                 icon: const Icon(Icons.more_vert),
                 iconSize: 18,
                 tooltip: 'More options',
-                onSelected: _handleMenuAction,
+                onSelected: (action) => _handleMenuAction(context, action),
                 position: PopupMenuPosition.under,
                 clipBehavior: Clip.none,
                 constraints: const BoxConstraints(minWidth: 220, maxWidth: 280),
@@ -412,16 +452,6 @@ class _BrowserWindowState extends State<BrowserWindow> {
         Expanded(child: _buildWebView()),
       ],
     );
-
-    // Wrap in Navigator to provide context for PopupMenuButton
-    // This is necessary because the floating window is rendered in an overlay
-    // and doesn't have access to the root Navigator
-    return Navigator(
-      onGenerateRoute: (_) => MaterialPageRoute<void>(
-        builder: (context) =>
-            Material(type: MaterialType.transparency, child: content),
-      ),
-    );
   }
 
   Widget _buildTabBar(BuildContext context) {
@@ -528,6 +558,8 @@ class _BrowserWindowState extends State<BrowserWindow> {
           _isSecure = url?.scheme == 'https';
           if (!_urlFocusNode.hasFocus) {
             _urlController.text = tab.url;
+            _stateNotifier.value++;
+            // if (mounted) setState(() {}); // Triggered by notifier
           }
         });
       },
@@ -538,6 +570,8 @@ class _BrowserWindowState extends State<BrowserWindow> {
           tab.isLoading = false;
           if (!_urlFocusNode.hasFocus) {
             _urlController.text = tab.url;
+            _stateNotifier.value++;
+            // if (mounted) setState(() {});
           }
         });
         await _updateNavigationState();
@@ -545,6 +579,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
       onTitleChanged: (controller, title) {
         setState(() {
           tab.title = title ?? '';
+          _stateNotifier.value++;
         });
       },
       onProgressChanged: (controller, progress) {
@@ -603,6 +638,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
     final tab = _currentTab;
     if (tab != null) {
       setState(() => tab.url = url);
+      _stateNotifier.value++;
       tab.controller?.loadUrl(urlRequest: URLRequest(url: WebUri(url)));
     }
   }
@@ -636,28 +672,42 @@ class _BrowserWindowState extends State<BrowserWindow> {
   }
 
   /// Handle menu item selection
-  Future<void> _handleMenuAction(String action) async {
-    switch (action) {
-      case 'new_tab':
-        _createNewTab();
-      case 'bookmark':
-        await _addBookmark();
-      case 'share':
-        await _shareUrl();
-      case 'copy_url':
-        _copyUrl();
-      case 'open_external':
-        await _openInSystemBrowser();
-      case 'transfer_to_main':
-        await _transferToMainBrowser();
-      case 'bookmarks':
-        _showBookmarks();
-      case 'history':
-        _showHistory();
-      case 'desktop_mode':
-        _toggleDesktopMode();
-      case 'clear_data':
-        await _clearBrowsingData();
+  Future<void> _handleMenuAction(BuildContext context, String action) async {
+    if (kDebugMode) {
+      print('Floating Browser Menu Action Triggered: $action');
+    }
+    try {
+      switch (action) {
+        case 'new_tab':
+          _createNewTab();
+          if (mounted) setState(() {}); // Notifier updated in _createNewTab
+        case 'bookmark':
+          await _addBookmark();
+        case 'share':
+          await _shareUrl();
+        case 'copy_url':
+          _copyUrl();
+        case 'open_external':
+          await _openInSystemBrowser();
+        case 'transfer_to_main':
+          await _transferToMainBrowser();
+        case 'bookmarks':
+          _showBookmarks(context);
+        case 'history':
+          _showHistory(context);
+        case 'desktop_mode':
+          _toggleDesktopMode();
+        case 'clear_data':
+          await _clearBrowsingData(context);
+        default:
+          if (kDebugMode) {
+            print('Unknown menu action: $action');
+          }
+      }
+    } catch (e, stack) {
+      if (kDebugMode) {
+        print('Error handling menu action $action: $e\n$stack');
+      }
     }
   }
 
@@ -679,11 +729,16 @@ class _BrowserWindowState extends State<BrowserWindow> {
 
     _showMessage('Opened in main browser');
 
-    // Navigate to browser page
+    // Use App.rootNavigatorKey to access the main navigator from anywhere
+    final navigator = App.rootNavigatorKey.currentState;
+
     if (mounted) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const BrowserPage()));
+      OverlayController.instance.closeBrowser();
+      if (navigator != null) {
+        navigator.push(MaterialPageRoute(builder: (_) => const BrowserPage()));
+      } else {
+        if (kDebugMode) print('Root navigator not found for transfer');
+      }
     }
   }
 
@@ -757,13 +812,13 @@ class _BrowserWindowState extends State<BrowserWindow> {
     }
   }
 
-  void _showBookmarks() {
+  void _showBookmarks(BuildContext context) {
     final browserService = BrowserService.instance;
     final bookmarks = browserService.bookmarks;
 
     showDialog(
       context: context,
-      useRootNavigator: true,
+      useRootNavigator: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Bookmarks'),
         content: SizedBox(
@@ -797,7 +852,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
                           await browserService.removeBookmarkById(bookmark.id);
                           if (dialogContext.mounted) {
                             Navigator.pop(dialogContext);
-                            _showBookmarks(); // Refresh
+                            _showBookmarks(context); // Refresh
                           }
                         },
                       ),
@@ -815,13 +870,13 @@ class _BrowserWindowState extends State<BrowserWindow> {
     );
   }
 
-  void _showHistory() {
+  void _showHistory(BuildContext context) {
     final browserService = BrowserService.instance;
     final history = browserService.history;
 
     showDialog(
       context: context,
-      useRootNavigator: true,
+      useRootNavigator: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text('History'),
         content: SizedBox(
@@ -876,10 +931,10 @@ class _BrowserWindowState extends State<BrowserWindow> {
     );
   }
 
-  Future<void> _clearBrowsingData() async {
+  Future<void> _clearBrowsingData(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      useRootNavigator: true,
+      useRootNavigator: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Clear Browsing Data'),
         content: const Text(
