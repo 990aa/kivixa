@@ -270,9 +270,9 @@ class _ResizableWindowContainerState extends State<ResizableWindowContainer> {
 
   @override
   Widget build(BuildContext context) {
-    // Larger touch targets for better interaction
-    // 24px on desktop, 20px on mobile for easier grabbing
-    final handleSize = _isDesktop ? 24.0 : 20.0;
+    // Smaller hit areas so cursor changes closer to window edge
+    // 8px on desktop, 12px on mobile - user should be near the edge to resize
+    final handleSize = _isDesktop ? 8.0 : 12.0;
 
     // Title bar height - handles should not overlap with title bar buttons
     final titleBarHeight = _isDesktop ? 36.0 : 44.0;
