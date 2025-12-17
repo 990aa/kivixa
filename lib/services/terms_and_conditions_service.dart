@@ -122,7 +122,7 @@ By clicking "I Agree" or continuing to use the App, you acknowledge that you hav
     return '''
 KIVIXA PRIVACY POLICY
 
-Last Updated: November 2025
+Last Updated: December 2025
 
 1. INFORMATION WE COLLECT
 
