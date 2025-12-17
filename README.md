@@ -13,10 +13,10 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.9.0+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
-[![Version](https://img.shields.io/badge/Version-0.1.0%2B1--beta-orange)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-0.1.1--beta-orange)](CHANGELOG.md)
 
-[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.1.0+1/Kivixa-Setup-0.1.0.exe)
-[![Download Android](https://img.shields.io/badge/Download-Android-2ea44f?logo=android)](https://github.com/990aa/kivixa/releases/download/v0.1.0+1/Kivixa-Android-0.1.0.apk)
+[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.1.1/Kivixa-Setup-0.1.1.exe)
+[![Download Android](https://img.shields.io/badge/Download-Android-2ea44f?logo=android)](https://github.com/990aa/kivixa/releases/download/v0.1.1/Kivixa-Android-0.1.1.apk)
 
 </div>
 

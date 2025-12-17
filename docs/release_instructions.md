@@ -1,10 +1,6 @@
 # Release Instructions for Kivixa
 
-This guide provides step-by-step instructions for creating a new release of Kivixa, including version bumping, building for Android and Windows, and publishing to GitHub.
-
 ## Prerequisites
-
-Ensure you have the following installed and configured:
 
 1.  **Flutter SDK**: [Install Flutter](https://flutter.dev/docs/get-started/install)
 2.  **Rust Toolchain**: [Install Rust](https://www.rust-lang.org/tools/install)
@@ -71,7 +67,7 @@ To create APKs for all supported architectures (ARM64, ARMv7, x86_64):
 1.  Run the Flutter build command:
 
     ```bash
-    flutter build apk --split-per-abi --release
+    flutter build apk --split-per-abi --release -v
     ```
 
     This will generate three APK files in `build/app/outputs/flutter-apk/`:
@@ -86,20 +82,13 @@ To create APKs for all supported architectures (ARM64, ARMv7, x86_64):
 1.  Build the Flutter Windows application:
 
     ```bash
-    flutter build windows --release
+    flutter build windows --release -v
     ```
-
-    The output will be in `build/windows/runner/Release/`.
 
 2.  Create the Installer using Inno Setup:
     *   Open `windows/installer/kivixa-installer.iss` with Inno Setup Compiler.
     *   Click **Build** > **Compile** (or press `Ctrl+F9`).
-    *   The installer executable (e.g., `Kivixa-Setup-X.Y.Z.exe`) will be generated in the `windows/installer/Output` directory (or wherever `OutputDir` is configured in the `.iss` file).
-
-    *Alternative: Run via command line (if `ISCC` is in your PATH)*
-    ```powershell
-    iscc windows/installer/kivixa-installer.iss
-    ```
+    *   The installer executable (e.g., `Kivixa-Setup-X.Y.Z.exe`) will be generated in the `build_windows_installer/` directory (or wherever `OutputDir` is configured in the `.iss` file).
 
 ## Step 5: Create GitHub Release
 
