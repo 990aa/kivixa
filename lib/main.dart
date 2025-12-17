@@ -106,7 +106,13 @@ Future<void> appRunner(List<String> args) async {
 
   await Future.wait([
     stows.customDataDir.waitUntilRead().then((_) => FileManager.init()),
-    if (Platform.isWindows) windowManager.ensureInitialized(),
+    if (Platform.isWindows) ...[
+      windowManager.ensureInitialized(),
+      // Enable full screen on desktop (actually maximized to keep window controls)
+      windowManager.maximize(),
+    ],
+    // Enable full screen on mobile (immersive mode)
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky),
     workerManager.init(),
     PencilShader.init(),
     // PencilSound.preload(), // Audio functionality removed
@@ -142,11 +148,13 @@ class App extends StatefulWidget {
   const App({super.key});
 
   static final log = Logger('App');
+  static final rootNavigatorKey = GlobalKey<NavigatorState>();
 
   static String initialLocation = pathToFunction(RoutePaths.home)({
     'subpage': HomePage.browseSubpage,
   });
   static final _router = GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: initialLocation,
     routes: <GoRoute>[
       GoRoute(path: '/', redirect: (context, state) => initialLocation),
