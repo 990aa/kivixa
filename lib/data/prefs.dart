@@ -371,6 +371,35 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  // Media settings
+  // Web image mode: 0 = download locally, 1 = fetch on demand
+  final webImageMode = PlainStow(
+    'webImageMode',
+    0,
+    volatile: !_isOnMainIsolate,
+  );
+
+  // Delete media files when note is deleted
+  final deleteMediaWithNote = PlainStow(
+    'deleteMediaWithNote',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
+  // Maximum size for image preview mode (100-500 pixels)
+  final mediaPreviewMaxSize = PlainStow<double>(
+    'mediaPreviewMaxSize',
+    300.0,
+    volatile: !_isOnMainIsolate,
+  );
+
+  // Browse page sort type: 0=A-Z, 1=Z-A, 2=Latest, 3=Oldest
+  final browseSortType = PlainStow(
+    'browseSortType',
+    0,
+    volatile: !_isOnMainIsolate,
+  );
+
   static bool get isDesktop => Platform.isWindows;
 }
 

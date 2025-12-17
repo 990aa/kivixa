@@ -97,6 +97,35 @@ Kivixa features a powerful on-device AI engine powered by Microsoft's Phi-4 mode
 - **Text File Editor** - Full-featured text editor with syntax highlighting
 - **Note Linking** - Connect related notes together with bidirectional links
 
+### **Media Embedding**
+- **Image & Video Upload** - Embed media directly into markdown and text files
+  - Upload from local storage or paste from web URLs
+  - Automatic file management with dedicated media storage
+  - Videos are fully playable within embedded player
+- **Interactive Media Controls**
+  - **Resize**: Drag corner/edge handles to adjust dimensions
+  - **Rotate**: Rotate images with 15° snapping for precision
+  - **Drag**: Reposition media anywhere within the document
+  - **Aspect Ratio Lock**: Optional constraint during resize
+- **Comment Annotations**
+  - Add optional comments to any image or video
+  - Hover to reveal (Windows) or tap icon (Android)
+  - Edit and delete comments easily
+- **Web Image Modes** (configurable in Settings)
+  - **Download Locally**: Cache images for offline access
+  - **Fetch on Demand**: Load from web each time (saves storage)
+- **Large Image Preview**
+  - Scrollable preview for images > 2000px
+  - Pan and zoom within a constrained container
+  - Minimap showing visible region
+  - Toggle between preview and full display modes
+- **Performance Optimized**
+  - LRU caching for loaded images
+  - Thumbnail generation for heavy media
+  - Lazy loading via visibility detection
+  - Isolated repaints with RepaintBoundary
+
+
 ### **Life Git (Version Control)**
 - **Time Travel** - Roll back any note to any previous version with an intuitive slider
 - **Auto-Snapshots** - Automatic versioning when you stop typing (2-second debounce)

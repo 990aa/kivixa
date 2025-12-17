@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:code_text_field/code_text_field.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_highlight/themes/github.dart';
 import 'package:flutter_highlight/themes/vs2015.dart';
@@ -13,6 +15,7 @@ import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/services/life_git/life_git.dart';
+import 'package:kivixa/services/media_service.dart';
 import 'package:logging/logging.dart';
 
 /// Advanced VS Code-like Markdown editor with:
@@ -100,6 +103,11 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
       icon: Icons.image,
       tooltip: 'Image',
       type: _FormatType.image,
+    ),
+    _ToolbarAction(
+      icon: Icons.videocam,
+      tooltip: 'Video',
+      type: _FormatType.video,
     ),
     _ToolbarAction(
       icon: Icons.format_list_bulleted,
@@ -473,6 +481,9 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
       case _FormatType.image:
         _showImageDialog();
         return;
+      case _FormatType.video:
+        _showVideoDialog();
+        return;
       case _FormatType.bulletList:
         final lines = selectedText.split('\n');
         newText = lines.map((l) => '- $l').join('\n');
@@ -604,68 +615,192 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
   }
 
   void _showImageDialog() {
+    _showMediaUploadDialog(isVideo: false);
+  }
+
+  void _showVideoDialog() {
+    _showMediaUploadDialog(isVideo: true);
+  }
+
+  void _showMediaUploadDialog({required bool isVideo}) async {
     final controller = _codeController;
     if (controller == null) return;
 
     final altController = TextEditingController();
     final urlController = TextEditingController();
+    var isLocalFile = false;
+    String? localFilePath;
 
-    showDialog(
+    await showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Insert Image'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: altController,
-              decoration: const InputDecoration(
-                labelText: 'Alt Text',
-                border: OutlineInputBorder(),
-              ),
-              autofocus: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(isVideo ? 'Insert Video' : 'Insert Image'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Source toggle
+                SegmentedButton<bool>(
+                  segments: const [
+                    ButtonSegment(
+                      value: false,
+                      label: Text('URL'),
+                      icon: Icon(Icons.link),
+                    ),
+                    ButtonSegment(
+                      value: true,
+                      label: Text('Local File'),
+                      icon: Icon(Icons.folder_open),
+                    ),
+                  ],
+                  selected: {isLocalFile},
+                  onSelectionChanged: (selection) {
+                    setDialogState(() => isLocalFile = selection.first);
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Alt text
+                TextField(
+                  controller: altController,
+                  decoration: InputDecoration(
+                    labelText: isVideo ? 'Caption' : 'Alt Text',
+                    border: const OutlineInputBorder(),
+                  ),
+                  autofocus: true,
+                ),
+                const SizedBox(height: 16),
+
+                // URL or file picker
+                if (isLocalFile)
+                  _buildLocalFilePicker(
+                    ctx,
+                    isVideo,
+                    localFilePath,
+                    (path) => setDialogState(() => localFilePath = path),
+                  )
+                else
+                  TextField(
+                    controller: urlController,
+                    decoration: InputDecoration(
+                      labelText: isVideo ? 'Video URL' : 'Image URL',
+                      hintText: 'https://',
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+              ],
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: urlController,
-              decoration: const InputDecoration(
-                labelText: 'Image URL',
-                hintText: 'https://',
-                border: OutlineInputBorder(),
-              ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(t.common.cancel),
+            ),
+            FilledButton(
+              onPressed: () async {
+                String path;
+                if (isLocalFile) {
+                  if (localFilePath == null) {
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                      const SnackBar(content: Text('Please select a file')),
+                    );
+                    return;
+                  }
+                  // Upload to app storage
+                  try {
+                    final mediaService = MediaService.instance;
+                    path = await mediaService.uploadMedia(localFilePath!);
+                  } catch (e) {
+                    if (ctx.mounted) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        SnackBar(content: Text('Error uploading: $e')),
+                      );
+                    }
+                    return;
+                  }
+                } else {
+                  path = urlController.text;
+                  if (path.isEmpty) {
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                      const SnackBar(content: Text('Please enter a URL')),
+                    );
+                    return;
+                  }
+                }
+
+                final altText = altController.text.isEmpty
+                    ? (isVideo ? 'Video' : 'Image')
+                    : altController.text;
+
+                // Create extended markdown syntax
+                final mdMedia = '![$altText]($path)';
+
+                final selection = controller.selection;
+                final text = controller.text;
+                final start = selection.start;
+                final end = selection.end;
+
+                controller.text = text.replaceRange(start, end, mdMedia);
+                controller.selection = TextSelection.collapsed(
+                  offset: start + mdMedia.length,
+                );
+
+                Navigator.pop(ctx);
+              },
+              child: const Text('Insert'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(t.common.cancel),
-          ),
-          FilledButton(
-            onPressed: () {
-              final altText = altController.text.isEmpty
-                  ? 'Image'
-                  : altController.text;
-              final url = urlController.text;
-              final mdImage = '![$altText]($url)';
-
-              final selection = controller.selection;
-              final text = controller.text;
-              final start = selection.start;
-              final end = selection.end;
-
-              controller.text = text.replaceRange(start, end, mdImage);
-              controller.selection = TextSelection.collapsed(
-                offset: start + mdImage.length,
-              );
-
-              Navigator.pop(ctx);
-            },
-            child: const Text('Insert'),
-          ),
-        ],
       ),
     );
+  }
+
+  Widget _buildLocalFilePicker(
+    BuildContext context,
+    bool isVideo,
+    String? currentPath,
+    ValueChanged<String> onPathSelected,
+  ) {
+    return Column(
+      children: [
+        OutlinedButton.icon(
+          onPressed: () async {
+            final result = await FilePicker.platform.pickFiles(
+              type: isVideo ? FileType.video : FileType.image,
+              allowMultiple: false,
+            );
+            if (result != null && result.files.isNotEmpty) {
+              final path = result.files.first.path;
+              if (path != null) {
+                onPathSelected(path);
+              }
+            }
+          },
+          icon: Icon(isVideo ? Icons.videocam : Icons.image),
+          label: Text(
+            currentPath != null
+                ? _getFileName(currentPath)
+                : 'Choose ${isVideo ? 'Video' : 'Image'}',
+          ),
+        ),
+        if (currentPath != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            currentPath,
+            style: Theme.of(context).textTheme.bodySmall,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ],
+    );
+  }
+
+  String _getFileName(String path) {
+    if (path.contains('/')) return path.split('/').last;
+    if (path.contains('\\')) return path.split('\\').last;
+    return path;
   }
 
   void _insertHeading(int level) {
@@ -948,7 +1083,82 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
           onTapLink: (url) {
             log.info('Link tapped: $url');
           },
+          imageBuilder: (uri, title, alt) {
+            return _buildImageWidget(uri.toString());
+          },
         ),
+      ),
+    );
+  }
+
+  Widget _buildImageWidget(String url) {
+    Widget imageWidget;
+
+    // Check if it's a local file path
+    if (url.startsWith('/') || url.contains(':\\') || url.contains(':/')) {
+      final file = File(url);
+      if (file.existsSync()) {
+        imageWidget = Image.file(
+          file,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) {
+            return _buildImageError('Failed to load image');
+          },
+        );
+      } else {
+        imageWidget = _buildImageError('Image not found');
+      }
+    } else if (url.startsWith('http://') || url.startsWith('https://')) {
+      imageWidget = Image.network(
+        url,
+        fit: BoxFit.contain,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return _buildImageError('Failed to load web image');
+        },
+      );
+    } else {
+      imageWidget = _buildImageError('Invalid image path');
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 400),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: imageWidget,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageError(String message) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.broken_image, color: Colors.grey, size: 48),
+          const SizedBox(height: 8),
+          Text(message, style: const TextStyle(color: Colors.grey)),
+        ],
       ),
     );
   }
@@ -987,6 +1197,7 @@ enum _FormatType {
   quote,
   link,
   image,
+  video,
   bulletList,
   numberedList,
   taskList,
