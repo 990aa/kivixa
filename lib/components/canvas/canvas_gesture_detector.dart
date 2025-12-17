@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,6 +30,7 @@ class CanvasGestureDetector extends StatefulWidget {
     required this.onHovering,
     required this.onHoveringEnd,
     required this.onStylusButtonChanged,
+    this.onSecondaryStylussButtonChanged,
     required this.undo,
     required this.redo,
     required this.pages,
@@ -53,7 +55,12 @@ class CanvasGestureDetector extends StatefulWidget {
   updatePointerData;
   final VoidCallback onHovering;
   final VoidCallback onHoveringEnd;
+
+  /// Called when the primary stylus button (eraser) changes state
   final ValueChanged<bool> onStylusButtonChanged;
+
+  /// Called when the secondary stylus button (lasso select) changes state
+  final ValueChanged<bool>? onSecondaryStylussButtonChanged;
 
   final VoidCallback undo;
   final VoidCallback redo;
@@ -418,6 +425,10 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
   }
 
   void _listenerPointerEvent(PointerEvent event) {
+    if (kDebugMode && event.kind == PointerDeviceKind.stylus) {
+      // print('Stylus event: ${event.runtimeType}, buttons: ${event.buttons}');
+    }
+
     final double? pressure;
     if (event.kind == PointerDeviceKind.stylus ||
         event.kind == PointerDeviceKind.invertedStylus) {
@@ -427,6 +438,9 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
         // Detected as stylus, but no pressure values
         pressure = null;
       }
+
+      // Check buttons during drag/move as well
+      _checkStylusButtons(event);
     } else {
       pressure = null;
     }
@@ -435,6 +449,7 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
   }
 
   var stylusButtonWasPressed = false;
+  var secondaryStylussButtonWasPressed = false;
 
   void _listenerPointerHoverEvent(PointerEvent event) {
     if (event.kind != PointerDeviceKind.stylus) return;
@@ -445,9 +460,28 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
       widget.onHoveringEnd();
     } else {
       widget.onHovering();
-      if (stylusButtonWasPressed != (event.buttons == kPrimaryStylusButton)) {
-        stylusButtonWasPressed = event.buttons == kPrimaryStylusButton;
-        widget.onStylusButtonChanged(stylusButtonWasPressed);
+      if (kDebugMode) {
+        print('Stylus hover buttons: ${event.buttons}');
+      }
+      _checkStylusButtons(event);
+    }
+  }
+
+  void _checkStylusButtons(PointerEvent event) {
+    // Primary stylus button (typically for eraser)
+    final isPrimaryPressed = (event.buttons & kPrimaryStylusButton) != 0;
+    if (stylusButtonWasPressed != isPrimaryPressed) {
+      stylusButtonWasPressed = isPrimaryPressed;
+      widget.onStylusButtonChanged(stylusButtonWasPressed);
+    }
+    // Secondary stylus button (typically for lasso select)
+    if (widget.onSecondaryStylussButtonChanged != null) {
+      final isSecondaryPressed = (event.buttons & kSecondaryStylusButton) != 0;
+      if (secondaryStylussButtonWasPressed != isSecondaryPressed) {
+        secondaryStylussButtonWasPressed = isSecondaryPressed;
+        widget.onSecondaryStylussButtonChanged!(
+          secondaryStylussButtonWasPressed,
+        );
       }
     }
   }
@@ -456,6 +490,10 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
     widget.updatePointerData(event.kind, null);
     stylusButtonWasPressed = false;
     widget.onStylusButtonChanged(false);
+    if (widget.onSecondaryStylussButtonChanged != null) {
+      secondaryStylussButtonWasPressed = false;
+      widget.onSecondaryStylussButtonChanged!(false);
+    }
   }
 
   @override
