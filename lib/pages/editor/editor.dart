@@ -182,6 +182,9 @@ class EditorState extends State<Editor> {
   /// If the stylus button is pressed, or was pressed during the current draw gesture.
   var stylusButtonPressed = false;
 
+  /// If the secondary stylus button is pressed or was pressed during current gesture.
+  var secondaryStylussButtonPressed = false;
+
   @override
   void initState() {
     DynamicMaterialApp.addFullscreenListener(_setState);
@@ -774,18 +777,42 @@ class EditorState extends State<Editor> {
     // whether the stylus button is or was pressed
     stylusButtonPressed = stylusButtonPressed || buttonPressed;
 
-    if (isHovering) {
-      if (buttonPressed) {
-        if (currentTool is Eraser) return;
-        tmpTool = currentTool;
-        currentTool = Eraser();
+    if (buttonPressed) {
+      if (currentTool is Eraser) return;
+      tmpTool = currentTool;
+      currentTool = Eraser();
+      setState(() {});
+    } else {
+      if (tmpTool != null) {
+        currentTool = tmpTool!;
+        tmpTool = null;
         setState(() {});
-      } else {
-        if (tmpTool != null) {
-          currentTool = tmpTool!;
-          tmpTool = null;
-          setState(() {});
-        }
+      }
+    }
+  }
+
+  /// Store previous tool when secondary button activates lasso select.
+  Tool? tmpToolSecondary;
+
+  /// Handler for secondary stylus button (typically for lasso select).
+  /// Only triggers if the stylus is connected and has this button capability.
+  void onSecondaryStylussButtonChanged(bool buttonPressed) {
+    // Track secondary button state
+    secondaryStylussButtonPressed =
+        secondaryStylussButtonPressed || buttonPressed;
+
+    if (buttonPressed) {
+      // Don't switch if already in select mode
+      if (currentTool is Select) return;
+      tmpToolSecondary = currentTool;
+      currentTool = Select.currentSelect;
+      setState(() {});
+    } else {
+      // Restore previous tool when button released
+      if (tmpToolSecondary != null) {
+        currentTool = tmpToolSecondary!;
+        tmpToolSecondary = null;
+        setState(() {});
       }
     }
   }
@@ -1370,6 +1397,7 @@ class EditorState extends State<Editor> {
       onHovering: onHovering,
       onHoveringEnd: onHoveringEnd,
       onStylusButtonChanged: onStylusButtonChanged,
+      onSecondaryStylussButtonChanged: onSecondaryStylussButtonChanged,
       updatePointerData: updatePointerData,
       undo: undo,
       redo: redo,
