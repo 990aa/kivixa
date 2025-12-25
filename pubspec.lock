@@ -93,10 +93,10 @@ packages:
     dependency: "direct main"
     description:
       name: background_downloader
-      sha256: c3d13c09420c74d2ed4310b978a56f5dbab5c17ddb23e34198ec8d5f8aaa344d
+      sha256: "2d17c211eb9bf1f947f154fb85d1bea96944fb1efb1b0714851caac993c02dc8"
       url: "https://pub.dev"
     source: hosted
-    version: "9.4.2"
+    version: "9.4.3"
   barcode:
     dependency: transitive
     description:
@@ -699,10 +699,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_markdown_plus
-      sha256: "7f349c075157816da399216a4127096108fd08e1ac931e34e72899281db4113c"
+      sha256: a3335b1047d4cbdcd20819cf69d9f2ac0e334ae13420104fb6035da1b404a0fa
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.5"
+    version: "1.0.6"
   flutter_math_fork:
     dependency: "direct main"
     description:
@@ -2131,34 +2131,34 @@ packages:
     dependency: "direct main"
     description:
       name: syncfusion_flutter_calendar
-      sha256: "339a2ab18ef2edbd7ea3360917e059910a092c86f97b04b1a937d5428b079231"
+      sha256: e020d42a7784182beaa67763896f561b80c04d50e30c611fe88cebf357301c80
       url: "https://pub.dev"
     source: hosted
-    version: "32.1.19"
+    version: "32.1.20"
   syncfusion_flutter_core:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: a984dfd5496ad318e7c42fb26e29a17d1132fe264e45ad11d15dc19a34921af4
+      sha256: "9553fd29354cdacdd063ba7d6a39e0be9b3350b9345b1bcc2e4ab29a7439b11b"
       url: "https://pub.dev"
     source: hosted
-    version: "32.1.19"
+    version: "32.1.20"
   syncfusion_flutter_datepicker:
     dependency: transitive
     description:
       name: syncfusion_flutter_datepicker
-      sha256: "0548fa13eea60baea5c4b40b7960c6c3bd1afce48840dd961a6be4a3c89ec52d"
+      sha256: e4e36751d1e48131838f17af08a1b6aa594c287a74365514643ee733ab447b3f
       url: "https://pub.dev"
     source: hosted
-    version: "32.1.19"
+    version: "32.1.20"
   syncfusion_localizations:
     dependency: transitive
     description:
       name: syncfusion_localizations
-      sha256: "27be440863cdd22f548098510cb00c547921c1bbafb25f230860e225ac618b22"
+      sha256: "7d6d4f58e93daaad7c867f19fed3d81b11310c638135e8d1169ff1ee7bc7143c"
       url: "https://pub.dev"
     source: hosted
-    version: "32.1.19"
+    version: "32.1.20"
   synchronized:
     dependency: transitive
     description:

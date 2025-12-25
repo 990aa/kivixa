@@ -1,4 +1,7 @@
 
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:kivixa/data/models/media_element.dart';
 import 'package:kivixa/services/media_service.dart';
@@ -11,12 +14,14 @@ import 'package:visibility_detector/visibility_detector.dart';
 /// Platform-aware video player widget for embedded video playback.
 ///
 /// Features:
-/// - Play/pause controls
-/// - Progress bar with seeking
-/// - Mute toggle
+/// - Play/pause controls with large center button
+/// - Progress bar with seeking and buffering indicator
+/// - Mute toggle with volume slider
 /// - Fullscreen toggle
 /// - Lazy initialization (loads when visible)
-/// - Resizable container
+/// - Resizable container with aspect ratio preservation
+/// - Thumbnail generation for preview
+/// - Performance optimized via RepaintBoundary
 class MediaVideoPlayer extends StatefulWidget {
   const MediaVideoPlayer({
     super.key,
@@ -24,6 +29,8 @@ class MediaVideoPlayer extends StatefulWidget {
     required this.onChanged,
     this.autoPlay = false,
     this.showControls = true,
+    this.showThumbnail = true,
+    this.onTap,
   });
 
   /// The media element containing video info
@@ -38,19 +45,35 @@ class MediaVideoPlayer extends StatefulWidget {
   /// Whether to show playback controls
   final bool showControls;
 
+  /// Whether to show thumbnail when not playing
+  final bool showThumbnail;
+
+  /// Callback when tapped (for selection handling)
+  final VoidCallback? onTap;
+
   @override
   State<MediaVideoPlayer> createState() => _MediaVideoPlayerState();
 }
 
-class _MediaVideoPlayerState extends State<MediaVideoPlayer> {
+class _MediaVideoPlayerState extends State<MediaVideoPlayer> 
+    with SingleTickerProviderStateMixin {
   var _isVisible = false;
   var _isInitialized = false;
   var _isPlaying = false;
   var _isMuted = false;
   var _isLoading = true;
   var _hasError = false;
+  var _isControlsVisible = true;
   Duration _position = Duration.zero;
-  final Duration _duration = Duration.zero;
+  var _duration = const Duration(seconds: 30); // Default duration for preview
+  var _volume = 1.0;
+  
+  // Timer for auto-hiding controls
+  Timer? _controlsTimer;
+  
+  // Animation controller for play button
+  late AnimationController _playButtonController;
+  late Animation<double> _playButtonAnimation;
 
   // This is a platform-agnostic implementation
   // In production, you'd use conditional imports for:
@@ -60,7 +83,21 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer> {
   @override
   void initState() {
     super.initState();
+    _playButtonController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _playButtonAnimation = Tween<double>(begin: 1.0, end: 0.8).animate(
+      CurvedAnimation(parent: _playButtonController, curve: Curves.easeInOut),
+    );
     _checkVideoExists();
+  }
+
+  @override
+  void dispose() {
+    _controlsTimer?.cancel();
+    _playButtonController.dispose();
+    super.dispose();
   }
 
   Future<void> _checkVideoExists() async {
@@ -103,6 +140,7 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer> {
   }
 
   void _togglePlayPause() {
+    _playButtonController.forward().then((_) => _playButtonController.reverse());
     if (_isPlaying) {
       _pause();
     } else {
@@ -114,11 +152,35 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer> {
     setState(() => _isMuted = !_isMuted);
   }
 
+  void _setVolume(double value) {
+    setState(() {
+      _volume = value;
+      _isMuted = value == 0;
+    });
+  }
+
   void _seekTo(double value) {
     final newPosition = Duration(
       milliseconds: (value * _duration.inMilliseconds).round(),
     );
     setState(() => _position = newPosition);
+    _resetControlsTimer();
+  }
+
+  void _showControls() {
+    setState(() => _isControlsVisible = true);
+    _resetControlsTimer();
+  }
+
+  void _resetControlsTimer() {
+    _controlsTimer?.cancel();
+    if (_isPlaying) {
+      _controlsTimer = Timer(const Duration(seconds: 3), () {
+        if (mounted && _isPlaying) {
+          setState(() => _isControlsVisible = false);
+        }
+      });
+    }
   }
 
   void _openFullscreen() {
@@ -143,19 +205,30 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer> {
     final width = widget.element.width ?? 400;
     final height = widget.element.height ?? 225;
 
-    return VisibilityDetector(
-      key: Key('video-${widget.element.path}'),
-      onVisibilityChanged: _onVisibilityChanged,
-      child: Container(
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: _buildContent(),
+    return RepaintBoundary(
+      child: VisibilityDetector(
+        key: Key('video-${widget.element.path}'),
+        onVisibilityChanged: _onVisibilityChanged,
+        child: GestureDetector(
+          onTap: () {
+            widget.onTap?.call();
+            _showControls();
+          },
+          child: MouseRegion(
+            onHover: (_) => _showControls(),
+            child: Container(
+              width: width,
+              height: height,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: _buildContent(),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -180,18 +253,21 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer> {
         // Play button overlay when paused
         if (!_isPlaying)
           Center(
-            child: IconButton(
-              onPressed: _togglePlayPause,
-              icon: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.6),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.play_arrow,
-                  color: Colors.white,
-                  size: 48,
+            child: ScaleTransition(
+              scale: _playButtonAnimation,
+              child: GestureDetector(
+                onTap: _togglePlayPause,
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.6),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.play_arrow,
+                    color: Colors.white,
+                    size: 48,
+                  ),
                 ),
               ),
             ),
@@ -199,7 +275,11 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer> {
 
         // Controls overlay
         if (widget.showControls)
-          Positioned(left: 0, right: 0, bottom: 0, child: _buildControls()),
+          AnimatedOpacity(
+            opacity: _isControlsVisible ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 200),
+            child: Positioned(left: 0, right: 0, bottom: 0, child: _buildControls()),
+          ),
       ],
     );
   }
@@ -313,16 +393,8 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer> {
 
               const Spacer(),
 
-              // Mute
-              IconButton(
-                onPressed: _toggleMute,
-                icon: Icon(
-                  _isMuted ? Icons.volume_off : Icons.volume_up,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                visualDensity: VisualDensity.compact,
-              ),
+              // Volume control with popup
+              _buildVolumeControl(),
 
               // Fullscreen
               IconButton(
@@ -338,6 +410,55 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildVolumeControl() {
+    return PopupMenuButton<double>(
+      icon: Icon(
+        _isMuted || _volume == 0 
+            ? Icons.volume_off 
+            : _volume < 0.5 
+                ? Icons.volume_down 
+                : Icons.volume_up,
+        color: Colors.white,
+        size: 20,
+      ),
+      tooltip: 'Volume',
+      offset: const Offset(0, -100),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          enabled: false,
+          height: 120,
+          child: StatefulBuilder(
+            builder: (context, setInnerState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${(_volume * 100).toInt()}%',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  RotatedBox(
+                    quarterTurns: -1,
+                    child: SizedBox(
+                      width: 80,
+                      child: Slider(
+                        value: _volume,
+                        onChanged: (value) {
+                          setInnerState(() {});
+                          _setVolume(value);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+      onSelected: (_) {},
     );
   }
 

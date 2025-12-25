@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:kivixa/data/models/media_element.dart';
 import 'package:kivixa/services/media_service.dart';
 
@@ -12,9 +13,16 @@ typedef MediaElementCallback = void Function(MediaElement element);
 /// Features:
 /// - Corner/edge resize handles with aspect ratio lock option
 /// - Rotation handle at top with 15° snapping
+/// - Move handle (4-way arrow) for drag repositioning
 /// - Pan gesture for repositioning
 /// - Selection state with visual feedback
 /// - RepaintBoundary for performance isolation
+/// - Keyboard shortcuts (Shift for aspect ratio lock, Escape to deselect)
+///
+/// Performance optimizations:
+/// - RepaintBoundary isolates repaints
+/// - Debounced change callbacks
+/// - Efficient matrix transformations
 class InteractiveMediaWidget extends StatefulWidget {
   const InteractiveMediaWidget({
     super.key,
@@ -29,6 +37,7 @@ class InteractiveMediaWidget extends StatefulWidget {
     this.maxWidth = 2000,
     this.maxHeight = 2000,
     this.showRotationHandle = true,
+    this.showMoveHandle = true,
     this.rotationSnapAngle = 15.0,
     this.lockAspectRatio = false,
   });
@@ -66,6 +75,9 @@ class InteractiveMediaWidget extends StatefulWidget {
   /// Whether to show the rotation handle
   final bool showRotationHandle;
 
+  /// Whether to show the move handle (4-way arrow)
+  final bool showMoveHandle;
+
   /// Angle in degrees to snap rotation to
   final double rotationSnapAngle;
 
@@ -78,7 +90,11 @@ class InteractiveMediaWidget extends StatefulWidget {
 
 class _InteractiveMediaWidgetState extends State<InteractiveMediaWidget> {
   static const _handleSize = 12.0;
+  static const _moveHandleSize = 24.0;
   static const _rotationHandleOffset = 30.0;
+  
+  // Focus node for keyboard events
+  final _focusNode = FocusNode();
 
   // Local state for smooth interactions
   double _width = 200;
@@ -91,6 +107,7 @@ class _InteractiveMediaWidgetState extends State<InteractiveMediaWidget> {
   var _isDragging = false;
   var _isResizing = false;
   var _isRotating = false;
+  var _shiftPressed = false; // For aspect ratio lock
   _ResizeHandle? _activeHandle;
 
   // For rotation calculations
@@ -115,6 +132,13 @@ class _InteractiveMediaWidgetState extends State<InteractiveMediaWidget> {
     super.initState();
     _syncFromElement();
     _loadMedia();
+    _focusNode.addListener(_onFocusChanged);
+  }
+
+  void _onFocusChanged() {
+    if (!_focusNode.hasFocus && widget.isSelected) {
+      // Lost focus while selected - could trigger deselection
+    }
   }
 
   @override
@@ -123,6 +147,13 @@ class _InteractiveMediaWidgetState extends State<InteractiveMediaWidget> {
     if (oldWidget.element != widget.element) {
       _syncFromElement();
     }
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChanged);
+    _focusNode.dispose();
+    super.dispose();
   }
 
   void _syncFromElement() {
@@ -289,8 +320,8 @@ class _InteractiveMediaWidgetState extends State<InteractiveMediaWidget> {
         );
     }
 
-    // Lock aspect ratio if enabled
-    if (widget.lockAspectRatio && _initialWidth! > 0 && _initialHeight! > 0) {
+    // Lock aspect ratio if enabled OR shift is pressed
+    if ((widget.lockAspectRatio || _shiftPressed) && _initialWidth! > 0 && _initialHeight! > 0) {
       final aspectRatio = _initialWidth! / _initialHeight!;
       if (_activeHandle!.isCorner) {
         // For corner handles, maintain ratio based on larger change
@@ -372,70 +403,100 @@ class _InteractiveMediaWidgetState extends State<InteractiveMediaWidget> {
     final colorScheme = theme.colorScheme;
 
     return RepaintBoundary(
-      child: Transform.translate(
-        offset: Offset(_posX, _posY),
-        child: Transform.rotate(
-          angle: _rotation * math.pi / 180,
-          child: GestureDetector(
-            onTap: widget.onTap,
-            onDoubleTap: widget.onDoubleTap,
-            onPanStart: _onPanStart,
-            onPanUpdate: _onPanUpdate,
-            onPanEnd: _onPanEnd,
-            child: SizedBox(
-              width: _width + (widget.isSelected ? _handleSize * 2 : 0),
-              height:
-                  _height +
-                  (widget.isSelected ? _handleSize * 2 : 0) +
-                  (widget.isSelected && widget.showRotationHandle
-                      ? _rotationHandleOffset
-                      : 0),
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  // Main content
-                  Positioned(
-                    left: widget.isSelected ? _handleSize : 0,
-                    top: widget.isSelected && widget.showRotationHandle
-                        ? _handleSize + _rotationHandleOffset
-                        : (widget.isSelected ? _handleSize : 0),
-                    width: _width,
-                    height: _height,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        border: widget.isSelected
-                            ? Border.all(color: colorScheme.primary, width: 2)
-                            : null,
-                        boxShadow: _isDragging
-                            ? [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: _buildContent(),
+      child: KeyboardListener(
+        focusNode: _focusNode,
+        onKeyEvent: _handleKeyEvent,
+        child: Transform.translate(
+          offset: Offset(_posX, _posY),
+          child: Transform.rotate(
+            angle: _rotation * math.pi / 180,
+            child: GestureDetector(
+              onTap: () {
+                _focusNode.requestFocus();
+                widget.onTap?.call();
+              },
+              onDoubleTap: widget.onDoubleTap,
+              onPanStart: _onPanStart,
+              onPanUpdate: _onPanUpdate,
+              onPanEnd: _onPanEnd,
+              child: SizedBox(
+                width: _width + (widget.isSelected ? _handleSize * 2 : 0),
+                height:
+                    _height +
+                    (widget.isSelected ? _handleSize * 2 : 0) +
+                    (widget.isSelected && widget.showRotationHandle
+                        ? _rotationHandleOffset
+                        : 0),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    // Main content
+                    Positioned(
+                      left: widget.isSelected ? _handleSize : 0,
+                      top: widget.isSelected && widget.showRotationHandle
+                          ? _handleSize + _rotationHandleOffset
+                          : (widget.isSelected ? _handleSize : 0),
+                      width: _width,
+                      height: _height,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          border: widget.isSelected
+                              ? Border.all(color: colorScheme.primary, width: 2)
+                              : null,
+                          boxShadow: _isDragging
+                              ? [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: _buildContent(),
+                        ),
                       ),
                     ),
-                  ),
 
-                  // Selection handles
-                  if (widget.isSelected) ..._buildHandles(colorScheme),
+                    // Selection handles
+                    if (widget.isSelected) ..._buildHandles(colorScheme),
 
-                  // Rotation handle
-                  if (widget.isSelected && widget.showRotationHandle)
-                    _buildRotationHandle(colorScheme),
-                ],
+                    // Rotation handle
+                    if (widget.isSelected && widget.showRotationHandle)
+                      _buildRotationHandle(colorScheme),
+
+                    // Move handle (4-way arrow)
+                    if (widget.isSelected && widget.showMoveHandle)
+                      _buildMoveHandle(colorScheme),
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  void _handleKeyEvent(KeyEvent event) {
+    // Track shift key for aspect ratio lock
+    if (event is KeyDownEvent) {
+      if (event.logicalKey == LogicalKeyboardKey.shiftLeft ||
+          event.logicalKey == LogicalKeyboardKey.shiftRight) {
+        setState(() => _shiftPressed = true);
+      }
+      // Escape to deselect (parent handles this usually)
+      if (event.logicalKey == LogicalKeyboardKey.escape) {
+        widget.onTap?.call(); // Toggle selection off
+      }
+    } else if (event is KeyUpEvent) {
+      if (event.logicalKey == LogicalKeyboardKey.shiftLeft ||
+          event.logicalKey == LogicalKeyboardKey.shiftRight) {
+        setState(() => _shiftPressed = false);
+      }
+    }
   }
 
   Widget _buildContent() {
@@ -574,6 +635,62 @@ class _InteractiveMediaWidgetState extends State<InteractiveMediaWidget> {
         ],
       ),
     );
+  }
+
+  Widget _buildMoveHandle(ColorScheme colorScheme) {
+    final offsetTop = widget.showRotationHandle ? _rotationHandleOffset : 0.0;
+
+    return Positioned(
+      left: _width / 2 + _handleSize / 2 - _moveHandleSize / 2 + _handleSize / 2,
+      top: offsetTop + _handleSize + _height / 2 - _moveHandleSize / 2,
+      child: GestureDetector(
+        onPanStart: _onMoveHandleStart,
+        onPanUpdate: _onMoveHandleUpdate,
+        onPanEnd: _onMoveHandleEnd,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.move,
+          child: Container(
+            width: _moveHandleSize,
+            height: _moveHandleSize,
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer,
+              shape: BoxShape.circle,
+              border: Border.all(color: colorScheme.primary, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.open_with,
+              size: _moveHandleSize - 8,
+              color: colorScheme.onPrimaryContainer,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _onMoveHandleStart(DragStartDetails details) {
+    setState(() => _isDragging = true);
+  }
+
+  void _onMoveHandleUpdate(DragUpdateDetails details) {
+    if (!_isDragging) return;
+    setState(() {
+      _posX += details.delta.dx;
+      _posY += details.delta.dy;
+    });
+  }
+
+  void _onMoveHandleEnd(DragEndDetails details) {
+    if (!_isDragging) return;
+    setState(() => _isDragging = false);
+    _notifyChange();
   }
 }
 

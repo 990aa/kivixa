@@ -100,30 +100,41 @@ Kivixa features a powerful on-device AI engine powered by Microsoft's Phi-4 mode
 ### **Media Embedding**
 - **Image & Video Upload** - Embed media directly into markdown and text files
   - Upload from local storage or paste from web URLs
+  - Insert local absolute paths (`![Alt](C:\path\to\image.jpg)`)
   - Automatic file management with dedicated media storage
-  - Videos are fully playable within embedded player
+  - Videos are fully playable within embedded player with volume control
 - **Interactive Media Controls**
   - **Resize**: Drag corner/edge handles to adjust dimensions
   - **Rotate**: Rotate images with 15° snapping for precision
+  - **Move Handle**: 4-way arrow in center for precise repositioning
   - **Drag**: Reposition media anywhere within the document
-  - **Aspect Ratio Lock**: Optional constraint during resize
+  - **Aspect Ratio Lock**: Hold Shift while resizing to maintain proportions
+  - **Keyboard Support**: Escape to deselect, Shift for aspect lock
 - **Comment Annotations**
   - Add optional comments to any image or video
   - Hover to reveal (Windows) or tap icon (Android)
   - Edit and delete comments easily
+  - URL-encoded for special character support
 - **Web Image Modes** (configurable in Settings)
   - **Download Locally**: Cache images for offline access
   - **Fetch on Demand**: Load from web each time (saves storage)
+  - Cache management with size display and clear option
 - **Large Image Preview**
   - Scrollable preview for images > 2000px
   - Pan and zoom within a constrained container
   - Minimap showing visible region
   - Toggle between preview and full display modes
+  - Configurable preview container size (100-500px)
+- **Extended Markdown Syntax**
+  - `![alt|width=300,height=200,rotation=45,x=10,y=20](path)`
+  - All transforms persist in standard markdown files
+  - Compatible with other markdown viewers (shows default)
 - **Performance Optimized**
   - LRU caching for loaded images
   - Thumbnail generation for heavy media
   - Lazy loading via visibility detection
   - Isolated repaints with RepaintBoundary
+  - Auto-hide video controls during playback
 
 
 ### **Life Git (Version Control)**
