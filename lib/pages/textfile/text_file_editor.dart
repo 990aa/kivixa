@@ -791,7 +791,13 @@ class _TextFileEditorState extends State<TextFileEditor> {
   Future<void> _insertMedia() async {
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: FileType.media,
+        type: FileType.custom,
+        allowedExtensions: [
+          // Images
+          'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg',
+          // Videos
+          'mp4', 'mov', 'avi', 'mkv', 'webm', 'm4v', 'wmv', 'flv',
+        ],
         allowMultiple: false,
       );
 
