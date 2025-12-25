@@ -9,13 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kivixa/components/life_git/time_travel_slider.dart';
-import 'package:kivixa/components/media/interactive_media_widget.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/models/media_element.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:logging/logging.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Custom embed type for interactive images with metadata
@@ -109,7 +110,9 @@ class _LegacyImageEmbedBuilder extends EmbedBuilder {
   }
 }
 
-/// Stateful wrapper for interactive image embeds in Quill editor
+/// Inline media embed widget for Quill editor - truly inline with text flow.
+/// Unlike the floating InteractiveMediaWidget, this widget flows with text
+/// like Microsoft Word's inline images - no transforms or absolute positioning.
 class _InteractiveImageEmbed extends StatefulWidget {
   const _InteractiveImageEmbed({
     required this.element,
@@ -126,20 +129,65 @@ class _InteractiveImageEmbed extends StatefulWidget {
 class _InteractiveImageEmbedState extends State<_InteractiveImageEmbed> {
   late MediaElement _element;
   var _isSelected = false;
+  var _isResizing = false;
+
+  // For video playback
+  Player? _player;
+  VideoController? _videoController;
+  var _isVideoInitialized = false;
+
+  static const _handleSize = 10.0;
+  static const _minSize = 50.0;
+  static const _maxSize = 2000.0;
 
   @override
   void initState() {
     super.initState();
-    // Reset position to zero for inline embedding (no floating/overlapping)
-    _element = widget.element.copyWith(posX: 0, posY: 0);
+    _element = widget.element;
+    _initializeMedia();
   }
 
   @override
   void didUpdateWidget(_InteractiveImageEmbed oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.element.path != widget.element.path) {
-      _element = widget.element.copyWith(posX: 0, posY: 0);
+      _element = widget.element;
+      _disposeVideo();
+      _initializeMedia();
     }
+  }
+
+  void _initializeMedia() {
+    if (_element.mediaType == MediaType.video) {
+      _initializeVideo();
+    }
+  }
+
+  Future<void> _initializeVideo() async {
+    final file = File(_element.path);
+    if (!file.existsSync()) return;
+
+    _player = Player();
+    _videoController = VideoController(_player!);
+
+    await _player!.open(Media(file.path), play: false);
+
+    if (mounted) {
+      setState(() => _isVideoInitialized = true);
+    }
+  }
+
+  void _disposeVideo() {
+    _player?.dispose();
+    _player = null;
+    _videoController = null;
+    _isVideoInitialized = false;
+  }
+
+  @override
+  void dispose() {
+    _disposeVideo();
+    super.dispose();
   }
 
   void _handleTapOutside() {
@@ -148,28 +196,526 @@ class _InteractiveImageEmbedState extends State<_InteractiveImageEmbed> {
     }
   }
 
+  void _updateSize(double newWidth, double newHeight) {
+    final clampedWidth = newWidth.clamp(_minSize, _maxSize);
+    final clampedHeight = newHeight.clamp(_minSize, _maxSize);
+
+    setState(() {
+      _element = _element.copyWith(width: clampedWidth, height: clampedHeight);
+    });
+    widget.onChanged(_element);
+  }
+
+  void _openFullscreen() {
+    if (_element.mediaType == MediaType.video && _player != null) {
+      // Show fullscreen video dialog
+      showDialog(
+        context: context,
+        builder: (ctx) => _FullscreenVideoDialog(
+          player: _player!,
+          controller: _videoController!,
+        ),
+      );
+    } else {
+      // Show fullscreen image
+      showDialog(
+        context: context,
+        builder: (ctx) => _FullscreenImageDialog(path: _element.path),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return TapRegion(
       onTapOutside: (_) => _handleTapOutside(),
-      child: InteractiveMediaWidget(
-        element: _element,
-        isSelected: _isSelected,
-        // Disable move handle for inline embedding (images flow with text)
-        showMoveHandle: false,
-        onChanged: (newElement) {
-          // Reset position to keep image inline (no floating)
-          final inlineElement = newElement.copyWith(posX: 0, posY: 0);
-          setState(() => _element = inlineElement);
-          // Propagate change to document
-          widget.onChanged(inlineElement);
-        },
-        onTap: () {
-          setState(() => _isSelected = !_isSelected);
-        },
-        onDoubleTap: () {
-          // Could open preview mode
-        },
+      child: GestureDetector(
+        onTap: () => setState(() => _isSelected = !_isSelected),
+        onDoubleTap: _openFullscreen,
+        child: Container(
+          width: (_element.width ?? 200) + (_isSelected ? _handleSize * 2 : 0),
+          height:
+              (_element.height ?? 200) + (_isSelected ? _handleSize * 2 : 0),
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: Stack(
+            children: [
+              // Main content - positioned with padding when selected
+              Positioned(
+                left: _isSelected ? _handleSize : 0,
+                top: _isSelected ? _handleSize : 0,
+                width: _element.width ?? 200,
+                height: _element.height ?? 200,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: _isSelected
+                        ? Border.all(color: colorScheme.primary, width: 2)
+                        : null,
+                    borderRadius: BorderRadius.circular(4),
+                    boxShadow: _isResizing
+                        ? [
+                            BoxShadow(
+                              color: colorScheme.primary.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              spreadRadius: 2,
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: _buildMediaContent(),
+                  ),
+                ),
+              ),
+
+              // Resize handles when selected
+              if (_isSelected) ..._buildResizeHandles(colorScheme),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMediaContent() {
+    if (_element.mediaType == MediaType.video) {
+      return _buildVideoContent();
+    } else {
+      return _buildImageContent();
+    }
+  }
+
+  Widget _buildImageContent() {
+    final file = File(_element.path);
+
+    return Image.file(
+      file,
+      fit: BoxFit.cover,
+      width: _element.width ?? 200,
+      height: _element.height ?? 200,
+      errorBuilder: (context, error, stackTrace) {
+        return ColoredBox(
+          color: Colors.grey[300]!,
+          child: const Center(
+            child: Icon(Icons.broken_image, size: 48, color: Colors.grey),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildVideoContent() {
+    if (!_isVideoInitialized || _videoController == null) {
+      // Show thumbnail or loading state
+      return ColoredBox(
+        color: Colors.black,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Try to show a thumbnail from the video
+            FutureBuilder<Uint8List?>(
+              future: _getVideoThumbnail(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  return Image.memory(
+                    snapshot.data!,
+                    fit: BoxFit.cover,
+                    width: _element.width ?? 200,
+                    height: _element.height ?? 200,
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+            // Play button overlay
+            const DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.black45,
+                shape: BoxShape.circle,
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Icon(Icons.play_arrow, color: Colors.white, size: 48),
+              ),
+            ),
+            // Loading indicator
+            if (!_isVideoInitialized)
+              const Positioned(
+                bottom: 8,
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
+    // Show actual video player
+    return Stack(
+      children: [
+        Video(controller: _videoController!, fit: BoxFit.cover),
+        // Video controls overlay
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: _VideoControlsOverlay(player: _player!),
+        ),
+      ],
+    );
+  }
+
+  Future<Uint8List?> _getVideoThumbnail() async {
+    // For now, return null - could implement thumbnail extraction later
+    return null;
+  }
+
+  List<Widget> _buildResizeHandles(ColorScheme colorScheme) {
+    return [
+      // Top-left
+      _buildHandle(colorScheme, Alignment.topLeft, _ResizeDirection.topLeft),
+      // Top-right
+      _buildHandle(colorScheme, Alignment.topRight, _ResizeDirection.topRight),
+      // Bottom-left
+      _buildHandle(
+        colorScheme,
+        Alignment.bottomLeft,
+        _ResizeDirection.bottomLeft,
+      ),
+      // Bottom-right
+      _buildHandle(
+        colorScheme,
+        Alignment.bottomRight,
+        _ResizeDirection.bottomRight,
+      ),
+      // Top center
+      _buildHandle(colorScheme, Alignment.topCenter, _ResizeDirection.top),
+      // Bottom center
+      _buildHandle(
+        colorScheme,
+        Alignment.bottomCenter,
+        _ResizeDirection.bottom,
+      ),
+      // Left center
+      _buildHandle(colorScheme, Alignment.centerLeft, _ResizeDirection.left),
+      // Right center
+      _buildHandle(colorScheme, Alignment.centerRight, _ResizeDirection.right),
+    ];
+  }
+
+  Widget _buildHandle(
+    ColorScheme colorScheme,
+    Alignment alignment,
+    _ResizeDirection direction,
+  ) {
+    return Positioned.fill(
+      child: Align(
+        alignment: alignment,
+        child: GestureDetector(
+          onPanStart: (_) => setState(() => _isResizing = true),
+          onPanUpdate: (details) => _handleResize(details, direction),
+          onPanEnd: (_) => setState(() => _isResizing = false),
+          child: MouseRegion(
+            cursor: _getCursorForDirection(direction),
+            child: Container(
+              width: _handleSize,
+              height: _handleSize,
+              decoration: BoxDecoration(
+                color: colorScheme.primary,
+                border: Border.all(color: Colors.white, width: 1),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  MouseCursor _getCursorForDirection(_ResizeDirection direction) {
+    switch (direction) {
+      case _ResizeDirection.topLeft:
+      case _ResizeDirection.bottomRight:
+        return SystemMouseCursors.resizeUpLeftDownRight;
+      case _ResizeDirection.topRight:
+      case _ResizeDirection.bottomLeft:
+        return SystemMouseCursors.resizeUpRightDownLeft;
+      case _ResizeDirection.top:
+      case _ResizeDirection.bottom:
+        return SystemMouseCursors.resizeUpDown;
+      case _ResizeDirection.left:
+      case _ResizeDirection.right:
+        return SystemMouseCursors.resizeLeftRight;
+    }
+  }
+
+  void _handleResize(DragUpdateDetails details, _ResizeDirection direction) {
+    var newWidth = _element.width ?? 200.0;
+    var newHeight = _element.height ?? 200.0;
+
+    switch (direction) {
+      case _ResizeDirection.topLeft:
+        newWidth -= details.delta.dx;
+        newHeight -= details.delta.dy;
+      case _ResizeDirection.topRight:
+        newWidth += details.delta.dx;
+        newHeight -= details.delta.dy;
+      case _ResizeDirection.bottomLeft:
+        newWidth -= details.delta.dx;
+        newHeight += details.delta.dy;
+      case _ResizeDirection.bottomRight:
+        newWidth += details.delta.dx;
+        newHeight += details.delta.dy;
+      case _ResizeDirection.top:
+        newHeight -= details.delta.dy;
+      case _ResizeDirection.bottom:
+        newHeight += details.delta.dy;
+      case _ResizeDirection.left:
+        newWidth -= details.delta.dx;
+      case _ResizeDirection.right:
+        newWidth += details.delta.dx;
+    }
+
+    _updateSize(newWidth, newHeight);
+  }
+}
+
+enum _ResizeDirection {
+  topLeft,
+  topRight,
+  bottomLeft,
+  bottomRight,
+  top,
+  bottom,
+  left,
+  right,
+}
+
+/// Video controls overlay with play/pause, seek, and fullscreen
+class _VideoControlsOverlay extends StatefulWidget {
+  const _VideoControlsOverlay({required this.player});
+
+  final Player player;
+
+  @override
+  State<_VideoControlsOverlay> createState() => _VideoControlsOverlayState();
+}
+
+class _VideoControlsOverlayState extends State<_VideoControlsOverlay> {
+  var _isPlaying = false;
+  var _position = Duration.zero;
+  var _duration = Duration.zero;
+  var _isVisible = true;
+  Timer? _hideTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.player.stream.playing.listen((playing) {
+      if (mounted) setState(() => _isPlaying = playing);
+    });
+    widget.player.stream.position.listen((position) {
+      if (mounted) setState(() => _position = position);
+    });
+    widget.player.stream.duration.listen((duration) {
+      if (mounted) setState(() => _duration = duration);
+    });
+  }
+
+  void _showControls() {
+    setState(() => _isVisible = true);
+    _hideTimer?.cancel();
+    _hideTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted && _isPlaying) {
+        setState(() => _isVisible = false);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _hideTimer?.cancel();
+    super.dispose();
+  }
+
+  String _formatDuration(Duration d) {
+    final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => _showControls(),
+      onHover: (_) => _showControls(),
+      child: AnimatedOpacity(
+        opacity: _isVisible ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 200),
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.transparent, Colors.black54],
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Progress bar
+                SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    trackHeight: 2,
+                    thumbShape: const RoundSliderThumbShape(
+                      enabledThumbRadius: 6,
+                    ),
+                  ),
+                  child: Slider(
+                    value: _duration.inMilliseconds > 0
+                        ? _position.inMilliseconds / _duration.inMilliseconds
+                        : 0,
+                    onChanged: (value) {
+                      widget.player.seek(
+                        Duration(
+                          milliseconds: (value * _duration.inMilliseconds)
+                              .round(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Row(
+                  children: [
+                    // Play/Pause button
+                    IconButton(
+                      icon: Icon(
+                        _isPlaying ? Icons.pause : Icons.play_arrow,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        if (_isPlaying) {
+                          widget.player.pause();
+                        } else {
+                          widget.player.play();
+                        }
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
+                    ),
+                    // Time display
+                    Text(
+                      '${_formatDuration(_position)} / ${_formatDuration(_duration)}',
+                      style: const TextStyle(color: Colors.white, fontSize: 11),
+                    ),
+                    const Spacer(),
+                    // Volume
+                    IconButton(
+                      icon: const Icon(
+                        Icons.volume_up,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                      onPressed: () {
+                        // Could show volume slider
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Fullscreen video dialog
+class _FullscreenVideoDialog extends StatelessWidget {
+  const _FullscreenVideoDialog({
+    required this.player,
+    required this.controller,
+  });
+
+  final Player player;
+  final VideoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog.fullscreen(
+      backgroundColor: Colors.black,
+      child: Stack(
+        children: [
+          Center(
+            child: Video(controller: controller, fit: BoxFit.contain),
+          ),
+          // Close button
+          Positioned(
+            top: 16,
+            right: 16,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white, size: 32),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+          // Bottom controls
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: _VideoControlsOverlay(player: player),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Fullscreen image dialog
+class _FullscreenImageDialog extends StatelessWidget {
+  const _FullscreenImageDialog({required this.path});
+
+  final String path;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog.fullscreen(
+      backgroundColor: Colors.black,
+      child: Stack(
+        children: [
+          Center(
+            child: InteractiveViewer(
+              child: Image.file(File(path), fit: BoxFit.contain),
+            ),
+          ),
+          // Close button
+          Positioned(
+            top: 16,
+            right: 16,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white, size: 32),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
       ),
     );
   }
