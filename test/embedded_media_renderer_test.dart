@@ -1,4 +1,3 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/media/embedded_media_renderer.dart';
 import 'package:kivixa/data/models/media_element.dart';
@@ -14,7 +13,8 @@ void main() {
         expect(results[0].element.path, equals('image.png'));
         expect(results[0].element.altText, equals('Alt'));
         expect(results[0].startIndex, equals(10));
-        expect(results[0].endIndex, equals(28));
+        // endIndex is exclusive, matching Dart's substring behavior
+        expect(results[0].endIndex, equals(27));
       });
 
       test('parses extended markdown with dimensions', () {

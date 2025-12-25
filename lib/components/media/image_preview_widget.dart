@@ -56,9 +56,10 @@ class _ImagePreviewWidgetState extends State<ImagePreviewWidget> {
         widget.element.scrollOffsetY != 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _transformationController.value = Matrix4.identity()
-          ..translate(
+          ..setTranslationRaw(
             -widget.element.scrollOffsetX,
             -widget.element.scrollOffsetY,
+            0,
           );
       });
     }

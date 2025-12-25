@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kivixa/components/settings/settings_dropdown.dart';
 import 'package:kivixa/components/settings/settings_subtitle.dart';
 import 'package:kivixa/components/settings/settings_switch.dart';
+import 'package:kivixa/components/theming/adaptive_toggle_buttons.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/media_service.dart';
 
@@ -43,9 +43,9 @@ class _MediaSettingsWidgetState extends State<MediaSettingsWidget> {
         _webCacheSize = 0;
         _isClearing = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Web image cache cleared')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Web image cache cleared')));
     }
   }
 
@@ -66,50 +66,49 @@ class _MediaSettingsWidgetState extends State<MediaSettingsWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SettingsSubtitle(title: 'Media Settings'),
+        const SettingsSubtitle(subtitle: 'Media Settings'),
 
-        // Web image mode
-        SettingsDropdown<int>(
-          title: 'Web Image Mode',
-          subtitle: 'How to handle images from web URLs',
-          value: stows.webImageMode.value,
-          items: const [
-            DropdownMenuItem(
-              value: 0,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Download Locally'),
-                  Text(
-                    'Cache images for offline access',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
+        // Web image mode - using custom implementation since SettingsDropdown expects Stow
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              Icon(
+                Icons.cloud_download,
+                size: 24,
+                color: colorScheme.onSurfaceVariant,
               ),
-            ),
-            DropdownMenuItem(
-              value: 1,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Fetch on Demand'),
-                  Text(
-                    'Load from web each time (saves storage)',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Web Image Mode', style: theme.textTheme.bodyLarge),
+                    Text(
+                      'How to handle images from web URLs',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-          onChanged: (value) {
-            if (value != null) {
-              setState(() {
-                stows.webImageMode.value = value;
-              });
-            }
-          },
+              AdaptiveToggleButtons<int>(
+                value: stows.webImageMode.value,
+                options: const [
+                  ToggleButtonsOption(0, Text('Local')),
+                  ToggleButtonsOption(1, Text('Web')),
+                ],
+                onChange: (value) {
+                  if (value != null) {
+                    setState(() {
+                      stows.webImageMode.value = value;
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
         ),
 
         // Web cache info and clear button
@@ -127,10 +126,7 @@ class _MediaSettingsWidgetState extends State<MediaSettingsWidget> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Web Image Cache',
-                      style: theme.textTheme.bodyMedium,
-                    ),
+                    Text('Web Image Cache', style: theme.textTheme.bodyMedium),
                     Text(
                       _formatSize(_webCacheSize),
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -166,12 +162,7 @@ class _MediaSettingsWidgetState extends State<MediaSettingsWidget> {
         SettingsSwitch(
           title: 'Delete Media with Notes',
           subtitle: 'Remove uploaded media files when their note is deleted',
-          value: stows.deleteMediaWithNote.value,
-          onChanged: (value) {
-            setState(() {
-              stows.deleteMediaWithNote.value = value;
-            });
-          },
+          pref: stows.deleteMediaWithNote,
         ),
 
         const Divider(),

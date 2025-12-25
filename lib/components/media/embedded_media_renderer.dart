@@ -1,15 +1,13 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'dart:async';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 import 'package:kivixa/components/media/image_preview_widget.dart';
 import 'package:kivixa/components/media/interactive_media_widget.dart';
 import 'package:kivixa/components/media/media_comment_overlay.dart';
 import 'package:kivixa/components/media/media_video_player.dart';
 import 'package:kivixa/data/models/media_element.dart';
-import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/media_service.dart';
 
 /// Callback when media element properties change
@@ -74,6 +72,7 @@ class _EmbeddedMediaRendererState extends State<EmbeddedMediaRenderer>
 
   // Animation for selection highlight
   late AnimationController _selectionController;
+  // ignore: unused_field - may be used for selection highlight animation in future
   late Animation<double> _selectionAnimation;
 
   @override
@@ -147,7 +146,7 @@ class _EmbeddedMediaRendererState extends State<EmbeddedMediaRenderer>
 
   Future<Size?> _getImageSize(Uint8List bytes) async {
     try {
-      final codec = await PaintingBinding.instance.instantiateImageCodec(bytes);
+      final codec = await ui.instantiateImageCodec(bytes);
       final frame = await codec.getNextFrame();
       final size = Size(
         frame.image.width.toDouble(),
@@ -177,13 +176,10 @@ class _EmbeddedMediaRendererState extends State<EmbeddedMediaRenderer>
   void _handleDoubleTap() {
     // Toggle preview mode for large images
     if (widget.element.isImage && _naturalSize != null) {
-      final isLarge =
-          _naturalSize!.width > 2000 || _naturalSize!.height > 2000;
+      final isLarge = _naturalSize!.width > 2000 || _naturalSize!.height > 2000;
       if (isLarge) {
         widget.onChanged(
-          widget.element.copyWith(
-            isPreviewMode: !widget.element.isPreviewMode,
-          ),
+          widget.element.copyWith(isPreviewMode: !widget.element.isPreviewMode),
         );
       }
     }
@@ -224,19 +220,11 @@ class _EmbeddedMediaRendererState extends State<EmbeddedMediaRenderer>
 
               // Control overlay (shown on hover or selection)
               if (widget.showControls && (_isHovering || _isSelected))
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: _buildControlOverlay(),
-                ),
+                Positioned(top: 8, right: 8, child: _buildControlOverlay()),
 
               // Move handle (4-way arrow) when selected
               if (_isSelected && widget.isEditable)
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: _buildMoveHandle(),
-                ),
+                Positioned(top: 8, left: 8, child: _buildMoveHandle()),
             ],
           ),
         ),
@@ -278,9 +266,7 @@ class _EmbeddedMediaRendererState extends State<EmbeddedMediaRenderer>
         color: Colors.grey[200],
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const Center(
-        child: CircularProgressIndicator(),
-      ),
+      child: const Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -464,11 +450,7 @@ class _EmbeddedMediaRendererState extends State<EmbeddedMediaRenderer>
         color: colorScheme.primary,
         borderRadius: BorderRadius.circular(4),
       ),
-      child: const Icon(
-        Icons.open_with,
-        size: 20,
-        color: Colors.white,
-      ),
+      child: const Icon(Icons.open_with, size: 20, color: Colors.white),
     );
   }
 
@@ -491,19 +473,21 @@ class MediaContentParser {
   /// Parse all media elements from markdown content
   static List<MediaParseResult> parseMarkdown(String content) {
     final results = <MediaParseResult>[];
-    
+
     for (final match in _mediaRegex.allMatches(content)) {
       final element = MediaElement.fromMarkdownSyntax(match.group(0)!);
       if (element != null) {
-        results.add(MediaParseResult(
-          element: element,
-          startIndex: match.start,
-          endIndex: match.end,
-          originalText: match.group(0)!,
-        ));
+        results.add(
+          MediaParseResult(
+            element: element,
+            startIndex: match.start,
+            endIndex: match.end,
+            originalText: match.group(0)!,
+          ),
+        );
       }
     }
-    
+
     return results;
   }
 
@@ -543,41 +527,41 @@ class MediaContentParser {
   /// Matches common path patterns like C:\..., /home/..., ~/...
   static List<String> extractLocalPaths(String content) {
     final paths = <String>[];
-    
+
     // Windows absolute paths: C:\... or D:\...
     final windowsPathRegex = RegExp(r'[A-Za-z]:\\[^\s<>"|\*\?]+');
     for (final match in windowsPathRegex.allMatches(content)) {
       paths.add(match.group(0)!);
     }
-    
+
     // Unix absolute paths: /home/... or /usr/...
     final unixPathRegex = RegExp(r'/(?:[^\s<>"|\*\?]+)');
     for (final match in unixPathRegex.allMatches(content)) {
       final path = match.group(0)!;
       // Filter out URLs by checking for common URL patterns
-      if (!path.startsWith('//') && 
+      if (!path.startsWith('//') &&
           !content.substring(0, match.start).endsWith('http:') &&
           !content.substring(0, match.start).endsWith('https:')) {
         paths.add(path);
       }
     }
-    
+
     return paths.where(_isMediaFile).toList();
   }
 
   /// Extract web URLs for images from content
   static List<String> extractWebImageUrls(String content) {
     final urls = <String>[];
-    
+
     final urlRegex = RegExp(
       r'https?://[^\s<>"]+\.(?:png|jpg|jpeg|gif|webp|bmp|svg)',
       caseSensitive: false,
     );
-    
+
     for (final match in urlRegex.allMatches(content)) {
       urls.add(match.group(0)!);
     }
-    
+
     return urls;
   }
 

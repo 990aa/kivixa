@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:kivixa/components/media/embedded_media_renderer.dart';
 import 'package:kivixa/data/models/media_element.dart';
 
-/// A builder widget that renders interactive media elements in markdown content.
+/// Builder widget for embedding media in markdown content.
 ///
 /// This widget handles:
 /// - Parsing extended markdown syntax for media
@@ -246,8 +246,8 @@ class _MediaUrlWidgetState extends State<MediaUrlWidget> {
   }
 
   void _initElement() {
-    final isWeb = widget.url.startsWith('http://') ||
-        widget.url.startsWith('https://');
+    final isWeb =
+        widget.url.startsWith('http://') || widget.url.startsWith('https://');
     final mediaType = _getMediaType(widget.url);
 
     _element = MediaElement(
@@ -349,10 +349,7 @@ class _MediaDocumentManagerState extends State<MediaDocumentManager> {
   }
 
   void _handleMediaDeleted(MediaParseResult result) {
-    final newContent = MediaContentParser.deleteElement(
-      widget.content,
-      result,
-    );
+    final newContent = MediaContentParser.deleteElement(widget.content, result);
     widget.onContentChanged(newContent);
   }
 
@@ -365,7 +362,10 @@ class _MediaDocumentManagerState extends State<MediaDocumentManager> {
     for (final result in _mediaElements) {
       // Add text before this media element
       if (result.startIndex > lastEnd) {
-        final textContent = widget.content.substring(lastEnd, result.startIndex);
+        final textContent = widget.content.substring(
+          lastEnd,
+          result.startIndex,
+        );
         widgets.add(widget.childBuilder(context, textContent));
       }
 

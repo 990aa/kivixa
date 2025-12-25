@@ -42,9 +42,9 @@ class MediaService {
   /// Initialize the media service directories
   Future<void> init() async {
     final appDir = await getApplicationDocumentsDirectory();
-    _mediaDir = Directory('${appDir.path}/kivixa_assets/media');
-    _thumbnailDir = Directory('${appDir.path}/kivixa_assets/thumbnails');
-    _webCacheDir = Directory('${appDir.path}/kivixa_assets/web_cache');
+    _mediaDir = Directory('${appDir.path}/kivixa/assets/media');
+    _thumbnailDir = Directory('${appDir.path}/kivixa/assets/thumbnails');
+    _webCacheDir = Directory('${appDir.path}/kivixa/assets/web_cache');
 
     await _mediaDir!.create(recursive: true);
     await _thumbnailDir!.create(recursive: true);

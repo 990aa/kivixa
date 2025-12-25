@@ -1,6 +1,4 @@
-
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:kivixa/data/models/media_element.dart';
@@ -55,7 +53,7 @@ class MediaVideoPlayer extends StatefulWidget {
   State<MediaVideoPlayer> createState() => _MediaVideoPlayerState();
 }
 
-class _MediaVideoPlayerState extends State<MediaVideoPlayer> 
+class _MediaVideoPlayerState extends State<MediaVideoPlayer>
     with SingleTickerProviderStateMixin {
   var _isVisible = false;
   var _isInitialized = false;
@@ -65,12 +63,12 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer>
   var _hasError = false;
   var _isControlsVisible = true;
   Duration _position = Duration.zero;
-  var _duration = const Duration(seconds: 30); // Default duration for preview
+  final _duration = const Duration(seconds: 30); // Default duration for preview
   var _volume = 1.0;
-  
+
   // Timer for auto-hiding controls
   Timer? _controlsTimer;
-  
+
   // Animation controller for play button
   late AnimationController _playButtonController;
   late Animation<double> _playButtonAnimation;
@@ -140,7 +138,9 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer>
   }
 
   void _togglePlayPause() {
-    _playButtonController.forward().then((_) => _playButtonController.reverse());
+    _playButtonController.forward().then(
+      (_) => _playButtonController.reverse(),
+    );
     if (_isPlaying) {
       _pause();
     } else {
@@ -148,6 +148,7 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer>
     }
   }
 
+  // ignore: unused_element - may be used in future for quick mute toggle
   void _toggleMute() {
     setState(() => _isMuted = !_isMuted);
   }
@@ -278,7 +279,12 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer>
           AnimatedOpacity(
             opacity: _isControlsVisible ? 1.0 : 0.0,
             duration: const Duration(milliseconds: 200),
-            child: Positioned(left: 0, right: 0, bottom: 0, child: _buildControls()),
+            child: Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _buildControls(),
+            ),
           ),
       ],
     );
@@ -416,11 +422,11 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer>
   Widget _buildVolumeControl() {
     return PopupMenuButton<double>(
       icon: Icon(
-        _isMuted || _volume == 0 
-            ? Icons.volume_off 
-            : _volume < 0.5 
-                ? Icons.volume_down 
-                : Icons.volume_up,
+        _isMuted || _volume == 0
+            ? Icons.volume_off
+            : _volume < 0.5
+            ? Icons.volume_down
+            : Icons.volume_up,
         color: Colors.white,
         size: 20,
       ),
@@ -460,11 +466,5 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer>
       ],
       onSelected: (_) {},
     );
-  }
-
-  @override
-  void dispose() {
-    // Clean up video player resources
-    super.dispose();
   }
 }
