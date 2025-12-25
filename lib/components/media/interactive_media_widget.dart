@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kivixa/components/media/media_video_player.dart';
 import 'package:kivixa/data/models/media_element.dart';
 import 'package:kivixa/services/media_service.dart';
 
@@ -92,7 +93,7 @@ class _InteractiveMediaWidgetState extends State<InteractiveMediaWidget> {
   static const _handleSize = 12.0;
   static const _moveHandleSize = 24.0;
   static const _rotationHandleOffset = 30.0;
-  
+
   // Focus node for keyboard events
   final _focusNode = FocusNode();
 
@@ -174,8 +175,16 @@ class _InteractiveMediaWidgetState extends State<InteractiveMediaWidget> {
     }
 
     if (widget.element.isVideo) {
-      // Video will be handled by MediaVideoPlayer
-      setState(() => _isLoading = false);
+      // Build video player widget
+      setState(() {
+        _loadedChild = MediaVideoPlayer(
+          element: widget.element,
+          onChanged: widget.onChanged,
+          autoPlay: false,
+          showControls: true,
+        );
+        _isLoading = false;
+      });
       return;
     }
 
@@ -321,7 +330,9 @@ class _InteractiveMediaWidgetState extends State<InteractiveMediaWidget> {
     }
 
     // Lock aspect ratio if enabled OR shift is pressed
-    if ((widget.lockAspectRatio || _shiftPressed) && _initialWidth! > 0 && _initialHeight! > 0) {
+    if ((widget.lockAspectRatio || _shiftPressed) &&
+        _initialWidth! > 0 &&
+        _initialHeight! > 0) {
       final aspectRatio = _initialWidth! / _initialHeight!;
       if (_activeHandle!.isCorner) {
         // For corner handles, maintain ratio based on larger change
@@ -354,7 +365,12 @@ class _InteractiveMediaWidgetState extends State<InteractiveMediaWidget> {
     final box = context.findRenderObject() as RenderBox?;
     if (box == null) return;
 
-    final center = box.localToGlobal(Offset(_width / 2, _height / 2));
+    // Calculate the actual center of the content (accounting for handle padding)
+    final offsetTop = widget.showRotationHandle ? _rotationHandleOffset : 0.0;
+    final contentCenterX = _handleSize + _width / 2;
+    final contentCenterY = _handleSize + offsetTop + _height / 2;
+
+    final center = box.localToGlobal(Offset(contentCenterX, contentCenterY));
     _rotationCenter = center;
     _initialRotation = _rotation;
 
@@ -551,34 +567,50 @@ class _InteractiveMediaWidgetState extends State<InteractiveMediaWidget> {
   }
 
   double _getHandleLeft(_ResizeHandle handle) {
+    // Handles are positioned relative to the Stack
+    // Content starts at _handleSize and has width _width
+    // So handle positions:
+    // - Left edge handles: centered on left edge of content = _handleSize - _handleSize/2
+    // - Center handles: centered on content = _handleSize + _width/2 - _handleSize/2
+    // - Right edge handles: centered on right edge = _handleSize + _width - _handleSize/2
     switch (handle) {
       case _ResizeHandle.topLeft:
       case _ResizeHandle.left:
       case _ResizeHandle.bottomLeft:
-        return 0;
+        return _handleSize / 2; // Center handle on left edge of content
       case _ResizeHandle.top:
       case _ResizeHandle.bottom:
-        return _width / 2 + _handleSize / 2;
+        return _handleSize +
+            _width / 2 -
+            _handleSize / 2; // Center handle on content
       case _ResizeHandle.topRight:
       case _ResizeHandle.right:
       case _ResizeHandle.bottomRight:
-        return _width + _handleSize;
+        return _handleSize +
+            _width -
+            _handleSize / 2; // Center handle on right edge
     }
   }
 
   double _getHandleTop(_ResizeHandle handle) {
+    // Similar logic for vertical positioning
+    // Content starts at _handleSize (+ _rotationHandleOffset if rotation handle shown)
     switch (handle) {
       case _ResizeHandle.topLeft:
       case _ResizeHandle.top:
       case _ResizeHandle.topRight:
-        return 0;
+        return _handleSize / 2; // Center handle on top edge of content
       case _ResizeHandle.left:
       case _ResizeHandle.right:
-        return _height / 2 + _handleSize / 2;
+        return _handleSize +
+            _height / 2 -
+            _handleSize / 2; // Center handle on content
       case _ResizeHandle.bottomLeft:
       case _ResizeHandle.bottom:
       case _ResizeHandle.bottomRight:
-        return _height + _handleSize;
+        return _handleSize +
+            _height -
+            _handleSize / 2; // Center handle on bottom edge
     }
   }
 
@@ -600,8 +632,9 @@ class _InteractiveMediaWidgetState extends State<InteractiveMediaWidget> {
   }
 
   Widget _buildRotationHandle(ColorScheme colorScheme) {
+    // Position rotation handle centered above the content
     return Positioned(
-      left: _width / 2 + _handleSize / 2,
+      left: _handleSize + _width / 2 - _handleSize / 2,
       top: 0,
       child: Column(
         children: [
@@ -640,8 +673,9 @@ class _InteractiveMediaWidgetState extends State<InteractiveMediaWidget> {
   Widget _buildMoveHandle(ColorScheme colorScheme) {
     final offsetTop = widget.showRotationHandle ? _rotationHandleOffset : 0.0;
 
+    // Center move handle on the content
     return Positioned(
-      left: _width / 2 + _handleSize / 2 - _moveHandleSize / 2 + _handleSize / 2,
+      left: _handleSize + _width / 2 - _moveHandleSize / 2,
       top: offsetTop + _handleSize + _height / 2 - _moveHandleSize / 2,
       child: GestureDetector(
         onPanStart: _onMoveHandleStart,

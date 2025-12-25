@@ -18,8 +18,72 @@ import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 
+/// Custom embed type for interactive images with metadata
+const kInteractiveImageType = 'interactive-image';
+
 /// Custom image embed builder for QuillEditor that handles local file images
+/// with persistent metadata (size, rotation, position)
 class _ImageEmbedBuilder extends EmbedBuilder {
+  _ImageEmbedBuilder({required this.onMediaChanged});
+
+  /// Callback when media properties change - triggers document update
+  final void Function(int index, MediaElement element) onMediaChanged;
+
+  @override
+  String get key => kInteractiveImageType;
+
+  @override
+  bool get expanded => false;
+
+  @override
+  Widget build(BuildContext context, EmbedContext embedContext) {
+    final node = embedContext.node;
+    final value = node.value;
+
+    // Parse MediaElement from node data (should be JSON string or Map)
+    MediaElement element;
+    if (value.data is String) {
+      final dataStr = value.data as String;
+      // Check if it's a JSON string (starts with {)
+      if (dataStr.startsWith('{')) {
+        try {
+          element = MediaElement.fromJsonString(dataStr);
+        } catch (e) {
+          // Not valid JSON, treat as simple path
+          element = MediaElement(path: dataStr, mediaType: MediaType.image);
+        }
+      } else {
+        // Simple path string
+        element = MediaElement(path: dataStr, mediaType: MediaType.image);
+      }
+    } else if (value.data is Map) {
+      try {
+        final map = Map<String, dynamic>.from(value.data as Map);
+        element = MediaElement.fromJson(map);
+      } catch (e) {
+        return const SizedBox.shrink();
+      }
+    } else {
+      return const SizedBox.shrink();
+    }
+
+    // Use a stateful widget wrapper to handle selection and interactions
+    return _InteractiveImageEmbed(
+      element: element,
+      onChanged: (newElement) {
+        // Update the document with new metadata
+        onMediaChanged(node.documentOffset, newElement);
+      },
+    );
+  }
+}
+
+/// Legacy image embed builder for standard BlockEmbed.image type
+class _LegacyImageEmbedBuilder extends EmbedBuilder {
+  _LegacyImageEmbedBuilder({required this.onMediaChanged});
+
+  final void Function(int index, MediaElement element) onMediaChanged;
+
   @override
   String get key => BlockEmbed.imageType;
 
@@ -31,76 +95,82 @@ class _ImageEmbedBuilder extends EmbedBuilder {
     final node = embedContext.node;
     final value = node.value;
 
-    // Parse MediaElement from node data
-    // Data can be a simple URL string or a JSON map with metadata
-    MediaElement element;
-    if (value.data is String) {
-      final url = value.data as String;
-      // Check if it's our extended markdown format (though unlikely for Quill)
-      if (url.startsWith('![')) {
-        element =
-            MediaElement.fromMarkdownSyntax(url) ??
-            MediaElement(path: url, mediaType: MediaType.image);
-      } else {
-        element = MediaElement(path: url, mediaType: MediaType.image);
-      }
-    } else if (value.data is Map) {
-      // Handle Map data if we transition to structured embeds
-      try {
-        final map = value.data as Map<String, dynamic>;
-        // Map keys from Quill might differ, but let's assume standard structure or standard path
-        if (map.containsKey('path')) {
-          // Create from JSON if it matches our structure
-          // We might need a factory constructor in MediaElement for this map
-          // For now, construct manually or fallback
-          element = MediaElement(
-            path: map['path'],
-            mediaType: MediaType.image,
-            width: map['width']?.toDouble(),
-            height: map['height']?.toDouble(),
-            rotation: map['rotation']?.toDouble() ?? 0,
-            posX: map['x']?.toDouble() ?? 0,
-            posY: map['y']?.toDouble() ?? 0,
-          );
-        } else {
-          // Fallback for unknown map structure
-          return const SizedBox.shrink();
-        }
-      } catch (e) {
-        return const SizedBox.shrink();
-      }
-    } else {
-      return const SizedBox.shrink();
-    }
+    if (value.data is! String) return const SizedBox.shrink();
 
-    return InteractiveMediaWidget(
+    final path = value.data as String;
+    final element = MediaElement(path: path, mediaType: MediaType.image);
+
+    return _InteractiveImageEmbed(
       element: element,
-      isSelected:
-          false, // Quill selection handling is complex, defaulting to false for now
-      // To enable selection, we'd need to track if this node is selected in the editor
       onChanged: (newElement) {
-        // Update the embed with new data
-        // For simple usage, we might only be able to update if we switch to Map data
-        // OR we can serialize back to a special string format if Quill supports it
-        // BUT Quill's BlockEmbed.image(String) expects a URL.
-
-        // Strategy: We will use a custom block embed type 'interactive-image' in the future regarding full persistence.
-        // For now, to satisfy "resize/move", we'll just update local state if persistence isn't required
-        // OR try to encode metadata into the URL/String if possible.
-
-        // NOTE: Without changing the document structure to support custom embeds,
-        // we can't easily persist the resize/rotate back to the QuillController's document
-        // in a way that standard delta format (string image) preserves.
-
-        // However, we can try to wrap the interactive widget and let it handle its own state
-        // until the document is saved. But saving would lose state if not written back.
-
-        // Given the constraints and the user request, we will enable the interaction
-        // but note that persistence might require `flutter_quill` delta modification.
+        onMediaChanged(node.documentOffset, newElement);
       },
-      onTap: () {
-        // Handle selection logic potentially
-      },
+    );
+  }
+}
+
+/// Stateful wrapper for interactive image embeds in Quill editor
+class _InteractiveImageEmbed extends StatefulWidget {
+  const _InteractiveImageEmbed({
+    required this.element,
+    required this.onChanged,
+  });
+
+  final MediaElement element;
+  final void Function(MediaElement) onChanged;
+
+  @override
+  State<_InteractiveImageEmbed> createState() => _InteractiveImageEmbedState();
+}
+
+class _InteractiveImageEmbedState extends State<_InteractiveImageEmbed> {
+  late MediaElement _element;
+  var _isSelected = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Reset position to zero for inline embedding (no floating/overlapping)
+    _element = widget.element.copyWith(posX: 0, posY: 0);
+  }
+
+  @override
+  void didUpdateWidget(_InteractiveImageEmbed oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.element.path != widget.element.path) {
+      _element = widget.element.copyWith(posX: 0, posY: 0);
+    }
+  }
+
+  void _handleTapOutside() {
+    if (_isSelected) {
+      setState(() => _isSelected = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TapRegion(
+      onTapOutside: (_) => _handleTapOutside(),
+      child: InteractiveMediaWidget(
+        element: _element,
+        isSelected: _isSelected,
+        // Disable move handle for inline embedding (images flow with text)
+        showMoveHandle: false,
+        onChanged: (newElement) {
+          // Reset position to keep image inline (no floating)
+          final inlineElement = newElement.copyWith(posX: 0, posY: 0);
+          setState(() => _element = inlineElement);
+          // Propagate change to document
+          widget.onChanged(inlineElement);
+        },
+        onTap: () {
+          setState(() => _isSelected = !_isSelected);
+        },
+        onDoubleTap: () {
+          // Could open preview mode
+        },
+      ),
     );
   }
 }
@@ -241,6 +311,18 @@ class _TextFileEditorState extends State<TextFileEditor> {
     _autosaveTimer = Timer(const Duration(seconds: 2), () {
       _saveFile();
     });
+  }
+
+  /// Update a media embed in the document with new metadata
+  void _updateMediaEmbed(int index, MediaElement element) {
+    // Delete the old embed and insert a new one with updated data
+    _controller.document.delete(index, 1);
+    final embed = BlockEmbed.custom(
+      CustomBlockEmbed(kInteractiveImageType, element.toJsonString()),
+    );
+    _controller.document.insert(index, embed);
+    // Trigger autosave
+    _onDocumentChanged();
   }
 
   Future<void> _renameFile() async {
@@ -706,10 +788,10 @@ class _TextFileEditorState extends State<TextFileEditor> {
     );
   }
 
-  Future<void> _insertImage() async {
+  Future<void> _insertMedia() async {
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
+        type: FileType.media,
         allowMultiple: false,
       );
 
@@ -718,9 +800,9 @@ class _TextFileEditorState extends State<TextFileEditor> {
       final filePath = result.files.single.path;
       if (filePath == null) return;
 
-      // Copy image to app's assets directory
+      // Copy media to app's assets directory
       final appDir = await getApplicationDocumentsDirectory();
-      final assetsDir = Directory('${appDir.path}/kivixa_assets');
+      final assetsDir = Directory('${appDir.path}/kivixa/assets/media');
       if (!assetsDir.existsSync()) {
         assetsDir.createSync(recursive: true);
       }
@@ -730,19 +812,38 @@ class _TextFileEditorState extends State<TextFileEditor> {
       final newPath = '${assetsDir.path}/$fileName';
       await File(filePath).copy(newPath);
 
-      // Insert image embed into document
+      // Determine media type from extension
+      final ext = fileName.toLowerCase();
+      final isVideo =
+          ext.endsWith('.mp4') ||
+          ext.endsWith('.mov') ||
+          ext.endsWith('.avi') ||
+          ext.endsWith('.mkv') ||
+          ext.endsWith('.webm');
+
+      // Create MediaElement with default size
+      final element = MediaElement(
+        path: newPath,
+        mediaType: isVideo ? MediaType.video : MediaType.image,
+        sourceType: MediaSourceType.local,
+      );
+
+      // Insert custom media embed with metadata into document
       final index = _controller.selection.baseOffset;
-      _controller.document.insert(index, BlockEmbed.image(newPath));
+      final embed = BlockEmbed.custom(
+        CustomBlockEmbed(kInteractiveImageType, element.toJsonString()),
+      );
+      _controller.document.insert(index, embed);
       _controller.updateSelection(
         TextSelection.collapsed(offset: index + 1),
         ChangeSource.local,
       );
     } catch (e) {
-      log.severe('Error inserting image', e);
+      log.severe('Error inserting media', e);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error inserting image: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error inserting media: $e')));
       }
     }
   }
@@ -859,9 +960,9 @@ class _TextFileEditorState extends State<TextFileEditor> {
         actions: [
           if (!_isTimeTraveling) ...[
             IconButton(
-              icon: const Icon(Icons.image),
-              tooltip: 'Insert Image',
-              onPressed: _insertImage,
+              icon: const Icon(Icons.perm_media),
+              tooltip: 'Insert Media',
+              onPressed: _insertMedia,
             ),
             IconButton(
               icon: const Icon(Icons.table_chart),
@@ -941,7 +1042,12 @@ class _TextFileEditorState extends State<TextFileEditor> {
                     padding: const EdgeInsets.all(16),
                     autoFocus: false,
                     expands: true,
-                    embedBuilders: [_ImageEmbedBuilder()],
+                    embedBuilders: [
+                      _ImageEmbedBuilder(onMediaChanged: _updateMediaEmbed),
+                      _LegacyImageEmbedBuilder(
+                        onMediaChanged: _updateMediaEmbed,
+                      ),
+                    ],
                     customStyles: DefaultStyles(
                       paragraph: DefaultTextBlockStyle(
                         TextStyle(

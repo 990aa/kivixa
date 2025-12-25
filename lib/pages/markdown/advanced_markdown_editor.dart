@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:code_text_field/code_text_field.dart';
@@ -11,7 +10,9 @@ import 'package:flutter_smooth_markdown/flutter_smooth_markdown.dart';
 import 'package:go_router/go_router.dart';
 import 'package:highlight/languages/markdown.dart';
 import 'package:kivixa/components/life_git/time_travel_slider.dart';
+import 'package:kivixa/components/media/media_video_player.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
+import 'package:kivixa/data/models/media_element.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/services/life_git/life_git.dart';
@@ -441,8 +442,23 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     final controller = _codeController;
     if (controller == null) return;
 
+    // For dialogs that don't need a valid selection, handle them first
+    switch (type) {
+      case _FormatType.link:
+        _showLinkDialog();
+        return;
+      case _FormatType.image:
+        _showImageDialog();
+        return;
+      case _FormatType.video:
+        _showVideoDialog();
+        return;
+      default:
+        break;
+    }
+
     final selection = controller.selection;
-    // Guard against invalid selection
+    // Guard against invalid selection for formatting operations
     if (!selection.isValid || selection.start < 0) return;
 
     final text = controller.text;
@@ -476,14 +492,11 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
         newStart = start + 2;
         newEnd = end + 2;
       case _FormatType.link:
-        _showLinkDialog();
-        return;
+        return; // Already handled above
       case _FormatType.image:
-        _showImageDialog();
-        return;
+        return; // Already handled above
       case _FormatType.video:
-        _showVideoDialog();
-        return;
+        return; // Already handled above
       case _FormatType.bulletList:
         final lines = selectedText.split('\n');
         newText = lines.map((l) => '- $l').join('\n');
@@ -597,8 +610,13 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
               final mdLink = '[$linkText]($url)';
 
               final text = controller.text;
-              final start = selection.start;
-              final end = selection.end;
+              // Handle invalid selection by inserting at end
+              final start = selection.isValid && selection.start >= 0
+                  ? selection.start
+                  : text.length;
+              final end = selection.isValid && selection.end >= 0
+                  ? selection.end
+                  : text.length;
 
               controller.text = text.replaceRange(start, end, mdLink);
               controller.selection = TextSelection.collapsed(
@@ -738,15 +756,22 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
 
                 final selection = controller.selection;
                 final text = controller.text;
-                final start = selection.start;
-                final end = selection.end;
+                // Handle invalid selection by inserting at end
+                final start = selection.isValid && selection.start >= 0
+                    ? selection.start
+                    : text.length;
+                final end = selection.isValid && selection.end >= 0
+                    ? selection.end
+                    : text.length;
 
                 controller.text = text.replaceRange(start, end, mdMedia);
                 controller.selection = TextSelection.collapsed(
                   offset: start + mdMedia.length,
                 );
 
-                Navigator.pop(ctx);
+                if (ctx.mounted) {
+                  Navigator.pop(ctx);
+                }
               },
               child: const Text('Insert'),
             ),
@@ -1084,70 +1109,87 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
             log.info('Link tapped: $url');
           },
           imageBuilder: (uri, title, alt) {
-            return _buildImageWidget(uri.toString());
+            // Reconstruct the markdown syntax to parse metadata
+            final mdSyntax = '![$alt]($uri)';
+            return _buildInteractiveMedia(mdSyntax, isVideo: false);
           },
         ),
       ),
     );
   }
 
-  Widget _buildImageWidget(String url) {
-    Widget imageWidget;
-
-    // Check if it's a local file path
-    if (url.startsWith('/') || url.contains(':\\') || url.contains(':/')) {
-      final file = File(url);
-      if (file.existsSync()) {
-        imageWidget = Image.file(
-          file,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return _buildImageError('Failed to load image');
-          },
-        );
-      } else {
-        imageWidget = _buildImageError('Image not found');
-      }
-    } else if (url.startsWith('http://') || url.startsWith('https://')) {
-      imageWidget = Image.network(
-        url,
-        fit: BoxFit.contain,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Center(
-            child: CircularProgressIndicator(
-              value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes!
-                  : null,
-            ),
-          );
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return _buildImageError('Failed to load web image');
-        },
-      );
-    } else {
-      imageWidget = _buildImageError('Invalid image path');
+  /// Build interactive media widget with resize controls
+  Widget _buildInteractiveMedia(String mdSyntax, {required bool isVideo}) {
+    // Parse the element from markdown syntax
+    final element = MediaElement.fromMarkdownSyntax(mdSyntax);
+    if (element == null) {
+      return _buildMediaError('Failed to parse media');
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 400),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: imageWidget,
-          ),
-        ),
-      ),
+    // Resolve relative paths using the markdown file's directory
+    var resolvedPath = element.path;
+    if (!element.isFromWeb && !element.path.startsWith('/')) {
+      // Relative path - resolve against markdown file directory
+      if (_currentFilePath != null) {
+        final mdDir = _currentFilePath!.substring(
+          0,
+          _currentFilePath!.lastIndexOf('/'),
+        );
+        resolvedPath = '$mdDir/${element.path}';
+      }
+    }
+
+    // Override media type if we know it's a video
+    final actualElement = isVideo
+        ? MediaElement(
+            path: resolvedPath,
+            mediaType: MediaType.video,
+            sourceType: element.sourceType,
+            altText: element.altText,
+            width: element.width,
+            height: element.height,
+            rotation: element.rotation,
+            posX: element.posX,
+            posY: element.posY,
+          )
+        : element.copyWith(path: resolvedPath);
+
+    return _InteractivePreviewMedia(
+      key: ValueKey(actualElement.path),
+      element: actualElement,
+      onChanged: (newElement) {
+        _updateMediaInSource(element.path, newElement);
+      },
     );
   }
 
-  Widget _buildImageError(String message) {
+  /// Update media metadata in the source markdown
+  void _updateMediaInSource(String originalPath, MediaElement newElement) {
+    final controller = _codeController;
+    if (controller == null) return;
+
+    final text = controller.text;
+    final newSyntax = newElement.toMarkdownSyntax();
+
+    // Find and replace the media syntax in the source
+    // Match patterns like ![alt](path) or ![alt|params](path)
+    final regex = RegExp(
+      r'!\[([^\]]*)\]\(' + RegExp.escape(originalPath) + r'\)',
+    );
+
+    final match = regex.firstMatch(text);
+    if (match != null) {
+      final newText = text.replaceRange(match.start, match.end, newSyntax);
+      controller.text = newText;
+      // Trigger save
+      _onTextChanged();
+    }
+  }
+
+  Widget _buildMediaError(String message) {
     return Container(
       padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: Colors.grey[200],
         borderRadius: BorderRadius.circular(8),
@@ -1219,4 +1261,446 @@ class _ToolbarAction {
   final IconData icon;
   final String tooltip;
   final _FormatType type;
+}
+
+/// Interactive media widget for markdown preview with resize controls
+class _InteractivePreviewMedia extends StatefulWidget {
+  const _InteractivePreviewMedia({
+    super.key,
+    required this.element,
+    required this.onChanged,
+  });
+
+  final MediaElement element;
+  final ValueChanged<MediaElement> onChanged;
+
+  @override
+  State<_InteractivePreviewMedia> createState() =>
+      _InteractivePreviewMediaState();
+}
+
+class _InteractivePreviewMediaState extends State<_InteractivePreviewMedia> {
+  late MediaElement _element;
+  var _isLoading = true;
+  var _hasError = false;
+  String? _errorMessage;
+  Uint8List? _imageBytes;
+
+  @override
+  void initState() {
+    super.initState();
+    _element = widget.element;
+    _loadMedia();
+  }
+
+  @override
+  void didUpdateWidget(_InteractivePreviewMedia oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.element.path != widget.element.path) {
+      _element = widget.element;
+      _loadMedia();
+    }
+  }
+
+  Future<void> _loadMedia() async {
+    if (_element.isVideo) {
+      setState(() => _isLoading = false);
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+    });
+
+    try {
+      final bytes = await MediaService.instance.resolveMedia(_element);
+      if (bytes != null && mounted) {
+        setState(() {
+          _imageBytes = bytes;
+          _isLoading = false;
+        });
+      } else if (mounted) {
+        setState(() {
+          _hasError = true;
+          _errorMessage = 'Failed to load media: ${_element.path}';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _errorMessage = 'Error: $e';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _updateSize(double width, double height) {
+    final newElement = _element.copyWith(width: width, height: height);
+    setState(() => _element = newElement);
+    widget.onChanged(newElement);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_hasError) {
+      return _buildError();
+    }
+
+    if (_element.isVideo) {
+      return _buildVideoWithControls();
+    }
+
+    return _buildImageWithControls();
+  }
+
+  Widget _buildError() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.broken_image, color: Colors.grey, size: 48),
+          const SizedBox(height: 8),
+          Text(
+            _errorMessage ?? 'Failed to load media',
+            style: const TextStyle(color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _element.path,
+            style: TextStyle(color: Colors.grey[600], fontSize: 10),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageWithControls() {
+    final width = _element.width ?? 400.0;
+    final height = _element.height ?? 300.0;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Image with resize handles
+          Center(
+            child: _buildResizableContainer(
+              width: width,
+              height: height,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: _imageBytes != null
+                    ? Image.memory(
+                        _imageBytes!,
+                        width: width,
+                        height: height,
+                        fit: BoxFit.cover,
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Size controls
+          _buildSizeControls(width, height),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVideoWithControls() {
+    final width = _element.width ?? 400.0;
+    final height = _element.height ?? 300.0;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Video player with resize handles
+          Center(
+            child: _buildResizableContainer(
+              width: width,
+              height: height,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: MediaVideoPlayer(
+                  element: _element.copyWith(width: width, height: height),
+                  onChanged: (updated) {
+                    setState(() => _element = updated);
+                    widget.onChanged(updated);
+                  },
+                  autoPlay: false,
+                  showControls: true,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Size controls
+          _buildSizeControls(width, height),
+        ],
+      ),
+    );
+  }
+
+  /// Build a resizable container with 8 handles around the content
+  Widget _buildResizableContainer({
+    required double width,
+    required double height,
+    required Widget child,
+  }) {
+    const handleSize = 10.0;
+    const minSize = 100.0;
+    const maxSize = 1200.0;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SizedBox(
+      width: width + handleSize * 2,
+      height: height + handleSize * 2,
+      child: Stack(
+        children: [
+          // Main content
+          Positioned(
+            left: handleSize,
+            top: handleSize,
+            width: width,
+            height: height,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border.all(color: colorScheme.primary, width: 2),
+              ),
+              child: child,
+            ),
+          ),
+          // Resize handles
+          ..._buildResizeHandles(
+            width: width,
+            height: height,
+            handleSize: handleSize,
+            minSize: minSize,
+            maxSize: maxSize,
+            colorScheme: colorScheme,
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildResizeHandles({
+    required double width,
+    required double height,
+    required double handleSize,
+    required double minSize,
+    required double maxSize,
+    required ColorScheme colorScheme,
+  }) {
+    Widget buildHandle({
+      required double left,
+      required double top,
+      required MouseCursor cursor,
+      required void Function(DragUpdateDetails) onUpdate,
+    }) {
+      return Positioned(
+        left: left,
+        top: top,
+        child: GestureDetector(
+          onPanUpdate: onUpdate,
+          child: MouseRegion(
+            cursor: cursor,
+            child: Container(
+              width: handleSize,
+              height: handleSize,
+              decoration: BoxDecoration(
+                color: colorScheme.primary,
+                border: Border.all(color: Colors.white, width: 1),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return [
+      // Top-left
+      buildHandle(
+        left: handleSize / 2,
+        top: handleSize / 2,
+        cursor: SystemMouseCursors.resizeUpLeftDownRight,
+        onUpdate: (d) {
+          final newWidth = (width - d.delta.dx).clamp(minSize, maxSize);
+          final newHeight = (height - d.delta.dy).clamp(minSize, maxSize);
+          _updateSize(newWidth, newHeight);
+        },
+      ),
+      // Top
+      buildHandle(
+        left: handleSize + width / 2 - handleSize / 2,
+        top: handleSize / 2,
+        cursor: SystemMouseCursors.resizeUpDown,
+        onUpdate: (d) {
+          final newHeight = (height - d.delta.dy).clamp(minSize, maxSize);
+          _updateSize(width, newHeight);
+        },
+      ),
+      // Top-right
+      buildHandle(
+        left: handleSize + width - handleSize / 2,
+        top: handleSize / 2,
+        cursor: SystemMouseCursors.resizeUpRightDownLeft,
+        onUpdate: (d) {
+          final newWidth = (width + d.delta.dx).clamp(minSize, maxSize);
+          final newHeight = (height - d.delta.dy).clamp(minSize, maxSize);
+          _updateSize(newWidth, newHeight);
+        },
+      ),
+      // Left
+      buildHandle(
+        left: handleSize / 2,
+        top: handleSize + height / 2 - handleSize / 2,
+        cursor: SystemMouseCursors.resizeLeftRight,
+        onUpdate: (d) {
+          final newWidth = (width - d.delta.dx).clamp(minSize, maxSize);
+          _updateSize(newWidth, height);
+        },
+      ),
+      // Right
+      buildHandle(
+        left: handleSize + width - handleSize / 2,
+        top: handleSize + height / 2 - handleSize / 2,
+        cursor: SystemMouseCursors.resizeLeftRight,
+        onUpdate: (d) {
+          final newWidth = (width + d.delta.dx).clamp(minSize, maxSize);
+          _updateSize(newWidth, height);
+        },
+      ),
+      // Bottom-left
+      buildHandle(
+        left: handleSize / 2,
+        top: handleSize + height - handleSize / 2,
+        cursor: SystemMouseCursors.resizeUpRightDownLeft,
+        onUpdate: (d) {
+          final newWidth = (width - d.delta.dx).clamp(minSize, maxSize);
+          final newHeight = (height + d.delta.dy).clamp(minSize, maxSize);
+          _updateSize(newWidth, newHeight);
+        },
+      ),
+      // Bottom
+      buildHandle(
+        left: handleSize + width / 2 - handleSize / 2,
+        top: handleSize + height - handleSize / 2,
+        cursor: SystemMouseCursors.resizeUpDown,
+        onUpdate: (d) {
+          final newHeight = (height + d.delta.dy).clamp(minSize, maxSize);
+          _updateSize(width, newHeight);
+        },
+      ),
+      // Bottom-right
+      buildHandle(
+        left: handleSize + width - handleSize / 2,
+        top: handleSize + height - handleSize / 2,
+        cursor: SystemMouseCursors.resizeUpLeftDownRight,
+        onUpdate: (d) {
+          final newWidth = (width + d.delta.dx).clamp(minSize, maxSize);
+          final newHeight = (height + d.delta.dy).clamp(minSize, maxSize);
+          _updateSize(newWidth, newHeight);
+        },
+      ),
+    ];
+  }
+
+  Widget _buildSizeControls(double width, double height) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Width input
+        SizedBox(
+          width: 80,
+          child: TextField(
+            controller: TextEditingController(text: width.toStringAsFixed(0)),
+            decoration: const InputDecoration(
+              labelText: 'Width',
+              isDense: true,
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            ),
+            keyboardType: TextInputType.number,
+            onSubmitted: (value) {
+              final newWidth = double.tryParse(value);
+              if (newWidth != null && newWidth >= 50 && newWidth <= 2000) {
+                _updateSize(newWidth, height);
+              }
+            },
+          ),
+        ),
+        const SizedBox(width: 8),
+        const Text('×'),
+        const SizedBox(width: 8),
+        // Height input
+        SizedBox(
+          width: 80,
+          child: TextField(
+            controller: TextEditingController(text: height.toStringAsFixed(0)),
+            decoration: const InputDecoration(
+              labelText: 'Height',
+              isDense: true,
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            ),
+            keyboardType: TextInputType.number,
+            onSubmitted: (value) {
+              final newHeight = double.tryParse(value);
+              if (newHeight != null && newHeight >= 50 && newHeight <= 2000) {
+                _updateSize(width, newHeight);
+              }
+            },
+          ),
+        ),
+        const SizedBox(width: 16),
+        // Preset size buttons
+        _buildSizePresetButton('S', 200, 150),
+        const SizedBox(width: 4),
+        _buildSizePresetButton('M', 400, 300),
+        const SizedBox(width: 4),
+        _buildSizePresetButton('L', 600, 450),
+      ],
+    );
+  }
+
+  Widget _buildSizePresetButton(String label, double width, double height) {
+    return SizedBox(
+      width: 32,
+      height: 32,
+      child: OutlinedButton(
+        onPressed: () => _updateSize(width, height),
+        style: OutlinedButton.styleFrom(
+          padding: EdgeInsets.zero,
+          minimumSize: const Size(32, 32),
+        ),
+        child: Text(label, style: const TextStyle(fontSize: 12)),
+      ),
+    );
+  }
 }
