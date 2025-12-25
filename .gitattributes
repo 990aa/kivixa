@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+vendor/* linguist-vendored=false
+docs/* linguist-documentation=true
+*.md linguist-documentation=true
