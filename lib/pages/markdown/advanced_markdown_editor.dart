@@ -17,6 +17,8 @@ import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:kivixa/services/media_service.dart';
 import 'package:logging/logging.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 /// Advanced VS Code-like Markdown editor with:
 /// - Syntax highlighting in edit mode
@@ -138,6 +140,26 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
       icon: Icons.horizontal_rule,
       tooltip: 'Horizontal Rule',
       type: _FormatType.horizontalRule,
+    ),
+    _ToolbarAction(
+      icon: Icons.format_align_left,
+      tooltip: 'Align Left',
+      type: _FormatType.alignLeft,
+    ),
+    _ToolbarAction(
+      icon: Icons.format_align_center,
+      tooltip: 'Align Center',
+      type: _FormatType.alignCenter,
+    ),
+    _ToolbarAction(
+      icon: Icons.format_align_right,
+      tooltip: 'Align Right',
+      type: _FormatType.alignRight,
+    ),
+    _ToolbarAction(
+      icon: Icons.format_align_justify,
+      tooltip: 'Justify',
+      type: _FormatType.alignJustify,
     ),
   ];
 
@@ -540,6 +562,22 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
         newText = '### $selectedText';
         newStart = start + 4;
         newEnd = end + 4;
+      case _FormatType.alignLeft:
+        newText = '<div style="text-align: left;">$selectedText</div>';
+        newStart = start + 31;
+        newEnd = end + 31;
+      case _FormatType.alignCenter:
+        newText = '<div style="text-align: center;">$selectedText</div>';
+        newStart = start + 33;
+        newEnd = end + 33;
+      case _FormatType.alignRight:
+        newText = '<div style="text-align: right;">$selectedText</div>';
+        newStart = start + 32;
+        newEnd = end + 32;
+      case _FormatType.alignJustify:
+        newText = '<div style="text-align: justify;">$selectedText</div>';
+        newStart = start + 34;
+        newEnd = end + 34;
     }
 
     controller.text = text.replaceRange(start, end, newText);
@@ -645,6 +683,12 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
 
     final altController = TextEditingController();
     final urlController = TextEditingController();
+    final widthController = TextEditingController(
+      text: isVideo ? '640' : '400',
+    );
+    final heightController = TextEditingController(
+      text: isVideo ? '360' : '300',
+    );
     var isLocalFile = false;
     String? localFilePath;
 
@@ -686,6 +730,36 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
                     border: const OutlineInputBorder(),
                   ),
                   autofocus: true,
+                ),
+                const SizedBox(height: 16),
+
+                // Width and Height fields
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: widthController,
+                        decoration: const InputDecoration(
+                          labelText: 'Width',
+                          border: OutlineInputBorder(),
+                          suffixText: 'px',
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: TextField(
+                        controller: heightController,
+                        decoration: const InputDecoration(
+                          labelText: 'Height',
+                          border: OutlineInputBorder(),
+                          suffixText: 'px',
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
 
@@ -750,8 +824,20 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
                     ? (isVideo ? 'Video' : 'Image')
                     : altController.text;
 
-                // Create extended markdown syntax
-                final mdMedia = '![$altText]($path)';
+                final width = widthController.text;
+                final height = heightController.text;
+
+                // Create extended markdown syntax with width/height
+                // For videos, use HTML video tag for proper playback
+                // For images, use HTML img tag with dimensions
+                String mdMedia;
+                if (isVideo) {
+                  mdMedia =
+                      '<video src="$path" width="$width" height="$height" controls>$altText</video>';
+                } else {
+                  mdMedia =
+                      '<img src="$path" alt="$altText" width="$width" height="$height" />';
+                }
 
                 final selection = controller.selection;
                 final text = controller.text;
@@ -1094,27 +1180,215 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
       return const Center(child: CircularProgressIndicator());
     }
 
+    // Pre-process content to extract video tags and replace with placeholders
+    final content = controller.text;
+    final processedData = _preprocessMarkdownWithVideos(content);
+
     return ColoredBox(
       color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
       child: SingleChildScrollView(
         controller: _previewScrollController,
         padding: const EdgeInsets.all(16),
-        child: SmoothMarkdown(
-          data: controller.text,
-          styleSheet: isDark
-              ? MarkdownStyleSheet.vscode(brightness: Brightness.dark)
-              : MarkdownStyleSheet.github(brightness: Brightness.light),
-          onTapLink: (url) {
-            log.info('Link tapped: $url');
-          },
-          imageBuilder: (uri, title, alt) {
-            // The uri could be a relative path or absolute - pass it directly
-            final imagePath = uri.toString();
-            return _buildDirectImage(imagePath, alt ?? '');
-          },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _buildPreviewContent(processedData, isDark),
         ),
       ),
     );
+  }
+
+  /// Preprocesses markdown content to handle video tags and alignment divs
+  _ProcessedMarkdown _preprocessMarkdownWithVideos(String content) {
+    final videos = <_VideoInfo>[];
+    final images = <_ImageInfo>[];
+    var processedContent = content;
+
+    // Extract video tags: <video src="path" width="640" height="360" controls>caption</video>
+    final videoRegex = RegExp(
+      r'<video\s+src="([^"]+)"(?:\s+width="(\d+)")?(?:\s+height="(\d+)")?[^>]*>([^<]*)</video>',
+      caseSensitive: false,
+    );
+
+    var videoIndex = 0;
+    processedContent = processedContent.replaceAllMapped(videoRegex, (match) {
+      final src = match.group(1) ?? '';
+      final width = double.tryParse(match.group(2) ?? '') ?? 640;
+      final height = double.tryParse(match.group(3) ?? '') ?? 360;
+      final caption = match.group(4) ?? '';
+
+      videos.add(
+        _VideoInfo(
+          src: src,
+          width: width,
+          height: height,
+          caption: caption,
+          placeholder: '<!--VIDEO_PLACEHOLDER_$videoIndex-->',
+        ),
+      );
+
+      return '\n\n<!--VIDEO_PLACEHOLDER_${videoIndex++}-->\n\n';
+    });
+
+    // Extract img tags: <img src="path" alt="text" width="400" height="300" />
+    final imgRegex = RegExp(
+      r'<img\s+src="([^"]+)"(?:\s+alt="([^"]*)")?(?:\s+width="(\d+)")?(?:\s+height="(\d+)")?[^/]*/?>',
+      caseSensitive: false,
+    );
+
+    var imgIndex = 0;
+    processedContent = processedContent.replaceAllMapped(imgRegex, (match) {
+      final src = match.group(1) ?? '';
+      final alt = match.group(2) ?? '';
+      final width = double.tryParse(match.group(3) ?? '') ?? 400;
+      final height = double.tryParse(match.group(4) ?? '') ?? 300;
+
+      images.add(
+        _ImageInfo(
+          src: src,
+          alt: alt,
+          width: width,
+          height: height,
+          placeholder: '<!--IMG_PLACEHOLDER_$imgIndex-->',
+        ),
+      );
+
+      return '\n\n<!--IMG_PLACEHOLDER_${imgIndex++}-->\n\n';
+    });
+
+    return _ProcessedMarkdown(
+      content: processedContent,
+      videos: videos,
+      images: images,
+    );
+  }
+
+  /// Build preview content widgets from processed markdown
+  List<Widget> _buildPreviewContent(_ProcessedMarkdown data, bool isDark) {
+    final widgets = <Widget>[];
+    var remainingContent = data.content;
+
+    // Split by placeholders and build widgets
+    final placeholderPattern = RegExp(r'<!--(VIDEO|IMG)_PLACEHOLDER_(\d+)-->');
+
+    while (true) {
+      final match = placeholderPattern.firstMatch(remainingContent);
+      if (match == null) {
+        // No more placeholders, add remaining markdown
+        if (remainingContent.trim().isNotEmpty) {
+          widgets.add(_buildMarkdownSection(remainingContent, isDark));
+        }
+        break;
+      }
+
+      // Add markdown before placeholder
+      final before = remainingContent.substring(0, match.start);
+      if (before.trim().isNotEmpty) {
+        widgets.add(_buildMarkdownSection(before, isDark));
+      }
+
+      // Add video or image widget
+      final type = match.group(1);
+      final index = int.parse(match.group(2)!);
+
+      if (type == 'VIDEO' && index < data.videos.length) {
+        widgets.add(_buildVideoPlayer(data.videos[index]));
+      } else if (type == 'IMG' && index < data.images.length) {
+        widgets.add(_buildImageWithSize(data.images[index]));
+      }
+
+      remainingContent = remainingContent.substring(match.end);
+    }
+
+    return widgets;
+  }
+
+  Widget _buildMarkdownSection(String content, bool isDark) {
+    return SmoothMarkdown(
+      data: content,
+      styleSheet: isDark
+          ? MarkdownStyleSheet.vscode(brightness: Brightness.dark)
+          : MarkdownStyleSheet.github(brightness: Brightness.light),
+      onTapLink: (url) {
+        log.info('Link tapped: $url');
+      },
+      imageBuilder: (uri, title, alt) {
+        final imagePath = uri.toString();
+        return _buildDirectImage(imagePath, alt ?? '');
+      },
+    );
+  }
+
+  /// Build video player widget with media_kit
+  Widget _buildVideoPlayer(_VideoInfo video) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Center(
+        child: _MarkdownVideoPlayer(
+          src: _resolvePath(video.src),
+          width: video.width,
+          height: video.height,
+          caption: video.caption,
+        ),
+      ),
+    );
+  }
+
+  /// Build image widget with explicit dimensions
+  Widget _buildImageWithSize(_ImageInfo image) {
+    final resolvedPath = _resolvePath(image.src);
+    final isWeb =
+        image.src.startsWith('http://') || image.src.startsWith('https://');
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: Container(
+          width: image.width,
+          height: image.height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.grey[200],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: isWeb
+                ? Image.network(
+                    resolvedPath,
+                    fit: BoxFit.contain,
+                    semanticLabel: image.alt,
+                    errorBuilder: (ctx, error, stack) =>
+                        _buildImageError('Failed to load image'),
+                  )
+                : Image.file(
+                    File(resolvedPath),
+                    fit: BoxFit.contain,
+                    semanticLabel: image.alt,
+                    errorBuilder: (ctx, error, stack) =>
+                        _buildImageError('Image not found'),
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _resolvePath(String path) {
+    final isWebUrl = path.startsWith('http://') || path.startsWith('https://');
+    final isAbsolutePath =
+        path.startsWith('/') || RegExp(r'^[A-Za-z]:[\\/]').hasMatch(path);
+
+    if (!isWebUrl && !isAbsolutePath && _currentFilePath != null) {
+      final lastSlash = _currentFilePath!.lastIndexOf('/');
+      final lastBackslash = _currentFilePath!.lastIndexOf('\\');
+      final lastSep = lastSlash > lastBackslash ? lastSlash : lastBackslash;
+
+      if (lastSep > 0) {
+        final mdDir = _currentFilePath!.substring(0, lastSep);
+        final sep = lastBackslash > lastSlash ? '\\' : '/';
+        return '$mdDir$sep$path';
+      }
+    }
+    return path;
   }
 
   /// Build a simple image widget that handles path resolution
@@ -1293,6 +1567,10 @@ enum _FormatType {
   heading1,
   heading2,
   heading3,
+  alignLeft,
+  alignCenter,
+  alignRight,
+  alignJustify,
 }
 
 class _ToolbarAction {
@@ -1305,4 +1583,365 @@ class _ToolbarAction {
   final IconData icon;
   final String tooltip;
   final _FormatType type;
+}
+
+/// Video info extracted from HTML video tags
+class _VideoInfo {
+  const _VideoInfo({
+    required this.src,
+    required this.width,
+    required this.height,
+    required this.caption,
+    required this.placeholder,
+  });
+
+  final String src;
+  final double width;
+  final double height;
+  final String caption;
+  final String placeholder;
+}
+
+/// Image info extracted from HTML img tags
+class _ImageInfo {
+  const _ImageInfo({
+    required this.src,
+    required this.alt,
+    required this.width,
+    required this.height,
+    required this.placeholder,
+  });
+
+  final String src;
+  final String alt;
+  final double width;
+  final double height;
+  final String placeholder;
+}
+
+/// Processed markdown data with extracted media
+class _ProcessedMarkdown {
+  const _ProcessedMarkdown({
+    required this.content,
+    required this.videos,
+    required this.images,
+  });
+
+  final String content;
+  final List<_VideoInfo> videos;
+  final List<_ImageInfo> images;
+}
+
+/// Video player widget for markdown preview using media_kit
+class _MarkdownVideoPlayer extends StatefulWidget {
+  const _MarkdownVideoPlayer({
+    required this.src,
+    required this.width,
+    required this.height,
+    required this.caption,
+  });
+
+  final String src;
+  final double width;
+  final double height;
+  final String caption;
+
+  @override
+  State<_MarkdownVideoPlayer> createState() => _MarkdownVideoPlayerState();
+}
+
+class _MarkdownVideoPlayerState extends State<_MarkdownVideoPlayer> {
+  Player? _player;
+  VideoController? _controller;
+  var _isInitialized = false;
+  var _isPlaying = false;
+  var _position = Duration.zero;
+  var _duration = Duration.zero;
+  var _showControls = true;
+  Timer? _hideControlsTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializePlayer();
+  }
+
+  Future<void> _initializePlayer() async {
+    final isWeb =
+        widget.src.startsWith('http://') || widget.src.startsWith('https://');
+
+    if (!isWeb) {
+      final file = File(widget.src);
+      if (!file.existsSync()) {
+        return;
+      }
+    }
+
+    _player = Player();
+    _controller = VideoController(_player!);
+
+    // Listen to player state
+    _player!.stream.playing.listen((playing) {
+      if (mounted) setState(() => _isPlaying = playing);
+    });
+    _player!.stream.position.listen((position) {
+      if (mounted) setState(() => _position = position);
+    });
+    _player!.stream.duration.listen((duration) {
+      if (mounted) setState(() => _duration = duration);
+    });
+
+    await _player!.open(Media(widget.src), play: false);
+
+    if (mounted) {
+      setState(() => _isInitialized = true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _hideControlsTimer?.cancel();
+    _player?.dispose();
+    super.dispose();
+  }
+
+  void _togglePlay() {
+    if (_isPlaying) {
+      _player?.pause();
+    } else {
+      _player?.play();
+    }
+    _showControlsTemporarily();
+  }
+
+  void _showControlsTemporarily() {
+    setState(() => _showControls = true);
+    _hideControlsTimer?.cancel();
+    _hideControlsTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted && _isPlaying) {
+        setState(() => _showControls = false);
+      }
+    });
+  }
+
+  void _seekTo(double value) {
+    _player?.seek(
+      Duration(milliseconds: (value * _duration.inMilliseconds).round()),
+    );
+  }
+
+  void _openFullscreen() {
+    if (_player == null || _controller == null) return;
+
+    showDialog(
+      context: context,
+      builder: (ctx) =>
+          _FullscreenVideoDialog(player: _player!, controller: _controller!),
+    );
+  }
+
+  String _formatDuration(Duration d) {
+    final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isInitialized || _controller == null) {
+      return Container(
+        width: widget.width,
+        height: widget.height,
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(color: Colors.white),
+            const SizedBox(height: 16),
+            Text('Loading video...', style: TextStyle(color: Colors.grey[400])),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Stack(
+              children: [
+                // Video
+                Video(controller: _controller!, fit: BoxFit.contain),
+                // Controls overlay
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTap: _showControlsTemporarily,
+                    child: MouseRegion(
+                      onEnter: (_) => _showControlsTemporarily(),
+                      child: AnimatedOpacity(
+                        opacity: _showControls ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 200),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.7),
+                              ],
+                              stops: const [0.6, 1.0],
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              // Progress bar
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: SliderTheme(
+                                  data: SliderTheme.of(context).copyWith(
+                                    trackHeight: 3,
+                                    thumbShape: const RoundSliderThumbShape(
+                                      enabledThumbRadius: 6,
+                                    ),
+                                    overlayShape: const RoundSliderOverlayShape(
+                                      overlayRadius: 12,
+                                    ),
+                                    activeTrackColor: Colors.white,
+                                    inactiveTrackColor: Colors.grey[600],
+                                    thumbColor: Colors.white,
+                                  ),
+                                  child: Slider(
+                                    value: _duration.inMilliseconds > 0
+                                        ? _position.inMilliseconds /
+                                              _duration.inMilliseconds
+                                        : 0,
+                                    onChanged: _seekTo,
+                                  ),
+                                ),
+                              ),
+                              // Controls row
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                                child: Row(
+                                  children: [
+                                    // Play/Pause
+                                    IconButton(
+                                      icon: Icon(
+                                        _isPlaying
+                                            ? Icons.pause
+                                            : Icons.play_arrow,
+                                        color: Colors.white,
+                                      ),
+                                      onPressed: _togglePlay,
+                                    ),
+                                    // Time
+                                    Text(
+                                      '${_formatDuration(_position)} / ${_formatDuration(_duration)}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    // Fullscreen
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.fullscreen,
+                                        color: Colors.white,
+                                      ),
+                                      onPressed: _openFullscreen,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Center play button when paused
+                if (!_isPlaying && _showControls)
+                  Positioned.fill(
+                    child: Center(
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.play_circle_fill,
+                          color: Colors.white,
+                          size: 64,
+                        ),
+                        onPressed: _togglePlay,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        // Caption
+        if (widget.caption.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              widget.caption,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Fullscreen video dialog
+class _FullscreenVideoDialog extends StatelessWidget {
+  const _FullscreenVideoDialog({
+    required this.player,
+    required this.controller,
+  });
+
+  final Player player;
+  final VideoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog.fullscreen(
+      backgroundColor: Colors.black,
+      child: Stack(
+        children: [
+          Center(
+            child: Video(controller: controller, fit: BoxFit.contain),
+          ),
+          // Close button
+          Positioned(
+            top: 16,
+            right: 16,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white, size: 32),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
