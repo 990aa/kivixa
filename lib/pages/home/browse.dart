@@ -14,6 +14,7 @@ import 'package:kivixa/components/home/path_components.dart';
 import 'package:kivixa/components/home/rename_note_button.dart';
 import 'package:kivixa/components/quick_notes/inline_quick_notes.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
+import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
@@ -51,6 +52,9 @@ class _BrowsePageState extends State<BrowsePage> {
   void initState() {
     path = widget.initialPath;
 
+    // Load persisted sort preference
+    _loadSortPreference();
+
     findChildrenOfPath();
     fileWriteSubscription = FileManager.fileWriteStream.stream.listen(
       fileWriteListener,
@@ -59,6 +63,15 @@ class _BrowsePageState extends State<BrowsePage> {
     _searchController.addListener(_setState);
 
     super.initState();
+  }
+
+  void _loadSortPreference() {
+    final savedSort = stows.browseSortType.value;
+    _sortType = SortType.values[savedSort.clamp(0, SortType.values.length - 1)];
+  }
+
+  void _saveSortPreference(SortType type) {
+    stows.browseSortType.value = type.index;
   }
 
   @override
@@ -357,6 +370,7 @@ class _BrowsePageState extends State<BrowsePage> {
                           setState(() {
                             _sortType = type;
                           });
+                          _saveSortPreference(type);
                         },
                         itemBuilder: (context) => [
                           PopupMenuItem(
@@ -539,6 +553,66 @@ class _BrowsePageState extends State<BrowsePage> {
                   selectedFiles.value = [];
                 },
                 icon: const Icon(Icons.delete_forever),
+              ),
+              IconButton(
+                padding: EdgeInsets.zero,
+                tooltip: 'Group to new folder',
+                onPressed: () async {
+                  final folderName = await showDialog<String>(
+                    context: context,
+                    builder: (context) {
+                      final controller = TextEditingController();
+                      return AlertDialog(
+                        title: const Text('New Folder'),
+                        content: TextField(
+                          controller: controller,
+                          autofocus: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Folder Name',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () =>
+                                Navigator.pop(context, controller.text),
+                            child: const Text('Create'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+
+                  if (folderName != null && folderName.isNotEmpty) {
+                    final newFolderPath = '${path ?? ''}/$folderName';
+                    await FileManager.createFolder(newFolderPath);
+
+                    await Future.wait([
+                      for (final filePath in selectedFiles.value)
+                        Future.value(
+                          FileManager.doesFileExist(
+                            filePath + Editor.extensionOldJson,
+                          ),
+                        ).then((oldExtension) async {
+                          final fileName = filePath.split('/').last;
+                          await FileManager.moveFile(
+                            filePath +
+                                (oldExtension
+                                    ? Editor.extensionOldJson
+                                    : Editor.extension),
+                            '$newFolderPath/$fileName${oldExtension ? Editor.extensionOldJson : Editor.extension}',
+                          );
+                        }),
+                    ]);
+                    selectedFiles.value = [];
+                    findChildrenOfPath();
+                  }
+                },
+                icon: const Icon(Icons.create_new_folder),
               ),
               ExportNoteButton(selectedFiles: selectedFiles.value),
             ],

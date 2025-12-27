@@ -2,7 +2,7 @@ name: kivixa
 description: A cross-platform notes app
 publish_to: 'none' 
 
-version: 0.1.1+1001
+version: 0.1.2+1002
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
@@ -92,8 +92,14 @@ dependencies:
   flutter_rust_bridge: ^2.10.0
   flutter_inappwebview: ^6.1.5
   percent_indicator: ^4.2.3
+  # Video players - platform specific
+  media_kit: ^1.1.11                    # Core media playback
+  media_kit_video: ^2.0.1               # Video widget
+  media_kit_libs_video: ^1.0.5          # Native libs
+  visibility_detector: ^0.4.0+2         # Lazy loading media
   rust_lib_kivixa:
     path: rust_builder
+
 
 dependency_overrides:
   flutter_local_notifications_windows:

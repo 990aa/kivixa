@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
@@ -10,14 +11,81 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kivixa/components/life_git/time_travel_slider.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
+import 'package:kivixa/data/models/media_element.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:logging/logging.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:path_provider/path_provider.dart';
 
+/// Custom embed type for interactive images with metadata
+const kInteractiveImageType = 'interactive-image';
+
 /// Custom image embed builder for QuillEditor that handles local file images
+/// with persistent metadata (size, rotation, position)
 class _ImageEmbedBuilder extends EmbedBuilder {
+  _ImageEmbedBuilder({required this.onMediaChanged});
+
+  /// Callback when media properties change - triggers document update
+  final void Function(int index, MediaElement element) onMediaChanged;
+
+  @override
+  String get key => kInteractiveImageType;
+
+  @override
+  bool get expanded => false;
+
+  @override
+  Widget build(BuildContext context, EmbedContext embedContext) {
+    final node = embedContext.node;
+    final value = node.value;
+
+    // Parse MediaElement from node data (should be JSON string or Map)
+    MediaElement element;
+    if (value.data is String) {
+      final dataStr = value.data as String;
+      // Check if it's a JSON string (starts with {)
+      if (dataStr.startsWith('{')) {
+        try {
+          element = MediaElement.fromJsonString(dataStr);
+        } catch (e) {
+          // Not valid JSON, treat as simple path
+          element = MediaElement(path: dataStr, mediaType: MediaType.image);
+        }
+      } else {
+        // Simple path string
+        element = MediaElement(path: dataStr, mediaType: MediaType.image);
+      }
+    } else if (value.data is Map) {
+      try {
+        final map = Map<String, dynamic>.from(value.data as Map);
+        element = MediaElement.fromJson(map);
+      } catch (e) {
+        return const SizedBox.shrink();
+      }
+    } else {
+      return const SizedBox.shrink();
+    }
+
+    // Use a stateful widget wrapper to handle selection and interactions
+    return _InteractiveImageEmbed(
+      element: element,
+      onChanged: (newElement) {
+        // Update the document with new metadata
+        onMediaChanged(node.documentOffset, newElement);
+      },
+    );
+  }
+}
+
+/// Legacy image embed builder for standard BlockEmbed.image type
+class _LegacyImageEmbedBuilder extends EmbedBuilder {
+  _LegacyImageEmbedBuilder({required this.onMediaChanged});
+
+  final void Function(int index, MediaElement element) onMediaChanged;
+
   @override
   String get key => BlockEmbed.imageType;
 
@@ -26,117 +94,689 @@ class _ImageEmbedBuilder extends EmbedBuilder {
 
   @override
   Widget build(BuildContext context, EmbedContext embedContext) {
-    final imageUrl = embedContext.node.value.data;
+    final node = embedContext.node;
+    final value = node.value;
 
-    if (imageUrl is! String) {
-      return const SizedBox.shrink();
+    if (value.data is! String) return const SizedBox.shrink();
+
+    final path = value.data as String;
+    final element = MediaElement(path: path, mediaType: MediaType.image);
+
+    return _InteractiveImageEmbed(
+      element: element,
+      onChanged: (newElement) {
+        onMediaChanged(node.documentOffset, newElement);
+      },
+    );
+  }
+}
+
+/// Inline media embed widget for Quill editor - truly inline with text flow.
+/// Unlike the floating InteractiveMediaWidget, this widget flows with text
+/// like Microsoft Word's inline images - no transforms or absolute positioning.
+class _InteractiveImageEmbed extends StatefulWidget {
+  const _InteractiveImageEmbed({
+    required this.element,
+    required this.onChanged,
+  });
+
+  final MediaElement element;
+  final void Function(MediaElement) onChanged;
+
+  @override
+  State<_InteractiveImageEmbed> createState() => _InteractiveImageEmbedState();
+}
+
+class _InteractiveImageEmbedState extends State<_InteractiveImageEmbed> {
+  late MediaElement _element;
+  var _isSelected = false;
+  var _isResizing = false;
+
+  // For video playback
+  Player? _player;
+  VideoController? _videoController;
+  var _isVideoInitialized = false;
+
+  // Debounce timer to prevent rapid document updates during resize
+  Timer? _resizeDebounce;
+
+  static const _handleSize = 10.0;
+  static const _minSize = 50.0;
+  static const _maxSize = 2000.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _element = widget.element;
+    _initializeMedia();
+  }
+
+  @override
+  void didUpdateWidget(_InteractiveImageEmbed oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.element.path != widget.element.path) {
+      _element = widget.element;
+      _disposeVideo();
+      _initializeMedia();
     }
+  }
 
-    Widget imageWidget;
+  void _initializeMedia() {
+    if (_element.mediaType == MediaType.video) {
+      _initializeVideo();
+    }
+  }
 
-    // Check if it's a local file path
-    if (imageUrl.startsWith('/') || imageUrl.contains(':\\')) {
-      final file = File(imageUrl);
-      if (file.existsSync()) {
-        imageWidget = Image.file(
-          file,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.errorContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.broken_image,
-                    color: Theme.of(context).colorScheme.onErrorContainer,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Failed to load image',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onErrorContainer,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      } else {
-        imageWidget = Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.errorContainer,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+  Future<void> _initializeVideo() async {
+    final file = File(_element.path);
+    if (!file.existsSync()) return;
+
+    _player = Player();
+    _videoController = VideoController(_player!);
+
+    await _player!.open(Media(file.path), play: false);
+
+    if (mounted) {
+      setState(() => _isVideoInitialized = true);
+    }
+  }
+
+  void _disposeVideo() {
+    _player?.dispose();
+    _player = null;
+    _videoController = null;
+    _isVideoInitialized = false;
+  }
+
+  @override
+  void dispose() {
+    _resizeDebounce?.cancel();
+    _disposeVideo();
+    super.dispose();
+  }
+
+  void _handleTapOutside() {
+    if (_isSelected) {
+      setState(() => _isSelected = false);
+    }
+  }
+
+  void _updateSize(double newWidth, double newHeight, {bool saveNow = false}) {
+    final clampedWidth = newWidth.clamp(_minSize, _maxSize);
+    final clampedHeight = newHeight.clamp(_minSize, _maxSize);
+
+    setState(() {
+      _element = _element.copyWith(width: clampedWidth, height: clampedHeight);
+    });
+
+    // Debounce document updates to prevent duplicates during rapid resizing
+    _resizeDebounce?.cancel();
+    if (saveNow) {
+      widget.onChanged(_element);
+    } else {
+      _resizeDebounce = Timer(const Duration(milliseconds: 300), () {
+        if (mounted) widget.onChanged(_element);
+      });
+    }
+  }
+
+  void _openFullscreen() {
+    if (_element.mediaType == MediaType.video && _player != null) {
+      // Show fullscreen video dialog
+      showDialog(
+        context: context,
+        builder: (ctx) => _FullscreenVideoDialog(
+          player: _player!,
+          controller: _videoController!,
+        ),
+      );
+    } else {
+      // Show fullscreen image
+      showDialog(
+        context: context,
+        builder: (ctx) => _FullscreenImageDialog(path: _element.path),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return TapRegion(
+      onTapOutside: (_) => _handleTapOutside(),
+      child: GestureDetector(
+        onTap: () => setState(() => _isSelected = !_isSelected),
+        onDoubleTap: _openFullscreen,
+        child: Container(
+          width: (_element.width ?? 200) + (_isSelected ? _handleSize * 2 : 0),
+          height:
+              (_element.height ?? 200) + (_isSelected ? _handleSize * 2 : 0),
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: Stack(
             children: [
-              Icon(
-                Icons.image_not_supported,
-                color: Theme.of(context).colorScheme.onErrorContainer,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Image not found',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onErrorContainer,
+              // Main content - positioned with padding when selected
+              Positioned(
+                left: _isSelected ? _handleSize : 0,
+                top: _isSelected ? _handleSize : 0,
+                width: _element.width ?? 200,
+                height: _element.height ?? 200,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: _isSelected
+                        ? Border.all(color: colorScheme.primary, width: 2)
+                        : null,
+                    borderRadius: BorderRadius.circular(4),
+                    boxShadow: _isResizing
+                        ? [
+                            BoxShadow(
+                              color: colorScheme.primary.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              spreadRadius: 2,
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: _buildMediaContent(),
+                  ),
                 ),
               ),
+
+              // Resize handles when selected
+              if (_isSelected) ..._buildResizeHandles(colorScheme),
             ],
           ),
-        );
-      }
-    } else if (imageUrl.startsWith('http://') ||
-        imageUrl.startsWith('https://')) {
-      imageWidget = Image.network(
-        imageUrl,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMediaContent() {
+    if (_element.mediaType == MediaType.video) {
+      return _buildVideoContent();
+    } else {
+      return _buildImageContent();
+    }
+  }
+
+  Widget _buildImageContent() {
+    final file = File(_element.path);
+
+    return Container(
+      width: _element.width ?? 200,
+      height: _element.height ?? 200,
+      color: Colors.grey[100],
+      child: Image.file(
+        file,
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) {
-          return Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.errorContainer,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.broken_image,
-                  color: Theme.of(context).colorScheme.onErrorContainer,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Failed to load image',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onErrorContainer,
-                  ),
-                ),
-              ],
+          return ColoredBox(
+            color: Colors.grey[300]!,
+            child: const Center(
+              child: Icon(Icons.broken_image, size: 48, color: Colors.grey),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildVideoContent() {
+    if (!_isVideoInitialized || _videoController == null) {
+      // Show thumbnail or loading state
+      return ColoredBox(
+        color: Colors.black,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Try to show a thumbnail from the video
+            FutureBuilder<Uint8List?>(
+              future: _getVideoThumbnail(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  return Image.memory(
+                    snapshot.data!,
+                    fit: BoxFit.cover,
+                    width: _element.width ?? 200,
+                    height: _element.height ?? 200,
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+            // Play button overlay
+            const DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.black45,
+                shape: BoxShape.circle,
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Icon(Icons.play_arrow, color: Colors.white, size: 48),
+              ),
+            ),
+            // Loading indicator
+            if (!_isVideoInitialized)
+              const Positioned(
+                bottom: 8,
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+          ],
+        ),
       );
-    } else {
-      imageWidget = const SizedBox.shrink();
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 400),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: imageWidget,
+    // Show actual video player
+    return Stack(
+      children: [
+        Video(controller: _videoController!, fit: BoxFit.contain),
+        // Video controls overlay
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: _VideoControlsOverlay(player: _player!),
+        ),
+      ],
+    );
+  }
+
+  Future<Uint8List?> _getVideoThumbnail() async {
+    // For now, return null - could implement thumbnail extraction later
+    return null;
+  }
+
+  List<Widget> _buildResizeHandles(ColorScheme colorScheme) {
+    return [
+      // Top-left
+      _buildHandle(colorScheme, Alignment.topLeft, _ResizeDirection.topLeft),
+      // Top-right
+      _buildHandle(colorScheme, Alignment.topRight, _ResizeDirection.topRight),
+      // Bottom-left
+      _buildHandle(
+        colorScheme,
+        Alignment.bottomLeft,
+        _ResizeDirection.bottomLeft,
+      ),
+      // Bottom-right
+      _buildHandle(
+        colorScheme,
+        Alignment.bottomRight,
+        _ResizeDirection.bottomRight,
+      ),
+      // Top center
+      _buildHandle(colorScheme, Alignment.topCenter, _ResizeDirection.top),
+      // Bottom center
+      _buildHandle(
+        colorScheme,
+        Alignment.bottomCenter,
+        _ResizeDirection.bottom,
+      ),
+      // Left center
+      _buildHandle(colorScheme, Alignment.centerLeft, _ResizeDirection.left),
+      // Right center
+      _buildHandle(colorScheme, Alignment.centerRight, _ResizeDirection.right),
+    ];
+  }
+
+  Widget _buildHandle(
+    ColorScheme colorScheme,
+    Alignment alignment,
+    _ResizeDirection direction,
+  ) {
+    // Calculate position based on alignment to avoid Positioned.fill
+    final width = (_element.width ?? 200) + _handleSize * 2;
+    final height = (_element.height ?? 200) + _handleSize * 2;
+
+    double? left, right, top, bottom;
+
+    // Horizontal position
+    if (alignment.x == -1) {
+      left = 0;
+    } else if (alignment.x == 1) {
+      right = 0;
+    } else {
+      left = (width - _handleSize) / 2;
+    }
+
+    // Vertical position
+    if (alignment.y == -1) {
+      top = 0;
+    } else if (alignment.y == 1) {
+      bottom = 0;
+    } else {
+      top = (height - _handleSize) / 2;
+    }
+
+    return Positioned(
+      left: left,
+      right: right,
+      top: top,
+      bottom: bottom,
+      child: GestureDetector(
+        onPanStart: (_) => setState(() => _isResizing = true),
+        onPanUpdate: (details) => _handleResize(details, direction),
+        onPanEnd: (_) {
+          setState(() => _isResizing = false);
+          // Save document after resize completes
+          _updateSize(
+            _element.width ?? 200,
+            _element.height ?? 200,
+            saveNow: true,
+          );
+        },
+        child: MouseRegion(
+          cursor: _getCursorForDirection(direction),
+          child: Container(
+            width: _handleSize,
+            height: _handleSize,
+            decoration: BoxDecoration(
+              color: colorScheme.primary,
+              border: Border.all(color: Colors.white, width: 1),
+              shape: BoxShape.circle,
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  MouseCursor _getCursorForDirection(_ResizeDirection direction) {
+    switch (direction) {
+      case _ResizeDirection.topLeft:
+      case _ResizeDirection.bottomRight:
+        return SystemMouseCursors.resizeUpLeftDownRight;
+      case _ResizeDirection.topRight:
+      case _ResizeDirection.bottomLeft:
+        return SystemMouseCursors.resizeUpRightDownLeft;
+      case _ResizeDirection.top:
+      case _ResizeDirection.bottom:
+        return SystemMouseCursors.resizeUpDown;
+      case _ResizeDirection.left:
+      case _ResizeDirection.right:
+        return SystemMouseCursors.resizeLeftRight;
+    }
+  }
+
+  void _handleResize(DragUpdateDetails details, _ResizeDirection direction) {
+    var newWidth = _element.width ?? 200.0;
+    var newHeight = _element.height ?? 200.0;
+
+    switch (direction) {
+      case _ResizeDirection.topLeft:
+        newWidth -= details.delta.dx;
+        newHeight -= details.delta.dy;
+      case _ResizeDirection.topRight:
+        newWidth += details.delta.dx;
+        newHeight -= details.delta.dy;
+      case _ResizeDirection.bottomLeft:
+        newWidth -= details.delta.dx;
+        newHeight += details.delta.dy;
+      case _ResizeDirection.bottomRight:
+        newWidth += details.delta.dx;
+        newHeight += details.delta.dy;
+      case _ResizeDirection.top:
+        newHeight -= details.delta.dy;
+      case _ResizeDirection.bottom:
+        newHeight += details.delta.dy;
+      case _ResizeDirection.left:
+        newWidth -= details.delta.dx;
+      case _ResizeDirection.right:
+        newWidth += details.delta.dx;
+    }
+
+    // Update local state only during drag - don't save to document yet
+    _updateSizeLocal(newWidth, newHeight);
+  }
+
+  /// Update local state without triggering document save
+  void _updateSizeLocal(double newWidth, double newHeight) {
+    final clampedWidth = newWidth.clamp(_minSize, _maxSize);
+    final clampedHeight = newHeight.clamp(_minSize, _maxSize);
+
+    setState(() {
+      _element = _element.copyWith(width: clampedWidth, height: clampedHeight);
+    });
+  }
+}
+
+enum _ResizeDirection {
+  topLeft,
+  topRight,
+  bottomLeft,
+  bottomRight,
+  top,
+  bottom,
+  left,
+  right,
+}
+
+/// Video controls overlay with play/pause, seek, and fullscreen
+class _VideoControlsOverlay extends StatefulWidget {
+  const _VideoControlsOverlay({required this.player});
+
+  final Player player;
+
+  @override
+  State<_VideoControlsOverlay> createState() => _VideoControlsOverlayState();
+}
+
+class _VideoControlsOverlayState extends State<_VideoControlsOverlay> {
+  var _isPlaying = false;
+  var _position = Duration.zero;
+  var _duration = Duration.zero;
+  var _isVisible = true;
+  Timer? _hideTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.player.stream.playing.listen((playing) {
+      if (mounted) setState(() => _isPlaying = playing);
+    });
+    widget.player.stream.position.listen((position) {
+      if (mounted) setState(() => _position = position);
+    });
+    widget.player.stream.duration.listen((duration) {
+      if (mounted) setState(() => _duration = duration);
+    });
+  }
+
+  void _showControls() {
+    setState(() => _isVisible = true);
+    _hideTimer?.cancel();
+    _hideTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted && _isPlaying) {
+        setState(() => _isVisible = false);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _hideTimer?.cancel();
+    super.dispose();
+  }
+
+  String _formatDuration(Duration d) {
+    final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => _showControls(),
+      onHover: (_) => _showControls(),
+      child: AnimatedOpacity(
+        opacity: _isVisible ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 200),
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.transparent, Colors.black54],
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Progress bar
+                SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    trackHeight: 2,
+                    thumbShape: const RoundSliderThumbShape(
+                      enabledThumbRadius: 6,
+                    ),
+                  ),
+                  child: Slider(
+                    value: _duration.inMilliseconds > 0
+                        ? _position.inMilliseconds / _duration.inMilliseconds
+                        : 0,
+                    onChanged: (value) {
+                      widget.player.seek(
+                        Duration(
+                          milliseconds: (value * _duration.inMilliseconds)
+                              .round(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Row(
+                  children: [
+                    // Play/Pause button
+                    IconButton(
+                      icon: Icon(
+                        _isPlaying ? Icons.pause : Icons.play_arrow,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        if (_isPlaying) {
+                          widget.player.pause();
+                        } else {
+                          widget.player.play();
+                        }
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
+                    ),
+                    // Time display
+                    Text(
+                      '${_formatDuration(_position)} / ${_formatDuration(_duration)}',
+                      style: const TextStyle(color: Colors.white, fontSize: 11),
+                    ),
+                    const Spacer(),
+                    // Volume
+                    IconButton(
+                      icon: const Icon(
+                        Icons.volume_up,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                      onPressed: () {
+                        // Could show volume slider
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Fullscreen video dialog
+class _FullscreenVideoDialog extends StatelessWidget {
+  const _FullscreenVideoDialog({
+    required this.player,
+    required this.controller,
+  });
+
+  final Player player;
+  final VideoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog.fullscreen(
+      backgroundColor: Colors.black,
+      child: Stack(
+        children: [
+          Center(
+            child: Video(controller: controller, fit: BoxFit.contain),
+          ),
+          // Close button
+          Positioned(
+            top: 16,
+            right: 16,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white, size: 32),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+          // Bottom controls
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: _VideoControlsOverlay(player: player),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Fullscreen image dialog
+class _FullscreenImageDialog extends StatelessWidget {
+  const _FullscreenImageDialog({required this.path});
+
+  final String path;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog.fullscreen(
+      backgroundColor: Colors.black,
+      child: Stack(
+        children: [
+          Center(
+            child: InteractiveViewer(
+              child: Image.file(File(path), fit: BoxFit.contain),
+            ),
+          ),
+          // Close button
+          Positioned(
+            top: 16,
+            right: 16,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white, size: 32),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -278,6 +918,18 @@ class _TextFileEditorState extends State<TextFileEditor> {
     _autosaveTimer = Timer(const Duration(seconds: 2), () {
       _saveFile();
     });
+  }
+
+  /// Update a media embed in the document with new metadata
+  void _updateMediaEmbed(int index, MediaElement element) {
+    // Delete the old embed and insert a new one with updated data
+    _controller.document.delete(index, 1);
+    final embed = BlockEmbed.custom(
+      CustomBlockEmbed(kInteractiveImageType, element.toJsonString()),
+    );
+    _controller.document.insert(index, embed);
+    // Trigger autosave
+    _onDocumentChanged();
   }
 
   Future<void> _renameFile() async {
@@ -743,10 +1395,16 @@ class _TextFileEditorState extends State<TextFileEditor> {
     );
   }
 
-  Future<void> _insertImage() async {
+  Future<void> _insertMedia() async {
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
+        type: FileType.custom,
+        allowedExtensions: [
+          // Images
+          'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg',
+          // Videos
+          'mp4', 'mov', 'avi', 'mkv', 'webm', 'm4v', 'wmv', 'flv',
+        ],
         allowMultiple: false,
       );
 
@@ -755,9 +1413,9 @@ class _TextFileEditorState extends State<TextFileEditor> {
       final filePath = result.files.single.path;
       if (filePath == null) return;
 
-      // Copy image to app's assets directory
+      // Copy media to app's assets directory
       final appDir = await getApplicationDocumentsDirectory();
-      final assetsDir = Directory('${appDir.path}/kivixa_assets');
+      final assetsDir = Directory('${appDir.path}/kivixa/assets/media');
       if (!assetsDir.existsSync()) {
         assetsDir.createSync(recursive: true);
       }
@@ -767,19 +1425,76 @@ class _TextFileEditorState extends State<TextFileEditor> {
       final newPath = '${assetsDir.path}/$fileName';
       await File(filePath).copy(newPath);
 
-      // Insert image embed into document
+      // Determine media type from extension
+      final ext = fileName.toLowerCase();
+      final isVideo =
+          ext.endsWith('.mp4') ||
+          ext.endsWith('.mov') ||
+          ext.endsWith('.avi') ||
+          ext.endsWith('.mkv') ||
+          ext.endsWith('.webm');
+
+      // Get actual image dimensions for proper initial sizing
+      double? width;
+      double? height;
+      if (!isVideo) {
+        try {
+          final imageFile = File(newPath);
+          final bytes = await imageFile.readAsBytes();
+          final codec = await ui.instantiateImageCodec(bytes);
+          final frame = await codec.getNextFrame();
+          final imageWidth = frame.image.width.toDouble();
+          final imageHeight = frame.image.height.toDouble();
+
+          // Scale down if too large, keeping aspect ratio
+          const maxInitialSize = 500.0;
+          if (imageWidth > maxInitialSize || imageHeight > maxInitialSize) {
+            final scale =
+                maxInitialSize /
+                (imageWidth > imageHeight ? imageWidth : imageHeight);
+            width = imageWidth * scale;
+            height = imageHeight * scale;
+          } else {
+            width = imageWidth;
+            height = imageHeight;
+          }
+          frame.image.dispose();
+        } catch (e) {
+          // Fall back to default size if we can't read dimensions
+          width = 300;
+          height = 200;
+        }
+      } else {
+        // Default size for videos
+        width = 400;
+        height = 225; // 16:9 aspect ratio
+      }
+
+      // Create MediaElement with actual dimensions
+      final element = MediaElement(
+        path: newPath,
+        mediaType: isVideo ? MediaType.video : MediaType.image,
+        sourceType: MediaSourceType.local,
+        width: width,
+        height: height,
+      );
+
+      // Insert custom media embed with metadata into document
       final index = _controller.selection.baseOffset;
-      _controller.document.insert(index, BlockEmbed.image(newPath));
+      final embed = BlockEmbed.custom(
+        CustomBlockEmbed(kInteractiveImageType, element.toJsonString()),
+      );
+      _controller.document.insert(index, embed);
       _controller.updateSelection(
         TextSelection.collapsed(offset: index + 1),
         ChangeSource.local,
       );
     } catch (e) {
-      log.severe('Error inserting image', e);
+      log.severe('Error inserting media', e);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error inserting image: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error inserting media: $e')));
       }
     }
   }
@@ -896,9 +1611,9 @@ class _TextFileEditorState extends State<TextFileEditor> {
         actions: [
           if (!_isTimeTraveling) ...[
             IconButton(
-              icon: const Icon(Icons.image),
-              tooltip: 'Insert Image',
-              onPressed: _insertImage,
+              icon: const Icon(Icons.perm_media),
+              tooltip: 'Insert Media',
+              onPressed: _insertMedia,
             ),
             IconButton(
               icon: const Icon(Icons.table_chart),
@@ -978,7 +1693,12 @@ class _TextFileEditorState extends State<TextFileEditor> {
                     padding: const EdgeInsets.all(16),
                     autoFocus: false,
                     expands: true,
-                    embedBuilders: [_ImageEmbedBuilder()],
+                    embedBuilders: [
+                      _ImageEmbedBuilder(onMediaChanged: _updateMediaEmbed),
+                      _LegacyImageEmbedBuilder(
+                        onMediaChanged: _updateMediaEmbed,
+                      ),
+                    ],
                     customStyles: DefaultStyles(
                       paragraph: DefaultTextBlockStyle(
                         TextStyle(

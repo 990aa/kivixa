@@ -779,6 +779,19 @@ class _BrowserPageState extends State<BrowserPage> {
         useShouldOverrideUrlLoading: true,
         allowFileAccess: true,
         allowContentAccess: true,
+        // Enable mixed content mode for better compatibility
+        mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
+        // Allow WebView to load resources
+        javaScriptCanOpenWindowsAutomatically: true,
+        // Enable caching for better performance
+        cacheEnabled: true,
+        cacheMode: CacheMode.LOAD_DEFAULT,
+        // Enable database and geolocation
+        databaseEnabled: true,
+        geolocationEnabled: true,
+        // Allow universal access from file URLs
+        allowUniversalAccessFromFileURLs: true,
+        allowFileAccessFromFileURLs: true,
         // Desktop-like user agent for better compatibility
         userAgent: _isDesktop
             ? null // Use default WebView2 user agent on Windows
