@@ -6,7 +6,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   desktop_webview_window
   dynamic_color
   flutter_secure_storage_linux
-  gtk
   irondash_engine_context
   media_kit_libs_linux
   media_kit_video
@@ -18,7 +17,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   url_launcher_linux
   window_manager
   window_to_front
-  yaru_window_linux
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

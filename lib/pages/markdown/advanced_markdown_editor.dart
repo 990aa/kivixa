@@ -1792,7 +1792,7 @@ class _MarkdownVideoPlayerState extends State<_MarkdownVideoPlayer> {
                       child: AnimatedOpacity(
                         opacity: _showControls ? 1.0 : 0.0,
                         duration: const Duration(milliseconds: 200),
-                        child: Container(
+                        child: DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
