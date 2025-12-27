@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
@@ -136,6 +137,9 @@ class _InteractiveImageEmbedState extends State<_InteractiveImageEmbed> {
   VideoController? _videoController;
   var _isVideoInitialized = false;
 
+  // Debounce timer to prevent rapid document updates during resize
+  Timer? _resizeDebounce;
+
   static const _handleSize = 10.0;
   static const _minSize = 50.0;
   static const _maxSize = 2000.0;
@@ -186,6 +190,7 @@ class _InteractiveImageEmbedState extends State<_InteractiveImageEmbed> {
 
   @override
   void dispose() {
+    _resizeDebounce?.cancel();
     _disposeVideo();
     super.dispose();
   }
@@ -196,14 +201,23 @@ class _InteractiveImageEmbedState extends State<_InteractiveImageEmbed> {
     }
   }
 
-  void _updateSize(double newWidth, double newHeight) {
+  void _updateSize(double newWidth, double newHeight, {bool saveNow = false}) {
     final clampedWidth = newWidth.clamp(_minSize, _maxSize);
     final clampedHeight = newHeight.clamp(_minSize, _maxSize);
 
     setState(() {
       _element = _element.copyWith(width: clampedWidth, height: clampedHeight);
     });
-    widget.onChanged(_element);
+
+    // Debounce document updates to prevent duplicates during rapid resizing
+    _resizeDebounce?.cancel();
+    if (saveNow) {
+      widget.onChanged(_element);
+    } else {
+      _resizeDebounce = Timer(const Duration(milliseconds: 300), () {
+        if (mounted) widget.onChanged(_element);
+      });
+    }
   }
 
   void _openFullscreen() {
@@ -291,19 +305,22 @@ class _InteractiveImageEmbedState extends State<_InteractiveImageEmbed> {
   Widget _buildImageContent() {
     final file = File(_element.path);
 
-    return Image.file(
-      file,
-      fit: BoxFit.cover,
+    return Container(
       width: _element.width ?? 200,
       height: _element.height ?? 200,
-      errorBuilder: (context, error, stackTrace) {
-        return ColoredBox(
-          color: Colors.grey[300]!,
-          child: const Center(
-            child: Icon(Icons.broken_image, size: 48, color: Colors.grey),
-          ),
-        );
-      },
+      color: Colors.grey[100],
+      child: Image.file(
+        file,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return ColoredBox(
+            color: Colors.grey[300]!,
+            child: const Center(
+              child: Icon(Icons.broken_image, size: 48, color: Colors.grey),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -359,7 +376,7 @@ class _InteractiveImageEmbedState extends State<_InteractiveImageEmbed> {
     // Show actual video player
     return Stack(
       children: [
-        Video(controller: _videoController!, fit: BoxFit.cover),
+        Video(controller: _videoController!, fit: BoxFit.contain),
         // Video controls overlay
         Positioned(
           bottom: 0,
@@ -414,23 +431,56 @@ class _InteractiveImageEmbedState extends State<_InteractiveImageEmbed> {
     Alignment alignment,
     _ResizeDirection direction,
   ) {
-    return Positioned.fill(
-      child: Align(
-        alignment: alignment,
-        child: GestureDetector(
-          onPanStart: (_) => setState(() => _isResizing = true),
-          onPanUpdate: (details) => _handleResize(details, direction),
-          onPanEnd: (_) => setState(() => _isResizing = false),
-          child: MouseRegion(
-            cursor: _getCursorForDirection(direction),
-            child: Container(
-              width: _handleSize,
-              height: _handleSize,
-              decoration: BoxDecoration(
-                color: colorScheme.primary,
-                border: Border.all(color: Colors.white, width: 1),
-                shape: BoxShape.circle,
-              ),
+    // Calculate position based on alignment to avoid Positioned.fill
+    final width = (_element.width ?? 200) + _handleSize * 2;
+    final height = (_element.height ?? 200) + _handleSize * 2;
+
+    double? left, right, top, bottom;
+
+    // Horizontal position
+    if (alignment.x == -1) {
+      left = 0;
+    } else if (alignment.x == 1) {
+      right = 0;
+    } else {
+      left = (width - _handleSize) / 2;
+    }
+
+    // Vertical position
+    if (alignment.y == -1) {
+      top = 0;
+    } else if (alignment.y == 1) {
+      bottom = 0;
+    } else {
+      top = (height - _handleSize) / 2;
+    }
+
+    return Positioned(
+      left: left,
+      right: right,
+      top: top,
+      bottom: bottom,
+      child: GestureDetector(
+        onPanStart: (_) => setState(() => _isResizing = true),
+        onPanUpdate: (details) => _handleResize(details, direction),
+        onPanEnd: (_) {
+          setState(() => _isResizing = false);
+          // Save document after resize completes
+          _updateSize(
+            _element.width ?? 200,
+            _element.height ?? 200,
+            saveNow: true,
+          );
+        },
+        child: MouseRegion(
+          cursor: _getCursorForDirection(direction),
+          child: Container(
+            width: _handleSize,
+            height: _handleSize,
+            decoration: BoxDecoration(
+              color: colorScheme.primary,
+              border: Border.all(color: Colors.white, width: 1),
+              shape: BoxShape.circle,
             ),
           ),
         ),
@@ -482,7 +532,18 @@ class _InteractiveImageEmbedState extends State<_InteractiveImageEmbed> {
         newWidth += details.delta.dx;
     }
 
-    _updateSize(newWidth, newHeight);
+    // Update local state only during drag - don't save to document yet
+    _updateSizeLocal(newWidth, newHeight);
+  }
+
+  /// Update local state without triggering document save
+  void _updateSizeLocal(double newWidth, double newHeight) {
+    final clampedWidth = newWidth.clamp(_minSize, _maxSize);
+    final clampedHeight = newHeight.clamp(_minSize, _maxSize);
+
+    setState(() {
+      _element = _element.copyWith(width: clampedWidth, height: clampedHeight);
+    });
   }
 }
 
@@ -1373,11 +1434,49 @@ class _TextFileEditorState extends State<TextFileEditor> {
           ext.endsWith('.mkv') ||
           ext.endsWith('.webm');
 
-      // Create MediaElement with default size
+      // Get actual image dimensions for proper initial sizing
+      double? width;
+      double? height;
+      if (!isVideo) {
+        try {
+          final imageFile = File(newPath);
+          final bytes = await imageFile.readAsBytes();
+          final codec = await ui.instantiateImageCodec(bytes);
+          final frame = await codec.getNextFrame();
+          final imageWidth = frame.image.width.toDouble();
+          final imageHeight = frame.image.height.toDouble();
+
+          // Scale down if too large, keeping aspect ratio
+          const maxInitialSize = 500.0;
+          if (imageWidth > maxInitialSize || imageHeight > maxInitialSize) {
+            final scale =
+                maxInitialSize /
+                (imageWidth > imageHeight ? imageWidth : imageHeight);
+            width = imageWidth * scale;
+            height = imageHeight * scale;
+          } else {
+            width = imageWidth;
+            height = imageHeight;
+          }
+          frame.image.dispose();
+        } catch (e) {
+          // Fall back to default size if we can't read dimensions
+          width = 300;
+          height = 200;
+        }
+      } else {
+        // Default size for videos
+        width = 400;
+        height = 225; // 16:9 aspect ratio
+      }
+
+      // Create MediaElement with actual dimensions
       final element = MediaElement(
         path: newPath,
         mediaType: isVideo ? MediaType.video : MediaType.image,
         sourceType: MediaSourceType.local,
+        width: width,
+        height: height,
       );
 
       // Insert custom media embed with metadata into document
