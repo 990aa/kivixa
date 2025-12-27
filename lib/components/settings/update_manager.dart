@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:background_downloader/background_downloader.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -222,12 +223,54 @@ abstract class UpdateManager {
     }
 
     final Map<String, dynamic> json = jsonDecode(apiResponse);
+    final assets = json['assets'] as List;
+
+    // For Android, try to find the APK matching the device architecture
+    if (platform == TargetPlatform.android) {
+      final archSuffix = await _getAndroidArchSuffix();
+      if (archSuffix != null) {
+        // Try to find architecture-specific APK first (e.g., Kivixa-Android-0.1.2-arm64.apk)
+        final archAsset = assets.firstWhere(
+          (asset) =>
+              (asset['name'] as String).toLowerCase().contains(archSuffix) &&
+              (asset['name'] as String).endsWith('.apk') &&
+              !(asset['name'] as String).toLowerCase().contains('foss'),
+          orElse: () => null,
+        );
+        if (archAsset != null) {
+          return archAsset['browser_download_url'];
+        }
+      }
+    }
+
+    // Fallback to generic pattern matching
     final RegExp platformFileRegex = UpdateManager.platformFileRegex[platform]!;
-    final Map<String, dynamic>? asset = (json['assets'] as List).firstWhere(
+    final Map<String, dynamic>? asset = assets.firstWhere(
       (asset) => platformFileRegex.hasMatch(asset['name']),
       orElse: () => null,
     );
     return asset?['browser_download_url'];
+  }
+
+  /// Gets the Android architecture suffix for the current device
+  static Future<String?> _getAndroidArchSuffix() async {
+    if (!Platform.isAndroid) return null;
+
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
+      final abis = androidInfo.supportedAbis;
+
+      // Map ABIs to our naming convention
+      if (abis.contains('arm64-v8a')) return 'arm64';
+      if (abis.contains('armeabi-v7a')) return 'armv7';
+      if (abis.contains('x86_64')) return 'x86_64';
+
+      return null;
+    } catch (e) {
+      log.warning('Failed to get Android architecture: $e');
+      return null;
+    }
   }
 
   static final Map<TargetPlatform, RegExp> platformFileRegex = {
