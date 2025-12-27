@@ -615,7 +615,8 @@ final kivixaVersion = KivixaVersion.fromNumber(buildNumber);
     await updateAndroidBuildGradle();
     await updateIOSPlist();
     await updateWindowsRunner();
-    await updateReadme();
+    // README.md is now updated by publish_release.ps1 instead
+    // await updateReadme();
     await updateChangelog();
 
     if (dryRun) {

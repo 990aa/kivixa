@@ -102,9 +102,76 @@ if (($releaseNotes.Split("`n")).Count -gt 10) {
 Write-Host ""
 
 # ============================================
-# Step 3: Verify and collect build artifacts
+# Step 3: Update README.md with download links
 # ============================================
-Write-Host "[3/6] Collecting build artifacts..." -ForegroundColor Yellow
+Write-Host "[3/7] Updating README.md download links..." -ForegroundColor Yellow
+
+$readmeFile = Join-Path $projectRoot "README.md"
+if (Test-Path $readmeFile) {
+    $readmeContent = Get-Content $readmeFile -Raw
+    $readmeModified = $false
+
+    # URL encode the + sign for the tag
+    $tagEncoded = "v$version%2B$buildNumber"
+    $tagPlain = "v$version+$buildNumber"
+
+    # Update Version badge
+    $versionBadgePattern = '\[!\[Version\]\(https://img\.shields\.io/badge/Version-[^\)]+\)\]\(CHANGELOG\.md\)'
+    $versionBadgeReplacement = "[![Version](https://img.shields.io/badge/Version-$version%2B$buildNumber--beta-orange)](CHANGELOG.md)"
+    if ($readmeContent -match $versionBadgePattern) {
+        $readmeContent = $readmeContent -replace $versionBadgePattern, $versionBadgeReplacement
+        $readmeModified = $true
+    }
+
+    # Update Windows download link
+    $windowsPattern = '\[!\[Download Windows\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Setup-[^\)]+\.exe\)'
+    $windowsReplacement = "[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/$tagEncoded/Kivixa-Setup-$version.exe)"
+    if ($readmeContent -match $windowsPattern) {
+        $readmeContent = $readmeContent -replace $windowsPattern, $windowsReplacement
+        $readmeModified = $true
+    }
+
+    # Update Android ARM64 download link
+    $androidArm64Pattern = '\[!\[Android ARM64\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+arm64[^\)]*\.apk\)'
+    $androidArm64Replacement = "[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/$tagEncoded/Kivixa-Android-$version-arm64.apk)"
+    if ($readmeContent -match $androidArm64Pattern) {
+        $readmeContent = $readmeContent -replace $androidArm64Pattern, $androidArm64Replacement
+        $readmeModified = $true
+    }
+
+    # Update Android ARMv7 download link
+    $androidArmv7Pattern = '\[!\[Android ARMv7\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+armv7[^\)]*\.apk\)'
+    $androidArmv7Replacement = "[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/$tagEncoded/Kivixa-Android-$version-armv7.apk)"
+    if ($readmeContent -match $androidArmv7Pattern) {
+        $readmeContent = $readmeContent -replace $androidArmv7Pattern, $androidArmv7Replacement
+        $readmeModified = $true
+    }
+
+    # Update Android x86_64 download link
+    $androidX64Pattern = '\[!\[Android x86_64\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+x86_64[^\)]*\.apk\)'
+    $androidX64Replacement = "[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/$tagEncoded/Kivixa-Android-$version-x86_64.apk)"
+    if ($readmeContent -match $androidX64Pattern) {
+        $readmeContent = $readmeContent -replace $androidX64Pattern, $androidX64Replacement
+        $readmeModified = $true
+    }
+
+    if ($readmeModified) {
+        if (-not $DryRun) {
+            $readmeContent | Set-Content $readmeFile -NoNewline
+        }
+        Write-Host "  [OK] README.md updated with download links for v$version" -ForegroundColor Green
+    } else {
+        Write-Host "  [SKIP] No matching patterns found in README.md" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "  [SKIP] README.md not found" -ForegroundColor Yellow
+}
+Write-Host ""
+
+# ============================================
+# Step 4: Verify and collect build artifacts
+# ============================================
+Write-Host "[4/7] Collecting build artifacts..." -ForegroundColor Yellow
 
 $androidBuildDir = Join-Path $projectRoot "build\app\outputs\flutter-apk"
 $windowsBuildDir = Join-Path $projectRoot "build_windows_installer"
@@ -171,9 +238,9 @@ if ($assets.Count -eq 0) {
 }
 
 # ============================================
-# Step 4: Git operations - commit, tag, push
+# Step 5: Git operations - commit, tag, push
 # ============================================
-Write-Host "[4/6] Git operations..." -ForegroundColor Yellow
+Write-Host "[5/7] Git operations..." -ForegroundColor Yellow
 
 Push-Location $projectRoot
 try {
@@ -229,9 +296,9 @@ try {
 Write-Host ""
 
 # ============================================
-# Step 5: Create GitHub Release
+# Step 6: Create GitHub Release
 # ============================================
-Write-Host "[5/6] Creating GitHub release..." -ForegroundColor Yellow
+Write-Host "[6/7] Creating GitHub release..." -ForegroundColor Yellow
 
 # Check if gh CLI is installed
 $ghVersion = gh --version 2>$null
@@ -277,9 +344,9 @@ if (-not $DryRun) {
 Write-Host ""
 
 # ============================================
-# Step 6: Cleanup and Summary
+# Step 7: Cleanup and Summary
 # ============================================
-Write-Host "[6/6] Cleanup..." -ForegroundColor Yellow
+Write-Host "[7/7] Cleanup..." -ForegroundColor Yellow
 
 if (-not $DryRun) {
     # Keep the release assets directory for reference

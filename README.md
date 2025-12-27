@@ -15,12 +15,12 @@
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
 [![Version](https://img.shields.io/badge/Version-0.1.2%2B1002--beta-orange)](CHANGELOG.md)
 
-[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.1.2+1002/Kivixa-Setup-0.1.2.exe)
+[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.1.2%2B1002/Kivixa-Setup-0.1.2.exe)
 
 **Android Downloads:**
-[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.1.2/Kivixa-Android-0.1.2-arm64.apk)
-[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.1.2/Kivixa-Android-0.1.2-armv7.apk)
-[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.1.2/Kivixa-Android-0.1.2-x86_64.apk)
+[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.1.2%2B1002/Kivixa-Android-0.1.2-arm64.apk)
+[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.1.2%2B1002/Kivixa-Android-0.1.2-armv7.apk)
+[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.1.2%2B1002/Kivixa-Android-0.1.2-x86_64.apk)
 
 </div>
 
