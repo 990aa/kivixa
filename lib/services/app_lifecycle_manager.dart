@@ -6,7 +6,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 /// Callback type for section state changes
@@ -43,7 +42,7 @@ class AppLifecycleManager with WidgetsBindingObserver {
   bool get isIdle => _isIdle;
 
   /// Duration of inactivity before triggering idle mode
-  Duration idleTimeout = const Duration(minutes: 5);
+  var idleTimeout = const Duration(minutes: 5);
 
   // Section management
   final _activeSections = <String>{};

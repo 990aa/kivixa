@@ -131,16 +131,14 @@ class BrowserTab {
   String? goBack() {
     if (!canGoBack) return null;
     _historyIndex--;
-    url = _historyStack[_historyIndex];
-    return url;
+    return url = _historyStack[_historyIndex];
   }
 
   /// Go forward in this tab's history and return the URL
   String? goForward() {
     if (!canGoForward) return null;
     _historyIndex++;
-    url = _historyStack[_historyIndex];
-    return url;
+    return url = _historyStack[_historyIndex];
   }
 
   /// Get the current history stack (for debugging/display)

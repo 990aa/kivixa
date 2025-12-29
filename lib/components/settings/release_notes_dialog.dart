@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/settings/app_info.dart';
-import 'package:kivixa/components/settings/update_loading_page.dart';
 import 'package:kivixa/components/settings/update_manager.dart';
 import 'package:kivixa/components/theming/adaptive_alert_dialog.dart';
 import 'package:kivixa/data/kivixa_version.dart';
@@ -22,12 +21,29 @@ class _UpdatesDialogState extends State<UpdatesDialog> {
   var _isLoading = true;
   String? _changelog;
   String? _errorMessage;
-  int? _latestVersionNumber;
 
   @override
   void initState() {
     super.initState();
     _loadVersionInfo();
+    // Listen to background download state changes
+    UpdateManager.backgroundState.addListener(_onBackgroundStateChanged);
+    UpdateManager.downloadProgress.addListener(_onProgressChanged);
+  }
+
+  @override
+  void dispose() {
+    UpdateManager.backgroundState.removeListener(_onBackgroundStateChanged);
+    UpdateManager.downloadProgress.removeListener(_onProgressChanged);
+    super.dispose();
+  }
+
+  void _onBackgroundStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _onProgressChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadVersionInfo() async {
@@ -35,14 +51,11 @@ class _UpdatesDialogState extends State<UpdatesDialog> {
       // Force fresh check - clear cached version first
       UpdateManager.newestVersion = null;
 
-      // Check for updates - this fetches from GitHub and populates UpdateManager.newestVersion
-      final status = await UpdateManager.checkForUpdate();
-      _latestVersionNumber = UpdateManager.newestVersion;
+      // Check for updates - this fetches from GitHub and populates UpdateManager fields
+      await UpdateManager.checkForUpdate();
 
-      // Only load changelog if we have a valid latest version
-      if (_latestVersionNumber != null && _latestVersionNumber! > 0) {
-        _changelog = await UpdateManager.getChangelog();
-      }
+      // Get changelog (uses release body from GitHub if available)
+      _changelog = await UpdateManager.getChangelog();
     } catch (e) {
       _errorMessage = 'Could not check for updates: ${e.toString()}';
     } finally {
@@ -58,28 +71,22 @@ class _UpdatesDialogState extends State<UpdatesDialog> {
       _isLoading = true;
       _errorMessage = null;
       _changelog = null;
-      _latestVersionNumber = null;
     });
     await _loadVersionInfo();
   }
 
-  bool get _hasUpdate {
-    if (_latestVersionNumber == null) return false;
-    // Compare ignoring revision
-    final current = KivixaVersion.fromNumber(
-      version.buildNumber,
-    ).copyWith(revision: 0);
-    final latest = KivixaVersion.fromNumber(
-      _latestVersionNumber!,
-    ).copyWith(revision: 0);
-    return latest.buildNumber > current.buildNumber;
-  }
+  bool get _hasUpdate => UpdateManager.isUpdateAvailable();
 
   String get _currentVersionString => version.buildName;
 
   String? get _latestVersionString {
-    if (_latestVersionNumber == null) return null;
-    final ver = KivixaVersion.fromNumber(_latestVersionNumber!);
+    // Use the version name from GitHub API if available
+    if (UpdateManager.latestVersionName != null) {
+      return UpdateManager.latestVersionName;
+    }
+    // Fallback to build number conversion
+    if (UpdateManager.newestVersion == null) return null;
+    final ver = KivixaVersion.fromNumber(UpdateManager.newestVersion!);
     return ver.buildName;
   }
 
@@ -91,14 +98,19 @@ class _UpdatesDialogState extends State<UpdatesDialog> {
     }
     if (!mounted) return;
 
-    Navigator.of(context).pop();
-    if (!mounted) return;
-    await UpdateLoadingPage.open(context);
+    // Start background download instead of blocking UI
+    UpdateManager.startBackgroundUpdate();
+  }
+
+  Future<void> _installUpdate() async {
+    await UpdateManager.installUpdate();
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = ColorScheme.of(context);
+    final backgroundState = UpdateManager.backgroundState.value;
+    final downloadProgress = UpdateManager.downloadProgress.value;
 
     return AdaptiveAlertDialog(
       title: Row(
@@ -140,6 +152,15 @@ class _UpdatesDialogState extends State<UpdatesDialog> {
                     _errorMessage!,
                     style: TextStyle(color: colorScheme.error),
                   )
+                else if (backgroundState == BackgroundUpdateState.downloading)
+                  _buildDownloadProgress(context, downloadProgress)
+                else if (backgroundState ==
+                    BackgroundUpdateState.readyToInstall)
+                  _buildReadyToInstall(context)
+                else if (backgroundState == BackgroundUpdateState.installing)
+                  _buildInstalling(context)
+                else if (backgroundState == BackgroundUpdateState.error)
+                  _buildDownloadError(context)
                 else if (_hasUpdate)
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -189,18 +210,187 @@ class _UpdatesDialogState extends State<UpdatesDialog> {
                 ],
               ],
             ),
-      actions: [
-        CupertinoDialogAction(
-          onPressed: () => Navigator.pop(context),
-          child: Text(MaterialLocalizations.of(context).closeButtonLabel),
-        ),
-        if (_hasUpdate)
-          CupertinoDialogAction(
-            onPressed: _startUpdate,
-            child: const Text('Update'),
-          ),
-      ],
+      actions: _buildActions(context, backgroundState),
     );
+  }
+
+  Widget _buildDownloadProgress(BuildContext context, double progress) {
+    final colorScheme = ColorScheme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Downloading update... ${(progress * 100).toStringAsFixed(0)}%',
+                  style: TextStyle(color: colorScheme.onPrimaryContainer),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          LinearProgressIndicator(
+            value: progress,
+            backgroundColor: colorScheme.onPrimaryContainer.withValues(
+              alpha: 0.2,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'You can close this dialog and continue working.',
+            style: TextStyle(
+              fontSize: 12,
+              color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReadyToInstall(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.tertiaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.download_done, color: colorScheme.onTertiaryContainer),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Update downloaded! Ready to install.',
+              style: TextStyle(
+                color: colorScheme.onTertiaryContainer,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInstalling(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Installing update...',
+              style: TextStyle(color: colorScheme.onPrimaryContainer),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDownloadError(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.errorContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: colorScheme.onErrorContainer),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Download failed. Please try again.',
+              style: TextStyle(color: colorScheme.onErrorContainer),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<CupertinoDialogAction> _buildActions(
+    BuildContext context,
+    BackgroundUpdateState state,
+  ) {
+    final actions = <CupertinoDialogAction>[
+      CupertinoDialogAction(
+        onPressed: () => Navigator.pop(context),
+        child: Text(MaterialLocalizations.of(context).closeButtonLabel),
+      ),
+    ];
+
+    switch (state) {
+      case BackgroundUpdateState.idle:
+        if (_hasUpdate) {
+          actions.add(
+            CupertinoDialogAction(
+              onPressed: _startUpdate,
+              child: const Text('Download Update'),
+            ),
+          );
+        }
+      case BackgroundUpdateState.downloading:
+        actions.add(
+          CupertinoDialogAction(
+            onPressed: () {
+              UpdateManager.cancelBackgroundUpdate();
+            },
+            isDestructiveAction: true,
+            child: const Text('Cancel'),
+          ),
+        );
+      case BackgroundUpdateState.readyToInstall:
+        actions.add(
+          CupertinoDialogAction(
+            onPressed: _installUpdate,
+            child: const Text('Install & Restart'),
+          ),
+        );
+      case BackgroundUpdateState.installing:
+        // No actions while installing
+        break;
+      case BackgroundUpdateState.error:
+        actions.add(
+          CupertinoDialogAction(
+            onPressed: () {
+              UpdateManager.cancelBackgroundUpdate();
+              _startUpdate();
+            },
+            child: const Text('Retry'),
+          ),
+        );
+    }
+
+    return actions;
   }
 }
 

@@ -13,13 +13,12 @@ import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/version.dart' as version;
 import 'package:logging/logging.dart';
 import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 
 abstract class UpdateManager {
   static final log = Logger('UpdateManager');
 
-  static final Uri versionUrl = Uri.parse(
-    'https://raw.githubusercontent.com/990aa/kivixa/refs/heads/main/lib/data/version.dart',
-  );
+  /// GitHub releases API endpoint - fetches from actual releases
   static final Uri apiUrl = Uri.parse(
     'https://api.github.com/repos/990aa/kivixa/releases/latest',
   );
@@ -28,7 +27,17 @@ abstract class UpdateManager {
   static final ValueNotifier<UpdateStatus> status = ValueNotifier(
     UpdateStatus.upToDate,
   );
+
+  /// Cached latest version info
   static int? newestVersion;
+  static String? latestVersionName;
+  static String? latestReleaseBody;
+
+  /// Background download state
+  static final ValueNotifier<BackgroundUpdateState> backgroundState =
+      ValueNotifier(BackgroundUpdateState.idle);
+  static final ValueNotifier<double> downloadProgress = ValueNotifier(0.0);
+  static String? downloadedFilePath;
 
   static var _hasShownUpdateDialog = false;
   static Future<void> showUpdateDialog(
@@ -63,7 +72,10 @@ abstract class UpdateManager {
     const int currentVersion = version.buildNumber;
 
     try {
-      newestVersion = await getNewestVersion();
+      final versionInfo = await fetchLatestVersionFromGitHub();
+      newestVersion = versionInfo.$1;
+      latestVersionName = versionInfo.$2;
+      latestReleaseBody = versionInfo.$3;
     } catch (e) {
       log.info(
         'Unable to check for update (this is normal for development/forks): $e',
@@ -79,86 +91,87 @@ abstract class UpdateManager {
     return getUpdateStatus(currentVersion, newestVersion ?? 0);
   }
 
-  /// Returns the version number hosted on GitHub (at [versionUrl]).
+  /// Fetches the latest release from GitHub API and returns (buildNumber, versionName, releaseBody)
+  static Future<(int?, String?, String?)> fetchLatestVersionFromGitHub([
+    String? apiResponse,
+  ]) async {
+    if (apiResponse == null) {
+      final http.Response response;
+      try {
+        response = await http.get(
+          apiUrl,
+          headers: {'Accept': 'application/vnd.github.v3+json'},
+        );
+      } catch (e) {
+        throw SocketException('Failed to fetch latest release: $e');
+      }
+      if (response.statusCode >= 400) {
+        throw SocketException(
+          'Failed to fetch latest release, HTTP status code ${response.statusCode}',
+        );
+      }
+      apiResponse = response.body;
+    }
+
+    final Map<String, dynamic> json = jsonDecode(apiResponse);
+
+    // Get tag_name (e.g., "v0.1.3" or "v0.1.3+103")
+    final String? tagName = json['tag_name'] as String?;
+    final String? releaseBody = json['body'] as String?;
+
+    if (tagName == null) {
+      return (null, null, null);
+    }
+
+    // Parse version from tag (supports "v1.2.3", "v1.2.3+build", "1.2.3")
+    final match = RegExp(
+      r'v?(\d+)\.(\d+)\.(\d+)(?:\+(\d+))?',
+    ).firstMatch(tagName);
+    if (match == null) {
+      return (null, null, null);
+    }
+
+    final major = int.parse(match.group(1)!);
+    final minor = int.parse(match.group(2)!);
+    final patch = int.parse(match.group(3)!);
+    final revision = int.tryParse(match.group(4) ?? '0') ?? 0;
+
+    final buildNumber = KivixaVersion(
+      major,
+      minor,
+      patch,
+      revision,
+    ).buildNumber;
+    final versionName = '$major.$minor.$patch';
+
+    log.info(
+      'Fetched latest version from GitHub: $versionName (build $buildNumber)',
+    );
+
+    return (buildNumber, versionName, releaseBody);
+  }
+
+  /// Returns the version number hosted on GitHub.
   /// If you provide a [latestVersionFile] (i.e. for testing),
   /// it will be used instead of downloading from GitHub.
   @visibleForTesting
   static Future<int?> getNewestVersion([String? latestVersionFile]) async {
-    latestVersionFile ??= await _downloadLatestVersionFileFromGitHub();
-
-    // Some tests (and potential callers) pass the GitHub Releases API JSON.
-    // If this looks like JSON, try to parse tag_name (e.g. "v1.0.0").
-    final trimmed = latestVersionFile.trimLeft();
-    if (trimmed.startsWith('{')) {
-      try {
-        final Map<String, dynamic> json = jsonDecode(latestVersionFile);
-        final String? tagName =
-            (json['tag_name'] as String?) ?? (json['name'] as String?);
-        if (tagName != null) {
-          final match = RegExp(
-            r'v?(\d+\.\d+\.\d+)(?:\+(\d+))?',
-          ).firstMatch(tagName);
-          final versionName = match?.group(1);
-          final buildMeta = match?.group(2);
-          if (versionName != null) {
-            final revision = int.tryParse(buildMeta ?? '0') ?? 0;
-            return KivixaVersion.fromName(
-              versionName,
-            ).copyWith(revision: revision).buildNumber;
-          }
-        }
-
-        // Final fallback: parse from an asset download URL like
-        // https://github.com/<org>/<repo>/releases/download/v100000/<asset>
-        final assets = json['assets'];
-        if (assets is List && assets.isNotEmpty) {
-          for (final asset in assets) {
-            if (asset is! Map) continue;
-            final url = asset['browser_download_url'];
-            if (url is! String) continue;
-            final m = RegExp(r'releases/download/v(\d+)/').firstMatch(url);
-            final v = int.tryParse(m?.group(1) ?? '');
-            if (v != null && v > 0) return v;
-          }
-        }
-
-        // Last resort: parse a numeric tag_name like "v1000".
-        if (tagName != null) {
-          final numericTag = RegExp(r'v(\d+)').firstMatch(tagName)?.group(1);
-          final numericTagValue = int.tryParse(numericTag ?? '');
-          if (numericTagValue != null && numericTagValue > 0) {
-            return numericTagValue;
-          }
-        }
-      } catch (_) {
-        // Fall through to the version.dart parsing logic below.
+    if (latestVersionFile != null) {
+      // Parse test data
+      final trimmed = latestVersionFile.trimLeft();
+      if (trimmed.startsWith('{')) {
+        final result = await fetchLatestVersionFromGitHub(latestVersionFile);
+        return result.$1;
       }
+      // Fallback to version.dart format
+      final buildNumberMatch = RegExp(
+        r'const\s+buildNumber\s*=\s*(\d+)\s*;',
+      ).firstMatch(latestVersionFile);
+      return int.tryParse(buildNumberMatch?.group(1) ?? '0');
     }
 
-    // Extract buildNumber from a version.dart-like file.
-    final buildNumberMatch = RegExp(
-      r'const\s+buildNumber\s*=\s*(\d+)\s*;',
-    ).firstMatch(latestVersionFile);
-    final int newestVersion =
-        int.tryParse(buildNumberMatch?.group(1) ?? '0') ?? 0;
-    if (newestVersion == 0) return null;
-    return newestVersion;
-  }
-
-  static Future<String> _downloadLatestVersionFileFromGitHub() async {
-    // download the latest version.dart
-    final http.Response response;
-    try {
-      response = await http.get(versionUrl);
-    } catch (e) {
-      throw SocketException('Failed to download version.dart, ${e.toString()}');
-    }
-    if (response.statusCode >= 400)
-      throw SocketException(
-        'Failed to download version.dart, HTTP status code ${response.statusCode}',
-      );
-
-    return response.body;
+    final result = await fetchLatestVersionFromGitHub();
+    return result.$1;
   }
 
   @visibleForTesting
@@ -166,15 +179,15 @@ abstract class UpdateManager {
     int currentVersionNumber,
     int newestVersionNumber,
   ) {
-    final currentVersion = KivixaVersion.fromNumber(
-      currentVersionNumber,
-    ).copyWith(revision: 0);
-    final newestVersion = KivixaVersion.fromNumber(
-      newestVersionNumber,
-    ).copyWith(revision: 0);
+    final currentVersion = KivixaVersion.fromNumber(currentVersionNumber);
+    final newestVersion = KivixaVersion.fromNumber(newestVersionNumber);
 
-    // Check if we're up to date
-    if (newestVersion.buildNumber <= currentVersion.buildNumber) {
+    // Proper semantic version comparison: major.minor.patch
+    // Compare major first, then minor, then patch
+    final comparison = compareVersions(currentVersion, newestVersion);
+
+    if (comparison >= 0) {
+      // Current version is equal to or newer than latest
       return UpdateStatus.upToDate;
     }
 
@@ -194,6 +207,34 @@ abstract class UpdateManager {
     }
 
     return UpdateStatus.updateRecommended;
+  }
+
+  /// Compare two versions semantically.
+  /// Returns negative if v1 < v2, zero if v1 == v2, positive if v1 > v2
+  @visibleForTesting
+  static int compareVersions(KivixaVersion v1, KivixaVersion v2) {
+    // Compare major version
+    if (v1.major != v2.major) {
+      return v1.major - v2.major;
+    }
+    // Compare minor version
+    if (v1.minor != v2.minor) {
+      return v1.minor - v2.minor;
+    }
+    // Compare patch version
+    if (v1.patch != v2.patch) {
+      return v1.patch - v2.patch;
+    }
+    // Compare revision (ignore for update comparison - treat as equal)
+    return 0;
+  }
+
+  /// Check if an update is available (latest > current)
+  static bool isUpdateAvailable() {
+    if (newestVersion == null) return false;
+    final current = KivixaVersion.fromNumber(version.buildNumber);
+    final latest = KivixaVersion.fromNumber(newestVersion!);
+    return compareVersions(current, latest) < 0;
   }
 
   static Future<String?> getLatestDownloadUrl([
@@ -311,12 +352,107 @@ abstract class UpdateManager {
     }
   }
 
+  /// Start downloading update in the background.
+  /// User can continue working while the download happens.
+  static Future<void> startBackgroundUpdate() async {
+    if (backgroundState.value == BackgroundUpdateState.downloading) {
+      log.info('Background download already in progress');
+      return;
+    }
+
+    final downloadUrl = await getLatestDownloadUrl();
+    if (downloadUrl == null) {
+      log.warning('No download URL available for this platform');
+      backgroundState.value = BackgroundUpdateState.error;
+      return;
+    }
+
+    backgroundState.value = BackgroundUpdateState.downloading;
+    downloadProgress.value = 0.0;
+    downloadedFilePath = null;
+
+    final fileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
+
+    // Get the downloads/temp directory
+    final tempDir = await getTemporaryDirectory();
+    final updateDir = Directory('${tempDir.path}/kivixa_updates');
+    if (!await updateDir.exists()) {
+      await updateDir.create(recursive: true);
+    }
+
+    final task = DownloadTask(
+      url: downloadUrl,
+      filename: fileName,
+      directory: updateDir.path,
+    );
+
+    log.info('Starting background download: $downloadUrl');
+
+    final result = await FileDownloader().download(
+      task,
+      onStatus: (status) {
+        log.info('Background download status: $status');
+        if (status == TaskStatus.failed || status == TaskStatus.canceled) {
+          backgroundState.value = BackgroundUpdateState.error;
+        }
+      },
+      onProgress: (progress) {
+        downloadProgress.value = progress;
+      },
+    );
+
+    if (result.status == TaskStatus.complete) {
+      downloadedFilePath = await task.filePath();
+      backgroundState.value = BackgroundUpdateState.readyToInstall;
+      log.info('Background download complete: $downloadedFilePath');
+    } else {
+      backgroundState.value = BackgroundUpdateState.error;
+      log.severe(
+        'Background download failed: ${result.status} ${result.exception}',
+      );
+    }
+  }
+
+  /// Install the downloaded update.
+  /// On Windows, this will close the app to avoid installer conflicts.
+  static Future<void> installUpdate() async {
+    if (downloadedFilePath == null) {
+      log.warning('No downloaded file to install');
+      return;
+    }
+
+    backgroundState.value = BackgroundUpdateState.installing;
+    log.info('Installing update from: $downloadedFilePath');
+
+    await OpenFile.open(downloadedFilePath!);
+
+    // On Windows, exit the app to avoid conflicts with the installer
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      exit(0);
+    }
+  }
+
+  /// Cancel any ongoing background download
+  static void cancelBackgroundUpdate() {
+    backgroundState.value = BackgroundUpdateState.idle;
+    downloadProgress.value = 0.0;
+    downloadedFilePath = null;
+    // Note: FileDownloader doesn't expose a direct cancel method for our use case
+  }
+
   static Future<String?> getChangelog({
     String localeCode = 'en-US',
     @visibleForTesting int? newestVersion,
   }) async {
     newestVersion ??= UpdateManager.newestVersion;
-    assert(newestVersion != null);
+
+    // If we have release body from GitHub API, use that
+    if (latestReleaseBody != null && latestReleaseBody!.isNotEmpty) {
+      return latestReleaseBody;
+    }
+
+    // Fallback to metadata file
+    if (newestVersion == null) return null;
 
     final url =
         'https://raw.githubusercontent.com/990aa/kivixa/refs/heads/main/'
@@ -335,6 +471,24 @@ abstract class UpdateManager {
     if (response.body.isEmpty) return null;
     return response.body;
   }
+}
+
+/// State of the background update download
+enum BackgroundUpdateState {
+  /// No update in progress
+  idle,
+
+  /// Update is downloading in background
+  downloading,
+
+  /// Download complete, ready to install
+  readyToInstall,
+
+  /// Installing the update
+  installing,
+
+  /// An error occurred
+  error,
 }
 
 enum UpdateStatus {
