@@ -60,9 +60,20 @@ class CanvasPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CanvasPainter oldDelegate) {
+    // PERFORMANCE FIX: More precise repaint conditions
+    // Repaint if:
+    // 1. Currently drawing a stroke
+    // 2. Just finished drawing a stroke
+    // 3. Strokes changed (added/removed)
+    // 4. Selection changed
+    // 5. Invert mode changed
+    // 6. Scale changed significantly (affects path quality)
     return currentStroke != null ||
         oldDelegate.currentStroke != null ||
-        strokes.length != oldDelegate.strokes.length;
+        strokes.length != oldDelegate.strokes.length ||
+        currentSelection != oldDelegate.currentSelection ||
+        invert != oldDelegate.invert ||
+        (currentScale < 1) != (oldDelegate.currentScale < 1);
   }
 
   void _drawHighlighterStrokes(Canvas canvas, Rect canvasRect) {
@@ -153,7 +164,7 @@ class CanvasPainter extends CustomPainter {
         ..setFloat(0, color.r)
         ..setFloat(1, color.g)
         ..setFloat(2, color.b);
-        paint.maskFilter = _getPencilMaskFilter(currentStroke!.options.size);
+      paint.maskFilter = _getPencilMaskFilter(currentStroke!.options.size);
     }
 
     // Current stroke always uses high quality
