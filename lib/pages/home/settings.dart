@@ -208,13 +208,13 @@ class _SettingsPageState extends State<SettingsPage> {
                         child: OutlinedButton.icon(
                           onPressed: () => showDialog(
                             context: context,
-                            builder: (context) => const ReleaseNotesDialog(),
+                            builder: (context) => const UpdatesDialog(),
                           ),
                           icon: const Icon(
-                            Icons.new_releases_outlined,
+                            Icons.system_update_outlined,
                             size: 18,
                           ),
-                          label: const Text('Release Notes'),
+                          label: const Text('Updates'),
                         ),
                       ),
                     ],

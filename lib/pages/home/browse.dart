@@ -48,6 +48,9 @@ class _BrowsePageState extends State<BrowsePage> {
   var _filterType = FileFilterType.all; // all, handwritten, markdown, text
   var _sortType = SortType.aToZ; // A-Z, Z-A, latest-oldest, oldest-latest
 
+  // PERFORMANCE FIX: Cache file modification times to avoid sync I/O during sort
+  final Map<String, DateTime> _fileModTimeCache = {};
+
   @override
   void initState() {
     path = widget.initialPath;
@@ -103,6 +106,15 @@ class _BrowsePageState extends State<BrowsePage> {
     children =
         widget.overrideChildren ??
         await FileManager.getChildrenOfDirectory(path ?? '/');
+
+    // PERFORMANCE FIX: Clear and pre-populate file modification time cache
+    _fileModTimeCache.clear();
+    if (children != null) {
+      for (final file in children!.files) {
+        final filePath = "${path ?? ""}/$file";
+        _fileModTimeCache[filePath] = _computeFileModifiedTime(filePath);
+      }
+    }
 
     if (mounted) setState(() {});
   }
@@ -201,7 +213,13 @@ class _BrowsePageState extends State<BrowsePage> {
     return files;
   }
 
+  /// PERFORMANCE FIX: Use cached modification time for fast sorting
   DateTime _getFileModifiedTime(String filePath) {
+    return _fileModTimeCache[filePath] ?? _computeFileModifiedTime(filePath);
+  }
+
+  /// Actually query file system for modification time (called once per file when loading)
+  DateTime _computeFileModifiedTime(String filePath) {
     try {
       // Check .kvx file first, then .md, then .kvtx
       if (FileManager.doesFileExist('$filePath${Editor.extension}')) {

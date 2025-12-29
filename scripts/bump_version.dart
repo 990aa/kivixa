@@ -547,7 +547,7 @@ final kivixaVersion = KivixaVersion.fromNumber(buildNumber);
     return true;
   }
 
-  /// Update CHANGELOG.md with new version entry
+  /// Update CHANGELOG.md with new version entry at the END of the file
   Future<bool> updateChangelog() async {
     const filePath = 'CHANGELOG.md';
     final file = File(filePath);
@@ -573,33 +573,25 @@ final kivixaVersion = KivixaVersion.fromNumber(buildNumber);
       return true;
     }
 
-    // Find the line after the header section (after the format description)
-    // Insert new version entry after "## [X.Y.Z] - DATE" pattern or before "## Template"
-    final templatePattern = RegExp(r'\n## Template for Future Entries');
-    final insertPoint = templatePattern.firstMatch(content);
-
-    if (insertPoint != null) {
-      final newEntry =
-          '''
+    // Add new version entry at the END of the file
+    final newEntry =
+        '''
 
 ## [${version.versionString}] - $dateStr
 
 ### Changed
 - Version bump to ${version.versionString}
+
+---
 ''';
 
-      content =
-          content.substring(0, insertPoint.start) +
-          newEntry +
-          content.substring(insertPoint.start);
+    // Append to the end of the file
+    content = content.trimRight() + newEntry;
 
-      if (!dryRun) {
-        await file.writeAsString(content);
-      }
-      updatedFiles.add(filePath);
-    } else {
-      errors.add('$filePath: Could not find insertion point for new version');
+    if (!dryRun) {
+      await file.writeAsString(content);
     }
+    updatedFiles.add(filePath);
     return true;
   }
 

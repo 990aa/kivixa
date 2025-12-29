@@ -166,8 +166,10 @@ class _BrowserPageState extends State<BrowserPage> {
       setState(() => _showConsole = false);
       return false;
     }
-    if (_webViewController != null && await _webViewController!.canGoBack()) {
-      _webViewController!.goBack();
+    // Use per-tab navigation history
+    final currentTab = BrowserService.instance.currentTab;
+    if (currentTab != null && currentTab.canGoBack) {
+      _goBack();
       return false;
     }
     return true;
@@ -175,124 +177,178 @@ class _BrowserPageState extends State<BrowserPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Keyboard shortcuts for desktop
-    return Shortcuts(
-      shortcuts: _isDesktop
-          ? <ShortcutActivator, Intent>{
-              LogicalKeySet(
-                LogicalKeyboardKey.control,
-                LogicalKeyboardKey.keyL,
-              ): const _FocusUrlBarIntent(),
-              LogicalKeySet(
-                LogicalKeyboardKey.control,
-                LogicalKeyboardKey.keyF,
-              ): const _ToggleFindBarIntent(),
-              LogicalKeySet(
-                LogicalKeyboardKey.control,
-                LogicalKeyboardKey.keyR,
-              ): const _RefreshIntent(),
-              // F5 for refresh
-              const SingleActivator(LogicalKeyboardKey.f5):
-                  const _RefreshIntent(),
-              LogicalKeySet(LogicalKeyboardKey.escape): const _EscapeIntent(),
-              LogicalKeySet(
-                LogicalKeyboardKey.control,
-                LogicalKeyboardKey.shift,
-                LogicalKeyboardKey.keyJ,
-              ): const _ToggleConsoleIntent(),
-              // Ctrl+T for new tab
-              LogicalKeySet(
-                LogicalKeyboardKey.control,
-                LogicalKeyboardKey.keyT,
-              ): const _NewTabIntent(),
-              // Ctrl+W to close tab
-              LogicalKeySet(
-                LogicalKeyboardKey.control,
-                LogicalKeyboardKey.keyW,
-              ): const _CloseTabIntent(),
-              // Ctrl+Tab for next tab
-              LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.tab):
-                  const _NextTabIntent(),
-              // Ctrl+Shift+Tab for previous tab
-              LogicalKeySet(
-                LogicalKeyboardKey.control,
-                LogicalKeyboardKey.shift,
-                LogicalKeyboardKey.tab,
-              ): const _PreviousTabIntent(),
-            }
-          : <ShortcutActivator, Intent>{},
-      child: Actions(
-        actions: <Type, Action<Intent>>{
-          _FocusUrlBarIntent: CallbackAction<_FocusUrlBarIntent>(
-            onInvoke: (_) => _focusUrlBar(),
-          ),
-          _ToggleFindBarIntent: CallbackAction<_ToggleFindBarIntent>(
-            onInvoke: (_) => _toggleFindBar(),
-          ),
-          _RefreshIntent: CallbackAction<_RefreshIntent>(
-            onInvoke: (_) => _refresh(),
-          ),
-          _EscapeIntent: CallbackAction<_EscapeIntent>(
-            onInvoke: (_) => _handleEscape(),
-          ),
-          _ToggleConsoleIntent: CallbackAction<_ToggleConsoleIntent>(
-            onInvoke: (_) => _toggleConsole(),
-          ),
-          _NewTabIntent: CallbackAction<_NewTabIntent>(
-            onInvoke: (_) => _openNewTab(),
-          ),
-          _CloseTabIntent: CallbackAction<_CloseTabIntent>(
-            onInvoke: (_) => _closeCurrentTab(),
-          ),
-          _NextTabIntent: CallbackAction<_NextTabIntent>(
-            onInvoke: (_) => _nextTab(),
-          ),
-          _PreviousTabIntent: CallbackAction<_PreviousTabIntent>(
-            onInvoke: (_) => _previousTab(),
-          ),
-        },
-        child: Focus(
-          autofocus: true,
-          child: PopScope(
-            canPop: false,
-            onPopInvokedWithResult: (didPop, result) async {
-              if (didPop) return;
-              final shouldPop = await _onWillPop();
-              if (shouldPop && context.mounted) {
-                Navigator.of(context).pop();
+    // Keyboard shortcuts for desktop - wrapped in KeyboardListener for more reliable capture
+    return KeyboardListener(
+      focusNode: FocusNode(),
+      autofocus: false,
+      onKeyEvent: _handleKeyEvent,
+      child: Shortcuts(
+        shortcuts: _isDesktop
+            ? <ShortcutActivator, Intent>{
+                LogicalKeySet(
+                  LogicalKeyboardKey.control,
+                  LogicalKeyboardKey.keyL,
+                ): const _FocusUrlBarIntent(),
+                LogicalKeySet(
+                  LogicalKeyboardKey.control,
+                  LogicalKeyboardKey.keyF,
+                ): const _ToggleFindBarIntent(),
+                LogicalKeySet(
+                  LogicalKeyboardKey.control,
+                  LogicalKeyboardKey.keyR,
+                ): const _RefreshIntent(),
+                // F5 for refresh
+                const SingleActivator(LogicalKeyboardKey.f5):
+                    const _RefreshIntent(),
+                LogicalKeySet(LogicalKeyboardKey.escape): const _EscapeIntent(),
+                LogicalKeySet(
+                  LogicalKeyboardKey.control,
+                  LogicalKeyboardKey.shift,
+                  LogicalKeyboardKey.keyJ,
+                ): const _ToggleConsoleIntent(),
+                // Ctrl+T for new tab
+                LogicalKeySet(
+                  LogicalKeyboardKey.control,
+                  LogicalKeyboardKey.keyT,
+                ): const _NewTabIntent(),
+                // Ctrl+W to close tab
+                LogicalKeySet(
+                  LogicalKeyboardKey.control,
+                  LogicalKeyboardKey.keyW,
+                ): const _CloseTabIntent(),
+                // Ctrl+Tab for next tab
+                LogicalKeySet(
+                  LogicalKeyboardKey.control,
+                  LogicalKeyboardKey.tab,
+                ): const _NextTabIntent(),
+                // Ctrl+Shift+Tab for previous tab
+                LogicalKeySet(
+                  LogicalKeyboardKey.control,
+                  LogicalKeyboardKey.shift,
+                  LogicalKeyboardKey.tab,
+                ): const _PreviousTabIntent(),
               }
-            },
-            child: Scaffold(
-              body: Column(
-                children: [
-                  // Tab bar
-                  if (_showTabBar) _buildTabBar(context),
+            : <ShortcutActivator, Intent>{},
+        child: Actions(
+          actions: <Type, Action<Intent>>{
+            _FocusUrlBarIntent: CallbackAction<_FocusUrlBarIntent>(
+              onInvoke: (_) => _focusUrlBar(),
+            ),
+            _ToggleFindBarIntent: CallbackAction<_ToggleFindBarIntent>(
+              onInvoke: (_) => _toggleFindBar(),
+            ),
+            _RefreshIntent: CallbackAction<_RefreshIntent>(
+              onInvoke: (_) => _refresh(),
+            ),
+            _EscapeIntent: CallbackAction<_EscapeIntent>(
+              onInvoke: (_) => _handleEscape(),
+            ),
+            _ToggleConsoleIntent: CallbackAction<_ToggleConsoleIntent>(
+              onInvoke: (_) => _toggleConsole(),
+            ),
+            _NewTabIntent: CallbackAction<_NewTabIntent>(
+              onInvoke: (_) => _openNewTab(),
+            ),
+            _CloseTabIntent: CallbackAction<_CloseTabIntent>(
+              onInvoke: (_) => _closeCurrentTab(),
+            ),
+            _NextTabIntent: CallbackAction<_NextTabIntent>(
+              onInvoke: (_) => _nextTab(),
+            ),
+            _PreviousTabIntent: CallbackAction<_PreviousTabIntent>(
+              onInvoke: (_) => _previousTab(),
+            ),
+          },
+          child: Focus(
+            autofocus: true,
+            child: PopScope(
+              canPop: false,
+              onPopInvokedWithResult: (didPop, result) async {
+                if (didPop) return;
+                final shouldPop = await _onWillPop();
+                if (shouldPop && context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Scaffold(
+                body: Column(
+                  children: [
+                    // Tab bar
+                    if (_showTabBar) _buildTabBar(context),
 
-                  // Browser toolbar
-                  _buildToolbar(context),
+                    // Browser toolbar
+                    _buildToolbar(context),
 
-                  // Progress indicator
-                  if (_isLoading)
-                    LinearProgressIndicator(
-                      value: _progress > 0 ? _progress : null,
-                      minHeight: 2,
-                    ),
+                    // Progress indicator
+                    if (_isLoading)
+                      LinearProgressIndicator(
+                        value: _progress > 0 ? _progress : null,
+                        minHeight: 2,
+                      ),
 
-                  // Find in page bar
-                  if (_showFindBar) _buildFindBar(context),
+                    // Find in page bar
+                    if (_showFindBar) _buildFindBar(context),
 
-                  // WebView content
-                  Expanded(child: _buildWebView()),
+                    // WebView content
+                    Expanded(child: _buildWebView()),
 
-                  // Console panel
-                  if (_showConsole) _buildConsolePanel(context),
-                ],
+                    // Console panel
+                    if (_showConsole) _buildConsolePanel(context),
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  /// Handle key events for shortcuts that may not be captured by Shortcuts widget
+  KeyEventResult _handleKeyEvent(KeyEvent event) {
+    if (event is! KeyDownEvent) return KeyEventResult.ignored;
+
+    final isCtrlPressed = HardwareKeyboard.instance.isControlPressed;
+    final isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
+
+    if (_isDesktop && isCtrlPressed) {
+      switch (event.logicalKey) {
+        case LogicalKeyboardKey.keyT:
+          _openNewTab();
+          return KeyEventResult.handled;
+        case LogicalKeyboardKey.keyW:
+          _closeCurrentTab();
+          return KeyEventResult.handled;
+        case LogicalKeyboardKey.tab:
+          if (isShiftPressed) {
+            _previousTab();
+          } else {
+            _nextTab();
+          }
+          return KeyEventResult.handled;
+        case LogicalKeyboardKey.keyL:
+          _focusUrlBar();
+          return KeyEventResult.handled;
+        case LogicalKeyboardKey.keyF:
+          _toggleFindBar();
+          return KeyEventResult.handled;
+        case LogicalKeyboardKey.keyR:
+          _refresh();
+          return KeyEventResult.handled;
+      }
+    }
+
+    if (event.logicalKey == LogicalKeyboardKey.f5) {
+      _refresh();
+      return KeyEventResult.handled;
+    }
+
+    if (event.logicalKey == LogicalKeyboardKey.escape) {
+      _handleEscape();
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
   }
 
   void _focusUrlBar() {
@@ -847,10 +903,11 @@ class _BrowserPageState extends State<BrowserPage> {
           _currentUrl = urlString;
           _updateUrlBar(urlString);
         });
-        await _updateNavigationState();
-        // Update current tab info
+        // Update current tab info and push URL to per-tab history
         final currentTab = BrowserService.instance.currentTab;
         if (currentTab != null) {
+          // Push URL to per-tab navigation history (this tracks back/forward per tab)
+          currentTab.pushUrl(urlString);
           BrowserService.instance.updateTabLoading(
             currentTab.id,
             isLoading: false,
@@ -861,7 +918,8 @@ class _BrowserPageState extends State<BrowserPage> {
             title: _pageTitle,
           );
         }
-        // Add to history
+        await _updateNavigationState();
+        // Add to global history
         if (urlString.isNotEmpty && !urlString.startsWith('about:')) {
           await BrowserService.instance.addToHistory(urlString);
         }
@@ -1352,15 +1410,13 @@ class _BrowserPageState extends State<BrowserPage> {
   }
 
   Future<void> _updateNavigationState() async {
-    if (_webViewController != null) {
-      final canGoBack = await _webViewController!.canGoBack();
-      final canGoForward = await _webViewController!.canGoForward();
-      if (mounted) {
-        setState(() {
-          _canGoBack = canGoBack;
-          _canGoForward = canGoForward;
-        });
-      }
+    // Use per-tab history instead of WebView's native navigation
+    final currentTab = BrowserService.instance.currentTab;
+    if (currentTab != null && mounted) {
+      setState(() {
+        _canGoBack = currentTab.canGoBack;
+        _canGoForward = currentTab.canGoForward;
+      });
     }
   }
 
@@ -1403,11 +1459,29 @@ class _BrowserPageState extends State<BrowserPage> {
   }
 
   void _goBack() {
-    _webViewController?.goBack();
+    final currentTab = BrowserService.instance.currentTab;
+    if (currentTab != null && currentTab.canGoBack) {
+      final previousUrl = currentTab.goBack();
+      if (previousUrl != null) {
+        _webViewController?.loadUrl(
+          urlRequest: URLRequest(url: WebUri(previousUrl)),
+        );
+        _updateNavigationState();
+      }
+    }
   }
 
   void _goForward() {
-    _webViewController?.goForward();
+    final currentTab = BrowserService.instance.currentTab;
+    if (currentTab != null && currentTab.canGoForward) {
+      final nextUrl = currentTab.goForward();
+      if (nextUrl != null) {
+        _webViewController?.loadUrl(
+          urlRequest: URLRequest(url: WebUri(nextUrl)),
+        );
+        _updateNavigationState();
+      }
+    }
   }
 
   void _refresh() {
@@ -1761,6 +1835,8 @@ class _BrowserPageState extends State<BrowserPage> {
           _urlController.text = tab.url;
           _pageTitle = tab.title;
         });
+        // Update navigation state for the new tab's history
+        _updateNavigationState();
         // Load the tab's URL
         _webViewController?.loadUrl(
           urlRequest: URLRequest(url: WebUri(tab.url)),
@@ -1779,6 +1855,8 @@ class _BrowserPageState extends State<BrowserPage> {
         _urlController.text = currentTab.url;
         _pageTitle = currentTab.title;
       });
+      // Update navigation state for the new current tab's history
+      _updateNavigationState();
       _webViewController?.loadUrl(
         urlRequest: URLRequest(url: WebUri(currentTab.url)),
       );

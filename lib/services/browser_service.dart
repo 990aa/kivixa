@@ -1,7 +1,9 @@
 // Browser Service
 //
 // Manages browser bookmarks, history, and tab state persistence.
+// PERFORMANCE: Uses cached SharedPreferences and debounced saves.
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -66,7 +68,7 @@ class BrowserBookmark {
   int get hashCode => id.hashCode;
 }
 
-/// A browser tab
+/// A browser tab with its own navigation history
 class BrowserTab {
   final String id;
   String title;
@@ -74,34 +76,106 @@ class BrowserTab {
   bool isLoading;
   double progress;
 
+  /// Navigation history for this specific tab (stack of URLs)
+  final List<String> _historyStack;
+
+  /// Current position in the history stack
+  int _historyIndex;
+
   BrowserTab({
     required this.id,
     required this.title,
     required this.url,
     this.isLoading = false,
     this.progress = 0.0,
-  });
+    List<String>? historyStack,
+    int? historyIndex,
+  }) : _historyStack = historyStack ?? [],
+       _historyIndex = historyIndex ?? -1;
 
   factory BrowserTab.create({String? url}) {
+    final initialUrl = url ?? 'https://www.google.com';
     return BrowserTab(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: 'New Tab',
-      url: url ?? 'https://www.google.com',
+      url: initialUrl,
+      historyStack: [initialUrl],
+      historyIndex: 0,
     );
   }
 
-  Map<String, dynamic> toJson() => {'id': id, 'title': title, 'url': url};
+  /// Add a URL to this tab's navigation history
+  void pushUrl(String newUrl) {
+    if (newUrl.isEmpty || newUrl == 'about:blank') return;
+
+    // If we're not at the end of history, truncate forward history
+    if (_historyIndex < _historyStack.length - 1) {
+      _historyStack.removeRange(_historyIndex + 1, _historyStack.length);
+    }
+
+    // Don't add duplicate of current URL
+    if (_historyStack.isNotEmpty && _historyStack.last == newUrl) return;
+
+    _historyStack.add(newUrl);
+    _historyIndex = _historyStack.length - 1;
+    url = newUrl;
+  }
+
+  /// Check if we can go back in this tab's history
+  bool get canGoBack => _historyIndex > 0;
+
+  /// Check if we can go forward in this tab's history
+  bool get canGoForward => _historyIndex < _historyStack.length - 1;
+
+  /// Go back in this tab's history and return the URL
+  String? goBack() {
+    if (!canGoBack) return null;
+    _historyIndex--;
+    return url = _historyStack[_historyIndex];
+  }
+
+  /// Go forward in this tab's history and return the URL
+  String? goForward() {
+    if (!canGoForward) return null;
+    _historyIndex++;
+    return url = _historyStack[_historyIndex];
+  }
+
+  /// Get the current history stack (for debugging/display)
+  List<String> get historyStack => List.unmodifiable(_historyStack);
+
+  /// Get current history index
+  int get historyIndex => _historyIndex;
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'url': url,
+    'historyStack': _historyStack,
+    'historyIndex': _historyIndex,
+  };
 
   factory BrowserTab.fromJson(Map<String, dynamic> json) {
+    final historyStack =
+        (json['historyStack'] as List<dynamic>?)
+            ?.map((e) => e as String)
+            .toList() ??
+        [json['url'] as String];
+    final historyIndex =
+        (json['historyIndex'] as int?) ?? (historyStack.length - 1);
+
     return BrowserTab(
       id: json['id'] as String,
       title: json['title'] as String,
       url: json['url'] as String,
+      historyStack: historyStack,
+      historyIndex: historyIndex.clamp(0, historyStack.length - 1),
     );
   }
 }
 
 /// Browser service for managing bookmarks and tabs
+/// PERFORMANCE: Caches SharedPreferences instance and debounces saves
 class BrowserService extends ChangeNotifier {
   static final _instance = BrowserService._internal();
   static BrowserService get instance => _instance;
@@ -117,6 +191,17 @@ class BrowserService extends ChangeNotifier {
   final _tabs = <BrowserTab>[];
   var _currentTabIndex = 0;
 
+  // PERFORMANCE: Cache SharedPreferences instance
+  SharedPreferences? _prefs;
+  Future<SharedPreferences> get _sharedPrefs async =>
+      _prefs ??= await SharedPreferences.getInstance();
+
+  // PERFORMANCE: Debounce timers to batch rapid saves
+  Timer? _saveBookmarksDebounce;
+  Timer? _saveHistoryDebounce;
+  Timer? _saveTabsDebounce;
+  static const _debounceDelay = Duration(milliseconds: 500);
+
   List<BrowserBookmark> get bookmarks => List.unmodifiable(_bookmarks);
   List<String> get history => List.unmodifiable(_history);
   List<BrowserTab> get tabs => List.unmodifiable(_tabs);
@@ -131,6 +216,8 @@ class BrowserService extends ChangeNotifier {
   /// Initialize the service
   Future<void> init() async {
     if (_initialized) return;
+    // PERFORMANCE: Pre-cache SharedPreferences on init
+    _prefs = await SharedPreferences.getInstance();
     await _loadBookmarks();
     await _loadHistory();
     await _loadTabs();
@@ -141,10 +228,11 @@ class BrowserService extends ChangeNotifier {
 
   Future<void> _loadBookmarks() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _sharedPrefs;
       final json = prefs.getString(_bookmarksKey);
       if (json != null) {
-        final list = jsonDecode(json) as List;
+        // PERFORMANCE: Offload JSON parsing to isolate for large data
+        final list = await compute(_parseJsonList, json);
         _bookmarks.clear();
         _bookmarks.addAll(
           list.map((e) => BrowserBookmark.fromJson(e as Map<String, dynamic>)),
@@ -155,14 +243,23 @@ class BrowserService extends ChangeNotifier {
     }
   }
 
-  Future<void> _saveBookmarks() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final json = jsonEncode(_bookmarks.map((e) => e.toJson()).toList());
-      await prefs.setString(_bookmarksKey, json);
-    } catch (e) {
-      debugPrint('Error saving bookmarks: $e');
-    }
+  /// PERFORMANCE: Helper for isolate JSON parsing
+  static List<dynamic> _parseJsonList(String json) => jsonDecode(json) as List;
+  static Map<String, dynamic> _parseJsonMap(String json) =>
+      jsonDecode(json) as Map<String, dynamic>;
+
+  void _saveBookmarks() {
+    // PERFORMANCE: Debounce saves to prevent rapid disk writes
+    _saveBookmarksDebounce?.cancel();
+    _saveBookmarksDebounce = Timer(_debounceDelay, () async {
+      try {
+        final prefs = await _sharedPrefs;
+        final json = jsonEncode(_bookmarks.map((e) => e.toJson()).toList());
+        await prefs.setString(_bookmarksKey, json);
+      } catch (e) {
+        debugPrint('Error saving bookmarks: $e');
+      }
+    });
   }
 
   Future<void> addBookmark({
@@ -179,19 +276,19 @@ class BrowserService extends ChangeNotifier {
       favicon: favicon,
     );
     _bookmarks.insert(0, bookmark);
-    await _saveBookmarks();
+    _saveBookmarks();
     notifyListeners();
   }
 
   Future<void> removeBookmark(String url) async {
     _bookmarks.removeWhere((b) => b.url == url);
-    await _saveBookmarks();
+    _saveBookmarks();
     notifyListeners();
   }
 
   Future<void> removeBookmarkById(String id) async {
     _bookmarks.removeWhere((b) => b.id == id);
-    await _saveBookmarks();
+    _saveBookmarks();
     notifyListeners();
   }
 
@@ -201,7 +298,7 @@ class BrowserService extends ChangeNotifier {
 
   Future<void> clearBookmarks() async {
     _bookmarks.clear();
-    await _saveBookmarks();
+    _saveBookmarks();
     notifyListeners();
   }
 
@@ -209,7 +306,7 @@ class BrowserService extends ChangeNotifier {
 
   Future<void> _loadHistory() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _sharedPrefs;
       final list = prefs.getStringList(_historyKey);
       if (list != null) {
         _history.clear();
@@ -220,13 +317,17 @@ class BrowserService extends ChangeNotifier {
     }
   }
 
-  Future<void> _saveHistory() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(_historyKey, _history);
-    } catch (e) {
-      debugPrint('Error saving history: $e');
-    }
+  void _saveHistory() {
+    // PERFORMANCE: Debounce saves
+    _saveHistoryDebounce?.cancel();
+    _saveHistoryDebounce = Timer(_debounceDelay, () async {
+      try {
+        final prefs = await _sharedPrefs;
+        await prefs.setStringList(_historyKey, _history);
+      } catch (e) {
+        debugPrint('Error saving history: $e');
+      }
+    });
   }
 
   Future<void> addToHistory(String url) async {
@@ -238,13 +339,13 @@ class BrowserService extends ChangeNotifier {
     if (_history.length > 100) {
       _history.removeRange(100, _history.length);
     }
-    await _saveHistory();
+    _saveHistory();
     notifyListeners();
   }
 
   Future<void> clearHistory() async {
     _history.clear();
-    await _saveHistory();
+    _saveHistory();
     notifyListeners();
   }
 
@@ -252,10 +353,11 @@ class BrowserService extends ChangeNotifier {
 
   Future<void> _loadTabs() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _sharedPrefs;
       final json = prefs.getString(_tabsKey);
       if (json != null) {
-        final data = jsonDecode(json) as Map<String, dynamic>;
+        // PERFORMANCE: Offload JSON parsing to isolate
+        final data = await compute(_parseJsonMap, json);
         final list = data['tabs'] as List;
         _tabs.clear();
         _tabs.addAll(
@@ -276,24 +378,28 @@ class BrowserService extends ChangeNotifier {
     }
   }
 
-  Future<void> _saveTabs() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final json = jsonEncode({
-        'tabs': _tabs.map((e) => e.toJson()).toList(),
-        'currentIndex': _currentTabIndex,
-      });
-      await prefs.setString(_tabsKey, json);
-    } catch (e) {
-      debugPrint('Error saving tabs: $e');
-    }
+  void _saveTabs() {
+    // PERFORMANCE: Debounce saves
+    _saveTabsDebounce?.cancel();
+    _saveTabsDebounce = Timer(_debounceDelay, () async {
+      try {
+        final prefs = await _sharedPrefs;
+        final json = jsonEncode({
+          'tabs': _tabs.map((e) => e.toJson()).toList(),
+          'currentIndex': _currentTabIndex,
+        });
+        await prefs.setString(_tabsKey, json);
+      } catch (e) {
+        debugPrint('Error saving tabs: $e');
+      }
+    });
   }
 
   Future<BrowserTab> createTab({String? url}) async {
     final tab = BrowserTab.create(url: url);
     _tabs.add(tab);
     _currentTabIndex = _tabs.length - 1;
-    await _saveTabs();
+    _saveTabs();
     notifyListeners();
     return tab;
   }
@@ -311,14 +417,14 @@ class BrowserService extends ChangeNotifier {
         _currentTabIndex--;
       }
     }
-    await _saveTabs();
+    _saveTabs();
     notifyListeners();
   }
 
   Future<void> switchTab(int index) async {
     if (index >= 0 && index < _tabs.length) {
       _currentTabIndex = index;
-      await _saveTabs();
+      _saveTabs();
       notifyListeners();
     }
   }
@@ -341,6 +447,7 @@ class BrowserService extends ChangeNotifier {
     );
     if (isLoading != null) tab.isLoading = isLoading;
     if (progress != null) tab.progress = progress;
+    // PERFORMANCE: Don't save tabs for loading state changes (transient)
     notifyListeners();
   }
 
@@ -352,9 +459,9 @@ class BrowserService extends ChangeNotifier {
     _tabs.add(BrowserTab.create()); // Keep one empty tab
     _currentTabIndex = 0;
 
-    await _saveBookmarks();
-    await _saveHistory();
-    await _saveTabs();
+    _saveBookmarks();
+    _saveHistory();
+    _saveTabs();
     notifyListeners();
   }
 }

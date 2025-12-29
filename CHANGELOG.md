@@ -5,6 +5,8 @@ All notable changes to the Kivixa project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+--- 
+
 ## Template for Future Entries
 
 ### Added
@@ -62,5 +64,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Media insert now uses HTML tags for extended features (video playback, custom dimensions)
 - Improved resize handles with explicit positioning to prevent layout conflicts
+
+---
+
+## [0.1.3] - 2025-12-29
+
+### Added
+- **App Lifecycle Manager**: New service for managing app-wide lifecycle events
+  - Idle detection with 5-minute timeout (configurable)
+  - Section-based resource management (register/activate/deactivate)
+  - Automatic image cache clearing on idle/background
+  - `ActivityDetector` widget for tracking user interactions
+  - `LifecycleAwareMixin` for easy widget integration
+- **Calendar Live Updates**: Events now sync instantly across the app via `CalendarEventNotifier`
+- **Browser Per-Tab History**: Each browser tab maintains its own navigation history stack
+
+### Changed
+- **Performance: SharedPreferences Caching**: Services now cache SharedPreferences instance to avoid repeated async lookups
+  - `BrowserService`, `MultiTimerService`, `ChainedRoutineService`, `QuickNotesService`
+- **Performance: Debounced Saves**: All save operations now debounce by 500ms to batch rapid disk writes
+- **Performance: Isolate JSON Parsing**: Heavy JSON parsing offloaded to isolates via `compute()`
+  - Bookmarks, history, tabs in BrowserService
+  - Timer lists in MultiTimerService
+  - Routine lists in ChainedRoutineService
+  - Notes lists in QuickNotesService
+- **UI: RepaintBoundary**: Added to `PreviewCard` to isolate repaints and reduce jank
+- **Updates Dialog**: Renamed from `ReleaseNotesDialog` with added refresh button
+
+### Fixed
+- **Browser Keyboard Shortcuts**: Now reliably captured with `KeyboardListener` wrapper
+- **Browser Navigation**: Back/forward buttons use per-tab history instead of WebView native navigation
+- **Calendar Events**: Creating/deleting events now updates UI immediately
 
 ---

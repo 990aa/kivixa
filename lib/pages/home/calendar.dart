@@ -7,6 +7,18 @@ import 'package:url_launcher/url_launcher.dart';
 
 enum CalendarView { month, week, day, year }
 
+/// Notifier for calendar events to enable live updates across the app
+class CalendarEventNotifier extends ChangeNotifier {
+  static final _instance =
+      CalendarEventNotifier._internal();
+  static CalendarEventNotifier get instance => _instance;
+  CalendarEventNotifier._internal();
+
+  void notifyEventsChanged() {
+    notifyListeners();
+  }
+}
+
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
 
@@ -27,6 +39,18 @@ class _CalendarPageState extends State<CalendarPage> {
   void initState() {
     super.initState();
     _loadEvents();
+    // Listen for calendar event changes
+    CalendarEventNotifier.instance.addListener(_onEventsChanged);
+  }
+
+  @override
+  void dispose() {
+    CalendarEventNotifier.instance.removeListener(_onEventsChanged);
+    super.dispose();
+  }
+
+  void _onEventsChanged() {
+    _loadEvents();
   }
 
   Future<void> _loadEvents() async {
@@ -34,13 +58,17 @@ class _CalendarPageState extends State<CalendarPage> {
       _focusedMonth.year,
       _focusedMonth.month,
     );
-    setState(() {
-      _monthEvents = monthEvents;
-    });
+    if (mounted) {
+      setState(() {
+        _monthEvents = monthEvents;
+      });
+    }
   }
 
   Future<void> _refreshEvents() async {
     await _loadEvents();
+    // Notify other listeners that events have changed
+    CalendarEventNotifier.instance.notifyEventsChanged();
   }
 
   void _previousMonth() {
@@ -148,7 +176,9 @@ class _CalendarPageState extends State<CalendarPage> {
           }
           // Schedule notifications for the event
           await NotificationService.instance.scheduleEventNotification(event);
-          _refreshEvents();
+          // Refresh immediately with setState for instant UI update
+          await _refreshEvents();
+          if (mounted) setState(() {});
         },
       ),
     );
@@ -179,7 +209,8 @@ class _CalendarPageState extends State<CalendarPage> {
     if (confirmed ?? false) {
       await CalendarStorage.deleteEvent(event.id);
       await NotificationService.instance.cancelEventNotifications(event);
-      _refreshEvents();
+      await _refreshEvents();
+      if (mounted) setState(() {});
     }
   }
 

@@ -1575,16 +1575,19 @@ class _KnowledgeGraphPageState extends State<KnowledgeGraphPage>
               color: colorScheme.surface,
               width: double.infinity,
               height: double.infinity,
-              child: CustomPaint(
-                painter: _EnhancedGraphPainter(
-                  nodes: _nodes,
-                  edges: _edges,
-                  panOffset: _panOffset,
-                  scale: _scale,
-                  selectedNodeId: _selectedNode?.id,
-                  selectedEdgeId: _selectedEdge?.id,
-                  linkingFromId: _linkingFromNode,
-                  showGrid: _showGrid,
+              // PERFORMANCE FIX: RepaintBoundary isolates graph repaints from parent tree
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  painter: _EnhancedGraphPainter(
+                    nodes: _nodes,
+                    edges: _edges,
+                    panOffset: _panOffset,
+                    scale: _scale,
+                    selectedNodeId: _selectedNode?.id,
+                    selectedEdgeId: _selectedEdge?.id,
+                    linkingFromId: _linkingFromNode,
+                    showGrid: _showGrid,
+                  ),
                 ),
               ),
             ),

@@ -72,8 +72,9 @@ class LifeGitService {
 
     _log.info('Life Git initialized at $_gitDir');
 
-    // Run auto-cleanup if enabled
-    await _runAutoCleanupIfNeeded();
+    // PERFORMANCE FIX: Run auto-cleanup in background without blocking initialization.
+    // This prevents expensive cleanup operations from delaying service readiness.
+    unawaited(_runAutoCleanupIfNeeded());
   }
 
   /// Run auto-cleanup if configured and enough time has passed
