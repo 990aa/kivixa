@@ -23,6 +23,7 @@ import 'package:kivixa/pages/markdown/advanced_markdown_editor.dart';
 import 'package:kivixa/pages/plugins/plugins_page.dart';
 import 'package:kivixa/pages/split_screen/split_screen_page.dart';
 import 'package:kivixa/pages/textfile/text_file_editor.dart';
+import 'package:kivixa/services/app_lifecycle_manager.dart';
 import 'package:kivixa/services/app_lock_service.dart';
 import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:kivixa/services/notification_service.dart';
@@ -262,11 +263,20 @@ class _AppState extends State<App> {
     _checkTermsAcceptance();
     _checkLockStatus();
 
+    // Initialize lifecycle manager for memory management
+    AppLifecycleManager.instance.initialize();
+
     // PERFORMANCE FIX: Initialize heavy services after first frame renders
     // This reduces startup time from ~60s to <3s
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeServicesInBackground();
     });
+  }
+
+  @override
+  void dispose() {
+    AppLifecycleManager.instance.dispose();
+    super.dispose();
   }
 
   /// Initialize LifeGit and Plugin services in background after first frame
@@ -333,7 +343,10 @@ class _AppState extends State<App> {
     }
 
     // Terms accepted and unlocked, show the main app
-    return DynamicMaterialApp(title: 'kivixa', router: App._router);
+    // Wrapped with ActivityDetector for idle state management
+    return ActivityDetector(
+      child: DynamicMaterialApp(title: 'kivixa', router: App._router),
+    );
   }
 }
 

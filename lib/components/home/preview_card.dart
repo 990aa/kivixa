@@ -456,166 +456,173 @@ class _PreviewCardState extends State<PreviewCard> {
     final invert =
         theme.brightness == Brightness.dark && stows.editorAutoInvert.value;
 
-    final Widget card = MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: widget.isAnythingSelected ? _toggleCardSelection : null,
-        onSecondaryTap: _toggleCardSelection,
-        onLongPress: _toggleCardSelection,
-        child: ColoredBox(
-          color: colorScheme.surfaceContainerLow,
-          child: Stack(
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Stack(
-                    children: [
-                      // Preview content based on file type
-                      // Check actual file since extensions are stripped
-                      if (_textFileContent != null ||
-                          FileManager.getFile(
-                            '${widget.filePath}${TextFileEditor.internalExtension}',
-                          ).existsSync())
-                        _buildTextFilePreview(colorScheme)
-                      else if (_markdownContent != null ||
-                          FileManager.getFile(
-                            '${widget.filePath}.md',
-                          ).existsSync())
-                        _buildMarkdownPreview(colorScheme)
-                      else
-                        _buildNotePreview(invert, colorScheme),
-                      Positioned.fill(
-                        left: -1,
-                        top: -1,
-                        right: -1,
-                        bottom: -1,
-                        child: ValueListenableBuilder(
-                          valueListenable: expanded,
-                          builder: (context, expanded, child) =>
-                              AnimatedOpacity(
-                                opacity: expanded ? 1 : 0,
-                                duration: const Duration(milliseconds: 200),
-                                child: IgnorePointer(
-                                  ignoring: !expanded,
-                                  child: child!,
+    // PERFORMANCE: Wrap card in RepaintBoundary to isolate repaints
+    final Widget card = RepaintBoundary(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: widget.isAnythingSelected ? _toggleCardSelection : null,
+          onSecondaryTap: _toggleCardSelection,
+          onLongPress: _toggleCardSelection,
+          child: ColoredBox(
+            color: colorScheme.surfaceContainerLow,
+            child: Stack(
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Stack(
+                      children: [
+                        // Preview content based on file type
+                        // Check actual file since extensions are stripped
+                        if (_textFileContent != null ||
+                            FileManager.getFile(
+                              '${widget.filePath}${TextFileEditor.internalExtension}',
+                            ).existsSync())
+                          _buildTextFilePreview(colorScheme)
+                        else if (_markdownContent != null ||
+                            FileManager.getFile(
+                              '${widget.filePath}.md',
+                            ).existsSync())
+                          _buildMarkdownPreview(colorScheme)
+                        else
+                          _buildNotePreview(invert, colorScheme),
+                        Positioned.fill(
+                          left: -1,
+                          top: -1,
+                          right: -1,
+                          bottom: -1,
+                          child: ValueListenableBuilder(
+                            valueListenable: expanded,
+                            builder: (context, expanded, child) =>
+                                AnimatedOpacity(
+                                  opacity: expanded ? 1 : 0,
+                                  duration: const Duration(milliseconds: 200),
+                                  child: IgnorePointer(
+                                    ignoring: !expanded,
+                                    child: child!,
+                                  ),
                                 ),
-                              ),
-                          child: GestureDetector(
-                            onTap: _toggleCardSelection,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    colorScheme.surface.withValues(alpha: 0.2),
-                                    colorScheme.surface.withValues(alpha: 0.8),
-                                    colorScheme.surface.withValues(alpha: 1),
-                                  ],
+                            child: GestureDetector(
+                              onTap: _toggleCardSelection,
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      colorScheme.surface.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      colorScheme.surface.withValues(
+                                        alpha: 0.8,
+                                      ),
+                                      colorScheme.surface.withValues(alpha: 1),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              child: ColoredBox(
-                                color: colorScheme.primary.withValues(
-                                  alpha: 0.05,
+                                child: ColoredBox(
+                                  color: colorScheme.primary.withValues(
+                                    alpha: 0.05,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Flexible(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Text(
-                        widget.filePath.substring(
-                          widget.filePath.lastIndexOf('/') + 1,
+                      ],
+                    ),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(
+                          widget.filePath.substring(
+                            widget.filePath.lastIndexOf('/') + 1,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              // Three-dot menu button
-              Positioned(
-                top: 4,
-                right: 4,
-                child: Material(
-                  color: Colors.transparent,
-                  child: PopupMenuButton<String>(
-                    icon: Icon(
-                      Icons.more_vert,
-                      color: colorScheme.onSurface.withValues(alpha: 0.7),
-                      size: 20,
+                  ],
+                ),
+                // Three-dot menu button
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
+                        size: 20,
+                      ),
+                      onSelected: (value) {
+                        switch (value) {
+                          case 'rename':
+                            _showRenameDialog();
+                          case 'move':
+                            _showMoveDialog();
+                          case 'delete':
+                            _showDeleteDialog();
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'rename',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.edit,
+                                size: 20,
+                                color: colorScheme.onSurface,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(t.common.rename),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'move',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.drive_file_move,
+                                size: 20,
+                                color: colorScheme.onSurface,
+                              ),
+                              const SizedBox(width: 12),
+                              const Text('Move'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.delete,
+                                size: 20,
+                                color: colorScheme.error,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                t.common.delete,
+                                style: TextStyle(color: colorScheme.error),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    onSelected: (value) {
-                      switch (value) {
-                        case 'rename':
-                          _showRenameDialog();
-                        case 'move':
-                          _showMoveDialog();
-                        case 'delete':
-                          _showDeleteDialog();
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 'rename',
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.edit,
-                              size: 20,
-                              color: colorScheme.onSurface,
-                            ),
-                            const SizedBox(width: 12),
-                            Text(t.common.rename),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'move',
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.drive_file_move,
-                              size: 20,
-                              color: colorScheme.onSurface,
-                            ),
-                            const SizedBox(width: 12),
-                            const Text('Move'),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.delete,
-                              size: 20,
-                              color: colorScheme.error,
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              t.common.delete,
-                              style: TextStyle(color: colorScheme.error),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
+      ), // Close RepaintBoundary
     );
 
     return ValueListenableBuilder(

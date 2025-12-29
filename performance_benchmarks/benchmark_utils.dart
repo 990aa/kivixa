@@ -111,10 +111,10 @@ class BenchmarkResults {
 
 /// Performance thresholds for CI gating
 class PerformanceThresholds {
-  static const int startupTimeMaxMs = 3000;
-  static const int frameBuildP95MaxMs = 12;
-  static const int frameRasterP95MaxMs = 8;
-  static const double regressionThresholdPercent = 15.0;
+  static const startupTimeMaxMs = 3000;
+  static const frameBuildP95MaxMs = 12;
+  static const frameRasterP95MaxMs = 8;
+  static const regressionThresholdPercent = 15.0;
 
   /// Check if results pass all thresholds
   static List<String> validate(BenchmarkResults results) {

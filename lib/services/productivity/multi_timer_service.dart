@@ -270,6 +270,7 @@ class SecondaryTimerPreset {
 }
 
 /// Manages multiple secondary timers
+/// PERFORMANCE: Uses cached SharedPreferences and debounced saves
 class MultiTimerService extends ChangeNotifier {
   MultiTimerService._();
 
@@ -280,6 +281,11 @@ class MultiTimerService extends ChangeNotifier {
   FlutterLocalNotificationsPlugin? _notifications;
   var _initialized = false;
 
+  // PERFORMANCE: Cache SharedPreferences instance
+  SharedPreferences? _prefs;
+  Timer? _saveDebounce;
+  static const _debounceDelay = Duration(milliseconds: 500);
+
   static const _storageKey = 'secondary_timers';
 
   List<SecondaryTimer> get timers => List.unmodifiable(_timers);
@@ -289,6 +295,9 @@ class MultiTimerService extends ChangeNotifier {
   /// Initialize the service
   Future<void> initialize() async {
     if (_initialized) return;
+
+    // PERFORMANCE: Pre-cache SharedPreferences
+    _prefs = await SharedPreferences.getInstance();
 
     // Only initialize notifications on supported platforms
     if (Platform.isAndroid || Platform.isIOS) {
@@ -429,10 +438,12 @@ class MultiTimerService extends ChangeNotifier {
 
   Future<void> _loadTimers() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = _prefs ?? await SharedPreferences.getInstance();
+      _prefs = prefs;
       final json = prefs.getString(_storageKey);
       if (json != null) {
-        final list = jsonDecode(json) as List;
+        // PERFORMANCE: Offload JSON parsing to isolate
+        final list = await compute(_parseJsonList, json);
         for (final item in list) {
           final timer = SecondaryTimer.fromJson(item as Map<String, dynamic>);
           timer.onTick = () => notifyListeners();
@@ -445,18 +456,26 @@ class MultiTimerService extends ChangeNotifier {
     }
   }
 
-  Future<void> _saveTimers() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final list = _timers.map((t) => t.toJson()).toList();
-      await prefs.setString(_storageKey, jsonEncode(list));
-    } catch (e) {
-      debugPrint('Failed to save secondary timers: $e');
-    }
+  static List<dynamic> _parseJsonList(String json) => jsonDecode(json) as List;
+
+  void _saveTimers() {
+    // PERFORMANCE: Debounce saves to prevent rapid disk writes
+    _saveDebounce?.cancel();
+    _saveDebounce = Timer(_debounceDelay, () async {
+      try {
+        final prefs = _prefs ?? await SharedPreferences.getInstance();
+        _prefs = prefs;
+        final list = _timers.map((t) => t.toJson()).toList();
+        await prefs.setString(_storageKey, jsonEncode(list));
+      } catch (e) {
+        debugPrint('Failed to save secondary timers: $e');
+      }
+    });
   }
 
   @override
   void dispose() {
+    _saveDebounce?.cancel();
     for (final timer in _timers) {
       timer.dispose();
     }

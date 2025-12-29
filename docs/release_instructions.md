@@ -67,7 +67,7 @@ To create APKs for all supported architectures (ARM64, ARMv7, x86_64):
 1.  Run the Flutter build command:
 
     ```bash
-    flutter build apk --split-per-abi --release -v
+    flutter build apk --split-per-abi --release --obfuscate -v
     ```
 
     This will generate three APK files in `build/app/outputs/flutter-apk/`:
@@ -82,7 +82,7 @@ To create APKs for all supported architectures (ARM64, ARMv7, x86_64):
 1.  Build the Flutter Windows application:
 
     ```bash
-    flutter build windows --release -v
+    flutter build windows --release --obfuscate -v
     ```
 
 2.  Create the Installer using Inno Setup:

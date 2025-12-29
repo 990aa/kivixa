@@ -48,7 +48,6 @@ app.*.map.json
 md_files/
 
 *target/
-.github/workflows/
 build_windows_installer/
 
 *.cargo/

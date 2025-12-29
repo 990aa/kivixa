@@ -353,6 +353,7 @@ class ChainedRoutine {
 enum RoutineState { idle, running, paused, betweenBlocks, completed }
 
 /// Manages running chained routines
+/// PERFORMANCE: Uses cached SharedPreferences and debounced saves
 class ChainedRoutineService extends ChangeNotifier {
   ChainedRoutineService._();
 
@@ -373,6 +374,12 @@ class ChainedRoutineService extends ChangeNotifier {
   FlutterLocalNotificationsPlugin? _notifications;
   var _initialized = false;
   var _soundEnabled = true;
+
+  // PERFORMANCE: Cache SharedPreferences instance
+  SharedPreferences? _prefs;
+  Timer? _saveRoutinesDebounce;
+  Timer? _saveSettingsDebounce;
+  static const _debounceDelay = Duration(milliseconds: 500);
 
   static const _routinesKey = 'custom_routines';
   static const _settingsKey = 'routine_settings';
@@ -429,6 +436,9 @@ class ChainedRoutineService extends ChangeNotifier {
   /// Initialize the service
   Future<void> initialize() async {
     if (_initialized) return;
+
+    // PERFORMANCE: Pre-cache SharedPreferences
+    _prefs = await SharedPreferences.getInstance();
 
     // Only initialize notifications on supported platforms
     if (Platform.isAndroid || Platform.isIOS) {
@@ -609,10 +619,12 @@ class ChainedRoutineService extends ChangeNotifier {
   // Persistence
   Future<void> _loadRoutines() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = _prefs ?? await SharedPreferences.getInstance();
+      _prefs = prefs;
       final json = prefs.getString(_routinesKey);
       if (json != null) {
-        final list = jsonDecode(json) as List;
+        // PERFORMANCE: Offload JSON parsing to isolate
+        final list = await compute(_parseJsonList, json);
         _customRoutines.clear();
         for (final item in list) {
           _customRoutines.add(
@@ -625,19 +637,27 @@ class ChainedRoutineService extends ChangeNotifier {
     }
   }
 
-  Future<void> _saveRoutines() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final list = _customRoutines.map((r) => r.toJson()).toList();
-      await prefs.setString(_routinesKey, jsonEncode(list));
-    } catch (e) {
-      debugPrint('Failed to save custom routines: $e');
-    }
+  static List<dynamic> _parseJsonList(String json) => jsonDecode(json) as List;
+
+  void _saveRoutines() {
+    // PERFORMANCE: Debounce saves
+    _saveRoutinesDebounce?.cancel();
+    _saveRoutinesDebounce = Timer(_debounceDelay, () async {
+      try {
+        final prefs = _prefs ?? await SharedPreferences.getInstance();
+        _prefs = prefs;
+        final list = _customRoutines.map((r) => r.toJson()).toList();
+        await prefs.setString(_routinesKey, jsonEncode(list));
+      } catch (e) {
+        debugPrint('Failed to save custom routines: $e');
+      }
+    });
   }
 
   Future<void> _loadSettings() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = _prefs ?? await SharedPreferences.getInstance();
+      _prefs = prefs;
       final json = prefs.getString(_settingsKey);
       if (json != null) {
         final settings = jsonDecode(json) as Map<String, dynamic>;
@@ -648,21 +668,28 @@ class ChainedRoutineService extends ChangeNotifier {
     }
   }
 
-  Future<void> _saveSettings() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-        _settingsKey,
-        jsonEncode({'soundEnabled': _soundEnabled}),
-      );
-    } catch (e) {
-      debugPrint('Failed to save routine settings: $e');
-    }
+  void _saveSettings() {
+    // PERFORMANCE: Debounce saves
+    _saveSettingsDebounce?.cancel();
+    _saveSettingsDebounce = Timer(_debounceDelay, () async {
+      try {
+        final prefs = _prefs ?? await SharedPreferences.getInstance();
+        _prefs = prefs;
+        await prefs.setString(
+          _settingsKey,
+          jsonEncode({'soundEnabled': _soundEnabled}),
+        );
+      } catch (e) {
+        debugPrint('Failed to save routine settings: $e');
+      }
+    });
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _saveRoutinesDebounce?.cancel();
+    _saveSettingsDebounce?.cancel();
     super.dispose();
   }
 }

@@ -68,6 +68,7 @@ class QuickNote {
 }
 
 /// Service for managing quick notes with auto-delete functionality.
+/// PERFORMANCE: Uses cached SharedPreferences and debounced saves
 class QuickNotesService extends ChangeNotifier {
   QuickNotesService._();
 
@@ -82,6 +83,12 @@ class QuickNotesService extends ChangeNotifier {
   final List<QuickNote> _notes = [];
   Timer? _cleanupTimer;
   var _initialized = false;
+
+  // PERFORMANCE: Cache SharedPreferences instance and debounce saves
+  SharedPreferences? _prefs;
+  Timer? _saveNotesDebounce;
+  Timer? _saveSettingsDebounce;
+  static const _debounceDelay = Duration(milliseconds: 500);
 
   // Persistence keys
   static const _notesKey = 'quick_notes';
@@ -105,6 +112,9 @@ class QuickNotesService extends ChangeNotifier {
   /// Initialize the service
   Future<void> initialize() async {
     if (_initialized) return;
+
+    // PERFORMANCE: Pre-cache SharedPreferences
+    _prefs = await SharedPreferences.getInstance();
 
     await _loadSettings();
     await _loadNotes();
@@ -196,11 +206,13 @@ class QuickNotesService extends ChangeNotifier {
   /// Load notes from storage
   Future<void> _loadNotes() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = _prefs ?? await SharedPreferences.getInstance();
+      _prefs = prefs;
       final notesJson = prefs.getString(_notesKey);
       if (notesJson == null) return;
 
-      final notesList = jsonDecode(notesJson) as List;
+      // PERFORMANCE: Offload JSON parsing to isolate for larger lists
+      final notesList = await compute(_parseJsonList, notesJson);
       _notes.clear();
       _notes.addAll(
         notesList.map(
@@ -215,21 +227,29 @@ class QuickNotesService extends ChangeNotifier {
     }
   }
 
+  static List<dynamic> _parseJsonList(String json) => jsonDecode(json) as List;
+
   /// Save notes to storage
-  Future<void> _saveNotes() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final notesJson = jsonEncode(_notes.map((n) => n.toJson()).toList());
-      await prefs.setString(_notesKey, notesJson);
-    } catch (e) {
-      debugPrint('Failed to save quick notes: $e');
-    }
+  void _saveNotes() {
+    // PERFORMANCE: Debounce saves
+    _saveNotesDebounce?.cancel();
+    _saveNotesDebounce = Timer(_debounceDelay, () async {
+      try {
+        final prefs = _prefs ?? await SharedPreferences.getInstance();
+        _prefs = prefs;
+        final notesJson = jsonEncode(_notes.map((n) => n.toJson()).toList());
+        await prefs.setString(_notesKey, notesJson);
+      } catch (e) {
+        debugPrint('Failed to save quick notes: $e');
+      }
+    });
   }
 
   /// Load settings from storage
   Future<void> _loadSettings() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = _prefs ?? await SharedPreferences.getInstance();
+      _prefs = prefs;
       final settingsJson = prefs.getString(_settingsKey);
       if (settingsJson == null) return;
 
@@ -244,22 +264,29 @@ class QuickNotesService extends ChangeNotifier {
   }
 
   /// Save settings to storage
-  Future<void> _saveSettings() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final settingsJson = jsonEncode({
-        'autoDeleteMinutes': _autoDeleteDuration.inMinutes,
-        'autoDeleteEnabled': _autoDeleteEnabled,
-      });
-      await prefs.setString(_settingsKey, settingsJson);
-    } catch (e) {
-      debugPrint('Failed to save quick notes settings: $e');
-    }
+  void _saveSettings() {
+    // PERFORMANCE: Debounce saves
+    _saveSettingsDebounce?.cancel();
+    _saveSettingsDebounce = Timer(_debounceDelay, () async {
+      try {
+        final prefs = _prefs ?? await SharedPreferences.getInstance();
+        _prefs = prefs;
+        final settingsJson = jsonEncode({
+          'autoDeleteMinutes': _autoDeleteDuration.inMinutes,
+          'autoDeleteEnabled': _autoDeleteEnabled,
+        });
+        await prefs.setString(_settingsKey, settingsJson);
+      } catch (e) {
+        debugPrint('Failed to save quick notes settings: $e');
+      }
+    });
   }
 
   @override
   void dispose() {
     _cleanupTimer?.cancel();
+    _saveNotesDebounce?.cancel();
+    _saveSettingsDebounce?.cancel();
     super.dispose();
   }
 }
