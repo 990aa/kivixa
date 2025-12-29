@@ -115,7 +115,7 @@ abstract class UpdateManager {
 
     final Map<String, dynamic> json = jsonDecode(apiResponse);
 
-    // Get tag_name (e.g., "v0.1.3" or "v0.1.3+103")
+    // Get tag_name (e.g., "v0.1.3+1003")
     final String? tagName = json['tag_name'] as String?;
     final String? releaseBody = json['body'] as String?;
 
@@ -123,7 +123,7 @@ abstract class UpdateManager {
       return (null, null, null);
     }
 
-    // Parse version from tag (supports "v1.2.3", "v1.2.3+build", "1.2.3")
+    // Parse version from tag (format: "v0.1.3+1003" where 1003 is build number)
     final match = RegExp(
       r'v?(\d+)\.(\d+)\.(\d+)(?:\+(\d+))?',
     ).firstMatch(tagName);
@@ -134,14 +134,15 @@ abstract class UpdateManager {
     final major = int.parse(match.group(1)!);
     final minor = int.parse(match.group(2)!);
     final patch = int.parse(match.group(3)!);
-    final revision = int.tryParse(match.group(4) ?? '0') ?? 0;
 
-    final buildNumber = KivixaVersion(
-      major,
-      minor,
-      patch,
-      revision,
-    ).buildNumber;
+    // The build number is specified directly in the tag (e.g., +1003)
+    // If not present, calculate from version components as fallback
+    final int buildNumber;
+    if (match.group(4) != null) {
+      buildNumber = int.parse(match.group(4)!);
+    } else {
+      buildNumber = KivixaVersion(major, minor, patch, 0).buildNumber;
+    }
     final versionName = '$major.$minor.$patch';
 
     log.info(
@@ -315,11 +316,15 @@ abstract class UpdateManager {
   }
 
   static final Map<TargetPlatform, RegExp> platformFileRegex = {
-    TargetPlatform.windows: RegExp(r'\.exe'),
+    // e.g. Kivixa-Setup-0.1.2.exe
+    TargetPlatform.windows: RegExp(
+      r'Kivixa-Setup-[\d.]+\.exe',
+      caseSensitive: false,
+    ),
 
-    // e.g. kivixa_v0.9.8.apk not kivixa_FOSS_v0.9.8.apk
+    // e.g. Kivixa-Android-0.1.2-arm64.apk (not FOSS)
     TargetPlatform.android: RegExp(
-      r'^(?!.*FOSS).*\.apk$',
+      r'^Kivixa-Android-[\d.]+-(?:arm64|armv7|x86_64)\.apk$',
       caseSensitive: false,
     ),
   };

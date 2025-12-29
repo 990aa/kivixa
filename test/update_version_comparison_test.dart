@@ -143,10 +143,10 @@ void main() => group('Update manager:', () {
         isNotNull,
         reason: 'Could not parse version number from GitHub',
       );
-      // The version should be parsed as 100000 from "v1.0.0"
+      // The version should be parsed as 1003 from "v0.1.3+1003"
       expect(
         newestVersion,
-        equals(100000),
+        equals(1003),
         reason: 'Incorrect version number parsed from GitHub',
       );
     });
@@ -160,33 +160,31 @@ void main() => group('Update manager:', () {
         final (buildNum, versionName, releaseBody) =
             await UpdateManager.fetchLatestVersionFromGitHub(fileContents);
 
-        expect(buildNum, equals(100000));
-        expect(versionName, equals('1.0.0'));
+        expect(buildNum, equals(1003));
+        expect(versionName, equals('0.1.3'));
         expect(releaseBody, contains("What's New"));
       },
     );
 
-    test('Parse version with build suffix (v1.2.3+4)', () async {
+    test('Parse version with build number (v0.1.2+1002)', () async {
       const json = '''
       {
-        "tag_name": "v1.2.3+4",
-        "name": "Release v1.2.3",
+        "tag_name": "v0.1.2+1002",
+        "name": "v0.1.2 - Beta Release",
         "body": "Test release"
       }
       ''';
       final (buildNum, versionName, _) =
           await UpdateManager.fetchLatestVersionFromGitHub(json);
 
-      // 1*100000 + 2*1000 + 3*10 + 4 = 102034
-      // Note: revision must be 0-9 per KivixaVersion constraints
-      expect(buildNum, equals(102034));
-      expect(versionName, equals('1.2.3'));
+      expect(buildNum, equals(1002));
+      expect(versionName, equals('0.1.2'));
     });
 
-    test('Parse version without v prefix (1.2.3)', () async {
+    test('Parse version without build number (v1.2.3)', () async {
       const json = '''
       {
-        "tag_name": "1.2.3",
+        "tag_name": "v1.2.3",
         "name": "Release 1.2.3",
         "body": "Test release"
       }
@@ -194,7 +192,7 @@ void main() => group('Update manager:', () {
       final (buildNum, versionName, _) =
           await UpdateManager.fetchLatestVersionFromGitHub(json);
 
-      // 1*100000 + 2*1000 + 3*10 + 0 = 102030
+      // When no build number suffix, calculate from version: 1*100000 + 2*1000 + 3*10 = 102030
       expect(buildNum, equals(102030));
       expect(versionName, equals('1.2.3'));
     });
