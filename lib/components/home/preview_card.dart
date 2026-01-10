@@ -25,12 +25,14 @@ class PreviewCard extends StatefulWidget {
     required this.toggleSelection,
     required this.selected,
     required this.isAnythingSelected,
+    this.isMultiSelectMode = false,
   }) : super(key: ValueKey('PreviewCard$filePath'));
 
   final String filePath;
   final bool selected;
   final bool isAnythingSelected;
   final void Function(String, bool) toggleSelection;
+  final bool isMultiSelectMode;
 
   @override
   State<PreviewCard> createState() => _PreviewCardState();

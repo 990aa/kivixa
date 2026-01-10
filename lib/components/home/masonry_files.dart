@@ -10,11 +10,13 @@ class MasonryFiles extends StatefulWidget {
     required this.files,
     required this.selectedFiles,
     required this.crossAxisCount,
+    this.isMultiSelectMode = false,
   });
 
   final List<String> files;
   final int crossAxisCount;
   final ValueNotifier<List<String>> selectedFiles;
+  final bool isMultiSelectMode;
 
   @override
   State<MasonryFiles> createState() => _MasonryFilesState();
@@ -48,7 +50,8 @@ class _MasonryFilesState extends State<MasonryFiles> {
             filePath: file,
             toggleSelection: toggleSelection,
             selected: widget.selectedFiles.value.contains(file),
-            isAnythingSelected: isAnythingSelected,
+            isAnythingSelected: isAnythingSelected || widget.isMultiSelectMode,
+            isMultiSelectMode: widget.isMultiSelectMode,
           ),
         );
       },

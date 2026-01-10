@@ -40,7 +40,11 @@ class _BrowsePageState extends State<BrowsePage> {
   final List<String?> pathHistory = [];
   String? path;
 
-  final ValueNotifier<List<String>> selectedFiles = ValueNotifier([]);
+  final selectedFiles = ValueNotifier<List<String>>([]);
+
+  // Multi-select mode for folders
+  final selectedFolders = ValueNotifier<List<String>>([]);
+  var _isMultiSelectMode = false;
 
   // Search, filter, and sort
   final _searchController = TextEditingController();
@@ -63,6 +67,7 @@ class _BrowsePageState extends State<BrowsePage> {
       fileWriteListener,
     );
     selectedFiles.addListener(_setState);
+    selectedFolders.addListener(_setState);
     _searchController.addListener(_setState);
 
     super.initState();
@@ -80,6 +85,7 @@ class _BrowsePageState extends State<BrowsePage> {
   @override
   void dispose() {
     selectedFiles.removeListener(_setState);
+    selectedFolders.removeListener(_setState);
     _searchController.removeListener(_setState);
     _searchController.dispose();
     fileWriteSubscription?.cancel();
@@ -121,6 +127,8 @@ class _BrowsePageState extends State<BrowsePage> {
 
   void onDirectoryTap(String folder) {
     selectedFiles.value = [];
+    selectedFolders.value = [];
+    _isMultiSelectMode = false;
     if (folder == '..') {
       path = pathHistory.isEmpty ? null : pathHistory.removeLast();
     } else {
@@ -133,6 +141,8 @@ class _BrowsePageState extends State<BrowsePage> {
 
   void onPathComponentTap(String? newPath) {
     selectedFiles.value = [];
+    selectedFolders.value = [];
+    _isMultiSelectMode = false;
     if (newPath == null || newPath.isEmpty || newPath == '/') {
       newPath = null;
       pathHistory.clear();
@@ -146,6 +156,168 @@ class _BrowsePageState extends State<BrowsePage> {
   Future<void> createFolder(String folderName) async {
     final folderPath = '${path ?? ''}/$folderName';
     await FileManager.createFolder(folderPath);
+    findChildrenOfPath();
+  }
+
+  // Toggle multi-select mode
+  void _toggleMultiSelectMode() {
+    setState(() {
+      _isMultiSelectMode = !_isMultiSelectMode;
+      if (!_isMultiSelectMode) {
+        selectedFiles.value = [];
+        selectedFolders.value = [];
+      }
+    });
+  }
+
+  // Toggle folder selection
+  void _toggleFolderSelection(String folderName, bool selected) {
+    if (selected) {
+      selectedFolders.value = [...selectedFolders.value, folderName];
+    } else {
+      selectedFolders.value =
+          selectedFolders.value.where((f) => f != folderName).toList();
+    }
+  }
+
+  // Get total number of selected items
+  int get _totalSelectedCount =>
+      selectedFiles.value.length + selectedFolders.value.length;
+
+  // Check if anything is selected
+  bool get _hasSelection => _totalSelectedCount > 0;
+
+  // Delete all selected items
+  Future<void> _deleteAllSelected() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => _DeleteConfirmationDialog(
+        selectedFiles: selectedFiles.value,
+        selectedFolders: selectedFolders.value,
+        currentPath: path,
+      ),
+    );
+
+    if (confirmed ?? false) {
+      // Delete files first
+      for (final filePath in selectedFiles.value) {
+        try {
+          final oldExtension = FileManager.doesFileExist(
+            filePath + Editor.extensionOldJson,
+          );
+          await FileManager.deleteFile(
+            filePath +
+                (oldExtension ? Editor.extensionOldJson : Editor.extension),
+          );
+        } catch (e) {
+          // Try other extensions
+          if (FileManager.doesFileExist('$filePath.md')) {
+            await FileManager.deleteFile('$filePath.md');
+          } else if (FileManager.doesFileExist(
+            '$filePath${TextFileEditor.internalExtension}',
+          )) {
+            await FileManager.deleteFile(
+              '$filePath${TextFileEditor.internalExtension}',
+            );
+          }
+        }
+      }
+
+      // Delete folders
+      for (final folderName in selectedFolders.value) {
+        final folderPath = '${path ?? ''}/$folderName';
+        await FileManager.deleteDirectory(folderPath);
+      }
+
+      // Clear selections and exit multi-select mode
+      selectedFiles.value = [];
+      selectedFolders.value = [];
+      _isMultiSelectMode = false;
+      findChildrenOfPath();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Items deleted successfully')),
+        );
+      }
+    }
+  }
+
+  // Group selected items into a new folder
+  Future<void> _groupSelectedItems() async {
+    final folderName = await showDialog<String>(
+      context: context,
+      builder: (context) => _NewFolderDialog(
+        doesFolderExist: (name) =>
+            children?.directories.contains(name) ?? false,
+      ),
+    );
+
+    if (folderName != null && folderName.isNotEmpty) {
+      final newFolderPath = '${path ?? ''}/$folderName';
+
+      // Create the new folder
+      await FileManager.createFolder(newFolderPath);
+
+      // Move all selected files to the new folder
+      for (final filePath in selectedFiles.value) {
+        final fileName = filePath.split('/').last;
+        try {
+          final oldExtension = FileManager.doesFileExist(
+            filePath + Editor.extensionOldJson,
+          );
+          await FileManager.moveFile(
+            filePath +
+                (oldExtension ? Editor.extensionOldJson : Editor.extension),
+            '$newFolderPath/$fileName${oldExtension ? Editor.extensionOldJson : Editor.extension}',
+          );
+        } catch (e) {
+          // Try other extensions
+          if (FileManager.doesFileExist('$filePath.md')) {
+            await FileManager.moveFile(
+              '$filePath.md',
+              '$newFolderPath/$fileName.md',
+            );
+          } else if (FileManager.doesFileExist(
+            '$filePath${TextFileEditor.internalExtension}',
+          )) {
+            await FileManager.moveFile(
+              '$filePath${TextFileEditor.internalExtension}',
+              '$newFolderPath/$fileName${TextFileEditor.internalExtension}',
+            );
+          }
+        }
+      }
+
+      // Move all selected folders to the new folder
+      for (final folderToMove in selectedFolders.value) {
+        final sourcePath = '${path ?? ''}/$folderToMove';
+        final destPath = '$newFolderPath/$folderToMove';
+        await FileManager.moveDirectory(sourcePath, destPath);
+      }
+
+      // Clear selections and exit multi-select mode
+      selectedFiles.value = [];
+      selectedFolders.value = [];
+      _isMultiSelectMode = false;
+      findChildrenOfPath();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Items grouped into folder "$folderName"')),
+        );
+      }
+    }
+  }
+
+  // Move a folder to a new location
+  Future<void> _moveFolder(String folderName, String destinationPath) async {
+    final sourcePath = '${path ?? ''}/$folderName';
+    final newPath = destinationPath == '/'
+        ? '/$folderName'
+        : '$destinationPath/$folderName';
+
+    await FileManager.moveDirectory(sourcePath, newPath);
     findChildrenOfPath();
   }
 
@@ -453,6 +625,17 @@ class _BrowsePageState extends State<BrowsePage> {
                           context.push(RoutePaths.splitScreen);
                         },
                       ),
+                      // Multi-select button
+                      IconButton(
+                        icon: Icon(
+                          _isMultiSelectMode
+                              ? Icons.check_box
+                              : Icons.check_box_outline_blank,
+                        ),
+                        tooltip:
+                            _isMultiSelectMode ? 'Exit Selection' : 'Select',
+                        onPressed: _toggleMultiSelectMode,
+                      ),
                     ],
                   ],
                 ),
@@ -489,11 +672,16 @@ class _BrowsePageState extends State<BrowsePage> {
                     await FileManager.deleteDirectory(folderPath);
                     findChildrenOfPath();
                   },
+                  moveFolder: _moveFolder,
+                  currentPath: path,
                   folders: [
                     for (final directoryPath
                         in children?.directories ?? const [])
                       directoryPath,
                   ],
+                  selectedFolders: selectedFolders.value,
+                  isMultiSelectMode: _isMultiSelectMode,
+                  onFolderSelectionToggle: _toggleFolderSelection,
                 ),
                 if (children == null) ...[
                   // loading
@@ -516,6 +704,7 @@ class _BrowsePageState extends State<BrowsePage> {
                           "${path ?? ""}/$filePath",
                       ],
                       selectedFiles: selectedFiles,
+                      isMultiSelectMode: _isMultiSelectMode,
                     ),
                   ),
                 ],
@@ -524,117 +713,330 @@ class _BrowsePageState extends State<BrowsePage> {
           ),
         ],
       ),
-      floatingActionButton: NewNoteButton(
-        cupertino: cupertino,
-        path: path,
-        createFolder: createFolder,
-        doesFolderExist: (String folderName) {
-          return children?.directories.contains(folderName) ?? false;
-        },
-      ),
-      persistentFooterButtons: selectedFiles.value.isEmpty
+      floatingActionButton: _isMultiSelectMode
           ? null
-          : [
-              Collapsible(
-                axis: CollapsibleAxis.vertical,
-                collapsed: selectedFiles.value.length != 1,
-                child: RenameNoteButton(
-                  existingPath: selectedFiles.value.isEmpty
-                      ? ''
-                      : selectedFiles.value.first,
-                  unselectNotes: () => selectedFiles.value = [],
+          : NewNoteButton(
+              cupertino: cupertino,
+              path: path,
+              createFolder: createFolder,
+              doesFolderExist: (String folderName) {
+                return children?.directories.contains(folderName) ?? false;
+              },
+            ),
+      persistentFooterButtons: _isMultiSelectMode
+          ? [
+              // Multi-select mode footer buttons
+              // Selection count indicator
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  '$_totalSelectedCount selected',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.primary,
+                  ),
                 ),
               ),
-              MoveNoteButton(
-                filesToMove: selectedFiles.value,
-                unselectNotes: () => selectedFiles.value = [],
+              const Spacer(),
+              // Delete All button
+              TextButton.icon(
+                onPressed: _hasSelection ? _deleteAllSelected : null,
+                icon: Icon(
+                  Icons.delete_forever,
+                  color: _hasSelection ? colorScheme.error : null,
+                ),
+                label: Text(
+                  'Delete All',
+                  style: TextStyle(
+                    color: _hasSelection ? colorScheme.error : null,
+                  ),
+                ),
               ),
-              IconButton(
-                padding: EdgeInsets.zero,
-                tooltip: t.home.deleteNote,
-                onPressed: () async {
-                  await Future.wait([
-                    for (final filePath in selectedFiles.value)
-                      Future.value(
-                        FileManager.doesFileExist(
-                          filePath + Editor.extensionOldJson,
-                        ),
-                      ).then(
-                        (oldExtension) => FileManager.deleteFile(
-                          filePath +
-                              (oldExtension
-                                  ? Editor.extensionOldJson
-                                  : Editor.extension),
+              const SizedBox(width: 8),
+              // Group button
+              TextButton.icon(
+                onPressed: _hasSelection ? _groupSelectedItems : null,
+                icon: const Icon(Icons.create_new_folder),
+                label: const Text('Group'),
+              ),
+            ]
+          : selectedFiles.value.isEmpty
+              ? null
+              : [
+                  Collapsible(
+                    axis: CollapsibleAxis.vertical,
+                    collapsed: selectedFiles.value.length != 1,
+                    child: RenameNoteButton(
+                      existingPath: selectedFiles.value.isEmpty
+                          ? ''
+                          : selectedFiles.value.first,
+                      unselectNotes: () => selectedFiles.value = [],
+                    ),
+                  ),
+                  MoveNoteButton(
+                    filesToMove: selectedFiles.value,
+                    unselectNotes: () => selectedFiles.value = [],
+                  ),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    tooltip: t.home.deleteNote,
+                    onPressed: () async {
+                      await Future.wait([
+                        for (final filePath in selectedFiles.value)
+                          Future.value(
+                            FileManager.doesFileExist(
+                              filePath + Editor.extensionOldJson,
+                            ),
+                          ).then(
+                            (oldExtension) => FileManager.deleteFile(
+                              filePath +
+                                  (oldExtension
+                                      ? Editor.extensionOldJson
+                                      : Editor.extension),
+                            ),
+                          ),
+                      ]);
+                      selectedFiles.value = [];
+                    },
+                    icon: const Icon(Icons.delete_forever),
+                  ),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    tooltip: 'Group to new folder',
+                    onPressed: () async {
+                      final folderName = await showDialog<String>(
+                        context: context,
+                        builder: (context) {
+                          final controller = TextEditingController();
+                          return AlertDialog(
+                            title: const Text('New Folder'),
+                            content: TextField(
+                              controller: controller,
+                              autofocus: true,
+                              decoration: const InputDecoration(
+                                labelText: 'Folder Name',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(context, controller.text),
+                                child: const Text('Create'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+
+                      if (folderName != null && folderName.isNotEmpty) {
+                        final newFolderPath = '${path ?? ''}/$folderName';
+                        await FileManager.createFolder(newFolderPath);
+
+                        await Future.wait([
+                          for (final filePath in selectedFiles.value)
+                            Future.value(
+                              FileManager.doesFileExist(
+                                filePath + Editor.extensionOldJson,
+                              ),
+                            ).then((oldExtension) async {
+                              final fileName = filePath.split('/').last;
+                              await FileManager.moveFile(
+                                filePath +
+                                    (oldExtension
+                                        ? Editor.extensionOldJson
+                                        : Editor.extension),
+                                '$newFolderPath/$fileName${oldExtension ? Editor.extensionOldJson : Editor.extension}',
+                              );
+                            }),
+                        ]);
+                        selectedFiles.value = [];
+                        findChildrenOfPath();
+                      }
+                    },
+                    icon: const Icon(Icons.create_new_folder),
+                  ),
+                  ExportNoteButton(selectedFiles: selectedFiles.value),
+                ],
+    );
+  }
+}
+
+/// Dialog for confirming deletion of selected items
+class _DeleteConfirmationDialog extends StatelessWidget {
+  const _DeleteConfirmationDialog({
+    required this.selectedFiles,
+    required this.selectedFolders,
+    this.currentPath,
+  });
+
+  final List<String> selectedFiles;
+  final List<String> selectedFolders;
+  final String? currentPath;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final totalItems = selectedFiles.length + selectedFolders.length;
+
+    return AlertDialog(
+      title: const Text('Delete Selected Items'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Are you sure you want to delete $totalItems item${totalItems == 1 ? '' : 's'}?',
+              style: TextStyle(color: colorScheme.error),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'The following items will be permanently deleted:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 200),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final folder in selectedFolders)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.folder,
+                              size: 16,
+                              color: colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                folder,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                  ]);
-                  selectedFiles.value = [];
-                },
-                icon: const Icon(Icons.delete_forever),
-              ),
-              IconButton(
-                padding: EdgeInsets.zero,
-                tooltip: 'Group to new folder',
-                onPressed: () async {
-                  final folderName = await showDialog<String>(
-                    context: context,
-                    builder: (context) {
-                      final controller = TextEditingController();
-                      return AlertDialog(
-                        title: const Text('New Folder'),
-                        content: TextField(
-                          controller: controller,
-                          autofocus: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Folder Name',
-                            border: OutlineInputBorder(),
-                          ),
+                    for (final file in selectedFiles)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.description,
+                              size: 16,
+                              color: colorScheme.secondary,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                file.split('/').last,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () =>
-                                Navigator.pop(context, controller.text),
-                            child: const Text('Create'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-
-                  if (folderName != null && folderName.isNotEmpty) {
-                    final newFolderPath = '${path ?? ''}/$folderName';
-                    await FileManager.createFolder(newFolderPath);
-
-                    await Future.wait([
-                      for (final filePath in selectedFiles.value)
-                        Future.value(
-                          FileManager.doesFileExist(
-                            filePath + Editor.extensionOldJson,
-                          ),
-                        ).then((oldExtension) async {
-                          final fileName = filePath.split('/').last;
-                          await FileManager.moveFile(
-                            filePath +
-                                (oldExtension
-                                    ? Editor.extensionOldJson
-                                    : Editor.extension),
-                            '$newFolderPath/$fileName${oldExtension ? Editor.extensionOldJson : Editor.extension}',
-                          );
-                        }),
-                    ]);
-                    selectedFiles.value = [];
-                    findChildrenOfPath();
-                  }
-                },
-                icon: const Icon(Icons.create_new_folder),
+                      ),
+                  ],
+                ),
               ),
-              ExportNoteButton(selectedFiles: selectedFiles.value),
-            ],
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(t.common.cancel),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          style: TextButton.styleFrom(foregroundColor: colorScheme.error),
+          child: Text(t.common.delete),
+        ),
+      ],
     );
+  }
+}
+
+/// Dialog for creating a new folder (used by Group function)
+class _NewFolderDialog extends StatefulWidget {
+  const _NewFolderDialog({required this.doesFolderExist});
+
+  final bool Function(String) doesFolderExist;
+
+  @override
+  State<_NewFolderDialog> createState() => _NewFolderDialogState();
+}
+
+class _NewFolderDialogState extends State<_NewFolderDialog> {
+  final _controller = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  String? _validateFolderName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Folder name cannot be empty';
+    }
+    if (value.contains('/') || value.contains('\\')) {
+      return 'Folder name cannot contain slashes';
+    }
+    if (widget.doesFolderExist(value)) {
+      return 'A folder with this name already exists';
+    }
+    return null;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Group into New Folder'),
+      content: Form(
+        key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        child: TextFormField(
+          controller: _controller,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Folder Name',
+            border: OutlineInputBorder(),
+          ),
+          validator: _validateFolderName,
+          onFieldSubmitted: (_) => _submit(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(t.common.cancel),
+        ),
+        TextButton(
+          onPressed: _submit,
+          child: const Text('Create'),
+        ),
+      ],
+    );
+  }
+
+  void _submit() {
+    if (_formKey.currentState?.validate() ?? false) {
+      Navigator.of(context).pop(_controller.text);
+    }
   }
 }
 
