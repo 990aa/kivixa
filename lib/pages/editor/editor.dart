@@ -185,6 +185,9 @@ class EditorState extends State<Editor> {
   /// If the secondary stylus button is pressed or was pressed during current gesture.
   var secondaryStylussButtonPressed = false;
 
+  /// Whether the pages sidebar is visible on the right.
+  var isPagesSidebarVisible = false;
+
   @override
   void initState() {
     DynamicMaterialApp.addFullscreenListener(_setState);
@@ -1627,6 +1630,60 @@ class EditorState extends State<Editor> {
       ),
     );
 
+    // Pages sidebar widget
+    final pagesSidebar = AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: isPagesSidebarVisible ? 280 : 0,
+      child: isPagesSidebarVisible
+          ? Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(
+                    color: colorScheme.outline.withValues(alpha: 0.3),
+                  ),
+                ),
+                color: colorScheme.surface,
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: colorScheme.outline.withValues(alpha: 0.3),
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          t.editor.pages,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => setState(() {
+                            isPagesSidebarVisible = false;
+                          }),
+                          iconSize: 20,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(child: pageManager(context)),
+                ],
+              ),
+            )
+          : null,
+    );
+
     final Widget body;
     if (isToolbarVertical) {
       body = Row(
@@ -1636,25 +1693,39 @@ class EditorState extends State<Editor> {
         children: [
           toolbar,
           Expanded(
-            child: Column(
+            child: Row(
               children: [
-                Expanded(child: canvas),
-                if (readonlyBanner != null) readonlyBanner,
+                Expanded(
+                  child: Column(
+                    children: [
+                      Expanded(child: canvas),
+                      if (readonlyBanner != null) readonlyBanner,
+                    ],
+                  ),
+                ),
+                pagesSidebar,
               ],
             ),
           ),
         ],
       );
     } else {
-      body = Column(
-        verticalDirection:
-            stows.editorToolbarAlignment.value == AxisDirection.up
-            ? VerticalDirection.up
-            : VerticalDirection.down,
+      body = Row(
         children: [
-          Expanded(child: canvas),
-          toolbar,
-          if (readonlyBanner != null) readonlyBanner,
+          Expanded(
+            child: Column(
+              verticalDirection:
+                  stows.editorToolbarAlignment.value == AxisDirection.up
+                  ? VerticalDirection.up
+                  : VerticalDirection.down,
+              children: [
+                Expanded(child: canvas),
+                toolbar,
+                if (readonlyBanner != null) readonlyBanner,
+              ],
+            ),
+          ),
+          pagesSidebar,
         ],
       );
     }
@@ -1708,8 +1779,8 @@ class EditorState extends State<Editor> {
                 actions: [
                   IconButton(
                     icon: const AdaptiveIcon(
-                      icon: Icons.insert_page_break,
-                      cupertinoIcon: CupertinoIcons.add,
+                      icon: Icons.note_add,
+                      cupertinoIcon: CupertinoIcons.doc_on_doc,
                     ),
                     tooltip: t.editor.menu.insertPage,
                     onPressed: () => setState(() {
@@ -1733,21 +1804,18 @@ class EditorState extends State<Editor> {
                     }),
                   ),
                   IconButton(
-                    icon: const AdaptiveIcon(
-                      icon: Icons.grid_view,
-                      cupertinoIcon: CupertinoIcons.rectangle_grid_2x2,
+                    icon: AdaptiveIcon(
+                      icon: isPagesSidebarVisible
+                          ? Icons.view_sidebar
+                          : Icons.grid_view,
+                      cupertinoIcon: isPagesSidebarVisible
+                          ? CupertinoIcons.sidebar_right
+                          : CupertinoIcons.rectangle_grid_2x2,
                     ),
                     tooltip: t.editor.pages,
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AdaptiveAlertDialog(
-                          title: Text(t.editor.pages),
-                          content: pageManager(context),
-                          actions: const [],
-                        ),
-                      );
-                    },
+                    onPressed: () => setState(() {
+                      isPagesSidebarVisible = !isPagesSidebarVisible;
+                    }),
                   ),
                   IconButton(
                     icon: const AdaptiveIcon(

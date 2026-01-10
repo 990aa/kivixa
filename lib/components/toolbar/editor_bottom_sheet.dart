@@ -92,7 +92,7 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                       : null,
                   child: Wrap(
                     children: [
-                      const Icon(Icons.cleaning_services),
+                      const Icon(Icons.layers_clear),
                       const SizedBox(width: 8),
                       Text(
                         t.editor.menu.clearPage(
@@ -114,7 +114,7 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                       : null,
                   child: Wrap(
                     children: [
-                      const Icon(Icons.cleaning_services),
+                      const Icon(Icons.layers_clear),
                       const SizedBox(width: 8),
                       Text(t.editor.menu.clearAllPages),
                     ],
