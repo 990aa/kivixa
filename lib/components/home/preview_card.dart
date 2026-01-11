@@ -634,6 +634,11 @@ class _PreviewCardState extends State<PreviewCard> {
       ), // Close RepaintBoundary
     );
 
+    // In multi-select mode, skip OpenContainer to avoid grey scrim on tap
+    if (widget.isMultiSelectMode) {
+      return card;
+    }
+
     return ValueListenableBuilder(
       valueListenable: expanded,
       builder: (context, expanded, _) {
