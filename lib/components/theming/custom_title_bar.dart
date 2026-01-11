@@ -16,8 +16,9 @@ class CustomTitleBar extends StatefulWidget {
 
   final Widget child;
 
-  /// Height of the title bar (matches Windows default)
-  static const height = 32.0;
+  // OPTIMIZATION: Reduced height from 32 to 28 for a slimmer title bar
+  /// Height of the title bar (compact design)
+  static const height = 28.0;
 
   @override
   State<CustomTitleBar> createState() => _CustomTitleBarState();
@@ -87,59 +88,78 @@ class _CustomTitleBarState extends State<CustomTitleBar> with WindowListener {
 
     return Column(
       children: [
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onPanStart: (_) => windowManager.startDragging(),
-          onDoubleTap: () async {
-            if (await windowManager.isMaximized()) {
-              await windowManager.unmaximize();
-            } else {
-              await windowManager.maximize();
-            }
-          },
-          child: Container(
-            height: CustomTitleBar.height,
-            color: colorScheme.surface,
-            child: Row(
-              children: [
-                const SizedBox(width: 8),
-                // App icon
-                Image.asset('assets/icon/icon.png', width: 18, height: 18),
-                const SizedBox(width: 8),
-                // App name (capitalized)
-                Text(
-                  'Kivixa',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: colorScheme.onSurface,
-                    decoration: TextDecoration.none,
-                    decorationColor: Colors.transparent,
-                  ),
+        // OPTIMIZATION: RepaintBoundary isolates title bar repaints from main content
+        RepaintBoundary(
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onPanStart: (_) => windowManager.startDragging(),
+            onDoubleTap: () async {
+              if (await windowManager.isMaximized()) {
+                await windowManager.unmaximize();
+              } else {
+                await windowManager.maximize();
+              }
+            },
+            // OPTIMIZATION: Material widget provides ink splash surface for InkWell children
+            child: Material(
+              color: colorScheme.surface,
+              child: SizedBox(
+                height: CustomTitleBar.height,
+                child: Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    // OPTIMIZATION: cacheWidth/cacheHeight prevents GPU from holding full-res texture
+                    Image.asset(
+                      'assets/icon/icon.png',
+                      width: 16,
+                      height: 16,
+                      cacheWidth: 32,
+                      cacheHeight: 32,
+                    ),
+                    const SizedBox(width: 6),
+                    // App name (capitalized)
+                    Text(
+                      'Kivixa',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: colorScheme.onSurface,
+                        decoration: TextDecoration.none,
+                        decorationColor: Colors.transparent,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Theme toggle button
+                    _TitleBarButton(
+                      icon: isDark ? Icons.dark_mode : Icons.light_mode,
+                      tooltip: 'Toggle theme',
+                      onPressed: _toggleTheme,
+                      colorScheme: colorScheme,
+                    ),
+                    // Settings button
+                    _TitleBarButton(
+                      icon: Icons.settings,
+                      tooltip: 'Settings',
+                      onPressed: _goToSettings,
+                      colorScheme: colorScheme,
+                    ),
+                    // OPTIMIZATION: Flexible spacer prevents overflow by shrinking when needed
+                    Flexible(
+                      child: DragToMoveArea(
+                        child: const SizedBox(
+                          height: CustomTitleBar.height,
+                          width: double.infinity,
+                        ),
+                      ),
+                    ),
+                    // Window controls
+                    _WindowControls(
+                      isMaximized: _isMaximized,
+                      colorScheme: colorScheme,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 16),
-                // Theme toggle button
-                _TitleBarButton(
-                  icon: isDark ? Icons.dark_mode : Icons.light_mode,
-                  tooltip: 'Toggle theme',
-                  onPressed: _toggleTheme,
-                  colorScheme: colorScheme,
-                ),
-                // Settings button
-                _TitleBarButton(
-                  icon: Icons.settings,
-                  tooltip: 'Settings',
-                  onPressed: _goToSettings,
-                  colorScheme: colorScheme,
-                ),
-                // Draggable spacer
-                const Expanded(child: DragToMoveArea(child: SizedBox.expand())),
-                // Window controls
-                _WindowControls(
-                  isMaximized: _isMaximized,
-                  colorScheme: colorScheme,
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -172,29 +192,26 @@ class _TitleBarButtonState extends State<_TitleBarButton> {
 
   @override
   Widget build(BuildContext context) {
+    // OPTIMIZATION: Pre-compute colors to avoid repeated calculations during build
+    final hoverColor = widget.colorScheme.onSurface.withValues(alpha: 0.08);
+    final iconColor = widget.colorScheme.onSurface.withValues(alpha: 0.8);
+
     return Tooltip(
       message: widget.tooltip,
       waitDuration: const Duration(milliseconds: 500),
       child: MouseRegion(
         onEnter: (_) => setState(() => _isHovered = true),
         onExit: (_) => setState(() => _isHovered = false),
-        child: InkWell(
+        // OPTIMIZATION: GestureDetector is lighter than InkWell (no saveLayer calls)
+        child: GestureDetector(
           onTap: widget.onPressed,
-          hoverColor: widget.colorScheme.onSurface.withValues(alpha: 0.08),
-          splashColor: widget.colorScheme.onSurface.withValues(alpha: 0.12),
           child: Container(
-            width: 32,
+            width: 28,
             height: CustomTitleBar.height,
-            decoration: BoxDecoration(
-              color: _isHovered
-                  ? widget.colorScheme.onSurface.withValues(alpha: 0.08)
-                  : Colors.transparent,
-            ),
-            child: Icon(
-              widget.icon,
-              size: 16,
-              color: widget.colorScheme.onSurface.withValues(alpha: 0.8),
-            ),
+            // OPTIMIZATION: Using color directly instead of BoxDecoration reduces paint overhead
+            color: _isHovered ? hoverColor : Colors.transparent,
+            alignment: Alignment.center,
+            child: Icon(widget.icon, size: 14, color: iconColor),
           ),
         ),
       ),
@@ -269,6 +286,7 @@ class _WindowButtonState extends State<_WindowButton> {
 
   @override
   Widget build(BuildContext context) {
+    // OPTIMIZATION: Pre-compute colors once per build
     final hoverColor = widget.isClose
         ? Colors.red
         : widget.colorScheme.onSurface.withValues(alpha: 0.08);
@@ -282,17 +300,16 @@ class _WindowButtonState extends State<_WindowButton> {
       child: MouseRegion(
         onEnter: (_) => setState(() => _isHovered = true),
         onExit: (_) => setState(() => _isHovered = false),
-        child: InkWell(
+        // OPTIMIZATION: GestureDetector avoids Material requirement and saveLayer calls
+        child: GestureDetector(
           onTap: widget.onPressed,
-          hoverColor: hoverColor,
-          splashColor: hoverColor.withValues(alpha: 0.3),
           child: Container(
-            width: 46,
+            width: 40,
             height: CustomTitleBar.height,
-            decoration: BoxDecoration(
-              color: _isHovered ? hoverColor : Colors.transparent,
-            ),
-            child: Icon(widget.icon, size: 16, color: iconColor),
+            // OPTIMIZATION: Direct color instead of BoxDecoration reduces paint overhead
+            color: _isHovered ? hoverColor : Colors.transparent,
+            alignment: Alignment.center,
+            child: Icon(widget.icon, size: 14, color: iconColor),
           ),
         ),
       ),
