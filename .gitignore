@@ -54,3 +54,4 @@ build_windows_installer/
 *.so
 *.exe
 run_log.txt
+Run_logs/
