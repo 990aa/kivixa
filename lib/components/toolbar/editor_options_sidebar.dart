@@ -1,0 +1,362 @@
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:kivixa/components/canvas/_canvas_background_painter.dart';
+import 'package:kivixa/components/canvas/canvas_background_preview.dart';
+import 'package:kivixa/components/canvas/canvas_image_dialog.dart';
+import 'package:kivixa/components/canvas/inner_canvas.dart';
+import 'package:kivixa/data/editor/editor_core_info.dart';
+import 'package:kivixa/data/editor/page.dart';
+import 'package:kivixa/data/extensions/list_extensions.dart';
+import 'package:kivixa/i18n/strings.g.dart';
+
+/// A sidebar widget that displays editor options (background pattern, line height, etc.)
+/// This is a refactored version of EditorBottomSheet designed for sidebar display.
+/// Note: Import images option is removed as it's already in the main toolbar.
+class EditorOptionsSidebar extends StatefulWidget {
+  const EditorOptionsSidebar({
+    super.key,
+    required this.invert,
+    required this.coreInfo,
+    required this.currentPageIndex,
+    required this.setBackgroundPattern,
+    required this.setLineHeight,
+    required this.setLineThickness,
+    required this.removeBackgroundImage,
+    required this.redrawImage,
+    required this.clearPage,
+    required this.clearAllPages,
+    required this.redrawAndSave,
+    required this.importPdf,
+    required this.canRasterPdf,
+  });
+
+  final bool invert;
+  final EditorCoreInfo coreInfo;
+  final int? currentPageIndex;
+  final void Function(CanvasBackgroundPattern) setBackgroundPattern;
+  final void Function(int) setLineHeight;
+  final void Function(int) setLineThickness;
+  final VoidCallback removeBackgroundImage;
+  final VoidCallback redrawImage;
+  final VoidCallback clearPage;
+  final VoidCallback clearAllPages;
+  final VoidCallback redrawAndSave;
+  final Future<bool> Function() importPdf;
+  final bool canRasterPdf;
+
+  @override
+  State<EditorOptionsSidebar> createState() => _EditorOptionsSidebarState();
+}
+
+class _EditorOptionsSidebarState extends State<EditorOptionsSidebar> {
+  static const imageBoxFits = <BoxFit>[
+    BoxFit.fill,
+    BoxFit.cover,
+    BoxFit.contain,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final page = widget.coreInfo.pages.getOrNull(widget.currentPageIndex ?? -1);
+    final pageSize = page?.size ?? EditorPage.defaultSize;
+    final backgroundImage = page?.backgroundImage;
+
+    final previewSize = Size(
+      CanvasBackgroundPreview.fixedWidth,
+      pageSize.height / pageSize.width * CanvasBackgroundPreview.fixedWidth,
+    );
+
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(
+        // Enable drag scrolling on all devices (including mouse)
+        dragDevices: PointerDeviceKind.values.toSet(),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: ListView(
+          children: [
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: [
+                ElevatedButton(
+                  onPressed: widget.coreInfo.isNotEmpty
+                      ? () {
+                          widget.clearPage();
+                        }
+                      : null,
+                  child: Wrap(
+                    children: [
+                      const Icon(Icons.layers_clear),
+                      const SizedBox(width: 8),
+                      Text(
+                        t.editor.menu.clearPage(
+                          page: widget.currentPageIndex == null
+                              ? '?'
+                              : widget.currentPageIndex! + 1,
+                          totalPages: widget.coreInfo.pages.length,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: widget.coreInfo.isNotEmpty
+                      ? () {
+                          widget.clearAllPages();
+                        }
+                      : null,
+                  child: Wrap(
+                    children: [
+                      const Icon(Icons.layers_clear),
+                      const SizedBox(width: 8),
+                      Text(t.editor.menu.clearAllPages),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (backgroundImage != null) ...[
+              Text(
+                t.editor.menu.backgroundImageFit,
+                style: TextTheme.of(context).titleMedium,
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: previewSize.height,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: imageBoxFits.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final boxFit = imageBoxFits[index];
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () => setState(() {
+                        backgroundImage.backgroundFit = boxFit;
+                        widget.redrawAndSave();
+                      }),
+                      child: Stack(
+                        children: [
+                          CanvasBackgroundPreview(
+                            selected: backgroundImage.backgroundFit == boxFit,
+                            invert: widget.invert,
+                            backgroundColor:
+                                widget.coreInfo.backgroundColor ??
+                                InnerCanvas.defaultBackgroundColor,
+                            backgroundPattern:
+                                widget.coreInfo.backgroundPattern,
+                            backgroundImage: backgroundImage,
+                            overrideBoxFit: boxFit,
+                            pageSize: pageSize,
+                            lineHeight: widget.coreInfo.lineHeight,
+                            lineThickness: widget.coreInfo.lineThickness,
+                          ),
+                          Positioned(
+                            bottom: previewSize.height * 0.1,
+                            left: 0,
+                            right: 0,
+                            child: Center(
+                              child: _PermanentTooltip(
+                                text: boxFit.localizedName,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+              CanvasImageDialog(
+                filePath: widget.coreInfo.filePath,
+                image: backgroundImage,
+                redrawImage: () => setState(() {
+                  widget.redrawImage();
+                }),
+                isBackground: true,
+                toggleAsBackground: widget.removeBackgroundImage,
+                singleRow: true,
+              ),
+              const SizedBox(height: 16),
+            ],
+            Text(
+              t.editor.menu.backgroundPattern,
+              style: TextTheme.of(context).titleMedium,
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: previewSize.height,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: CanvasBackgroundPattern.values.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final backgroundPattern =
+                      CanvasBackgroundPattern.values[index];
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () => setState(() {
+                      widget.setBackgroundPattern(backgroundPattern);
+                    }),
+                    child: Stack(
+                      children: [
+                        CanvasBackgroundPreview(
+                          selected:
+                              widget.coreInfo.backgroundPattern ==
+                              backgroundPattern,
+                          invert: widget.invert,
+                          backgroundColor:
+                              widget.coreInfo.backgroundColor ??
+                              InnerCanvas.defaultBackgroundColor,
+                          backgroundPattern: backgroundPattern,
+                          backgroundImage: null, // focus on background pattern
+                          pageSize: pageSize,
+                          lineHeight: widget.coreInfo.lineHeight,
+                          lineThickness: widget.coreInfo.lineThickness,
+                        ),
+                        Positioned(
+                          bottom: previewSize.height * 0.1,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: _PermanentTooltip(
+                              text: CanvasBackgroundPattern.localizedName(
+                                backgroundPattern,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              t.editor.menu.lineHeight,
+              style: TextTheme.of(context).titleMedium,
+            ),
+            Text(
+              t.editor.menu.lineHeightDescription,
+              style: TextTheme.of(context).bodyMedium,
+            ),
+            Row(
+              children: [
+                Text(widget.coreInfo.lineHeight.toString()),
+                Expanded(
+                  child: Slider(
+                    value: widget.coreInfo.lineHeight.toDouble(),
+                    min: 20,
+                    max: 100,
+                    divisions: 8,
+                    onChanged: (double value) => setState(() {
+                      widget.setLineHeight(value.toInt());
+                    }),
+                  ),
+                ),
+              ],
+            ),
+            Text(
+              t.editor.menu.lineThickness,
+              style: TextTheme.of(context).titleMedium,
+            ),
+            Text(
+              t.editor.menu.lineThicknessDescription,
+              style: TextTheme.of(context).bodyMedium,
+            ),
+            Row(
+              children: [
+                Text(widget.coreInfo.lineThickness.toString()),
+                Expanded(
+                  child: Slider(
+                    value: widget.coreInfo.lineThickness.toDouble(),
+                    min: 1,
+                    max: 5,
+                    divisions: 4,
+                    onChanged: (double value) => setState(() {
+                      widget.setLineThickness(value.toInt());
+                    }),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Import PDF only (images option removed - available in main toolbar)
+            if (widget.canRasterPdf) ...[
+              Text(
+                t.editor.menu.import,
+                style: TextTheme.of(context).titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      await widget.importPdf();
+                    },
+                    child: const Text('PDF'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PermanentTooltip extends StatelessWidget {
+  const _PermanentTooltip({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: colorScheme.surface.withValues(alpha: 0.8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          textWidthBasis: TextWidthBasis.longestLine,
+          style: TextStyle(color: colorScheme.onSurface),
+        ),
+      ),
+    );
+  }
+}
+
+/// Extension to add localized names to BoxFit enum
+extension BoxFitLocalized on BoxFit {
+  String get localizedName {
+    switch (this) {
+      case BoxFit.contain:
+        return 'Contain';
+      case BoxFit.cover:
+        return 'Cover';
+      case BoxFit.fill:
+        return 'Fill';
+      case BoxFit.fitHeight:
+        return 'Fit height';
+      case BoxFit.fitWidth:
+        return 'Fit width';
+      case BoxFit.none:
+        return 'None';
+      case BoxFit.scaleDown:
+        return 'Scale down';
+    }
+  }
+}

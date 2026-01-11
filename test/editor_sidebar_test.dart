@@ -206,7 +206,7 @@ void main() {
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   width: 280,
-                  child: Container(
+                  child: DecoratedBox(
                     decoration: BoxDecoration(
                       border: Border(
                         left: BorderSide(

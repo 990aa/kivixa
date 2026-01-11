@@ -24,6 +24,7 @@ import 'package:kivixa/components/theming/adaptive_icon.dart';
 import 'package:kivixa/components/theming/dynamic_material_app.dart';
 import 'package:kivixa/components/toolbar/color_bar.dart';
 import 'package:kivixa/components/toolbar/editor_bottom_sheet.dart';
+import 'package:kivixa/components/toolbar/editor_options_sidebar.dart';
 import 'package:kivixa/components/toolbar/editor_page_manager.dart';
 import 'package:kivixa/components/toolbar/toolbar.dart';
 import 'package:kivixa/data/editor/_color_change.dart';
@@ -187,6 +188,9 @@ class EditorState extends State<Editor> {
 
   /// Whether the pages sidebar is visible on the right.
   var isPagesSidebarVisible = false;
+
+  /// Whether the options sidebar (background pattern, line height etc) is visible on the right.
+  var isOptionsSidebarVisible = false;
 
   @override
   void initState() {
@@ -1635,7 +1639,7 @@ class EditorState extends State<Editor> {
       duration: const Duration(milliseconds: 200),
       width: isPagesSidebarVisible ? 280 : 0,
       child: isPagesSidebarVisible
-          ? Container(
+          ? DecoratedBox(
               decoration: BoxDecoration(
                 border: Border(
                   left: BorderSide(
@@ -1684,6 +1688,60 @@ class EditorState extends State<Editor> {
           : null,
     );
 
+    // Options sidebar widget (background pattern, line height, etc.)
+    final optionsSidebar = AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: isOptionsSidebarVisible ? 320 : 0,
+      child: isOptionsSidebarVisible
+          ? DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(
+                    color: colorScheme.outline.withValues(alpha: 0.3),
+                  ),
+                ),
+                color: colorScheme.surface,
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: colorScheme.outline.withValues(alpha: 0.3),
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          t.editor.menu.backgroundPattern,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => setState(() {
+                            isOptionsSidebarVisible = false;
+                          }),
+                          iconSize: 20,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(child: optionsSidebarContent(context)),
+                ],
+              ),
+            )
+          : null,
+    );
+
     final Widget body;
     if (isToolbarVertical) {
       body = Row(
@@ -1704,6 +1762,7 @@ class EditorState extends State<Editor> {
                   ),
                 ),
                 pagesSidebar,
+                optionsSidebar,
               ],
             ),
           ),
@@ -1726,6 +1785,7 @@ class EditorState extends State<Editor> {
             ),
           ),
           pagesSidebar,
+          optionsSidebar,
         ],
       );
     }
@@ -1815,23 +1875,26 @@ class EditorState extends State<Editor> {
                     tooltip: t.editor.pages,
                     onPressed: () => setState(() {
                       isPagesSidebarVisible = !isPagesSidebarVisible;
+                      if (isPagesSidebarVisible) {
+                        isOptionsSidebarVisible = false;
+                      }
                     }),
                   ),
                   IconButton(
-                    icon: const AdaptiveIcon(
-                      icon: Icons.more_vert,
-                      cupertinoIcon: CupertinoIcons.ellipsis_vertical,
+                    icon: AdaptiveIcon(
+                      icon: isOptionsSidebarVisible
+                          ? Icons.tune
+                          : Icons.more_vert,
+                      cupertinoIcon: isOptionsSidebarVisible
+                          ? CupertinoIcons.slider_horizontal_3
+                          : CupertinoIcons.ellipsis_vertical,
                     ),
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) => bottomSheet(context),
-                        isScrollControlled: true,
-                        showDragHandle: true,
-                        backgroundColor: colorScheme.surface,
-                        constraints: const BoxConstraints(maxWidth: 500),
-                      );
-                    },
+                    onPressed: () => setState(() {
+                      isOptionsSidebarVisible = !isOptionsSidebarVisible;
+                      if (isOptionsSidebarVisible) {
+                        isPagesSidebarVisible = false;
+                      }
+                    }),
                   ),
                 ],
               ),
@@ -1926,6 +1989,60 @@ class EditorState extends State<Editor> {
             });
         }
       },
+    );
+  }
+
+  /// Content for the options sidebar (background pattern, line height, etc.)
+  /// Note: Import images option is removed as it's available in the main toolbar.
+  Widget optionsSidebarContent(BuildContext context) {
+    final Brightness brightness = Theme.brightnessOf(context);
+    final invert =
+        stows.editorAutoInvert.value && brightness == Brightness.dark;
+    final int currentPageIndex = this.currentPageIndex;
+
+    return EditorOptionsSidebar(
+      invert: invert,
+      coreInfo: coreInfo,
+      currentPageIndex: currentPageIndex,
+      setBackgroundPattern: (pattern) => setState(() {
+        if (coreInfo.readOnly) return;
+        coreInfo.backgroundPattern = pattern;
+        stows.lastBackgroundPattern.value = pattern;
+        autosaveAfterDelay();
+      }),
+      setLineHeight: (lineHeight) => setState(() {
+        if (coreInfo.readOnly) return;
+        coreInfo.lineHeight = lineHeight;
+        stows.lastLineHeight.value = lineHeight;
+        autosaveAfterDelay();
+      }),
+      setLineThickness: (lineThickness) => setState(() {
+        if (coreInfo.readOnly) return;
+        coreInfo.lineThickness = lineThickness;
+        stows.lastLineThickness.value = lineThickness;
+        autosaveAfterDelay();
+      }),
+      removeBackgroundImage: () => setState(() {
+        if (coreInfo.readOnly) return;
+
+        final page = coreInfo.pages[currentPageIndex];
+        if (page.backgroundImage == null) return;
+        page.images.add(page.backgroundImage!);
+        page.backgroundImage = null;
+
+        autosaveAfterDelay();
+      }),
+      redrawImage: () => setState(() {}),
+      clearPage: () {
+        clearPage(currentPageIndex);
+      },
+      clearAllPages: clearAllPages,
+      redrawAndSave: () => setState(() {
+        if (coreInfo.readOnly) return;
+        autosaveAfterDelay();
+      }),
+      importPdf: importPdf,
+      canRasterPdf: Editor.canRasterPdf,
     );
   }
 

@@ -343,7 +343,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: t.settings.prefLabels.autoClearWhiteboardOnExit,
                   subtitle:
                       t.settings.prefDescriptions.autoClearWhiteboardOnExit,
-                  icon: Icons.cleaning_services,
+                  icon: Icons.layers_clear,
                   pref: stows.autoClearWhiteboardOnExit,
                 ),
                 SettingsSwitch(
