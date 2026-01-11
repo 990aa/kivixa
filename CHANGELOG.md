@@ -97,3 +97,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Calendar Events**: Creating/deleting events now updates UI immediately
 
 ---
+## [0.1.4] - 2026-01-11
+
+### Changed
+- Minor UI updates and improvements across Browse and Editor sections
+- Enhanced settings page with improved layout
+
+---

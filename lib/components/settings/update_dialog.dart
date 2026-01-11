@@ -2,6 +2,7 @@ import 'package:background_downloader/background_downloader.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:kivixa/components/settings/app_info.dart';
 import 'package:kivixa/components/settings/update_loading_page.dart';
 import 'package:kivixa/components/settings/update_manager.dart';
@@ -77,31 +78,54 @@ class _UpdateDialogState extends State<UpdateDialog> {
   Widget build(BuildContext context) {
     return AdaptiveAlertDialog(
       title: Text(t.update.updateAvailable),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(t.update.updateAvailableDescription),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxHeight: 400,
+          maxWidth: 500,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(t.update.updateAvailableDescription),
+              const SizedBox(height: 12),
 
-          if (englishChangelog != null) Text(englishChangelog!),
+              if (englishChangelog != null)
+                MarkdownBody(
+                  data: englishChangelog!,
+                  selectable: true,
+                  styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
+                      .copyWith(
+                    p: Theme.of(context).textTheme.bodyMedium,
+                    h1: Theme.of(context).textTheme.titleLarge,
+                    h2: Theme.of(context).textTheme.titleMedium,
+                    h3: Theme.of(context).textTheme.titleSmall,
+                    listBullet: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
 
-          if (downloadNotAvailableYet)
-            Text(
-              t.update.downloadNotAvailableYet,
-              style: TextStyle(color: ColorScheme.of(context).error),
-            ),
+              if (downloadNotAvailableYet) ...[
+                const SizedBox(height: 12),
+                Text(
+                  t.update.downloadNotAvailableYet,
+                  style: TextStyle(color: ColorScheme.of(context).error),
+                ),
+              ],
 
-          ValueListenableBuilder(
-            valueListenable: directDownloadProgress,
-            builder: (context, progress, _) {
-              if (progress == null) return const SizedBox();
-              return Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: AdaptiveLinearProgressIndicator(value: progress),
-              );
-            },
+              ValueListenableBuilder(
+                valueListenable: directDownloadProgress,
+                builder: (context, progress, _) {
+                  if (progress == null) return const SizedBox();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: AdaptiveLinearProgressIndicator(value: progress),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       actions: [
         CupertinoDialogAction(

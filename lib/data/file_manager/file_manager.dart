@@ -29,7 +29,8 @@ class FileManager {
 
   static final fileWriteStream = StreamController<FileOperation>.broadcast();
 
-  static String _sanitisePath(String path) => File(path).path;
+  static String _sanitisePath(String path) =>
+      File(path).path.replaceAll('\\', '/');
 
   static final assetFileRegex = RegExp(r'\.kvx?\.[\dp]+$');
 
@@ -141,10 +142,17 @@ class FileManager {
   }
 
   static Future<Uint8List?> readFile(String filePath, {int retries = 3}) async {
+    print(
+      'DEBUG: FileManager.readFile input: $filePath, docDir: $documentsDirectory',
+    );
     filePath = _sanitisePath(filePath);
+    print('DEBUG: FileManager.readFile sanitised: $filePath');
 
     Uint8List? result;
     final file = getFile(filePath);
+    print(
+      'DEBUG: FileManager.readFile checking: ${file.path}, exists: ${file.existsSync()}',
+    );
     if (file.existsSync()) {
       result = await file.readAsBytes();
       if (result.isEmpty) result = null;
@@ -447,6 +455,50 @@ class FileManager {
     }
 
     await directory.delete(recursive: recursive);
+  }
+
+  /// Moves a directory to a new location.
+  /// [fromPath] is the current full path of the directory.
+  /// [toPath] is the destination full path where the directory should be moved.
+  static Future<void> moveDirectory(String fromPath, String toPath) async {
+    fromPath = _sanitisePath(fromPath);
+    toPath = _sanitisePath(toPath);
+
+    if (fromPath == toPath) return;
+
+    final fromDirectory = Directory(documentsDirectory + fromPath);
+    if (!fromDirectory.existsSync()) {
+      log.warning('Tried to move non-existent directory from $fromPath');
+      return;
+    }
+
+    // Collect all files in the source directory for reference updates
+    final List<String> children = [];
+    await for (final entity in fromDirectory.list(recursive: true)) {
+      if (entity is File) {
+        children.add(entity.path.substring(documentsDirectory.length));
+      }
+    }
+
+    // Ensure the parent directory of the destination exists
+    final toParent = Directory(
+      documentsDirectory + toPath.substring(0, toPath.lastIndexOf('/')),
+    );
+    if (!toParent.existsSync()) {
+      await toParent.create(recursive: true);
+    }
+
+    // Move the directory
+    await fromDirectory.rename(documentsDirectory + toPath);
+
+    // Update references for all files
+    for (final childPath in children) {
+      final relativePath = childPath.substring(fromPath.length);
+      final newChildPath = toPath + relativePath;
+      _renameReferences(childPath, newChildPath);
+      broadcastFileWrite(FileOperationType.delete, childPath);
+      broadcastFileWrite(FileOperationType.write, newChildPath);
+    }
   }
 
   static Future<DirectoryChildren?> getChildrenOfDirectory(

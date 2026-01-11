@@ -25,12 +25,14 @@ class PreviewCard extends StatefulWidget {
     required this.toggleSelection,
     required this.selected,
     required this.isAnythingSelected,
+    this.isMultiSelectMode = false,
   }) : super(key: ValueKey('PreviewCard$filePath'));
 
   final String filePath;
   final bool selected;
   final bool isAnythingSelected;
   final void Function(String, bool) toggleSelection;
+  final bool isMultiSelectMode;
 
   @override
   State<PreviewCard> createState() => _PreviewCardState();
@@ -70,6 +72,15 @@ class _PreviewCardState extends State<PreviewCard> {
     }
 
     super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant PreviewCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Sync expanded state with the selected property from parent
+    if (widget.selected != oldWidget.selected) {
+      expanded.value = widget.selected;
+    }
   }
 
   Future<void> _loadMarkdownContent() async {
@@ -532,16 +543,14 @@ class _PreviewCardState extends State<PreviewCard> {
                         ),
                       ],
                     ),
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(
-                          widget.filePath.substring(
-                            widget.filePath.lastIndexOf('/') + 1,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        widget.filePath.substring(
+                          widget.filePath.lastIndexOf('/') + 1,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -624,6 +633,11 @@ class _PreviewCardState extends State<PreviewCard> {
         ),
       ), // Close RepaintBoundary
     );
+
+    // In multi-select mode, skip OpenContainer to avoid grey scrim on tap
+    if (widget.isMultiSelectMode || widget.isAnythingSelected) {
+      return card;
+    }
 
     return ValueListenableBuilder(
       valueListenable: expanded,

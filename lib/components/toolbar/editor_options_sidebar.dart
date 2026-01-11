@@ -9,8 +9,11 @@ import 'package:kivixa/data/editor/page.dart';
 import 'package:kivixa/data/extensions/list_extensions.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 
-class EditorBottomSheet extends StatefulWidget {
-  const EditorBottomSheet({
+/// A sidebar widget that displays editor options (background pattern, line height, etc.)
+/// This is a refactored version of EditorBottomSheet designed for sidebar display.
+/// Note: Import images option is removed as it's already in the main toolbar.
+class EditorOptionsSidebar extends StatefulWidget {
+  const EditorOptionsSidebar({
     super.key,
     required this.invert,
     required this.coreInfo,
@@ -23,11 +26,8 @@ class EditorBottomSheet extends StatefulWidget {
     required this.clearPage,
     required this.clearAllPages,
     required this.redrawAndSave,
-    required this.pickPhotos,
     required this.importPdf,
     required this.canRasterPdf,
-    required this.getIsWatchingServer,
-    required this.setIsWatchingServer,
   });
 
   final bool invert;
@@ -41,17 +41,14 @@ class EditorBottomSheet extends StatefulWidget {
   final VoidCallback clearPage;
   final VoidCallback clearAllPages;
   final VoidCallback redrawAndSave;
-  final Future<int> Function() pickPhotos;
   final Future<bool> Function() importPdf;
   final bool canRasterPdf;
-  final bool Function() getIsWatchingServer;
-  final void Function(bool) setIsWatchingServer;
 
   @override
-  State<EditorBottomSheet> createState() => _EditorBottomSheetState();
+  State<EditorOptionsSidebar> createState() => _EditorOptionsSidebarState();
 }
 
-class _EditorBottomSheetState extends State<EditorBottomSheet> {
+class _EditorOptionsSidebarState extends State<EditorOptionsSidebar> {
   static const imageBoxFits = <BoxFit>[
     BoxFit.fill,
     BoxFit.cover,
@@ -75,31 +72,34 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
         dragDevices: PointerDeviceKind.values.toSet(),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         child: ListView(
-          shrinkWrap: true,
           children: [
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 8,
+              runSpacing: 8,
               children: [
                 ElevatedButton(
                   onPressed: widget.coreInfo.isNotEmpty
                       ? () {
                           widget.clearPage();
-                          Navigator.pop(context);
                         }
                       : null,
-                  child: Wrap(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.layers_clear),
-                      const SizedBox(width: 8),
-                      Text(
-                        t.editor.menu.clearPage(
-                          page: widget.currentPageIndex == null
-                              ? '?'
-                              : widget.currentPageIndex! + 1,
-                          totalPages: widget.coreInfo.pages.length,
+                      const Icon(Icons.layers_clear, size: 18),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          t.editor.menu.clearPage(
+                            page: widget.currentPageIndex == null
+                                ? '?'
+                                : widget.currentPageIndex! + 1,
+                            totalPages: widget.coreInfo.pages.length,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -109,13 +109,13 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                   onPressed: widget.coreInfo.isNotEmpty
                       ? () {
                           widget.clearAllPages();
-                          Navigator.pop(context);
                         }
                       : null,
-                  child: Wrap(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.layers_clear),
-                      const SizedBox(width: 8),
+                      const Icon(Icons.layers_clear, size: 18),
+                      const SizedBox(width: 6),
                       Text(t.editor.menu.clearAllPages),
                     ],
                   ),
@@ -128,12 +128,14 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                 t.editor.menu.backgroundImageFit,
                 style: TextTheme.of(context).titleMedium,
               ),
+              const SizedBox(height: 8),
               SizedBox(
                 height: previewSize.height,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: imageBoxFits.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 8),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 8),
                   itemBuilder: (context, index) {
                     final boxFit = imageBoxFits[index];
                     return InkWell(
@@ -191,12 +193,13 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
               t.editor.menu.backgroundPattern,
               style: TextTheme.of(context).titleMedium,
             ),
+            const SizedBox(height: 8),
             SizedBox(
               height: previewSize.height,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: CanvasBackgroundPattern.values.length,
-                separatorBuilder: (_, _) => const SizedBox(width: 8),
+                separatorBuilder: (context, index) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   final backgroundPattern =
                       CanvasBackgroundPattern.values[index];
@@ -289,37 +292,26 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
               ],
             ),
             const SizedBox(height: 16),
-            Text(
-              t.editor.menu.import,
-              style: TextTheme.of(context).titleMedium,
-            ),
-            Wrap(
-              spacing: 8,
-              children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    final photosPicked = await widget.pickPhotos();
-                    if (photosPicked > 0) {
-                      if (!context.mounted) return;
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: Text(t.editor.toolbar.photo),
-                ),
-                if (widget.canRasterPdf)
+            // Import PDF only (images option removed - available in main toolbar)
+            if (widget.canRasterPdf) ...[
+              Text(
+                t.editor.menu.import,
+                style: TextTheme.of(context).titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: [
                   ElevatedButton(
                     onPressed: () async {
-                      final pdfImported = await widget.importPdf();
-                      if (pdfImported) {
-                        if (!context.mounted) return;
-                        Navigator.pop(context);
-                      }
+                      await widget.importPdf();
                     },
                     child: const Text('PDF'),
                   ),
-              ],
-            ),
-            const SizedBox(height: 16),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
           ],
         ),
       ),
@@ -328,11 +320,7 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
 }
 
 class _PermanentTooltip extends StatelessWidget {
-  const _PermanentTooltip({
-    // ignore: unused_element_parameter
-    super.key,
-    required this.text,
-  });
+  const _PermanentTooltip({required this.text});
 
   final String text;
 

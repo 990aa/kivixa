@@ -7,6 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kivixa/components/overlay/global_overlay.dart';
+import 'package:kivixa/components/theming/custom_title_bar.dart';
 import 'package:kivixa/components/theming/kivixa_theme.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:window_manager/window_manager.dart';
@@ -63,11 +64,45 @@ class DynamicMaterialAppState extends State<DynamicMaterialApp>
     windowManager.addListener(this);
     SystemChrome.setSystemUIChangeCallback(_onFullscreenChange);
 
+    // Update window background color to match theme on startup
+    _updateWindowBackgroundColor();
+
     super.initState();
   }
 
   void onChanged() {
     setState(() {});
+    // Update window background color when theme changes
+    _updateWindowBackgroundColor();
+  }
+
+  /// Updates the window background color to match the current theme.
+  /// This makes the native title bar blend with the app's surface color.
+  void _updateWindowBackgroundColor() {
+    if (!Platform.isWindows && !Platform.isLinux && !Platform.isMacOS) return;
+
+    // Determine the effective brightness based on user preference
+    final brightness = switch (stows.appTheme.value) {
+      ThemeMode.light => Brightness.light,
+      ThemeMode.dark => Brightness.dark,
+      ThemeMode.system =>
+        WidgetsBinding.instance.platformDispatcher.platformBrightness,
+    };
+
+    // Get the accent color or default
+    var chosenAccentColor = stows.accentColor.value;
+    if ((chosenAccentColor?.a ?? 0) < double.minPositive) {
+      chosenAccentColor = widget.defaultSwatch;
+    }
+
+    // Generate the color scheme to get the surface color
+    final colorScheme = ColorScheme.fromSeed(
+      brightness: brightness,
+      seedColor: chosenAccentColor ?? widget.defaultSwatch,
+    );
+
+    // Set the window background color to match the app's surface
+    windowManager.setBackgroundColor(colorScheme.surface);
   }
 
   @override
@@ -198,13 +233,18 @@ class ExplicitlyThemedApp extends StatelessWidget {
       highContrastDarkTheme: highContrastDarkTheme,
       debugShowCheckedModeBanner: false,
       builder: (context, child) {
+        // Wrap with custom title bar on desktop platforms
+        Widget content = child ?? const SizedBox.shrink();
+
+        // Add custom title bar for desktop platforms
+        if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+          content = CustomTitleBar(child: content);
+        }
+
         // Wrap the app content with Overlay (for Tooltip support) and global overlay system
         return Overlay(
           initialEntries: [
-            OverlayEntry(
-              builder: (context) =>
-                  GlobalOverlay(child: child ?? const SizedBox.shrink()),
-            ),
+            OverlayEntry(builder: (context) => GlobalOverlay(child: content)),
           ],
         );
       },

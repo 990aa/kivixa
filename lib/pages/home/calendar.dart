@@ -9,8 +9,7 @@ enum CalendarView { month, week, day, year }
 
 /// Notifier for calendar events to enable live updates across the app
 class CalendarEventNotifier extends ChangeNotifier {
-  static final _instance =
-      CalendarEventNotifier._internal();
+  static final _instance = CalendarEventNotifier._internal();
   static CalendarEventNotifier get instance => _instance;
   CalendarEventNotifier._internal();
 
@@ -658,32 +657,28 @@ class _CalendarPageState extends State<CalendarPage> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Flexible(
-                                    child: Text(
-                                      event.title,
+                                  Text(
+                                    event.title,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: event.type == EventType.event
+                                          ? colorScheme.onPrimaryContainer
+                                          : colorScheme.onTertiaryContainer,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  if (height > 45 && event.description != null)
+                                    Text(
+                                      event.description!,
                                       style: TextStyle(
-                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
                                         color: event.type == EventType.event
                                             ? colorScheme.onPrimaryContainer
                                             : colorScheme.onTertiaryContainer,
                                       ),
-                                      maxLines: 1,
+                                      maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  if (height > 45 && event.description != null)
-                                    Flexible(
-                                      child: Text(
-                                        event.description!,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: event.type == EventType.event
-                                              ? colorScheme.onPrimaryContainer
-                                              : colorScheme.onTertiaryContainer,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
                                     ),
                                 ],
                               ),

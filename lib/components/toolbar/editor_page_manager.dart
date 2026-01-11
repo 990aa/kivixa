@@ -153,8 +153,8 @@ class _EditorPageManagerState extends State<EditorPageManager> {
                       IconButton(
                         tooltip: t.editor.menu.insertPage,
                         icon: const AdaptiveIcon(
-                          icon: Icons.insert_page_break,
-                          cupertinoIcon: CupertinoIcons.add,
+                          icon: Icons.note_add,
+                          cupertinoIcon: CupertinoIcons.doc_on_doc,
                         ),
                         onPressed: () => _showInsertPageDialog(pageIndex),
                       ),
@@ -174,7 +174,10 @@ class _EditorPageManagerState extends State<EditorPageManager> {
                           page: pageIndex + 1,
                           totalPages: widget.coreInfo.pages.length,
                         ),
-                        icon: const Icon(Icons.cleaning_services),
+                        icon: const AdaptiveIcon(
+                          icon: Icons.layers_clear,
+                          cupertinoIcon: CupertinoIcons.paintbrush,
+                        ),
                         onPressed: isEmptyLastPage
                             ? null
                             : () => setState(() {

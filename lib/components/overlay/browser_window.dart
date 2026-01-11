@@ -600,6 +600,15 @@ class _BrowserWindowState extends State<BrowserWindow> {
 
         return NavigationActionPolicy.ALLOW;
       },
+      onReceivedError: (controller, request, error) {
+        debugPrint('Browser window error: ${error.description}');
+        // Continue loading - some errors are recoverable
+      },
+      onReceivedHttpError: (controller, request, response) {
+        debugPrint(
+          'Browser window HTTP error: ${response.statusCode} for ${request.url}',
+        );
+      },
     );
   }
 
