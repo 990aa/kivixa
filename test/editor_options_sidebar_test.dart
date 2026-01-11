@@ -3,8 +3,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/toolbar/editor_options_sidebar.dart';
 import 'package:kivixa/data/editor/editor_core_info.dart';
 import 'package:kivixa/data/editor/page.dart';
+import 'package:kivixa/data/flavor_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  setUpAll(() {
+    FlavorConfig.setup();
+    SharedPreferences.setMockInitialValues({});
+  });
+
   group('EditorOptionsSidebar Widget Tests', () {
     testWidgets('renders background pattern section', (tester) async {
       final coreInfo = EditorCoreInfo(filePath: '/test');

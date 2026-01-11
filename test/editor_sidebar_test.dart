@@ -3,8 +3,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/toolbar/editor_page_manager.dart';
 import 'package:kivixa/data/editor/editor_core_info.dart';
 import 'package:kivixa/data/editor/page.dart';
+import 'package:kivixa/data/flavor_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  setUpAll(() {
+    FlavorConfig.setup();
+    SharedPreferences.setMockInitialValues({});
+  });
+
   group('EditorPageManager Widget Tests', () {
     testWidgets('renders page list correctly', (tester) async {
       // Create test core info with pages
@@ -14,21 +21,15 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: EditorPageManager(
-                    coreInfo: coreInfo,
-                    currentPageIndex: 0,
-                    redrawAndSave: () {},
-                    insertPageAfter: (a, {PageOrientation? orientation}) {},
-                    duplicatePage: (a) {},
-                    clearPage: (a) {},
-                    deletePage: (a) {},
-                    transformationController: TransformationController(),
-                  ),
-                ),
-              ],
+            body: EditorPageManager(
+              coreInfo: coreInfo,
+              currentPageIndex: 0,
+              redrawAndSave: () {},
+              insertPageAfter: (a, {PageOrientation? orientation}) {},
+              duplicatePage: (a) {},
+              clearPage: (a) {},
+              deletePage: (a) {},
+              transformationController: TransformationController(),
             ),
           ),
         ),

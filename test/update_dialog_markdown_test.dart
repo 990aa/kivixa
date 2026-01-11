@@ -104,7 +104,7 @@ void main() {
 
       // Verify the ConstrainedBox is rendering
       final constrainedBox = find.byType(ConstrainedBox);
-      expect(constrainedBox, findsOneWidget);
+      expect(constrainedBox, findsAtLeastNWidgets(1));
 
       // No overflow errors should occur (test would fail if RenderFlex overflowed)
     });

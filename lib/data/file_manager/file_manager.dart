@@ -29,7 +29,8 @@ class FileManager {
 
   static final fileWriteStream = StreamController<FileOperation>.broadcast();
 
-  static String _sanitisePath(String path) => File(path).path;
+  static String _sanitisePath(String path) =>
+      File(path).path.replaceAll('\\', '/');
 
   static final assetFileRegex = RegExp(r'\.kvx?\.[\dp]+$');
 
@@ -141,10 +142,17 @@ class FileManager {
   }
 
   static Future<Uint8List?> readFile(String filePath, {int retries = 3}) async {
+    print(
+      'DEBUG: FileManager.readFile input: $filePath, docDir: $documentsDirectory',
+    );
     filePath = _sanitisePath(filePath);
+    print('DEBUG: FileManager.readFile sanitised: $filePath');
 
     Uint8List? result;
     final file = getFile(filePath);
+    print(
+      'DEBUG: FileManager.readFile checking: ${file.path}, exists: ${file.existsSync()}',
+    );
     if (file.existsSync()) {
       result = await file.readAsBytes();
       if (result.isEmpty) result = null;

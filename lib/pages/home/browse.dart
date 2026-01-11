@@ -175,8 +175,9 @@ class _BrowsePageState extends State<BrowsePage> {
     if (selected) {
       selectedFolders.value = [...selectedFolders.value, folderName];
     } else {
-      selectedFolders.value =
-          selectedFolders.value.where((f) => f != folderName).toList();
+      selectedFolders.value = selectedFolders.value
+          .where((f) => f != folderName)
+          .toList();
     }
   }
 
@@ -632,8 +633,9 @@ class _BrowsePageState extends State<BrowsePage> {
                               ? Icons.check_box
                               : Icons.check_box_outline_blank,
                         ),
-                        tooltip:
-                            _isMultiSelectMode ? 'Exit Selection' : 'Select',
+                        tooltip: _isMultiSelectMode
+                            ? 'Exit Selection'
+                            : 'Select',
                         onPressed: _toggleMultiSelectMode,
                       ),
                     ],
@@ -725,143 +727,147 @@ class _BrowsePageState extends State<BrowsePage> {
             ),
       persistentFooterButtons: _isMultiSelectMode
           ? [
-              // Multi-select mode footer buttons
-              // Selection count indicator
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
-                  '$_totalSelectedCount selected',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.primary,
+              // Use a Row to allow Spacer() and correct layout within OverflowBar
+              Row(
+                children: [
+                  // Selection count indicator
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      '$_totalSelectedCount selected',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const Spacer(),
-              // Delete All button
-              TextButton.icon(
-                onPressed: _hasSelection ? _deleteAllSelected : null,
-                icon: Icon(
-                  Icons.delete_forever,
-                  color: _hasSelection ? colorScheme.error : null,
-                ),
-                label: Text(
-                  'Delete All',
-                  style: TextStyle(
-                    color: _hasSelection ? colorScheme.error : null,
+                  const Spacer(),
+                  // Delete All button
+                  TextButton.icon(
+                    onPressed: _hasSelection ? _deleteAllSelected : null,
+                    icon: Icon(
+                      Icons.delete_forever,
+                      color: _hasSelection ? colorScheme.error : null,
+                    ),
+                    label: Text(
+                      'Delete All',
+                      style: TextStyle(
+                        color: _hasSelection ? colorScheme.error : null,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              // Group button
-              TextButton.icon(
-                onPressed: _hasSelection ? _groupSelectedItems : null,
-                icon: const Icon(Icons.create_new_folder),
-                label: const Text('Group'),
+                  const SizedBox(width: 8),
+                  // Group button
+                  TextButton.icon(
+                    onPressed: _hasSelection ? _groupSelectedItems : null,
+                    icon: const Icon(Icons.create_new_folder),
+                    label: const Text('Group'),
+                  ),
+                ],
               ),
             ]
           : selectedFiles.value.isEmpty
-              ? null
-              : [
-                  Collapsible(
-                    axis: CollapsibleAxis.vertical,
-                    collapsed: selectedFiles.value.length != 1,
-                    child: RenameNoteButton(
-                      existingPath: selectedFiles.value.isEmpty
-                          ? ''
-                          : selectedFiles.value.first,
-                      unselectNotes: () => selectedFiles.value = [],
-                    ),
-                  ),
-                  MoveNoteButton(
-                    filesToMove: selectedFiles.value,
-                    unselectNotes: () => selectedFiles.value = [],
-                  ),
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    tooltip: t.home.deleteNote,
-                    onPressed: () async {
-                      await Future.wait([
-                        for (final filePath in selectedFiles.value)
-                          Future.value(
-                            FileManager.doesFileExist(
-                              filePath + Editor.extensionOldJson,
-                            ),
-                          ).then(
-                            (oldExtension) => FileManager.deleteFile(
-                              filePath +
-                                  (oldExtension
-                                      ? Editor.extensionOldJson
-                                      : Editor.extension),
-                            ),
+          ? null
+          : [
+              Collapsible(
+                axis: CollapsibleAxis.vertical,
+                collapsed: selectedFiles.value.length != 1,
+                child: RenameNoteButton(
+                  existingPath: selectedFiles.value.isEmpty
+                      ? ''
+                      : selectedFiles.value.first,
+                  unselectNotes: () => selectedFiles.value = [],
+                ),
+              ),
+              MoveNoteButton(
+                filesToMove: selectedFiles.value,
+                unselectNotes: () => selectedFiles.value = [],
+              ),
+              IconButton(
+                padding: EdgeInsets.zero,
+                tooltip: t.home.deleteNote,
+                onPressed: () async {
+                  await Future.wait([
+                    for (final filePath in selectedFiles.value)
+                      Future.value(
+                        FileManager.doesFileExist(
+                          filePath + Editor.extensionOldJson,
+                        ),
+                      ).then(
+                        (oldExtension) => FileManager.deleteFile(
+                          filePath +
+                              (oldExtension
+                                  ? Editor.extensionOldJson
+                                  : Editor.extension),
+                        ),
+                      ),
+                  ]);
+                  selectedFiles.value = [];
+                },
+                icon: const Icon(Icons.delete_forever),
+              ),
+              IconButton(
+                padding: EdgeInsets.zero,
+                tooltip: 'Group to new folder',
+                onPressed: () async {
+                  final folderName = await showDialog<String>(
+                    context: context,
+                    builder: (context) {
+                      final controller = TextEditingController();
+                      return AlertDialog(
+                        title: const Text('New Folder'),
+                        content: TextField(
+                          controller: controller,
+                          autofocus: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Folder Name',
+                            border: OutlineInputBorder(),
                           ),
-                      ]);
-                      selectedFiles.value = [];
-                    },
-                    icon: const Icon(Icons.delete_forever),
-                  ),
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    tooltip: 'Group to new folder',
-                    onPressed: () async {
-                      final folderName = await showDialog<String>(
-                        context: context,
-                        builder: (context) {
-                          final controller = TextEditingController();
-                          return AlertDialog(
-                            title: const Text('New Folder'),
-                            content: TextField(
-                              controller: controller,
-                              autofocus: true,
-                              decoration: const InputDecoration(
-                                labelText: 'Folder Name',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.pop(context, controller.text),
-                                child: const Text('Create'),
-                              ),
-                            ],
-                          );
-                        },
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () =>
+                                Navigator.pop(context, controller.text),
+                            child: const Text('Create'),
+                          ),
+                        ],
                       );
-
-                      if (folderName != null && folderName.isNotEmpty) {
-                        final newFolderPath = '${path ?? ''}/$folderName';
-                        await FileManager.createFolder(newFolderPath);
-
-                        await Future.wait([
-                          for (final filePath in selectedFiles.value)
-                            Future.value(
-                              FileManager.doesFileExist(
-                                filePath + Editor.extensionOldJson,
-                              ),
-                            ).then((oldExtension) async {
-                              final fileName = filePath.split('/').last;
-                              await FileManager.moveFile(
-                                filePath +
-                                    (oldExtension
-                                        ? Editor.extensionOldJson
-                                        : Editor.extension),
-                                '$newFolderPath/$fileName${oldExtension ? Editor.extensionOldJson : Editor.extension}',
-                              );
-                            }),
-                        ]);
-                        selectedFiles.value = [];
-                        findChildrenOfPath();
-                      }
                     },
-                    icon: const Icon(Icons.create_new_folder),
-                  ),
-                  ExportNoteButton(selectedFiles: selectedFiles.value),
-                ],
+                  );
+
+                  if (folderName != null && folderName.isNotEmpty) {
+                    final newFolderPath = '${path ?? ''}/$folderName';
+                    await FileManager.createFolder(newFolderPath);
+
+                    await Future.wait([
+                      for (final filePath in selectedFiles.value)
+                        Future.value(
+                          FileManager.doesFileExist(
+                            filePath + Editor.extensionOldJson,
+                          ),
+                        ).then((oldExtension) async {
+                          final fileName = filePath.split('/').last;
+                          await FileManager.moveFile(
+                            filePath +
+                                (oldExtension
+                                    ? Editor.extensionOldJson
+                                    : Editor.extension),
+                            '$newFolderPath/$fileName${oldExtension ? Editor.extensionOldJson : Editor.extension}',
+                          );
+                        }),
+                    ]);
+                    selectedFiles.value = [];
+                    findChildrenOfPath();
+                  }
+                },
+                icon: const Icon(Icons.create_new_folder),
+              ),
+              ExportNoteButton(selectedFiles: selectedFiles.value),
+            ],
     );
   }
 }
@@ -1025,10 +1031,7 @@ class _NewFolderDialogState extends State<_NewFolderDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: Text(t.common.cancel),
         ),
-        TextButton(
-          onPressed: _submit,
-          child: const Text('Create'),
-        ),
+        TextButton(onPressed: _submit, child: const Text('Create')),
       ],
     );
   }

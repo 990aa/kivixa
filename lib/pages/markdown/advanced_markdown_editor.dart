@@ -202,14 +202,19 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     if (widget.filePath != null) {
       try {
         _currentFilePath = widget.filePath! + AdvancedMarkdownEditor.extension;
+        print('DEBUG: Loading file: $_currentFilePath');
 
         try {
           final content = await FileManager.readFile(_currentFilePath!);
           if (content != null) {
+            print('DEBUG: File content loaded, length: ${content.length}');
             fileContent = String.fromCharCodes(content);
             _fileName = _getFileNameFromPath(_currentFilePath!);
+          } else {
+            print('DEBUG: File content is NULL');
           }
         } catch (e) {
+          print('DEBUG: Error reading file: $e');
           _currentFilePath =
               widget.filePath! + AdvancedMarkdownEditor.extension;
           _fileName = _getFileNameFromPath(widget.filePath!);

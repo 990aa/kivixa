@@ -2,18 +2,29 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
+import 'package:kivixa/data/flavor_config.dart';
 import 'package:path/path.dart' as p;
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   late Directory tempDir;
   late String originalDocsDir;
 
   setUpAll(() async {
-    // Store original documents directory
-    originalDocsDir = FileManager.documentsDirectory;
+    FlavorConfig.setup();
+    SharedPreferences.setMockInitialValues({});
 
     // Create a temporary directory for tests
     tempDir = await Directory.systemTemp.createTemp('kivixa_test_');
+
+    // Initialize FileManager with temp dir directly for testing
+    // We don't need to save original if it wasn't initialized
+    try {
+      originalDocsDir = FileManager.documentsDirectory;
+    } catch (_) {
+      originalDocsDir = tempDir.path;
+    }
+
     FileManager.documentsDirectory = tempDir.path;
   });
 
@@ -60,15 +71,17 @@ void main() {
 
       // Verify destination exists
       expect(
-        Directory(p.join(tempDir.path, 'Destination', 'TestFolder'))
-            .existsSync(),
+        Directory(
+          p.join(tempDir.path, 'Destination', 'TestFolder'),
+        ).existsSync(),
         true,
       );
 
       // Verify file was moved
       expect(
-        File(p.join(tempDir.path, 'Destination', 'TestFolder', 'test.kvx'))
-            .existsSync(),
+        File(
+          p.join(tempDir.path, 'Destination', 'TestFolder', 'test.kvx'),
+        ).existsSync(),
         true,
       );
     });
@@ -81,13 +94,15 @@ void main() {
       await FileManager.createFolder('$sourcePath/Child/GrandChild');
 
       // Create files at different levels
-      await File(p.join(tempDir.path, 'Parent', 'file1.kvx'))
-          .writeAsString('content1');
-      await File(p.join(tempDir.path, 'Parent', 'Child', 'file2.kvx'))
-          .writeAsString('content2');
       await File(
-              p.join(tempDir.path, 'Parent', 'Child', 'GrandChild', 'file3.kvx'))
-          .writeAsString('content3');
+        p.join(tempDir.path, 'Parent', 'file1.kvx'),
+      ).writeAsString('content1');
+      await File(
+        p.join(tempDir.path, 'Parent', 'Child', 'file2.kvx'),
+      ).writeAsString('content2');
+      await File(
+        p.join(tempDir.path, 'Parent', 'Child', 'GrandChild', 'file3.kvx'),
+      ).writeAsString('content3');
 
       // Create destination
       await FileManager.createFolder('/NewLocation');
@@ -101,32 +116,42 @@ void main() {
         true,
       );
       expect(
-        Directory(p.join(tempDir.path, 'NewLocation', 'Parent', 'Child'))
-            .existsSync(),
+        Directory(
+          p.join(tempDir.path, 'NewLocation', 'Parent', 'Child'),
+        ).existsSync(),
         true,
       );
       expect(
         Directory(
-                p.join(tempDir.path, 'NewLocation', 'Parent', 'Child', 'GrandChild'))
-            .existsSync(),
+          p.join(tempDir.path, 'NewLocation', 'Parent', 'Child', 'GrandChild'),
+        ).existsSync(),
         true,
       );
 
       // Verify all files were moved
       expect(
-        File(p.join(tempDir.path, 'NewLocation', 'Parent', 'file1.kvx'))
-            .existsSync(),
+        File(
+          p.join(tempDir.path, 'NewLocation', 'Parent', 'file1.kvx'),
+        ).existsSync(),
         true,
       );
       expect(
-        File(p.join(tempDir.path, 'NewLocation', 'Parent', 'Child', 'file2.kvx'))
-            .existsSync(),
+        File(
+          p.join(tempDir.path, 'NewLocation', 'Parent', 'Child', 'file2.kvx'),
+        ).existsSync(),
         true,
       );
       expect(
-        File(p.join(tempDir.path, 'NewLocation', 'Parent', 'Child', 'GrandChild',
-                'file3.kvx'))
-            .existsSync(),
+        File(
+          p.join(
+            tempDir.path,
+            'NewLocation',
+            'Parent',
+            'Child',
+            'GrandChild',
+            'file3.kvx',
+          ),
+        ).existsSync(),
         true,
       );
 
@@ -244,12 +269,13 @@ void main() {
     test('deletes directory with contents recursively', () async {
       // Create directory with contents
       await FileManager.createFolder('/FolderWithContents');
-      await File(p.join(tempDir.path, 'FolderWithContents', 'file.kvx'))
-          .writeAsString('content');
+      await File(
+        p.join(tempDir.path, 'FolderWithContents', 'file.kvx'),
+      ).writeAsString('content');
       await FileManager.createFolder('/FolderWithContents/SubFolder');
       await File(
-              p.join(tempDir.path, 'FolderWithContents', 'SubFolder', 'file2.kvx'))
-          .writeAsString('content2');
+        p.join(tempDir.path, 'FolderWithContents', 'SubFolder', 'file2.kvx'),
+      ).writeAsString('content2');
 
       // Delete the directory recursively
       await FileManager.deleteDirectory('/FolderWithContents', true);

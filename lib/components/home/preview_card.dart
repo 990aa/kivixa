@@ -635,7 +635,7 @@ class _PreviewCardState extends State<PreviewCard> {
     );
 
     // In multi-select mode, skip OpenContainer to avoid grey scrim on tap
-    if (widget.isMultiSelectMode) {
+    if (widget.isMultiSelectMode || widget.isAnythingSelected) {
       return card;
     }
 
