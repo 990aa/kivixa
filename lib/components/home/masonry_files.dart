@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:kivixa/components/home/preview_card.dart';
-import 'package:kivixa/data/extensions/change_notifier_extensions.dart';
 import 'package:kivixa/data/prefs.dart';
 
 class MasonryFiles extends StatefulWidget {
@@ -27,12 +26,15 @@ class _MasonryFilesState extends State<MasonryFiles> {
 
   void toggleSelection(String filePath, bool selected) {
     if (selected) {
-      widget.selectedFiles.value.add(filePath);
+      // Create a new list with the added item
+      widget.selectedFiles.value = [...widget.selectedFiles.value, filePath];
     } else {
-      widget.selectedFiles.value.remove(filePath);
+      // Create a new list without the removed item
+      widget.selectedFiles.value = widget.selectedFiles.value
+          .where((f) => f != filePath)
+          .toList();
     }
     isAnythingSelected.value = widget.selectedFiles.value.isNotEmpty;
-    widget.selectedFiles.notifyListenersPlease();
   }
 
   Widget itemBuilder(BuildContext context, int index) {

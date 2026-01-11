@@ -74,6 +74,15 @@ class _PreviewCardState extends State<PreviewCard> {
     super.initState();
   }
 
+  @override
+  void didUpdateWidget(covariant PreviewCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Sync expanded state with the selected property from parent
+    if (widget.selected != oldWidget.selected) {
+      expanded.value = widget.selected;
+    }
+  }
+
   Future<void> _loadMarkdownContent() async {
     try {
       final file = FileManager.getFile('${widget.filePath}.md');
@@ -534,16 +543,14 @@ class _PreviewCardState extends State<PreviewCard> {
                         ),
                       ],
                     ),
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(
-                          widget.filePath.substring(
-                            widget.filePath.lastIndexOf('/') + 1,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        widget.filePath.substring(
+                          widget.filePath.lastIndexOf('/') + 1,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

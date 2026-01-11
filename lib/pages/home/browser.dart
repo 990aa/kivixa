@@ -820,7 +820,11 @@ class _BrowserPageState extends State<BrowserPage> {
       return _buildNewTabPage();
     }
 
+    // Use a key based on URL to help WebView lifecycle on Windows
+    final webViewKey = ValueKey('webview_${_currentUrl.hashCode}');
+
     return InAppWebView(
+      key: webViewKey,
       initialUrlRequest: URLRequest(url: WebUri(_currentUrl)),
       initialSettings: InAppWebViewSettings(
         javaScriptEnabled: true,

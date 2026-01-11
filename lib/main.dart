@@ -108,9 +108,27 @@ Future<void> appRunner(List<String> args) async {
   await Future.wait([
     stows.customDataDir.waitUntilRead().then((_) => FileManager.init()),
     if (Platform.isWindows) ...[
-      windowManager.ensureInitialized(),
+      windowManager.ensureInitialized().then((_) async {
+        // Hide native title bar and use custom Flutter title bar
+        await windowManager.setTitleBarStyle(
+          TitleBarStyle.hidden,
+          windowButtonVisibility: false,
+        );
+        // Set window title (for taskbar)
+        await windowManager.setTitle('Kivixa');
+      }),
       // Enable full screen on desktop (actually maximized to keep window controls)
       windowManager.maximize(),
+    ],
+    if (Platform.isLinux || Platform.isMacOS) ...[
+      windowManager.ensureInitialized().then((_) async {
+        // Hide native title bar on Linux/macOS too
+        await windowManager.setTitleBarStyle(
+          TitleBarStyle.hidden,
+          windowButtonVisibility: false,
+        );
+        await windowManager.setTitle('Kivixa');
+      }),
     ],
     // Enable full screen on mobile (immersive mode)
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky),
