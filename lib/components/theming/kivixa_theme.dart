@@ -24,6 +24,21 @@ abstract class KivixaTheme {
     textTheme: createTextTheme(colorScheme.brightness),
     platform: platform,
     pageTransitionsTheme: _pageTransitionsTheme,
+    // Modern title bar styling - blends with app theme
+    appBarTheme: AppBarTheme(
+      backgroundColor: colorScheme.surface,
+      foregroundColor: colorScheme.onSurface,
+      elevation: 0,
+      scrolledUnderElevation: 1,
+      surfaceTintColor: colorScheme.surfaceTint,
+      shadowColor: Colors.transparent,
+      titleTextStyle: TextStyle(
+        color: colorScheme.onSurface,
+        fontSize: 18,
+        fontWeight: FontWeight.w500,
+      ),
+      iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
+    ),
   );
 
   /// Synced with [PageTransitionsTheme._defaultBuilders]

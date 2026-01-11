@@ -78,6 +78,7 @@ class _EditorOptionsSidebarState extends State<EditorOptionsSidebar> {
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
+              runSpacing: 8,
               children: [
                 ElevatedButton(
                   onPressed: widget.coreInfo.isNotEmpty
@@ -85,16 +86,20 @@ class _EditorOptionsSidebarState extends State<EditorOptionsSidebar> {
                           widget.clearPage();
                         }
                       : null,
-                  child: Wrap(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.layers_clear),
-                      const SizedBox(width: 8),
-                      Text(
-                        t.editor.menu.clearPage(
-                          page: widget.currentPageIndex == null
-                              ? '?'
-                              : widget.currentPageIndex! + 1,
-                          totalPages: widget.coreInfo.pages.length,
+                      const Icon(Icons.layers_clear, size: 18),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          t.editor.menu.clearPage(
+                            page: widget.currentPageIndex == null
+                                ? '?'
+                                : widget.currentPageIndex! + 1,
+                            totalPages: widget.coreInfo.pages.length,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -106,10 +111,11 @@ class _EditorOptionsSidebarState extends State<EditorOptionsSidebar> {
                           widget.clearAllPages();
                         }
                       : null,
-                  child: Wrap(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.layers_clear),
-                      const SizedBox(width: 8),
+                      const Icon(Icons.layers_clear, size: 18),
+                      const SizedBox(width: 6),
                       Text(t.editor.menu.clearAllPages),
                     ],
                   ),

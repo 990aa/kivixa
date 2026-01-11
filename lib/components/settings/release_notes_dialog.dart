@@ -129,86 +129,93 @@ class _UpdatesDialogState extends State<UpdatesDialog> {
               padding: EdgeInsets.all(16.0),
               child: Center(child: CircularProgressIndicator.adaptive()),
             )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Version info
-                _VersionRow(
-                  label: 'Current version',
-                  version: _currentVersionString,
-                ),
-                const SizedBox(height: 8),
-                _VersionRow(
-                  label: 'Latest version',
-                  version: _latestVersionString ?? 'Unknown',
-                  isHighlighted: _hasUpdate,
-                ),
-
-                // Update status
-                const SizedBox(height: 16),
-                if (_errorMessage != null)
-                  Text(
-                    _errorMessage!,
-                    style: TextStyle(color: colorScheme.error),
-                  )
-                else if (backgroundState == BackgroundUpdateState.downloading)
-                  _buildDownloadProgress(context, downloadProgress)
-                else if (backgroundState ==
-                    BackgroundUpdateState.readyToInstall)
-                  _buildReadyToInstall(context)
-                else if (backgroundState == BackgroundUpdateState.installing)
-                  _buildInstalling(context)
-                else if (backgroundState == BackgroundUpdateState.error)
-                  _buildDownloadError(context)
-                else if (_hasUpdate)
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(8),
+          : ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 400, maxWidth: 500),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Version info
+                    _VersionRow(
+                      label: 'Current version',
+                      version: _currentVersionString,
                     ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.system_update,
-                          color: colorScheme.onPrimaryContainer,
+                    const SizedBox(height: 8),
+                    _VersionRow(
+                      label: 'Latest version',
+                      version: _latestVersionString ?? 'Unknown',
+                      isHighlighted: _hasUpdate,
+                    ),
+
+                    // Update status
+                    const SizedBox(height: 16),
+                    if (_errorMessage != null)
+                      Text(
+                        _errorMessage!,
+                        style: TextStyle(color: colorScheme.error),
+                      )
+                    else if (backgroundState ==
+                        BackgroundUpdateState.downloading)
+                      _buildDownloadProgress(context, downloadProgress)
+                    else if (backgroundState ==
+                        BackgroundUpdateState.readyToInstall)
+                      _buildReadyToInstall(context)
+                    else if (backgroundState ==
+                        BackgroundUpdateState.installing)
+                      _buildInstalling(context)
+                    else if (backgroundState == BackgroundUpdateState.error)
+                      _buildDownloadError(context)
+                    else if (_hasUpdate)
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Update available!',
-                            style: TextStyle(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.system_update,
                               color: colorScheme.onPrimaryContainer,
-                              fontWeight: FontWeight.bold,
                             ),
-                          ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Update available!',
+                                style: TextStyle(
+                                  color: colorScheme.onPrimaryContainer,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  )
-                else
-                  Row(
-                    children: [
-                      Icon(Icons.check_circle, color: colorScheme.primary),
-                      const SizedBox(width: 8),
-                      const Text('You\'re up to date!'),
-                    ],
-                  ),
+                      )
+                    else
+                      Row(
+                        children: [
+                          Icon(Icons.check_circle, color: colorScheme.primary),
+                          const SizedBox(width: 8),
+                          const Text('You\'re up to date!'),
+                        ],
+                      ),
 
-                // Changelog
-                if (_changelog != null && _changelog!.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  const Divider(),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'What\'s New',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(_changelog!),
-                ],
-              ],
+                    // Changelog
+                    if (_changelog != null && _changelog!.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      const Divider(),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'What\'s New',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(_changelog!),
+                    ],
+                  ],
+                ),
+              ),
             ),
       actions: _buildActions(context, backgroundState),
     );

@@ -1720,7 +1720,7 @@ class EditorState extends State<Editor> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          t.editor.menu.backgroundPattern,
+                          t.home.tabs.settings,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         IconButton(
@@ -1881,13 +1881,9 @@ class EditorState extends State<Editor> {
                     }),
                   ),
                   IconButton(
-                    icon: AdaptiveIcon(
-                      icon: isOptionsSidebarVisible
-                          ? Icons.tune
-                          : Icons.more_vert,
-                      cupertinoIcon: isOptionsSidebarVisible
-                          ? CupertinoIcons.slider_horizontal_3
-                          : CupertinoIcons.ellipsis_vertical,
+                    icon: const AdaptiveIcon(
+                      icon: Icons.tune,
+                      cupertinoIcon: CupertinoIcons.slider_horizontal_3,
                     ),
                     onPressed: () => setState(() {
                       isOptionsSidebarVisible = !isOptionsSidebarVisible;
