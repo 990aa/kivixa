@@ -52,3 +52,4 @@ build_windows_installer/
 
 *.cargo/
 *.so
+*.exe
