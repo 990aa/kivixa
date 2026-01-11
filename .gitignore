@@ -53,3 +53,4 @@ build_windows_installer/
 *.cargo/
 *.so
 *.exe
+run_log.txt
