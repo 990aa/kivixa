@@ -62,7 +62,7 @@ class MediaService {
     if (_mediaDir == null) await init();
 
     final sourceFile = File(sourcePath);
-    if (!await sourceFile.exists()) {
+    if (!sourceFile.existsSync()) {
       throw FileSystemException('Source file not found', sourcePath);
     }
 
@@ -112,7 +112,7 @@ class MediaService {
     final cacheFile = File('${_webCacheDir!.path}/$cacheFileName');
 
     // Check local cache
-    if (await cacheFile.exists()) {
+    if (cacheFile.existsSync()) {
       final bytes = await cacheFile.readAsBytes();
       _imageCache.put(url, bytes);
       _log.fine('Web image from local cache: $url');
@@ -170,7 +170,7 @@ class MediaService {
 
     try {
       final file = File(filePath);
-      if (await file.exists()) {
+      if (file.existsSync()) {
         final bytes = await file.readAsBytes();
         _imageCache.put(filePath, bytes);
         return bytes;
@@ -195,7 +195,7 @@ class MediaService {
   Future<bool> resolveLocalPath(String filePath) async {
     try {
       final file = File(filePath);
-      return await file.exists();
+      return file.existsSync();
     } catch (e) {
       return false;
     }
@@ -217,7 +217,7 @@ class MediaService {
     final thumbFile = File(thumbPath);
 
     // Check if thumbnail already exists
-    if (await thumbFile.exists()) {
+    if (thumbFile.existsSync()) {
       return thumbPath;
     }
 
@@ -249,7 +249,7 @@ class MediaService {
     if (_webCacheDir == null) return;
 
     try {
-      if (await _webCacheDir!.exists()) {
+      if (_webCacheDir!.existsSync()) {
         await for (final entity in _webCacheDir!.list()) {
           if (entity is File) {
             await entity.delete();
@@ -266,7 +266,7 @@ class MediaService {
 
   /// Get the size of the web cache in bytes
   Future<int> getWebCacheSize() async {
-    if (_webCacheDir == null || !await _webCacheDir!.exists()) return 0;
+    if (_webCacheDir == null || !_webCacheDir!.existsSync()) return 0;
 
     var size = 0;
     await for (final entity in _webCacheDir!.list()) {
@@ -287,7 +287,7 @@ class MediaService {
         // Only delete files within our media directory
         if (mediaPath.startsWith(_mediaDir?.path ?? '')) {
           final file = File(mediaPath);
-          if (await file.exists()) {
+          if (file.existsSync()) {
             await file.delete();
             _log.info('Orphaned media deleted: $mediaPath');
           }
@@ -295,7 +295,7 @@ class MediaService {
 
         // Also delete thumbnail if exists
         final thumbName = '${mediaPath.hashCode.toRadixString(16)}*.thumb';
-        if (_thumbnailDir != null && await _thumbnailDir!.exists()) {
+        if (_thumbnailDir != null && _thumbnailDir!.existsSync()) {
           await for (final entity in _thumbnailDir!.list()) {
             if (entity is File && entity.path.contains(thumbName)) {
               await entity.delete();

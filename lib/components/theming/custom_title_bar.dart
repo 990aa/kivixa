@@ -144,9 +144,9 @@ class _CustomTitleBarState extends State<CustomTitleBar> with WindowListener {
                       colorScheme: colorScheme,
                     ),
                     // OPTIMIZATION: Flexible spacer prevents overflow by shrinking when needed
-                    const const Flexible(
+                    const Flexible(
                       child: DragToMoveArea(
-                        cSizedBox(
+                        child: SizedBox(
                           height: CustomTitleBar.height,
                           width: double.infinity,
                         ),

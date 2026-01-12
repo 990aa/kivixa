@@ -381,7 +381,7 @@ abstract class UpdateManager {
     // Get the downloads/temp directory
     final tempDir = await getTemporaryDirectory();
     final updateDir = Directory('${tempDir.path}/kivixa_updates');
-    if (!await updateDir.exists()) {
+    if (!updateDir.existsSync()) {
       await updateDir.create(recursive: true);
     }
 
