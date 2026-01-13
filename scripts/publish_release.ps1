@@ -266,8 +266,19 @@ try {
         $confirm = Read-Host "  Delete and recreate? (y/N)"
         if ($confirm -eq 'y' -or $confirm -eq 'Y') {
             if (-not $DryRun) {
+                Write-Host "  Deleting local tag $tagName..." -ForegroundColor Yellow
                 git tag -d $tagName
-                git push origin --delete $tagName 2>$null
+                
+                # Check remote tag safely
+                $remoteTag = git ls-remote --tags origin $tagName
+                if ($remoteTag) {
+                    Write-Host "  Deleting remote tag $tagName..." -ForegroundColor Yellow
+                    # Run git push in a way that doesn't trigger generic PowerShell errors on stderr output
+                    $process = Start-Process -FilePath "git" -ArgumentList "push origin --delete $tagName" -NoNewWindow -Wait -PassThru
+                    if ($process.ExitCode -ne 0) {
+                        Write-Host "  Warning: Failed to delete remote tag cleanup. Continuing..." -ForegroundColor DarkYellow
+                    }
+                }
             } else {
                 Write-Host "  [DRY RUN] Would delete existing tag" -ForegroundColor Magenta
             }
