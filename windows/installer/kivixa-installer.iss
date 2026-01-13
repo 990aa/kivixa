@@ -54,7 +54,6 @@ SolidCompression=yes
 WizardStyle=modern
 SetupIconFile={#RunnerDir}\resources\app_icon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
-; REMOVED: WizardSmallImageFile (This was causing the crash)
 DisableWelcomePage=yes
 
 ; Architecture
@@ -68,14 +67,21 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "{#BuildDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; WebView2 Runtime bootstrapper for browser functionality
-Source: "Evergreen Bootstrapper\\MicrosoftEdgeWebview2Setup.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
+; Core Application Files
+Source: "{#BuildDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; WebView2 Runtime bootstrapper
+Source: "Evergreen Bootstrapper\MicrosoftEdgeWebview2Setup.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
+
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\{#MyAppExeName}"
 
-[Run]; Install WebView2 Runtime silently (required for browser functionality)
-Filename: "{tmp}\\MicrosoftEdgeWebview2Setup.exe"; Parameters: "/silent /install"; StatusMsg: "Installing Microsoft WebView2 Runtime..."; Flags: waituntilterminatedFilename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+[Run]
+; Install WebView2 Runtime silently (required for browser functionality)
+Filename: "{tmp}\MicrosoftEdgeWebview2Setup.exe"; Parameters: "/silent /install"; StatusMsg: "Installing Microsoft WebView2 Runtime..."; Flags: waituntilterminated
+
+; Launch Application
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 ; ------------------------------------------------------------------------------
 ; Code Section: Modern Dark UI
@@ -193,8 +199,8 @@ begin
   begin
     Parent := CustomWelcomePage.Surface;
     Caption := 'A Modern Cross-Platform Notes & Productivity App.' + #13#10 + #13#10 +
-               'This wizard will install {#MyAppName} on your computer.' + #13#10 +
-               'Click Next to continue.';
+                'This wizard will install {#MyAppName} on your computer.' + #13#10 +
+                'Click Next to continue.';
     Font.Name := 'Segoe UI';
     Font.Size := 11;
     Font.Color := $E0E0E0; // Light gray
