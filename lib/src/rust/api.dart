@@ -8,6 +8,7 @@ import 'package:kivixa/src/rust/clustering.dart';
 import 'package:kivixa/src/rust/embeddings.dart';
 import 'package:kivixa/src/rust/frb_generated.dart';
 import 'package:kivixa/src/rust/graph.dart';
+import 'package:kivixa/src/rust/mcp.dart';
 import 'package:kivixa/src/rust/streaming.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`
@@ -335,6 +336,138 @@ Future<KnowledgeGraphAnalysis> analyzeKnowledgeGraph({
   similarityThreshold: similarityThreshold,
   existingLinks: existingLinks,
 );
+
+/// Initialize the MCP system with configuration
+///
+/// # Arguments
+/// * `base_path` - Base path for file operations (browse/ directory)
+/// * `max_file_size` - Maximum file size in bytes (default: 10MB)
+/// * `allowed_extensions` - Optional list of allowed file extensions
+Future<void> initMcp({
+  required String basePath,
+  BigInt? maxFileSize,
+  List<String>? allowedExtensions,
+}) => RustLib.instance.api.crateApiInitMcp(
+  basePath: basePath,
+  maxFileSize: maxFileSize,
+  allowedExtensions: allowedExtensions,
+);
+
+/// Check if MCP is initialized
+bool isMcpInitialized() => RustLib.instance.api.crateApiIsMcpInitialized();
+
+/// Validate a file path for MCP operations
+///
+/// # Arguments
+/// * `path` - Relative path to validate
+///
+/// # Returns
+/// * `true` if path is valid and within sandbox
+bool mcpValidatePath({required String path}) =>
+    RustLib.instance.api.crateApiMcpValidatePath(path: path);
+
+/// Read a file via MCP
+///
+/// # Arguments
+/// * `path` - Relative path within browse/ folder
+///
+/// # Returns
+/// * File contents as string
+Future<String> mcpReadFile({required String path}) =>
+    RustLib.instance.api.crateApiMcpReadFile(path: path);
+
+/// Write a file via MCP
+///
+/// # Arguments
+/// * `path` - Relative path within browse/ folder
+/// * `content` - Content to write
+Future<void> mcpWriteFile({required String path, required String content}) =>
+    RustLib.instance.api.crateApiMcpWriteFile(path: path, content: content);
+
+/// Delete a file via MCP
+///
+/// # Arguments
+/// * `path` - Relative path within browse/ folder
+Future<void> mcpDeleteFile({required String path}) =>
+    RustLib.instance.api.crateApiMcpDeleteFile(path: path);
+
+/// Create a folder via MCP
+///
+/// # Arguments
+/// * `path` - Relative path within browse/ folder
+Future<void> mcpCreateFolder({required String path}) =>
+    RustLib.instance.api.crateApiMcpCreateFolder(path: path);
+
+/// List files in a directory via MCP
+///
+/// # Arguments
+/// * `path` - Relative path within browse/ folder (empty for root)
+///
+/// # Returns
+/// * List of file/folder names
+Future<List<String>> mcpListFiles({required String path}) =>
+    RustLib.instance.api.crateApiMcpListFiles(path: path);
+
+/// Get tool schemas for AI prompt construction
+///
+/// # Returns
+/// * JSON string containing tool schemas
+String mcpGetToolSchemas() => RustLib.instance.api.crateApiMcpGetToolSchemas();
+
+/// Parse a tool call from AI response
+///
+/// # Arguments
+/// * `json` - JSON string representing the tool call
+///
+/// # Returns
+/// * Parsed tool call structure
+Future<MCPToolCall> mcpParseToolCall({required String json}) =>
+    RustLib.instance.api.crateApiMcpParseToolCall(json: json);
+
+/// Execute a tool call
+///
+/// # Arguments
+/// * `tool_call` - The tool call to execute
+///
+/// # Returns
+/// * Result of the tool execution
+Future<MCPToolResult> mcpExecuteToolCall({required MCPToolCall toolCall}) =>
+    RustLib.instance.api.crateApiMcpExecuteToolCall(toolCall: toolCall);
+
+/// Classify a task based on user message
+///
+/// # Arguments
+/// * `message` - User message to classify
+///
+/// # Returns
+/// * Task category (Conversation, ToolUse, CodeGeneration)
+TaskCategory mcpClassifyTask({required String message}) =>
+    RustLib.instance.api.crateApiMcpClassifyTask(message: message);
+
+/// Get the recommended model for a task category
+///
+/// # Arguments
+/// * `category` - Task category
+///
+/// # Returns
+/// * Model name string
+String mcpGetModelForTask({required TaskCategory category}) =>
+    RustLib.instance.api.crateApiMcpGetModelForTask(category: category);
+
+/// Get all available MCP tools
+List<MCPTool> mcpGetAllTools() => RustLib.instance.api.crateApiMcpGetAllTools();
+
+/// Get tool name
+String mcpGetToolName({required MCPTool tool}) =>
+    RustLib.instance.api.crateApiMcpGetToolName(tool: tool);
+
+/// Get tool description
+String mcpGetToolDescription({required MCPTool tool}) =>
+    RustLib.instance.api.crateApiMcpGetToolDescription(tool: tool);
+
+/// Get tool parameters
+List<MCPParameter> mcpGetToolParameters({required MCPTool tool}) =>
+    RustLib.instance.api.crateApiMcpGetToolParameters(tool: tool);
 
 /// A cluster of embedding IDs
 class EmbeddingCluster {

@@ -14,6 +14,7 @@ import 'package:kivixa/src/rust/frb_generated.dart';
 import 'package:kivixa/src/rust/frb_generated.io.dart'
     if (dart.library.js_interop) 'frb_generated.web.dart';
 import 'package:kivixa/src/rust/graph.dart';
+import 'package:kivixa/src/rust/mcp.dart';
 import 'package:kivixa/src/rust/streaming.dart';
 
 /// Main entrypoint of the Rust API
@@ -69,7 +70,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => 202467171;
+  int get rustContentHash => 1959240715;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -198,6 +199,12 @@ abstract class RustLibApi extends BaseApi {
 
   void crateApiInitGraph();
 
+  Future<void> crateApiInitMcp({
+    required String basePath,
+    BigInt? maxFileSize,
+    List<String>? allowedExtensions,
+  });
+
   void crateApiInitModel({required String modelPath});
 
   Future<void> crateApiInitModelWithConfig({
@@ -213,7 +220,44 @@ abstract class RustLibApi extends BaseApi {
 
   bool crateApiIsGraphStreamRunning();
 
+  bool crateApiIsMcpInitialized();
+
   bool crateApiIsModelLoaded();
+
+  TaskCategory crateApiMcpClassifyTask({required String message});
+
+  Future<void> crateApiMcpCreateFolder({required String path});
+
+  Future<void> crateApiMcpDeleteFile({required String path});
+
+  Future<MCPToolResult> crateApiMcpExecuteToolCall({
+    required MCPToolCall toolCall,
+  });
+
+  List<MCPTool> crateApiMcpGetAllTools();
+
+  String crateApiMcpGetModelForTask({required TaskCategory category});
+
+  String crateApiMcpGetToolDescription({required MCPTool tool});
+
+  String crateApiMcpGetToolName({required MCPTool tool});
+
+  List<MCPParameter> crateApiMcpGetToolParameters({required MCPTool tool});
+
+  String crateApiMcpGetToolSchemas();
+
+  Future<List<String>> crateApiMcpListFiles({required String path});
+
+  Future<MCPToolCall> crateApiMcpParseToolCall({required String json});
+
+  Future<String> crateApiMcpReadFile({required String path});
+
+  bool crateApiMcpValidatePath({required String path});
+
+  Future<void> crateApiMcpWriteFile({
+    required String path,
+    required String content,
+  });
 
   Future<void> crateApiPinStreamNode({
     required String id,
@@ -1089,6 +1133,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: 'init_graph', argNames: []);
 
   @override
+  Future<void> crateApiInitMcp({
+    required String basePath,
+    BigInt? maxFileSize,
+    List<String>? allowedExtensions,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(basePath);
+          final arg1 = cst_encode_opt_box_autoadd_usize(maxFileSize);
+          final arg2 = cst_encode_opt_list_String(allowedExtensions);
+          return wire.wire__crate__api__init_mcp(port_, arg0, arg1, arg2);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiInitMcpConstMeta,
+        argValues: [basePath, maxFileSize, allowedExtensions],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiInitMcpConstMeta => const TaskConstMeta(
+    debugName: 'init_mcp',
+    argNames: ['basePath', 'maxFileSize', 'allowedExtensions'],
+  );
+
+  @override
   void crateApiInitModel({required String modelPath}) {
     return handler.executeSync(
       SyncTask(
@@ -1201,6 +1275,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: 'is_graph_stream_running', argNames: []);
 
   @override
+  bool crateApiIsMcpInitialized() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__is_mcp_initialized();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiIsMcpInitializedConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiIsMcpInitializedConstMeta =>
+      const TaskConstMeta(debugName: 'is_mcp_initialized', argNames: []);
+
+  @override
   bool crateApiIsModelLoaded() {
     return handler.executeSync(
       SyncTask(
@@ -1220,6 +1315,354 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiIsModelLoadedConstMeta =>
       const TaskConstMeta(debugName: 'is_model_loaded', argNames: []);
+
+  @override
+  TaskCategory crateApiMcpClassifyTask({required String message}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final arg0 = cst_encode_String(message);
+          return wire.wire__crate__api__mcp_classify_task(arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_task_category,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpClassifyTaskConstMeta,
+        argValues: [message],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpClassifyTaskConstMeta => const TaskConstMeta(
+    debugName: 'mcp_classify_task',
+    argNames: ['message'],
+  );
+
+  @override
+  Future<void> crateApiMcpCreateFolder({required String path}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(path);
+          return wire.wire__crate__api__mcp_create_folder(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiMcpCreateFolderConstMeta,
+        argValues: [path],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpCreateFolderConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_create_folder', argNames: ['path']);
+
+  @override
+  Future<void> crateApiMcpDeleteFile({required String path}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(path);
+          return wire.wire__crate__api__mcp_delete_file(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiMcpDeleteFileConstMeta,
+        argValues: [path],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpDeleteFileConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_delete_file', argNames: ['path']);
+
+  @override
+  Future<MCPToolResult> crateApiMcpExecuteToolCall({
+    required MCPToolCall toolCall,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_box_autoadd_mcp_tool_call(toolCall);
+          return wire.wire__crate__api__mcp_execute_tool_call(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_mcp_tool_result,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpExecuteToolCallConstMeta,
+        argValues: [toolCall],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpExecuteToolCallConstMeta => const TaskConstMeta(
+    debugName: 'mcp_execute_tool_call',
+    argNames: ['toolCall'],
+  );
+
+  @override
+  List<MCPTool> crateApiMcpGetAllTools() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__mcp_get_all_tools();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_mcp_tool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpGetAllToolsConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpGetAllToolsConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_get_all_tools', argNames: []);
+
+  @override
+  String crateApiMcpGetModelForTask({required TaskCategory category}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final arg0 = cst_encode_task_category(category);
+          return wire.wire__crate__api__mcp_get_model_for_task(arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpGetModelForTaskConstMeta,
+        argValues: [category],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpGetModelForTaskConstMeta => const TaskConstMeta(
+    debugName: 'mcp_get_model_for_task',
+    argNames: ['category'],
+  );
+
+  @override
+  String crateApiMcpGetToolDescription({required MCPTool tool}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final arg0 = cst_encode_mcp_tool(tool);
+          return wire.wire__crate__api__mcp_get_tool_description(arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpGetToolDescriptionConstMeta,
+        argValues: [tool],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpGetToolDescriptionConstMeta =>
+      const TaskConstMeta(
+        debugName: 'mcp_get_tool_description',
+        argNames: ['tool'],
+      );
+
+  @override
+  String crateApiMcpGetToolName({required MCPTool tool}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final arg0 = cst_encode_mcp_tool(tool);
+          return wire.wire__crate__api__mcp_get_tool_name(arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpGetToolNameConstMeta,
+        argValues: [tool],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpGetToolNameConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_get_tool_name', argNames: ['tool']);
+
+  @override
+  List<MCPParameter> crateApiMcpGetToolParameters({required MCPTool tool}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final arg0 = cst_encode_mcp_tool(tool);
+          return wire.wire__crate__api__mcp_get_tool_parameters(arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_mcp_parameter,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpGetToolParametersConstMeta,
+        argValues: [tool],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpGetToolParametersConstMeta =>
+      const TaskConstMeta(
+        debugName: 'mcp_get_tool_parameters',
+        argNames: ['tool'],
+      );
+
+  @override
+  String crateApiMcpGetToolSchemas() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__mcp_get_tool_schemas();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpGetToolSchemasConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpGetToolSchemasConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_get_tool_schemas', argNames: []);
+
+  @override
+  Future<List<String>> crateApiMcpListFiles({required String path}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(path);
+          return wire.wire__crate__api__mcp_list_files(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_String,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiMcpListFilesConstMeta,
+        argValues: [path],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpListFilesConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_list_files', argNames: ['path']);
+
+  @override
+  Future<MCPToolCall> crateApiMcpParseToolCall({required String json}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(json);
+          return wire.wire__crate__api__mcp_parse_tool_call(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_mcp_tool_call,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiMcpParseToolCallConstMeta,
+        argValues: [json],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpParseToolCallConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_parse_tool_call', argNames: ['json']);
+
+  @override
+  Future<String> crateApiMcpReadFile({required String path}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(path);
+          return wire.wire__crate__api__mcp_read_file(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiMcpReadFileConstMeta,
+        argValues: [path],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpReadFileConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_read_file', argNames: ['path']);
+
+  @override
+  bool crateApiMcpValidatePath({required String path}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final arg0 = cst_encode_String(path);
+          return wire.wire__crate__api__mcp_validate_path(arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpValidatePathConstMeta,
+        argValues: [path],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpValidatePathConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_validate_path', argNames: ['path']);
+
+  @override
+  Future<void> crateApiMcpWriteFile({
+    required String path,
+    required String content,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(path);
+          final arg1 = cst_encode_String(content);
+          return wire.wire__crate__api__mcp_write_file(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiMcpWriteFileConstMeta,
+        argValues: [path, content],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpWriteFileConstMeta => const TaskConstMeta(
+    debugName: 'mcp_write_file',
+    argNames: ['path', 'content'],
+  );
 
   @override
   Future<void> crateApiPinStreamNode({
@@ -1528,6 +1971,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  MCPToolCall dco_decode_box_autoadd_mcp_tool_call(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_mcp_tool_call(raw);
+  }
+
+  @protected
   int dco_decode_box_autoadd_u_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
@@ -1711,6 +2160,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<MCPParameter> dco_decode_list_mcp_parameter(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_mcp_parameter).toList();
+  }
+
+  @protected
+  List<MCPTool> dco_decode_list_mcp_tool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_mcp_tool).toList();
+  }
+
+  @protected
   List<NodePosition> dco_decode_list_node_position(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_node_position).toList();
@@ -1750,6 +2211,58 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   List<SimilarityResult> dco_decode_list_similarity_result(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_similarity_result).toList();
+  }
+
+  @protected
+  MCPParamType dco_decode_mcp_param_type(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return MCPParamType.values[raw as int];
+  }
+
+  @protected
+  MCPParameter dco_decode_mcp_parameter(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return MCPParameter(
+      name: dco_decode_String(arr[0]),
+      description: dco_decode_String(arr[1]),
+      paramType: dco_decode_mcp_param_type(arr[2]),
+      required_: dco_decode_bool(arr[3]),
+    );
+  }
+
+  @protected
+  MCPTool dco_decode_mcp_tool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return MCPTool.values[raw as int];
+  }
+
+  @protected
+  MCPToolCall dco_decode_mcp_tool_call(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return MCPToolCall(
+      tool: dco_decode_String(arr[0]),
+      parametersJson: dco_decode_String(arr[1]),
+      description: dco_decode_String(arr[2]),
+    );
+  }
+
+  @protected
+  MCPToolResult dco_decode_mcp_tool_result(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return MCPToolResult(
+      success: dco_decode_bool(arr[0]),
+      result: dco_decode_String(arr[1]),
+      tool: dco_decode_String(arr[2]),
+    );
   }
 
   @protected
@@ -1796,6 +2309,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_usize(raw);
+  }
+
+  @protected
+  List<String>? dco_decode_opt_list_String(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_list_String(raw);
   }
 
   @protected
@@ -1875,6 +2394,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  TaskCategory dco_decode_task_category(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return TaskCategory.values[raw as int];
+  }
+
+  @protected
   int dco_decode_u_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
@@ -1928,6 +2453,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   int sse_decode_box_autoadd_i_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_i_32(deserializer));
+  }
+
+  @protected
+  MCPToolCall sse_decode_box_autoadd_mcp_tool_call(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_mcp_tool_call(deserializer));
   }
 
   @protected
@@ -2165,6 +2698,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<MCPParameter> sse_decode_list_mcp_parameter(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    final len_ = sse_decode_i_32(deserializer);
+    final ans_ = <MCPParameter>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_mcp_parameter(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<MCPTool> sse_decode_list_mcp_tool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    final len_ = sse_decode_i_32(deserializer);
+    final ans_ = <MCPTool>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_mcp_tool(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<NodePosition> sse_decode_list_node_position(
     SseDeserializer deserializer,
   ) {
@@ -2242,6 +2801,61 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  MCPParamType sse_decode_mcp_param_type(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final inner = sse_decode_i_32(deserializer);
+    return MCPParamType.values[inner];
+  }
+
+  @protected
+  MCPParameter sse_decode_mcp_parameter(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_name = sse_decode_String(deserializer);
+    final var_description = sse_decode_String(deserializer);
+    final var_paramType = sse_decode_mcp_param_type(deserializer);
+    final var_required_ = sse_decode_bool(deserializer);
+    return MCPParameter(
+      name: var_name,
+      description: var_description,
+      paramType: var_paramType,
+      required_: var_required_,
+    );
+  }
+
+  @protected
+  MCPTool sse_decode_mcp_tool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final inner = sse_decode_i_32(deserializer);
+    return MCPTool.values[inner];
+  }
+
+  @protected
+  MCPToolCall sse_decode_mcp_tool_call(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_tool = sse_decode_String(deserializer);
+    final var_parametersJson = sse_decode_String(deserializer);
+    final var_description = sse_decode_String(deserializer);
+    return MCPToolCall(
+      tool: var_tool,
+      parametersJson: var_parametersJson,
+      description: var_description,
+    );
+  }
+
+  @protected
+  MCPToolResult sse_decode_mcp_tool_result(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_success = sse_decode_bool(deserializer);
+    final var_result = sse_decode_String(deserializer);
+    final var_tool = sse_decode_String(deserializer);
+    return MCPToolResult(
+      success: var_success,
+      result: var_result,
+      tool: var_tool,
+    );
+  }
+
+  @protected
   NodePosition sse_decode_node_position(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     final var_id = sse_decode_String(deserializer);
@@ -2310,6 +2924,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_usize(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  List<String>? sse_decode_opt_list_String(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_list_String(deserializer));
     } else {
       return null;
     }
@@ -2403,6 +3028,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  TaskCategory sse_decode_task_category(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final inner = sse_decode_i_32(deserializer);
+    return TaskCategory.values[inner];
+  }
+
+  @protected
   int sse_decode_u_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getUint32();
@@ -2441,6 +3073,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   int cst_encode_i_32(int raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw;
+  }
+
+  @protected
+  int cst_encode_mcp_param_type(MCPParamType raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_mcp_tool(MCPTool raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_task_category(TaskCategory raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
   }
 
   @protected
@@ -2492,6 +3142,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_mcp_tool_call(
+    MCPToolCall self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_mcp_tool_call(self, serializer);
   }
 
   @protected
@@ -2689,6 +3348,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_list_mcp_parameter(
+    List<MCPParameter> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_mcp_parameter(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_mcp_tool(List<MCPTool> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_mcp_tool(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_node_position(
     List<NodePosition> self,
     SseSerializer serializer,
@@ -2769,6 +3449,46 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_mcp_param_type(MCPParamType self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_mcp_parameter(MCPParameter self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_String(self.description, serializer);
+    sse_encode_mcp_param_type(self.paramType, serializer);
+    sse_encode_bool(self.required_, serializer);
+  }
+
+  @protected
+  void sse_encode_mcp_tool(MCPTool self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_mcp_tool_call(MCPToolCall self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.tool, serializer);
+    sse_encode_String(self.parametersJson, serializer);
+    sse_encode_String(self.description, serializer);
+  }
+
+  @protected
+  void sse_encode_mcp_tool_result(
+    MCPToolResult self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_bool(self.success, serializer);
+    sse_encode_String(self.result, serializer);
+    sse_encode_String(self.tool, serializer);
+  }
+
+  @protected
   void sse_encode_node_position(NodePosition self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.id, serializer);
@@ -2829,6 +3549,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_usize(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_list_String(
+    List<String>? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_list_String(self, serializer);
     }
   }
 
@@ -2907,6 +3640,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_usize(self.nodeCount, serializer);
     sse_encode_usize(self.edgeCount, serializer);
     sse_encode_usize(self.visibleCount, serializer);
+  }
+
+  @protected
+  void sse_encode_task_category(TaskCategory self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
   }
 
   @protected

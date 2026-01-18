@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 202467171;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1959240715;
 
 // Section: executor
 
@@ -764,6 +764,37 @@ fn wire__crate__api__init_graph_impl() -> flutter_rust_bridge::for_generated::Wi
         },
     )
 }
+fn wire__crate__api__init_mcp_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    base_path: impl CstDecode<String>,
+    max_file_size: impl CstDecode<Option<usize>>,
+    allowed_extensions: impl CstDecode<Option<Vec<String>>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "init_mcp",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_base_path = base_path.cst_decode();
+            let api_max_file_size = max_file_size.cst_decode();
+            let api_allowed_extensions = allowed_extensions.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::init_mcp(
+                            api_base_path,
+                            api_max_file_size,
+                            api_allowed_extensions,
+                        )?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__init_model_impl(
     model_path: impl CstDecode<String>,
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -846,6 +877,22 @@ fn wire__crate__api__is_graph_stream_running_impl(
         },
     )
 }
+fn wire__crate__api__is_mcp_initialized_impl(
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "is_mcp_initialized",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::is_mcp_initialized())?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
 fn wire__crate__api__is_model_loaded_impl(
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
@@ -859,6 +906,310 @@ fn wire__crate__api__is_model_loaded_impl(
                 let output_ok = Result::<_, ()>::Ok(crate::api::is_model_loaded())?;
                 Ok(output_ok)
             })())
+        },
+    )
+}
+fn wire__crate__api__mcp_classify_task_impl(
+    message: impl CstDecode<String>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_classify_task",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_message = message.cst_decode();
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::mcp_classify_task(api_message))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_create_folder_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_create_folder",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::mcp_create_folder(api_path)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__mcp_delete_file_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_delete_file",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::mcp_delete_file(api_path)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__mcp_execute_tool_call_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    tool_call: impl CstDecode<crate::mcp::MCPToolCall>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_execute_tool_call",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_tool_call = tool_call.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::mcp_execute_tool_call(api_tool_call))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__mcp_get_all_tools_impl(
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_get_all_tools",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::mcp_get_all_tools())?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_get_model_for_task_impl(
+    category: impl CstDecode<crate::mcp::TaskCategory>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_get_model_for_task",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_category = category.cst_decode();
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok =
+                    Result::<_, ()>::Ok(crate::api::mcp_get_model_for_task(api_category))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_get_tool_description_impl(
+    tool: impl CstDecode<crate::mcp::MCPTool>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_get_tool_description",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_tool = tool.cst_decode();
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok =
+                    Result::<_, ()>::Ok(crate::api::mcp_get_tool_description(api_tool))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_get_tool_name_impl(
+    tool: impl CstDecode<crate::mcp::MCPTool>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_get_tool_name",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_tool = tool.cst_decode();
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::mcp_get_tool_name(api_tool))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_get_tool_parameters_impl(
+    tool: impl CstDecode<crate::mcp::MCPTool>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_get_tool_parameters",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_tool = tool.cst_decode();
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::mcp_get_tool_parameters(api_tool))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_get_tool_schemas_impl(
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_get_tool_schemas",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::mcp_get_tool_schemas())?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_list_files_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_list_files",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::mcp_list_files(api_path)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__mcp_parse_tool_call_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    json: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_parse_tool_call",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_json = json.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::mcp_parse_tool_call(api_json)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__mcp_read_file_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_read_file",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::mcp_read_file(api_path)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__mcp_validate_path_impl(
+    path: impl CstDecode<String>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_validate_path",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::mcp_validate_path(api_path))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_write_file_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+    content: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_write_file",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            let api_content = content.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::mcp_write_file(api_path, api_content)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
         },
     )
 }
@@ -1122,6 +1473,45 @@ impl CstDecode<i32> for i32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> i32 {
         self
+    }
+}
+impl CstDecode<crate::mcp::MCPParamType> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::mcp::MCPParamType {
+        match self {
+            0 => crate::mcp::MCPParamType::String,
+            1 => crate::mcp::MCPParamType::Boolean,
+            2 => crate::mcp::MCPParamType::Integer,
+            3 => crate::mcp::MCPParamType::Array,
+            _ => unreachable!("Invalid variant for MCPParamType: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::mcp::MCPTool> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::mcp::MCPTool {
+        match self {
+            0 => crate::mcp::MCPTool::ReadFile,
+            1 => crate::mcp::MCPTool::WriteFile,
+            2 => crate::mcp::MCPTool::DeleteFile,
+            3 => crate::mcp::MCPTool::CreateFolder,
+            4 => crate::mcp::MCPTool::ListFiles,
+            5 => crate::mcp::MCPTool::CalendarLua,
+            6 => crate::mcp::MCPTool::TimerLua,
+            7 => crate::mcp::MCPTool::ExportMarkdown,
+            _ => unreachable!("Invalid variant for MCPTool: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::mcp::TaskCategory> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::mcp::TaskCategory {
+        match self {
+            0 => crate::mcp::TaskCategory::Conversation,
+            1 => crate::mcp::TaskCategory::ToolUse,
+            2 => crate::mcp::TaskCategory::CodeGeneration,
+            _ => unreachable!("Invalid variant for TaskCategory: {}", self),
+        }
     }
 }
 impl CstDecode<u32> for u32 {
@@ -1397,6 +1787,30 @@ impl SseDecode for Vec<crate::graph::GraphNode> {
     }
 }
 
+impl SseDecode for Vec<crate::mcp::MCPParameter> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::mcp::MCPParameter>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::mcp::MCPTool> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::mcp::MCPTool>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::streaming::NodePosition> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1471,6 +1885,82 @@ impl SseDecode for Vec<crate::embeddings::SimilarityResult> {
     }
 }
 
+impl SseDecode for crate::mcp::MCPParamType {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::mcp::MCPParamType::String,
+            1 => crate::mcp::MCPParamType::Boolean,
+            2 => crate::mcp::MCPParamType::Integer,
+            3 => crate::mcp::MCPParamType::Array,
+            _ => unreachable!("Invalid variant for MCPParamType: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::mcp::MCPParameter {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_description = <String>::sse_decode(deserializer);
+        let mut var_paramType = <crate::mcp::MCPParamType>::sse_decode(deserializer);
+        let mut var_required_ = <bool>::sse_decode(deserializer);
+        return crate::mcp::MCPParameter {
+            name: var_name,
+            description: var_description,
+            param_type: var_paramType,
+            required: var_required_,
+        };
+    }
+}
+
+impl SseDecode for crate::mcp::MCPTool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::mcp::MCPTool::ReadFile,
+            1 => crate::mcp::MCPTool::WriteFile,
+            2 => crate::mcp::MCPTool::DeleteFile,
+            3 => crate::mcp::MCPTool::CreateFolder,
+            4 => crate::mcp::MCPTool::ListFiles,
+            5 => crate::mcp::MCPTool::CalendarLua,
+            6 => crate::mcp::MCPTool::TimerLua,
+            7 => crate::mcp::MCPTool::ExportMarkdown,
+            _ => unreachable!("Invalid variant for MCPTool: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::mcp::MCPToolCall {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_tool = <String>::sse_decode(deserializer);
+        let mut var_parametersJson = <String>::sse_decode(deserializer);
+        let mut var_description = <String>::sse_decode(deserializer);
+        return crate::mcp::MCPToolCall {
+            tool: var_tool,
+            parameters_json: var_parametersJson,
+            description: var_description,
+        };
+    }
+}
+
+impl SseDecode for crate::mcp::MCPToolResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_success = <bool>::sse_decode(deserializer);
+        let mut var_result = <String>::sse_decode(deserializer);
+        let mut var_tool = <String>::sse_decode(deserializer);
+        return crate::mcp::MCPToolResult {
+            success: var_success,
+            result: var_result,
+            tool: var_tool,
+        };
+    }
+}
+
 impl SseDecode for crate::streaming::NodePosition {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1540,6 +2030,17 @@ impl SseDecode for Option<usize> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<usize>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<Vec<String>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<Vec<String>>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -1629,6 +2130,19 @@ impl SseDecode for crate::api::StreamGraphStats {
             node_count: var_nodeCount,
             edge_count: var_edgeCount,
             visible_count: var_visibleCount,
+        };
+    }
+}
+
+impl SseDecode for crate::mcp::TaskCategory {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::mcp::TaskCategory::Conversation,
+            1 => crate::mcp::TaskCategory::ToolUse,
+            2 => crate::mcp::TaskCategory::CodeGeneration,
+            _ => unreachable!("Invalid variant for TaskCategory: {}", inner),
         };
     }
 }
@@ -1866,6 +2380,98 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::KnowledgeGraphAnalysis>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::mcp::MCPParamType {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::String => 0.into_dart(),
+            Self::Boolean => 1.into_dart(),
+            Self::Integer => 2.into_dart(),
+            Self::Array => 3.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::mcp::MCPParamType {}
+impl flutter_rust_bridge::IntoIntoDart<crate::mcp::MCPParamType> for crate::mcp::MCPParamType {
+    fn into_into_dart(self) -> crate::mcp::MCPParamType {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::mcp::MCPParameter {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.name.into_into_dart().into_dart(),
+            self.description.into_into_dart().into_dart(),
+            self.param_type.into_into_dart().into_dart(),
+            self.required.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::mcp::MCPParameter {}
+impl flutter_rust_bridge::IntoIntoDart<crate::mcp::MCPParameter> for crate::mcp::MCPParameter {
+    fn into_into_dart(self) -> crate::mcp::MCPParameter {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::mcp::MCPTool {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::ReadFile => 0.into_dart(),
+            Self::WriteFile => 1.into_dart(),
+            Self::DeleteFile => 2.into_dart(),
+            Self::CreateFolder => 3.into_dart(),
+            Self::ListFiles => 4.into_dart(),
+            Self::CalendarLua => 5.into_dart(),
+            Self::TimerLua => 6.into_dart(),
+            Self::ExportMarkdown => 7.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::mcp::MCPTool {}
+impl flutter_rust_bridge::IntoIntoDart<crate::mcp::MCPTool> for crate::mcp::MCPTool {
+    fn into_into_dart(self) -> crate::mcp::MCPTool {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::mcp::MCPToolCall {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.tool.into_into_dart().into_dart(),
+            self.parameters_json.into_into_dart().into_dart(),
+            self.description.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::mcp::MCPToolCall {}
+impl flutter_rust_bridge::IntoIntoDart<crate::mcp::MCPToolCall> for crate::mcp::MCPToolCall {
+    fn into_into_dart(self) -> crate::mcp::MCPToolCall {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::mcp::MCPToolResult {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.success.into_into_dart().into_dart(),
+            self.result.into_into_dart().into_dart(),
+            self.tool.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::mcp::MCPToolResult {}
+impl flutter_rust_bridge::IntoIntoDart<crate::mcp::MCPToolResult> for crate::mcp::MCPToolResult {
+    fn into_into_dart(self) -> crate::mcp::MCPToolResult {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::streaming::NodePosition {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -1972,6 +2578,23 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::StreamGraphStats>
     for crate::api::StreamGraphStats
 {
     fn into_into_dart(self) -> crate::api::StreamGraphStats {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::mcp::TaskCategory {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Conversation => 0.into_dart(),
+            Self::ToolUse => 1.into_dart(),
+            Self::CodeGeneration => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::mcp::TaskCategory {}
+impl flutter_rust_bridge::IntoIntoDart<crate::mcp::TaskCategory> for crate::mcp::TaskCategory {
+    fn into_into_dart(self) -> crate::mcp::TaskCategory {
         self
     }
 }
@@ -2164,6 +2787,26 @@ impl SseEncode for Vec<crate::graph::GraphNode> {
     }
 }
 
+impl SseEncode for Vec<crate::mcp::MCPParameter> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::mcp::MCPParameter>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::mcp::MCPTool> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::mcp::MCPTool>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::streaming::NodePosition> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -2221,6 +2864,74 @@ impl SseEncode for Vec<crate::embeddings::SimilarityResult> {
         for item in self {
             <crate::embeddings::SimilarityResult>::sse_encode(item, serializer);
         }
+    }
+}
+
+impl SseEncode for crate::mcp::MCPParamType {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::mcp::MCPParamType::String => 0,
+                crate::mcp::MCPParamType::Boolean => 1,
+                crate::mcp::MCPParamType::Integer => 2,
+                crate::mcp::MCPParamType::Array => 3,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::mcp::MCPParameter {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.name, serializer);
+        <String>::sse_encode(self.description, serializer);
+        <crate::mcp::MCPParamType>::sse_encode(self.param_type, serializer);
+        <bool>::sse_encode(self.required, serializer);
+    }
+}
+
+impl SseEncode for crate::mcp::MCPTool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::mcp::MCPTool::ReadFile => 0,
+                crate::mcp::MCPTool::WriteFile => 1,
+                crate::mcp::MCPTool::DeleteFile => 2,
+                crate::mcp::MCPTool::CreateFolder => 3,
+                crate::mcp::MCPTool::ListFiles => 4,
+                crate::mcp::MCPTool::CalendarLua => 5,
+                crate::mcp::MCPTool::TimerLua => 6,
+                crate::mcp::MCPTool::ExportMarkdown => 7,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::mcp::MCPToolCall {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.tool, serializer);
+        <String>::sse_encode(self.parameters_json, serializer);
+        <String>::sse_encode(self.description, serializer);
+    }
+}
+
+impl SseEncode for crate::mcp::MCPToolResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.success, serializer);
+        <String>::sse_encode(self.result, serializer);
+        <String>::sse_encode(self.tool, serializer);
     }
 }
 
@@ -2286,6 +2997,16 @@ impl SseEncode for Option<usize> {
     }
 }
 
+impl SseEncode for Option<Vec<String>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <Vec<String>>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<Vec<f32>> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -2347,6 +3068,23 @@ impl SseEncode for crate::api::StreamGraphStats {
         <usize>::sse_encode(self.node_count, serializer);
         <usize>::sse_encode(self.edge_count, serializer);
         <usize>::sse_encode(self.visible_count, serializer);
+    }
+}
+
+impl SseEncode for crate::mcp::TaskCategory {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::mcp::TaskCategory::Conversation => 0,
+                crate::mcp::TaskCategory::ToolUse => 1,
+                crate::mcp::TaskCategory::CodeGeneration => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
     }
 }
 
@@ -2424,6 +3162,13 @@ mod io {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> i32 {
             unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<crate::mcp::MCPToolCall> for *mut wire_cst_mcp_tool_call {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPToolCall {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::mcp::MCPToolCall>::cst_decode(*wrap).into()
         }
     }
     impl CstDecode<u32> for *mut u32 {
@@ -2602,6 +3347,26 @@ mod io {
             vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
+    impl CstDecode<Vec<crate::mcp::MCPParameter>> for *mut wire_cst_list_mcp_parameter {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::mcp::MCPParameter> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::mcp::MCPTool>> for *mut wire_cst_list_mcp_tool {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::mcp::MCPTool> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::streaming::NodePosition>> for *mut wire_cst_list_node_position {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::streaming::NodePosition> {
@@ -2667,6 +3432,37 @@ mod io {
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
             };
             vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<crate::mcp::MCPParameter> for wire_cst_mcp_parameter {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPParameter {
+            crate::mcp::MCPParameter {
+                name: self.name.cst_decode(),
+                description: self.description.cst_decode(),
+                param_type: self.param_type.cst_decode(),
+                required: self.required.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::mcp::MCPToolCall> for wire_cst_mcp_tool_call {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPToolCall {
+            crate::mcp::MCPToolCall {
+                tool: self.tool.cst_decode(),
+                parameters_json: self.parameters_json.cst_decode(),
+                description: self.description.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::mcp::MCPToolResult> for wire_cst_mcp_tool_result {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPToolResult {
+            crate::mcp::MCPToolResult {
+                success: self.success.cst_decode(),
+                result: self.result.cst_decode(),
+                tool: self.tool.cst_decode(),
+            }
         }
     }
     impl CstDecode<crate::streaming::NodePosition> for wire_cst_node_position {
@@ -2852,6 +3648,49 @@ mod io {
         }
     }
     impl Default for wire_cst_knowledge_graph_analysis {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_mcp_parameter {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                name: core::ptr::null_mut(),
+                description: core::ptr::null_mut(),
+                param_type: Default::default(),
+                required: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_mcp_parameter {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_mcp_tool_call {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                tool: core::ptr::null_mut(),
+                parameters_json: core::ptr::null_mut(),
+                description: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_mcp_tool_call {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_mcp_tool_result {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                success: Default::default(),
+                result: core::ptr::null_mut(),
+                tool: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_mcp_tool_result {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -3198,6 +4037,16 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__init_mcp(
+        port_: i64,
+        base_path: *mut wire_cst_list_prim_u_8_strict,
+        max_file_size: *mut usize,
+        allowed_extensions: *mut wire_cst_list_String,
+    ) {
+        wire__crate__api__init_mcp_impl(port_, base_path, max_file_size, allowed_extensions)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__init_model(
         model_path: *mut wire_cst_list_prim_u_8_strict,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -3236,9 +4085,126 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__is_mcp_initialized(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__is_mcp_initialized_impl()
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__is_model_loaded(
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__api__is_model_loaded_impl()
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_classify_task(
+        message: *mut wire_cst_list_prim_u_8_strict,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_classify_task_impl(message)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_create_folder(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__mcp_create_folder_impl(port_, path)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_delete_file(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__mcp_delete_file_impl(port_, path)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_execute_tool_call(
+        port_: i64,
+        tool_call: *mut wire_cst_mcp_tool_call,
+    ) {
+        wire__crate__api__mcp_execute_tool_call_impl(port_, tool_call)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_get_all_tools(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_all_tools_impl()
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_get_model_for_task(
+        category: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_model_for_task_impl(category)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_get_tool_description(
+        tool: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_description_impl(tool)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_get_tool_name(
+        tool: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_name_impl(tool)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_get_tool_parameters(
+        tool: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_parameters_impl(tool)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_get_tool_schemas(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_schemas_impl()
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_list_files(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__mcp_list_files_impl(port_, path)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_parse_tool_call(
+        port_: i64,
+        json: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__mcp_parse_tool_call_impl(port_, json)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_read_file(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__mcp_read_file_impl(port_, path)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_validate_path(
+        path: *mut wire_cst_list_prim_u_8_strict,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_validate_path_impl(path)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_write_file(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+        content: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__mcp_write_file_impl(port_, path, content)
     }
 
     #[unsafe(no_mangle)]
@@ -3332,6 +4298,14 @@ mod io {
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_cst_new_box_autoadd_i_32(value: i32) -> *mut i32 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_box_autoadd_mcp_tool_call(
+    ) -> *mut wire_cst_mcp_tool_call {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_mcp_tool_call::new_with_null_ptr(),
+        )
     }
 
     #[unsafe(no_mangle)]
@@ -3435,6 +4409,29 @@ mod io {
                 <wire_cst_graph_node>::new_with_null_ptr(),
                 len,
             ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_list_mcp_parameter(
+        len: i32,
+    ) -> *mut wire_cst_list_mcp_parameter {
+        let wrap = wire_cst_list_mcp_parameter {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_mcp_parameter>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_list_mcp_tool(len: i32) -> *mut wire_cst_list_mcp_tool {
+        let wrap = wire_cst_list_mcp_tool {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(Default::default(), len),
             len,
         };
         flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
@@ -3638,6 +4635,18 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_mcp_parameter {
+        ptr: *mut wire_cst_mcp_parameter,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_mcp_tool {
+        ptr: *mut i32,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_node_position {
         ptr: *mut wire_cst_node_position,
         len: i32,
@@ -3677,6 +4686,28 @@ mod io {
     pub struct wire_cst_list_similarity_result {
         ptr: *mut wire_cst_similarity_result,
         len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_mcp_parameter {
+        name: *mut wire_cst_list_prim_u_8_strict,
+        description: *mut wire_cst_list_prim_u_8_strict,
+        param_type: i32,
+        required: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_mcp_tool_call {
+        tool: *mut wire_cst_list_prim_u_8_strict,
+        parameters_json: *mut wire_cst_list_prim_u_8_strict,
+        description: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_mcp_tool_result {
+        success: bool,
+        result: *mut wire_cst_list_prim_u_8_strict,
+        tool: *mut wire_cst_list_prim_u_8_strict,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -4034,6 +5065,30 @@ mod web {
                 .collect()
         }
     }
+    impl CstDecode<Vec<crate::mcp::MCPParameter>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::mcp::MCPParameter> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::mcp::MCPTool>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::mcp::MCPTool> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::streaming::NodePosition>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -4092,6 +5147,70 @@ mod web {
                 .iter()
                 .map(CstDecode::cst_decode)
                 .collect()
+        }
+    }
+    impl CstDecode<crate::mcp::MCPParameter>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPParameter {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                4,
+                "Expected 4 elements, got {}",
+                self_.length()
+            );
+            crate::mcp::MCPParameter {
+                name: self_.get(0).cst_decode(),
+                description: self_.get(1).cst_decode(),
+                param_type: self_.get(2).cst_decode(),
+                required: self_.get(3).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::mcp::MCPToolCall>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPToolCall {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::mcp::MCPToolCall {
+                tool: self_.get(0).cst_decode(),
+                parameters_json: self_.get(1).cst_decode(),
+                description: self_.get(2).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::mcp::MCPToolResult>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPToolResult {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::mcp::MCPToolResult {
+                success: self_.get(0).cst_decode(),
+                result: self_.get(1).cst_decode(),
+                tool: self_.get(2).cst_decode(),
+            }
         }
     }
     impl CstDecode<crate::streaming::NodePosition>
@@ -4275,6 +5394,28 @@ mod web {
             self.unchecked_into::<flutter_rust_bridge::for_generated::js_sys::Uint8Array>()
                 .to_vec()
                 .into()
+        }
+    }
+    impl CstDecode<crate::mcp::MCPParamType>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPParamType {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::mcp::MCPTool> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPTool {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::mcp::TaskCategory>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::TaskCategory {
+            (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
     impl CstDecode<u32> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
@@ -4555,6 +5696,16 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__init_mcp(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        base_path: String,
+        max_file_size: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        allowed_extensions: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__init_mcp_impl(port_, base_path, max_file_size, allowed_extensions)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__init_model(
         model_path: String,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -4593,9 +5744,126 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__is_mcp_initialized(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__is_mcp_initialized_impl()
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__is_model_loaded(
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__api__is_model_loaded_impl()
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_classify_task(
+        message: String,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_classify_task_impl(message)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_create_folder(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+    ) {
+        wire__crate__api__mcp_create_folder_impl(port_, path)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_delete_file(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+    ) {
+        wire__crate__api__mcp_delete_file_impl(port_, path)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_execute_tool_call(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        tool_call: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__mcp_execute_tool_call_impl(port_, tool_call)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_get_all_tools(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_all_tools_impl()
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_get_model_for_task(
+        category: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_model_for_task_impl(category)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_get_tool_description(
+        tool: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_description_impl(tool)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_get_tool_name(
+        tool: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_name_impl(tool)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_get_tool_parameters(
+        tool: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_parameters_impl(tool)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_get_tool_schemas(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_schemas_impl()
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_list_files(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+    ) {
+        wire__crate__api__mcp_list_files_impl(port_, path)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_parse_tool_call(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        json: String,
+    ) {
+        wire__crate__api__mcp_parse_tool_call_impl(port_, json)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_read_file(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+    ) {
+        wire__crate__api__mcp_read_file_impl(port_, path)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_validate_path(
+        path: String,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_validate_path_impl(path)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_write_file(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+        content: String,
+    ) {
+        wire__crate__api__mcp_write_file_impl(port_, path, content)
     }
 
     #[wasm_bindgen]

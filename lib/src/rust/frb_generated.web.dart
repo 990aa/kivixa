@@ -15,6 +15,7 @@ import 'package:kivixa/src/rust/clustering.dart';
 import 'package:kivixa/src/rust/embeddings.dart';
 import 'package:kivixa/src/rust/frb_generated.dart';
 import 'package:kivixa/src/rust/graph.dart';
+import 'package:kivixa/src/rust/mcp.dart';
 import 'package:kivixa/src/rust/streaming.dart';
 
 abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
@@ -39,6 +40,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   int dco_decode_box_autoadd_i_32(dynamic raw);
+
+  @protected
+  MCPToolCall dco_decode_box_autoadd_mcp_tool_call(dynamic raw);
 
   @protected
   int dco_decode_box_autoadd_u_32(dynamic raw);
@@ -101,6 +105,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<GraphNode> dco_decode_list_graph_node(dynamic raw);
 
   @protected
+  List<MCPParameter> dco_decode_list_mcp_parameter(dynamic raw);
+
+  @protected
+  List<MCPTool> dco_decode_list_mcp_tool(dynamic raw);
+
+  @protected
   List<NodePosition> dco_decode_list_node_position(dynamic raw);
 
   @protected
@@ -122,6 +132,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<SimilarityResult> dco_decode_list_similarity_result(dynamic raw);
 
   @protected
+  MCPParamType dco_decode_mcp_param_type(dynamic raw);
+
+  @protected
+  MCPParameter dco_decode_mcp_parameter(dynamic raw);
+
+  @protected
+  MCPTool dco_decode_mcp_tool(dynamic raw);
+
+  @protected
+  MCPToolCall dco_decode_mcp_tool_call(dynamic raw);
+
+  @protected
+  MCPToolResult dco_decode_mcp_tool_result(dynamic raw);
+
+  @protected
   NodePosition dco_decode_node_position(dynamic raw);
 
   @protected
@@ -138,6 +163,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw);
+
+  @protected
+  List<String>? dco_decode_opt_list_String(dynamic raw);
 
   @protected
   Float32List? dco_decode_opt_list_prim_f_32_strict(dynamic raw);
@@ -159,6 +187,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   StreamGraphStats dco_decode_stream_graph_stats(dynamic raw);
+
+  @protected
+  TaskCategory dco_decode_task_category(dynamic raw);
 
   @protected
   int dco_decode_u_32(dynamic raw);
@@ -186,6 +217,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
+
+  @protected
+  MCPToolCall sse_decode_box_autoadd_mcp_tool_call(
+    SseDeserializer deserializer,
+  );
 
   @protected
   int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
@@ -256,6 +292,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<GraphNode> sse_decode_list_graph_node(SseDeserializer deserializer);
 
   @protected
+  List<MCPParameter> sse_decode_list_mcp_parameter(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<MCPTool> sse_decode_list_mcp_tool(SseDeserializer deserializer);
+
+  @protected
   List<NodePosition> sse_decode_list_node_position(
     SseDeserializer deserializer,
   );
@@ -285,6 +329,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  MCPParamType sse_decode_mcp_param_type(SseDeserializer deserializer);
+
+  @protected
+  MCPParameter sse_decode_mcp_parameter(SseDeserializer deserializer);
+
+  @protected
+  MCPTool sse_decode_mcp_tool(SseDeserializer deserializer);
+
+  @protected
+  MCPToolCall sse_decode_mcp_tool_call(SseDeserializer deserializer);
+
+  @protected
+  MCPToolResult sse_decode_mcp_tool_result(SseDeserializer deserializer);
+
+  @protected
   NodePosition sse_decode_node_position(SseDeserializer deserializer);
 
   @protected
@@ -301,6 +360,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer);
+
+  @protected
+  List<String>? sse_decode_opt_list_String(SseDeserializer deserializer);
 
   @protected
   Float32List? sse_decode_opt_list_prim_f_32_strict(
@@ -330,6 +392,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   StreamGraphStats sse_decode_stream_graph_stats(SseDeserializer deserializer);
+
+  @protected
+  TaskCategory sse_decode_task_category(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_32(SseDeserializer deserializer);
@@ -365,6 +430,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int cst_encode_box_autoadd_i_32(int raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_mcp_tool_call(MCPToolCall raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_mcp_tool_call(raw);
   }
 
   @protected
@@ -512,6 +583,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  JSAny cst_encode_list_mcp_parameter(List<MCPParameter> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_mcp_parameter).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_mcp_tool(List<MCPTool> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_mcp_tool).toList().jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_node_position(List<NodePosition> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_node_position).toList().jsify()!;
@@ -551,6 +634,37 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   JSAny cst_encode_list_similarity_result(List<SimilarityResult> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_similarity_result).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_mcp_parameter(MCPParameter raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.name),
+      cst_encode_String(raw.description),
+      cst_encode_mcp_param_type(raw.paramType),
+      cst_encode_bool(raw.required_),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_mcp_tool_call(MCPToolCall raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.tool),
+      cst_encode_String(raw.parametersJson),
+      cst_encode_String(raw.description),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_mcp_tool_result(MCPToolResult raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_bool(raw.success),
+      cst_encode_String(raw.result),
+      cst_encode_String(raw.tool),
+    ].jsify()!;
   }
 
   @protected
@@ -594,6 +708,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   JSAny? cst_encode_opt_box_autoadd_usize(BigInt? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_box_autoadd_usize(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_list_String(List<String>? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_list_String(raw);
   }
 
   @protected
@@ -670,6 +790,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int cst_encode_i_32(int raw);
 
   @protected
+  int cst_encode_mcp_param_type(MCPParamType raw);
+
+  @protected
+  int cst_encode_mcp_tool(MCPTool raw);
+
+  @protected
+  int cst_encode_task_category(TaskCategory raw);
+
+  @protected
   int cst_encode_u_32(int raw);
 
   @protected
@@ -695,6 +824,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_mcp_tool_call(
+    MCPToolCall self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
@@ -790,6 +925,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_mcp_parameter(
+    List<MCPParameter> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_mcp_tool(List<MCPTool> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_node_position(
     List<NodePosition> self,
     SseSerializer serializer,
@@ -832,6 +976,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_mcp_param_type(MCPParamType self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_mcp_parameter(MCPParameter self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_mcp_tool(MCPTool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_mcp_tool_call(MCPToolCall self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_mcp_tool_result(MCPToolResult self, SseSerializer serializer);
+
+  @protected
   void sse_encode_node_position(NodePosition self, SseSerializer serializer);
 
   @protected
@@ -848,6 +1007,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_opt_box_autoadd_usize(BigInt? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_list_String(List<String>? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_list_prim_f_32_strict(
@@ -887,6 +1049,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     StreamGraphStats self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_task_category(TaskCategory self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer);
@@ -1120,6 +1285,18 @@ class RustLibWire implements BaseWire {
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__init_graph() => wasmModule.wire__crate__api__init_graph();
 
+  void wire__crate__api__init_mcp(
+    NativePortType port_,
+    String base_path,
+    JSAny? max_file_size,
+    JSAny? allowed_extensions,
+  ) => wasmModule.wire__crate__api__init_mcp(
+    port_,
+    base_path,
+    max_file_size,
+    allowed_extensions,
+  );
+
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__init_model(String model_path) =>
       wasmModule.wire__crate__api__init_model(model_path);
@@ -1151,8 +1328,72 @@ class RustLibWire implements BaseWire {
       wasmModule.wire__crate__api__is_graph_stream_running();
 
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__is_mcp_initialized() =>
+      wasmModule.wire__crate__api__is_mcp_initialized();
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__is_model_loaded() =>
       wasmModule.wire__crate__api__is_model_loaded();
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_classify_task(String message) =>
+      wasmModule.wire__crate__api__mcp_classify_task(message);
+
+  void wire__crate__api__mcp_create_folder(NativePortType port_, String path) =>
+      wasmModule.wire__crate__api__mcp_create_folder(port_, path);
+
+  void wire__crate__api__mcp_delete_file(NativePortType port_, String path) =>
+      wasmModule.wire__crate__api__mcp_delete_file(port_, path);
+
+  void wire__crate__api__mcp_execute_tool_call(
+    NativePortType port_,
+    JSAny tool_call,
+  ) => wasmModule.wire__crate__api__mcp_execute_tool_call(port_, tool_call);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_get_all_tools() =>
+      wasmModule.wire__crate__api__mcp_get_all_tools();
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_get_model_for_task(int category) =>
+      wasmModule.wire__crate__api__mcp_get_model_for_task(category);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_get_tool_description(int tool) =>
+      wasmModule.wire__crate__api__mcp_get_tool_description(tool);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_get_tool_name(int tool) =>
+      wasmModule.wire__crate__api__mcp_get_tool_name(tool);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_get_tool_parameters(int tool) =>
+      wasmModule.wire__crate__api__mcp_get_tool_parameters(tool);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_get_tool_schemas() =>
+      wasmModule.wire__crate__api__mcp_get_tool_schemas();
+
+  void wire__crate__api__mcp_list_files(NativePortType port_, String path) =>
+      wasmModule.wire__crate__api__mcp_list_files(port_, path);
+
+  void wire__crate__api__mcp_parse_tool_call(
+    NativePortType port_,
+    String json,
+  ) => wasmModule.wire__crate__api__mcp_parse_tool_call(port_, json);
+
+  void wire__crate__api__mcp_read_file(NativePortType port_, String path) =>
+      wasmModule.wire__crate__api__mcp_read_file(port_, path);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_validate_path(String path) =>
+      wasmModule.wire__crate__api__mcp_validate_path(path);
+
+  void wire__crate__api__mcp_write_file(
+    NativePortType port_,
+    String path,
+    String content,
+  ) => wasmModule.wire__crate__api__mcp_write_file(port_, path, content);
 
   void wire__crate__api__pin_stream_node(
     NativePortType port_,
@@ -1383,6 +1624,13 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__init_graph();
 
+  external void wire__crate__api__init_mcp(
+    NativePortType port_,
+    String base_path,
+    JSAny? max_file_size,
+    JSAny? allowed_extensions,
+  );
+
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__init_model(String model_path);
 
@@ -1402,7 +1650,70 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
   wire__crate__api__is_graph_stream_running();
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__is_mcp_initialized();
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__is_model_loaded();
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_classify_task(String message);
+
+  external void wire__crate__api__mcp_create_folder(
+    NativePortType port_,
+    String path,
+  );
+
+  external void wire__crate__api__mcp_delete_file(
+    NativePortType port_,
+    String path,
+  );
+
+  external void wire__crate__api__mcp_execute_tool_call(
+    NativePortType port_,
+    JSAny tool_call,
+  );
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_get_all_tools();
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_get_model_for_task(int category);
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_get_tool_description(int tool);
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_get_tool_name(int tool);
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_get_tool_parameters(int tool);
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_get_tool_schemas();
+
+  external void wire__crate__api__mcp_list_files(
+    NativePortType port_,
+    String path,
+  );
+
+  external void wire__crate__api__mcp_parse_tool_call(
+    NativePortType port_,
+    String json,
+  );
+
+  external void wire__crate__api__mcp_read_file(
+    NativePortType port_,
+    String path,
+  );
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mcp_validate_path(String path);
+
+  external void wire__crate__api__mcp_write_file(
+    NativePortType port_,
+    String path,
+    String content,
+  );
 
   external void wire__crate__api__pin_stream_node(
     NativePortType port_,

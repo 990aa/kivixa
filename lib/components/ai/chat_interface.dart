@@ -275,6 +275,7 @@ class AIChatInterface extends StatefulWidget {
   final String? title;
   final VoidCallback? onClear;
   final bool compact;
+  final List<Widget>? headerActions;
 
   const AIChatInterface({
     super.key,
@@ -285,6 +286,7 @@ class AIChatInterface extends StatefulWidget {
     this.title,
     this.onClear,
     this.compact = false,
+    this.headerActions,
   });
 
   @override
@@ -428,6 +430,8 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                       );
                     },
                   ),
+                // Custom header actions
+                if (widget.headerActions != null) ...widget.headerActions!,
                 if (widget.controller.messages.isNotEmpty)
                   IconButton(
                     icon: const Icon(Icons.delete_outline),

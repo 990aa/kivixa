@@ -290,6 +290,7 @@ class MCPChatController extends ChangeNotifier {
 
         // Execute tool with confirmation
         final result = await _mcpService.executeWithConfirmation(
+          // ignore: use_build_context_synchronously
           context,
           toolCall,
         );
