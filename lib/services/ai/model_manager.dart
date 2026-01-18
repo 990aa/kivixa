@@ -27,6 +27,29 @@ enum ModelDownloadState {
   failed,
 }
 
+/// Categories for AI models based on their primary use case
+enum ModelCategory {
+  /// General purpose assistant - default category
+  general('General Purpose', 'Versatile models for everyday tasks'),
+
+  /// MCP/Agent tasks - function calling, tool use
+  agent('MCP / Agent Brain', 'Optimized for function calling and tool use'),
+
+  /// Writing, notes, and markdown assistance
+  writing('Writing / Notes', 'Optimized for writing and content creation'),
+
+  /// Math and LaTeX help
+  math('Math / LaTeX', 'Specialized for mathematical reasoning'),
+
+  /// Code generation, especially Lua
+  code('Code Generation', 'Optimized for programming tasks');
+
+  final String displayName;
+  final String description;
+
+  const ModelCategory(this.displayName, this.description);
+}
+
 /// Progress information for model download
 class ModelDownloadProgress {
   final ModelDownloadState state;
@@ -116,6 +139,8 @@ class AIModel {
   final String fileName;
   final int sizeBytes; // Expected size in bytes
   final String? sha256Hash; // Optional hash for verification
+  final List<ModelCategory> categories; // Use cases for this model
+  final bool isDefault; // Whether this is the default model
 
   const AIModel({
     required this.id,
@@ -125,6 +150,8 @@ class AIModel {
     required this.fileName,
     required this.sizeBytes,
     this.sha256Hash,
+    this.categories = const [ModelCategory.general],
+    this.isDefault = false,
   });
 
   /// Human-readable size string
@@ -137,6 +164,10 @@ class AIModel {
       return '${(sizeBytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
     }
   }
+
+  /// Check if model is suitable for a given category
+  bool supportsCategory(ModelCategory category) =>
+      categories.contains(category);
 }
 
 /// Manages AI model downloads with resume support and background downloading
@@ -147,20 +178,130 @@ class ModelManager {
 
   /// Available models for download
   static const availableModels = <AIModel>[
+    // Default model - Phi-4 Mini (General Purpose, Writing, Math)
     AIModel(
       id: 'phi4-mini-q4km',
       name: 'Phi-4 Mini',
       description:
-          'Microsoft Phi-4 Mini Instruct - Compact and efficient model for on-device AI',
+          'Microsoft Phi-4 Mini Instruct - Compact and efficient model for on-device AI. '
+          'Great for general chat, writing assistance, and math/LaTeX help.',
       url:
           'https://huggingface.co/bartowski/microsoft_Phi-4-mini-instruct-GGUF/resolve/main/microsoft_Phi-4-mini-instruct-Q4_K_M.gguf',
       fileName: 'microsoft_Phi-4-mini-instruct-Q4_K_M.gguf',
       sizeBytes: 2671771648, // ~2.49 GB
+      categories: [
+        ModelCategory.general,
+        ModelCategory.writing,
+        ModelCategory.math,
+      ],
+      isDefault: true,
+    ),
+
+    // Qwen2.5-3B - Writing and Code
+    AIModel(
+      id: 'qwen25-3b-q4km',
+      name: 'Qwen2.5 3B',
+      description:
+          'Alibaba Qwen2.5 3B Instruct - Excellent for writing, notes, and code generation. '
+          'Particularly strong at Lua and other scripting languages.',
+      url:
+          'https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q4_k_m.gguf',
+      fileName: 'qwen2.5-3b-instruct-q4_k_m.gguf',
+      sizeBytes: 2019221504, // ~1.88 GB
+      categories: [
+        ModelCategory.writing,
+        ModelCategory.code,
+        ModelCategory.general,
+      ],
+    ),
+
+    // Function-Gemma 2B - Agent/MCP tasks
+    AIModel(
+      id: 'functionary-gemma-2b',
+      name: 'Functionary Gemma 2B',
+      description:
+          'Functionary model based on Google Gemma 2B - Optimized for function calling, '
+          'tool use, and MCP agent tasks. Lightweight and fast.',
+      url:
+          'https://huggingface.co/meetkai/functionary-small-v3.2-GGUF/resolve/main/functionary-small-v3.2.Q4_K_M.gguf',
+      fileName: 'functionary-small-v3.2.Q4_K_M.gguf',
+      sizeBytes: 1626456064, // ~1.51 GB
+      categories: [ModelCategory.agent, ModelCategory.code],
+    ),
+
+    // Function-Gemma 7B - Agent/MCP (larger)
+    AIModel(
+      id: 'functionary-gemma-7b',
+      name: 'Functionary Gemma 7B',
+      description:
+          'Functionary model based on Google Gemma 7B - More capable function calling '
+          'and reasoning. Better for complex MCP agent tasks.',
+      url:
+          'https://huggingface.co/meetkai/functionary-medium-v3.2-GGUF/resolve/main/functionary-medium-v3.2.Q4_K_M.gguf',
+      fileName: 'functionary-medium-v3.2.Q4_K_M.gguf',
+      sizeBytes: 5060478976, // ~4.71 GB
+      categories: [
+        ModelCategory.agent,
+        ModelCategory.code,
+        ModelCategory.general,
+      ],
     ),
   ];
 
-  /// Default model to use
-  static AIModel get defaultModel => availableModels.first;
+  /// Default model to use (Phi-4 Mini)
+  static AIModel get defaultModel => availableModels.firstWhere(
+    (m) => m.isDefault,
+    orElse: () => availableModels.first,
+  );
+
+  /// Get models by category
+  static List<AIModel> getModelsForCategory(ModelCategory category) {
+    return availableModels.where((m) => m.supportsCategory(category)).toList();
+  }
+
+  /// Get recommended model for a category
+  static AIModel getRecommendedModel(ModelCategory category) {
+    final models = getModelsForCategory(category);
+    // Return first model that matches, or default if none
+    return models.isNotEmpty ? models.first : defaultModel;
+  }
+
+  /// Currently loaded model ID (tracked at runtime)
+  String? _currentlyLoadedModelId;
+
+  /// Get the currently loaded model
+  AIModel? get currentlyLoadedModel {
+    if (_currentlyLoadedModelId == null) return null;
+    return availableModels.firstWhere(
+      (m) => m.id == _currentlyLoadedModelId,
+      orElse: () => defaultModel,
+    );
+  }
+
+  /// Set the currently loaded model ID
+  void setCurrentlyLoadedModel(String? modelId) {
+    _currentlyLoadedModelId = modelId;
+  }
+
+  /// Get model by ID
+  static AIModel? getModelById(String id) {
+    try {
+      return availableModels.firstWhere((m) => m.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Get all downloaded models
+  Future<List<AIModel>> getDownloadedModels() async {
+    final downloaded = <AIModel>[];
+    for (final model in availableModels) {
+      if (await isModelDownloaded(model)) {
+        downloaded.add(model);
+      }
+    }
+    return downloaded;
+  }
 
   /// Stream controller for download progress updates
   final _progressController =

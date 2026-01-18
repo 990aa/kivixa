@@ -11,6 +11,7 @@ void main() {
         defaultModel.fileName,
         'microsoft_Phi-4-mini-instruct-Q4_K_M.gguf',
       );
+      expect(defaultModel.isDefault, true);
     });
 
     test('should calculate size text correctly for GB', () {
@@ -47,6 +48,21 @@ void main() {
         sizeBytes: 512000, // 500 KB
       );
       expect(model.sizeText, '500.0 KB');
+    });
+
+    test('should support category checking', () {
+      const model = AIModel(
+        id: 'test',
+        name: 'Test',
+        description: 'Test model',
+        url: 'https://example.com/model.gguf',
+        fileName: 'model.gguf',
+        sizeBytes: 1000000,
+        categories: [ModelCategory.writing, ModelCategory.math],
+      );
+      expect(model.supportsCategory(ModelCategory.writing), true);
+      expect(model.supportsCategory(ModelCategory.math), true);
+      expect(model.supportsCategory(ModelCategory.code), false);
     });
   });
 

@@ -12,8 +12,13 @@ void main() {
       expect(ModelManager.availableModels, isNotEmpty);
     });
 
-    test('defaultModel is the first available model', () {
-      expect(ModelManager.defaultModel, ModelManager.availableModels.first);
+    test('should have at least 4 models available', () {
+      expect(ModelManager.availableModels.length, greaterThanOrEqualTo(4));
+    });
+
+    test('defaultModel is Phi-4 Mini', () {
+      expect(ModelManager.defaultModel.id, 'phi4-mini-q4km');
+      expect(ModelManager.defaultModel.isDefault, true);
     });
 
     test('Phi-4 Mini model is correctly configured', () {
@@ -28,43 +33,99 @@ void main() {
       );
       expect(phi4Model.url, contains('Q4_K_M.gguf'));
       expect(phi4Model.fileName, 'microsoft_Phi-4-mini-instruct-Q4_K_M.gguf');
+      expect(phi4Model.isDefault, true);
     });
 
-    test('model URL uses correct HuggingFace resolve format', () {
-      final model = ModelManager.defaultModel;
+    test('Qwen2.5-3B model is correctly configured', () {
+      final qwenModel = ModelManager.availableModels.firstWhere(
+        (m) => m.id == 'qwen25-3b-q4km',
+      );
 
-      // HuggingFace direct download URLs should use /resolve/main/ format
-      expect(model.url, contains('/resolve/main/'));
-      expect(model.url, startsWith('https://huggingface.co/'));
+      expect(qwenModel.name, 'Qwen2.5 3B');
+      expect(qwenModel.url, contains('Qwen/Qwen2.5-3B-Instruct-GGUF'));
+      expect(qwenModel.url, contains('q4_k_m.gguf'));
+      expect(qwenModel.fileName, 'qwen2.5-3b-instruct-q4_k_m.gguf');
+      expect(qwenModel.isDefault, false);
     });
 
-    test('model filename matches URL', () {
-      final model = ModelManager.defaultModel;
+    test('Functionary Gemma 2B model is correctly configured', () {
+      final gemma2bModel = ModelManager.availableModels.firstWhere(
+        (m) => m.id == 'functionary-gemma-2b',
+      );
 
-      // The filename in the URL should match the fileName property
-      expect(model.url, endsWith(model.fileName));
+      expect(gemma2bModel.name, 'Functionary Gemma 2B');
+      expect(gemma2bModel.url, contains('meetkai/functionary-small'));
+      expect(gemma2bModel.url, contains('Q4_K_M.gguf'));
+      expect(gemma2bModel.isDefault, false);
     });
 
-    test('model size is reasonable for Q4_K_M quantization', () {
+    test('Functionary Gemma 7B model is correctly configured', () {
+      final gemma7bModel = ModelManager.availableModels.firstWhere(
+        (m) => m.id == 'functionary-gemma-7b',
+      );
+
+      expect(gemma7bModel.name, 'Functionary Gemma 7B');
+      expect(gemma7bModel.url, contains('meetkai/functionary-medium'));
+      expect(gemma7bModel.url, contains('Q4_K_M.gguf'));
+      expect(gemma7bModel.isDefault, false);
+    });
+
+    test('all model URLs use correct HuggingFace resolve format', () {
+      for (final model in ModelManager.availableModels) {
+        // HuggingFace direct download URLs should use /resolve/main/ format
+        expect(model.url, contains('/resolve/main/'));
+        expect(model.url, startsWith('https://huggingface.co/'));
+      }
+    });
+
+    test('all model filenames match their URLs', () {
+      for (final model in ModelManager.availableModels) {
+        // The filename in the URL should match the fileName property
+        expect(model.url, endsWith(model.fileName));
+      }
+    });
+
+    test('model sizes are reasonable for Q4_K_M quantization', () {
+      const oneGB = 1024 * 1024 * 1024;
+
+      // Phi-4 Mini should be around 2.5 GB
       final phi4Model = ModelManager.availableModels.firstWhere(
         (m) => m.id == 'phi4-mini-q4km',
       );
-
-      // Q4_K_M should be around 2-3 GB
-      const oneGB = 1024 * 1024 * 1024;
       expect(phi4Model.sizeBytes, greaterThan(2 * oneGB));
-      expect(phi4Model.sizeBytes, lessThan(4 * oneGB));
+      expect(phi4Model.sizeBytes, lessThan(3 * oneGB));
+
+      // Qwen 3B should be around 1.9 GB
+      final qwenModel = ModelManager.availableModels.firstWhere(
+        (m) => m.id == 'qwen25-3b-q4km',
+      );
+      expect(qwenModel.sizeBytes, greaterThan(1.5 * oneGB));
+      expect(qwenModel.sizeBytes, lessThan(2.5 * oneGB));
+
+      // Functionary 2B should be around 1.5 GB
+      final gemma2b = ModelManager.availableModels.firstWhere(
+        (m) => m.id == 'functionary-gemma-2b',
+      );
+      expect(gemma2b.sizeBytes, greaterThan(1 * oneGB));
+      expect(gemma2b.sizeBytes, lessThan(2 * oneGB));
+
+      // Functionary 7B should be around 4.7 GB
+      final gemma7b = ModelManager.availableModels.firstWhere(
+        (m) => m.id == 'functionary-gemma-7b',
+      );
+      expect(gemma7b.sizeBytes, greaterThan(4 * oneGB));
+      expect(gemma7b.sizeBytes, lessThan(6 * oneGB));
     });
 
-    test('model sizeText is formatted correctly', () {
-      final model = ModelManager.defaultModel;
-      final sizeText = model.sizeText;
-
-      // Should display in GB format
-      expect(sizeText, contains('GB'));
+    test('all model sizeText is formatted correctly', () {
+      for (final model in ModelManager.availableModels) {
+        final sizeText = model.sizeText;
+        // All models should be > 1GB, so should display in GB format
+        expect(sizeText, contains('GB'));
+      }
     });
 
-    test('model has required fields', () {
+    test('all models have required fields', () {
       for (final model in ModelManager.availableModels) {
         expect(model.id, isNotEmpty);
         expect(model.name, isNotEmpty);
@@ -72,7 +133,20 @@ void main() {
         expect(model.url, isNotEmpty);
         expect(model.fileName, isNotEmpty);
         expect(model.sizeBytes, greaterThan(0));
+        expect(model.categories, isNotEmpty);
       }
+    });
+
+    test('all models have unique IDs', () {
+      final ids = ModelManager.availableModels.map((m) => m.id).toSet();
+      expect(ids.length, ModelManager.availableModels.length);
+    });
+
+    test('all models have unique filenames', () {
+      final fileNames = ModelManager.availableModels
+          .map((m) => m.fileName)
+          .toSet();
+      expect(fileNames.length, ModelManager.availableModels.length);
     });
   });
 

@@ -4,18 +4,20 @@
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
+import 'package:kivixa/src/rust/clustering.dart';
 import 'package:kivixa/src/rust/embeddings.dart';
 import 'package:kivixa/src/rust/frb_generated.dart';
 import 'package:kivixa/src/rust/graph.dart';
 import 'package:kivixa/src/rust/streaming.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`
 
-/// Initialize the Phi-4 model from the given path
+/// Initialize an AI model from the given path (auto-detects model type)
 void initModel({required String modelPath}) =>
     RustLib.instance.api.crateApiInitModel(modelPath: modelPath);
 
 /// Initialize the model with custom configuration
+/// model_type: 0 = Phi4, 1 = Qwen, 2 = Functionary (auto-detected if not in range)
 Future<void> initModelWithConfig({
   required String modelPath,
   required int nGpuLayers,
@@ -24,6 +26,7 @@ Future<void> initModelWithConfig({
   required double temperature,
   required double topP,
   required int maxTokens,
+  int? modelType,
 }) => RustLib.instance.api.crateApiInitModelWithConfig(
   modelPath: modelPath,
   nGpuLayers: nGpuLayers,
@@ -32,7 +35,11 @@ Future<void> initModelWithConfig({
   temperature: temperature,
   topP: topP,
   maxTokens: maxTokens,
+  modelType: modelType,
 );
+
+/// Get the loaded model type (0 = Phi4, 1 = Qwen, 2 = Functionary, -1 = not loaded)
+int getModelType() => RustLib.instance.api.crateApiGetModelType();
 
 /// Check if the model is loaded
 bool isModelLoaded() => RustLib.instance.api.crateApiIsModelLoaded();
@@ -276,6 +283,59 @@ void clearStreamGraph() => RustLib.instance.api.crateApiClearStreamGraph();
 StreamGraphStats getStreamGraphStats() =>
     RustLib.instance.api.crateApiGetStreamGraphStats();
 
+/// Run K-Means clustering on note embeddings
+///
+/// # Arguments
+/// * `entries` - List of embedding entries to cluster
+/// * `k` - Number of clusters (if None, auto-detect based on data size)
+/// * `max_iterations` - Maximum K-Means iterations (default: 100)
+///
+/// # Returns
+/// * Clustering result with assignments and metadata
+Future<ClusteringResult> clusterNotes({
+  required List<EmbeddingEntry> entries,
+  BigInt? k,
+  BigInt? maxIterations,
+}) => RustLib.instance.api.crateApiClusterNotes(
+  entries: entries,
+  k: k,
+  maxIterations: maxIterations,
+);
+
+/// Discover semantic edges between notes based on embedding similarity
+///
+/// # Arguments
+/// * `entries` - List of embedding entries
+/// * `threshold` - Minimum similarity for edge creation (default: 0.85)
+/// * `existing_links` - Optional list of existing hard links (source, target pairs)
+///
+/// # Returns
+/// * Semantic edges with similarity scores
+Future<SemanticEdgeResult> discoverSemanticEdges({
+  required List<EmbeddingEntry> entries,
+  double? threshold,
+  List<(String, String)>? existingLinks,
+}) => RustLib.instance.api.crateApiDiscoverSemanticEdges(
+  entries: entries,
+  threshold: threshold,
+  existingLinks: existingLinks,
+);
+
+/// Analyze knowledge graph: cluster and find semantic edges in one pass
+///
+/// More efficient than calling both functions separately
+Future<KnowledgeGraphAnalysis> analyzeKnowledgeGraph({
+  required List<EmbeddingEntry> entries,
+  BigInt? k,
+  double? similarityThreshold,
+  List<(String, String)>? existingLinks,
+}) => RustLib.instance.api.crateApiAnalyzeKnowledgeGraph(
+  entries: entries,
+  k: k,
+  similarityThreshold: similarityThreshold,
+  existingLinks: existingLinks,
+);
+
 /// A cluster of embedding IDs
 class EmbeddingCluster {
   /// IDs of embeddings in this cluster
@@ -292,6 +352,31 @@ class EmbeddingCluster {
       other is EmbeddingCluster &&
           runtimeType == other.runtimeType &&
           ids == other.ids;
+}
+
+/// Combined result of knowledge graph analysis
+class KnowledgeGraphAnalysis {
+  /// Cluster assignments for each note
+  final ClusteringResult clustering;
+
+  /// Discovered semantic edges
+  final SemanticEdgeResult semanticEdges;
+
+  const KnowledgeGraphAnalysis({
+    required this.clustering,
+    required this.semanticEdges,
+  });
+
+  @override
+  int get hashCode => clustering.hashCode ^ semanticEdges.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is KnowledgeGraphAnalysis &&
+          runtimeType == other.runtimeType &&
+          clustering == other.clustering &&
+          semanticEdges == other.semanticEdges;
 }
 
 /// Statistics about the streaming graph

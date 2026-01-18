@@ -216,6 +216,332 @@ function run()
 end
 ''');
     }
+
+    // Calendar: Today's Events plugin
+    final calendarTodayPlugin = File(p.join(examplesDir, 'calendar_today.lua'));
+    if (!await calendarTodayPlugin.exists()) {
+      await calendarTodayPlugin.writeAsString('''
+-- Today's Calendar Events
+-- Shows all events and tasks scheduled for today
+
+_PLUGIN = {
+    name = "Today's Events",
+    description = "Lists all calendar events and tasks for today",
+    version = "1.0",
+    author = "Kivixa"
+}
+
+function run()
+    local today = os.date("*t")
+    local events = App:getEventsForDate(today.year, today.month, today.day)
+    
+    local result = "=== Today's Calendar (" .. os.date("%Y-%m-%d") .. ") ===\\n\\n"
+    
+    if #events == 0 then
+        result = result .. "No events scheduled for today.\\n"
+    else
+        local tasks = {}
+        local appointments = {}
+        
+        for _, event in ipairs(events) do
+            if event.type == "task" then
+                table.insert(tasks, event)
+            else
+                table.insert(appointments, event)
+            end
+        end
+        
+        if #appointments > 0 then
+            result = result .. "📅 Events:\\n"
+            for _, event in ipairs(appointments) do
+                local timeStr = ""
+                if event.startHour then
+                    timeStr = string.format("%02d:%02d", event.startHour, event.startMinute or 0)
+                    if event.endHour then
+                        timeStr = timeStr .. " - " .. string.format("%02d:%02d", event.endHour, event.endMinute or 0)
+                    end
+                elseif event.isAllDay then
+                    timeStr = "All day"
+                end
+                result = result .. "  • " .. event.title
+                if timeStr ~= "" then
+                    result = result .. " (" .. timeStr .. ")"
+                end
+                result = result .. "\\n"
+            end
+            result = result .. "\\n"
+        end
+        
+        if #tasks > 0 then
+            result = result .. "✅ Tasks:\\n"
+            for _, task in ipairs(tasks) do
+                local status = task.isCompleted and "[x]" or "[ ]"
+                result = result .. "  " .. status .. " " .. task.title .. "\\n"
+            end
+        end
+    end
+    
+    return result
+end
+''');
+    }
+
+    // Calendar: Add Quick Event plugin
+    final addEventPlugin = File(p.join(examplesDir, 'add_quick_event.lua'));
+    if (!await addEventPlugin.exists()) {
+      await addEventPlugin.writeAsString('''
+-- Add Quick Event
+-- Adds a simple event or task to today's calendar
+
+_PLUGIN = {
+    name = "Add Quick Event",
+    description = "Quickly add an event to today's calendar",
+    version = "1.0",
+    author = "Kivixa"
+}
+
+-- Configuration: Change these values before running
+local EVENT_TITLE = "Team Meeting"
+local EVENT_DESCRIPTION = "Weekly sync"
+local START_HOUR = 10
+local START_MINUTE = 0
+local END_HOUR = 11
+local END_MINUTE = 0
+local IS_TASK = false  -- Set to true for a task instead of event
+
+function run()
+    local today = os.date("*t")
+    
+    local eventId = App:addCalendarEvent(
+        EVENT_TITLE,
+        today.year,
+        today.month,
+        today.day,
+        {
+            description = EVENT_DESCRIPTION,
+            startHour = START_HOUR,
+            startMinute = START_MINUTE,
+            endHour = END_HOUR,
+            endMinute = END_MINUTE,
+            type = IS_TASK and "task" or "event"
+        }
+    )
+    
+    if eventId then
+        local typeStr = IS_TASK and "Task" or "Event"
+        return typeStr .. " '" .. EVENT_TITLE .. "' added successfully!\\nID: " .. eventId
+    else
+        return "Failed to add event"
+    end
+end
+''');
+    }
+
+    // Calendar: Week Overview plugin
+    final weekOverviewPlugin = File(
+      p.join(examplesDir, 'calendar_week_overview.lua'),
+    );
+    if (!await weekOverviewPlugin.exists()) {
+      await weekOverviewPlugin.writeAsString('''
+-- Weekly Calendar Overview
+-- Shows events for the next 7 days
+
+_PLUGIN = {
+    name = "Week Overview",
+    description = "Shows calendar events for the upcoming week",
+    version = "1.0",
+    author = "Kivixa"
+}
+
+function run()
+    local result = "=== Week Overview ===\\n\\n"
+    local today = os.date("*t")
+    
+    local daysOfWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
+    
+    for i = 0, 6 do
+        -- Calculate date for each day
+        local dayOffset = i * 24 * 60 * 60
+        local targetTime = os.time(today) + dayOffset
+        local targetDate = os.date("*t", targetTime)
+        
+        local dayName = daysOfWeek[targetDate.wday]
+        local dateStr = os.date("%Y-%m-%d", targetTime)
+        
+        local events = App:getEventsForDate(targetDate.year, targetDate.month, targetDate.day)
+        
+        if i == 0 then
+            result = result .. "📌 TODAY - " .. dayName .. " (" .. dateStr .. ")\\n"
+        else
+            result = result .. "\\n" .. dayName .. " (" .. dateStr .. ")\\n"
+        end
+        
+        if #events == 0 then
+            result = result .. "   (no events)\\n"
+        else
+            for _, event in ipairs(events) do
+                local prefix = event.type == "task" and "  ✅ " or "  📅 "
+                result = result .. prefix .. event.title
+                if event.startHour then
+                    result = result .. " @ " .. string.format("%02d:%02d", event.startHour, event.startMinute or 0)
+                end
+                result = result .. "\\n"
+            end
+        end
+    end
+    
+    return result
+end
+''');
+    }
+
+    // Productivity: Timer Stats plugin
+    final timerStatsPlugin = File(
+      p.join(examplesDir, 'productivity_stats.lua'),
+    );
+    if (!await timerStatsPlugin.exists()) {
+      await timerStatsPlugin.writeAsString('''
+-- Productivity Statistics
+-- Shows your focus session statistics
+
+_PLUGIN = {
+    name = "Productivity Stats",
+    description = "Displays your productivity timer statistics",
+    version = "1.0",
+    author = "Kivixa"
+}
+
+function run()
+    local stats = App:getTimerStats()
+    local state = App:getTimerState()
+    
+    local result = "=== Productivity Dashboard ===\\n\\n"
+    
+    -- Current session status
+    result = result .. "📊 Current Status\\n"
+    result = result .. "   State: " .. (state.state or "idle") .. "\\n"
+    if state.isRunning or state.isPaused then
+        result = result .. "   Session: " .. (state.sessionType or "focus") .. "\\n"
+        result = result .. "   Remaining: " .. math.floor(state.remainingMinutes or 0) .. " minutes\\n"
+        result = result .. "   Cycle: " .. (state.currentCycle or 1) .. "/" .. (state.totalCycles or 1) .. "\\n"
+    end
+    
+    result = result .. "\\n📈 Today\\n"
+    result = result .. "   Focus time: " .. (stats.todayFocusMinutes or 0) .. " minutes\\n"
+    result = result .. "   Sessions: " .. (stats.todaySessions or 0) .. "\\n"
+    
+    result = result .. "\\n🏆 All Time\\n"
+    result = result .. "   Total focus: " .. math.floor((stats.totalFocusMinutes or 0) / 60) .. " hours\\n"
+    result = result .. "   Total sessions: " .. (stats.totalSessions or 0) .. "\\n"
+    result = result .. "   Completed: " .. (stats.completedSessions or 0) .. "\\n"
+    result = result .. "   Completion rate: " .. math.floor((stats.completionRate or 0) * 100) .. "%%\\n"
+    
+    result = result .. "\\n🔥 Streaks\\n"
+    result = result .. "   Current streak: " .. (stats.currentStreak or 0) .. " days\\n"
+    result = result .. "   Longest streak: " .. (stats.longestStreak or 0) .. " days\\n"
+    
+    return result
+end
+''');
+    }
+
+    // Productivity: Quick Start Timer plugin
+    final quickTimerPlugin = File(p.join(examplesDir, 'quick_start_timer.lua'));
+    if (!await quickTimerPlugin.exists()) {
+      await quickTimerPlugin.writeAsString('''
+-- Quick Start Timer
+-- Starts a focus session with configurable duration
+
+_PLUGIN = {
+    name = "Quick Start Timer",
+    description = "Quickly start a focus timer session",
+    version = "1.0",
+    author = "Kivixa"
+}
+
+-- Configuration: Change these values before running
+local DURATION_MINUTES = 25  -- Pomodoro default
+local SESSION_TYPE = "focus"  -- Options: focus, deepWork, sprint, meeting, study, workout
+
+function run()
+    local state = App:getTimerState()
+    
+    if state.isRunning then
+        return "⚠️ Timer is already running!\\n" ..
+               "Session: " .. (state.sessionType or "unknown") .. "\\n" ..
+               "Remaining: " .. math.floor(state.remainingMinutes or 0) .. " minutes"
+    end
+    
+    local success = App:startTimer(DURATION_MINUTES, SESSION_TYPE)
+    
+    if success then
+        return "✅ Started " .. DURATION_MINUTES .. " minute " .. SESSION_TYPE .. " session!\\n\\n" ..
+               "Good luck with your focused work!"
+    else
+        return "❌ Failed to start timer"
+    end
+end
+''');
+    }
+
+    // Productivity: Daily Report plugin
+    final dailyReportPlugin = File(
+      p.join(examplesDir, 'productivity_daily_report.lua'),
+    );
+    if (!await dailyReportPlugin.exists()) {
+      await dailyReportPlugin.writeAsString('''
+-- Daily Productivity Report
+-- Creates a productivity report note for today
+
+_PLUGIN = {
+    name = "Daily Productivity Report",
+    description = "Generates a productivity report and saves it as a note",
+    version = "1.0",
+    author = "Kivixa"
+}
+
+function run()
+    local today = os.date("%Y-%m-%d")
+    local stats = App:getTimerStats()
+    local history = App:getSessionHistory(7)
+    
+    -- Build report content
+    local report = "# Productivity Report - " .. today .. "\\n\\n"
+    
+    -- Today's summary
+    report = report .. "## Today's Progress\\n\\n"
+    report = report .. "- **Focus time:** " .. (stats.todayFocusMinutes or 0) .. " minutes\\n"
+    report = report .. "- **Sessions completed:** " .. (stats.todaySessions or 0) .. "\\n"
+    report = report .. "- **Current streak:** " .. (stats.currentStreak or 0) .. " days\\n"
+    
+    -- Weekly trend
+    report = report .. "\\n## Last 7 Days\\n\\n"
+    report = report .. "| Date | Minutes |\\n"
+    report = report .. "|------|---------|\\n"
+    
+    local totalWeek = 0
+    for date, minutes in pairs(history) do
+        report = report .. "| " .. date .. " | " .. minutes .. " |\\n"
+        totalWeek = totalWeek + minutes
+    end
+    
+    report = report .. "\\n**Weekly total:** " .. totalWeek .. " minutes (" .. math.floor(totalWeek / 60) .. " hours)\\n"
+    
+    -- Statistics
+    report = report .. "\\n## All-Time Statistics\\n\\n"
+    report = report .. "- Total focus time: " .. math.floor((stats.totalFocusMinutes or 0) / 60) .. " hours\\n"
+    report = report .. "- Total sessions: " .. (stats.totalSessions or 0) .. "\\n"
+    report = report .. "- Completion rate: " .. math.floor((stats.completionRate or 0) * 100) .. "%%\\n"
+    report = report .. "- Longest streak: " .. (stats.longestStreak or 0) .. " days\\n"
+    
+    -- Save the report
+    local reportPath = "/Productivity Reports/" .. today
+    App:writeNote(reportPath, report)
+    
+    return "📊 Productivity report saved to:\\n" .. reportPath
+end
+''');
+    }
   }
 
   /// Refresh the list of available plugins

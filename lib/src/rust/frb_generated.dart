@@ -8,6 +8,7 @@ import 'dart:convert';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:kivixa/src/rust/api.dart';
+import 'package:kivixa/src/rust/clustering.dart';
 import 'package:kivixa/src/rust/embeddings.dart';
 import 'package:kivixa/src/rust/frb_generated.dart';
 import 'package:kivixa/src/rust/frb_generated.io.dart'
@@ -68,12 +69,12 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -1602308821;
+  int get rustContentHash => 202467171;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
         stem: 'kivixa_native',
-        ioDirectory: '',
+        ioDirectory: 'native/target/release/',
         webPrefix: 'pkg/',
       );
 }
@@ -114,6 +115,13 @@ abstract class RustLibApi extends BaseApi {
     required int color,
   });
 
+  Future<KnowledgeGraphAnalysis> crateApiAnalyzeKnowledgeGraph({
+    required List<EmbeddingEntry> entries,
+    BigInt? k,
+    double? similarityThreshold,
+    List<(String, String)>? existingLinks,
+  });
+
   Future<List<EmbeddingEntry>> crateApiBatchEmbed({
     required List<String> texts,
   });
@@ -132,6 +140,12 @@ abstract class RustLibApi extends BaseApi {
     required double threshold,
   });
 
+  Future<ClusteringResult> crateApiClusterNotes({
+    required List<EmbeddingEntry> entries,
+    BigInt? k,
+    BigInt? maxIterations,
+  });
+
   Future<GraphState> crateApiComputeGraphLayout({int? iterations});
 
   Future<void> crateApiConnectNoteToTopics({
@@ -142,6 +156,12 @@ abstract class RustLibApi extends BaseApi {
   double crateApiCosineSimilarity({
     required List<double> a,
     required List<double> b,
+  });
+
+  Future<SemanticEdgeResult> crateApiDiscoverSemanticEdges({
+    required List<EmbeddingEntry> entries,
+    double? threshold,
+    List<(String, String)>? existingLinks,
   });
 
   Future<List<String>> crateApiExtractTopics({
@@ -163,6 +183,8 @@ abstract class RustLibApi extends BaseApi {
   BigInt crateApiGetEmbeddingDimension();
 
   Future<GraphState> crateApiGetGraphState();
+
+  int crateApiGetModelType();
 
   Future<String> crateApiGetOrCreateTopicHub({required String topic});
 
@@ -186,6 +208,7 @@ abstract class RustLibApi extends BaseApi {
     required double temperature,
     required double topP,
     required int maxTokens,
+    int? modelType,
   });
 
   bool crateApiIsGraphStreamRunning();
@@ -447,6 +470,45 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
+  Future<KnowledgeGraphAnalysis> crateApiAnalyzeKnowledgeGraph({
+    required List<EmbeddingEntry> entries,
+    BigInt? k,
+    double? similarityThreshold,
+    List<(String, String)>? existingLinks,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_list_embedding_entry(entries);
+          final arg1 = cst_encode_opt_box_autoadd_usize(k);
+          final arg2 = cst_encode_opt_box_autoadd_f_32(similarityThreshold);
+          final arg3 = cst_encode_opt_list_record_string_string(existingLinks);
+          return wire.wire__crate__api__analyze_knowledge_graph(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_knowledge_graph_analysis,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiAnalyzeKnowledgeGraphConstMeta,
+        argValues: [entries, k, similarityThreshold, existingLinks],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiAnalyzeKnowledgeGraphConstMeta =>
+      const TaskConstMeta(
+        debugName: 'analyze_knowledge_graph',
+        argNames: ['entries', 'k', 'similarityThreshold', 'existingLinks'],
+      );
+
+  @override
   Future<List<EmbeddingEntry>> crateApiBatchEmbed({
     required List<String> texts,
   }) {
@@ -569,6 +631,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
+  Future<ClusteringResult> crateApiClusterNotes({
+    required List<EmbeddingEntry> entries,
+    BigInt? k,
+    BigInt? maxIterations,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_list_embedding_entry(entries);
+          final arg1 = cst_encode_opt_box_autoadd_usize(k);
+          final arg2 = cst_encode_opt_box_autoadd_usize(maxIterations);
+          return wire.wire__crate__api__cluster_notes(port_, arg0, arg1, arg2);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_clustering_result,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiClusterNotesConstMeta,
+        argValues: [entries, k, maxIterations],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiClusterNotesConstMeta => const TaskConstMeta(
+    debugName: 'cluster_notes',
+    argNames: ['entries', 'k', 'maxIterations'],
+  );
+
+  @override
   Future<GraphState> crateApiComputeGraphLayout({int? iterations}) {
     return handler.executeNormal(
       NormalTask(
@@ -650,6 +742,42 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiCosineSimilarityConstMeta =>
       const TaskConstMeta(debugName: 'cosine_similarity', argNames: ['a', 'b']);
+
+  @override
+  Future<SemanticEdgeResult> crateApiDiscoverSemanticEdges({
+    required List<EmbeddingEntry> entries,
+    double? threshold,
+    List<(String, String)>? existingLinks,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_list_embedding_entry(entries);
+          final arg1 = cst_encode_opt_box_autoadd_f_32(threshold);
+          final arg2 = cst_encode_opt_list_record_string_string(existingLinks);
+          return wire.wire__crate__api__discover_semantic_edges(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_semantic_edge_result,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiDiscoverSemanticEdgesConstMeta,
+        argValues: [entries, threshold, existingLinks],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiDiscoverSemanticEdgesConstMeta =>
+      const TaskConstMeta(
+        debugName: 'discover_semantic_edges',
+        argNames: ['entries', 'threshold', 'existingLinks'],
+      );
 
   @override
   Future<List<String>> crateApiExtractTopics({
@@ -808,6 +936,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiGetGraphStateConstMeta =>
       const TaskConstMeta(debugName: 'get_graph_state', argNames: []);
+
+  @override
+  int crateApiGetModelType() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__get_model_type();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_i_32,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGetModelTypeConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGetModelTypeConstMeta =>
+      const TaskConstMeta(debugName: 'get_model_type', argNames: []);
 
   @override
   Future<String> crateApiGetOrCreateTopicHub({required String topic}) {
@@ -970,6 +1119,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     required double temperature,
     required double topP,
     required int maxTokens,
+    int? modelType,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -981,6 +1131,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           final arg4 = cst_encode_f_32(temperature);
           final arg5 = cst_encode_f_32(topP);
           final arg6 = cst_encode_u_32(maxTokens);
+          final arg7 = cst_encode_opt_box_autoadd_i_32(modelType);
           return wire.wire__crate__api__init_model_with_config(
             port_,
             arg0,
@@ -990,6 +1141,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             arg4,
             arg5,
             arg6,
+            arg7,
           );
         },
         codec: DcoCodec(
@@ -1005,6 +1157,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           temperature,
           topP,
           maxTokens,
+          modelType,
         ],
         apiImpl: this,
       ),
@@ -1022,6 +1175,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           'temperature',
           'topP',
           'maxTokens',
+          'modelType',
         ],
       );
 
@@ -1362,9 +1516,67 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  double dco_decode_box_autoadd_f_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as double;
+  }
+
+  @protected
+  int dco_decode_box_autoadd_i_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
   int dco_decode_box_autoadd_u_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
+  }
+
+  @protected
+  BigInt dco_decode_box_autoadd_usize(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_usize(raw);
+  }
+
+  @protected
+  ClusterAssignment dco_decode_cluster_assignment(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return ClusterAssignment(
+      id: dco_decode_String(arr[0]),
+      clusterId: dco_decode_usize(arr[1]),
+      color: dco_decode_String(arr[2]),
+    );
+  }
+
+  @protected
+  ClusterInfo dco_decode_cluster_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return ClusterInfo(
+      id: dco_decode_usize(arr[0]),
+      size: dco_decode_usize(arr[1]),
+      color: dco_decode_String(arr[2]),
+      centroid: dco_decode_opt_list_prim_f_32_strict(arr[3]),
+    );
+  }
+
+  @protected
+  ClusteringResult dco_decode_clustering_result(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return ClusteringResult(
+      assignments: dco_decode_list_cluster_assignment(arr[0]),
+      clusters: dco_decode_list_cluster_info(arr[1]),
+      k: dco_decode_usize(arr[2]),
+    );
   }
 
   @protected
@@ -1445,9 +1657,33 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  KnowledgeGraphAnalysis dco_decode_knowledge_graph_analysis(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return KnowledgeGraphAnalysis(
+      clustering: dco_decode_clustering_result(arr[0]),
+      semanticEdges: dco_decode_semantic_edge_result(arr[1]),
+    );
+  }
+
+  @protected
   List<String> dco_decode_list_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_String).toList();
+  }
+
+  @protected
+  List<ClusterAssignment> dco_decode_list_cluster_assignment(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_cluster_assignment).toList();
+  }
+
+  @protected
+  List<ClusterInfo> dco_decode_list_cluster_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_cluster_info).toList();
   }
 
   @protected
@@ -1505,6 +1741,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<SemanticEdge> dco_decode_list_semantic_edge(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_semantic_edge).toList();
+  }
+
+  @protected
   List<SimilarityResult> dco_decode_list_similarity_result(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_similarity_result).toList();
@@ -1533,9 +1775,41 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  double? dco_decode_opt_box_autoadd_f_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_f_32(raw);
+  }
+
+  @protected
+  int? dco_decode_opt_box_autoadd_i_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_i_32(raw);
+  }
+
+  @protected
   int? dco_decode_opt_box_autoadd_u_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_u_32(raw);
+  }
+
+  @protected
+  BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_usize(raw);
+  }
+
+  @protected
+  Float32List? dco_decode_opt_list_prim_f_32_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_list_prim_f_32_strict(raw);
+  }
+
+  @protected
+  List<(String, String)>? dco_decode_opt_list_record_string_string(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_list_record_string_string(raw);
   }
 
   @protected
@@ -1546,6 +1820,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       throw Exception('Expected 2 elements, got ${arr.length}');
     }
     return (dco_decode_String(arr[0]), dco_decode_String(arr[1]));
+  }
+
+  @protected
+  SemanticEdge dco_decode_semantic_edge(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return SemanticEdge(
+      source: dco_decode_String(arr[0]),
+      target: dco_decode_String(arr[1]),
+      similarity: dco_decode_f_32(arr[2]),
+      isGhost: dco_decode_bool(arr[3]),
+    );
+  }
+
+  @protected
+  SemanticEdgeResult dco_decode_semantic_edge_result(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return SemanticEdgeResult(
+      edges: dco_decode_list_semantic_edge(arr[0]),
+      count: dco_decode_usize(arr[1]),
+    );
   }
 
   @protected
@@ -1619,9 +1919,70 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  double sse_decode_box_autoadd_f_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_f_32(deserializer));
+  }
+
+  @protected
+  int sse_decode_box_autoadd_i_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_i_32(deserializer));
+  }
+
+  @protected
   int sse_decode_box_autoadd_u_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_u_32(deserializer));
+  }
+
+  @protected
+  BigInt sse_decode_box_autoadd_usize(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_usize(deserializer));
+  }
+
+  @protected
+  ClusterAssignment sse_decode_cluster_assignment(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_id = sse_decode_String(deserializer);
+    final var_clusterId = sse_decode_usize(deserializer);
+    final var_color = sse_decode_String(deserializer);
+    return ClusterAssignment(
+      id: var_id,
+      clusterId: var_clusterId,
+      color: var_color,
+    );
+  }
+
+  @protected
+  ClusterInfo sse_decode_cluster_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_id = sse_decode_usize(deserializer);
+    final var_size = sse_decode_usize(deserializer);
+    final var_color = sse_decode_String(deserializer);
+    final var_centroid = sse_decode_opt_list_prim_f_32_strict(deserializer);
+    return ClusterInfo(
+      id: var_id,
+      size: var_size,
+      color: var_color,
+      centroid: var_centroid,
+    );
+  }
+
+  @protected
+  ClusteringResult sse_decode_clustering_result(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_assignments = sse_decode_list_cluster_assignment(deserializer);
+    final var_clusters = sse_decode_list_cluster_info(deserializer);
+    final var_k = sse_decode_usize(deserializer);
+    return ClusteringResult(
+      assignments: var_assignments,
+      clusters: var_clusters,
+      k: var_k,
+    );
   }
 
   @protected
@@ -1701,6 +2062,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  KnowledgeGraphAnalysis sse_decode_knowledge_graph_analysis(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_clustering = sse_decode_clustering_result(deserializer);
+    final var_semanticEdges = sse_decode_semantic_edge_result(deserializer);
+    return KnowledgeGraphAnalysis(
+      clustering: var_clustering,
+      semanticEdges: var_semanticEdges,
+    );
+  }
+
+  @protected
   List<String> sse_decode_list_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -1708,6 +2082,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     final ans_ = <String>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_String(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<ClusterAssignment> sse_decode_list_cluster_assignment(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    final len_ = sse_decode_i_32(deserializer);
+    final ans_ = <ClusterAssignment>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_cluster_assignment(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<ClusterInfo> sse_decode_list_cluster_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    final len_ = sse_decode_i_32(deserializer);
+    final ans_ = <ClusterInfo>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_cluster_info(deserializer));
     }
     return ans_;
   }
@@ -1814,6 +2214,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<SemanticEdge> sse_decode_list_semantic_edge(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    final len_ = sse_decode_i_32(deserializer);
+    final ans_ = <SemanticEdge>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_semantic_edge(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<SimilarityResult> sse_decode_list_similarity_result(
     SseDeserializer deserializer,
   ) {
@@ -1858,11 +2272,70 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_f_32(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_i_32(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_u_32(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_usize(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  Float32List? sse_decode_opt_list_prim_f_32_strict(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_list_prim_f_32_strict(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  List<(String, String)>? sse_decode_opt_list_record_string_string(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_list_record_string_string(deserializer));
     } else {
       return null;
     }
@@ -1876,6 +2349,31 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     final var_field0 = sse_decode_String(deserializer);
     final var_field1 = sse_decode_String(deserializer);
     return (var_field0, var_field1);
+  }
+
+  @protected
+  SemanticEdge sse_decode_semantic_edge(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_source = sse_decode_String(deserializer);
+    final var_target = sse_decode_String(deserializer);
+    final var_similarity = sse_decode_f_32(deserializer);
+    final var_isGhost = sse_decode_bool(deserializer);
+    return SemanticEdge(
+      source: var_source,
+      target: var_target,
+      similarity: var_similarity,
+      isGhost: var_isGhost,
+    );
+  }
+
+  @protected
+  SemanticEdgeResult sse_decode_semantic_edge_result(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_edges = sse_decode_list_semantic_edge(deserializer);
+    final var_count = sse_decode_usize(deserializer);
+    return SemanticEdgeResult(edges: var_edges, count: var_count);
   }
 
   @protected
@@ -1985,9 +2483,58 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_f_32(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_u_32(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_usize(BigInt self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(self, serializer);
+  }
+
+  @protected
+  void sse_encode_cluster_assignment(
+    ClusterAssignment self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.id, serializer);
+    sse_encode_usize(self.clusterId, serializer);
+    sse_encode_String(self.color, serializer);
+  }
+
+  @protected
+  void sse_encode_cluster_info(ClusterInfo self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(self.id, serializer);
+    sse_encode_usize(self.size, serializer);
+    sse_encode_String(self.color, serializer);
+    sse_encode_opt_list_prim_f_32_strict(self.centroid, serializer);
+  }
+
+  @protected
+  void sse_encode_clustering_result(
+    ClusteringResult self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_cluster_assignment(self.assignments, serializer);
+    sse_encode_list_cluster_info(self.clusters, serializer);
+    sse_encode_usize(self.k, serializer);
   }
 
   @protected
@@ -2051,11 +2598,45 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_knowledge_graph_analysis(
+    KnowledgeGraphAnalysis self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_clustering_result(self.clustering, serializer);
+    sse_encode_semantic_edge_result(self.semanticEdges, serializer);
+  }
+
+  @protected
   void sse_encode_list_String(List<String> self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_String(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_cluster_assignment(
+    List<ClusterAssignment> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_cluster_assignment(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_cluster_info(
+    List<ClusterInfo> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_cluster_info(item, serializer);
     }
   }
 
@@ -2164,6 +2745,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_list_semantic_edge(
+    List<SemanticEdge> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_semantic_edge(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_similarity_result(
     List<SimilarityResult> self,
     SseSerializer serializer,
@@ -2197,12 +2790,71 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_f_32(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_i_32(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_u_32(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_usize(
+    BigInt? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_usize(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_list_prim_f_32_strict(
+    Float32List? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_list_prim_f_32_strict(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_list_record_string_string(
+    List<(String, String)>? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_list_record_string_string(self, serializer);
     }
   }
 
@@ -2214,6 +2866,25 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.$1, serializer);
     sse_encode_String(self.$2, serializer);
+  }
+
+  @protected
+  void sse_encode_semantic_edge(SemanticEdge self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.source, serializer);
+    sse_encode_String(self.target, serializer);
+    sse_encode_f_32(self.similarity, serializer);
+    sse_encode_bool(self.isGhost, serializer);
+  }
+
+  @protected
+  void sse_encode_semantic_edge_result(
+    SemanticEdgeResult self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_semantic_edge(self.edges, serializer);
+    sse_encode_usize(self.count, serializer);
   }
 
   @protected

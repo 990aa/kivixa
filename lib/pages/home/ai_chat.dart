@@ -445,8 +445,10 @@ class ModelSelectionPage extends StatefulWidget {
 class _ModelSelectionPageState extends State<ModelSelectionPage> {
   final _modelManager = ModelManager();
   List<AIModel> _availableModels = [];
+  Set<String> _downloadedModelIds = {};
   var _isLoading = false;
   String? _error;
+  ModelCategory? _selectedCategory;
 
   @override
   void initState() {
@@ -462,8 +464,18 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
 
     try {
       await _modelManager.initialize();
+
+      // Get downloaded status for each model
+      final downloadedIds = <String>{};
+      for (final model in ModelManager.availableModels) {
+        if (await _modelManager.isModelDownloaded(model)) {
+          downloadedIds.add(model.id);
+        }
+      }
+
       setState(() {
         _availableModels = ModelManager.availableModels;
+        _downloadedModelIds = downloadedIds;
         _isLoading = false;
       });
     } catch (e) {
@@ -474,6 +486,24 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
     }
   }
 
+  List<AIModel> get _filteredModels {
+    if (_selectedCategory == null) {
+      return _availableModels;
+    }
+    return _availableModels
+        .where((m) => m.supportsCategory(_selectedCategory!))
+        .toList();
+  }
+
+  Future<void> _downloadModel(AIModel model) async {
+    await _modelManager.startDownload(model);
+    if (mounted) {
+      await _showDownloadProgressDialog(model);
+      // Refresh downloaded status
+      await _loadAvailableModels();
+    }
+  }
+
   Future<void> _loadModel(AIModel model) async {
     setState(() {
       _isLoading = true;
@@ -481,20 +511,11 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
     });
 
     try {
-      // Check if model is downloaded, if not start download
-      final isDownloaded = await _modelManager.isModelDownloaded(model);
-      if (!isDownloaded) {
-        await _modelManager.startDownload(model);
-        // Show download progress dialog
-        if (mounted) {
-          await _showDownloadProgressDialog(model);
-        }
-      }
-
       // Load the model into inference service
       final modelPath = await _modelManager.getModelPath(model);
       final inferenceService = InferenceService();
       await inferenceService.loadModel(modelPath);
+      _modelManager.setCurrentlyLoadedModel(model.id);
 
       if (mounted) {
         Navigator.of(context).pop();
@@ -504,6 +525,37 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
         _error = e.toString();
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _deleteModel(AIModel model) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete ${model.name}?'),
+        content: Text(
+          'This will delete the downloaded model file (${model.sizeText}). '
+          'You can download it again later.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) {
+      await _modelManager.deleteModel(model);
+      await _loadAvailableModels();
     }
   }
 
@@ -518,66 +570,284 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Select AI Model')),
+      appBar: AppBar(
+        title: const Text('AI Models'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadAvailableModels,
+            tooltip: 'Refresh',
+          ),
+        ],
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
           ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Error: $_error'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _loadAvailableModels,
-                    child: const Text('Retry'),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: colorScheme.error,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Error loading models',
+                      style: theme.textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _error!,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton.icon(
+                      onPressed: _loadAvailableModels,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Retry'),
+                    ),
+                  ],
+                ),
               ),
             )
-          : _availableModels.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.folder_open, size: 64),
-                  const SizedBox(height: 16),
-                  const Text('No models found'),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Place GGUF model files in the models folder',
-                    style: Theme.of(context).textTheme.bodySmall,
+          : Column(
+              children: [
+                // Category filter chips
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
                   ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _loadAvailableModels,
-                    child: const Text('Refresh'),
+                  child: Row(
+                    children: [
+                      FilterChip(
+                        label: const Text('All'),
+                        selected: _selectedCategory == null,
+                        onSelected: (_) =>
+                            setState(() => _selectedCategory = null),
+                      ),
+                      const SizedBox(width: 8),
+                      ...ModelCategory.values.map(
+                        (category) => Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(category.displayName),
+                            selected: _selectedCategory == category,
+                            onSelected: (_) =>
+                                setState(() => _selectedCategory = category),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _availableModels.length,
-              itemBuilder: (context, index) {
-                final model = _availableModels[index];
-                return Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.model_training),
-                    title: Text(model.name),
-                    subtitle: Text(
-                      '${model.description}\nSize: ${model.sizeText}',
-                    ),
-                    isThreeLine: true,
-                    trailing: FilledButton(
-                      onPressed: () => _loadModel(model),
-                      child: const Text('Load'),
-                    ),
-                  ),
-                );
-              },
+                ),
+                const Divider(height: 1),
+                // Models list
+                Expanded(
+                  child: _filteredModels.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 64,
+                                color: colorScheme.onSurfaceVariant.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No models in this category',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: _filteredModels.length,
+                          itemBuilder: (context, index) {
+                            final model = _filteredModels[index];
+                            final isDownloaded = _downloadedModelIds.contains(
+                              model.id,
+                            );
+                            final isCurrentlyLoaded =
+                                _modelManager.currentlyLoadedModel?.id ==
+                                model.id;
+
+                            return _ModelCard(
+                              model: model,
+                              isDownloaded: isDownloaded,
+                              isCurrentlyLoaded: isCurrentlyLoaded,
+                              onDownload: () => _downloadModel(model),
+                              onLoad: () => _loadModel(model),
+                              onDelete: () => _deleteModel(model),
+                            );
+                          },
+                        ),
+                ),
+              ],
             ),
+    );
+  }
+}
+
+/// Card widget for displaying a model
+class _ModelCard extends StatelessWidget {
+  final AIModel model;
+  final bool isDownloaded;
+  final bool isCurrentlyLoaded;
+  final VoidCallback onDownload;
+  final VoidCallback onLoad;
+  final VoidCallback onDelete;
+
+  const _ModelCard({
+    required this.model,
+    required this.isDownloaded,
+    required this.isCurrentlyLoaded,
+    required this.onDownload,
+    required this.onLoad,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.smart_toy,
+                  color: isCurrentlyLoaded
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            model.name,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (model.isDefault) ...[
+                            const SizedBox(width: 8),
+                            Chip(
+                              label: const Text('Default'),
+                              backgroundColor: colorScheme.secondaryContainer,
+                              labelStyle: TextStyle(
+                                color: colorScheme.onSecondaryContainer,
+                                fontSize: 10,
+                              ),
+                              padding: EdgeInsets.zero,
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          ],
+                          if (isCurrentlyLoaded) ...[
+                            const SizedBox(width: 8),
+                            Chip(
+                              label: const Text('Active'),
+                              backgroundColor: colorScheme.primaryContainer,
+                              labelStyle: TextStyle(
+                                color: colorScheme.onPrimaryContainer,
+                                fontSize: 10,
+                              ),
+                              padding: EdgeInsets.zero,
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          ],
+                        ],
+                      ),
+                      Text(
+                        model.sizeText,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(model.description, style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 12),
+            // Category chips
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: model.categories.map((category) {
+                return Chip(
+                  label: Text(category.displayName),
+                  backgroundColor: colorScheme.surfaceContainerHighest,
+                  labelStyle: theme.textTheme.labelSmall,
+                  padding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+            // Action buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (isDownloaded && !isCurrentlyLoaded)
+                  TextButton.icon(
+                    onPressed: onDelete,
+                    icon: Icon(Icons.delete_outline, color: colorScheme.error),
+                    label: Text(
+                      'Delete',
+                      style: TextStyle(color: colorScheme.error),
+                    ),
+                  ),
+                const SizedBox(width: 8),
+                if (isDownloaded)
+                  FilledButton.icon(
+                    onPressed: isCurrentlyLoaded ? null : onLoad,
+                    icon: Icon(
+                      isCurrentlyLoaded ? Icons.check : Icons.play_arrow,
+                    ),
+                    label: Text(isCurrentlyLoaded ? 'Loaded' : 'Load'),
+                  )
+                else
+                  FilledButton.icon(
+                    onPressed: onDownload,
+                    icon: const Icon(Icons.download),
+                    label: const Text('Download'),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

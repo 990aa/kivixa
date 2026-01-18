@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1602308821;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 202467171;
 
 // Section: executor
 
@@ -229,6 +229,40 @@ fn wire__crate__api__add_stream_node_impl(
         },
     )
 }
+fn wire__crate__api__analyze_knowledge_graph_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    entries: impl CstDecode<Vec<crate::embeddings::EmbeddingEntry>>,
+    k: impl CstDecode<Option<usize>>,
+    similarity_threshold: impl CstDecode<Option<f32>>,
+    existing_links: impl CstDecode<Option<Vec<(String, String)>>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "analyze_knowledge_graph",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_entries = entries.cst_decode();
+            let api_k = k.cst_decode();
+            let api_similarity_threshold = similarity_threshold.cst_decode();
+            let api_existing_links = existing_links.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::analyze_knowledge_graph(
+                            api_entries,
+                            api_k,
+                            api_similarity_threshold,
+                            api_existing_links,
+                        )?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__batch_embed_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     texts: impl CstDecode<Vec<String>>,
@@ -339,6 +373,34 @@ fn wire__crate__api__cluster_embeddings_impl(
         },
     )
 }
+fn wire__crate__api__cluster_notes_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    entries: impl CstDecode<Vec<crate::embeddings::EmbeddingEntry>>,
+    k: impl CstDecode<Option<usize>>,
+    max_iterations: impl CstDecode<Option<usize>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "cluster_notes",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_entries = entries.cst_decode();
+            let api_k = k.cst_decode();
+            let api_max_iterations = max_iterations.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok =
+                            crate::api::cluster_notes(api_entries, api_k, api_max_iterations)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__compute_graph_layout_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     iterations: impl CstDecode<Option<u32>>,
@@ -405,6 +467,35 @@ fn wire__crate__api__cosine_similarity_impl(
                 let output_ok = Result::<_, ()>::Ok(crate::api::cosine_similarity(api_a, api_b))?;
                 Ok(output_ok)
             })())
+        },
+    )
+}
+fn wire__crate__api__discover_semantic_edges_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    entries: impl CstDecode<Vec<crate::embeddings::EmbeddingEntry>>,
+    threshold: impl CstDecode<Option<f32>>,
+    existing_links: impl CstDecode<Option<Vec<(String, String)>>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "discover_semantic_edges",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_entries = entries.cst_decode();
+            let api_threshold = threshold.cst_decode();
+            let api_existing_links = existing_links.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(crate::api::discover_semantic_edges(
+                        api_entries,
+                        api_threshold,
+                        api_existing_links,
+                    ))?;
+                    Ok(output_ok)
+                })())
+            }
         },
     )
 }
@@ -550,6 +641,22 @@ fn wire__crate__api__get_graph_state_impl(port_: flutter_rust_bridge::for_genera
         },
     )
 }
+fn wire__crate__api__get_model_type_impl(
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_model_type",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::get_model_type())?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
 fn wire__crate__api__get_or_create_topic_hub_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     topic: impl CstDecode<String>,
@@ -686,6 +793,7 @@ fn wire__crate__api__init_model_with_config_impl(
     temperature: impl CstDecode<f32>,
     top_p: impl CstDecode<f32>,
     max_tokens: impl CstDecode<u32>,
+    model_type: impl CstDecode<Option<i32>>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -701,6 +809,7 @@ fn wire__crate__api__init_model_with_config_impl(
             let api_temperature = temperature.cst_decode();
             let api_top_p = top_p.cst_decode();
             let api_max_tokens = max_tokens.cst_decode();
+            let api_model_type = model_type.cst_decode();
             move |context| {
                 transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
@@ -712,6 +821,7 @@ fn wire__crate__api__init_model_with_config_impl(
                             api_temperature,
                             api_top_p,
                             api_max_tokens,
+                            api_model_type,
                         )?;
                         Ok(output_ok)
                     })(),
@@ -1055,6 +1165,51 @@ impl SseDecode for bool {
     }
 }
 
+impl SseDecode for crate::clustering::ClusterAssignment {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_id = <String>::sse_decode(deserializer);
+        let mut var_clusterId = <usize>::sse_decode(deserializer);
+        let mut var_color = <String>::sse_decode(deserializer);
+        return crate::clustering::ClusterAssignment {
+            id: var_id,
+            cluster_id: var_clusterId,
+            color: var_color,
+        };
+    }
+}
+
+impl SseDecode for crate::clustering::ClusterInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_id = <usize>::sse_decode(deserializer);
+        let mut var_size = <usize>::sse_decode(deserializer);
+        let mut var_color = <String>::sse_decode(deserializer);
+        let mut var_centroid = <Option<Vec<f32>>>::sse_decode(deserializer);
+        return crate::clustering::ClusterInfo {
+            id: var_id,
+            size: var_size,
+            color: var_color,
+            centroid: var_centroid,
+        };
+    }
+}
+
+impl SseDecode for crate::clustering::ClusteringResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_assignments =
+            <Vec<crate::clustering::ClusterAssignment>>::sse_decode(deserializer);
+        let mut var_clusters = <Vec<crate::clustering::ClusterInfo>>::sse_decode(deserializer);
+        let mut var_k = <usize>::sse_decode(deserializer);
+        return crate::clustering::ClusteringResult {
+            assignments: var_assignments,
+            clusters: var_clusters,
+            k: var_k,
+        };
+    }
+}
+
 impl SseDecode for crate::api::EmbeddingCluster {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1141,6 +1296,19 @@ impl SseDecode for i32 {
     }
 }
 
+impl SseDecode for crate::api::KnowledgeGraphAnalysis {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_clustering = <crate::clustering::ClusteringResult>::sse_decode(deserializer);
+        let mut var_semanticEdges =
+            <crate::clustering::SemanticEdgeResult>::sse_decode(deserializer);
+        return crate::api::KnowledgeGraphAnalysis {
+            clustering: var_clustering,
+            semantic_edges: var_semanticEdges,
+        };
+    }
+}
+
 impl SseDecode for Vec<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1148,6 +1316,32 @@ impl SseDecode for Vec<String> {
         let mut ans_ = vec![];
         for idx_ in 0..len_ {
             ans_.push(<String>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::clustering::ClusterAssignment> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::clustering::ClusterAssignment>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::clustering::ClusterInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::clustering::ClusterInfo>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -1251,6 +1445,18 @@ impl SseDecode for Vec<(String, String)> {
     }
 }
 
+impl SseDecode for Vec<crate::clustering::SemanticEdge> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::clustering::SemanticEdge>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::embeddings::SimilarityResult> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1296,11 +1502,66 @@ impl SseDecode for Option<String> {
     }
 }
 
+impl SseDecode for Option<f32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<f32>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<i32>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<u32> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<u32>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<usize> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<usize>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<Vec<f32>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<Vec<f32>>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<Vec<(String, String)>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<Vec<(String, String)>>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -1313,6 +1574,34 @@ impl SseDecode for (String, String) {
         let mut var_field0 = <String>::sse_decode(deserializer);
         let mut var_field1 = <String>::sse_decode(deserializer);
         return (var_field0, var_field1);
+    }
+}
+
+impl SseDecode for crate::clustering::SemanticEdge {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_source = <String>::sse_decode(deserializer);
+        let mut var_target = <String>::sse_decode(deserializer);
+        let mut var_similarity = <f32>::sse_decode(deserializer);
+        let mut var_isGhost = <bool>::sse_decode(deserializer);
+        return crate::clustering::SemanticEdge {
+            source: var_source,
+            target: var_target,
+            similarity: var_similarity,
+            is_ghost: var_isGhost,
+        };
+    }
+}
+
+impl SseDecode for crate::clustering::SemanticEdgeResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_edges = <Vec<crate::clustering::SemanticEdge>>::sse_decode(deserializer);
+        let mut var_count = <usize>::sse_decode(deserializer);
+        return crate::clustering::SemanticEdgeResult {
+            edges: var_edges,
+            count: var_count,
+        };
     }
 }
 
@@ -1397,6 +1686,73 @@ fn pde_ffi_dispatcher_sync_impl(
 
 // Section: rust2dart
 
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::clustering::ClusterAssignment {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.id.into_into_dart().into_dart(),
+            self.cluster_id.into_into_dart().into_dart(),
+            self.color.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::clustering::ClusterAssignment
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::clustering::ClusterAssignment>
+    for crate::clustering::ClusterAssignment
+{
+    fn into_into_dart(self) -> crate::clustering::ClusterAssignment {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::clustering::ClusterInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.id.into_into_dart().into_dart(),
+            self.size.into_into_dart().into_dart(),
+            self.color.into_into_dart().into_dart(),
+            self.centroid.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::clustering::ClusterInfo
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::clustering::ClusterInfo>
+    for crate::clustering::ClusterInfo
+{
+    fn into_into_dart(self) -> crate::clustering::ClusterInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::clustering::ClusteringResult {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.assignments.into_into_dart().into_dart(),
+            self.clusters.into_into_dart().into_dart(),
+            self.k.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::clustering::ClusteringResult
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::clustering::ClusteringResult>
+    for crate::clustering::ClusteringResult
+{
+    fn into_into_dart(self) -> crate::clustering::ClusteringResult {
+        self
+    }
+}
 // Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::EmbeddingCluster {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
@@ -1489,6 +1845,27 @@ impl flutter_rust_bridge::IntoIntoDart<crate::graph::GraphState> for crate::grap
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::KnowledgeGraphAnalysis {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.clustering.into_into_dart().into_dart(),
+            self.semantic_edges.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::KnowledgeGraphAnalysis
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::KnowledgeGraphAnalysis>
+    for crate::api::KnowledgeGraphAnalysis
+{
+    fn into_into_dart(self) -> crate::api::KnowledgeGraphAnalysis {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::streaming::NodePosition {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -1510,6 +1887,50 @@ impl flutter_rust_bridge::IntoIntoDart<crate::streaming::NodePosition>
     for crate::streaming::NodePosition
 {
     fn into_into_dart(self) -> crate::streaming::NodePosition {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::clustering::SemanticEdge {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.source.into_into_dart().into_dart(),
+            self.target.into_into_dart().into_dart(),
+            self.similarity.into_into_dart().into_dart(),
+            self.is_ghost.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::clustering::SemanticEdge
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::clustering::SemanticEdge>
+    for crate::clustering::SemanticEdge
+{
+    fn into_into_dart(self) -> crate::clustering::SemanticEdge {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::clustering::SemanticEdgeResult {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.edges.into_into_dart().into_dart(),
+            self.count.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::clustering::SemanticEdgeResult
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::clustering::SemanticEdgeResult>
+    for crate::clustering::SemanticEdgeResult
+{
+    fn into_into_dart(self) -> crate::clustering::SemanticEdgeResult {
         self
     }
 }
@@ -1576,6 +1997,34 @@ impl SseEncode for bool {
     }
 }
 
+impl SseEncode for crate::clustering::ClusterAssignment {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.id, serializer);
+        <usize>::sse_encode(self.cluster_id, serializer);
+        <String>::sse_encode(self.color, serializer);
+    }
+}
+
+impl SseEncode for crate::clustering::ClusterInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <usize>::sse_encode(self.id, serializer);
+        <usize>::sse_encode(self.size, serializer);
+        <String>::sse_encode(self.color, serializer);
+        <Option<Vec<f32>>>::sse_encode(self.centroid, serializer);
+    }
+}
+
+impl SseEncode for crate::clustering::ClusteringResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::clustering::ClusterAssignment>>::sse_encode(self.assignments, serializer);
+        <Vec<crate::clustering::ClusterInfo>>::sse_encode(self.clusters, serializer);
+        <usize>::sse_encode(self.k, serializer);
+    }
+}
+
 impl SseEncode for crate::api::EmbeddingCluster {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1637,12 +2086,40 @@ impl SseEncode for i32 {
     }
 }
 
+impl SseEncode for crate::api::KnowledgeGraphAnalysis {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::clustering::ClusteringResult>::sse_encode(self.clustering, serializer);
+        <crate::clustering::SemanticEdgeResult>::sse_encode(self.semantic_edges, serializer);
+    }
+}
+
 impl SseEncode for Vec<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <String>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::clustering::ClusterAssignment> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::clustering::ClusterAssignment>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::clustering::ClusterInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::clustering::ClusterInfo>::sse_encode(item, serializer);
         }
     }
 }
@@ -1727,6 +2204,16 @@ impl SseEncode for Vec<(String, String)> {
     }
 }
 
+impl SseEncode for Vec<crate::clustering::SemanticEdge> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::clustering::SemanticEdge>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::embeddings::SimilarityResult> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1759,6 +2246,26 @@ impl SseEncode for Option<String> {
     }
 }
 
+impl SseEncode for Option<f32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <f32>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <i32>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<u32> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1769,11 +2276,59 @@ impl SseEncode for Option<u32> {
     }
 }
 
+impl SseEncode for Option<usize> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <usize>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<Vec<f32>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <Vec<f32>>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<Vec<(String, String)>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <Vec<(String, String)>>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for (String, String) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.0, serializer);
         <String>::sse_encode(self.1, serializer);
+    }
+}
+
+impl SseEncode for crate::clustering::SemanticEdge {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.source, serializer);
+        <String>::sse_encode(self.target, serializer);
+        <f32>::sse_encode(self.similarity, serializer);
+        <bool>::sse_encode(self.is_ghost, serializer);
+    }
+}
+
+impl SseEncode for crate::clustering::SemanticEdgeResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::clustering::SemanticEdge>>::sse_encode(self.edges, serializer);
+        <usize>::sse_encode(self.count, serializer);
     }
 }
 
@@ -1859,10 +2414,59 @@ mod io {
             String::from_utf8(vec).unwrap()
         }
     }
+    impl CstDecode<f32> for *mut f32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> f32 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<i32> for *mut i32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> i32 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
     impl CstDecode<u32> for *mut u32 {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> u32 {
             unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<usize> for *mut usize {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> usize {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<crate::clustering::ClusterAssignment> for wire_cst_cluster_assignment {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::ClusterAssignment {
+            crate::clustering::ClusterAssignment {
+                id: self.id.cst_decode(),
+                cluster_id: self.cluster_id.cst_decode(),
+                color: self.color.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::clustering::ClusterInfo> for wire_cst_cluster_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::ClusterInfo {
+            crate::clustering::ClusterInfo {
+                id: self.id.cst_decode(),
+                size: self.size.cst_decode(),
+                color: self.color.cst_decode(),
+                centroid: self.centroid.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::clustering::ClusteringResult> for wire_cst_clustering_result {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::ClusteringResult {
+            crate::clustering::ClusteringResult {
+                assignments: self.assignments.cst_decode(),
+                clusters: self.clusters.cst_decode(),
+                k: self.k.cst_decode(),
+            }
         }
     }
     impl CstDecode<crate::api::EmbeddingCluster> for wire_cst_embedding_cluster {
@@ -1917,9 +2521,40 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::api::KnowledgeGraphAnalysis> for wire_cst_knowledge_graph_analysis {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::KnowledgeGraphAnalysis {
+            crate::api::KnowledgeGraphAnalysis {
+                clustering: self.clustering.cst_decode(),
+                semantic_edges: self.semantic_edges.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<Vec<String>> for *mut wire_cst_list_String {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<String> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::clustering::ClusterAssignment>>
+        for *mut wire_cst_list_cluster_assignment
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::clustering::ClusterAssignment> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::clustering::ClusterInfo>> for *mut wire_cst_list_cluster_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::clustering::ClusterInfo> {
             let vec = unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -2014,6 +2649,16 @@ mod io {
             vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
+    impl CstDecode<Vec<crate::clustering::SemanticEdge>> for *mut wire_cst_list_semantic_edge {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::clustering::SemanticEdge> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::embeddings::SimilarityResult>> for *mut wire_cst_list_similarity_result {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::embeddings::SimilarityResult> {
@@ -2043,6 +2688,26 @@ mod io {
             (self.field0.cst_decode(), self.field1.cst_decode())
         }
     }
+    impl CstDecode<crate::clustering::SemanticEdge> for wire_cst_semantic_edge {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::SemanticEdge {
+            crate::clustering::SemanticEdge {
+                source: self.source.cst_decode(),
+                target: self.target.cst_decode(),
+                similarity: self.similarity.cst_decode(),
+                is_ghost: self.is_ghost.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::clustering::SemanticEdgeResult> for wire_cst_semantic_edge_result {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::SemanticEdgeResult {
+            crate::clustering::SemanticEdgeResult {
+                edges: self.edges.cst_decode(),
+                count: self.count.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::embeddings::SimilarityResult> for wire_cst_similarity_result {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::embeddings::SimilarityResult {
@@ -2061,6 +2726,49 @@ mod io {
                 edge_count: self.edge_count.cst_decode(),
                 visible_count: self.visible_count.cst_decode(),
             }
+        }
+    }
+    impl NewWithNullPtr for wire_cst_cluster_assignment {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                id: core::ptr::null_mut(),
+                cluster_id: Default::default(),
+                color: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_cluster_assignment {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_cluster_info {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                id: Default::default(),
+                size: Default::default(),
+                color: core::ptr::null_mut(),
+                centroid: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_cluster_info {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_clustering_result {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                assignments: core::ptr::null_mut(),
+                clusters: core::ptr::null_mut(),
+                k: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_clustering_result {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
         }
     }
     impl NewWithNullPtr for wire_cst_embedding_cluster {
@@ -2135,6 +2843,19 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_knowledge_graph_analysis {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                clustering: Default::default(),
+                semantic_edges: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_knowledge_graph_analysis {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_node_position {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -2161,6 +2882,34 @@ mod io {
         }
     }
     impl Default for wire_cst_record_string_string {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_semantic_edge {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                source: core::ptr::null_mut(),
+                target: core::ptr::null_mut(),
+                similarity: Default::default(),
+                is_ghost: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_semantic_edge {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_semantic_edge_result {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                edges: core::ptr::null_mut(),
+                count: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_semantic_edge_result {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -2258,6 +3007,23 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__analyze_knowledge_graph(
+        port_: i64,
+        entries: *mut wire_cst_list_embedding_entry,
+        k: *mut usize,
+        similarity_threshold: *mut f32,
+        existing_links: *mut wire_cst_list_record_string_string,
+    ) {
+        wire__crate__api__analyze_knowledge_graph_impl(
+            port_,
+            entries,
+            k,
+            similarity_threshold,
+            existing_links,
+        )
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__batch_embed(
         port_: i64,
         texts: *mut wire_cst_list_String,
@@ -2296,6 +3062,16 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__cluster_notes(
+        port_: i64,
+        entries: *mut wire_cst_list_embedding_entry,
+        k: *mut usize,
+        max_iterations: *mut usize,
+    ) {
+        wire__crate__api__cluster_notes_impl(port_, entries, k, max_iterations)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__compute_graph_layout(
         port_: i64,
         iterations: *mut u32,
@@ -2318,6 +3094,16 @@ mod io {
         b: *mut wire_cst_list_prim_f_32_loose,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__api__cosine_similarity_impl(a, b)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__discover_semantic_edges(
+        port_: i64,
+        entries: *mut wire_cst_list_embedding_entry,
+        threshold: *mut f32,
+        existing_links: *mut wire_cst_list_record_string_string,
+    ) {
+        wire__crate__api__discover_semantic_edges_impl(port_, entries, threshold, existing_links)
     }
 
     #[unsafe(no_mangle)]
@@ -2366,6 +3152,12 @@ mod io {
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__get_graph_state(port_: i64) {
         wire__crate__api__get_graph_state_impl(port_)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__get_model_type(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__get_model_type_impl()
     }
 
     #[unsafe(no_mangle)]
@@ -2422,6 +3214,7 @@ mod io {
         temperature: f32,
         top_p: f32,
         max_tokens: u32,
+        model_type: *mut i32,
     ) {
         wire__crate__api__init_model_with_config_impl(
             port_,
@@ -2432,6 +3225,7 @@ mod io {
             temperature,
             top_p,
             max_tokens,
+            model_type,
         )
     }
 
@@ -2531,7 +3325,22 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_box_autoadd_f_32(value: f32) -> *mut f32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_box_autoadd_i_32(value: i32) -> *mut i32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_cst_new_box_autoadd_u_32(value: u32) -> *mut u32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_box_autoadd_usize(value: usize) -> *mut usize {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
     }
 
@@ -2540,6 +3349,34 @@ mod io {
         let wrap = wire_cst_list_String {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
                 <*mut wire_cst_list_prim_u_8_strict>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_list_cluster_assignment(
+        len: i32,
+    ) -> *mut wire_cst_list_cluster_assignment {
+        let wrap = wire_cst_list_cluster_assignment {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_cluster_assignment>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_list_cluster_info(
+        len: i32,
+    ) -> *mut wire_cst_list_cluster_info {
+        let wrap = wire_cst_list_cluster_info {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_cluster_info>::new_with_null_ptr(),
                 len,
             ),
             len,
@@ -2665,6 +3502,20 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_list_semantic_edge(
+        len: i32,
+    ) -> *mut wire_cst_list_semantic_edge {
+        let wrap = wire_cst_list_semantic_edge {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_semantic_edge>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_cst_new_list_similarity_result(
         len: i32,
     ) -> *mut wire_cst_list_similarity_result {
@@ -2678,6 +3529,28 @@ mod io {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
     }
 
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_cluster_assignment {
+        id: *mut wire_cst_list_prim_u_8_strict,
+        cluster_id: usize,
+        color: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_cluster_info {
+        id: usize,
+        size: usize,
+        color: *mut wire_cst_list_prim_u_8_strict,
+        centroid: *mut wire_cst_list_prim_f_32_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_clustering_result {
+        assignments: *mut wire_cst_list_cluster_assignment,
+        clusters: *mut wire_cst_list_cluster_info,
+        k: usize,
+    }
     #[repr(C)]
     #[derive(Clone, Copy)]
     pub struct wire_cst_embedding_cluster {
@@ -2717,8 +3590,26 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_knowledge_graph_analysis {
+        clustering: wire_cst_clustering_result,
+        semantic_edges: wire_cst_semantic_edge_result,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_String {
         ptr: *mut *mut wire_cst_list_prim_u_8_strict,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_cluster_assignment {
+        ptr: *mut wire_cst_cluster_assignment,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_cluster_info {
+        ptr: *mut wire_cst_cluster_info,
         len: i32,
     }
     #[repr(C)]
@@ -2777,6 +3668,12 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_semantic_edge {
+        ptr: *mut wire_cst_semantic_edge,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_similarity_result {
         ptr: *mut wire_cst_similarity_result,
         len: i32,
@@ -2796,6 +3693,20 @@ mod io {
     pub struct wire_cst_record_string_string {
         field0: *mut wire_cst_list_prim_u_8_strict,
         field1: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_semantic_edge {
+        source: *mut wire_cst_list_prim_u_8_strict,
+        target: *mut wire_cst_list_prim_u_8_strict,
+        similarity: f32,
+        is_ghost: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_semantic_edge_result {
+        edges: *mut wire_cst_list_semantic_edge,
+        count: usize,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -2848,6 +3759,70 @@ mod web {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> String {
             self
+        }
+    }
+    impl CstDecode<crate::clustering::ClusterAssignment>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::ClusterAssignment {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::clustering::ClusterAssignment {
+                id: self_.get(0).cst_decode(),
+                cluster_id: self_.get(1).cst_decode(),
+                color: self_.get(2).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::clustering::ClusterInfo>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::ClusterInfo {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                4,
+                "Expected 4 elements, got {}",
+                self_.length()
+            );
+            crate::clustering::ClusterInfo {
+                id: self_.get(0).cst_decode(),
+                size: self_.get(1).cst_decode(),
+                color: self_.get(2).cst_decode(),
+                centroid: self_.get(3).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::clustering::ClusteringResult>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::ClusteringResult {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::clustering::ClusteringResult {
+                assignments: self_.get(0).cst_decode(),
+                clusters: self_.get(1).cst_decode(),
+                k: self_.get(2).cst_decode(),
+            }
         }
     }
     impl CstDecode<crate::api::EmbeddingCluster>
@@ -2957,9 +3932,53 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::api::KnowledgeGraphAnalysis>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::KnowledgeGraphAnalysis {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::api::KnowledgeGraphAnalysis {
+                clustering: self_.get(0).cst_decode(),
+                semantic_edges: self_.get(1).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<Vec<String>> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<String> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::clustering::ClusterAssignment>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::clustering::ClusterAssignment> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::clustering::ClusterInfo>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::clustering::ClusterInfo> {
             self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
                 .unwrap()
                 .iter()
@@ -3051,6 +4070,18 @@ mod web {
                 .collect()
         }
     }
+    impl CstDecode<Vec<crate::clustering::SemanticEdge>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::clustering::SemanticEdge> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::embeddings::SimilarityResult>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -3093,6 +4124,12 @@ mod web {
             self.map(CstDecode::cst_decode)
         }
     }
+    impl CstDecode<Option<Vec<f32>>> for Option<Box<[f32]>> {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Option<Vec<f32>> {
+            self.map(CstDecode::cst_decode)
+        }
+    }
     impl CstDecode<(String, String)> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> (String, String) {
@@ -3106,6 +4143,48 @@ mod web {
                 self_.length()
             );
             (self_.get(0).cst_decode(), self_.get(1).cst_decode())
+        }
+    }
+    impl CstDecode<crate::clustering::SemanticEdge>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::SemanticEdge {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                4,
+                "Expected 4 elements, got {}",
+                self_.length()
+            );
+            crate::clustering::SemanticEdge {
+                source: self_.get(0).cst_decode(),
+                target: self_.get(1).cst_decode(),
+                similarity: self_.get(2).cst_decode(),
+                is_ghost: self_.get(3).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::clustering::SemanticEdgeResult>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::SemanticEdgeResult {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::clustering::SemanticEdgeResult {
+                edges: self_.get(0).cst_decode(),
+                count: self_.get(1).cst_decode(),
+            }
         }
     }
     impl CstDecode<crate::embeddings::SimilarityResult>
@@ -3281,6 +4360,23 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__analyze_knowledge_graph(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        entries: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        k: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        similarity_threshold: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        existing_links: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__analyze_knowledge_graph_impl(
+            port_,
+            entries,
+            k,
+            similarity_threshold,
+            existing_links,
+        )
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__batch_embed(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         texts: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -3319,6 +4415,16 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__cluster_notes(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        entries: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        k: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        max_iterations: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__cluster_notes_impl(port_, entries, k, max_iterations)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__compute_graph_layout(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         iterations: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -3341,6 +4447,16 @@ mod web {
         b: Box<[f32]>,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__api__cosine_similarity_impl(a, b)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__discover_semantic_edges(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        entries: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        threshold: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        existing_links: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__discover_semantic_edges_impl(port_, entries, threshold, existing_links)
     }
 
     #[wasm_bindgen]
@@ -3391,6 +4507,12 @@ mod web {
         port_: flutter_rust_bridge::for_generated::MessagePort,
     ) {
         wire__crate__api__get_graph_state_impl(port_)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__get_model_type(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__get_model_type_impl()
     }
 
     #[wasm_bindgen]
@@ -3449,6 +4571,7 @@ mod web {
         temperature: f32,
         top_p: f32,
         max_tokens: u32,
+        model_type: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__api__init_model_with_config_impl(
             port_,
@@ -3459,6 +4582,7 @@ mod web {
             temperature,
             top_p,
             max_tokens,
+            model_type,
         )
     }
 

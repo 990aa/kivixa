@@ -11,6 +11,7 @@ import 'dart:convert';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_web.dart';
 import 'package:kivixa/src/rust/api.dart';
+import 'package:kivixa/src/rust/clustering.dart';
 import 'package:kivixa/src/rust/embeddings.dart';
 import 'package:kivixa/src/rust/frb_generated.dart';
 import 'package:kivixa/src/rust/graph.dart';
@@ -34,7 +35,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool dco_decode_bool(dynamic raw);
 
   @protected
+  double dco_decode_box_autoadd_f_32(dynamic raw);
+
+  @protected
+  int dco_decode_box_autoadd_i_32(dynamic raw);
+
+  @protected
   int dco_decode_box_autoadd_u_32(dynamic raw);
+
+  @protected
+  BigInt dco_decode_box_autoadd_usize(dynamic raw);
+
+  @protected
+  ClusterAssignment dco_decode_cluster_assignment(dynamic raw);
+
+  @protected
+  ClusterInfo dco_decode_cluster_info(dynamic raw);
+
+  @protected
+  ClusteringResult dco_decode_clustering_result(dynamic raw);
 
   @protected
   EmbeddingCluster dco_decode_embedding_cluster(dynamic raw);
@@ -58,7 +77,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int dco_decode_i_32(dynamic raw);
 
   @protected
+  KnowledgeGraphAnalysis dco_decode_knowledge_graph_analysis(dynamic raw);
+
+  @protected
   List<String> dco_decode_list_String(dynamic raw);
+
+  @protected
+  List<ClusterAssignment> dco_decode_list_cluster_assignment(dynamic raw);
+
+  @protected
+  List<ClusterInfo> dco_decode_list_cluster_info(dynamic raw);
 
   @protected
   List<EmbeddingCluster> dco_decode_list_embedding_cluster(dynamic raw);
@@ -88,6 +116,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<(String, String)> dco_decode_list_record_string_string(dynamic raw);
 
   @protected
+  List<SemanticEdge> dco_decode_list_semantic_edge(dynamic raw);
+
+  @protected
   List<SimilarityResult> dco_decode_list_similarity_result(dynamic raw);
 
   @protected
@@ -97,10 +128,31 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
+  double? dco_decode_opt_box_autoadd_f_32(dynamic raw);
+
+  @protected
+  int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
+
+  @protected
   int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
 
   @protected
+  BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw);
+
+  @protected
+  Float32List? dco_decode_opt_list_prim_f_32_strict(dynamic raw);
+
+  @protected
+  List<(String, String)>? dco_decode_opt_list_record_string_string(dynamic raw);
+
+  @protected
   (String, String) dco_decode_record_string_string(dynamic raw);
+
+  @protected
+  SemanticEdge dco_decode_semantic_edge(dynamic raw);
+
+  @protected
+  SemanticEdgeResult dco_decode_semantic_edge_result(dynamic raw);
 
   @protected
   SimilarityResult dco_decode_similarity_result(dynamic raw);
@@ -130,7 +182,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
+  double sse_decode_box_autoadd_f_32(SseDeserializer deserializer);
+
+  @protected
+  int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
+
+  @protected
   int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
+
+  @protected
+  BigInt sse_decode_box_autoadd_usize(SseDeserializer deserializer);
+
+  @protected
+  ClusterAssignment sse_decode_cluster_assignment(SseDeserializer deserializer);
+
+  @protected
+  ClusterInfo sse_decode_cluster_info(SseDeserializer deserializer);
+
+  @protected
+  ClusteringResult sse_decode_clustering_result(SseDeserializer deserializer);
 
   @protected
   EmbeddingCluster sse_decode_embedding_cluster(SseDeserializer deserializer);
@@ -154,7 +224,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int sse_decode_i_32(SseDeserializer deserializer);
 
   @protected
+  KnowledgeGraphAnalysis sse_decode_knowledge_graph_analysis(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<String> sse_decode_list_String(SseDeserializer deserializer);
+
+  @protected
+  List<ClusterAssignment> sse_decode_list_cluster_assignment(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<ClusterInfo> sse_decode_list_cluster_info(SseDeserializer deserializer);
 
   @protected
   List<EmbeddingCluster> sse_decode_list_embedding_cluster(
@@ -192,6 +275,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  List<SemanticEdge> sse_decode_list_semantic_edge(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<SimilarityResult> sse_decode_list_similarity_result(
     SseDeserializer deserializer,
   );
@@ -203,10 +291,37 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
+  double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer);
+
+  @protected
+  int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
+
+  @protected
   int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
 
   @protected
+  BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer);
+
+  @protected
+  Float32List? sse_decode_opt_list_prim_f_32_strict(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<(String, String)>? sse_decode_opt_list_record_string_string(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   (String, String) sse_decode_record_string_string(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  SemanticEdge sse_decode_semantic_edge(SseDeserializer deserializer);
+
+  @protected
+  SemanticEdgeResult sse_decode_semantic_edge_result(
     SseDeserializer deserializer,
   );
 
@@ -241,9 +356,58 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  double cst_encode_box_autoadd_f_32(double raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_f_32(raw);
+  }
+
+  @protected
+  int cst_encode_box_autoadd_i_32(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw);
+  }
+
+  @protected
   int cst_encode_box_autoadd_u_32(int raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_u_32(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_usize(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_usize(raw);
+  }
+
+  @protected
+  JSAny cst_encode_cluster_assignment(ClusterAssignment raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.id),
+      cst_encode_usize(raw.clusterId),
+      cst_encode_String(raw.color),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_cluster_info(ClusterInfo raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_usize(raw.id),
+      cst_encode_usize(raw.size),
+      cst_encode_String(raw.color),
+      cst_encode_opt_list_prim_f_32_strict(raw.centroid),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_clustering_result(ClusteringResult raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_list_cluster_assignment(raw.assignments),
+      cst_encode_list_cluster_info(raw.clusters),
+      cst_encode_usize(raw.k),
+    ].jsify()!;
   }
 
   @protected
@@ -297,9 +461,30 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  JSAny cst_encode_knowledge_graph_analysis(KnowledgeGraphAnalysis raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_clustering_result(raw.clustering),
+      cst_encode_semantic_edge_result(raw.semanticEdges),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_String(List<String> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_String).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_cluster_assignment(List<ClusterAssignment> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_cluster_assignment).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_cluster_info(List<ClusterInfo> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_cluster_info).toList().jsify()!;
   }
 
   @protected
@@ -357,6 +542,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  JSAny cst_encode_list_semantic_edge(List<SemanticEdge> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_semantic_edge).toList().jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_similarity_result(List<SimilarityResult> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_similarity_result).toList().jsify()!;
@@ -382,15 +573,65 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  double? cst_encode_opt_box_autoadd_f_32(double? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_f_32(raw);
+  }
+
+  @protected
+  int? cst_encode_opt_box_autoadd_i_32(int? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_i_32(raw);
+  }
+
+  @protected
   int? cst_encode_opt_box_autoadd_u_32(int? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_box_autoadd_u_32(raw);
   }
 
   @protected
+  JSAny? cst_encode_opt_box_autoadd_usize(BigInt? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_usize(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_list_prim_f_32_strict(Float32List? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_list_prim_f_32_strict(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_list_record_string_string(List<(String, String)>? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_list_record_string_string(raw);
+  }
+
+  @protected
   JSAny cst_encode_record_string_string((String, String) raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [cst_encode_String(raw.$1), cst_encode_String(raw.$2)].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_semantic_edge(SemanticEdge raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.source),
+      cst_encode_String(raw.target),
+      cst_encode_f_32(raw.similarity),
+      cst_encode_bool(raw.isGhost),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_semantic_edge_result(SemanticEdgeResult raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_list_semantic_edge(raw.edges),
+      cst_encode_usize(raw.count),
+    ].jsify()!;
   }
 
   @protected
@@ -450,7 +691,31 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_bool(bool self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
+
+  @protected
   void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_usize(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_cluster_assignment(
+    ClusterAssignment self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_cluster_info(ClusterInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_clustering_result(
+    ClusteringResult self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_embedding_cluster(
@@ -480,7 +745,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_i_32(int self, SseSerializer serializer);
 
   @protected
+  void sse_encode_knowledge_graph_analysis(
+    KnowledgeGraphAnalysis self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_cluster_assignment(
+    List<ClusterAssignment> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_cluster_info(
+    List<ClusterInfo> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_embedding_cluster(
@@ -537,6 +820,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_semantic_edge(
+    List<SemanticEdge> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_similarity_result(
     List<SimilarityResult> self,
     SseSerializer serializer,
@@ -549,11 +838,41 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_usize(BigInt? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_list_prim_f_32_strict(
+    Float32List? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_list_record_string_string(
+    List<(String, String)>? self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_record_string_string(
     (String, String) self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_semantic_edge(SemanticEdge self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_semantic_edge_result(
+    SemanticEdgeResult self,
     SseSerializer serializer,
   );
 
@@ -655,6 +974,20 @@ class RustLibWire implements BaseWire {
     color,
   );
 
+  void wire__crate__api__analyze_knowledge_graph(
+    NativePortType port_,
+    JSAny entries,
+    JSAny? k,
+    double? similarity_threshold,
+    JSAny? existing_links,
+  ) => wasmModule.wire__crate__api__analyze_knowledge_graph(
+    port_,
+    entries,
+    k,
+    similarity_threshold,
+    existing_links,
+  );
+
   void wire__crate__api__batch_embed(NativePortType port_, JSAny texts) =>
       wasmModule.wire__crate__api__batch_embed(port_, texts);
 
@@ -682,6 +1015,18 @@ class RustLibWire implements BaseWire {
     threshold,
   );
 
+  void wire__crate__api__cluster_notes(
+    NativePortType port_,
+    JSAny entries,
+    JSAny? k,
+    JSAny? max_iterations,
+  ) => wasmModule.wire__crate__api__cluster_notes(
+    port_,
+    entries,
+    k,
+    max_iterations,
+  );
+
   void wire__crate__api__compute_graph_layout(
     NativePortType port_,
     int? iterations,
@@ -700,6 +1045,18 @@ class RustLibWire implements BaseWire {
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__cosine_similarity(JSAny a, JSAny b) =>
       wasmModule.wire__crate__api__cosine_similarity(a, b);
+
+  void wire__crate__api__discover_semantic_edges(
+    NativePortType port_,
+    JSAny entries,
+    double? threshold,
+    JSAny? existing_links,
+  ) => wasmModule.wire__crate__api__discover_semantic_edges(
+    port_,
+    entries,
+    threshold,
+    existing_links,
+  );
 
   void wire__crate__api__extract_topics(
     NativePortType port_,
@@ -737,6 +1094,10 @@ class RustLibWire implements BaseWire {
   void wire__crate__api__get_graph_state(NativePortType port_) =>
       wasmModule.wire__crate__api__get_graph_state(port_);
 
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__get_model_type() =>
+      wasmModule.wire__crate__api__get_model_type();
+
   void wire__crate__api__get_or_create_topic_hub(
     NativePortType port_,
     String topic,
@@ -772,6 +1133,7 @@ class RustLibWire implements BaseWire {
     double temperature,
     double top_p,
     int max_tokens,
+    int? model_type,
   ) => wasmModule.wire__crate__api__init_model_with_config(
     port_,
     model_path,
@@ -781,6 +1143,7 @@ class RustLibWire implements BaseWire {
     temperature,
     top_p,
     max_tokens,
+    model_type,
   );
 
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
@@ -909,6 +1272,14 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
     int color,
   );
 
+  external void wire__crate__api__analyze_knowledge_graph(
+    NativePortType port_,
+    JSAny entries,
+    JSAny? k,
+    double? similarity_threshold,
+    JSAny? existing_links,
+  );
+
   external void wire__crate__api__batch_embed(
     NativePortType port_,
     JSAny texts,
@@ -932,6 +1303,13 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
     double threshold,
   );
 
+  external void wire__crate__api__cluster_notes(
+    NativePortType port_,
+    JSAny entries,
+    JSAny? k,
+    JSAny? max_iterations,
+  );
+
   external void wire__crate__api__compute_graph_layout(
     NativePortType port_,
     int? iterations,
@@ -945,6 +1323,13 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__cosine_similarity(JSAny a, JSAny b);
+
+  external void wire__crate__api__discover_semantic_edges(
+    NativePortType port_,
+    JSAny entries,
+    double? threshold,
+    JSAny? existing_links,
+  );
 
   external void wire__crate__api__extract_topics(
     NativePortType port_,
@@ -975,6 +1360,9 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
   wire__crate__api__get_embedding_dimension();
 
   external void wire__crate__api__get_graph_state(NativePortType port_);
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__get_model_type();
 
   external void wire__crate__api__get_or_create_topic_hub(
     NativePortType port_,
@@ -1007,6 +1395,7 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
     double temperature,
     double top_p,
     int max_tokens,
+    int? model_type,
   );
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */

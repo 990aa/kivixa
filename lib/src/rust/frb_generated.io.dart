@@ -4,6 +4,7 @@
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
 import 'api.dart';
+import 'clustering.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi' as ffi;
@@ -31,7 +32,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool dco_decode_bool(dynamic raw);
 
   @protected
+  double dco_decode_box_autoadd_f_32(dynamic raw);
+
+  @protected
+  int dco_decode_box_autoadd_i_32(dynamic raw);
+
+  @protected
   int dco_decode_box_autoadd_u_32(dynamic raw);
+
+  @protected
+  BigInt dco_decode_box_autoadd_usize(dynamic raw);
+
+  @protected
+  ClusterAssignment dco_decode_cluster_assignment(dynamic raw);
+
+  @protected
+  ClusterInfo dco_decode_cluster_info(dynamic raw);
+
+  @protected
+  ClusteringResult dco_decode_clustering_result(dynamic raw);
 
   @protected
   EmbeddingCluster dco_decode_embedding_cluster(dynamic raw);
@@ -55,7 +74,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int dco_decode_i_32(dynamic raw);
 
   @protected
+  KnowledgeGraphAnalysis dco_decode_knowledge_graph_analysis(dynamic raw);
+
+  @protected
   List<String> dco_decode_list_String(dynamic raw);
+
+  @protected
+  List<ClusterAssignment> dco_decode_list_cluster_assignment(dynamic raw);
+
+  @protected
+  List<ClusterInfo> dco_decode_list_cluster_info(dynamic raw);
 
   @protected
   List<EmbeddingCluster> dco_decode_list_embedding_cluster(dynamic raw);
@@ -85,6 +113,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<(String, String)> dco_decode_list_record_string_string(dynamic raw);
 
   @protected
+  List<SemanticEdge> dco_decode_list_semantic_edge(dynamic raw);
+
+  @protected
   List<SimilarityResult> dco_decode_list_similarity_result(dynamic raw);
 
   @protected
@@ -94,10 +125,31 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
+  double? dco_decode_opt_box_autoadd_f_32(dynamic raw);
+
+  @protected
+  int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
+
+  @protected
   int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
 
   @protected
+  BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw);
+
+  @protected
+  Float32List? dco_decode_opt_list_prim_f_32_strict(dynamic raw);
+
+  @protected
+  List<(String, String)>? dco_decode_opt_list_record_string_string(dynamic raw);
+
+  @protected
   (String, String) dco_decode_record_string_string(dynamic raw);
+
+  @protected
+  SemanticEdge dco_decode_semantic_edge(dynamic raw);
+
+  @protected
+  SemanticEdgeResult dco_decode_semantic_edge_result(dynamic raw);
 
   @protected
   SimilarityResult dco_decode_similarity_result(dynamic raw);
@@ -127,7 +179,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
+  double sse_decode_box_autoadd_f_32(SseDeserializer deserializer);
+
+  @protected
+  int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
+
+  @protected
   int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
+
+  @protected
+  BigInt sse_decode_box_autoadd_usize(SseDeserializer deserializer);
+
+  @protected
+  ClusterAssignment sse_decode_cluster_assignment(SseDeserializer deserializer);
+
+  @protected
+  ClusterInfo sse_decode_cluster_info(SseDeserializer deserializer);
+
+  @protected
+  ClusteringResult sse_decode_clustering_result(SseDeserializer deserializer);
 
   @protected
   EmbeddingCluster sse_decode_embedding_cluster(SseDeserializer deserializer);
@@ -151,7 +221,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int sse_decode_i_32(SseDeserializer deserializer);
 
   @protected
+  KnowledgeGraphAnalysis sse_decode_knowledge_graph_analysis(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<String> sse_decode_list_String(SseDeserializer deserializer);
+
+  @protected
+  List<ClusterAssignment> sse_decode_list_cluster_assignment(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<ClusterInfo> sse_decode_list_cluster_info(SseDeserializer deserializer);
 
   @protected
   List<EmbeddingCluster> sse_decode_list_embedding_cluster(
@@ -189,6 +272,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  List<SemanticEdge> sse_decode_list_semantic_edge(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<SimilarityResult> sse_decode_list_similarity_result(
     SseDeserializer deserializer,
   );
@@ -200,10 +288,37 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
+  double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer);
+
+  @protected
+  int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
+
+  @protected
   int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
 
   @protected
+  BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer);
+
+  @protected
+  Float32List? sse_decode_opt_list_prim_f_32_strict(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<(String, String)>? sse_decode_opt_list_record_string_string(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   (String, String) sse_decode_record_string_string(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  SemanticEdge sse_decode_semantic_edge(SseDeserializer deserializer);
+
+  @protected
+  SemanticEdgeResult sse_decode_semantic_edge_result(
     SseDeserializer deserializer,
   );
 
@@ -240,9 +355,27 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  ffi.Pointer<ffi.Float> cst_encode_box_autoadd_f_32(double raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_f_32(cst_encode_f_32(raw));
+  }
+
+  @protected
+  ffi.Pointer<ffi.Int32> cst_encode_box_autoadd_i_32(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_i_32(cst_encode_i_32(raw));
+  }
+
+  @protected
   ffi.Pointer<ffi.Uint32> cst_encode_box_autoadd_u_32(int raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return wire.cst_new_box_autoadd_u_32(cst_encode_u_32(raw));
+  }
+
+  @protected
+  ffi.Pointer<ffi.UintPtr> cst_encode_box_autoadd_usize(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_usize(cst_encode_usize(raw));
   }
 
   @protected
@@ -251,6 +384,29 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     final ans = wire.cst_new_list_String(raw.length);
     for (var i = 0; i < raw.length; ++i) {
       ans.ref.ptr[i] = cst_encode_String(raw[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_cluster_assignment>
+  cst_encode_list_cluster_assignment(List<ClusterAssignment> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_cluster_assignment(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_cluster_assignment(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_cluster_info> cst_encode_list_cluster_info(
+    List<ClusterInfo> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_cluster_info(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_cluster_info(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
@@ -356,6 +512,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_semantic_edge> cst_encode_list_semantic_edge(
+    List<SemanticEdge> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_semantic_edge(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_semantic_edge(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_similarity_result>
   cst_encode_list_similarity_result(List<SimilarityResult> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
@@ -375,15 +543,82 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  ffi.Pointer<ffi.Float> cst_encode_opt_box_autoadd_f_32(double? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_f_32(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Int32> cst_encode_opt_box_autoadd_i_32(int? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_i_32(raw);
+  }
+
+  @protected
   ffi.Pointer<ffi.Uint32> cst_encode_opt_box_autoadd_u_32(int? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? ffi.nullptr : cst_encode_box_autoadd_u_32(raw);
   }
 
   @protected
+  ffi.Pointer<ffi.UintPtr> cst_encode_opt_box_autoadd_usize(BigInt? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_usize(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_f_32_strict>
+  cst_encode_opt_list_prim_f_32_strict(Float32List? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_list_prim_f_32_strict(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_record_string_string>
+  cst_encode_opt_list_record_string_string(List<(String, String)>? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null
+        ? ffi.nullptr
+        : cst_encode_list_record_string_string(raw);
+  }
+
+  @protected
   int cst_encode_usize(BigInt raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.toSigned(64).toInt();
+  }
+
+  @protected
+  void cst_api_fill_to_wire_cluster_assignment(
+    ClusterAssignment apiObj,
+    wire_cst_cluster_assignment wireObj,
+  ) {
+    wireObj.id = cst_encode_String(apiObj.id);
+    wireObj.cluster_id = cst_encode_usize(apiObj.clusterId);
+    wireObj.color = cst_encode_String(apiObj.color);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_cluster_info(
+    ClusterInfo apiObj,
+    wire_cst_cluster_info wireObj,
+  ) {
+    wireObj.id = cst_encode_usize(apiObj.id);
+    wireObj.size = cst_encode_usize(apiObj.size);
+    wireObj.color = cst_encode_String(apiObj.color);
+    wireObj.centroid = cst_encode_opt_list_prim_f_32_strict(apiObj.centroid);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_clustering_result(
+    ClusteringResult apiObj,
+    wire_cst_clustering_result wireObj,
+  ) {
+    wireObj.assignments = cst_encode_list_cluster_assignment(
+      apiObj.assignments,
+    );
+    wireObj.clusters = cst_encode_list_cluster_info(apiObj.clusters);
+    wireObj.k = cst_encode_usize(apiObj.k);
   }
 
   @protected
@@ -439,6 +674,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
+  void cst_api_fill_to_wire_knowledge_graph_analysis(
+    KnowledgeGraphAnalysis apiObj,
+    wire_cst_knowledge_graph_analysis wireObj,
+  ) {
+    cst_api_fill_to_wire_clustering_result(
+      apiObj.clustering,
+      wireObj.clustering,
+    );
+    cst_api_fill_to_wire_semantic_edge_result(
+      apiObj.semanticEdges,
+      wireObj.semantic_edges,
+    );
+  }
+
+  @protected
   void cst_api_fill_to_wire_node_position(
     NodePosition apiObj,
     wire_cst_node_position wireObj,
@@ -458,6 +708,26 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ) {
     wireObj.field0 = cst_encode_String(apiObj.$1);
     wireObj.field1 = cst_encode_String(apiObj.$2);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_semantic_edge(
+    SemanticEdge apiObj,
+    wire_cst_semantic_edge wireObj,
+  ) {
+    wireObj.source = cst_encode_String(apiObj.source);
+    wireObj.target = cst_encode_String(apiObj.target);
+    wireObj.similarity = cst_encode_f_32(apiObj.similarity);
+    wireObj.is_ghost = cst_encode_bool(apiObj.isGhost);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_semantic_edge_result(
+    SemanticEdgeResult apiObj,
+    wire_cst_semantic_edge_result wireObj,
+  ) {
+    wireObj.edges = cst_encode_list_semantic_edge(apiObj.edges);
+    wireObj.count = cst_encode_usize(apiObj.count);
   }
 
   @protected
@@ -511,7 +781,31 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_bool(bool self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
+
+  @protected
   void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_usize(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_cluster_assignment(
+    ClusterAssignment self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_cluster_info(ClusterInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_clustering_result(
+    ClusteringResult self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_embedding_cluster(
@@ -541,7 +835,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_i_32(int self, SseSerializer serializer);
 
   @protected
+  void sse_encode_knowledge_graph_analysis(
+    KnowledgeGraphAnalysis self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_cluster_assignment(
+    List<ClusterAssignment> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_cluster_info(
+    List<ClusterInfo> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_embedding_cluster(
@@ -598,6 +910,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_semantic_edge(
+    List<SemanticEdge> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_similarity_result(
     List<SimilarityResult> self,
     SseSerializer serializer,
@@ -610,11 +928,41 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_usize(BigInt? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_list_prim_f_32_strict(
+    Float32List? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_list_record_string_string(
+    List<(String, String)>? self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_record_string_string(
     (String, String) self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_semantic_edge(SemanticEdge self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_semantic_edge_result(
+    SemanticEdgeResult self,
     SseSerializer serializer,
   );
 
@@ -878,6 +1226,46 @@ class RustLibWire implements BaseWire {
             )
           >();
 
+  void wire__crate__api__analyze_knowledge_graph(
+    int port_,
+    ffi.Pointer<wire_cst_list_embedding_entry> entries,
+    ffi.Pointer<ffi.UintPtr> k,
+    ffi.Pointer<ffi.Float> similarity_threshold,
+    ffi.Pointer<wire_cst_list_record_string_string> existing_links,
+  ) {
+    return _wire__crate__api__analyze_knowledge_graph(
+      port_,
+      entries,
+      k,
+      similarity_threshold,
+      existing_links,
+    );
+  }
+
+  late final _wire__crate__api__analyze_knowledge_graphPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_embedding_entry>,
+            ffi.Pointer<ffi.UintPtr>,
+            ffi.Pointer<ffi.Float>,
+            ffi.Pointer<wire_cst_list_record_string_string>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__analyze_knowledge_graph');
+  late final _wire__crate__api__analyze_knowledge_graph =
+      _wire__crate__api__analyze_knowledge_graphPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_embedding_entry>,
+              ffi.Pointer<ffi.UintPtr>,
+              ffi.Pointer<ffi.Float>,
+              ffi.Pointer<wire_cst_list_record_string_string>,
+            )
+          >();
+
   void wire__crate__api__batch_embed(
     int port_,
     ffi.Pointer<wire_cst_list_String> texts,
@@ -973,6 +1361,37 @@ class RustLibWire implements BaseWire {
             )
           >();
 
+  void wire__crate__api__cluster_notes(
+    int port_,
+    ffi.Pointer<wire_cst_list_embedding_entry> entries,
+    ffi.Pointer<ffi.UintPtr> k,
+    ffi.Pointer<ffi.UintPtr> max_iterations,
+  ) {
+    return _wire__crate__api__cluster_notes(port_, entries, k, max_iterations);
+  }
+
+  late final _wire__crate__api__cluster_notesPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_embedding_entry>,
+            ffi.Pointer<ffi.UintPtr>,
+            ffi.Pointer<ffi.UintPtr>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__cluster_notes');
+  late final _wire__crate__api__cluster_notes =
+      _wire__crate__api__cluster_notesPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_embedding_entry>,
+              ffi.Pointer<ffi.UintPtr>,
+              ffi.Pointer<ffi.UintPtr>,
+            )
+          >();
+
   void wire__crate__api__compute_graph_layout(
     int port_,
     ffi.Pointer<ffi.Uint32> iterations,
@@ -1040,6 +1459,42 @@ class RustLibWire implements BaseWire {
             WireSyncRust2DartDco Function(
               ffi.Pointer<wire_cst_list_prim_f_32_loose>,
               ffi.Pointer<wire_cst_list_prim_f_32_loose>,
+            )
+          >();
+
+  void wire__crate__api__discover_semantic_edges(
+    int port_,
+    ffi.Pointer<wire_cst_list_embedding_entry> entries,
+    ffi.Pointer<ffi.Float> threshold,
+    ffi.Pointer<wire_cst_list_record_string_string> existing_links,
+  ) {
+    return _wire__crate__api__discover_semantic_edges(
+      port_,
+      entries,
+      threshold,
+      existing_links,
+    );
+  }
+
+  late final _wire__crate__api__discover_semantic_edgesPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_embedding_entry>,
+            ffi.Pointer<ffi.Float>,
+            ffi.Pointer<wire_cst_list_record_string_string>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__discover_semantic_edges');
+  late final _wire__crate__api__discover_semantic_edges =
+      _wire__crate__api__discover_semantic_edgesPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_embedding_entry>,
+              ffi.Pointer<ffi.Float>,
+              ffi.Pointer<wire_cst_list_record_string_string>,
             )
           >();
 
@@ -1184,6 +1639,18 @@ class RustLibWire implements BaseWire {
   late final _wire__crate__api__get_graph_state =
       _wire__crate__api__get_graph_statePtr.asFunction<void Function(int)>();
 
+  WireSyncRust2DartDco wire__crate__api__get_model_type() {
+    return _wire__crate__api__get_model_type();
+  }
+
+  late final _wire__crate__api__get_model_typePtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
+        'frbgen_kivixa_wire__crate__api__get_model_type',
+      );
+  late final _wire__crate__api__get_model_type =
+      _wire__crate__api__get_model_typePtr
+          .asFunction<WireSyncRust2DartDco Function()>();
+
   void wire__crate__api__get_or_create_topic_hub(
     int port_,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> topic,
@@ -1294,6 +1761,7 @@ class RustLibWire implements BaseWire {
     double temperature,
     double top_p,
     int max_tokens,
+    ffi.Pointer<ffi.Int32> model_type,
   ) {
     return _wire__crate__api__init_model_with_config(
       port_,
@@ -1304,6 +1772,7 @@ class RustLibWire implements BaseWire {
       temperature,
       top_p,
       max_tokens,
+      model_type,
     );
   }
 
@@ -1319,6 +1788,7 @@ class RustLibWire implements BaseWire {
             ffi.Float,
             ffi.Float,
             ffi.Uint32,
+            ffi.Pointer<ffi.Int32>,
           )
         >
       >('frbgen_kivixa_wire__crate__api__init_model_with_config');
@@ -1334,6 +1804,7 @@ class RustLibWire implements BaseWire {
               double,
               double,
               int,
+              ffi.Pointer<ffi.Int32>,
             )
           >();
 
@@ -1596,6 +2067,28 @@ class RustLibWire implements BaseWire {
             void Function(int, double, double, double, double, double)
           >();
 
+  ffi.Pointer<ffi.Float> cst_new_box_autoadd_f_32(double value) {
+    return _cst_new_box_autoadd_f_32(value);
+  }
+
+  late final _cst_new_box_autoadd_f_32Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Float> Function(ffi.Float)>>(
+        'frbgen_kivixa_cst_new_box_autoadd_f_32',
+      );
+  late final _cst_new_box_autoadd_f_32 = _cst_new_box_autoadd_f_32Ptr
+      .asFunction<ffi.Pointer<ffi.Float> Function(double)>();
+
+  ffi.Pointer<ffi.Int32> cst_new_box_autoadd_i_32(int value) {
+    return _cst_new_box_autoadd_i_32(value);
+  }
+
+  late final _cst_new_box_autoadd_i_32Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Int32> Function(ffi.Int32)>>(
+        'frbgen_kivixa_cst_new_box_autoadd_i_32',
+      );
+  late final _cst_new_box_autoadd_i_32 = _cst_new_box_autoadd_i_32Ptr
+      .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
+
   ffi.Pointer<ffi.Uint32> cst_new_box_autoadd_u_32(int value) {
     return _cst_new_box_autoadd_u_32(value);
   }
@@ -1606,6 +2099,17 @@ class RustLibWire implements BaseWire {
       );
   late final _cst_new_box_autoadd_u_32 = _cst_new_box_autoadd_u_32Ptr
       .asFunction<ffi.Pointer<ffi.Uint32> Function(int)>();
+
+  ffi.Pointer<ffi.UintPtr> cst_new_box_autoadd_usize(int value) {
+    return _cst_new_box_autoadd_usize(value);
+  }
+
+  late final _cst_new_box_autoadd_usizePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.UintPtr> Function(ffi.UintPtr)>
+      >('frbgen_kivixa_cst_new_box_autoadd_usize');
+  late final _cst_new_box_autoadd_usize = _cst_new_box_autoadd_usizePtr
+      .asFunction<ffi.Pointer<ffi.UintPtr> Function(int)>();
 
   ffi.Pointer<wire_cst_list_String> cst_new_list_String(int len) {
     return _cst_new_list_String(len);
@@ -1619,6 +2123,37 @@ class RustLibWire implements BaseWire {
       >('frbgen_kivixa_cst_new_list_String');
   late final _cst_new_list_String = _cst_new_list_StringPtr
       .asFunction<ffi.Pointer<wire_cst_list_String> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_cluster_assignment> cst_new_list_cluster_assignment(
+    int len,
+  ) {
+    return _cst_new_list_cluster_assignment(len);
+  }
+
+  late final _cst_new_list_cluster_assignmentPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_cluster_assignment> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_cluster_assignment');
+  late final _cst_new_list_cluster_assignment =
+      _cst_new_list_cluster_assignmentPtr
+          .asFunction<
+            ffi.Pointer<wire_cst_list_cluster_assignment> Function(int)
+          >();
+
+  ffi.Pointer<wire_cst_list_cluster_info> cst_new_list_cluster_info(int len) {
+    return _cst_new_list_cluster_info(len);
+  }
+
+  late final _cst_new_list_cluster_infoPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_cluster_info> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_cluster_info');
+  late final _cst_new_list_cluster_info = _cst_new_list_cluster_infoPtr
+      .asFunction<ffi.Pointer<wire_cst_list_cluster_info> Function(int)>();
 
   ffi.Pointer<wire_cst_list_embedding_cluster> cst_new_list_embedding_cluster(
     int len,
@@ -1754,6 +2289,19 @@ class RustLibWire implements BaseWire {
             ffi.Pointer<wire_cst_list_record_string_string> Function(int)
           >();
 
+  ffi.Pointer<wire_cst_list_semantic_edge> cst_new_list_semantic_edge(int len) {
+    return _cst_new_list_semantic_edge(len);
+  }
+
+  late final _cst_new_list_semantic_edgePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_semantic_edge> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_semantic_edge');
+  late final _cst_new_list_semantic_edge = _cst_new_list_semantic_edgePtr
+      .asFunction<ffi.Pointer<wire_cst_list_semantic_edge> Function(int)>();
+
   ffi.Pointer<wire_cst_list_similarity_result> cst_new_list_similarity_result(
     int len,
   ) {
@@ -1843,26 +2391,6 @@ final class wire_cst_list_graph_node extends ffi.Struct {
   external int len;
 }
 
-final class wire_cst_list_String extends ffi.Struct {
-  external ffi.Pointer<ffi.Pointer<wire_cst_list_prim_u_8_strict>> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_record_string_string extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field0;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field1;
-}
-
-final class wire_cst_list_record_string_string extends ffi.Struct {
-  external ffi.Pointer<wire_cst_record_string_string> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
 final class wire_cst_list_prim_f_32_strict extends ffi.Struct {
   external ffi.Pointer<ffi.Float> ptr;
 
@@ -1885,8 +2413,63 @@ final class wire_cst_list_embedding_entry extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_record_string_string extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field0;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field1;
+}
+
+final class wire_cst_list_record_string_string extends ffi.Struct {
+  external ffi.Pointer<wire_cst_record_string_string> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_String extends ffi.Struct {
+  external ffi.Pointer<ffi.Pointer<wire_cst_list_prim_u_8_strict>> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_list_prim_f_32_loose extends ffi.Struct {
   external ffi.Pointer<ffi.Float> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_cluster_assignment extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> id;
+
+  @ffi.UintPtr()
+  external int cluster_id;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> color;
+}
+
+final class wire_cst_list_cluster_assignment extends ffi.Struct {
+  external ffi.Pointer<wire_cst_cluster_assignment> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_cluster_info extends ffi.Struct {
+  @ffi.UintPtr()
+  external int id;
+
+  @ffi.UintPtr()
+  external int size;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> color;
+
+  external ffi.Pointer<wire_cst_list_prim_f_32_strict> centroid;
+}
+
+final class wire_cst_list_cluster_info extends ffi.Struct {
+  external ffi.Pointer<wire_cst_cluster_info> ptr;
 
   @ffi.Int32()
   external int len;
@@ -1928,6 +2511,25 @@ final class wire_cst_list_node_position extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_semantic_edge extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> source;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> target;
+
+  @ffi.Float()
+  external double similarity;
+
+  @ffi.Bool()
+  external bool is_ghost;
+}
+
+final class wire_cst_list_semantic_edge extends ffi.Struct {
+  external ffi.Pointer<wire_cst_semantic_edge> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_similarity_result extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> id;
 
@@ -1944,10 +2546,32 @@ final class wire_cst_list_similarity_result extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_clustering_result extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_cluster_assignment> assignments;
+
+  external ffi.Pointer<wire_cst_list_cluster_info> clusters;
+
+  @ffi.UintPtr()
+  external int k;
+}
+
 final class wire_cst_graph_state extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_graph_node> nodes;
 
   external ffi.Pointer<wire_cst_list_graph_edge> edges;
+}
+
+final class wire_cst_semantic_edge_result extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_semantic_edge> edges;
+
+  @ffi.UintPtr()
+  external int count;
+}
+
+final class wire_cst_knowledge_graph_analysis extends ffi.Struct {
+  external wire_cst_clustering_result clustering;
+
+  external wire_cst_semantic_edge_result semantic_edges;
 }
 
 final class wire_cst_stream_graph_stats extends ffi.Struct {

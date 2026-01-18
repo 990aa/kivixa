@@ -53,8 +53,10 @@ class AIChatController extends ChangeNotifier {
   final List<AIChatMessage> _messages = [];
   var _isGenerating = false;
   var _isInitializing = false;
+  var _isLoadingModel = false;
   String? _systemPrompt;
-  String? _loadedModelName;
+  String? _loadedModelId;
+  AIModel? _loadedModel;
 
   AIChatController({InferenceService? inferenceService, String? systemPrompt})
     : _inferenceService = inferenceService ?? InferenceService(),
@@ -66,7 +68,10 @@ class AIChatController extends ChangeNotifier {
   bool get isGenerating => _isGenerating;
   bool get isModelLoaded => _inferenceService.isModelLoaded;
   bool get isInitializing => _isInitializing;
-  String? get loadedModelName => _loadedModelName;
+  bool get isLoadingModel => _isLoadingModel;
+  String? get loadedModelName => _loadedModel?.name;
+  String? get loadedModelId => _loadedModelId;
+  AIModel? get loadedModel => _loadedModel;
   String? get systemPrompt => _systemPrompt;
 
   /// Initialize and auto-load model if downloaded
@@ -80,18 +85,23 @@ class AIChatController extends ChangeNotifier {
 
       // Check if model is already loaded in native
       if (_inferenceService.isModelLoaded) {
-        _loadedModelName = ModelManager.defaultModel.name;
+        // Try to get the currently loaded model from manager
+        final currentModel = _modelManager.currentlyLoadedModel;
+        _loadedModel = currentModel ?? ModelManager.defaultModel;
+        _loadedModelId = _loadedModel?.id;
         _isInitializing = false;
         notifyListeners();
         return;
       }
 
-      // Check if model is downloaded and auto-load it
+      // Check if default model is downloaded and auto-load it
       final isDownloaded = await _modelManager.isModelDownloaded();
       if (isDownloaded) {
         final modelPath = await _modelManager.getModelPath();
         await _inferenceService.loadModel(modelPath);
-        _loadedModelName = ModelManager.defaultModel.name;
+        _loadedModel = ModelManager.defaultModel;
+        _loadedModelId = _loadedModel?.id;
+        _modelManager.setCurrentlyLoadedModel(_loadedModelId);
       }
     } catch (e) {
       debugPrint('Failed to initialize model: $e');
@@ -104,6 +114,50 @@ class AIChatController extends ChangeNotifier {
   /// Retry loading the model
   Future<void> retryLoadModel() async {
     await _initializeModel();
+  }
+
+  /// Switch to a different model
+  Future<bool> switchModel(AIModel model) async {
+    if (_isLoadingModel || _isGenerating) return false;
+
+    _isLoadingModel = true;
+    notifyListeners();
+
+    try {
+      // Check if model is downloaded
+      final isDownloaded = await _modelManager.isModelDownloaded(model);
+      if (!isDownloaded) {
+        _isLoadingModel = false;
+        notifyListeners();
+        return false; // Model needs to be downloaded first
+      }
+
+      // Unload current model if any
+      if (_inferenceService.isModelLoaded) {
+        _inferenceService.unloadModel();
+      }
+
+      // Load new model
+      final modelPath = await _modelManager.getModelPath(model);
+      await _inferenceService.loadModel(modelPath);
+
+      _loadedModel = model;
+      _loadedModelId = model.id;
+      _modelManager.setCurrentlyLoadedModel(model.id);
+
+      return true;
+    } catch (e) {
+      debugPrint('Failed to switch model: $e');
+      return false;
+    } finally {
+      _isLoadingModel = false;
+      notifyListeners();
+    }
+  }
+
+  /// Get list of downloaded models that can be switched to
+  Future<List<AIModel>> getAvailableModels() async {
+    return await _modelManager.getDownloadedModels();
   }
 
   set systemPrompt(String? value) {
@@ -329,9 +383,14 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                 ),
                 const Spacer(),
                 // Model status chip
-                if (widget.controller.isInitializing)
+                if (widget.controller.isInitializing ||
+                    widget.controller.isLoadingModel)
                   Chip(
-                    label: Text(isCompact ? 'Loading...' : 'Loading model...'),
+                    label: Text(
+                      widget.controller.isLoadingModel
+                          ? (isCompact ? 'Switching...' : 'Switching model...')
+                          : (isCompact ? 'Loading...' : 'Loading model...'),
+                    ),
                     backgroundColor: colorScheme.secondaryContainer,
                     labelStyle: TextStyle(
                       color: colorScheme.onSecondaryContainer,
@@ -348,30 +407,9 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                     ),
                   )
                 else if (widget.controller.isModelLoaded)
-                  ActionChip(
-                    label: Text(
-                      isCompact
-                          ? (widget.controller.loadedModelName ?? 'Ready')
-                          : '${widget.controller.loadedModelName ?? 'Model'} loaded',
-                    ),
-                    backgroundColor: colorScheme.primaryContainer,
-                    labelStyle: TextStyle(
-                      color: colorScheme.onPrimaryContainer,
-                      fontSize: isCompact ? 10 : null,
-                    ),
-                    padding: isCompact ? EdgeInsets.zero : null,
-                    avatar: Icon(
-                      Icons.check_circle,
-                      size: isCompact ? 14 : 18,
-                      color: colorScheme.onPrimaryContainer,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const ModelSelectionPage(),
-                        ),
-                      );
-                    },
+                  _ModelSwitcherChip(
+                    controller: widget.controller,
+                    isCompact: isCompact,
                   )
                 else
                   ActionChip(
@@ -734,6 +772,235 @@ class _SuggestionChip extends StatelessWidget {
       label: Text(label),
       onPressed: onTap,
       backgroundColor: colorScheme.surfaceContainerHighest,
+    );
+  }
+}
+
+/// Model switcher chip with dropdown for quick model switching
+class _ModelSwitcherChip extends StatefulWidget {
+  final AIChatController controller;
+  final bool isCompact;
+
+  const _ModelSwitcherChip({required this.controller, required this.isCompact});
+
+  @override
+  State<_ModelSwitcherChip> createState() => _ModelSwitcherChipState();
+}
+
+class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
+  List<AIModel> _downloadedModels = [];
+  var _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDownloadedModels();
+  }
+
+  Future<void> _loadDownloadedModels() async {
+    setState(() => _isLoading = true);
+    try {
+      final models = await widget.controller.getAvailableModels();
+      if (mounted) {
+        setState(() {
+          _downloadedModels = models;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showModelMenu(BuildContext context) async {
+    await _loadDownloadedModels();
+
+    if (!context.mounted) return;
+
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final currentModelId = widget.controller.loadedModelId;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Icon(Icons.smart_toy, color: colorScheme.primary),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Switch Model',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.of(context)
+                          .push(
+                            MaterialPageRoute(
+                              builder: (context) => const ModelSelectionPage(),
+                            ),
+                          )
+                          .then((_) => _loadDownloadedModels());
+                    },
+                    icon: const Icon(Icons.download, size: 18),
+                    label: const Text('Download More'),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            if (_downloadedModels.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.model_training,
+                      size: 48,
+                      color: colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No models downloaded',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    FilledButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const ModelSelectionPage(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.download),
+                      label: const Text('Download Models'),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _downloadedModels.length,
+                  itemBuilder: (context, index) {
+                    final model = _downloadedModels[index];
+                    final isSelected = model.id == currentModelId;
+
+                    return ListTile(
+                      leading: Icon(
+                        isSelected
+                            ? Icons.check_circle
+                            : Icons.radio_button_unchecked,
+                        color: isSelected
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant,
+                      ),
+                      title: Text(
+                        model.name,
+                        style: TextStyle(
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                      subtitle: Text(
+                        model.categories.map((c) => c.displayName).join(' • '),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      trailing: isSelected
+                          ? Chip(
+                              label: const Text('Active'),
+                              backgroundColor: colorScheme.primaryContainer,
+                              labelStyle: TextStyle(
+                                color: colorScheme.onPrimaryContainer,
+                                fontSize: 11,
+                              ),
+                              padding: EdgeInsets.zero,
+                              visualDensity: VisualDensity.compact,
+                            )
+                          : Text(
+                              model.sizeText,
+                              style: theme.textTheme.bodySmall,
+                            ),
+                      onTap: isSelected
+                          ? null
+                          : () async {
+                              Navigator.pop(context);
+                              final success = await widget.controller
+                                  .switchModel(model);
+                              if (!success && context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Failed to switch to ${model.name}',
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                    );
+                  },
+                ),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isCompact = widget.isCompact;
+    final modelName = widget.controller.loadedModelName ?? 'Model';
+
+    return ActionChip(
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(isCompact ? modelName : '$modelName loaded'),
+          const SizedBox(width: 4),
+          Icon(
+            Icons.arrow_drop_down,
+            size: isCompact ? 16 : 20,
+            color: colorScheme.onPrimaryContainer,
+          ),
+        ],
+      ),
+      backgroundColor: colorScheme.primaryContainer,
+      labelStyle: TextStyle(
+        color: colorScheme.onPrimaryContainer,
+        fontSize: isCompact ? 10 : null,
+      ),
+      padding: isCompact ? EdgeInsets.zero : null,
+      avatar: Icon(
+        Icons.check_circle,
+        size: isCompact ? 14 : 18,
+        color: colorScheme.onPrimaryContainer,
+      ),
+      onPressed: () => _showModelMenu(context),
     );
   }
 }

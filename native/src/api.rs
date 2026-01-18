@@ -9,20 +9,21 @@ use flutter_rust_bridge::frb;
 use crate::clustering;
 use crate::embeddings::{self, EmbeddingEntry, SimilarityResult};
 use crate::graph::{self, GraphEdge, GraphNode, GraphState};
-use crate::inference::{self, InferenceConfig};
+use crate::inference::{self, InferenceConfig, ModelType};
 use crate::streaming::{self, NodePosition, ViewportUpdate};
 
 // ============================================================================
 // Initialization
 // ============================================================================
 
-/// Initialize the Phi-4 model from the given path
+/// Initialize an AI model from the given path (auto-detects model type)
 #[frb(sync)]
 pub fn init_model(model_path: String) -> Result<()> {
-    inference::init_phi4(model_path, None)
+    inference::init_model(model_path, None)
 }
 
 /// Initialize the model with custom configuration
+/// model_type: 0 = Phi4, 1 = Qwen, 2 = Functionary (auto-detected if not in range)
 #[frb]
 pub fn init_model_with_config(
     model_path: String,
@@ -32,7 +33,25 @@ pub fn init_model_with_config(
     temperature: f32,
     top_p: f32,
     max_tokens: u32,
+    model_type: Option<i32>,
 ) -> Result<()> {
+    let detected_type = match model_type {
+        Some(0) => ModelType::Phi4,
+        Some(1) => ModelType::Qwen,
+        Some(2) => ModelType::Functionary,
+        _ => {
+            // Auto-detect from path
+            let lower = model_path.to_lowercase();
+            if lower.contains("qwen") {
+                ModelType::Qwen
+            } else if lower.contains("functionary") || lower.contains("function-gemma") {
+                ModelType::Functionary
+            } else {
+                ModelType::Phi4
+            }
+        }
+    };
+    
     let config = InferenceConfig {
         n_gpu_layers,
         n_ctx,
@@ -40,8 +59,20 @@ pub fn init_model_with_config(
         temperature,
         top_p,
         max_tokens,
+        model_type: detected_type,
     };
-    inference::init_phi4(model_path, Some(config))
+    inference::init_model(model_path, Some(config))
+}
+
+/// Get the loaded model type (0 = Phi4, 1 = Qwen, 2 = Functionary, -1 = not loaded)
+#[frb(sync)]
+pub fn get_model_type() -> i32 {
+    match inference::get_model_type() {
+        Some(ModelType::Phi4) => 0,
+        Some(ModelType::Qwen) => 1,
+        Some(ModelType::Functionary) => 2,
+        None => -1,
+    }
 }
 
 /// Check if the model is loaded
