@@ -104,3 +104,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced settings page with improved layout
 
 ---
+## [0.1.5] - 2026-01-18
+
+### Changed
+- Version bump to 0.1.5
+
+---
