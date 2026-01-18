@@ -574,7 +574,7 @@ bool _isValidDay(int day, int year, int month) {
   if (day < 1) return false;
   final daysInMonth = [
     31, // Jan
-    _isLeapYear(year) ? 29 : 28, // Feb
+    if (_isLeapYear(year)) 29 else 28, // Feb
     31, // Mar
     30, // Apr
     31, // May

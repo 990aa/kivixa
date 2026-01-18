@@ -5,11 +5,13 @@
 
 use anyhow::Result;
 use flutter_rust_bridge::frb;
+use std::path::PathBuf;
 
 use crate::clustering;
 use crate::embeddings::{self, EmbeddingEntry, SimilarityResult};
 use crate::graph::{self, GraphEdge, GraphNode, GraphState};
 use crate::inference::{self, InferenceConfig, ModelType};
+use crate::mcp;
 use crate::streaming::{self, NodePosition, ViewportUpdate};
 
 // ============================================================================
@@ -465,4 +467,182 @@ pub struct KnowledgeGraphAnalysis {
     pub clustering: ClusteringResult,
     /// Discovered semantic edges
     pub semantic_edges: SemanticEdgeResult,
+}
+
+// ============================================================================
+// MCP (Model Context Protocol) - AI Tool Execution
+// ============================================================================
+
+pub use crate::mcp::{
+    MCPConfig, MCPParamType, MCPParameter, MCPTool, MCPToolCall, MCPToolResult, TaskCategory,
+};
+
+/// Initialize the MCP system with configuration
+/// 
+/// # Arguments
+/// * `base_path` - Base path for file operations (browse/ directory)
+/// * `max_file_size` - Maximum file size in bytes (default: 10MB)
+/// * `allowed_extensions` - Optional list of allowed file extensions
+#[frb]
+pub fn init_mcp(
+    base_path: String,
+    max_file_size: Option<usize>,
+    allowed_extensions: Option<Vec<String>>,
+) -> Result<()> {
+    mcp::init_mcp(
+        PathBuf::from(base_path),
+        max_file_size,
+        allowed_extensions,
+    )
+}
+
+/// Check if MCP is initialized
+#[frb(sync)]
+pub fn is_mcp_initialized() -> bool {
+    mcp::is_mcp_initialized()
+}
+
+/// Validate a file path for MCP operations
+/// 
+/// # Arguments
+/// * `path` - Relative path to validate
+/// 
+/// # Returns
+/// * `true` if path is valid and within sandbox
+#[frb(sync)]
+pub fn mcp_validate_path(path: String) -> bool {
+    mcp::validate_path(&path).is_ok()
+}
+
+/// Read a file via MCP
+/// 
+/// # Arguments
+/// * `path` - Relative path within browse/ folder
+/// 
+/// # Returns
+/// * File contents as string
+#[frb]
+pub fn mcp_read_file(path: String) -> Result<String> {
+    mcp::read_file(&path)
+}
+
+/// Write a file via MCP
+/// 
+/// # Arguments
+/// * `path` - Relative path within browse/ folder
+/// * `content` - Content to write
+#[frb]
+pub fn mcp_write_file(path: String, content: String) -> Result<()> {
+    mcp::write_file(&path, &content)
+}
+
+/// Delete a file via MCP
+/// 
+/// # Arguments
+/// * `path` - Relative path within browse/ folder
+#[frb]
+pub fn mcp_delete_file(path: String) -> Result<()> {
+    mcp::delete_file(&path)
+}
+
+/// Create a folder via MCP
+/// 
+/// # Arguments
+/// * `path` - Relative path within browse/ folder
+#[frb]
+pub fn mcp_create_folder(path: String) -> Result<()> {
+    mcp::create_folder(&path)
+}
+
+/// List files in a directory via MCP
+/// 
+/// # Arguments
+/// * `path` - Relative path within browse/ folder (empty for root)
+/// 
+/// # Returns
+/// * List of file/folder names
+#[frb]
+pub fn mcp_list_files(path: String) -> Result<Vec<String>> {
+    mcp::list_files(&path)
+}
+
+/// Get tool schemas for AI prompt construction
+/// 
+/// # Returns
+/// * JSON string containing tool schemas
+#[frb(sync)]
+pub fn mcp_get_tool_schemas() -> String {
+    mcp::get_tool_schemas()
+}
+
+/// Parse a tool call from AI response
+/// 
+/// # Arguments
+/// * `json` - JSON string representing the tool call
+/// 
+/// # Returns
+/// * Parsed tool call structure
+#[frb]
+pub fn mcp_parse_tool_call(json: String) -> Result<MCPToolCall> {
+    mcp::parse_tool_call(&json)
+}
+
+/// Execute a tool call
+/// 
+/// # Arguments
+/// * `tool_call` - The tool call to execute
+/// 
+/// # Returns
+/// * Result of the tool execution
+#[frb]
+pub fn mcp_execute_tool_call(tool_call: MCPToolCall) -> MCPToolResult {
+    mcp::execute_tool_call(&tool_call)
+}
+
+/// Classify a task based on user message
+/// 
+/// # Arguments
+/// * `message` - User message to classify
+/// 
+/// # Returns
+/// * Task category (Conversation, ToolUse, CodeGeneration)
+#[frb(sync)]
+pub fn mcp_classify_task(message: String) -> TaskCategory {
+    mcp::classify_task(&message)
+}
+
+/// Get the recommended model for a task category
+/// 
+/// # Arguments
+/// * `category` - Task category
+/// 
+/// # Returns
+/// * Model name string
+#[frb(sync)]
+pub fn mcp_get_model_for_task(category: TaskCategory) -> String {
+    mcp::get_model_name_for_task(category).to_string()
+}
+
+/// Get all available MCP tools
+#[frb(sync)]
+pub fn mcp_get_all_tools() -> Vec<MCPTool> {
+    MCPTool::all()
+}
+
+/// Get tool name
+#[frb(sync)]
+pub fn mcp_get_tool_name(tool: MCPTool) -> String {
+    tool.name().to_string()
+}
+
+/// Get tool description
+#[frb(sync)]
+pub fn mcp_get_tool_description(tool: MCPTool) -> String {
+    tool.description().to_string()
+}
+
+/// Get tool parameters
+#[frb(sync)]
+pub fn mcp_get_tool_parameters(tool: MCPTool) -> Vec<MCPParameter> {
+    tool.parameters()
 }

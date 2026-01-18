@@ -789,7 +789,6 @@ class _ModelSwitcherChip extends StatefulWidget {
 
 class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
   List<AIModel> _downloadedModels = [];
-  var _isLoading = false;
 
   @override
   void initState() {
@@ -798,18 +797,16 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
   }
 
   Future<void> _loadDownloadedModels() async {
-    setState(() => _isLoading = true);
     try {
       final models = await widget.controller.getAvailableModels();
       if (mounted) {
         setState(() {
           _downloadedModels = models;
-          _isLoading = false;
         });
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _isLoading = false);
+        // Error handling if needed
       }
     }
   }
