@@ -106,7 +106,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.1.5] - 2026-01-18
 
+### Added
+- **Multi-Model Support**: Users can now download and switch between multiple AI models
+  - **Phi-4 Mini** (default): General purpose, writing, math/LaTeX assistance (~2.5 GB)
+  - **Qwen2.5 3B**: Writing, notes, code generation, Lua scripting (~1.9 GB)
+  - **Functionary Gemma 2B**: MCP/Agent tasks, function calling, tool use (~1.5 GB)
+  - **Functionary Gemma 7B**: Advanced agent tasks, complex reasoning (~4.7 GB)
+- **Model Categories**: Models are now tagged with categories (General, Agent/MCP, Writing, Math, Code)
+- **Quick Model Switcher**: Click the model chip in chat to instantly switch between downloaded models
+- **Enhanced Model Selection Page**: Browse models by category, see download status, manage models
+- **Model Management**: Download, load, and delete models from the Models page
+
 ### Changed
-- Version bump to 0.1.5
+- Chat header now shows a dropdown to quickly switch between downloaded models
+- Model selection page redesigned with category filters and better model cards
+- Default model remains Phi-4 Mini for backward compatibility
 
 ---
