@@ -1,7 +1,8 @@
 //! Kivixa Native Rust Library
 //!
 //! This library provides the native Rust backend for Kivixa's AI features:
-//! - Phi-4 inference engine with llama.cpp
+//! - Multi-model inference engine with llama.cpp (Phi-4, Qwen, Functionary)
+//! - Model Context Protocol (MCP) for AI-powered tool execution
 //! - Knowledge graph with force-directed layout
 //! - Vector embeddings for semantic search
 //! - K-Means clustering for automatic note grouping
@@ -15,6 +16,7 @@ pub mod clustering;
 pub mod embeddings;
 pub mod graph;
 pub mod inference;
+pub mod mcp;
 pub mod quadtree;
 pub mod streaming;
 

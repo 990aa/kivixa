@@ -4,8 +4,10 @@
 // Uses flutter_rust_bridge to call the native Rust engine.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // Flutter Rust Bridge generated imports
 import 'package:kivixa/src/rust/api.dart' as native;
@@ -82,11 +84,58 @@ class InferenceService {
   Future<void> initialize() async {
     if (_isInitialized) return;
 
-    // Initialize flutter_rust_bridge
-    await RustLib.init();
+    // Initialize flutter_rust_bridge with platform-specific library loading
+    await _initializeRustLib();
 
     _isInitialized = true;
     debugPrint('InferenceService initialized');
+  }
+
+  /// Initialize RustLib with proper library path resolution
+  Future<void> _initializeRustLib() async {
+    ExternalLibrary? externalLibrary;
+
+    if (Platform.isWindows) {
+      // On Windows, the DLL should be next to the executable
+      final exePath = Platform.resolvedExecutable;
+      final exeDir = File(exePath).parent.path;
+      final dllPath = '$exeDir/kivixa_native.dll';
+
+      debugPrint('Looking for native library at: $dllPath');
+
+      if (File(dllPath).existsSync()) {
+        debugPrint('Found native library, loading...');
+        externalLibrary = ExternalLibrary.open(dllPath);
+      } else {
+        // Fallback: try loading from system PATH (for development)
+        debugPrint('DLL not found at expected path, trying system PATH...');
+        try {
+          externalLibrary = ExternalLibrary.open('kivixa_native.dll');
+        } catch (e) {
+          debugPrint('Failed to load from PATH: $e');
+          // Let FRB try its default paths
+        }
+      }
+    } else if (Platform.isAndroid) {
+      // On Android, the .so is loaded from jniLibs automatically
+      // FRB handles this with the correct naming convention
+      debugPrint('Android: using FRB default library loading');
+    } else if (Platform.isLinux) {
+      // On Linux, try the executable directory first
+      final exePath = Platform.resolvedExecutable;
+      final exeDir = File(exePath).parent.path;
+      final soPath = '$exeDir/lib/libkivixa_native.so';
+
+      if (File(soPath).existsSync()) {
+        externalLibrary = ExternalLibrary.open(soPath);
+      }
+    } else if (Platform.isMacOS || Platform.isIOS) {
+      // On macOS/iOS, the dylib is in the framework
+      debugPrint('macOS/iOS: using FRB default library loading');
+    }
+
+    // Initialize with custom library if found, otherwise use defaults
+    await RustLib.init(externalLibrary: externalLibrary);
   }
 
   /// Load the AI model from the given path

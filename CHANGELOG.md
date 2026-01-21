@@ -106,7 +106,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.1.5] - 2026-01-18
 
+### Added
+- **Multi-Model Support**: Users can now download and switch between multiple AI models
+  - **Phi-4 Mini** (default): General purpose, writing, math/LaTeX assistance (~2.5 GB)
+  - **Qwen2.5 3B**: Writing, notes, code generation, Lua scripting (~1.9 GB)
+  - **Function Gemma 270M**: Ultra-fast MCP/tool calling specialist (~180 MB)
+  - **Gemma 2B**: General purpose, code generation (~1.5 GB)
+  - **Gemma 7B**: Larger general purpose model (~4.7 GB)
+- **Model Categories**: Models are now tagged with categories (General, Agent/MCP, Writing, Math, Code)
+- **Quick Model Switcher**: Click the model chip in chat to instantly switch between downloaded models
+- **Enhanced Model Selection Page**: Browse models by category, see download status, manage models
+- **Model Management**: Download, load, and delete models from the Models page
+- **AI Model Context Protocol (MCP)**: Full implementation of MCP for advanced AI capabilities.
+  - **Multi-Model Support**: Integrated Phi-4 (Reasoning), Function Gemma (Tools), and Qwen (Code).
+  - **Tool System**: Added 8 core MCP tools including File Operations (Read/Write/List), Lua Scripting (Calendar/Timer), and Markdown Export.
+  - **Security Layer**: Implemented strict path sandboxing, extension allow-lists, and file size limits.
+  - **User Safety**: Added confirmation dialogs for all sensitive file operations and tool executions.
+  - **Documentation**: Added comprehensive guides for AI MCP usage (`docs/AI_MCP_GUIDE.md`) and testing (`docs/MCP_TESTING_GUIDE.md`).
+- **MCP Chat Interface**:
+  - `MCPChatController`: New controller handling tool execution, parsing, and status updates.
+  - `ModelRouter`: Intelligent routing system to select the best model for specific tasks (Conversation, Tool Use, Coding).
+  - **Pure Dart Implementation**: robust standalone Dart services for MCP and Model Routing with comprehensive test coverage.
+- **Testing**:
+  - Added 28 unit tests for Dart MCP services (`test/mcp_service_test.dart`).
+  - Added 10 Rust integration tests for core native MCP logic.
+
 ### Changed
-- Version bump to 0.1.5
+- Chat header now shows a dropdown to quickly switch between downloaded models
+- Model selection page redesigned with category filters and better model cards
+- Default model remains Phi-4 Mini for backward compatibility
+- **Architecture**: Refactored AI services to support standalone operation without mandatory native bindings initially.
+
+### Fixed
+- **Native Library Loading**: Fixed DLL/SO loading on Windows and Linux with platform-specific path resolution
+- **Build Script**: The `scripts/build_native.ps1` now correctly copies native libraries to the right output directories
 
 ---

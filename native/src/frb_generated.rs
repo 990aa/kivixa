@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1602308821;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1959240715;
 
 // Section: executor
 
@@ -229,6 +229,40 @@ fn wire__crate__api__add_stream_node_impl(
         },
     )
 }
+fn wire__crate__api__analyze_knowledge_graph_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    entries: impl CstDecode<Vec<crate::embeddings::EmbeddingEntry>>,
+    k: impl CstDecode<Option<usize>>,
+    similarity_threshold: impl CstDecode<Option<f32>>,
+    existing_links: impl CstDecode<Option<Vec<(String, String)>>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "analyze_knowledge_graph",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_entries = entries.cst_decode();
+            let api_k = k.cst_decode();
+            let api_similarity_threshold = similarity_threshold.cst_decode();
+            let api_existing_links = existing_links.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::analyze_knowledge_graph(
+                            api_entries,
+                            api_k,
+                            api_similarity_threshold,
+                            api_existing_links,
+                        )?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__batch_embed_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     texts: impl CstDecode<Vec<String>>,
@@ -339,6 +373,34 @@ fn wire__crate__api__cluster_embeddings_impl(
         },
     )
 }
+fn wire__crate__api__cluster_notes_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    entries: impl CstDecode<Vec<crate::embeddings::EmbeddingEntry>>,
+    k: impl CstDecode<Option<usize>>,
+    max_iterations: impl CstDecode<Option<usize>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "cluster_notes",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_entries = entries.cst_decode();
+            let api_k = k.cst_decode();
+            let api_max_iterations = max_iterations.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok =
+                            crate::api::cluster_notes(api_entries, api_k, api_max_iterations)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__compute_graph_layout_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     iterations: impl CstDecode<Option<u32>>,
@@ -405,6 +467,35 @@ fn wire__crate__api__cosine_similarity_impl(
                 let output_ok = Result::<_, ()>::Ok(crate::api::cosine_similarity(api_a, api_b))?;
                 Ok(output_ok)
             })())
+        },
+    )
+}
+fn wire__crate__api__discover_semantic_edges_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    entries: impl CstDecode<Vec<crate::embeddings::EmbeddingEntry>>,
+    threshold: impl CstDecode<Option<f32>>,
+    existing_links: impl CstDecode<Option<Vec<(String, String)>>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "discover_semantic_edges",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_entries = entries.cst_decode();
+            let api_threshold = threshold.cst_decode();
+            let api_existing_links = existing_links.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(crate::api::discover_semantic_edges(
+                        api_entries,
+                        api_threshold,
+                        api_existing_links,
+                    ))?;
+                    Ok(output_ok)
+                })())
+            }
         },
     )
 }
@@ -550,6 +641,22 @@ fn wire__crate__api__get_graph_state_impl(port_: flutter_rust_bridge::for_genera
         },
     )
 }
+fn wire__crate__api__get_model_type_impl(
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_model_type",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::get_model_type())?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
 fn wire__crate__api__get_or_create_topic_hub_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     topic: impl CstDecode<String>,
@@ -657,6 +764,37 @@ fn wire__crate__api__init_graph_impl() -> flutter_rust_bridge::for_generated::Wi
         },
     )
 }
+fn wire__crate__api__init_mcp_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    base_path: impl CstDecode<String>,
+    max_file_size: impl CstDecode<Option<usize>>,
+    allowed_extensions: impl CstDecode<Option<Vec<String>>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "init_mcp",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_base_path = base_path.cst_decode();
+            let api_max_file_size = max_file_size.cst_decode();
+            let api_allowed_extensions = allowed_extensions.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::init_mcp(
+                            api_base_path,
+                            api_max_file_size,
+                            api_allowed_extensions,
+                        )?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__init_model_impl(
     model_path: impl CstDecode<String>,
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -686,6 +824,7 @@ fn wire__crate__api__init_model_with_config_impl(
     temperature: impl CstDecode<f32>,
     top_p: impl CstDecode<f32>,
     max_tokens: impl CstDecode<u32>,
+    model_type: impl CstDecode<Option<i32>>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -701,6 +840,7 @@ fn wire__crate__api__init_model_with_config_impl(
             let api_temperature = temperature.cst_decode();
             let api_top_p = top_p.cst_decode();
             let api_max_tokens = max_tokens.cst_decode();
+            let api_model_type = model_type.cst_decode();
             move |context| {
                 transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
@@ -712,6 +852,7 @@ fn wire__crate__api__init_model_with_config_impl(
                             api_temperature,
                             api_top_p,
                             api_max_tokens,
+                            api_model_type,
                         )?;
                         Ok(output_ok)
                     })(),
@@ -736,6 +877,22 @@ fn wire__crate__api__is_graph_stream_running_impl(
         },
     )
 }
+fn wire__crate__api__is_mcp_initialized_impl(
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "is_mcp_initialized",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::is_mcp_initialized())?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
 fn wire__crate__api__is_model_loaded_impl(
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
@@ -749,6 +906,310 @@ fn wire__crate__api__is_model_loaded_impl(
                 let output_ok = Result::<_, ()>::Ok(crate::api::is_model_loaded())?;
                 Ok(output_ok)
             })())
+        },
+    )
+}
+fn wire__crate__api__mcp_classify_task_impl(
+    message: impl CstDecode<String>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_classify_task",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_message = message.cst_decode();
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::mcp_classify_task(api_message))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_create_folder_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_create_folder",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::mcp_create_folder(api_path)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__mcp_delete_file_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_delete_file",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::mcp_delete_file(api_path)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__mcp_execute_tool_call_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    tool_call: impl CstDecode<crate::mcp::MCPToolCall>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_execute_tool_call",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_tool_call = tool_call.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::mcp_execute_tool_call(api_tool_call))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__mcp_get_all_tools_impl(
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_get_all_tools",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::mcp_get_all_tools())?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_get_model_for_task_impl(
+    category: impl CstDecode<crate::mcp::TaskCategory>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_get_model_for_task",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_category = category.cst_decode();
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok =
+                    Result::<_, ()>::Ok(crate::api::mcp_get_model_for_task(api_category))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_get_tool_description_impl(
+    tool: impl CstDecode<crate::mcp::MCPTool>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_get_tool_description",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_tool = tool.cst_decode();
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok =
+                    Result::<_, ()>::Ok(crate::api::mcp_get_tool_description(api_tool))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_get_tool_name_impl(
+    tool: impl CstDecode<crate::mcp::MCPTool>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_get_tool_name",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_tool = tool.cst_decode();
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::mcp_get_tool_name(api_tool))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_get_tool_parameters_impl(
+    tool: impl CstDecode<crate::mcp::MCPTool>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_get_tool_parameters",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_tool = tool.cst_decode();
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::mcp_get_tool_parameters(api_tool))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_get_tool_schemas_impl(
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_get_tool_schemas",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::mcp_get_tool_schemas())?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_list_files_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_list_files",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::mcp_list_files(api_path)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__mcp_parse_tool_call_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    json: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_parse_tool_call",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_json = json.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::mcp_parse_tool_call(api_json)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__mcp_read_file_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_read_file",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::mcp_read_file(api_path)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__mcp_validate_path_impl(
+    path: impl CstDecode<String>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_validate_path",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::mcp_validate_path(api_path))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__mcp_write_file_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    path: impl CstDecode<String>,
+    content: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mcp_write_file",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_path = path.cst_decode();
+            let api_content = content.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::mcp_write_file(api_path, api_content)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
         },
     )
 }
@@ -1014,6 +1475,45 @@ impl CstDecode<i32> for i32 {
         self
     }
 }
+impl CstDecode<crate::mcp::MCPParamType> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::mcp::MCPParamType {
+        match self {
+            0 => crate::mcp::MCPParamType::String,
+            1 => crate::mcp::MCPParamType::Boolean,
+            2 => crate::mcp::MCPParamType::Integer,
+            3 => crate::mcp::MCPParamType::Array,
+            _ => unreachable!("Invalid variant for MCPParamType: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::mcp::MCPTool> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::mcp::MCPTool {
+        match self {
+            0 => crate::mcp::MCPTool::ReadFile,
+            1 => crate::mcp::MCPTool::WriteFile,
+            2 => crate::mcp::MCPTool::DeleteFile,
+            3 => crate::mcp::MCPTool::CreateFolder,
+            4 => crate::mcp::MCPTool::ListFiles,
+            5 => crate::mcp::MCPTool::CalendarLua,
+            6 => crate::mcp::MCPTool::TimerLua,
+            7 => crate::mcp::MCPTool::ExportMarkdown,
+            _ => unreachable!("Invalid variant for MCPTool: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::mcp::TaskCategory> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::mcp::TaskCategory {
+        match self {
+            0 => crate::mcp::TaskCategory::Conversation,
+            1 => crate::mcp::TaskCategory::ToolUse,
+            2 => crate::mcp::TaskCategory::CodeGeneration,
+            _ => unreachable!("Invalid variant for TaskCategory: {}", self),
+        }
+    }
+}
 impl CstDecode<u32> for u32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> u32 {
@@ -1052,6 +1552,51 @@ impl SseDecode for bool {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         deserializer.cursor.read_u8().unwrap() != 0
+    }
+}
+
+impl SseDecode for crate::clustering::ClusterAssignment {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_id = <String>::sse_decode(deserializer);
+        let mut var_clusterId = <usize>::sse_decode(deserializer);
+        let mut var_color = <String>::sse_decode(deserializer);
+        return crate::clustering::ClusterAssignment {
+            id: var_id,
+            cluster_id: var_clusterId,
+            color: var_color,
+        };
+    }
+}
+
+impl SseDecode for crate::clustering::ClusterInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_id = <usize>::sse_decode(deserializer);
+        let mut var_size = <usize>::sse_decode(deserializer);
+        let mut var_color = <String>::sse_decode(deserializer);
+        let mut var_centroid = <Option<Vec<f32>>>::sse_decode(deserializer);
+        return crate::clustering::ClusterInfo {
+            id: var_id,
+            size: var_size,
+            color: var_color,
+            centroid: var_centroid,
+        };
+    }
+}
+
+impl SseDecode for crate::clustering::ClusteringResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_assignments =
+            <Vec<crate::clustering::ClusterAssignment>>::sse_decode(deserializer);
+        let mut var_clusters = <Vec<crate::clustering::ClusterInfo>>::sse_decode(deserializer);
+        let mut var_k = <usize>::sse_decode(deserializer);
+        return crate::clustering::ClusteringResult {
+            assignments: var_assignments,
+            clusters: var_clusters,
+            k: var_k,
+        };
     }
 }
 
@@ -1141,6 +1686,19 @@ impl SseDecode for i32 {
     }
 }
 
+impl SseDecode for crate::api::KnowledgeGraphAnalysis {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_clustering = <crate::clustering::ClusteringResult>::sse_decode(deserializer);
+        let mut var_semanticEdges =
+            <crate::clustering::SemanticEdgeResult>::sse_decode(deserializer);
+        return crate::api::KnowledgeGraphAnalysis {
+            clustering: var_clustering,
+            semantic_edges: var_semanticEdges,
+        };
+    }
+}
+
 impl SseDecode for Vec<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1148,6 +1706,32 @@ impl SseDecode for Vec<String> {
         let mut ans_ = vec![];
         for idx_ in 0..len_ {
             ans_.push(<String>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::clustering::ClusterAssignment> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::clustering::ClusterAssignment>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::clustering::ClusterInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::clustering::ClusterInfo>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -1203,6 +1787,30 @@ impl SseDecode for Vec<crate::graph::GraphNode> {
     }
 }
 
+impl SseDecode for Vec<crate::mcp::MCPParameter> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::mcp::MCPParameter>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::mcp::MCPTool> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::mcp::MCPTool>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::streaming::NodePosition> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1251,6 +1859,18 @@ impl SseDecode for Vec<(String, String)> {
     }
 }
 
+impl SseDecode for Vec<crate::clustering::SemanticEdge> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::clustering::SemanticEdge>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::embeddings::SimilarityResult> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1262,6 +1882,82 @@ impl SseDecode for Vec<crate::embeddings::SimilarityResult> {
             ));
         }
         return ans_;
+    }
+}
+
+impl SseDecode for crate::mcp::MCPParamType {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::mcp::MCPParamType::String,
+            1 => crate::mcp::MCPParamType::Boolean,
+            2 => crate::mcp::MCPParamType::Integer,
+            3 => crate::mcp::MCPParamType::Array,
+            _ => unreachable!("Invalid variant for MCPParamType: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::mcp::MCPParameter {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_description = <String>::sse_decode(deserializer);
+        let mut var_paramType = <crate::mcp::MCPParamType>::sse_decode(deserializer);
+        let mut var_required_ = <bool>::sse_decode(deserializer);
+        return crate::mcp::MCPParameter {
+            name: var_name,
+            description: var_description,
+            param_type: var_paramType,
+            required: var_required_,
+        };
+    }
+}
+
+impl SseDecode for crate::mcp::MCPTool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::mcp::MCPTool::ReadFile,
+            1 => crate::mcp::MCPTool::WriteFile,
+            2 => crate::mcp::MCPTool::DeleteFile,
+            3 => crate::mcp::MCPTool::CreateFolder,
+            4 => crate::mcp::MCPTool::ListFiles,
+            5 => crate::mcp::MCPTool::CalendarLua,
+            6 => crate::mcp::MCPTool::TimerLua,
+            7 => crate::mcp::MCPTool::ExportMarkdown,
+            _ => unreachable!("Invalid variant for MCPTool: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::mcp::MCPToolCall {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_tool = <String>::sse_decode(deserializer);
+        let mut var_parametersJson = <String>::sse_decode(deserializer);
+        let mut var_description = <String>::sse_decode(deserializer);
+        return crate::mcp::MCPToolCall {
+            tool: var_tool,
+            parameters_json: var_parametersJson,
+            description: var_description,
+        };
+    }
+}
+
+impl SseDecode for crate::mcp::MCPToolResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_success = <bool>::sse_decode(deserializer);
+        let mut var_result = <String>::sse_decode(deserializer);
+        let mut var_tool = <String>::sse_decode(deserializer);
+        return crate::mcp::MCPToolResult {
+            success: var_success,
+            result: var_result,
+            tool: var_tool,
+        };
     }
 }
 
@@ -1296,11 +1992,77 @@ impl SseDecode for Option<String> {
     }
 }
 
+impl SseDecode for Option<f32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<f32>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<i32>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<u32> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<u32>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<usize> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<usize>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<Vec<String>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<Vec<String>>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<Vec<f32>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<Vec<f32>>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<Vec<(String, String)>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<Vec<(String, String)>>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -1313,6 +2075,34 @@ impl SseDecode for (String, String) {
         let mut var_field0 = <String>::sse_decode(deserializer);
         let mut var_field1 = <String>::sse_decode(deserializer);
         return (var_field0, var_field1);
+    }
+}
+
+impl SseDecode for crate::clustering::SemanticEdge {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_source = <String>::sse_decode(deserializer);
+        let mut var_target = <String>::sse_decode(deserializer);
+        let mut var_similarity = <f32>::sse_decode(deserializer);
+        let mut var_isGhost = <bool>::sse_decode(deserializer);
+        return crate::clustering::SemanticEdge {
+            source: var_source,
+            target: var_target,
+            similarity: var_similarity,
+            is_ghost: var_isGhost,
+        };
+    }
+}
+
+impl SseDecode for crate::clustering::SemanticEdgeResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_edges = <Vec<crate::clustering::SemanticEdge>>::sse_decode(deserializer);
+        let mut var_count = <usize>::sse_decode(deserializer);
+        return crate::clustering::SemanticEdgeResult {
+            edges: var_edges,
+            count: var_count,
+        };
     }
 }
 
@@ -1340,6 +2130,19 @@ impl SseDecode for crate::api::StreamGraphStats {
             node_count: var_nodeCount,
             edge_count: var_edgeCount,
             visible_count: var_visibleCount,
+        };
+    }
+}
+
+impl SseDecode for crate::mcp::TaskCategory {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::mcp::TaskCategory::Conversation,
+            1 => crate::mcp::TaskCategory::ToolUse,
+            2 => crate::mcp::TaskCategory::CodeGeneration,
+            _ => unreachable!("Invalid variant for TaskCategory: {}", inner),
         };
     }
 }
@@ -1397,6 +2200,73 @@ fn pde_ffi_dispatcher_sync_impl(
 
 // Section: rust2dart
 
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::clustering::ClusterAssignment {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.id.into_into_dart().into_dart(),
+            self.cluster_id.into_into_dart().into_dart(),
+            self.color.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::clustering::ClusterAssignment
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::clustering::ClusterAssignment>
+    for crate::clustering::ClusterAssignment
+{
+    fn into_into_dart(self) -> crate::clustering::ClusterAssignment {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::clustering::ClusterInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.id.into_into_dart().into_dart(),
+            self.size.into_into_dart().into_dart(),
+            self.color.into_into_dart().into_dart(),
+            self.centroid.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::clustering::ClusterInfo
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::clustering::ClusterInfo>
+    for crate::clustering::ClusterInfo
+{
+    fn into_into_dart(self) -> crate::clustering::ClusterInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::clustering::ClusteringResult {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.assignments.into_into_dart().into_dart(),
+            self.clusters.into_into_dart().into_dart(),
+            self.k.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::clustering::ClusteringResult
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::clustering::ClusteringResult>
+    for crate::clustering::ClusteringResult
+{
+    fn into_into_dart(self) -> crate::clustering::ClusteringResult {
+        self
+    }
+}
 // Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::EmbeddingCluster {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
@@ -1489,6 +2359,119 @@ impl flutter_rust_bridge::IntoIntoDart<crate::graph::GraphState> for crate::grap
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::KnowledgeGraphAnalysis {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.clustering.into_into_dart().into_dart(),
+            self.semantic_edges.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::KnowledgeGraphAnalysis
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::KnowledgeGraphAnalysis>
+    for crate::api::KnowledgeGraphAnalysis
+{
+    fn into_into_dart(self) -> crate::api::KnowledgeGraphAnalysis {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::mcp::MCPParamType {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::String => 0.into_dart(),
+            Self::Boolean => 1.into_dart(),
+            Self::Integer => 2.into_dart(),
+            Self::Array => 3.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::mcp::MCPParamType {}
+impl flutter_rust_bridge::IntoIntoDart<crate::mcp::MCPParamType> for crate::mcp::MCPParamType {
+    fn into_into_dart(self) -> crate::mcp::MCPParamType {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::mcp::MCPParameter {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.name.into_into_dart().into_dart(),
+            self.description.into_into_dart().into_dart(),
+            self.param_type.into_into_dart().into_dart(),
+            self.required.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::mcp::MCPParameter {}
+impl flutter_rust_bridge::IntoIntoDart<crate::mcp::MCPParameter> for crate::mcp::MCPParameter {
+    fn into_into_dart(self) -> crate::mcp::MCPParameter {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::mcp::MCPTool {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::ReadFile => 0.into_dart(),
+            Self::WriteFile => 1.into_dart(),
+            Self::DeleteFile => 2.into_dart(),
+            Self::CreateFolder => 3.into_dart(),
+            Self::ListFiles => 4.into_dart(),
+            Self::CalendarLua => 5.into_dart(),
+            Self::TimerLua => 6.into_dart(),
+            Self::ExportMarkdown => 7.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::mcp::MCPTool {}
+impl flutter_rust_bridge::IntoIntoDart<crate::mcp::MCPTool> for crate::mcp::MCPTool {
+    fn into_into_dart(self) -> crate::mcp::MCPTool {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::mcp::MCPToolCall {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.tool.into_into_dart().into_dart(),
+            self.parameters_json.into_into_dart().into_dart(),
+            self.description.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::mcp::MCPToolCall {}
+impl flutter_rust_bridge::IntoIntoDart<crate::mcp::MCPToolCall> for crate::mcp::MCPToolCall {
+    fn into_into_dart(self) -> crate::mcp::MCPToolCall {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::mcp::MCPToolResult {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.success.into_into_dart().into_dart(),
+            self.result.into_into_dart().into_dart(),
+            self.tool.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::mcp::MCPToolResult {}
+impl flutter_rust_bridge::IntoIntoDart<crate::mcp::MCPToolResult> for crate::mcp::MCPToolResult {
+    fn into_into_dart(self) -> crate::mcp::MCPToolResult {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::streaming::NodePosition {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -1510,6 +2493,50 @@ impl flutter_rust_bridge::IntoIntoDart<crate::streaming::NodePosition>
     for crate::streaming::NodePosition
 {
     fn into_into_dart(self) -> crate::streaming::NodePosition {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::clustering::SemanticEdge {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.source.into_into_dart().into_dart(),
+            self.target.into_into_dart().into_dart(),
+            self.similarity.into_into_dart().into_dart(),
+            self.is_ghost.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::clustering::SemanticEdge
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::clustering::SemanticEdge>
+    for crate::clustering::SemanticEdge
+{
+    fn into_into_dart(self) -> crate::clustering::SemanticEdge {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::clustering::SemanticEdgeResult {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.edges.into_into_dart().into_dart(),
+            self.count.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::clustering::SemanticEdgeResult
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::clustering::SemanticEdgeResult>
+    for crate::clustering::SemanticEdgeResult
+{
+    fn into_into_dart(self) -> crate::clustering::SemanticEdgeResult {
         self
     }
 }
@@ -1554,6 +2581,23 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::StreamGraphStats>
         self
     }
 }
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::mcp::TaskCategory {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Conversation => 0.into_dart(),
+            Self::ToolUse => 1.into_dart(),
+            Self::CodeGeneration => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::mcp::TaskCategory {}
+impl flutter_rust_bridge::IntoIntoDart<crate::mcp::TaskCategory> for crate::mcp::TaskCategory {
+    fn into_into_dart(self) -> crate::mcp::TaskCategory {
+        self
+    }
+}
 
 impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -1573,6 +2617,34 @@ impl SseEncode for bool {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         serializer.cursor.write_u8(self as _).unwrap();
+    }
+}
+
+impl SseEncode for crate::clustering::ClusterAssignment {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.id, serializer);
+        <usize>::sse_encode(self.cluster_id, serializer);
+        <String>::sse_encode(self.color, serializer);
+    }
+}
+
+impl SseEncode for crate::clustering::ClusterInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <usize>::sse_encode(self.id, serializer);
+        <usize>::sse_encode(self.size, serializer);
+        <String>::sse_encode(self.color, serializer);
+        <Option<Vec<f32>>>::sse_encode(self.centroid, serializer);
+    }
+}
+
+impl SseEncode for crate::clustering::ClusteringResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::clustering::ClusterAssignment>>::sse_encode(self.assignments, serializer);
+        <Vec<crate::clustering::ClusterInfo>>::sse_encode(self.clusters, serializer);
+        <usize>::sse_encode(self.k, serializer);
     }
 }
 
@@ -1637,12 +2709,40 @@ impl SseEncode for i32 {
     }
 }
 
+impl SseEncode for crate::api::KnowledgeGraphAnalysis {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::clustering::ClusteringResult>::sse_encode(self.clustering, serializer);
+        <crate::clustering::SemanticEdgeResult>::sse_encode(self.semantic_edges, serializer);
+    }
+}
+
 impl SseEncode for Vec<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <String>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::clustering::ClusterAssignment> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::clustering::ClusterAssignment>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::clustering::ClusterInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::clustering::ClusterInfo>::sse_encode(item, serializer);
         }
     }
 }
@@ -1687,6 +2787,26 @@ impl SseEncode for Vec<crate::graph::GraphNode> {
     }
 }
 
+impl SseEncode for Vec<crate::mcp::MCPParameter> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::mcp::MCPParameter>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::mcp::MCPTool> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::mcp::MCPTool>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::streaming::NodePosition> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1727,6 +2847,16 @@ impl SseEncode for Vec<(String, String)> {
     }
 }
 
+impl SseEncode for Vec<crate::clustering::SemanticEdge> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::clustering::SemanticEdge>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::embeddings::SimilarityResult> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1734,6 +2864,74 @@ impl SseEncode for Vec<crate::embeddings::SimilarityResult> {
         for item in self {
             <crate::embeddings::SimilarityResult>::sse_encode(item, serializer);
         }
+    }
+}
+
+impl SseEncode for crate::mcp::MCPParamType {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::mcp::MCPParamType::String => 0,
+                crate::mcp::MCPParamType::Boolean => 1,
+                crate::mcp::MCPParamType::Integer => 2,
+                crate::mcp::MCPParamType::Array => 3,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::mcp::MCPParameter {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.name, serializer);
+        <String>::sse_encode(self.description, serializer);
+        <crate::mcp::MCPParamType>::sse_encode(self.param_type, serializer);
+        <bool>::sse_encode(self.required, serializer);
+    }
+}
+
+impl SseEncode for crate::mcp::MCPTool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::mcp::MCPTool::ReadFile => 0,
+                crate::mcp::MCPTool::WriteFile => 1,
+                crate::mcp::MCPTool::DeleteFile => 2,
+                crate::mcp::MCPTool::CreateFolder => 3,
+                crate::mcp::MCPTool::ListFiles => 4,
+                crate::mcp::MCPTool::CalendarLua => 5,
+                crate::mcp::MCPTool::TimerLua => 6,
+                crate::mcp::MCPTool::ExportMarkdown => 7,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::mcp::MCPToolCall {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.tool, serializer);
+        <String>::sse_encode(self.parameters_json, serializer);
+        <String>::sse_encode(self.description, serializer);
+    }
+}
+
+impl SseEncode for crate::mcp::MCPToolResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.success, serializer);
+        <String>::sse_encode(self.result, serializer);
+        <String>::sse_encode(self.tool, serializer);
     }
 }
 
@@ -1759,6 +2957,26 @@ impl SseEncode for Option<String> {
     }
 }
 
+impl SseEncode for Option<f32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <f32>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <i32>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<u32> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1769,11 +2987,69 @@ impl SseEncode for Option<u32> {
     }
 }
 
+impl SseEncode for Option<usize> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <usize>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<Vec<String>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <Vec<String>>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<Vec<f32>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <Vec<f32>>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<Vec<(String, String)>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <Vec<(String, String)>>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for (String, String) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.0, serializer);
         <String>::sse_encode(self.1, serializer);
+    }
+}
+
+impl SseEncode for crate::clustering::SemanticEdge {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.source, serializer);
+        <String>::sse_encode(self.target, serializer);
+        <f32>::sse_encode(self.similarity, serializer);
+        <bool>::sse_encode(self.is_ghost, serializer);
+    }
+}
+
+impl SseEncode for crate::clustering::SemanticEdgeResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::clustering::SemanticEdge>>::sse_encode(self.edges, serializer);
+        <usize>::sse_encode(self.count, serializer);
     }
 }
 
@@ -1792,6 +3068,23 @@ impl SseEncode for crate::api::StreamGraphStats {
         <usize>::sse_encode(self.node_count, serializer);
         <usize>::sse_encode(self.edge_count, serializer);
         <usize>::sse_encode(self.visible_count, serializer);
+    }
+}
+
+impl SseEncode for crate::mcp::TaskCategory {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::mcp::TaskCategory::Conversation => 0,
+                crate::mcp::TaskCategory::ToolUse => 1,
+                crate::mcp::TaskCategory::CodeGeneration => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
     }
 }
 
@@ -1859,10 +3152,66 @@ mod io {
             String::from_utf8(vec).unwrap()
         }
     }
+    impl CstDecode<f32> for *mut f32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> f32 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<i32> for *mut i32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> i32 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<crate::mcp::MCPToolCall> for *mut wire_cst_mcp_tool_call {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPToolCall {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::mcp::MCPToolCall>::cst_decode(*wrap).into()
+        }
+    }
     impl CstDecode<u32> for *mut u32 {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> u32 {
             unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<usize> for *mut usize {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> usize {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<crate::clustering::ClusterAssignment> for wire_cst_cluster_assignment {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::ClusterAssignment {
+            crate::clustering::ClusterAssignment {
+                id: self.id.cst_decode(),
+                cluster_id: self.cluster_id.cst_decode(),
+                color: self.color.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::clustering::ClusterInfo> for wire_cst_cluster_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::ClusterInfo {
+            crate::clustering::ClusterInfo {
+                id: self.id.cst_decode(),
+                size: self.size.cst_decode(),
+                color: self.color.cst_decode(),
+                centroid: self.centroid.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::clustering::ClusteringResult> for wire_cst_clustering_result {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::ClusteringResult {
+            crate::clustering::ClusteringResult {
+                assignments: self.assignments.cst_decode(),
+                clusters: self.clusters.cst_decode(),
+                k: self.k.cst_decode(),
+            }
         }
     }
     impl CstDecode<crate::api::EmbeddingCluster> for wire_cst_embedding_cluster {
@@ -1917,9 +3266,40 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::api::KnowledgeGraphAnalysis> for wire_cst_knowledge_graph_analysis {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::KnowledgeGraphAnalysis {
+            crate::api::KnowledgeGraphAnalysis {
+                clustering: self.clustering.cst_decode(),
+                semantic_edges: self.semantic_edges.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<Vec<String>> for *mut wire_cst_list_String {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<String> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::clustering::ClusterAssignment>>
+        for *mut wire_cst_list_cluster_assignment
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::clustering::ClusterAssignment> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::clustering::ClusterInfo>> for *mut wire_cst_list_cluster_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::clustering::ClusterInfo> {
             let vec = unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -1960,6 +3340,26 @@ mod io {
     impl CstDecode<Vec<crate::graph::GraphNode>> for *mut wire_cst_list_graph_node {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::graph::GraphNode> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::mcp::MCPParameter>> for *mut wire_cst_list_mcp_parameter {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::mcp::MCPParameter> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::mcp::MCPTool>> for *mut wire_cst_list_mcp_tool {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::mcp::MCPTool> {
             let vec = unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -2014,6 +3414,16 @@ mod io {
             vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
+    impl CstDecode<Vec<crate::clustering::SemanticEdge>> for *mut wire_cst_list_semantic_edge {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::clustering::SemanticEdge> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::embeddings::SimilarityResult>> for *mut wire_cst_list_similarity_result {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::embeddings::SimilarityResult> {
@@ -2022,6 +3432,37 @@ mod io {
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
             };
             vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<crate::mcp::MCPParameter> for wire_cst_mcp_parameter {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPParameter {
+            crate::mcp::MCPParameter {
+                name: self.name.cst_decode(),
+                description: self.description.cst_decode(),
+                param_type: self.param_type.cst_decode(),
+                required: self.required.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::mcp::MCPToolCall> for wire_cst_mcp_tool_call {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPToolCall {
+            crate::mcp::MCPToolCall {
+                tool: self.tool.cst_decode(),
+                parameters_json: self.parameters_json.cst_decode(),
+                description: self.description.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::mcp::MCPToolResult> for wire_cst_mcp_tool_result {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPToolResult {
+            crate::mcp::MCPToolResult {
+                success: self.success.cst_decode(),
+                result: self.result.cst_decode(),
+                tool: self.tool.cst_decode(),
+            }
         }
     }
     impl CstDecode<crate::streaming::NodePosition> for wire_cst_node_position {
@@ -2043,6 +3484,26 @@ mod io {
             (self.field0.cst_decode(), self.field1.cst_decode())
         }
     }
+    impl CstDecode<crate::clustering::SemanticEdge> for wire_cst_semantic_edge {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::SemanticEdge {
+            crate::clustering::SemanticEdge {
+                source: self.source.cst_decode(),
+                target: self.target.cst_decode(),
+                similarity: self.similarity.cst_decode(),
+                is_ghost: self.is_ghost.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::clustering::SemanticEdgeResult> for wire_cst_semantic_edge_result {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::SemanticEdgeResult {
+            crate::clustering::SemanticEdgeResult {
+                edges: self.edges.cst_decode(),
+                count: self.count.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::embeddings::SimilarityResult> for wire_cst_similarity_result {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::embeddings::SimilarityResult {
@@ -2061,6 +3522,49 @@ mod io {
                 edge_count: self.edge_count.cst_decode(),
                 visible_count: self.visible_count.cst_decode(),
             }
+        }
+    }
+    impl NewWithNullPtr for wire_cst_cluster_assignment {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                id: core::ptr::null_mut(),
+                cluster_id: Default::default(),
+                color: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_cluster_assignment {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_cluster_info {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                id: Default::default(),
+                size: Default::default(),
+                color: core::ptr::null_mut(),
+                centroid: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_cluster_info {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_clustering_result {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                assignments: core::ptr::null_mut(),
+                clusters: core::ptr::null_mut(),
+                k: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_clustering_result {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
         }
     }
     impl NewWithNullPtr for wire_cst_embedding_cluster {
@@ -2135,6 +3639,62 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_knowledge_graph_analysis {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                clustering: Default::default(),
+                semantic_edges: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_knowledge_graph_analysis {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_mcp_parameter {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                name: core::ptr::null_mut(),
+                description: core::ptr::null_mut(),
+                param_type: Default::default(),
+                required: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_mcp_parameter {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_mcp_tool_call {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                tool: core::ptr::null_mut(),
+                parameters_json: core::ptr::null_mut(),
+                description: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_mcp_tool_call {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_mcp_tool_result {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                success: Default::default(),
+                result: core::ptr::null_mut(),
+                tool: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_mcp_tool_result {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_node_position {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -2161,6 +3721,34 @@ mod io {
         }
     }
     impl Default for wire_cst_record_string_string {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_semantic_edge {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                source: core::ptr::null_mut(),
+                target: core::ptr::null_mut(),
+                similarity: Default::default(),
+                is_ghost: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_semantic_edge {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_semantic_edge_result {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                edges: core::ptr::null_mut(),
+                count: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_semantic_edge_result {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -2258,6 +3846,23 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__analyze_knowledge_graph(
+        port_: i64,
+        entries: *mut wire_cst_list_embedding_entry,
+        k: *mut usize,
+        similarity_threshold: *mut f32,
+        existing_links: *mut wire_cst_list_record_string_string,
+    ) {
+        wire__crate__api__analyze_knowledge_graph_impl(
+            port_,
+            entries,
+            k,
+            similarity_threshold,
+            existing_links,
+        )
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__batch_embed(
         port_: i64,
         texts: *mut wire_cst_list_String,
@@ -2296,6 +3901,16 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__cluster_notes(
+        port_: i64,
+        entries: *mut wire_cst_list_embedding_entry,
+        k: *mut usize,
+        max_iterations: *mut usize,
+    ) {
+        wire__crate__api__cluster_notes_impl(port_, entries, k, max_iterations)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__compute_graph_layout(
         port_: i64,
         iterations: *mut u32,
@@ -2318,6 +3933,16 @@ mod io {
         b: *mut wire_cst_list_prim_f_32_loose,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__api__cosine_similarity_impl(a, b)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__discover_semantic_edges(
+        port_: i64,
+        entries: *mut wire_cst_list_embedding_entry,
+        threshold: *mut f32,
+        existing_links: *mut wire_cst_list_record_string_string,
+    ) {
+        wire__crate__api__discover_semantic_edges_impl(port_, entries, threshold, existing_links)
     }
 
     #[unsafe(no_mangle)]
@@ -2369,6 +3994,12 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__get_model_type(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__get_model_type_impl()
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__get_or_create_topic_hub(
         port_: i64,
         topic: *mut wire_cst_list_prim_u_8_strict,
@@ -2406,6 +4037,16 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__init_mcp(
+        port_: i64,
+        base_path: *mut wire_cst_list_prim_u_8_strict,
+        max_file_size: *mut usize,
+        allowed_extensions: *mut wire_cst_list_String,
+    ) {
+        wire__crate__api__init_mcp_impl(port_, base_path, max_file_size, allowed_extensions)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__init_model(
         model_path: *mut wire_cst_list_prim_u_8_strict,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -2422,6 +4063,7 @@ mod io {
         temperature: f32,
         top_p: f32,
         max_tokens: u32,
+        model_type: *mut i32,
     ) {
         wire__crate__api__init_model_with_config_impl(
             port_,
@@ -2432,6 +4074,7 @@ mod io {
             temperature,
             top_p,
             max_tokens,
+            model_type,
         )
     }
 
@@ -2442,9 +4085,126 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__is_mcp_initialized(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__is_mcp_initialized_impl()
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__is_model_loaded(
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__api__is_model_loaded_impl()
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_classify_task(
+        message: *mut wire_cst_list_prim_u_8_strict,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_classify_task_impl(message)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_create_folder(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__mcp_create_folder_impl(port_, path)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_delete_file(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__mcp_delete_file_impl(port_, path)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_execute_tool_call(
+        port_: i64,
+        tool_call: *mut wire_cst_mcp_tool_call,
+    ) {
+        wire__crate__api__mcp_execute_tool_call_impl(port_, tool_call)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_get_all_tools(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_all_tools_impl()
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_get_model_for_task(
+        category: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_model_for_task_impl(category)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_get_tool_description(
+        tool: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_description_impl(tool)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_get_tool_name(
+        tool: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_name_impl(tool)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_get_tool_parameters(
+        tool: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_parameters_impl(tool)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_get_tool_schemas(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_schemas_impl()
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_list_files(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__mcp_list_files_impl(port_, path)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_parse_tool_call(
+        port_: i64,
+        json: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__mcp_parse_tool_call_impl(port_, json)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_read_file(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__mcp_read_file_impl(port_, path)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_validate_path(
+        path: *mut wire_cst_list_prim_u_8_strict,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_validate_path_impl(path)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mcp_write_file(
+        port_: i64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+        content: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__mcp_write_file_impl(port_, path, content)
     }
 
     #[unsafe(no_mangle)]
@@ -2531,7 +4291,30 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_box_autoadd_f_32(value: f32) -> *mut f32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_box_autoadd_i_32(value: i32) -> *mut i32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_box_autoadd_mcp_tool_call(
+    ) -> *mut wire_cst_mcp_tool_call {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_mcp_tool_call::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_cst_new_box_autoadd_u_32(value: u32) -> *mut u32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_box_autoadd_usize(value: usize) -> *mut usize {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
     }
 
@@ -2540,6 +4323,34 @@ mod io {
         let wrap = wire_cst_list_String {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
                 <*mut wire_cst_list_prim_u_8_strict>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_list_cluster_assignment(
+        len: i32,
+    ) -> *mut wire_cst_list_cluster_assignment {
+        let wrap = wire_cst_list_cluster_assignment {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_cluster_assignment>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_list_cluster_info(
+        len: i32,
+    ) -> *mut wire_cst_list_cluster_info {
+        let wrap = wire_cst_list_cluster_info {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_cluster_info>::new_with_null_ptr(),
                 len,
             ),
             len,
@@ -2598,6 +4409,29 @@ mod io {
                 <wire_cst_graph_node>::new_with_null_ptr(),
                 len,
             ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_list_mcp_parameter(
+        len: i32,
+    ) -> *mut wire_cst_list_mcp_parameter {
+        let wrap = wire_cst_list_mcp_parameter {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_mcp_parameter>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_list_mcp_tool(len: i32) -> *mut wire_cst_list_mcp_tool {
+        let wrap = wire_cst_list_mcp_tool {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(Default::default(), len),
             len,
         };
         flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
@@ -2665,6 +4499,20 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_list_semantic_edge(
+        len: i32,
+    ) -> *mut wire_cst_list_semantic_edge {
+        let wrap = wire_cst_list_semantic_edge {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_semantic_edge>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_cst_new_list_similarity_result(
         len: i32,
     ) -> *mut wire_cst_list_similarity_result {
@@ -2678,6 +4526,28 @@ mod io {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
     }
 
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_cluster_assignment {
+        id: *mut wire_cst_list_prim_u_8_strict,
+        cluster_id: usize,
+        color: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_cluster_info {
+        id: usize,
+        size: usize,
+        color: *mut wire_cst_list_prim_u_8_strict,
+        centroid: *mut wire_cst_list_prim_f_32_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_clustering_result {
+        assignments: *mut wire_cst_list_cluster_assignment,
+        clusters: *mut wire_cst_list_cluster_info,
+        k: usize,
+    }
     #[repr(C)]
     #[derive(Clone, Copy)]
     pub struct wire_cst_embedding_cluster {
@@ -2717,8 +4587,26 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_knowledge_graph_analysis {
+        clustering: wire_cst_clustering_result,
+        semantic_edges: wire_cst_semantic_edge_result,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_String {
         ptr: *mut *mut wire_cst_list_prim_u_8_strict,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_cluster_assignment {
+        ptr: *mut wire_cst_cluster_assignment,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_cluster_info {
+        ptr: *mut wire_cst_cluster_info,
         len: i32,
     }
     #[repr(C)]
@@ -2743,6 +4631,18 @@ mod io {
     #[derive(Clone, Copy)]
     pub struct wire_cst_list_graph_node {
         ptr: *mut wire_cst_graph_node,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_mcp_parameter {
+        ptr: *mut wire_cst_mcp_parameter,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_mcp_tool {
+        ptr: *mut i32,
         len: i32,
     }
     #[repr(C)]
@@ -2777,9 +4677,37 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_semantic_edge {
+        ptr: *mut wire_cst_semantic_edge,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_similarity_result {
         ptr: *mut wire_cst_similarity_result,
         len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_mcp_parameter {
+        name: *mut wire_cst_list_prim_u_8_strict,
+        description: *mut wire_cst_list_prim_u_8_strict,
+        param_type: i32,
+        required: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_mcp_tool_call {
+        tool: *mut wire_cst_list_prim_u_8_strict,
+        parameters_json: *mut wire_cst_list_prim_u_8_strict,
+        description: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_mcp_tool_result {
+        success: bool,
+        result: *mut wire_cst_list_prim_u_8_strict,
+        tool: *mut wire_cst_list_prim_u_8_strict,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -2796,6 +4724,20 @@ mod io {
     pub struct wire_cst_record_string_string {
         field0: *mut wire_cst_list_prim_u_8_strict,
         field1: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_semantic_edge {
+        source: *mut wire_cst_list_prim_u_8_strict,
+        target: *mut wire_cst_list_prim_u_8_strict,
+        similarity: f32,
+        is_ghost: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_semantic_edge_result {
+        edges: *mut wire_cst_list_semantic_edge,
+        count: usize,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -2848,6 +4790,70 @@ mod web {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> String {
             self
+        }
+    }
+    impl CstDecode<crate::clustering::ClusterAssignment>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::ClusterAssignment {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::clustering::ClusterAssignment {
+                id: self_.get(0).cst_decode(),
+                cluster_id: self_.get(1).cst_decode(),
+                color: self_.get(2).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::clustering::ClusterInfo>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::ClusterInfo {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                4,
+                "Expected 4 elements, got {}",
+                self_.length()
+            );
+            crate::clustering::ClusterInfo {
+                id: self_.get(0).cst_decode(),
+                size: self_.get(1).cst_decode(),
+                color: self_.get(2).cst_decode(),
+                centroid: self_.get(3).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::clustering::ClusteringResult>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::ClusteringResult {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::clustering::ClusteringResult {
+                assignments: self_.get(0).cst_decode(),
+                clusters: self_.get(1).cst_decode(),
+                k: self_.get(2).cst_decode(),
+            }
         }
     }
     impl CstDecode<crate::api::EmbeddingCluster>
@@ -2957,9 +4963,53 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::api::KnowledgeGraphAnalysis>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::KnowledgeGraphAnalysis {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::api::KnowledgeGraphAnalysis {
+                clustering: self_.get(0).cst_decode(),
+                semantic_edges: self_.get(1).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<Vec<String>> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<String> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::clustering::ClusterAssignment>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::clustering::ClusterAssignment> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::clustering::ClusterInfo>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::clustering::ClusterInfo> {
             self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
                 .unwrap()
                 .iter()
@@ -3015,6 +5065,30 @@ mod web {
                 .collect()
         }
     }
+    impl CstDecode<Vec<crate::mcp::MCPParameter>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::mcp::MCPParameter> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::mcp::MCPTool>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::mcp::MCPTool> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::streaming::NodePosition>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -3051,6 +5125,18 @@ mod web {
                 .collect()
         }
     }
+    impl CstDecode<Vec<crate::clustering::SemanticEdge>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::clustering::SemanticEdge> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::embeddings::SimilarityResult>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -3061,6 +5147,70 @@ mod web {
                 .iter()
                 .map(CstDecode::cst_decode)
                 .collect()
+        }
+    }
+    impl CstDecode<crate::mcp::MCPParameter>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPParameter {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                4,
+                "Expected 4 elements, got {}",
+                self_.length()
+            );
+            crate::mcp::MCPParameter {
+                name: self_.get(0).cst_decode(),
+                description: self_.get(1).cst_decode(),
+                param_type: self_.get(2).cst_decode(),
+                required: self_.get(3).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::mcp::MCPToolCall>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPToolCall {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::mcp::MCPToolCall {
+                tool: self_.get(0).cst_decode(),
+                parameters_json: self_.get(1).cst_decode(),
+                description: self_.get(2).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::mcp::MCPToolResult>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPToolResult {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::mcp::MCPToolResult {
+                success: self_.get(0).cst_decode(),
+                result: self_.get(1).cst_decode(),
+                tool: self_.get(2).cst_decode(),
+            }
         }
     }
     impl CstDecode<crate::streaming::NodePosition>
@@ -3093,6 +5243,12 @@ mod web {
             self.map(CstDecode::cst_decode)
         }
     }
+    impl CstDecode<Option<Vec<f32>>> for Option<Box<[f32]>> {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Option<Vec<f32>> {
+            self.map(CstDecode::cst_decode)
+        }
+    }
     impl CstDecode<(String, String)> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> (String, String) {
@@ -3106,6 +5262,48 @@ mod web {
                 self_.length()
             );
             (self_.get(0).cst_decode(), self_.get(1).cst_decode())
+        }
+    }
+    impl CstDecode<crate::clustering::SemanticEdge>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::SemanticEdge {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                4,
+                "Expected 4 elements, got {}",
+                self_.length()
+            );
+            crate::clustering::SemanticEdge {
+                source: self_.get(0).cst_decode(),
+                target: self_.get(1).cst_decode(),
+                similarity: self_.get(2).cst_decode(),
+                is_ghost: self_.get(3).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::clustering::SemanticEdgeResult>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::clustering::SemanticEdgeResult {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::clustering::SemanticEdgeResult {
+                edges: self_.get(0).cst_decode(),
+                count: self_.get(1).cst_decode(),
+            }
         }
     }
     impl CstDecode<crate::embeddings::SimilarityResult>
@@ -3198,6 +5396,28 @@ mod web {
                 .into()
         }
     }
+    impl CstDecode<crate::mcp::MCPParamType>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPParamType {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::mcp::MCPTool> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::MCPTool {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::mcp::TaskCategory>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::mcp::TaskCategory {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
     impl CstDecode<u32> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> u32 {
@@ -3281,6 +5501,23 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__analyze_knowledge_graph(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        entries: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        k: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        similarity_threshold: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        existing_links: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__analyze_knowledge_graph_impl(
+            port_,
+            entries,
+            k,
+            similarity_threshold,
+            existing_links,
+        )
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__batch_embed(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         texts: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -3319,6 +5556,16 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__cluster_notes(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        entries: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        k: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        max_iterations: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__cluster_notes_impl(port_, entries, k, max_iterations)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__compute_graph_layout(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         iterations: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -3341,6 +5588,16 @@ mod web {
         b: Box<[f32]>,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__api__cosine_similarity_impl(a, b)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__discover_semantic_edges(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        entries: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        threshold: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        existing_links: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__discover_semantic_edges_impl(port_, entries, threshold, existing_links)
     }
 
     #[wasm_bindgen]
@@ -3394,6 +5651,12 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__get_model_type(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__get_model_type_impl()
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__get_or_create_topic_hub(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         topic: String,
@@ -3433,6 +5696,16 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__init_mcp(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        base_path: String,
+        max_file_size: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        allowed_extensions: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__init_mcp_impl(port_, base_path, max_file_size, allowed_extensions)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__init_model(
         model_path: String,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -3449,6 +5722,7 @@ mod web {
         temperature: f32,
         top_p: f32,
         max_tokens: u32,
+        model_type: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__api__init_model_with_config_impl(
             port_,
@@ -3459,6 +5733,7 @@ mod web {
             temperature,
             top_p,
             max_tokens,
+            model_type,
         )
     }
 
@@ -3469,9 +5744,126 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__is_mcp_initialized(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__is_mcp_initialized_impl()
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__is_model_loaded(
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__api__is_model_loaded_impl()
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_classify_task(
+        message: String,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_classify_task_impl(message)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_create_folder(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+    ) {
+        wire__crate__api__mcp_create_folder_impl(port_, path)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_delete_file(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+    ) {
+        wire__crate__api__mcp_delete_file_impl(port_, path)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_execute_tool_call(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        tool_call: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__mcp_execute_tool_call_impl(port_, tool_call)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_get_all_tools(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_all_tools_impl()
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_get_model_for_task(
+        category: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_model_for_task_impl(category)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_get_tool_description(
+        tool: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_description_impl(tool)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_get_tool_name(
+        tool: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_name_impl(tool)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_get_tool_parameters(
+        tool: i32,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_parameters_impl(tool)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_get_tool_schemas(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_get_tool_schemas_impl()
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_list_files(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+    ) {
+        wire__crate__api__mcp_list_files_impl(port_, path)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_parse_tool_call(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        json: String,
+    ) {
+        wire__crate__api__mcp_parse_tool_call_impl(port_, json)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_read_file(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+    ) {
+        wire__crate__api__mcp_read_file_impl(port_, path)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_validate_path(
+        path: String,
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__mcp_validate_path_impl(path)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mcp_write_file(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        path: String,
+        content: String,
+    ) {
+        wire__crate__api__mcp_write_file_impl(port_, path, content)
     }
 
     #[wasm_bindgen]

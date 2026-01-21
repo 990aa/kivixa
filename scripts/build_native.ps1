@@ -1,4 +1,3 @@
-# scripts/build_native.ps1
 param(
     [switch]$SkipAndroid,
     [switch]$SkipWindows

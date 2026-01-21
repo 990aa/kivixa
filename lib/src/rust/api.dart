@@ -4,18 +4,21 @@
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
+import 'package:kivixa/src/rust/clustering.dart';
 import 'package:kivixa/src/rust/embeddings.dart';
 import 'package:kivixa/src/rust/frb_generated.dart';
 import 'package:kivixa/src/rust/graph.dart';
+import 'package:kivixa/src/rust/mcp.dart';
 import 'package:kivixa/src/rust/streaming.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`
 
-/// Initialize the Phi-4 model from the given path
+/// Initialize an AI model from the given path (auto-detects model type)
 void initModel({required String modelPath}) =>
     RustLib.instance.api.crateApiInitModel(modelPath: modelPath);
 
 /// Initialize the model with custom configuration
+/// model_type: 0 = Phi4, 1 = Qwen, 2 = Functionary (auto-detected if not in range)
 Future<void> initModelWithConfig({
   required String modelPath,
   required int nGpuLayers,
@@ -24,6 +27,7 @@ Future<void> initModelWithConfig({
   required double temperature,
   required double topP,
   required int maxTokens,
+  int? modelType,
 }) => RustLib.instance.api.crateApiInitModelWithConfig(
   modelPath: modelPath,
   nGpuLayers: nGpuLayers,
@@ -32,7 +36,11 @@ Future<void> initModelWithConfig({
   temperature: temperature,
   topP: topP,
   maxTokens: maxTokens,
+  modelType: modelType,
 );
+
+/// Get the loaded model type (0 = Phi4, 1 = Qwen, 2 = Functionary, -1 = not loaded)
+int getModelType() => RustLib.instance.api.crateApiGetModelType();
 
 /// Check if the model is loaded
 bool isModelLoaded() => RustLib.instance.api.crateApiIsModelLoaded();
@@ -276,6 +284,191 @@ void clearStreamGraph() => RustLib.instance.api.crateApiClearStreamGraph();
 StreamGraphStats getStreamGraphStats() =>
     RustLib.instance.api.crateApiGetStreamGraphStats();
 
+/// Run K-Means clustering on note embeddings
+///
+/// # Arguments
+/// * `entries` - List of embedding entries to cluster
+/// * `k` - Number of clusters (if None, auto-detect based on data size)
+/// * `max_iterations` - Maximum K-Means iterations (default: 100)
+///
+/// # Returns
+/// * Clustering result with assignments and metadata
+Future<ClusteringResult> clusterNotes({
+  required List<EmbeddingEntry> entries,
+  BigInt? k,
+  BigInt? maxIterations,
+}) => RustLib.instance.api.crateApiClusterNotes(
+  entries: entries,
+  k: k,
+  maxIterations: maxIterations,
+);
+
+/// Discover semantic edges between notes based on embedding similarity
+///
+/// # Arguments
+/// * `entries` - List of embedding entries
+/// * `threshold` - Minimum similarity for edge creation (default: 0.85)
+/// * `existing_links` - Optional list of existing hard links (source, target pairs)
+///
+/// # Returns
+/// * Semantic edges with similarity scores
+Future<SemanticEdgeResult> discoverSemanticEdges({
+  required List<EmbeddingEntry> entries,
+  double? threshold,
+  List<(String, String)>? existingLinks,
+}) => RustLib.instance.api.crateApiDiscoverSemanticEdges(
+  entries: entries,
+  threshold: threshold,
+  existingLinks: existingLinks,
+);
+
+/// Analyze knowledge graph: cluster and find semantic edges in one pass
+///
+/// More efficient than calling both functions separately
+Future<KnowledgeGraphAnalysis> analyzeKnowledgeGraph({
+  required List<EmbeddingEntry> entries,
+  BigInt? k,
+  double? similarityThreshold,
+  List<(String, String)>? existingLinks,
+}) => RustLib.instance.api.crateApiAnalyzeKnowledgeGraph(
+  entries: entries,
+  k: k,
+  similarityThreshold: similarityThreshold,
+  existingLinks: existingLinks,
+);
+
+/// Initialize the MCP system with configuration
+///
+/// # Arguments
+/// * `base_path` - Base path for file operations (browse/ directory)
+/// * `max_file_size` - Maximum file size in bytes (default: 10MB)
+/// * `allowed_extensions` - Optional list of allowed file extensions
+Future<void> initMcp({
+  required String basePath,
+  BigInt? maxFileSize,
+  List<String>? allowedExtensions,
+}) => RustLib.instance.api.crateApiInitMcp(
+  basePath: basePath,
+  maxFileSize: maxFileSize,
+  allowedExtensions: allowedExtensions,
+);
+
+/// Check if MCP is initialized
+bool isMcpInitialized() => RustLib.instance.api.crateApiIsMcpInitialized();
+
+/// Validate a file path for MCP operations
+///
+/// # Arguments
+/// * `path` - Relative path to validate
+///
+/// # Returns
+/// * `true` if path is valid and within sandbox
+bool mcpValidatePath({required String path}) =>
+    RustLib.instance.api.crateApiMcpValidatePath(path: path);
+
+/// Read a file via MCP
+///
+/// # Arguments
+/// * `path` - Relative path within browse/ folder
+///
+/// # Returns
+/// * File contents as string
+Future<String> mcpReadFile({required String path}) =>
+    RustLib.instance.api.crateApiMcpReadFile(path: path);
+
+/// Write a file via MCP
+///
+/// # Arguments
+/// * `path` - Relative path within browse/ folder
+/// * `content` - Content to write
+Future<void> mcpWriteFile({required String path, required String content}) =>
+    RustLib.instance.api.crateApiMcpWriteFile(path: path, content: content);
+
+/// Delete a file via MCP
+///
+/// # Arguments
+/// * `path` - Relative path within browse/ folder
+Future<void> mcpDeleteFile({required String path}) =>
+    RustLib.instance.api.crateApiMcpDeleteFile(path: path);
+
+/// Create a folder via MCP
+///
+/// # Arguments
+/// * `path` - Relative path within browse/ folder
+Future<void> mcpCreateFolder({required String path}) =>
+    RustLib.instance.api.crateApiMcpCreateFolder(path: path);
+
+/// List files in a directory via MCP
+///
+/// # Arguments
+/// * `path` - Relative path within browse/ folder (empty for root)
+///
+/// # Returns
+/// * List of file/folder names
+Future<List<String>> mcpListFiles({required String path}) =>
+    RustLib.instance.api.crateApiMcpListFiles(path: path);
+
+/// Get tool schemas for AI prompt construction
+///
+/// # Returns
+/// * JSON string containing tool schemas
+String mcpGetToolSchemas() => RustLib.instance.api.crateApiMcpGetToolSchemas();
+
+/// Parse a tool call from AI response
+///
+/// # Arguments
+/// * `json` - JSON string representing the tool call
+///
+/// # Returns
+/// * Parsed tool call structure
+Future<MCPToolCall> mcpParseToolCall({required String json}) =>
+    RustLib.instance.api.crateApiMcpParseToolCall(json: json);
+
+/// Execute a tool call
+///
+/// # Arguments
+/// * `tool_call` - The tool call to execute
+///
+/// # Returns
+/// * Result of the tool execution
+Future<MCPToolResult> mcpExecuteToolCall({required MCPToolCall toolCall}) =>
+    RustLib.instance.api.crateApiMcpExecuteToolCall(toolCall: toolCall);
+
+/// Classify a task based on user message
+///
+/// # Arguments
+/// * `message` - User message to classify
+///
+/// # Returns
+/// * Task category (Conversation, ToolUse, CodeGeneration)
+TaskCategory mcpClassifyTask({required String message}) =>
+    RustLib.instance.api.crateApiMcpClassifyTask(message: message);
+
+/// Get the recommended model for a task category
+///
+/// # Arguments
+/// * `category` - Task category
+///
+/// # Returns
+/// * Model name string
+String mcpGetModelForTask({required TaskCategory category}) =>
+    RustLib.instance.api.crateApiMcpGetModelForTask(category: category);
+
+/// Get all available MCP tools
+List<MCPTool> mcpGetAllTools() => RustLib.instance.api.crateApiMcpGetAllTools();
+
+/// Get tool name
+String mcpGetToolName({required MCPTool tool}) =>
+    RustLib.instance.api.crateApiMcpGetToolName(tool: tool);
+
+/// Get tool description
+String mcpGetToolDescription({required MCPTool tool}) =>
+    RustLib.instance.api.crateApiMcpGetToolDescription(tool: tool);
+
+/// Get tool parameters
+List<MCPParameter> mcpGetToolParameters({required MCPTool tool}) =>
+    RustLib.instance.api.crateApiMcpGetToolParameters(tool: tool);
+
 /// A cluster of embedding IDs
 class EmbeddingCluster {
   /// IDs of embeddings in this cluster
@@ -292,6 +485,31 @@ class EmbeddingCluster {
       other is EmbeddingCluster &&
           runtimeType == other.runtimeType &&
           ids == other.ids;
+}
+
+/// Combined result of knowledge graph analysis
+class KnowledgeGraphAnalysis {
+  /// Cluster assignments for each note
+  final ClusteringResult clustering;
+
+  /// Discovered semantic edges
+  final SemanticEdgeResult semanticEdges;
+
+  const KnowledgeGraphAnalysis({
+    required this.clustering,
+    required this.semanticEdges,
+  });
+
+  @override
+  int get hashCode => clustering.hashCode ^ semanticEdges.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is KnowledgeGraphAnalysis &&
+          runtimeType == other.runtimeType &&
+          clustering == other.clustering &&
+          semanticEdges == other.semanticEdges;
 }
 
 /// Statistics about the streaming graph

@@ -29,10 +29,27 @@
 ## Features
 
 ### **On-Device AI**
-Kivixa features a powerful on-device AI engine powered by Microsoft's Phi-4 model, providing intelligent features without requiring an internet connection.
+Kivixa features a powerful on-device AI engine with multi-model support and Model Context Protocol (MCP) for intelligent, action-capable AI assistance without requiring an internet connection.
+
+- **Multi-Model Support**
+  - **Phi-4 Mini** - Default model for reasoning, conversation, and general assistance
+  - **Qwen 2.5 3B** - Specialized for writing, notes, and code generation
+  - **Function Gemma 270M** - Ultra-fast, optimized for MCP tool calling (~180MB)
+  - **Gemma 2B / 7B** - Google's efficient general-purpose models
+  - Automatic model routing based on task classification
+  - Seamless model switching for optimal performance
+
+- **Model Context Protocol (MCP)**
+  - **AI-Powered Tool Execution** - Let AI perform actions on your behalf
+  - **File Operations** - Read, write, delete files; create folders
+  - **Directory Listing** - Browse and explore your notes folder
+  - **Markdown Export** - Export AI responses as formatted documents
+  - **Lua Scripting Integration** - Execute calendar and timer scripts
+  - **Safety First** - All tool executions require user confirmation
+  - **Sandboxed Operations** - File access restricted to notes folder
 
 - **Smart Model Manager**
-  - Automatic download with resume support for the 2.4GB AI model
+  - Automatic download with resume support for AI models
   - Background downloading - continues even when app is minimized
   - Progress tracking with speed and ETA display
   - GPU acceleration via Vulkan (Android/Windows/Linux) and Metal (macOS)
@@ -43,6 +60,7 @@ Kivixa features a powerful on-device AI engine powered by Microsoft's Phi-4 mode
   - **Smart Summaries** - Generate concise summaries of long notes
   - **Question Answering** - Ask questions about your note content
   - **Title Suggestions** - AI-generated title recommendations
+  - **MCP Chat Mode** - Toggle tool-enabled AI for file operations
 
 - **Knowledge Graph Visualization**
   - **Interactive Mind Mapping** - Create visual knowledge networks

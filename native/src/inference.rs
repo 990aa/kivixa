@@ -1,6 +1,8 @@
-//! Phi-4 Inference Engine
+//! Multi-Model Inference Engine
 //!
 //! Provides GPU-accelerated inference using llama.cpp bindings.
+//! Supports multiple models (Phi-4, Qwen, Functionary) with automatic
+//! chat template selection based on model type.
 //! Supports text generation and embedding extraction.
 
 use anyhow::{anyhow, Result};
@@ -14,6 +16,17 @@ use parking_lot::Mutex;
 use std::num::NonZeroU32;
 use std::path::Path;
 use std::sync::Arc;
+
+/// Supported model types with different chat templates
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ModelType {
+    /// Microsoft Phi-4 Mini - uses <|system|>, <|user|>, <|assistant|>, <|end|> format
+    Phi4,
+    /// Qwen 2.5 - uses <|im_start|>, <|im_end|> ChatML format
+    Qwen,
+    /// Functionary models - uses function calling format with <|from|> tags
+    Functionary,
+}
 
 /// Configuration for inference
 #[derive(Debug, Clone)]
@@ -30,6 +43,8 @@ pub struct InferenceConfig {
     pub top_p: f32,
     /// Maximum tokens to generate
     pub max_tokens: u32,
+    /// Model type for chat template selection
+    pub model_type: ModelType,
 }
 
 impl Default for InferenceConfig {
@@ -41,6 +56,7 @@ impl Default for InferenceConfig {
             temperature: 0.7,
             top_p: 0.9,
             max_tokens: 512,
+            model_type: ModelType::Phi4, // Default to Phi-4 for compatibility
         }
     }
 }
@@ -55,19 +71,36 @@ struct ModelState {
 /// Global AI state (singleton pattern)
 static AI_STATE: Mutex<Option<Arc<ModelState>>> = Mutex::new(None);
 
-/// Initialize the Phi-4 model from the given path
+/// Detect model type from the model filename
+fn detect_model_type(model_path: &str) -> ModelType {
+    let lower_path = model_path.to_lowercase();
+    if lower_path.contains("qwen") {
+        ModelType::Qwen
+    } else if lower_path.contains("functionary") || lower_path.contains("function-gemma") {
+        ModelType::Functionary
+    } else {
+        // Default to Phi-4 format
+        ModelType::Phi4
+    }
+}
+
+/// Initialize the AI model from the given path (model-agnostic)
 ///
 /// # Arguments
 /// * `model_path` - Full path to the GGUF model file
-/// * `config` - Optional inference configuration
+/// * `config` - Optional inference configuration (model_type auto-detected if not specified)
 ///
 /// # Returns
 /// * `Ok(())` if model loaded successfully
 /// * `Err(...)` if loading failed
-pub fn init_phi4(model_path: String, config: Option<InferenceConfig>) -> Result<()> {
-    let config = config.unwrap_or_default();
+pub fn init_model(model_path: String, config: Option<InferenceConfig>) -> Result<()> {
+    let mut config = config.unwrap_or_default();
+    
+    // Auto-detect model type from filename if not explicitly set
+    let detected_type = detect_model_type(&model_path);
+    config.model_type = detected_type;
 
-    log::info!("Initializing Phi-4 from: {}", model_path);
+    log::info!("Initializing model from: {} (type: {:?})", model_path, config.model_type);
 
     // Initialize the llama.cpp backend
     let backend = LlamaBackend::init()?;
@@ -97,6 +130,28 @@ pub fn init_phi4(model_path: String, config: Option<InferenceConfig>) -> Result<
 /// Check if the model is loaded and ready
 pub fn is_model_loaded() -> bool {
     AI_STATE.lock().is_some()
+}
+
+/// Get the currently loaded model type
+pub fn get_model_type() -> Option<ModelType> {
+    AI_STATE.lock().as_ref().map(|s| s.config.model_type)
+}
+
+/// Initialize the Phi-4 model (backward-compatible alias for init_model)
+///
+/// # Arguments
+/// * `model_path` - Full path to the GGUF model file
+/// * `config` - Optional inference configuration
+///
+/// # Returns
+/// * `Ok(())` if model loaded successfully
+/// * `Err(...)` if loading failed
+#[deprecated(since = "0.2.0", note = "Use init_model instead for multi-model support")]
+pub fn init_phi4(model_path: String, config: Option<InferenceConfig>) -> Result<()> {
+    // Set model type explicitly to Phi4 for backward compatibility
+    let mut config = config.unwrap_or_default();
+    config.model_type = ModelType::Phi4;
+    init_model(model_path, Some(config))
 }
 
 /// Unload the model and free resources
@@ -275,6 +330,8 @@ pub fn get_embedding(text: String) -> Result<Vec<f32>> {
 
 /// Chat completion with conversation history
 ///
+/// Automatically selects the appropriate chat template based on the loaded model type.
+///
 /// # Arguments
 /// * `messages` - List of (role, content) pairs where role is "system", "user", or "assistant"
 /// * `max_tokens` - Maximum tokens to generate
@@ -282,7 +339,27 @@ pub fn get_embedding(text: String) -> Result<Vec<f32>> {
 /// # Returns
 /// * Assistant's response
 pub fn chat_completion(messages: Vec<(String, String)>, max_tokens: Option<u32>) -> Result<String> {
-    // Format as Phi-4 chat template
+    let guard = AI_STATE.lock();
+    let state = guard.as_ref().ok_or_else(|| anyhow!("Model not loaded"))?;
+    let model_type = state.config.model_type;
+    drop(guard); // Release lock before generation
+    
+    let prompt = format_chat_prompt(&messages, model_type);
+    generate_text(prompt, max_tokens)
+}
+
+/// Format messages into a chat prompt based on model type
+fn format_chat_prompt(messages: &[(String, String)], model_type: ModelType) -> String {
+    match model_type {
+        ModelType::Phi4 => format_phi4_prompt(messages),
+        ModelType::Qwen => format_qwen_prompt(messages),
+        ModelType::Functionary => format_functionary_prompt(messages),
+    }
+}
+
+/// Format messages using Phi-4 chat template
+/// Uses: <|system|>, <|user|>, <|assistant|>, <|end|>
+fn format_phi4_prompt(messages: &[(String, String)]) -> String {
     let mut prompt = String::new();
 
     for (role, content) in messages {
@@ -304,8 +381,59 @@ pub fn chat_completion(messages: Vec<(String, String)>, max_tokens: Option<u32>)
 
     // Add assistant prompt to generate response
     prompt.push_str("<|assistant|>\n");
+    prompt
+}
 
-    generate_text(prompt, max_tokens)
+/// Format messages using Qwen ChatML template
+/// Uses: <|im_start|>, <|im_end|>
+fn format_qwen_prompt(messages: &[(String, String)]) -> String {
+    let mut prompt = String::new();
+
+    for (role, content) in messages {
+        match role.as_str() {
+            "system" | "user" | "assistant" => {
+                prompt.push_str(&format!("<|im_start|>{}\n{}<|im_end|>\n", role, content));
+            }
+            _ => {
+                log::warn!("Unknown role: {}", role);
+            }
+        }
+    }
+
+    // Add assistant prompt to generate response
+    prompt.push_str("<|im_start|>assistant\n");
+    prompt
+}
+
+/// Format messages using Functionary/Function-Gemma template
+/// Uses: <|from|>, <|recipient|> for function calling support
+fn format_functionary_prompt(messages: &[(String, String)]) -> String {
+    let mut prompt = String::new();
+
+    for (role, content) in messages {
+        match role.as_str() {
+            "system" => {
+                prompt.push_str(&format!("<|from|>system\n<|recipient|>all\n<|content|>{}\n", content));
+            }
+            "user" => {
+                prompt.push_str(&format!("<|from|>user\n<|recipient|>all\n<|content|>{}\n", content));
+            }
+            "assistant" => {
+                prompt.push_str(&format!("<|from|>assistant\n<|recipient|>all\n<|content|>{}\n", content));
+            }
+            "function" => {
+                // Function call results
+                prompt.push_str(&format!("<|from|>function\n<|recipient|>assistant\n<|content|>{}\n", content));
+            }
+            _ => {
+                log::warn!("Unknown role: {}", role);
+            }
+        }
+    }
+
+    // Add assistant prompt to generate response
+    prompt.push_str("<|from|>assistant\n<|recipient|>all\n<|content|>");
+    prompt
 }
 
 /// Extract related topics from text using Phi-4
@@ -358,10 +486,59 @@ mod tests {
         assert_eq!(config.n_gpu_layers, 99);
         assert_eq!(config.n_ctx, 4096);
         assert_eq!(config.n_threads, 4);
+        assert_eq!(config.model_type, ModelType::Phi4);
     }
 
     #[test]
     fn test_model_not_loaded() {
         assert!(!is_model_loaded());
+        assert!(get_model_type().is_none());
+    }
+
+    #[test]
+    fn test_detect_model_type() {
+        assert_eq!(detect_model_type("/path/to/phi-4-mini.gguf"), ModelType::Phi4);
+        assert_eq!(detect_model_type("/path/to/Phi4-Mini-Q4.gguf"), ModelType::Phi4);
+        assert_eq!(detect_model_type("/path/to/qwen2.5-3b.gguf"), ModelType::Qwen);
+        assert_eq!(detect_model_type("/path/to/Qwen2.5-Coder.gguf"), ModelType::Qwen);
+        assert_eq!(detect_model_type("/path/to/functionary-v2.gguf"), ModelType::Functionary);
+        assert_eq!(detect_model_type("/path/to/function-gemma-2b.gguf"), ModelType::Functionary);
+        assert_eq!(detect_model_type("/path/to/some-model.gguf"), ModelType::Phi4); // Default
+    }
+
+    #[test]
+    fn test_phi4_prompt_format() {
+        let messages = vec![
+            ("system".to_string(), "You are a helpful assistant.".to_string()),
+            ("user".to_string(), "Hello!".to_string()),
+        ];
+        let prompt = format_phi4_prompt(&messages);
+        assert!(prompt.contains("<|system|>\nYou are a helpful assistant.<|end|>"));
+        assert!(prompt.contains("<|user|>\nHello!<|end|>"));
+        assert!(prompt.ends_with("<|assistant|>\n"));
+    }
+
+    #[test]
+    fn test_qwen_prompt_format() {
+        let messages = vec![
+            ("system".to_string(), "You are a helpful assistant.".to_string()),
+            ("user".to_string(), "Hello!".to_string()),
+        ];
+        let prompt = format_qwen_prompt(&messages);
+        assert!(prompt.contains("<|im_start|>system\nYou are a helpful assistant.<|im_end|>"));
+        assert!(prompt.contains("<|im_start|>user\nHello!<|im_end|>"));
+        assert!(prompt.ends_with("<|im_start|>assistant\n"));
+    }
+
+    #[test]
+    fn test_functionary_prompt_format() {
+        let messages = vec![
+            ("system".to_string(), "You are a helpful assistant.".to_string()),
+            ("user".to_string(), "Hello!".to_string()),
+        ];
+        let prompt = format_functionary_prompt(&messages);
+        assert!(prompt.contains("<|from|>system\n<|recipient|>all\n<|content|>You are a helpful assistant."));
+        assert!(prompt.contains("<|from|>user\n<|recipient|>all\n<|content|>Hello!"));
+        assert!(prompt.ends_with("<|from|>assistant\n<|recipient|>all\n<|content|>"));
     }
 }

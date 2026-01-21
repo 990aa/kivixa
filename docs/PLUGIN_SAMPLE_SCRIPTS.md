@@ -79,6 +79,16 @@ After running a plugin or script:
 13. [Combined Workflow: Daily Journal Generator](#13-combined-workflow-daily-journal-generator)
 14. [Combined Workflow: Archive Completed Tasks](#14-combined-workflow-archive-completed-tasks)
 15. [Combined Workflow: Note Cleanup Report](#15-combined-workflow-note-cleanup-report)
+16. [Calendar: Get Today's Events](#16-calendar-get-todays-events)
+17. [Calendar: Add an Event](#17-calendar-add-an-event)
+18. [Calendar: Update an Event](#18-calendar-update-an-event)
+19. [Calendar: Delete an Event](#19-calendar-delete-an-event)
+20. [Calendar: Complete a Task](#20-calendar-complete-a-task)
+21. [Calendar: Week Overview](#21-calendar-week-overview)
+22. [Productivity Timer: Get Stats](#22-productivity-timer-get-stats)
+23. [Productivity Timer: Start Session](#23-productivity-timer-start-session)
+24. [Productivity Timer: Control Session](#24-productivity-timer-control-session)
+25. [Productivity Timer: Session History](#25-productivity-timer-session-history)
 
 ---
 
@@ -727,6 +737,415 @@ return "📊 Report generated and saved to:\n" .. reportPath .. "\n\n" .. report
 
 ---
 
+## 16. Calendar: Get Today's Events
+
+**What it does:** Retrieves all calendar events and tasks scheduled for today.
+
+```lua
+-- Get Today's Calendar Events
+local today = os.date("*t")
+local events = App:getEventsForDate(today.year, today.month, today.day)
+
+local result = "=== Today's Calendar (" .. os.date("%Y-%m-%d") .. ") ===\n\n"
+
+if #events == 0 then
+    result = result .. "No events scheduled for today.\n"
+else
+    for i, event in ipairs(events) do
+        local prefix = event.type == "task" and "✅ " or "📅 "
+        result = result .. prefix .. event.title
+        
+        if event.startHour then
+            result = result .. " @ " .. string.format("%02d:%02d", event.startHour, event.startMinute or 0)
+        elseif event.isAllDay then
+            result = result .. " (All day)"
+        end
+        
+        if event.isCompleted then
+            result = result .. " [DONE]"
+        end
+        
+        result = result .. "\n"
+    end
+end
+
+return result
+```
+
+**How to verify:**
+1. Result displays events currently scheduled in the Calendar for today
+2. Open **Calendar** tab to verify the events listed match
+
+---
+
+## 17. Calendar: Add an Event
+
+**What it does:** Creates a new event in the calendar.
+
+```lua
+-- Add a Calendar Event
+local today = os.date("*t")
+
+local eventId = App:addCalendarEvent(
+    "Team Standup",           -- title
+    today.year,               -- year
+    today.month,              -- month
+    today.day,                -- day
+    {
+        description = "Daily sync meeting",
+        startHour = 9,
+        startMinute = 30,
+        endHour = 10,
+        endMinute = 0,
+        type = "event",       -- "event" or "task"
+        colorHex = "#4CAF50"  -- Optional: green color
+    }
+)
+
+if eventId then
+    return "✅ Event created successfully!\nID: " .. eventId
+else
+    return "❌ Failed to create event"
+end
+```
+
+**How to verify:**
+1. Result shows the created event ID
+2. Open **Calendar** tab and navigate to today
+3. The "Team Standup" event should appear at 9:30 AM
+
+---
+
+## 18. Calendar: Update an Event
+
+**What it does:** Modifies an existing calendar event.
+
+```lua
+-- Update a Calendar Event
+-- First, get today's events to find the ID
+local today = os.date("*t")
+local events = App:getEventsForDate(today.year, today.month, today.day)
+
+if #events == 0 then
+    return "No events to update today"
+end
+
+-- Update the first event
+local eventToUpdate = events[1]
+local success = App:updateCalendarEvent(
+    eventToUpdate.id,
+    {
+        title = eventToUpdate.title .. " (Updated)",
+        description = "Modified by Lua script",
+        startHour = 14,
+        startMinute = 0
+    }
+)
+
+if success then
+    return "✅ Updated event: " .. eventToUpdate.title .. "\nNew time: 14:00"
+else
+    return "❌ Failed to update event"
+end
+```
+
+**How to verify:**
+1. Result shows success message with event name
+2. Open **Calendar** tab and verify the event was updated
+
+---
+
+## 19. Calendar: Delete an Event
+
+**What it does:** Removes an event from the calendar.
+
+```lua
+-- Delete a Calendar Event
+local today = os.date("*t")
+local events = App:getEventsForDate(today.year, today.month, today.day)
+
+if #events == 0 then
+    return "No events to delete today"
+end
+
+-- Find an event with "(Updated)" in the title to delete
+local eventToDelete = nil
+for _, event in ipairs(events) do
+    if event.title:find("%(Updated%)") then
+        eventToDelete = event
+        break
+    end
+end
+
+if not eventToDelete then
+    return "No '(Updated)' events found to delete"
+end
+
+local success = App:deleteCalendarEvent(eventToDelete.id)
+
+if success then
+    return "🗑️ Deleted event: " .. eventToDelete.title
+else
+    return "❌ Failed to delete event"
+end
+```
+
+**How to verify:**
+1. Result shows the deleted event name
+2. Open **Calendar** tab and verify the event was removed
+
+---
+
+## 20. Calendar: Complete a Task
+
+**What it does:** Marks a calendar task as completed.
+
+```lua
+-- Complete a Task
+-- First, add a sample task
+local today = os.date("*t")
+local taskId = App:addCalendarEvent(
+    "Test Task from Lua",
+    today.year,
+    today.month,
+    today.day,
+    {
+        type = "task",
+        description = "This task will be completed"
+    }
+)
+
+if not taskId then
+    return "Failed to create test task"
+end
+
+-- Now complete it
+local success = App:completeTask(taskId, true)
+
+if success then
+    return "✅ Task marked as completed!\nTask ID: " .. taskId
+else
+    return "❌ Failed to complete task"
+end
+```
+
+**How to verify:**
+1. Open **Calendar** tab and look for today's tasks
+2. The "Test Task from Lua" should show as completed (checked)
+
+---
+
+## 21. Calendar: Week Overview
+
+**What it does:** Shows events for the next 7 days.
+
+```lua
+-- Weekly Calendar Overview
+local result = "=== Week Overview ===\n\n"
+local today = os.date("*t")
+local daysOfWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
+
+for i = 0, 6 do
+    -- Calculate date for each day
+    local dayOffset = i * 24 * 60 * 60
+    local targetTime = os.time(today) + dayOffset
+    local targetDate = os.date("*t", targetTime)
+    
+    local dayName = daysOfWeek[targetDate.wday]
+    local dateStr = os.date("%Y-%m-%d", targetTime)
+    
+    local events = App:getEventsForDate(targetDate.year, targetDate.month, targetDate.day)
+    
+    if i == 0 then
+        result = result .. "📌 TODAY - " .. dayName .. " (" .. dateStr .. ")\n"
+    else
+        result = result .. "\n" .. dayName .. " (" .. dateStr .. ")\n"
+    end
+    
+    if #events == 0 then
+        result = result .. "   (no events)\n"
+    else
+        for _, event in ipairs(events) do
+            local prefix = event.type == "task" and "  ✅ " or "  📅 "
+            result = result .. prefix .. event.title
+            if event.startHour then
+                result = result .. " @ " .. string.format("%02d:%02d", event.startHour, event.startMinute or 0)
+            end
+            result = result .. "\n"
+        end
+    end
+end
+
+return result
+```
+
+**How to verify:**
+1. Result shows a 7-day calendar summary
+2. Events should match what's shown in the Calendar tab for each day
+
+---
+
+## 22. Productivity Timer: Get Stats
+
+**What it does:** Retrieves your productivity timer statistics.
+
+```lua
+-- Productivity Timer Statistics
+local stats = App:getTimerStats()
+local state = App:getTimerState()
+
+local result = "=== Productivity Dashboard ===\n\n"
+
+-- Current session status
+result = result .. "📊 Current Status\n"
+result = result .. "   State: " .. (state.state or "idle") .. "\n"
+if state.isRunning or state.isPaused then
+    result = result .. "   Session: " .. (state.sessionType or "focus") .. "\n"
+    result = result .. "   Remaining: " .. math.floor(state.remainingMinutes or 0) .. " minutes\n"
+    result = result .. "   Cycle: " .. (state.currentCycle or 1) .. "/" .. (state.totalCycles or 1) .. "\n"
+end
+
+result = result .. "\n📈 Today\n"
+result = result .. "   Focus time: " .. (stats.todayFocusMinutes or 0) .. " minutes\n"
+result = result .. "   Sessions: " .. (stats.todaySessions or 0) .. "\n"
+
+result = result .. "\n🏆 All Time\n"
+result = result .. "   Total focus: " .. math.floor((stats.totalFocusMinutes or 0) / 60) .. " hours\n"
+result = result .. "   Total sessions: " .. (stats.totalSessions or 0) .. "\n"
+result = result .. "   Completed: " .. (stats.completedSessions or 0) .. "\n"
+result = result .. "   Completion rate: " .. math.floor((stats.completionRate or 0) * 100) .. "%\n"
+
+result = result .. "\n🔥 Streaks\n"
+result = result .. "   Current streak: " .. (stats.currentStreak or 0) .. " days\n"
+result = result .. "   Longest streak: " .. (stats.longestStreak or 0) .. " days\n"
+
+return result
+```
+
+**How to verify:**
+1. Open **Productivity** tab to compare statistics
+2. Values should match your actual timer statistics
+
+---
+
+## 23. Productivity Timer: Start Session
+
+**What it does:** Starts a new focus timer session.
+
+```lua
+-- Start a Productivity Timer Session
+local state = App:getTimerState()
+
+if state.isRunning then
+    return "⚠️ Timer is already running!\n" ..
+           "Session: " .. (state.sessionType or "unknown") .. "\n" ..
+           "Remaining: " .. math.floor(state.remainingMinutes or 0) .. " minutes"
+end
+
+-- Configuration
+local DURATION_MINUTES = 25  -- Pomodoro default
+local SESSION_TYPE = "focus" -- Options: focus, deepWork, sprint, meeting, study, workout
+
+local success = App:startTimer(DURATION_MINUTES, SESSION_TYPE)
+
+if success then
+    return "✅ Started " .. DURATION_MINUTES .. " minute " .. SESSION_TYPE .. " session!\n\n" ..
+           "Good luck with your focused work!"
+else
+    return "❌ Failed to start timer"
+end
+```
+
+**How to verify:**
+1. Open **Productivity** tab
+2. Timer should be running with the specified duration
+
+---
+
+## 24. Productivity Timer: Control Session
+
+**What it does:** Demonstrates pausing, resuming, and stopping the timer.
+
+```lua
+-- Control the Productivity Timer
+local state = App:getTimerState()
+local action = ""
+local success = false
+
+if state.isRunning and not state.isPaused then
+    -- Timer is running, pause it
+    success = App:pauseTimer()
+    action = "paused"
+elseif state.isPaused then
+    -- Timer is paused, resume it
+    success = App:resumeTimer()
+    action = "resumed"
+else
+    -- Timer is idle, nothing to control
+    return "⚠️ No active timer session.\nUse App:startTimer() to begin a session."
+end
+
+if success then
+    return "✅ Timer " .. action .. " successfully!"
+else
+    return "❌ Failed to " .. action:gsub("d$", "") .. " timer"
+end
+```
+
+**How to verify:**
+1. Run while timer is active to pause it
+2. Run again to resume
+3. Open **Productivity** tab to verify state changes
+
+---
+
+## 25. Productivity Timer: Session History
+
+**What it does:** Shows your focus time history for the past week.
+
+```lua
+-- Productivity Session History
+local history = App:getSessionHistory(7)  -- Last 7 days
+local stats = App:getTimerStats()
+
+local result = "=== Focus Time History (Last 7 Days) ===\n\n"
+
+local totalWeek = 0
+local days = {}
+
+-- Collect days from history
+for date, minutes in pairs(history) do
+    table.insert(days, {date = date, minutes = minutes})
+    totalWeek = totalWeek + minutes
+end
+
+-- Sort by date (newest first)
+table.sort(days, function(a, b) return a.date > b.date end)
+
+if #days == 0 then
+    result = result .. "No sessions recorded in the last 7 days.\n"
+else
+    for _, day in ipairs(days) do
+        local hours = math.floor(day.minutes / 60)
+        local mins = day.minutes % 60
+        local bar = string.rep("█", math.min(math.floor(day.minutes / 15), 20))
+        result = result .. day.date .. ": " .. bar .. " " .. hours .. "h " .. mins .. "m\n"
+    end
+    
+    result = result .. "\n📊 Weekly Total: " .. totalWeek .. " minutes"
+    result = result .. " (" .. math.floor(totalWeek / 60) .. " hours " .. (totalWeek % 60) .. " minutes)\n"
+    result = result .. "📈 Daily Average: " .. math.floor(totalWeek / 7) .. " minutes\n"
+end
+
+return result
+```
+
+**How to verify:**
+1. Compare the history with your Productivity tab's weekly view
+2. Check that daily totals match your recorded sessions
+
+---
+
 ## Troubleshooting
 
 ### Script doesn't run
@@ -751,6 +1170,8 @@ return "📊 Report generated and saved to:\n" .. reportPath .. "\n\n" .. report
 
 ## Quick Reference
 
+### Note Functions
+
 | Function | Arguments | Returns | Description |
 |----------|-----------|---------|-------------|
 | `App:readNote(path)` | string | string or nil | Read note content |
@@ -765,3 +1186,94 @@ return "📊 Report generated and saved to:\n" .. reportPath .. "\n\n" .. report
 | `App:getStats()` | none | table | Get {totalNotes, totalFolders} |
 | `App:log(message)` | string | none | Log to console |
 | `App:notify(message)` | string | none | Show notification |
+
+### Calendar Functions
+
+| Function | Arguments | Returns | Description |
+|----------|-----------|---------|-------------|
+| `App:getCalendarEvents()` | none | table | Get all calendar events |
+| `App:getEventsForDate(year, month, day)` | number, number, number | table | Get events for specific date |
+| `App:getEventsForMonth(year, month)` | number, number | table | Get all events in a month |
+| `App:addCalendarEvent(title, year, month, day, options)` | string, number, number, number, table | string or nil | Create event, returns ID |
+| `App:updateCalendarEvent(id, updates)` | string, table | boolean | Update existing event |
+| `App:deleteCalendarEvent(id)` | string | boolean | Delete an event |
+| `App:completeTask(id, completed)` | string, boolean | boolean | Mark task complete/incomplete |
+
+**Calendar Event Options (for addCalendarEvent):**
+```lua
+{
+    description = "Event description",
+    startHour = 9,        -- 0-23
+    startMinute = 30,     -- 0-59
+    endHour = 10,
+    endMinute = 0,
+    type = "event",       -- "event", "task", or "reminder"
+    colorHex = "#4CAF50", -- Hex color code
+    isAllDay = false,     -- All-day event flag
+    repeatType = "none"   -- "none", "daily", "weekly", "monthly", "yearly"
+}
+```
+
+**Calendar Event Fields (returned from get functions):**
+```lua
+{
+    id = "abc123",
+    title = "Meeting",
+    description = "Team sync",
+    year = 2025, month = 1, day = 15,
+    startHour = 9, startMinute = 30,
+    endHour = 10, endMinute = 0,
+    type = "event",       -- or "task", "reminder"
+    isAllDay = false,
+    isCompleted = false,  -- For tasks
+    colorHex = "#4CAF50"
+}
+```
+
+### Productivity Timer Functions
+
+| Function | Arguments | Returns | Description |
+|----------|-----------|---------|-------------|
+| `App:getTimerStats()` | none | table | Get productivity statistics |
+| `App:getTimerState()` | none | table | Get current timer state |
+| `App:startTimer(minutes, sessionType)` | number, string | boolean | Start a focus session |
+| `App:pauseTimer()` | none | boolean | Pause current session |
+| `App:resumeTimer()` | none | boolean | Resume paused session |
+| `App:stopTimer()` | none | boolean | Stop and reset timer |
+| `App:getSessionHistory(days)` | number | table | Get focus time per day |
+
+**Timer State Fields:**
+```lua
+{
+    state = "running",      -- "idle", "running", "paused", "break"
+    isRunning = true,
+    isPaused = false,
+    sessionType = "focus",  -- "focus", "deepWork", "sprint", "meeting", "study", "workout"
+    remainingMinutes = 20.5,
+    totalMinutes = 25,
+    currentCycle = 2,
+    totalCycles = 4
+}
+```
+
+**Timer Stats Fields:**
+```lua
+{
+    todayFocusMinutes = 90,
+    todaySessions = 3,
+    totalFocusMinutes = 2400,
+    totalSessions = 120,
+    completedSessions = 100,
+    completionRate = 0.83,
+    currentStreak = 5,
+    longestStreak = 14
+}
+```
+
+**Session Types:**
+- `"focus"` - Standard focus session
+- `"deepWork"` - Deep work session
+- `"sprint"` - Quick sprint session
+- `"meeting"` - Meeting timer
+- `"study"` - Study session
+- `"workout"` - Exercise timer
