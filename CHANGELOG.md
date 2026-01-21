@@ -110,14 +110,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Multi-Model Support**: Users can now download and switch between multiple AI models
   - **Phi-4 Mini** (default): General purpose, writing, math/LaTeX assistance (~2.5 GB)
   - **Qwen2.5 3B**: Writing, notes, code generation, Lua scripting (~1.9 GB)
-  - **Gemma 2B**: MCP/Agent tasks, function calling, tool use (~1.5 GB)
-  - **Gemma 7B**: Advanced agent tasks, complex reasoning (~4.7 GB)
+  - **Function Gemma 270M**: Ultra-fast MCP/tool calling specialist (~180 MB)
+  - **Gemma 2B**: General purpose, code generation (~1.5 GB)
+  - **Gemma 7B**: Larger general purpose model (~4.7 GB)
 - **Model Categories**: Models are now tagged with categories (General, Agent/MCP, Writing, Math, Code)
 - **Quick Model Switcher**: Click the model chip in chat to instantly switch between downloaded models
 - **Enhanced Model Selection Page**: Browse models by category, see download status, manage models
 - **Model Management**: Download, load, and delete models from the Models page
 - **AI Model Context Protocol (MCP)**: Full implementation of MCP for advanced AI capabilities.
-  - **Multi-Model Support**: Integrated Phi-4 (Reasoning), Functionary (Tools), and Qwen (Code).
+  - **Multi-Model Support**: Integrated Phi-4 (Reasoning), Function Gemma (Tools), and Qwen (Code).
   - **Tool System**: Added 8 core MCP tools including File Operations (Read/Write/List), Lua Scripting (Calendar/Timer), and Markdown Export.
   - **Security Layer**: Implemented strict path sandboxing, extension allow-lists, and file size limits.
   - **User Safety**: Added confirmation dialogs for all sensitive file operations and tool executions.
@@ -135,5 +136,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Model selection page redesigned with category filters and better model cards
 - Default model remains Phi-4 Mini for backward compatibility
 - **Architecture**: Refactored AI services to support standalone operation without mandatory native bindings initially.
+
+### Fixed
+- **Native Library Loading**: Fixed DLL/SO loading on Windows and Linux with platform-specific path resolution
+- **Build Script**: The `scripts/build_native.ps1` now correctly copies native libraries to the right output directories
 
 ---
