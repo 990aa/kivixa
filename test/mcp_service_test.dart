@@ -172,19 +172,19 @@ void main() {
         expect(AIModelType.values.length, 3);
         expect(AIModelType.values.contains(AIModelType.phi4), true);
         expect(AIModelType.values.contains(AIModelType.qwen), true);
-        expect(AIModelType.values.contains(AIModelType.functionary), true);
+        expect(AIModelType.values.contains(AIModelType.functionGemma), true);
       });
 
       test('should return correct displayName', () {
         expect(AIModelType.phi4.displayName, 'Phi-4 (Reasoning)');
         expect(AIModelType.qwen.displayName, 'Qwen 2.5 (Code)');
-        expect(AIModelType.functionary.displayName, 'Functionary (Tools)');
+        expect(AIModelType.functionGemma.displayName, 'Function Gemma (Tools)');
       });
 
       test('should return correct shortName', () {
         expect(AIModelType.phi4.shortName, 'Phi-4');
         expect(AIModelType.qwen.shortName, 'Qwen');
-        expect(AIModelType.functionary.shortName, 'Func');
+        expect(AIModelType.functionGemma.shortName, 'FGemma');
       });
     });
 
@@ -207,9 +207,9 @@ void main() {
 
       test('should handle unavailable model', () {
         const selection = ModelSelection(
-          modelType: AIModelType.functionary,
+          modelType: AIModelType.functionGemma,
           taskCategory: MCPTaskCategory.toolUse,
-          modelName: 'functionary',
+          modelName: 'functionGemma',
           modelPath: null,
           isAvailable: false,
         );
@@ -239,9 +239,11 @@ void main() {
         expect(prompt.contains('reasoning'), true);
       });
 
-      test('should generate optimized system prompt for functionary', () {
+      test('should generate optimized system prompt for functionGemma', () {
         final router = ModelRouterService.instance;
-        final prompt = router.getOptimizedSystemPrompt(AIModelType.functionary);
+        final prompt = router.getOptimizedSystemPrompt(
+          AIModelType.functionGemma,
+        );
 
         expect(prompt.contains('tools'), true);
         expect(prompt.contains('JSON'), true);

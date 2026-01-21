@@ -4,7 +4,6 @@
 // Uses flutter_rust_bridge to call the native Rust engine.
 
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';

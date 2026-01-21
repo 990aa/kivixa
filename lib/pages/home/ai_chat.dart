@@ -22,7 +22,7 @@ import 'package:kivixa/services/ai/model_router.dart';
 /// - Model status monitoring
 /// - System prompt customization
 /// - MCP tool execution (file operations, Lua scripts, exports)
-/// - Multi-model routing (Phi-4, Qwen, Functionary)
+/// - Multi-model routing (Phi-4, Qwen, Function Gemma)
 class AIChatPage extends StatefulWidget {
   /// Optional initial context to provide to the AI
   final String? initialContext;

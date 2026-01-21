@@ -130,24 +130,34 @@ void main() {
       expect(qwen.supportsCategory(ModelCategory.general), true);
     });
 
-    test('Functionary Gemma 2B should support agent and code', () {
-      final gemma2b = ModelManager.availableModels.firstWhere(
-        (m) => m.id == 'functionary-gemma-2b',
+    test('Function Gemma 270M should support agent only', () {
+      final funcGemma = ModelManager.availableModels.firstWhere(
+        (m) => m.id == 'function-gemma-270m',
       );
 
-      expect(gemma2b.supportsCategory(ModelCategory.agent), true);
-      expect(gemma2b.supportsCategory(ModelCategory.code), true);
-      expect(gemma2b.supportsCategory(ModelCategory.writing), false);
+      expect(funcGemma.supportsCategory(ModelCategory.agent), true);
+      expect(funcGemma.supportsCategory(ModelCategory.code), false);
+      expect(funcGemma.supportsCategory(ModelCategory.writing), false);
     });
 
-    test('Functionary Gemma 7B should support agent, code, and general', () {
-      final gemma7b = ModelManager.availableModels.firstWhere(
-        (m) => m.id == 'functionary-gemma-7b',
+    test('Gemma 2B should support general and code', () {
+      final gemma2b = ModelManager.availableModels.firstWhere(
+        (m) => m.id == 'gemma-2b',
       );
 
-      expect(gemma7b.supportsCategory(ModelCategory.agent), true);
-      expect(gemma7b.supportsCategory(ModelCategory.code), true);
+      expect(gemma2b.supportsCategory(ModelCategory.general), true);
+      expect(gemma2b.supportsCategory(ModelCategory.code), true);
+      expect(gemma2b.supportsCategory(ModelCategory.agent), false);
+    });
+
+    test('Gemma 7B should support general, code, and writing', () {
+      final gemma7b = ModelManager.availableModels.firstWhere(
+        (m) => m.id == 'gemma-7b',
+      );
+
       expect(gemma7b.supportsCategory(ModelCategory.general), true);
+      expect(gemma7b.supportsCategory(ModelCategory.code), true);
+      expect(gemma7b.supportsCategory(ModelCategory.writing), true);
     });
 
     test('all models should have valid URLs', () {
@@ -159,11 +169,11 @@ void main() {
     });
 
     test('all models should have reasonable sizes', () {
-      const oneGB = 1024 * 1024 * 1024;
-      const tenGB = 10 * oneGB;
+      const oneHundredMB = 100 * 1024 * 1024;
+      const tenGB = 10 * 1024 * 1024 * 1024;
 
       for (final model in ModelManager.availableModels) {
-        expect(model.sizeBytes, greaterThan(oneGB)); // At least 1GB
+        expect(model.sizeBytes, greaterThan(oneHundredMB)); // At least 100MB
         expect(model.sizeBytes, lessThan(tenGB)); // Less than 10GB
       }
     });
@@ -204,9 +214,8 @@ void main() {
       );
       expect(agentModels, isNotEmpty);
 
-      // Both Functionary models should be in agent
-      expect(agentModels.any((m) => m.id == 'functionary-gemma-2b'), true);
-      expect(agentModels.any((m) => m.id == 'functionary-gemma-7b'), true);
+      // Function Gemma should be in agent
+      expect(agentModels.any((m) => m.id == 'function-gemma-270m'), true);
 
       // Phi-4 should NOT be in agent
       expect(agentModels.any((m) => m.id == 'phi4-mini-q4km'), false);
@@ -235,10 +244,10 @@ void main() {
       final codeModels = ModelManager.getModelsForCategory(ModelCategory.code);
       expect(codeModels, isNotEmpty);
 
-      // Qwen and Functionary models should be in code
+      // Qwen and Gemma models should be in code
       expect(codeModels.any((m) => m.id == 'qwen25-3b-q4km'), true);
-      expect(codeModels.any((m) => m.id == 'functionary-gemma-2b'), true);
-      expect(codeModels.any((m) => m.id == 'functionary-gemma-7b'), true);
+      expect(codeModels.any((m) => m.id == 'gemma-2b'), true);
+      expect(codeModels.any((m) => m.id == 'gemma-7b'), true);
     });
 
     test('getRecommendedModel should return first matching model', () {
@@ -329,9 +338,19 @@ void main() {
       expect(qwen.sizeBytes, lessThan(2.5 * 1024 * 1024 * 1024));
     });
 
-    test('Functionary Gemma 2B size should be around 1.5 GB', () {
+    test('Function Gemma 270M size should be around 180 MB', () {
+      final funcGemma = ModelManager.availableModels.firstWhere(
+        (m) => m.id == 'function-gemma-270m',
+      );
+      expect(funcGemma.sizeText, contains('MB'));
+      // Should be between 100 and 300 MB
+      expect(funcGemma.sizeBytes, greaterThan(100 * 1024 * 1024));
+      expect(funcGemma.sizeBytes, lessThan(300 * 1024 * 1024));
+    });
+
+    test('Gemma 2B size should be around 1.5 GB', () {
       final gemma2b = ModelManager.availableModels.firstWhere(
-        (m) => m.id == 'functionary-gemma-2b',
+        (m) => m.id == 'gemma-2b',
       );
       expect(gemma2b.sizeText, contains('GB'));
       // Should be between 1 and 2 GB
@@ -339,9 +358,9 @@ void main() {
       expect(gemma2b.sizeBytes, lessThan(2 * 1024 * 1024 * 1024));
     });
 
-    test('Functionary Gemma 7B size should be around 4.7 GB', () {
+    test('Gemma 7B size should be around 4.7 GB', () {
       final gemma7b = ModelManager.availableModels.firstWhere(
-        (m) => m.id == 'functionary-gemma-7b',
+        (m) => m.id == 'gemma-7b',
       );
       expect(gemma7b.sizeText, contains('GB'));
       // Should be between 4 and 6 GB
@@ -367,16 +386,12 @@ void main() {
       expect(recommended.id, 'phi4-mini-q4km');
     });
 
-    test('Agent/MCP tasks should recommend Functionary', () {
+    test('Agent/MCP tasks should recommend Function Gemma', () {
       final recommended = ModelManager.getRecommendedModel(ModelCategory.agent);
-      expect(
-        recommended.id == 'functionary-gemma-2b' ||
-            recommended.id == 'functionary-gemma-7b',
-        true,
-      );
+      expect(recommended.id, 'function-gemma-270m');
     });
 
-    test('Code generation should recommend Qwen or Functionary', () {
+    test('Code generation should recommend Qwen or Gemma', () {
       final recommended = ModelManager.getRecommendedModel(ModelCategory.code);
       expect(recommended.supportsCategory(ModelCategory.code), true);
     });

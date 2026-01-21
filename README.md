@@ -32,9 +32,10 @@
 Kivixa features a powerful on-device AI engine with multi-model support and Model Context Protocol (MCP) for intelligent, action-capable AI assistance without requiring an internet connection.
 
 - **Multi-Model Support**
-  - **Phi-4** - Optimized for reasoning, conversation, and general assistance
-  - **Qwen 2.5** - Specialized for code generation and technical tasks
-  - **Functionary** - Designed for tool use and action execution
+  - **Phi-4 Mini** - Default model for reasoning, conversation, and general assistance
+  - **Qwen 2.5 3B** - Specialized for writing, notes, and code generation
+  - **Function Gemma 270M** - Ultra-fast, optimized for MCP tool calling (~180MB)
+  - **Gemma 2B / 7B** - Google's efficient general-purpose models
   - Automatic model routing based on task classification
   - Seamless model switching for optimal performance
 

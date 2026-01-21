@@ -48,24 +48,35 @@ void main() {
       expect(qwenModel.isDefault, false);
     });
 
-    test('Functionary Gemma 2B model is correctly configured', () {
-      final gemma2bModel = ModelManager.availableModels.firstWhere(
-        (m) => m.id == 'functionary-gemma-2b',
+    test('Function Gemma 270M model is correctly configured', () {
+      final funcGemmaModel = ModelManager.availableModels.firstWhere(
+        (m) => m.id == 'function-gemma-270m',
       );
 
-      expect(gemma2bModel.name, 'Functionary Gemma 2B');
-      expect(gemma2bModel.url, contains('meetkai/functionary-small'));
+      expect(funcGemmaModel.name, 'Function Gemma 270M');
+      expect(funcGemmaModel.url, contains('unsloth/functiongemma-270m'));
+      expect(funcGemmaModel.url, contains('Q4_K_M.gguf'));
+      expect(funcGemmaModel.isDefault, false);
+    });
+
+    test('Gemma 2B model is correctly configured', () {
+      final gemma2bModel = ModelManager.availableModels.firstWhere(
+        (m) => m.id == 'gemma-2b',
+      );
+
+      expect(gemma2bModel.name, 'Gemma 2B');
+      expect(gemma2bModel.url, contains('tensorblock/gemma-2b-GGUF'));
       expect(gemma2bModel.url, contains('Q4_K_M.gguf'));
       expect(gemma2bModel.isDefault, false);
     });
 
-    test('Functionary Gemma 7B model is correctly configured', () {
+    test('Gemma 7B model is correctly configured', () {
       final gemma7bModel = ModelManager.availableModels.firstWhere(
-        (m) => m.id == 'functionary-gemma-7b',
+        (m) => m.id == 'gemma-7b',
       );
 
-      expect(gemma7bModel.name, 'Functionary Gemma 7B');
-      expect(gemma7bModel.url, contains('meetkai/functionary-medium'));
+      expect(gemma7bModel.name, 'Gemma 7B');
+      expect(gemma7bModel.url, contains('tensorblock/gemma-7b-GGUF'));
       expect(gemma7bModel.url, contains('Q4_K_M.gguf'));
       expect(gemma7bModel.isDefault, false);
     });
@@ -102,16 +113,23 @@ void main() {
       expect(qwenModel.sizeBytes, greaterThan(1.5 * oneGB));
       expect(qwenModel.sizeBytes, lessThan(2.5 * oneGB));
 
-      // Functionary 2B should be around 1.5 GB
+      // Function Gemma 270M should be around 180 MB
+      final funcGemma = ModelManager.availableModels.firstWhere(
+        (m) => m.id == 'function-gemma-270m',
+      );
+      expect(funcGemma.sizeBytes, greaterThan(100 * 1024 * 1024));
+      expect(funcGemma.sizeBytes, lessThan(300 * 1024 * 1024));
+
+      // Gemma 2B should be around 1.5 GB
       final gemma2b = ModelManager.availableModels.firstWhere(
-        (m) => m.id == 'functionary-gemma-2b',
+        (m) => m.id == 'gemma-2b',
       );
       expect(gemma2b.sizeBytes, greaterThan(1 * oneGB));
       expect(gemma2b.sizeBytes, lessThan(2 * oneGB));
 
-      // Functionary 7B should be around 4.7 GB
+      // Gemma 7B should be around 4.7 GB
       final gemma7b = ModelManager.availableModels.firstWhere(
-        (m) => m.id == 'functionary-gemma-7b',
+        (m) => m.id == 'gemma-7b',
       );
       expect(gemma7b.sizeBytes, greaterThan(4 * oneGB));
       expect(gemma7b.sizeBytes, lessThan(6 * oneGB));
@@ -120,8 +138,8 @@ void main() {
     test('all model sizeText is formatted correctly', () {
       for (final model in ModelManager.availableModels) {
         final sizeText = model.sizeText;
-        // All models should be > 1GB, so should display in GB format
-        expect(sizeText, contains('GB'));
+        // Most models should display in MB or GB format
+        expect(sizeText, anyOf(contains('MB'), contains('GB')));
       }
     });
 

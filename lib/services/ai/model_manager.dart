@@ -215,35 +215,49 @@ class ModelManager {
       ],
     ),
 
-    // Function-Gemma 2B - Agent/MCP tasks
+    // Function Gemma 270M - Top choice for MCP/Tool calling
     AIModel(
-      id: 'functionary-gemma-2b',
-      name: 'Functionary Gemma 2B',
+      id: 'function-gemma-270m',
+      name: 'Function Gemma 270M',
       description:
-          'Functionary model based on Google Gemma 2B - Optimized for function calling, '
-          'tool use, and MCP agent tasks. Lightweight and fast.',
+          'Unsloth Function Gemma 270M - Ultra-lightweight model specialized for '
+          'function calling and MCP tool use. Best choice for agent tasks.',
       url:
-          'https://huggingface.co/meetkai/functionary-small-v3.2-GGUF/resolve/main/functionary-small-v3.2.Q4_K_M.gguf',
-      fileName: 'functionary-small-v3.2.Q4_K_M.gguf',
-      sizeBytes: 1626456064, // ~1.51 GB
-      categories: [ModelCategory.agent, ModelCategory.code],
+          'https://huggingface.co/unsloth/functiongemma-270m-it-GGUF/resolve/main/functiongemma-270m-it-Q4_K_M.gguf',
+      fileName: 'functiongemma-270m-it-Q4_K_M.gguf',
+      sizeBytes: 188743680, // ~180 MB
+      categories: [ModelCategory.agent],
     ),
 
-    // Function-Gemma 7B - Agent/MCP (larger)
+    // Gemma 2B - General purpose small model
     AIModel(
-      id: 'functionary-gemma-7b',
-      name: 'Functionary Gemma 7B',
+      id: 'gemma-2b',
+      name: 'Gemma 2B',
       description:
-          'Functionary model based on Google Gemma 7B - More capable function calling '
-          'and reasoning. Better for complex MCP agent tasks.',
+          'Google Gemma 2B - Lightweight general-purpose model. '
+          'Good balance of speed and capability for everyday tasks.',
       url:
-          'https://huggingface.co/meetkai/functionary-medium-v3.2-GGUF/resolve/main/functionary-medium-v3.2.Q4_K_M.gguf',
-      fileName: 'functionary-medium-v3.2.Q4_K_M.gguf',
+          'https://huggingface.co/tensorblock/gemma-2b-GGUF/resolve/main/gemma-2b-Q4_K_M.gguf',
+      fileName: 'gemma-2b-Q4_K_M.gguf',
+      sizeBytes: 1678770176, // ~1.56 GB
+      categories: [ModelCategory.general, ModelCategory.code],
+    ),
+
+    // Gemma 7B - Larger general purpose model
+    AIModel(
+      id: 'gemma-7b',
+      name: 'Gemma 7B',
+      description:
+          'Google Gemma 7B - More capable general-purpose model. '
+          'Better reasoning and broader knowledge for complex tasks.',
+      url:
+          'https://huggingface.co/tensorblock/gemma-7b-GGUF/resolve/main/gemma-7b-Q4_K_M.gguf',
+      fileName: 'gemma-7b-Q4_K_M.gguf',
       sizeBytes: 5060478976, // ~4.71 GB
       categories: [
-        ModelCategory.agent,
-        ModelCategory.code,
         ModelCategory.general,
+        ModelCategory.code,
+        ModelCategory.writing,
       ],
     ),
   ];

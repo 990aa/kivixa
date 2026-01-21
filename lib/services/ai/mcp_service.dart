@@ -431,7 +431,7 @@ class MCPService {
       case MCPTaskCategory.conversation:
         return 'phi4';
       case MCPTaskCategory.toolUse:
-        return 'functionary';
+        return 'functionGemma';
       case MCPTaskCategory.codeGeneration:
         return 'qwen';
     }

@@ -183,12 +183,12 @@ test('analyzeAndSelectModel classifies tool use', () {
   
   final selection = router.analyzeAndSelectModel('create a new file');
   expect(selection.category, equals(MCPTaskCategory.toolUse));
-  expect(selection.modelType, equals(AIModelType.functionary));
+  expect(selection.modelType, equals(AIModelType.functionGemma));
 });
 ```
 
 **What to verify:**
-- ToolUse → Functionary model
+- ToolUse → Function Gemma model
 - CodeGeneration → Qwen model
 - Conversation → Phi-4 model
 
@@ -248,7 +248,7 @@ test('parses valid tool call JSON', () {
 
 3. **Verify model switching**:
    - General question → Should use Phi-4
-   - File operation → Should switch to Functionary
+   - File operation → Should switch to Function Gemma
    - Code request → Should switch to Qwen
 
 ### Automated Integration Tests

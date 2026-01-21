@@ -2,7 +2,7 @@
 ///
 /// Automatically routes tasks to the appropriate AI model based on task type:
 /// - Phi-4: General conversation and reasoning
-/// - Functionary: Tool calling and function execution
+/// - Function Gemma: Tool calling and function execution
 /// - Qwen: Code generation and programming tasks
 ///
 /// The router analyzes user messages and selects the best model for the task.
@@ -15,7 +15,7 @@ import 'package:kivixa/services/ai/mcp_service.dart';
 enum AIModelType {
   phi4,
   qwen,
-  functionary;
+  functionGemma;
 
   /// User-friendly display name
   String get displayName {
@@ -24,8 +24,8 @@ enum AIModelType {
         return 'Phi-4 (Reasoning)';
       case AIModelType.qwen:
         return 'Qwen 2.5 (Code)';
-      case AIModelType.functionary:
-        return 'Functionary (Tools)';
+      case AIModelType.functionGemma:
+        return 'Function Gemma (Tools)';
     }
   }
 
@@ -36,8 +36,8 @@ enum AIModelType {
         return 'Phi-4';
       case AIModelType.qwen:
         return 'Qwen';
-      case AIModelType.functionary:
-        return 'Func';
+      case AIModelType.functionGemma:
+        return 'FGemma';
     }
   }
 }
@@ -144,7 +144,7 @@ class ModelRouterService {
 You are a helpful AI assistant. Provide clear, accurate, and thoughtful responses.
 Focus on reasoning and explanation. Be conversational and helpful.''';
 
-      case AIModelType.functionary:
+      case AIModelType.functionGemma:
         return '''
 You are an AI assistant with access to tools. When the user asks you to perform actions, use the available tools.
 
@@ -183,8 +183,10 @@ When generating Lua scripts, ensure they are compatible with the sandbox environ
         return AIModelType.phi4;
       case 'qwen':
         return AIModelType.qwen;
-      case 'functionary':
-        return AIModelType.functionary;
+      case 'functiongemma':
+      case 'function-gemma':
+      case 'functionary': // Legacy support
+        return AIModelType.functionGemma;
       default:
         return AIModelType.phi4; // Default fallback
     }

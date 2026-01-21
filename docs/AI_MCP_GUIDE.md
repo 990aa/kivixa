@@ -17,7 +17,7 @@ This document provides comprehensive documentation for Kivixa's AI MCP system, w
 
 The MCP system provides a secure framework for AI models to execute actions on behalf of users. It implements:
 
-- **Multi-Model Routing**: Automatically selects the best model (Phi-4, Functionary, Qwen) based on task type
+- **Multi-Model Routing**: Automatically selects the best model (Phi-4, Function Gemma, Qwen) based on task type
 - **Sandboxed Operations**: All file operations are restricted to the `browse/` directory
 - **User Confirmation**: All destructive or modifying actions require explicit user approval
 - **Lua Integration**: Calendar and timer operations via sandboxed Lua scripts
@@ -136,7 +136,7 @@ Manages model selection:
 | Category | Model | Use Cases |
 |----------|-------|-----------|
 | Conversation | Phi-4 Mini | General Q&A, explanations, reasoning |
-| Tool Use | Functionary | File operations, calendar, timers |
+| Tool Use | Function Gemma 270M | File operations, calendar, timers |
 | Code Generation | Qwen 2.5 | Lua scripts, code snippets |
 
 ### Classification Keywords
