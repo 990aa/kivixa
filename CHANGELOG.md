@@ -107,6 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.5] - 2026-01-18
 
 ### Added
+
 - **Multi-Model Support**: Users can now download and switch between multiple AI models
   - **Phi-4 Mini** (default): General purpose, writing, math/LaTeX assistance (~2.5 GB)
   - **Qwen2.5 3B**: Writing, notes, code generation, Lua scripting (~1.9 GB)
