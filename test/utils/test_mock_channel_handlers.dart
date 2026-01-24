@@ -59,26 +59,29 @@ void setupMockPrinting() {
 void setupMockAudioplayers() {
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(const MethodChannel('xyz.luan/audioplayers'), (
-    MethodCall methodCall,
-  ) async {
-    return null;
-  });
+        MethodCall methodCall,
+      ) async {
+        return null;
+      });
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
-          const MethodChannel('xyz.luan/audioplayers.global'),
-          (MethodCall methodCall) async {
-    return null;
-  });
+        const MethodChannel('xyz.luan/audioplayers.global'),
+        (MethodCall methodCall) async {
+          return null;
+        },
+      );
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
-          const MethodChannel('xyz.luan/audioplayers.global/events'),
-          (MethodCall methodCall) async {
-    return null;
-  });
+        const MethodChannel('xyz.luan/audioplayers.global/events'),
+        (MethodCall methodCall) async {
+          return null;
+        },
+      );
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
-          const MethodChannel('xyz.luan/audioplayers/events/pencilSoundEffect'),
-          (MethodCall methodCall) async {
-    return null;
-  });
+        const MethodChannel('xyz.luan/audioplayers/events/pencilSoundEffect'),
+        (MethodCall methodCall) async {
+          return null;
+        },
+      );
 }

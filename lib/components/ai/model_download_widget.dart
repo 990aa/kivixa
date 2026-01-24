@@ -6,11 +6,7 @@ class ModelDownloadWidget extends StatefulWidget {
   final AIModel? model;
   final VoidCallback? onDownloadComplete;
 
-  const ModelDownloadWidget({
-    super.key,
-    this.model,
-    this.onDownloadComplete,
-  });
+  const ModelDownloadWidget({super.key, this.model, this.onDownloadComplete});
 
   @override
   State<ModelDownloadWidget> createState() => _ModelDownloadWidgetState();
@@ -143,7 +139,9 @@ class _ModelDownloadWidgetState extends State<ModelDownloadWidget> {
   }
 
   Widget _buildStatusSection(
-      ModelDownloadProgress progress, ColorScheme colorScheme) {
+    ModelDownloadProgress progress,
+    ColorScheme colorScheme,
+  ) {
     IconData icon;
     String statusText;
     Color statusColor;
@@ -181,10 +179,7 @@ class _ModelDownloadWidgetState extends State<ModelDownloadWidget> {
         const SizedBox(width: 8),
         Text(
           statusText,
-          style: TextStyle(
-            color: statusColor,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(color: statusColor, fontWeight: FontWeight.w500),
         ),
         const Spacer(),
         Container(
@@ -207,7 +202,9 @@ class _ModelDownloadWidgetState extends State<ModelDownloadWidget> {
   }
 
   Widget _buildActionButtons(
-      ModelDownloadProgress progress, ColorScheme colorScheme) {
+    ModelDownloadProgress progress,
+    ColorScheme colorScheme,
+  ) {
     switch (progress.state) {
       case ModelDownloadState.notDownloaded:
       case ModelDownloadState.failed:
@@ -217,9 +214,11 @@ class _ModelDownloadWidgetState extends State<ModelDownloadWidget> {
               child: FilledButton.icon(
                 onPressed: () => _modelManager.startDownload(_model),
                 icon: const Icon(Icons.download),
-                label: Text(progress.state == ModelDownloadState.failed
-                    ? 'Retry Download'
-                    : 'Download Model'),
+                label: Text(
+                  progress.state == ModelDownloadState.failed
+                      ? 'Retry Download'
+                      : 'Download Model',
+                ),
               ),
             ),
           ],
@@ -341,10 +340,7 @@ class _ModelDownloadWidgetState extends State<ModelDownloadWidget> {
 class ModelDownloadPage extends StatelessWidget {
   final VoidCallback? onComplete;
 
-  const ModelDownloadPage({
-    super.key,
-    this.onComplete,
-  });
+  const ModelDownloadPage({super.key, this.onComplete});
 
   @override
   Widget build(BuildContext context) {
@@ -365,7 +361,9 @@ class ModelDownloadPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer.withValues(alpha: 0.5),
+                      color: colorScheme.primaryContainer.withValues(
+                        alpha: 0.5,
+                      ),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -431,9 +429,7 @@ class ModelDownloadPage extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Download widget
-                  ModelDownloadWidget(
-                    onDownloadComplete: onComplete,
-                  ),
+                  ModelDownloadWidget(onDownloadComplete: onComplete),
 
                   const SizedBox(height: 16),
 
@@ -457,12 +453,7 @@ class ModelDownloadPage extends StatelessWidget {
         Icon(icon, size: 20, color: colorScheme.primary),
         const SizedBox(width: 12),
         Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              color: colorScheme.onSurface,
-            ),
-          ),
+          child: Text(text, style: TextStyle(color: colorScheme.onSurface)),
         ),
       ],
     );

@@ -79,10 +79,7 @@ class _UpdateDialogState extends State<UpdateDialog> {
     return AdaptiveAlertDialog(
       title: Text(t.update.updateAvailable),
       content: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxHeight: 400,
-          maxWidth: 500,
-        ),
+        constraints: const BoxConstraints(maxHeight: 400, maxWidth: 500),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,12 +94,12 @@ class _UpdateDialogState extends State<UpdateDialog> {
                   selectable: true,
                   styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
                       .copyWith(
-                    p: Theme.of(context).textTheme.bodyMedium,
-                    h1: Theme.of(context).textTheme.titleLarge,
-                    h2: Theme.of(context).textTheme.titleMedium,
-                    h3: Theme.of(context).textTheme.titleSmall,
-                    listBullet: Theme.of(context).textTheme.bodyMedium,
-                  ),
+                        p: Theme.of(context).textTheme.bodyMedium,
+                        h1: Theme.of(context).textTheme.titleLarge,
+                        h2: Theme.of(context).textTheme.titleMedium,
+                        h3: Theme.of(context).textTheme.titleSmall,
+                        listBullet: Theme.of(context).textTheme.bodyMedium,
+                      ),
                 ),
 
               if (downloadNotAvailableYet) ...[

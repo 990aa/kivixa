@@ -507,142 +507,142 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage>
               colorScheme: colorScheme.copyWith(primary: colorScheme.primary),
             ),
             child: SfCalendar(
-          controller: _calendarController,
-          view: _currentView,
-          dataSource: _dataSource,
-          allowedViews: _allowedViews,
-          firstDayOfWeek: _firstDayOfWeek,
-          showNavigationArrow: true,
-          showDatePickerButton: true,
-          showCurrentTimeIndicator: true,
-          showWeekNumber: _showWeekNumber,
-          showTodayButton: false,
-          allowDragAndDrop: true,
-          allowAppointmentResize: true,
-          onTap: _onCalendarTapped,
-          onLongPress: _onCalendarLongPressed,
-          onViewChanged: _onViewChanged,
-          appointmentBuilder: _buildAppointment,
-          monthCellBuilder: _buildMonthCellAppointment,
-          scheduleViewMonthHeaderBuilder: _buildScheduleViewMonthHeader,
-          timeSlotViewSettings: TimeSlotViewSettings(
-            startHour: _startHour,
-            endHour: _endHour,
-            nonWorkingDays: _nonWorkingDays,
-            timeIntervalHeight: 60,
-            timeIntervalWidth: 100,
-            timeFormat: 'h:mm a',
-            dateFormat: 'dd',
-            dayFormat: 'EEE',
-            minimumAppointmentDuration: const Duration(minutes: 30),
-          ),
-          monthViewSettings: MonthViewSettings(
-            appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
-            showTrailingAndLeadingDates: _showTrailingAndLeadingDates,
-            numberOfWeeksInView: 6,
-            appointmentDisplayCount: 4,
-            showAgenda: _currentView == CalendarView.month,
-            agendaViewHeight: 200,
-          ),
-          scheduleViewSettings: const ScheduleViewSettings(
-            appointmentItemHeight: 70,
-            hideEmptyScheduleWeek: true,
-            monthHeaderSettings: MonthHeaderSettings(
-              monthFormat: 'MMMM, yyyy',
-              height: 60,
-              monthTextStyle: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              controller: _calendarController,
+              view: _currentView,
+              dataSource: _dataSource,
+              allowedViews: _allowedViews,
+              firstDayOfWeek: _firstDayOfWeek,
+              showNavigationArrow: true,
+              showDatePickerButton: true,
+              showCurrentTimeIndicator: true,
+              showWeekNumber: _showWeekNumber,
+              showTodayButton: false,
+              allowDragAndDrop: true,
+              allowAppointmentResize: true,
+              onTap: _onCalendarTapped,
+              onLongPress: _onCalendarLongPressed,
+              onViewChanged: _onViewChanged,
+              appointmentBuilder: _buildAppointment,
+              monthCellBuilder: _buildMonthCellAppointment,
+              scheduleViewMonthHeaderBuilder: _buildScheduleViewMonthHeader,
+              timeSlotViewSettings: TimeSlotViewSettings(
+                startHour: _startHour,
+                endHour: _endHour,
+                nonWorkingDays: _nonWorkingDays,
+                timeIntervalHeight: 60,
+                timeIntervalWidth: 100,
+                timeFormat: 'h:mm a',
+                dateFormat: 'dd',
+                dayFormat: 'EEE',
+                minimumAppointmentDuration: const Duration(minutes: 30),
               ),
-            ),
-          ),
-          blackoutDates: _blackoutDates,
-          blackoutDatesTextStyle: const TextStyle(
-            decoration: TextDecoration.lineThrough,
-            color: Colors.red,
-          ),
-          specialRegions: _specialTimeRegions,
-          headerStyle: CalendarHeaderStyle(
-            textAlign: TextAlign.center,
-            backgroundColor: colorScheme.surfaceContainerLow,
-            textStyle: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface,
-            ),
-          ),
-          viewHeaderStyle: ViewHeaderStyle(
-            backgroundColor: colorScheme.surfaceContainerLow,
-            dayTextStyle: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurfaceVariant,
-            ),
-            dateTextStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: colorScheme.onSurface,
-            ),
-          ),
-          todayHighlightColor: colorScheme.primary,
-          todayTextStyle: TextStyle(
-            color: colorScheme.onPrimary,
-            fontWeight: FontWeight.bold,
-          ),
-          cellBorderColor: colorScheme.outline.withValues(alpha: 0.2),
-          selectionDecoration: BoxDecoration(
-            color: colorScheme.primaryContainer.withValues(alpha: 0.3),
-            border: Border.all(color: colorScheme.primary, width: 2),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          appointmentTextStyle: TextStyle(
-            color: colorScheme.onPrimaryContainer,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-          onDragEnd: (details) async {
-            if (details.appointment == null) return;
-
-            final appointment = details.appointment as Appointment;
-            final events = await CalendarStorage.loadEvents();
-            final event = events.firstWhere(
-              (e) => e.id == appointment.id.toString(),
-            );
-
-            // Update event with new time
-            final updatedEvent = event.copyWith(
-              date: details.droppingTime!,
-              startTime: TimeOfDay.fromDateTime(details.droppingTime!),
-              endTime: TimeOfDay.fromDateTime(
-                details.droppingTime!.add(
-                  appointment.endTime.difference(appointment.startTime),
+              monthViewSettings: MonthViewSettings(
+                appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
+                showTrailingAndLeadingDates: _showTrailingAndLeadingDates,
+                numberOfWeeksInView: 6,
+                appointmentDisplayCount: 4,
+                showAgenda: _currentView == CalendarView.month,
+                agendaViewHeight: 200,
+              ),
+              scheduleViewSettings: const ScheduleViewSettings(
+                appointmentItemHeight: 70,
+                hideEmptyScheduleWeek: true,
+                monthHeaderSettings: MonthHeaderSettings(
+                  monthFormat: 'MMMM, yyyy',
+                  height: 60,
+                  monthTextStyle: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            );
+              blackoutDates: _blackoutDates,
+              blackoutDatesTextStyle: const TextStyle(
+                decoration: TextDecoration.lineThrough,
+                color: Colors.red,
+              ),
+              specialRegions: _specialTimeRegions,
+              headerStyle: CalendarHeaderStyle(
+                textAlign: TextAlign.center,
+                backgroundColor: colorScheme.surfaceContainerLow,
+                textStyle: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              viewHeaderStyle: ViewHeaderStyle(
+                backgroundColor: colorScheme.surfaceContainerLow,
+                dayTextStyle: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                dateTextStyle: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              todayHighlightColor: colorScheme.primary,
+              todayTextStyle: TextStyle(
+                color: colorScheme.onPrimary,
+                fontWeight: FontWeight.bold,
+              ),
+              cellBorderColor: colorScheme.outline.withValues(alpha: 0.2),
+              selectionDecoration: BoxDecoration(
+                color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                border: Border.all(color: colorScheme.primary, width: 2),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              appointmentTextStyle: TextStyle(
+                color: colorScheme.onPrimaryContainer,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+              onDragEnd: (details) async {
+                if (details.appointment == null) return;
 
-            await CalendarStorage.updateEvent(updatedEvent);
-            await _loadEvents();
-          },
-          onAppointmentResizeEnd: (details) async {
-            if (details.appointment == null) return;
+                final appointment = details.appointment as Appointment;
+                final events = await CalendarStorage.loadEvents();
+                final event = events.firstWhere(
+                  (e) => e.id == appointment.id.toString(),
+                );
 
-            final appointment = details.appointment as Appointment;
-            final events = await CalendarStorage.loadEvents();
-            final event = events.firstWhere(
-              (e) => e.id == appointment.id.toString(),
-            );
+                // Update event with new time
+                final updatedEvent = event.copyWith(
+                  date: details.droppingTime!,
+                  startTime: TimeOfDay.fromDateTime(details.droppingTime!),
+                  endTime: TimeOfDay.fromDateTime(
+                    details.droppingTime!.add(
+                      appointment.endTime.difference(appointment.startTime),
+                    ),
+                  ),
+                );
 
-            // Update event with new time
-            final updatedEvent = event.copyWith(
-              startTime: TimeOfDay.fromDateTime(details.startTime!),
-              endTime: TimeOfDay.fromDateTime(details.endTime!),
-            );
+                await CalendarStorage.updateEvent(updatedEvent);
+                await _loadEvents();
+              },
+              onAppointmentResizeEnd: (details) async {
+                if (details.appointment == null) return;
 
-            await CalendarStorage.updateEvent(updatedEvent);
-            await _loadEvents();
-          },
-        ),
-      ),
+                final appointment = details.appointment as Appointment;
+                final events = await CalendarStorage.loadEvents();
+                final event = events.firstWhere(
+                  (e) => e.id == appointment.id.toString(),
+                );
+
+                // Update event with new time
+                final updatedEvent = event.copyWith(
+                  startTime: TimeOfDay.fromDateTime(details.startTime!),
+                  endTime: TimeOfDay.fromDateTime(details.endTime!),
+                );
+
+                await CalendarStorage.updateEvent(updatedEvent);
+                await _loadEvents();
+              },
+            ),
+          ),
           // Projects Tab
           _buildProjectsTab(),
         ],

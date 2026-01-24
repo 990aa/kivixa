@@ -35,7 +35,7 @@ class GridFolders extends StatelessWidget {
   final Future<bool> Function(String) isFolderEmpty;
   final Future<void> Function(String) deleteFolder;
   final Future<void> Function(String folderName, String destinationPath)?
-      moveFolder;
+  moveFolder;
   final String? currentPath;
 
   final List<String> folders;
@@ -43,7 +43,8 @@ class GridFolders extends StatelessWidget {
   // Multi-select support
   final List<String>? selectedFolders;
   final bool isMultiSelectMode;
-  final void Function(String folderName, bool selected)? onFolderSelectionToggle;
+  final void Function(String folderName, bool selected)?
+  onFolderSelectionToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +113,7 @@ class _GridFolder extends StatefulWidget {
   final Future<bool> Function(String) isFolderEmpty;
   final Future<void> Function(String) deleteFolder;
   final Future<void> Function(String folderName, String destinationPath)?
-      moveFolder;
+  moveFolder;
   final String? currentPath;
   final Function(String) onTap;
   final bool isSelected;
@@ -146,9 +147,7 @@ class _GridFolderState extends State<_GridFolder> {
   Future<void> _showMoveDialog(BuildContext context) async {
     final destinationFolder = await showDialog<String>(
       context: context,
-      builder: (context) => FolderPickerDialog(
-        currentPath: widget.currentPath,
-      ),
+      builder: (context) => FolderPickerDialog(currentPath: widget.currentPath),
     );
 
     if (destinationFolder == null) return;
@@ -528,10 +527,7 @@ class _RenameFolderDialogState extends State<_RenameFolderDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: Text(t.common.cancel),
         ),
-        TextButton(
-          onPressed: _submit,
-          child: Text(t.common.rename),
-        ),
+        TextButton(onPressed: _submit, child: Text(t.common.rename)),
       ],
     );
   }
