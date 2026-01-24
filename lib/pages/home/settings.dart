@@ -143,20 +143,9 @@ class _SettingsPageState extends State<SettingsPage> {
             padding: const EdgeInsets.only(bottom: 8),
             sliver: SliverAppBar(
               collapsedHeight: kToolbarHeight,
-              expandedHeight: 100,
               pinned: true,
               scrolledUnderElevation: 1,
-              flexibleSpace: FlexibleSpaceBar(
-                title: Text(
-                  t.home.titles.settings,
-                  style: TextStyle(color: colorScheme.onSurface),
-                ),
-                centerTitle: false,
-                titlePadding: const EdgeInsetsDirectional.only(
-                  start: 16,
-                  bottom: 16,
-                ),
-              ),
+              title: Text(t.home.titles.settings),
               actions: [
                 if (UpdateManager.status.value != UpdateStatus.upToDate)
                   IconButton(

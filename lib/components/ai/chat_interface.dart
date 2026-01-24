@@ -792,6 +792,7 @@ class _ModelSwitcherChip extends StatefulWidget {
 }
 
 class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
+  final GlobalKey _chipKey = GlobalKey();
   List<AIModel> _downloadedModels = [];
 
   @override
@@ -820,155 +821,163 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
 
     if (!context.mounted) return;
 
+    final renderBox = _chipKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    final offset = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final currentModelId = widget.controller.loadedModelId;
 
-    showModalBottomSheet(
+    // Show menu
+    final choice = await showMenu<String>(
       context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy + size.height,
+        offset.dx + size.width,
+        offset.dy + size.height + 300,
+      ),
+      items: [
+        PopupMenuItem<String>(
+          enabled: false,
+          child: Text(
+            'Switch Model',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+        ),
+        const PopupMenuDivider(),
+        if (_downloadedModels.isEmpty)
+          PopupMenuItem<String>(
+            enabled: false,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 20,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'No models downloaded',
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                ),
+              ],
+            ),
+          )
+        else
+          ..._downloadedModels.map((model) {
+            final isSelected = model.id == currentModelId;
+            return PopupMenuItem<String>(
+              value: model.id,
               child: Row(
                 children: [
-                  Icon(Icons.smart_toy, color: colorScheme.primary),
+                  Icon(
+                    isSelected
+                        ? Icons.check_circle
+                        : Icons.radio_button_unchecked,
+                    color: isSelected
+                        ? colorScheme.primary
+                        : colorScheme.onSurfaceVariant,
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
-                  Text(
-                    'Switch Model',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          model.name,
+                          style: TextStyle(
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
+                        Text(
+                          model.sizeText,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const Spacer(),
-                  TextButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.of(context)
-                          .push(
-                            MaterialPageRoute(
-                              builder: (context) => const ModelSelectionPage(),
-                            ),
-                          )
-                          .then((_) => _loadDownloadedModels());
-                    },
-                    icon: const Icon(Icons.download, size: 18),
-                    label: const Text('Download More'),
-                  ),
+                  if (isSelected)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        'Active',
+                        style: TextStyle(
+                          color: colorScheme.onPrimaryContainer,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                 ],
               ),
-            ),
-            const Divider(height: 1),
-            if (_downloadedModels.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.model_training,
-                      size: 48,
-                      color: colorScheme.onSurfaceVariant.withValues(
-                        alpha: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No models downloaded',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    FilledButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const ModelSelectionPage(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.download),
-                      label: const Text('Download Models'),
-                    ),
-                  ],
-                ),
-              )
-            else
-              Flexible(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _downloadedModels.length,
-                  itemBuilder: (context, index) {
-                    final model = _downloadedModels[index];
-                    final isSelected = model.id == currentModelId;
-
-                    return ListTile(
-                      leading: Icon(
-                        isSelected
-                            ? Icons.check_circle
-                            : Icons.radio_button_unchecked,
-                        color: isSelected
-                            ? colorScheme.primary
-                            : colorScheme.onSurfaceVariant,
-                      ),
-                      title: Text(
-                        model.name,
-                        style: TextStyle(
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                        ),
-                      ),
-                      subtitle: Text(
-                        model.categories.map((c) => c.displayName).join(' • '),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      trailing: isSelected
-                          ? Chip(
-                              label: const Text('Active'),
-                              backgroundColor: colorScheme.primaryContainer,
-                              labelStyle: TextStyle(
-                                color: colorScheme.onPrimaryContainer,
-                                fontSize: 11,
-                              ),
-                              padding: EdgeInsets.zero,
-                              visualDensity: VisualDensity.compact,
-                            )
-                          : Text(
-                              model.sizeText,
-                              style: theme.textTheme.bodySmall,
-                            ),
-                      onTap: isSelected
-                          ? null
-                          : () async {
-                              Navigator.pop(context);
-                              final success = await widget.controller
-                                  .switchModel(model);
-                              if (!success && context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Failed to switch to ${model.name}',
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                    );
-                  },
+            );
+          }),
+        const PopupMenuDivider(),
+        PopupMenuItem<String>(
+          value: 'download_more',
+          child: Row(
+            children: [
+              Icon(Icons.download, color: colorScheme.primary, size: 20),
+              const SizedBox(width: 12),
+              Text(
+                'Download More Models',
+                style: TextStyle(
+                  color: colorScheme.primary,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            const SizedBox(height: 8),
-          ],
+            ],
+          ),
         ),
-      ),
+      ],
     );
+
+    if (choice != null) {
+      if (choice == 'download_more') {
+        if (!context.mounted) return;
+        Navigator.of(context)
+            .push(
+              MaterialPageRoute(
+                builder: (context) => const ModelSelectionPage(),
+              ),
+            )
+            .then((_) => _loadDownloadedModels());
+      } else {
+        // Find model by ID
+        final model = _downloadedModels.firstWhere(
+          (m) => m.id == choice,
+          orElse: () => _downloadedModels.first,
+        );
+
+        if (model.id == currentModelId) return;
+
+        final success = await widget.controller.switchModel(model);
+        if (!success && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to switch to ${model.name}')),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -978,6 +987,7 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
     final modelName = widget.controller.loadedModelName ?? 'Model';
 
     return ActionChip(
+      key: _chipKey,
       label: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

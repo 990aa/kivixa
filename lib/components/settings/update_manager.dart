@@ -135,14 +135,9 @@ abstract class UpdateManager {
     final minor = int.parse(match.group(2)!);
     final patch = int.parse(match.group(3)!);
 
-    // The build number is specified directly in the tag (e.g., +1003)
-    // If not present, calculate from version components as fallback
-    final int buildNumber;
-    if (match.group(4) != null) {
-      buildNumber = int.parse(match.group(4)!);
-    } else {
-      buildNumber = KivixaVersion(major, minor, patch, 0).buildNumber;
-    }
+    // Always calculate build number from version components to ensure
+    // accurate semantic version comparison, ignoring any build number in tag.
+    final buildNumber = KivixaVersion(major, minor, patch, 0).buildNumber;
     final versionName = '$major.$minor.$patch';
 
     log.info(
