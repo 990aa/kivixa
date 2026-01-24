@@ -95,12 +95,16 @@ fn detect_model_type(model_path: &str) -> ModelType {
 /// * `Err(...)` if loading failed
 pub fn init_model(model_path: String, config: Option<InferenceConfig>) -> Result<()> {
     let mut config = config.unwrap_or_default();
-    
+
     // Auto-detect model type from filename if not explicitly set
     let detected_type = detect_model_type(&model_path);
     config.model_type = detected_type;
 
-    log::info!("Initializing model from: {} (type: {:?})", model_path, config.model_type);
+    log::info!(
+        "Initializing model from: {} (type: {:?})",
+        model_path,
+        config.model_type
+    );
 
     // Initialize the llama.cpp backend
     let backend = LlamaBackend::init()?;
@@ -146,7 +150,10 @@ pub fn get_model_type() -> Option<ModelType> {
 /// # Returns
 /// * `Ok(())` if model loaded successfully
 /// * `Err(...)` if loading failed
-#[deprecated(since = "0.2.0", note = "Use init_model instead for multi-model support")]
+#[deprecated(
+    since = "0.2.0",
+    note = "Use init_model instead for multi-model support"
+)]
 pub fn init_phi4(model_path: String, config: Option<InferenceConfig>) -> Result<()> {
     // Set model type explicitly to Phi4 for backward compatibility
     let mut config = config.unwrap_or_default();
@@ -343,7 +350,7 @@ pub fn chat_completion(messages: Vec<(String, String)>, max_tokens: Option<u32>)
     let state = guard.as_ref().ok_or_else(|| anyhow!("Model not loaded"))?;
     let model_type = state.config.model_type;
     drop(guard); // Release lock before generation
-    
+
     let prompt = format_chat_prompt(&messages, model_type);
     generate_text(prompt, max_tokens)
 }
@@ -413,17 +420,29 @@ fn format_functionary_prompt(messages: &[(String, String)]) -> String {
     for (role, content) in messages {
         match role.as_str() {
             "system" => {
-                prompt.push_str(&format!("<|from|>system\n<|recipient|>all\n<|content|>{}\n", content));
+                prompt.push_str(&format!(
+                    "<|from|>system\n<|recipient|>all\n<|content|>{}\n",
+                    content
+                ));
             }
             "user" => {
-                prompt.push_str(&format!("<|from|>user\n<|recipient|>all\n<|content|>{}\n", content));
+                prompt.push_str(&format!(
+                    "<|from|>user\n<|recipient|>all\n<|content|>{}\n",
+                    content
+                ));
             }
             "assistant" => {
-                prompt.push_str(&format!("<|from|>assistant\n<|recipient|>all\n<|content|>{}\n", content));
+                prompt.push_str(&format!(
+                    "<|from|>assistant\n<|recipient|>all\n<|content|>{}\n",
+                    content
+                ));
             }
             "function" => {
                 // Function call results
-                prompt.push_str(&format!("<|from|>function\n<|recipient|>assistant\n<|content|>{}\n", content));
+                prompt.push_str(&format!(
+                    "<|from|>function\n<|recipient|>assistant\n<|content|>{}\n",
+                    content
+                ));
             }
             _ => {
                 log::warn!("Unknown role: {}", role);
@@ -497,19 +516,43 @@ mod tests {
 
     #[test]
     fn test_detect_model_type() {
-        assert_eq!(detect_model_type("/path/to/phi-4-mini.gguf"), ModelType::Phi4);
-        assert_eq!(detect_model_type("/path/to/Phi4-Mini-Q4.gguf"), ModelType::Phi4);
-        assert_eq!(detect_model_type("/path/to/qwen2.5-3b.gguf"), ModelType::Qwen);
-        assert_eq!(detect_model_type("/path/to/Qwen2.5-Coder.gguf"), ModelType::Qwen);
-        assert_eq!(detect_model_type("/path/to/functionary-v2.gguf"), ModelType::Functionary);
-        assert_eq!(detect_model_type("/path/to/function-gemma-2b.gguf"), ModelType::Functionary);
-        assert_eq!(detect_model_type("/path/to/some-model.gguf"), ModelType::Phi4); // Default
+        assert_eq!(
+            detect_model_type("/path/to/phi-4-mini.gguf"),
+            ModelType::Phi4
+        );
+        assert_eq!(
+            detect_model_type("/path/to/Phi4-Mini-Q4.gguf"),
+            ModelType::Phi4
+        );
+        assert_eq!(
+            detect_model_type("/path/to/qwen2.5-3b.gguf"),
+            ModelType::Qwen
+        );
+        assert_eq!(
+            detect_model_type("/path/to/Qwen2.5-Coder.gguf"),
+            ModelType::Qwen
+        );
+        assert_eq!(
+            detect_model_type("/path/to/functionary-v2.gguf"),
+            ModelType::Functionary
+        );
+        assert_eq!(
+            detect_model_type("/path/to/function-gemma-2b.gguf"),
+            ModelType::Functionary
+        );
+        assert_eq!(
+            detect_model_type("/path/to/some-model.gguf"),
+            ModelType::Phi4
+        ); // Default
     }
 
     #[test]
     fn test_phi4_prompt_format() {
         let messages = vec![
-            ("system".to_string(), "You are a helpful assistant.".to_string()),
+            (
+                "system".to_string(),
+                "You are a helpful assistant.".to_string(),
+            ),
             ("user".to_string(), "Hello!".to_string()),
         ];
         let prompt = format_phi4_prompt(&messages);
@@ -521,7 +564,10 @@ mod tests {
     #[test]
     fn test_qwen_prompt_format() {
         let messages = vec![
-            ("system".to_string(), "You are a helpful assistant.".to_string()),
+            (
+                "system".to_string(),
+                "You are a helpful assistant.".to_string(),
+            ),
             ("user".to_string(), "Hello!".to_string()),
         ];
         let prompt = format_qwen_prompt(&messages);
@@ -533,11 +579,15 @@ mod tests {
     #[test]
     fn test_functionary_prompt_format() {
         let messages = vec![
-            ("system".to_string(), "You are a helpful assistant.".to_string()),
+            (
+                "system".to_string(),
+                "You are a helpful assistant.".to_string(),
+            ),
             ("user".to_string(), "Hello!".to_string()),
         ];
         let prompt = format_functionary_prompt(&messages);
-        assert!(prompt.contains("<|from|>system\n<|recipient|>all\n<|content|>You are a helpful assistant."));
+        assert!(prompt
+            .contains("<|from|>system\n<|recipient|>all\n<|content|>You are a helpful assistant."));
         assert!(prompt.contains("<|from|>user\n<|recipient|>all\n<|content|>Hello!"));
         assert!(prompt.ends_with("<|from|>assistant\n<|recipient|>all\n<|content|>"));
     }

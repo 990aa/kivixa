@@ -304,7 +304,7 @@ pub fn init_mcp(
     if !browse_dir.exists() {
         std::fs::create_dir_all(&browse_dir)?;
     }
-    
+
     let config = MCPConfig {
         browse_dir: browse_dir.clone(),
         max_file_size: max_file_size.unwrap_or(10 * 1024 * 1024),
@@ -320,10 +320,10 @@ pub fn init_mcp(
             ]
         }),
     };
-    
+
     *MCP_STATE.lock() = Some(Arc::new(config));
     log::info!("MCP initialized with browse_dir: {}", browse_dir.display());
-    
+
     Ok(())
 }
 
@@ -338,22 +338,24 @@ pub fn is_mcp_initialized() -> bool {
 /// attempts to escape the sandbox.
 pub fn validate_path(relative_path: &str) -> Result<PathBuf> {
     let guard = MCP_STATE.lock();
-    let config = guard.as_ref().ok_or_else(|| anyhow!("MCP not initialized"))?;
-    
+    let config = guard
+        .as_ref()
+        .ok_or_else(|| anyhow!("MCP not initialized"))?;
+
     // Clean the path
     let clean_path = relative_path
         .trim()
         .trim_start_matches('/')
         .trim_start_matches('\\');
-    
+
     // Reject paths with parent directory traversal
     if clean_path.contains("..") {
         return Err(anyhow!("Path traversal not allowed: {}", relative_path));
     }
-    
+
     // Build the full path
     let full_path = config.browse_dir.join(clean_path);
-    
+
     // Canonicalize and verify it's still within browse_dir
     // Note: For non-existent paths, we verify the parent exists and is within bounds
     let normalized = if full_path.exists() {
@@ -371,33 +373,35 @@ pub fn validate_path(relative_path: &str) -> Result<PathBuf> {
         }
         full_path
     };
-    
+
     // Final check: ensure path is within browse_dir
     if let Ok(canonical_browse) = config.browse_dir.canonicalize() {
         if normalized.exists() && !normalized.starts_with(&canonical_browse) {
             return Err(anyhow!("Path outside sandbox: {}", relative_path));
         }
     }
-    
+
     Ok(normalized)
 }
 
 /// Validate file extension
 pub fn validate_extension(path: &Path) -> Result<()> {
     let guard = MCP_STATE.lock();
-    let config = guard.as_ref().ok_or_else(|| anyhow!("MCP not initialized"))?;
-    
+    let config = guard
+        .as_ref()
+        .ok_or_else(|| anyhow!("MCP not initialized"))?;
+
     let extension = path
         .extension()
         .and_then(|e| e.to_str())
         .unwrap_or("")
         .to_lowercase();
-    
+
     if extension.is_empty() {
         // Allow files without extension (like plain text notes)
         return Ok(());
     }
-    
+
     if config.allowed_extensions.contains(&extension) {
         Ok(())
     } else {
@@ -416,20 +420,22 @@ pub fn validate_extension(path: &Path) -> Result<()> {
 /// Read a file from the browse directory
 pub fn read_file(relative_path: &str) -> Result<String> {
     let path = validate_path(relative_path)?;
-    
+
     if !path.exists() {
         return Err(anyhow!("File not found: {}", relative_path));
     }
-    
+
     if !path.is_file() {
         return Err(anyhow!("Not a file: {}", relative_path));
     }
-    
+
     // Check file size
     let metadata = std::fs::metadata(&path)?;
     let guard = MCP_STATE.lock();
-    let config = guard.as_ref().ok_or_else(|| anyhow!("MCP not initialized"))?;
-    
+    let config = guard
+        .as_ref()
+        .ok_or_else(|| anyhow!("MCP not initialized"))?;
+
     if metadata.len() as usize > config.max_file_size {
         return Err(anyhow!(
             "File too large: {} bytes (max: {} bytes)",
@@ -438,7 +444,7 @@ pub fn read_file(relative_path: &str) -> Result<String> {
         ));
     }
     drop(guard);
-    
+
     let content = std::fs::read_to_string(&path)?;
     Ok(content)
 }
@@ -447,11 +453,13 @@ pub fn read_file(relative_path: &str) -> Result<String> {
 pub fn write_file(relative_path: &str, content: &str) -> Result<()> {
     let path = validate_path(relative_path)?;
     validate_extension(&path)?;
-    
+
     // Check content size
     let guard = MCP_STATE.lock();
-    let config = guard.as_ref().ok_or_else(|| anyhow!("MCP not initialized"))?;
-    
+    let config = guard
+        .as_ref()
+        .ok_or_else(|| anyhow!("MCP not initialized"))?;
+
     if content.len() > config.max_file_size {
         return Err(anyhow!(
             "Content too large: {} bytes (max: {} bytes)",
@@ -460,16 +468,16 @@ pub fn write_file(relative_path: &str, content: &str) -> Result<()> {
         ));
     }
     drop(guard);
-    
+
     // Create parent directories if needed
     if let Some(parent) = path.parent() {
         if !parent.exists() {
             std::fs::create_dir_all(parent)?;
         }
     }
-    
+
     std::fs::write(&path, content)?;
-    
+
     log::info!("File written: {}", relative_path);
     Ok(())
 }
@@ -478,11 +486,13 @@ pub fn write_file(relative_path: &str, content: &str) -> Result<()> {
 fn write_file_with_append(relative_path: &str, content: &str, append: bool) -> Result<()> {
     let path = validate_path(relative_path)?;
     validate_extension(&path)?;
-    
+
     // Check content size
     let guard = MCP_STATE.lock();
-    let config = guard.as_ref().ok_or_else(|| anyhow!("MCP not initialized"))?;
-    
+    let config = guard
+        .as_ref()
+        .ok_or_else(|| anyhow!("MCP not initialized"))?;
+
     if content.len() > config.max_file_size {
         return Err(anyhow!(
             "Content too large: {} bytes (max: {} bytes)",
@@ -491,24 +501,22 @@ fn write_file_with_append(relative_path: &str, content: &str, append: bool) -> R
         ));
     }
     drop(guard);
-    
+
     // Create parent directories if needed
     if let Some(parent) = path.parent() {
         if !parent.exists() {
             std::fs::create_dir_all(parent)?;
         }
     }
-    
+
     if append && path.exists() {
         use std::io::Write;
-        let mut file = std::fs::OpenOptions::new()
-            .append(true)
-            .open(&path)?;
+        let mut file = std::fs::OpenOptions::new().append(true).open(&path)?;
         file.write_all(content.as_bytes())?;
     } else {
         std::fs::write(&path, content)?;
     }
-    
+
     log::info!("File written: {}", relative_path);
     Ok(())
 }
@@ -516,25 +524,27 @@ fn write_file_with_append(relative_path: &str, content: &str, append: bool) -> R
 /// Delete a file from the browse directory
 pub fn delete_file(relative_path: &str) -> Result<()> {
     let path = validate_path(relative_path)?;
-    
+
     if !path.exists() {
         return Err(anyhow!("File not found: {}", relative_path));
     }
-    
+
     if path.is_dir() {
-        return Err(anyhow!("Cannot delete directory with delete_file. Use delete_folder."));
+        return Err(anyhow!(
+            "Cannot delete directory with delete_file. Use delete_folder."
+        ));
     }
-    
+
     std::fs::remove_file(&path)?;
     log::info!("File deleted: {}", relative_path);
-    
+
     Ok(())
 }
 
 /// Create a folder in the browse directory
 pub fn create_folder(relative_path: &str) -> Result<()> {
     let path = validate_path(relative_path)?;
-    
+
     if path.exists() {
         if path.is_dir() {
             return Ok(()); // Already exists
@@ -542,16 +552,23 @@ pub fn create_folder(relative_path: &str) -> Result<()> {
             return Err(anyhow!("A file already exists at: {}", relative_path));
         }
     }
-    
+
     std::fs::create_dir_all(&path)?;
     log::info!("Folder created: {}", relative_path);
-    
+
     Ok(())
 }
 
 /// List files in a directory (for API use - non-recursive, root if empty path)
 pub fn list_files(relative_path: &str) -> Result<Vec<String>> {
-    list_files_internal(if relative_path.is_empty() { None } else { Some(relative_path) }, false)
+    list_files_internal(
+        if relative_path.is_empty() {
+            None
+        } else {
+            Some(relative_path)
+        },
+        false,
+    )
 }
 
 /// List files in a directory (internal, with options)
@@ -560,27 +577,31 @@ fn list_files_internal(relative_path: Option<&str>, recursive: bool) -> Result<V
         Some(p) if !p.is_empty() => validate_path(p)?,
         _ => {
             let guard = MCP_STATE.lock();
-            let config = guard.as_ref().ok_or_else(|| anyhow!("MCP not initialized"))?;
+            let config = guard
+                .as_ref()
+                .ok_or_else(|| anyhow!("MCP not initialized"))?;
             config.browse_dir.clone()
         }
     };
-    
+
     if !path.exists() {
         return Err(anyhow!("Directory not found"));
     }
-    
+
     if !path.is_dir() {
         return Err(anyhow!("Not a directory"));
     }
-    
+
     let guard = MCP_STATE.lock();
-    let config = guard.as_ref().ok_or_else(|| anyhow!("MCP not initialized"))?;
+    let config = guard
+        .as_ref()
+        .ok_or_else(|| anyhow!("MCP not initialized"))?;
     let browse_dir = config.browse_dir.clone();
     drop(guard);
-    
+
     let mut files = Vec::new();
     collect_files(&path, &browse_dir, recursive, &mut files)?;
-    
+
     Ok(files)
 }
 
@@ -593,27 +614,27 @@ fn collect_files(
     for entry in std::fs::read_dir(dir)? {
         let entry = entry?;
         let path = entry.path();
-        
+
         // Get relative path from browse_dir
         let relative = path
             .strip_prefix(base_dir)
             .map(|p| p.to_string_lossy().to_string())
             .unwrap_or_else(|_| path.to_string_lossy().to_string());
-        
+
         let is_dir = path.is_dir();
         let display = if is_dir {
             format!("{}/", relative)
         } else {
             relative
         };
-        
+
         files.push(display);
-        
+
         if recursive && is_dir {
             collect_files(&path, base_dir, true, files)?;
         }
     }
-    
+
     files.sort();
     Ok(())
 }
@@ -644,7 +665,7 @@ pub fn get_tool_schemas() -> String {
                     })
                 })
                 .collect();
-            
+
             serde_json::json!({
                 "name": tool.name(),
                 "description": tool.description(),
@@ -652,7 +673,7 @@ pub fn get_tool_schemas() -> String {
             })
         })
         .collect();
-    
+
     serde_json::to_string_pretty(&tools).unwrap_or_default()
 }
 
@@ -673,44 +694,51 @@ pub fn execute_tool_call(call: &MCPToolCall) -> MCPToolResult {
             };
         }
     };
-    
+
     let parameters = call.get_parameters();
-    
+
     let result = match tool {
         MCPTool::ReadFile => {
-            let path = parameters.get("path")
+            let path = parameters
+                .get("path")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
             read_file(path)
         }
         MCPTool::WriteFile => {
-            let path = parameters.get("path")
+            let path = parameters
+                .get("path")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
-            let content = parameters.get("content")
+            let content = parameters
+                .get("content")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
-            let append = parameters.get("append")
+            let append = parameters
+                .get("append")
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
-            write_file_with_append(path, content, append).map(|_| "File written successfully".to_string())
+            write_file_with_append(path, content, append)
+                .map(|_| "File written successfully".to_string())
         }
         MCPTool::DeleteFile => {
-            let path = parameters.get("path")
+            let path = parameters
+                .get("path")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
             delete_file(path).map(|_| "File deleted successfully".to_string())
         }
         MCPTool::CreateFolder => {
-            let path = parameters.get("path")
+            let path = parameters
+                .get("path")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
             create_folder(path).map(|_| "Folder created successfully".to_string())
         }
         MCPTool::ListFiles => {
-            let path = parameters.get("path")
-                .and_then(|v| v.as_str());
-            let recursive = parameters.get("recursive")
+            let path = parameters.get("path").and_then(|v| v.as_str());
+            let recursive = parameters
+                .get("recursive")
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
             list_files_internal(path, recursive).map(|files| files.join("\n"))
@@ -718,37 +746,44 @@ pub fn execute_tool_call(call: &MCPToolCall) -> MCPToolResult {
         MCPTool::CalendarLua | MCPTool::TimerLua => {
             // Lua execution is handled on the Dart side
             // This just validates the request
-            let script = parameters.get("script")
+            let script = parameters
+                .get("script")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
             if script.is_empty() {
                 Err(anyhow!("Script cannot be empty"))
             } else {
-                Ok(format!("Lua script ready for execution ({} bytes)", script.len()))
+                Ok(format!(
+                    "Lua script ready for execution ({} bytes)",
+                    script.len()
+                ))
             }
         }
         MCPTool::ExportMarkdown => {
-            let path = parameters.get("path")
+            let path = parameters
+                .get("path")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
-            let content = parameters.get("content")
+            let content = parameters
+                .get("content")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
-            let append = parameters.get("append")
+            let append = parameters
+                .get("append")
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
-            
+
             // Ensure .md extension
             let path = if !path.ends_with(".md") {
                 format!("{}.md", path)
             } else {
                 path.to_string()
             };
-            
+
             write_file_with_append(&path, content, append).map(|_| format!("Exported to {}", path))
         }
     };
-    
+
     match result {
         Ok(msg) => MCPToolResult {
             success: true,
@@ -782,40 +817,73 @@ pub enum TaskCategory {
 /// Classify a user message to determine which model to use
 pub fn classify_task(message: &str) -> TaskCategory {
     let lower = message.to_lowercase();
-    
+
     // Tool use indicators (actions on files, calendar, timers)
     let tool_keywords = [
-        "create file", "create a file", "write file", "delete file", "read file",
-        "create folder", "create a folder", "list files", "calendar", "add event",
-        "schedule", "reminder", "timer", "start timer", "stop timer",
-        "export", "save as", "execute", "run script",
-        "create a note", "make a file", "new file", "new folder",
-        "file called", "folder called", "note called",
+        "create file",
+        "create a file",
+        "write file",
+        "delete file",
+        "read file",
+        "create folder",
+        "create a folder",
+        "list files",
+        "calendar",
+        "add event",
+        "schedule",
+        "reminder",
+        "timer",
+        "start timer",
+        "stop timer",
+        "export",
+        "save as",
+        "execute",
+        "run script",
+        "create a note",
+        "make a file",
+        "new file",
+        "new folder",
+        "file called",
+        "folder called",
+        "note called",
     ];
-    
+
     // Code generation indicators
     let code_keywords = [
-        "write code", "generate code", "implement", "function",
-        "program", "algorithm", "fix the code", "debug",
-        "refactor", "code review", "syntax", "compile",
-        "write a script", "coding", "```",
-        "python code", "javascript code", "rust code",
+        "write code",
+        "generate code",
+        "implement",
+        "function",
+        "program",
+        "algorithm",
+        "fix the code",
+        "debug",
+        "refactor",
+        "code review",
+        "syntax",
+        "compile",
+        "write a script",
+        "coding",
+        "```",
+        "python code",
+        "javascript code",
+        "rust code",
     ];
-    
+
     // Check for tool use patterns first (higher priority for action phrases)
     for keyword in &tool_keywords {
         if lower.contains(keyword) {
             return TaskCategory::ToolUse;
         }
     }
-    
+
     // Check for code generation patterns
     for keyword in &code_keywords {
         if lower.contains(keyword) {
             return TaskCategory::CodeGeneration;
         }
     }
-    
+
     // Default to conversation
     TaskCategory::Conversation
 }
@@ -845,132 +913,165 @@ pub fn get_model_name_for_task(category: TaskCategory) -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::tempdir;
     use std::sync::atomic::{AtomicUsize, Ordering};
-    
+    use tempfile::tempdir;
+
     // Counter to ensure unique temp directories
     static TEST_COUNTER: AtomicUsize = AtomicUsize::new(0);
-    
+
     fn setup_mcp() -> tempfile::TempDir {
         let temp = tempdir().unwrap();
         let _ = TEST_COUNTER.fetch_add(1, Ordering::SeqCst);
         init_mcp(temp.path().to_path_buf(), None, None).unwrap();
         temp
     }
-    
+
     #[test]
     fn test_mcp_initialization() {
         let temp = setup_mcp();
         assert!(is_mcp_initialized());
         drop(temp);
     }
-    
+
     #[test]
     fn test_path_validation() {
         let temp = setup_mcp();
-        
+
         // Valid paths
         assert!(validate_path("test.md").is_ok());
         assert!(validate_path("folder/test.md").is_ok());
         assert!(validate_path("deep/nested/path/test.md").is_ok());
-        
+
         // Invalid paths (traversal)
         assert!(validate_path("../outside.md").is_err());
         assert!(validate_path("folder/../../../etc/passwd").is_err());
         assert!(validate_path("..").is_err());
-        
+
         drop(temp);
     }
-    
+
     #[test]
     fn test_file_operations() {
         let temp = setup_mcp();
-        
+
         // Unique file name to avoid test interference
         let file_name = format!("test_file_ops_{}.md", TEST_COUNTER.load(Ordering::SeqCst));
-        
+
         // Write file
         assert!(write_file(&file_name, "# Hello\n\nWorld").is_ok());
-        
+
         // Read file
         let content = read_file(&file_name).unwrap();
         assert_eq!(content, "# Hello\n\nWorld");
-        
+
         // Append to file
         assert!(write_file_with_append(&file_name, "\n\nMore content", true).is_ok());
         let content = read_file(&file_name).unwrap();
         assert!(content.contains("More content"));
-        
+
         // List files
         let files = list_files("").unwrap();
         assert!(files.iter().any(|f| f.contains("test_file_ops")));
-        
+
         // Delete file
         assert!(delete_file(&file_name).is_ok());
         assert!(read_file(&file_name).is_err());
-        
+
         drop(temp);
     }
-    
+
     #[test]
     fn test_folder_operations() {
         let temp = setup_mcp();
-        
+
         // Create folder
         assert!(create_folder("new_folder").is_ok());
-        
+
         // Create nested folders
         assert!(create_folder("deep/nested/folder").is_ok());
-        
+
         // Write file in folder
         assert!(write_file("new_folder/note.md", "Content").is_ok());
-        
+
         // List files
         let files = list_files("new_folder").unwrap();
         assert!(files.iter().any(|f| f.contains("note.md")));
-        
+
         drop(temp);
     }
-    
+
     #[test]
     fn test_extension_validation() {
         let temp = setup_mcp();
-        
+
         // Valid extensions
         assert!(write_file("ext_test.md", "content").is_ok());
         assert!(write_file("ext_test.txt", "content").is_ok());
         assert!(write_file("ext_test.json", "{}").is_ok());
-        
+
         // Invalid extensions
         assert!(write_file("ext_test.exe", "content").is_err());
         assert!(write_file("ext_test.dll", "content").is_err());
         assert!(write_file("ext_test.sh", "content").is_err());
-        
+
         drop(temp);
     }
-    
+
     #[test]
     fn test_task_classification() {
         // Tool use
-        assert_eq!(classify_task("Create a file called notes.md"), TaskCategory::ToolUse);
-        assert_eq!(classify_task("Add an event to my calendar"), TaskCategory::ToolUse);
-        assert_eq!(classify_task("Start a 25 minute timer"), TaskCategory::ToolUse);
-        assert_eq!(classify_task("List files in the notes folder"), TaskCategory::ToolUse);
-        
+        assert_eq!(
+            classify_task("Create a file called notes.md"),
+            TaskCategory::ToolUse
+        );
+        assert_eq!(
+            classify_task("Add an event to my calendar"),
+            TaskCategory::ToolUse
+        );
+        assert_eq!(
+            classify_task("Start a 25 minute timer"),
+            TaskCategory::ToolUse
+        );
+        assert_eq!(
+            classify_task("List files in the notes folder"),
+            TaskCategory::ToolUse
+        );
+
         // Code generation
-        assert_eq!(classify_task("Write code to sort a list"), TaskCategory::CodeGeneration);
-        assert_eq!(classify_task("Implement a binary search function"), TaskCategory::CodeGeneration);
+        assert_eq!(
+            classify_task("Write code to sort a list"),
+            TaskCategory::CodeGeneration
+        );
+        assert_eq!(
+            classify_task("Implement a binary search function"),
+            TaskCategory::CodeGeneration
+        );
         // Note: "write a Lua script" matches both patterns, but function triggers tool use in classify_task
         // These should clearly be code gen:
-        assert_eq!(classify_task("Write Python code for me"), TaskCategory::CodeGeneration);
-        assert_eq!(classify_task("Debug this algorithm"), TaskCategory::CodeGeneration);
-        
+        assert_eq!(
+            classify_task("Write Python code for me"),
+            TaskCategory::CodeGeneration
+        );
+        assert_eq!(
+            classify_task("Debug this algorithm"),
+            TaskCategory::CodeGeneration
+        );
+
         // Conversation
-        assert_eq!(classify_task("What is machine learning?"), TaskCategory::Conversation);
-        assert_eq!(classify_task("Explain quantum computing"), TaskCategory::Conversation);
-        assert_eq!(classify_task("Hello, how are you?"), TaskCategory::Conversation);
+        assert_eq!(
+            classify_task("What is machine learning?"),
+            TaskCategory::Conversation
+        );
+        assert_eq!(
+            classify_task("Explain quantum computing"),
+            TaskCategory::Conversation
+        );
+        assert_eq!(
+            classify_task("Hello, how are you?"),
+            TaskCategory::Conversation
+        );
     }
-    
+
     #[test]
     fn test_model_routing() {
         assert_eq!(
@@ -986,7 +1087,7 @@ mod tests {
             crate::inference::ModelType::Qwen
         );
     }
-    
+
     #[test]
     fn test_tool_schemas() {
         let schemas = get_tool_schemas();
@@ -995,7 +1096,7 @@ mod tests {
         assert!(schemas.contains("calendar_lua"));
         assert!(schemas.contains("timer_lua"));
     }
-    
+
     #[test]
     fn test_tool_call_parsing() {
         let json = r#"{
@@ -1003,38 +1104,36 @@ mod tests {
             "parameters_json": "{\"path\": \"test.md\", \"content\": \"Hello World\"}",
             "description": "Creating a test file"
         }"#;
-        
+
         let call = parse_tool_call(json).unwrap();
         assert_eq!(call.tool, "write_file");
         let params = call.get_parameters();
-        assert_eq!(
-            params.get("path").and_then(|v| v.as_str()),
-            Some("test.md")
-        );
+        assert_eq!(params.get("path").and_then(|v| v.as_str()), Some("test.md"));
     }
-    
+
     #[test]
     fn test_tool_execution() {
         let temp = setup_mcp();
-        
+
         let params_json = serde_json::json!({
             "path": "exec_test.md",
             "content": "# Test Content"
-        }).to_string();
-        
+        })
+        .to_string();
+
         let call = MCPToolCall {
             tool: "write_file".to_string(),
             parameters_json: params_json,
             description: "Test write".to_string(),
         };
-        
+
         let result = execute_tool_call(&call);
         assert!(result.success);
-        
+
         // Verify file was created
         let content = read_file("exec_test.md").unwrap();
         assert_eq!(content, "# Test Content");
-        
+
         drop(temp);
     }
 }

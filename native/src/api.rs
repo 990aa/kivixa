@@ -53,7 +53,7 @@ pub fn init_model_with_config(
             }
         }
     };
-    
+
     let config = InferenceConfig {
         n_gpu_layers,
         n_ctx,
@@ -401,10 +401,12 @@ pub struct StreamGraphStats {
 // AI Clustering & Semantic Edges
 // ============================================================================
 
-pub use crate::clustering::{ClusterAssignment, ClusterInfo, ClusteringResult, SemanticEdge, SemanticEdgeResult};
+pub use crate::clustering::{
+    ClusterAssignment, ClusterInfo, ClusteringResult, SemanticEdge, SemanticEdgeResult,
+};
 
 /// Run K-Means clustering on note embeddings
-/// 
+///
 /// # Arguments
 /// * `entries` - List of embedding entries to cluster
 /// * `k` - Number of clusters (if None, auto-detect based on data size)
@@ -451,8 +453,9 @@ pub fn analyze_knowledge_graph(
     existing_links: Option<Vec<(String, String)>>,
 ) -> Result<KnowledgeGraphAnalysis> {
     let links_ref = existing_links.as_ref().map(|v| v.as_slice());
-    let (clustering, edges) = clustering::analyze_knowledge_graph(&entries, k, similarity_threshold, links_ref)?;
-    
+    let (clustering, edges) =
+        clustering::analyze_knowledge_graph(&entries, k, similarity_threshold, links_ref)?;
+
     Ok(KnowledgeGraphAnalysis {
         clustering,
         semantic_edges: edges,
@@ -478,7 +481,7 @@ pub use crate::mcp::{
 };
 
 /// Initialize the MCP system with configuration
-/// 
+///
 /// # Arguments
 /// * `base_path` - Base path for file operations (browse/ directory)
 /// * `max_file_size` - Maximum file size in bytes (default: 10MB)
@@ -489,11 +492,7 @@ pub fn init_mcp(
     max_file_size: Option<usize>,
     allowed_extensions: Option<Vec<String>>,
 ) -> Result<()> {
-    mcp::init_mcp(
-        PathBuf::from(base_path),
-        max_file_size,
-        allowed_extensions,
-    )
+    mcp::init_mcp(PathBuf::from(base_path), max_file_size, allowed_extensions)
 }
 
 /// Check if MCP is initialized
@@ -503,10 +502,10 @@ pub fn is_mcp_initialized() -> bool {
 }
 
 /// Validate a file path for MCP operations
-/// 
+///
 /// # Arguments
 /// * `path` - Relative path to validate
-/// 
+///
 /// # Returns
 /// * `true` if path is valid and within sandbox
 #[frb(sync)]
@@ -515,10 +514,10 @@ pub fn mcp_validate_path(path: String) -> bool {
 }
 
 /// Read a file via MCP
-/// 
+///
 /// # Arguments
 /// * `path` - Relative path within browse/ folder
-/// 
+///
 /// # Returns
 /// * File contents as string
 #[frb]
@@ -527,7 +526,7 @@ pub fn mcp_read_file(path: String) -> Result<String> {
 }
 
 /// Write a file via MCP
-/// 
+///
 /// # Arguments
 /// * `path` - Relative path within browse/ folder
 /// * `content` - Content to write
@@ -537,7 +536,7 @@ pub fn mcp_write_file(path: String, content: String) -> Result<()> {
 }
 
 /// Delete a file via MCP
-/// 
+///
 /// # Arguments
 /// * `path` - Relative path within browse/ folder
 #[frb]
@@ -546,7 +545,7 @@ pub fn mcp_delete_file(path: String) -> Result<()> {
 }
 
 /// Create a folder via MCP
-/// 
+///
 /// # Arguments
 /// * `path` - Relative path within browse/ folder
 #[frb]
@@ -555,10 +554,10 @@ pub fn mcp_create_folder(path: String) -> Result<()> {
 }
 
 /// List files in a directory via MCP
-/// 
+///
 /// # Arguments
 /// * `path` - Relative path within browse/ folder (empty for root)
-/// 
+///
 /// # Returns
 /// * List of file/folder names
 #[frb]
@@ -567,7 +566,7 @@ pub fn mcp_list_files(path: String) -> Result<Vec<String>> {
 }
 
 /// Get tool schemas for AI prompt construction
-/// 
+///
 /// # Returns
 /// * JSON string containing tool schemas
 #[frb(sync)]
@@ -576,10 +575,10 @@ pub fn mcp_get_tool_schemas() -> String {
 }
 
 /// Parse a tool call from AI response
-/// 
+///
 /// # Arguments
 /// * `json` - JSON string representing the tool call
-/// 
+///
 /// # Returns
 /// * Parsed tool call structure
 #[frb]
@@ -588,10 +587,10 @@ pub fn mcp_parse_tool_call(json: String) -> Result<MCPToolCall> {
 }
 
 /// Execute a tool call
-/// 
+///
 /// # Arguments
 /// * `tool_call` - The tool call to execute
-/// 
+///
 /// # Returns
 /// * Result of the tool execution
 #[frb]
@@ -600,10 +599,10 @@ pub fn mcp_execute_tool_call(tool_call: MCPToolCall) -> MCPToolResult {
 }
 
 /// Classify a task based on user message
-/// 
+///
 /// # Arguments
 /// * `message` - User message to classify
-/// 
+///
 /// # Returns
 /// * Task category (Conversation, ToolUse, CodeGeneration)
 #[frb(sync)]
@@ -612,10 +611,10 @@ pub fn mcp_classify_task(message: String) -> TaskCategory {
 }
 
 /// Get the recommended model for a task category
-/// 
+///
 /// # Arguments
 /// * `category` - Task category
-/// 
+///
 /// # Returns
 /// * Model name string
 #[frb(sync)]

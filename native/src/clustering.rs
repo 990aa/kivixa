@@ -372,16 +372,18 @@ mod tests {
 
         // Should find edge between a and b
         assert!(!result.edges.is_empty());
-        let ab_edge = result.edges.iter().find(|e| {
-            (e.source == "a" && e.target == "b") || (e.source == "b" && e.target == "a")
-        });
+        let ab_edge = result
+            .edges
+            .iter()
+            .find(|e| (e.source == "a" && e.target == "b") || (e.source == "b" && e.target == "a"));
         assert!(ab_edge.is_some());
         assert!(ab_edge.unwrap().is_ghost); // No existing link
 
         // Should not find edge with c
-        let ac_edge = result.edges.iter().find(|e| {
-            (e.source == "a" && e.target == "c") || (e.source == "c" && e.target == "a")
-        });
+        let ac_edge = result
+            .edges
+            .iter()
+            .find(|e| (e.source == "a" && e.target == "c") || (e.source == "c" && e.target == "a"));
         assert!(ac_edge.is_none());
     }
 
