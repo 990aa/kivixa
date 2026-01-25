@@ -43,6 +43,7 @@ impl UnitResult {
 struct UnitDef {
     category: &'static str,
     to_base: f64, // multiply by this to get base unit
+    #[allow(dead_code)]
     offset: f64,  // add this after multiplication (for temperature)
 }
 

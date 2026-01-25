@@ -225,10 +225,9 @@ pub fn solve_equation(
     let h = 1e-8;
 
     let mut x = initial_guess;
-    let mut iterations = 0;
 
     for i in 0..max_iter {
-        iterations = i + 1;
+        let iterations = i + 1;
 
         let fx = match eval_at(expression, variable, x) {
             Ok(v) => v,
@@ -419,4 +418,393 @@ pub fn taylor_coefficients(
     }
 
     coeffs
+}
+
+// ============================================================================
+// Partial Differentiation
+// ============================================================================
+
+/// Evaluate expression with multiple variables
+fn eval_with_vars(expr: &str, vars: &BTreeMap<String, f64>) -> Result<f64, String> {
+    let parser = fasteval::Parser::new();
+    let mut slab = Slab::new();
+
+    let compiled = parser
+        .parse(expr, &mut slab.ps)
+        .map_err(|e| format!("Parse error: {:?}", e))?
+        .from(&slab.ps)
+        .compile(&slab.ps, &mut slab.cs);
+
+    compiled
+        .eval(&slab, &mut vars.clone())
+        .map_err(|e| format!("Eval error: {:?}", e))
+}
+
+/// Partial derivative with respect to one variable
+/// Uses central difference: ∂f/∂x ≈ (f(x+h) - f(x-h)) / (2h)
+pub fn partial_derivative(
+    expression: &str,
+    variable: &str,
+    point: Vec<(&str, f64)>,
+    order: u32,
+) -> CalculusResult {
+    if order == 0 {
+        let vars: BTreeMap<String, f64> = point.iter().map(|(k, v)| (k.to_string(), *v)).collect();
+        match eval_with_vars(expression, &vars) {
+            Ok(val) => return CalculusResult::value(val),
+            Err(e) => return CalculusResult::error(&e),
+        }
+    }
+
+    let h = 1e-6;
+    let mut vars: BTreeMap<String, f64> = point.iter().map(|(k, v)| (k.to_string(), *v)).collect();
+
+    if order == 1 {
+        let original = *vars.get(variable).ok_or("Variable not found").unwrap_or(&0.0);
+
+        // f(x+h)
+        vars.insert(variable.to_string(), original + h);
+        let f_plus = match eval_with_vars(expression, &vars) {
+            Ok(v) => v,
+            Err(e) => return CalculusResult::error(&e),
+        };
+
+        // f(x-h)
+        vars.insert(variable.to_string(), original - h);
+        let f_minus = match eval_with_vars(expression, &vars) {
+            Ok(v) => v,
+            Err(e) => return CalculusResult::error(&e),
+        };
+
+        let derivative = (f_plus - f_minus) / (2.0 * h);
+        CalculusResult::value(derivative)
+    } else if order == 2 {
+        let original = *vars.get(variable).ok_or("Variable not found").unwrap_or(&0.0);
+
+        // f(x+h)
+        vars.insert(variable.to_string(), original + h);
+        let f_plus = match eval_with_vars(expression, &vars) {
+            Ok(v) => v,
+            Err(e) => return CalculusResult::error(&e),
+        };
+
+        // f(x)
+        vars.insert(variable.to_string(), original);
+        let f_center = match eval_with_vars(expression, &vars) {
+            Ok(v) => v,
+            Err(e) => return CalculusResult::error(&e),
+        };
+
+        // f(x-h)
+        vars.insert(variable.to_string(), original - h);
+        let f_minus = match eval_with_vars(expression, &vars) {
+            Ok(v) => v,
+            Err(e) => return CalculusResult::error(&e),
+        };
+
+        let derivative = (f_plus - 2.0 * f_center + f_minus) / (h * h);
+        CalculusResult::value(derivative)
+    } else {
+        // Higher order using recursive approach
+        let h_adj = h.powf(1.0 / order as f64);
+
+        fn partial_finite_diff(
+            expr: &str,
+            var: &str,
+            vars: &BTreeMap<String, f64>,
+            h: f64,
+            n: u32,
+        ) -> Result<f64, String> {
+            if n == 0 {
+                return eval_with_vars(expr, vars);
+            }
+            let original = *vars.get(var).ok_or("Variable not found")?;
+
+            let mut vars_plus = vars.clone();
+            vars_plus.insert(var.to_string(), original + h / 2.0);
+            let d1 = partial_finite_diff(expr, var, &vars_plus, h, n - 1)?;
+
+            let mut vars_minus = vars.clone();
+            vars_minus.insert(var.to_string(), original - h / 2.0);
+            let d2 = partial_finite_diff(expr, var, &vars_minus, h, n - 1)?;
+
+            Ok((d1 - d2) / h)
+        }
+
+        match partial_finite_diff(expression, variable, &vars, h_adj, order) {
+            Ok(val) => CalculusResult::value(val),
+            Err(e) => CalculusResult::error(&e),
+        }
+    }
+}
+
+/// Mixed partial derivative ∂²f/∂x∂y
+/// Uses central differences for both variables
+pub fn mixed_partial_derivative(
+    expression: &str,
+    var1: &str,
+    var2: &str,
+    point: Vec<(&str, f64)>,
+) -> CalculusResult {
+    let h = 1e-5;
+    let vars: BTreeMap<String, f64> = point.iter().map(|(k, v)| (k.to_string(), *v)).collect();
+
+    let x0 = *vars.get(var1).unwrap_or(&0.0);
+    let y0 = *vars.get(var2).unwrap_or(&0.0);
+
+    // ∂²f/∂x∂y ≈ [f(x+h,y+h) - f(x+h,y-h) - f(x-h,y+h) + f(x-h,y-h)] / (4h²)
+    let mut v_pp = vars.clone();
+    v_pp.insert(var1.to_string(), x0 + h);
+    v_pp.insert(var2.to_string(), y0 + h);
+
+    let mut v_pm = vars.clone();
+    v_pm.insert(var1.to_string(), x0 + h);
+    v_pm.insert(var2.to_string(), y0 - h);
+
+    let mut v_mp = vars.clone();
+    v_mp.insert(var1.to_string(), x0 - h);
+    v_mp.insert(var2.to_string(), y0 + h);
+
+    let mut v_mm = vars.clone();
+    v_mm.insert(var1.to_string(), x0 - h);
+    v_mm.insert(var2.to_string(), y0 - h);
+
+    let f_pp = match eval_with_vars(expression, &v_pp) {
+        Ok(v) => v,
+        Err(e) => return CalculusResult::error(&e),
+    };
+    let f_pm = match eval_with_vars(expression, &v_pm) {
+        Ok(v) => v,
+        Err(e) => return CalculusResult::error(&e),
+    };
+    let f_mp = match eval_with_vars(expression, &v_mp) {
+        Ok(v) => v,
+        Err(e) => return CalculusResult::error(&e),
+    };
+    let f_mm = match eval_with_vars(expression, &v_mm) {
+        Ok(v) => v,
+        Err(e) => return CalculusResult::error(&e),
+    };
+
+    let mixed = (f_pp - f_pm - f_mp + f_mm) / (4.0 * h * h);
+    CalculusResult::value(mixed)
+}
+
+/// Gradient vector (all first partial derivatives)
+pub fn gradient(
+    expression: &str,
+    variables: &[&str],
+    point: Vec<(&str, f64)>,
+) -> Vec<f64> {
+    variables
+        .iter()
+        .map(|var| {
+            let result = partial_derivative(expression, var, point.clone(), 1);
+            if result.success {
+                result.value
+            } else {
+                f64::NAN
+            }
+        })
+        .collect()
+}
+
+// ============================================================================
+// Multiple Integration
+// ============================================================================
+
+/// Double integral using iterated Simpson's rule
+/// ∫∫ f(x,y) dx dy over [x_min, x_max] × [y_min, y_max]
+pub fn double_integral(
+    expression: &str,
+    x_var: &str,
+    y_var: &str,
+    x_min: f64,
+    x_max: f64,
+    y_min: f64,
+    y_max: f64,
+    num_intervals: u32,
+) -> CalculusResult {
+    if x_min >= x_max || y_min >= y_max {
+        return CalculusResult::error("Lower bounds must be less than upper bounds");
+    }
+
+    let n = if num_intervals < 4 { 50 } else { num_intervals };
+    let n = if n % 2 == 1 { n + 1 } else { n }; // Must be even for Simpson's
+
+    let hx = (x_max - x_min) / n as f64;
+    let hy = (y_max - y_min) / n as f64;
+
+    let mut sum = 0.0;
+
+    for i in 0..=n {
+        let x = x_min + i as f64 * hx;
+        let wx = if i == 0 || i == n {
+            1.0
+        } else if i % 2 == 1 {
+            4.0
+        } else {
+            2.0
+        };
+
+        for j in 0..=n {
+            let y = y_min + j as f64 * hy;
+            let wy = if j == 0 || j == n {
+                1.0
+            } else if j % 2 == 1 {
+                4.0
+            } else {
+                2.0
+            };
+
+            let mut vars = BTreeMap::new();
+            vars.insert(x_var.to_string(), x);
+            vars.insert(y_var.to_string(), y);
+
+            let f_val = match eval_with_vars(expression, &vars) {
+                Ok(v) => v,
+                Err(e) => return CalculusResult::error(&e),
+            };
+
+            sum += wx * wy * f_val;
+        }
+    }
+
+    let result = (hx / 3.0) * (hy / 3.0) * sum;
+    CalculusResult::value(result)
+}
+
+/// Triple integral using iterated Simpson's rule
+/// ∫∫∫ f(x,y,z) dx dy dz over [x_min, x_max] × [y_min, y_max] × [z_min, z_max]
+pub fn triple_integral(
+    expression: &str,
+    x_var: &str,
+    y_var: &str,
+    z_var: &str,
+    x_min: f64,
+    x_max: f64,
+    y_min: f64,
+    y_max: f64,
+    z_min: f64,
+    z_max: f64,
+    num_intervals: u32,
+) -> CalculusResult {
+    if x_min >= x_max || y_min >= y_max || z_min >= z_max {
+        return CalculusResult::error("Lower bounds must be less than upper bounds");
+    }
+
+    // Use fewer intervals for triple integral due to O(n³) complexity
+    let n = if num_intervals < 4 { 20 } else { num_intervals.min(40) };
+    let n = if n % 2 == 1 { n + 1 } else { n };
+
+    let hx = (x_max - x_min) / n as f64;
+    let hy = (y_max - y_min) / n as f64;
+    let hz = (z_max - z_min) / n as f64;
+
+    let mut sum = 0.0;
+
+    for i in 0..=n {
+        let x = x_min + i as f64 * hx;
+        let wx = if i == 0 || i == n {
+            1.0
+        } else if i % 2 == 1 {
+            4.0
+        } else {
+            2.0
+        };
+
+        for j in 0..=n {
+            let y = y_min + j as f64 * hy;
+            let wy = if j == 0 || j == n {
+                1.0
+            } else if j % 2 == 1 {
+                4.0
+            } else {
+                2.0
+            };
+
+            for k in 0..=n {
+                let z = z_min + k as f64 * hz;
+                let wz = if k == 0 || k == n {
+                    1.0
+                } else if k % 2 == 1 {
+                    4.0
+                } else {
+                    2.0
+                };
+
+                let mut vars = BTreeMap::new();
+                vars.insert(x_var.to_string(), x);
+                vars.insert(y_var.to_string(), y);
+                vars.insert(z_var.to_string(), z);
+
+                let f_val = match eval_with_vars(expression, &vars) {
+                    Ok(v) => v,
+                    Err(e) => return CalculusResult::error(&e),
+                };
+
+                sum += wx * wy * wz * f_val;
+            }
+        }
+    }
+
+    let result = (hx / 3.0) * (hy / 3.0) * (hz / 3.0) * sum;
+    CalculusResult::value(result)
+}
+
+/// Line integral along a parameterized path
+/// ∫_C f(x,y) ds where x = x(t), y = y(t) for t in [t_min, t_max]
+pub fn line_integral(
+    expression: &str,
+    x_param: &str,  // expression for x(t)
+    y_param: &str,  // expression for y(t)
+    t_var: &str,
+    t_min: f64,
+    t_max: f64,
+    num_intervals: u32,
+) -> CalculusResult {
+    if t_min >= t_max {
+        return CalculusResult::error("t_min must be less than t_max");
+    }
+
+    let n = if num_intervals < 10 { 100 } else { num_intervals };
+    let h = (t_max - t_min) / n as f64;
+
+    let mut sum = 0.0;
+
+    for i in 0..n {
+        let t = t_min + i as f64 * h;
+        let t_next = t + h;
+        let t_mid = t + h / 2.0;
+
+        // Evaluate x(t), y(t) at midpoint
+        let x_val = match eval_at(x_param, t_var, t_mid) {
+            Ok(v) => v,
+            Err(e) => return CalculusResult::error(&e),
+        };
+        let y_val = match eval_at(y_param, t_var, t_mid) {
+            Ok(v) => v,
+            Err(e) => return CalculusResult::error(&e),
+        };
+
+        // Evaluate f at (x(t), y(t))
+        let mut vars = BTreeMap::new();
+        vars.insert("x".to_string(), x_val);
+        vars.insert("y".to_string(), y_val);
+        let f_val = match eval_with_vars(expression, &vars) {
+            Ok(v) => v,
+            Err(e) => return CalculusResult::error(&e),
+        };
+
+        // Compute ds = sqrt(dx² + dy²)
+        let x1 = eval_at(x_param, t_var, t).unwrap_or(0.0);
+        let x2 = eval_at(x_param, t_var, t_next).unwrap_or(0.0);
+        let y1 = eval_at(y_param, t_var, t).unwrap_or(0.0);
+        let y2 = eval_at(y_param, t_var, t_next).unwrap_or(0.0);
+
+        let ds = ((x2 - x1).powi(2) + (y2 - y1).powi(2)).sqrt();
+        sum += f_val * ds;
+    }
+
+    CalculusResult::value(sum)
 }

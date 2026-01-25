@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:kivixa/services/math/math_service.dart';
 
 /// Calculus tab - Derivatives, integrals, limits, series, partial derivatives, multiple integrals
 class MathCalculusTab extends StatefulWidget {
@@ -212,31 +213,17 @@ class _DerivativeCalculatorState extends State<_DerivativeCalculator> {
       final variable = _variableCtrl.text;
       final point = double.parse(_pointCtrl.text);
 
-      double f(double x) => _evaluateExpr(expr, variable, x);
-
-      // Numerical differentiation using central difference
-      const h = 1e-5;
-      double derivative;
-
-      if (_order == 1) {
-        // First derivative: f'(x) ≈ (f(x+h) - f(x-h)) / 2h
-        derivative = (f(point + h) - f(point - h)) / (2 * h);
-      } else if (_order == 2) {
-        // Second derivative: f''(x) ≈ (f(x+h) - 2f(x) + f(x-h)) / h²
-        derivative = (f(point + h) - 2 * f(point) + f(point - h)) / (h * h);
-      } else {
-        // Third derivative: f'''(x) ≈ (f(x+2h) - 2f(x+h) + 2f(x-h) - f(x-2h)) / 2h³
-        derivative =
-            (f(point + 2 * h) -
-                2 * f(point + h) +
-                2 * f(point - h) -
-                f(point - 2 * h)) /
-            (2 * h * h * h);
-      }
+      // Use Rust backend for computation
+      final result = await MathService.instance.differentiate(
+        expr,
+        variable,
+        point,
+        order: _order,
+      );
 
       final primeSymbol = "'" * _order;
       setState(() {
-        _result = 'f$primeSymbol($point) = ${_formatNumber(derivative)}';
+        _result = 'f$primeSymbol($point) = ${_formatNumber(result.value)}';
         _isComputing = false;
       });
     } catch (e) {
@@ -645,22 +632,18 @@ class _IntegralCalculatorState extends State<_IntegralCalculator> {
       final a = double.parse(_lowerCtrl.text);
       final b = double.parse(_upperCtrl.text);
 
-      double f(double x) => _evaluateExpr(expr, variable, x);
-
-      // Simpson's rule with adaptive step count
-      const n = 1000; // Number of intervals (must be even)
-      final h = (b - a) / n;
-
-      var sum = f(a) + f(b);
-      for (var i = 1; i < n; i++) {
-        final x = a + i * h;
-        sum += (i.isEven ? 2 : 4) * f(x);
-      }
-      final integral = sum * h / 3;
+      // Use Rust backend for integration
+      final result = await MathService.instance.integrate(
+        expr,
+        variable,
+        a,
+        b,
+        numIntervals: 1000,
+      );
 
       setState(() {
         _result =
-            '∫ $expr d$variable from $a to $b\n= ${_formatNumber(integral)}';
+            '∫ $expr d$variable from $a to $b\n= ${_formatNumber(result.value)}';
         _isComputing = false;
       });
     } catch (e) {
@@ -1145,58 +1128,32 @@ class _LimitCalculatorState extends State<_LimitCalculator> {
       final variable = _variableCtrl.text;
       final approach = double.parse(_approachCtrl.text);
 
-      double f(double x) => _evaluateExpr(expr, variable, x);
+      // Use Rust backend for limit computation
+      final fromLeft = _direction == 'left' || _direction == 'both';
+      final fromRight = _direction == 'right' || _direction == 'both';
 
-      // Numerical limit computation
-      double? leftLimit, rightLimit;
-
-      if (_direction == 'left' || _direction == 'both') {
-        // Approach from left
-        var sum = 0.0;
-        var count = 0;
-        for (final h in [1e-3, 1e-4, 1e-5, 1e-6, 1e-7]) {
-          final val = f(approach - h);
-          if (val.isFinite) {
-            sum += val;
-            count++;
-          }
-        }
-        leftLimit = count > 0 ? sum / count : null;
-      }
-
-      if (_direction == 'right' || _direction == 'both') {
-        // Approach from right
-        var sum = 0.0;
-        var count = 0;
-        for (final h in [1e-3, 1e-4, 1e-5, 1e-6, 1e-7]) {
-          final val = f(approach + h);
-          if (val.isFinite) {
-            sum += val;
-            count++;
-          }
-        }
-        rightLimit = count > 0 ? sum / count : null;
-      }
+      final result = await MathService.instance.computeLimit(
+        expr,
+        variable,
+        approach,
+        fromLeft: fromLeft,
+        fromRight: fromRight,
+      );
 
       String resultText;
       if (_direction == 'both') {
-        if (leftLimit != null &&
-            rightLimit != null &&
-            (leftLimit - rightLimit).abs() < 1e-4) {
+        if (result.success) {
           resultText =
-              'lim(x→$approach) $expr = ${_formatNumber((leftLimit + rightLimit) / 2)}';
+              'lim(x→$approach) $expr = ${_formatNumber(result.value)}';
         } else {
-          resultText =
-              'Left limit: ${leftLimit != null ? _formatNumber(leftLimit) : "undefined"}\n'
-              'Right limit: ${rightLimit != null ? _formatNumber(rightLimit) : "undefined"}\n'
-              '${leftLimit != rightLimit ? "Limit does not exist (one-sided limits differ)" : ""}';
+          resultText = result.error ?? 'Limit does not exist or is undefined';
         }
       } else if (_direction == 'left') {
         resultText =
-            'lim(x→$approach⁻) $expr = ${leftLimit != null ? _formatNumber(leftLimit) : "undefined"}';
+            'lim(x→$approach⁻) $expr = ${result.success ? _formatNumber(result.value) : "undefined"}';
       } else {
         resultText =
-            'lim(x→$approach⁺) $expr = ${rightLimit != null ? _formatNumber(rightLimit) : "undefined"}';
+            'lim(x→$approach⁺) $expr = ${result.success ? _formatNumber(result.value) : "undefined"}';
       }
 
       setState(() {
@@ -1352,23 +1309,13 @@ class _SeriesCalculatorState extends State<_SeriesCalculator> {
       final variable = _variableCtrl.text;
       final a = double.parse(_centerCtrl.text);
 
-      double f(double x) => _evaluateExpr(expr, variable, x);
-
-      // Compute Taylor coefficients numerically
-      final coefficients = <double>[];
-      const h = 1e-4;
-
-      for (var n = 0; n < _terms; n++) {
-        // n-th derivative at a using finite differences
-        double derivative;
-        if (n == 0) {
-          derivative = f(a);
-        } else {
-          // Use central difference for higher derivatives
-          derivative = _nthDerivative(f, a, n, h);
-        }
-        coefficients.add(derivative / _factorial(n));
-      }
+      // Use Rust backend for Taylor coefficients
+      final coefficients = await MathService.instance.taylorCoefficients(
+        expr,
+        variable,
+        a,
+        _terms,
+      );
 
       // Build series string
       final termStrings = <String>[];
@@ -1399,23 +1346,6 @@ class _SeriesCalculatorState extends State<_SeriesCalculator> {
         _isComputing = false;
       });
     }
-  }
-
-  double _nthDerivative(double Function(double) f, double x, int n, double h) {
-    if (n == 0) return f(x);
-    if (n == 1) return (f(x + h) - f(x - h)) / (2 * h);
-    if (n == 2) return (f(x + h) - 2 * f(x) + f(x - h)) / (h * h);
-
-    // Higher derivatives using recursive central difference
-    double prev(double t) => _nthDerivative(f, t, n - 1, h);
-    return (prev(x + h) - prev(x - h)) / (2 * h);
-  }
-
-  int _factorial(int n) {
-    if (n <= 1) return 1;
-    var result = 1;
-    for (var i = 2; i <= n; i++) result *= i;
-    return result;
   }
 
   @override

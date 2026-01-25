@@ -232,6 +232,136 @@ pub async fn taylor_coefficients(
     .unwrap_or_else(|_| vec![])
 }
 
+/// Compute partial derivative with respect to one variable
+pub async fn partial_derivative(
+    expression: String,
+    variable: String,
+    point: Vec<(String, f64)>,
+    order: u32,
+) -> CalculusResult {
+    tokio::task::spawn_blocking(move || {
+        let point_refs: Vec<(&str, f64)> = point.iter().map(|(k, v)| (k.as_str(), *v)).collect();
+        calculus::partial_derivative(&expression, &variable, point_refs, order)
+    })
+    .await
+    .unwrap_or_else(|_| CalculusResult::error("Task panicked"))
+}
+
+/// Compute mixed partial derivative ∂²f/∂x∂y
+pub async fn mixed_partial_derivative(
+    expression: String,
+    var1: String,
+    var2: String,
+    point: Vec<(String, f64)>,
+) -> CalculusResult {
+    tokio::task::spawn_blocking(move || {
+        let point_refs: Vec<(&str, f64)> = point.iter().map(|(k, v)| (k.as_str(), *v)).collect();
+        calculus::mixed_partial_derivative(&expression, &var1, &var2, point_refs)
+    })
+    .await
+    .unwrap_or_else(|_| CalculusResult::error("Task panicked"))
+}
+
+/// Compute gradient vector
+pub async fn gradient(
+    expression: String,
+    variables: Vec<String>,
+    point: Vec<(String, f64)>,
+) -> Vec<f64> {
+    tokio::task::spawn_blocking(move || {
+        let var_refs: Vec<&str> = variables.iter().map(|s| s.as_str()).collect();
+        let point_refs: Vec<(&str, f64)> = point.iter().map(|(k, v)| (k.as_str(), *v)).collect();
+        calculus::gradient(&expression, &var_refs, point_refs)
+    })
+    .await
+    .unwrap_or_else(|_| vec![])
+}
+
+/// Compute double integral ∫∫ f(x,y) dx dy
+pub async fn double_integral(
+    expression: String,
+    x_var: String,
+    y_var: String,
+    x_min: f64,
+    x_max: f64,
+    y_min: f64,
+    y_max: f64,
+    num_intervals: u32,
+) -> CalculusResult {
+    tokio::task::spawn_blocking(move || {
+        calculus::double_integral(
+            &expression,
+            &x_var,
+            &y_var,
+            x_min,
+            x_max,
+            y_min,
+            y_max,
+            num_intervals,
+        )
+    })
+    .await
+    .unwrap_or_else(|_| CalculusResult::error("Task panicked"))
+}
+
+/// Compute triple integral ∫∫∫ f(x,y,z) dx dy dz
+pub async fn triple_integral(
+    expression: String,
+    x_var: String,
+    y_var: String,
+    z_var: String,
+    x_min: f64,
+    x_max: f64,
+    y_min: f64,
+    y_max: f64,
+    z_min: f64,
+    z_max: f64,
+    num_intervals: u32,
+) -> CalculusResult {
+    tokio::task::spawn_blocking(move || {
+        calculus::triple_integral(
+            &expression,
+            &x_var,
+            &y_var,
+            &z_var,
+            x_min,
+            x_max,
+            y_min,
+            y_max,
+            z_min,
+            z_max,
+            num_intervals,
+        )
+    })
+    .await
+    .unwrap_or_else(|_| CalculusResult::error("Task panicked"))
+}
+
+/// Compute line integral along a parameterized path
+pub async fn line_integral(
+    expression: String,
+    x_param: String,
+    y_param: String,
+    t_var: String,
+    t_min: f64,
+    t_max: f64,
+    num_intervals: u32,
+) -> CalculusResult {
+    tokio::task::spawn_blocking(move || {
+        calculus::line_integral(
+            &expression,
+            &x_param,
+            &y_param,
+            &t_var,
+            t_min,
+            t_max,
+            num_intervals,
+        )
+    })
+    .await
+    .unwrap_or_else(|_| CalculusResult::error("Task panicked"))
+}
+
 // ============================================================================
 // Statistics & Probability
 // ============================================================================
@@ -302,6 +432,82 @@ pub async fn chi_squared_test(
         .await
         .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
 }
+
+/// One-sample z-test (known population standard deviation)
+pub async fn z_test(
+    data: Vec<f64>,
+    hypothesized_mean: f64,
+    population_std: f64,
+    alpha: f64,
+) -> HypothesisTestResult {
+    tokio::task::spawn_blocking(move || statistics::z_test(&data, hypothesized_mean, population_std, alpha))
+        .await
+        .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
+}
+
+/// Two-sample z-test (known population standard deviations)
+pub async fn two_sample_z_test(
+    data1: Vec<f64>,
+    data2: Vec<f64>,
+    std1: f64,
+    std2: f64,
+    alpha: f64,
+) -> HypothesisTestResult {
+    tokio::task::spawn_blocking(move || statistics::two_sample_z_test(&data1, &data2, std1, std2, alpha))
+        .await
+        .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
+}
+
+/// One-way ANOVA (Analysis of Variance)
+pub async fn anova(
+    groups: Vec<Vec<f64>>,
+    alpha: f64,
+) -> HypothesisTestResult {
+    tokio::task::spawn_blocking(move || statistics::anova(&groups, alpha))
+        .await
+        .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
+}
+
+/// Correlation and covariance
+pub async fn correlation_covariance(
+    x: Vec<f64>,
+    y: Vec<f64>,
+) -> statistics::CorrelationResult {
+    tokio::task::spawn_blocking(move || statistics::correlation_covariance(&x, &y))
+        .await
+        .unwrap_or_else(|_| statistics::CorrelationResult::error("Task panicked"))
+}
+
+/// Confidence interval for mean
+pub async fn confidence_interval_mean(
+    data: Vec<f64>,
+    confidence_level: f64,
+) -> statistics::ConfidenceIntervalResult {
+    tokio::task::spawn_blocking(move || statistics::confidence_interval_mean(&data, confidence_level))
+        .await
+        .unwrap_or_else(|_| statistics::ConfidenceIntervalResult::error("Task panicked"))
+}
+
+/// Confidence interval for proportion
+#[frb(sync)]
+pub fn confidence_interval_proportion(
+    successes: u64,
+    n: u64,
+    confidence_level: f64,
+) -> statistics::ConfidenceIntervalResult {
+    statistics::confidence_interval_proportion(successes, n, confidence_level)
+}
+
+/// Confidence interval for variance
+pub async fn confidence_interval_variance(
+    data: Vec<f64>,
+    confidence_level: f64,
+) -> statistics::ConfidenceIntervalResult {
+    tokio::task::spawn_blocking(move || statistics::confidence_interval_variance(&data, confidence_level))
+        .await
+        .unwrap_or_else(|_| statistics::ConfidenceIntervalResult::error("Task panicked"))
+}
+
 // ============================================================================
 // Discrete Mathematics
 // ============================================================================
@@ -352,6 +558,30 @@ pub fn mod_pow(base: u64, exp: u64, modulus: u64) -> DiscreteResult {
 #[frb(sync)]
 pub fn mod_inverse(a: u64, m: u64) -> DiscreteResult {
     discrete::mod_inverse(a, m)
+}
+
+/// Modular addition
+#[frb(sync)]
+pub fn mod_add(a: u64, b: u64, m: u64) -> DiscreteResult {
+    discrete::mod_add(a, b, m)
+}
+
+/// Modular subtraction
+#[frb(sync)]
+pub fn mod_sub(a: u64, b: u64, m: u64) -> DiscreteResult {
+    discrete::mod_sub(a, b, m)
+}
+
+/// Modular multiplication
+#[frb(sync)]
+pub fn mod_multiply(a: u64, b: u64, m: u64) -> DiscreteResult {
+    discrete::mod_multiply(a, b, m)
+}
+
+/// Modular division
+#[frb(sync)]
+pub fn mod_divide(a: u64, b: u64, m: u64) -> DiscreteResult {
+    discrete::mod_divide(a, b, m)
 }
 
 /// Prime factorization

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:kivixa/services/math/math_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// General tab - Scientific Calculator with Constants & Number Conversion
@@ -72,9 +73,26 @@ class _MathGeneralTabState extends State<MathGeneralTab> {
     });
 
     try {
-      final result = _evaluateExpression(expression);
+      // Use Rust backend for expression evaluation
+      final result = MathService.instance.evaluateExpression(expression);
+
+      String resultStr;
+      if (result.success) {
+        final value = result.value;
+        if (value == value.toInt().toDouble() && value.abs() < 1e15) {
+          resultStr = value.toInt().toString();
+        } else {
+          resultStr = value
+              .toStringAsFixed(10)
+              .replaceAll(RegExp(r'0+$'), '')
+              .replaceAll(RegExp(r'\.$'), '');
+        }
+      } else {
+        throw Exception(result.error ?? 'Unknown error');
+      }
+
       setState(() {
-        _result = '= $result';
+        _result = '= $resultStr';
         _isComputing = false;
       });
       _saveState();
@@ -363,8 +381,12 @@ class _MathGeneralTabState extends State<MathGeneralTab> {
     }
 
     try {
-      final decimalValue = int.parse(input.toUpperCase(), radix: _fromBase);
-      final converted = decimalValue.toRadixString(_toBase).toUpperCase();
+      // Use Rust backend for number conversion
+      final converted = MathService.instance.convertNumberSystem(
+        input,
+        _fromBase,
+        _toBase,
+      );
       setState(() => _conversionResult = converted);
     } catch (e) {
       setState(() => _conversionResult = 'Invalid input for base $_fromBase');

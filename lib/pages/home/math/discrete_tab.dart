@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:kivixa/services/math/math_service.dart';
 
 /// Discrete Math tab - Number theory, combinatorics, sequences
 class MathDiscreteTab extends StatefulWidget {
@@ -101,16 +102,6 @@ class _PrimeCalculatorState extends State<_PrimeCalculator> {
     super.dispose();
   }
 
-  bool _isPrime(int n) {
-    if (n < 2) return false;
-    if (n == 2) return true;
-    if (n.isEven) return false;
-    for (var i = 3; i * i <= n; i += 2) {
-      if (n % i == 0) return false;
-    }
-    return true;
-  }
-
   Future<void> _checkPrime() async {
     setState(() {
       _isChecking = true;
@@ -119,14 +110,16 @@ class _PrimeCalculatorState extends State<_PrimeCalculator> {
 
     try {
       final n = int.parse(_numberCtrl.text);
-      final isPrime = _isPrime(n);
+      // Use Rust backend for prime check
+      final isPrime = MathService.instance.isPrime(n);
 
       String additionalInfo = '';
       if (!isPrime && n > 1) {
-        // Find smallest factor
-        var factor = 2;
-        while (n % factor != 0) factor++;
-        additionalInfo = '\nSmallest factor: $factor';
+        // Use Rust to get factors
+        final factors = MathService.instance.primeFactors(n);
+        if (factors.success && factors.values.isNotEmpty) {
+          additionalInfo = '\nSmallest prime factor: ${factors.values.first}';
+        }
       }
 
       setState(() {
@@ -136,7 +129,8 @@ class _PrimeCalculatorState extends State<_PrimeCalculator> {
       });
     } catch (e) {
       setState(() {
-        _primeCheckResult = 'Error: Invalid number';
+        _primeCheckResult =
+            'Error: ${e.toString().replaceAll('Exception: ', '')}';
         _isChecking = false;
       });
     }
@@ -157,39 +151,28 @@ class _PrimeCalculatorState extends State<_PrimeCalculator> {
         });
         return;
       }
-      if (limit > 100000) {
+      if (limit > 10000000) {
         setState(() {
-          _primeCheckResult = 'Error: Limit too large (max 100,000)';
+          _primeCheckResult = 'Error: Limit too large (max 10,000,000)';
           _isSieving = false;
         });
         return;
       }
 
-      // Sieve of Eratosthenes
-      final sieve = List.filled(limit + 1, true);
-      sieve[0] = false;
-      sieve[1] = false;
-
-      for (var i = 2; i * i <= limit; i++) {
-        if (sieve[i]) {
-          for (var j = i * i; j <= limit; j += i) {
-            sieve[j] = false;
-          }
-        }
-      }
-
-      final primes = <int>[];
-      for (var i = 2; i <= limit; i++) {
-        if (sieve[i]) primes.add(i);
+      // Use Rust backend for sieve
+      final result = await MathService.instance.sievePrimes(limit);
+      if (!result.success) {
+        throw Exception(result.error ?? 'Sieve failed');
       }
 
       setState(() {
-        _sieveResult = primes;
+        _sieveResult = result.values.map((v) => v.toInt()).toList();
         _isSieving = false;
       });
     } catch (e) {
       setState(() {
-        _primeCheckResult = 'Error: Invalid number';
+        _primeCheckResult =
+            'Error: ${e.toString().replaceAll('Exception: ', '')}';
         _isSieving = false;
       });
     }
@@ -1149,18 +1132,26 @@ class _ModularArithmeticCalculatorState
         throw Exception('Modulus must be positive');
       }
 
+      // Use Rust backend for all calculations
+      final mathService = MathService.instance;
       BigInt result;
       String opSymbol;
 
       switch (_operation) {
         case 'add':
-          result = (a + b) % m;
+          final res = mathService.modAdd(a, b, m);
+          if (!res.success) throw Exception(res.error ?? 'Calculation failed');
+          result = res.value;
           opSymbol = '+';
         case 'sub':
-          result = ((a - b) % m + m) % m; // Handle negative result
+          final res = mathService.modSub(a, b, m);
+          if (!res.success) throw Exception(res.error ?? 'Calculation failed');
+          result = res.value;
           opSymbol = '-';
         case 'mul':
-          result = (a * b) % m;
+          final res = mathService.modMultiply(a, b, m);
+          if (!res.success) throw Exception(res.error ?? 'Calculation failed');
+          result = res.value;
           opSymbol = '×';
         case 'pow':
           if (b < BigInt.zero) {
@@ -1168,21 +1159,37 @@ class _ModularArithmeticCalculatorState
               'Exponent must be non-negative for modular exponentiation',
             );
           }
-          result = _modPow(a, b, m);
+          final res = mathService.modPow(a, b, m);
+          if (!res.success) throw Exception(res.error ?? 'Calculation failed');
+          result = res.value;
           opSymbol = '^';
         case 'inv':
-          result = _modInverse(a, m);
+          final res = mathService.modInverse(a, m);
+          if (!res.success) throw Exception(res.error ?? 'Calculation failed');
+          result = res.value;
           opSymbol = '⁻¹';
+        case 'div':
+          final res = mathService.modDivide(a, b, m);
+          if (!res.success) throw Exception(res.error ?? 'Calculation failed');
+          result = res.value;
+          opSymbol = '÷';
         default:
           throw Exception('Unknown operation');
       }
 
       setState(() {
         if (_operation == 'inv') {
+          // Verify using Rust
+          final verifyRes = mathService.modMultiply(a, result, m);
+          final verification = verifyRes.success
+              ? verifyRes.value
+              : BigInt.zero;
           _result =
-              '$a⁻¹ ≡ $result (mod $m)\n\nVerification: $a × $result ≡ ${(a * result) % m} (mod $m)';
+              '$a⁻¹ ≡ $result (mod $m)\n\nVerification: $a × $result ≡ $verification (mod $m)';
         } else if (_operation == 'pow') {
           _result = '$a^$b ≡ $result (mod $m)';
+        } else if (_operation == 'div') {
+          _result = '$a ÷ $b ≡ $result (mod $m)';
         } else {
           _result = '$a $opSymbol $b ≡ $result (mod $m)';
         }
@@ -1192,47 +1199,6 @@ class _ModularArithmeticCalculatorState
         _error = e.toString().replaceAll('Exception: ', '');
       });
     }
-  }
-
-  // Modular exponentiation using binary exponentiation
-  BigInt _modPow(BigInt base, BigInt exp, BigInt mod) {
-    if (exp == BigInt.zero) return BigInt.one;
-    if (exp == BigInt.one) return base % mod;
-
-    var result = BigInt.one;
-    base = base % mod;
-
-    while (exp > BigInt.zero) {
-      if (exp.isOdd) {
-        result = (result * base) % mod;
-      }
-      exp = exp >> 1;
-      base = (base * base) % mod;
-    }
-
-    return result;
-  }
-
-  // Modular multiplicative inverse using extended Euclidean algorithm
-  BigInt _modInverse(BigInt a, BigInt m) {
-    final (gcd, x, _) = _extendedGcd(a, m);
-    if (gcd != BigInt.one) {
-      throw Exception(
-        'Modular inverse does not exist (gcd($a, $m) = $gcd ≠ 1)',
-      );
-    }
-    return ((x % m) + m) % m;
-  }
-
-  // Extended Euclidean Algorithm: returns (gcd, x, y) where ax + by = gcd
-  (BigInt, BigInt, BigInt) _extendedGcd(BigInt a, BigInt b) {
-    if (b == BigInt.zero) {
-      return (a, BigInt.one, BigInt.zero);
-    }
-    final (gcd, x1, y1) = _extendedGcd(b, a % b);
-    final x = y1;
-    final y = x1 - (a ~/ b) * y1;
-    return (gcd, x, y);
   }
 
   @override

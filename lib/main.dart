@@ -27,6 +27,7 @@ import 'package:kivixa/services/app_lifecycle_manager.dart';
 import 'package:kivixa/services/app_lock_service.dart';
 import 'package:kivixa/services/folder_color_service.dart';
 import 'package:kivixa/services/life_git/life_git.dart';
+import 'package:kivixa/services/math/math_service.dart';
 import 'package:kivixa/services/notification_service.dart';
 import 'package:kivixa/services/plugins/plugins.dart';
 import 'package:kivixa/services/terms_and_conditions_service.dart';
@@ -143,6 +144,8 @@ Future<void> appRunner(List<String> args) async {
       Editor.canRasterPdf = info.canRaster;
     }),
     NotificationService.instance.initialize(),
+    // Initialize math Rust backend for native computation
+    MathService.instance.initialize(),
   ]);
 
   // PERFORMANCE FIX: LifeGitService and PluginService initialization is now

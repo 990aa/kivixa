@@ -239,6 +239,61 @@ pub fn mod_inverse(a: u64, m: u64) -> DiscreteResult {
     }
 }
 
+/// Modular addition: (a + b) mod m
+pub fn mod_add(a: u64, b: u64, m: u64) -> DiscreteResult {
+    if m == 0 {
+        return DiscreteResult::error("Modulus cannot be zero");
+    }
+    // Use u128 to avoid overflow
+    let result = ((a as u128 + b as u128) % m as u128) as u64;
+    DiscreteResult::value(result)
+}
+
+/// Modular subtraction: (a - b) mod m
+pub fn mod_sub(a: u64, b: u64, m: u64) -> DiscreteResult {
+    if m == 0 {
+        return DiscreteResult::error("Modulus cannot be zero");
+    }
+    // Handle negative results by adding m
+    let a = a % m;
+    let b = b % m;
+    let result = if a >= b {
+        a - b
+    } else {
+        m - (b - a)
+    };
+    DiscreteResult::value(result)
+}
+
+/// Modular multiplication: (a * b) mod m
+pub fn mod_multiply(a: u64, b: u64, m: u64) -> DiscreteResult {
+    if m == 0 {
+        return DiscreteResult::error("Modulus cannot be zero");
+    }
+    // Use u128 to avoid overflow
+    let result = ((a as u128 * b as u128) % m as u128) as u64;
+    DiscreteResult::value(result)
+}
+
+/// Modular division: (a / b) mod m = a * b^(-1) mod m
+pub fn mod_divide(a: u64, b: u64, m: u64) -> DiscreteResult {
+    if m == 0 {
+        return DiscreteResult::error("Modulus cannot be zero");
+    }
+    if b == 0 {
+        return DiscreteResult::error("Division by zero");
+    }
+    
+    // Get modular inverse of b
+    let inv_result = mod_inverse(b, m);
+    if !inv_result.success {
+        return DiscreteResult::error("Division not possible - modular inverse does not exist");
+    }
+    
+    // Multiply a by inverse of b
+    mod_multiply(a, inv_result.value, m)
+}
+
 /// Prime factorization
 pub fn prime_factors(mut n: u64) -> DiscreteResult {
     if n < 2 {

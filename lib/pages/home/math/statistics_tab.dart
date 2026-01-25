@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:kivixa/services/math/math_service.dart';
 
 /// Statistics tab - Comprehensive statistical analysis
 /// Features: Descriptive stats, 13+ distributions, regression, hypothesis testing
@@ -337,7 +338,7 @@ class _CorrelationCalculatorState extends State<_CorrelationCalculator> {
     super.dispose();
   }
 
-  void _compute() {
+  Future<void> _compute() async {
     final xText = _xDataController.text.trim();
     final yText = _yDataController.text.trim();
 
@@ -364,41 +365,37 @@ class _CorrelationCalculatorState extends State<_CorrelationCalculator> {
       if (xData.length != yData.length) {
         throw Exception('X and Y must have the same number of data points');
       }
-      if (xData.length < 2) {
-        throw Exception('Need at least 2 data points');
+      if (xData.length < 3) {
+        throw Exception('Need at least 3 data points');
+      }
+
+      // Use Rust backend for correlation computation
+      final result = await MathService.instance.correlationCovariance(
+        xData,
+        yData,
+      );
+
+      if (!result.success) {
+        throw Exception(result.error ?? 'Calculation failed');
       }
 
       final n = xData.length;
+      final r = result.correlation;
+      final covariance = result.covariance;
+      final pValue = result.pValue;
 
-      // Calculate means
+      // Calculate means for display
       final xMean = xData.reduce((a, b) => a + b) / n;
       final yMean = yData.reduce((a, b) => a + b) / n;
 
-      // Calculate deviations
-      double sumXY = 0;
-      double sumX2 = 0;
-      double sumY2 = 0;
-
+      // Calculate sample standard deviations
+      double sumX2 = 0, sumY2 = 0;
       for (var i = 0; i < n; i++) {
-        final dx = xData[i] - xMean;
-        final dy = yData[i] - yMean;
-        sumXY += dx * dy;
-        sumX2 += dx * dx;
-        sumY2 += dy * dy;
+        sumX2 += (xData[i] - xMean) * (xData[i] - xMean);
+        sumY2 += (yData[i] - yMean) * (yData[i] - yMean);
       }
-
-      // Sample covariance
-      final covariance = sumXY / (n - 1);
-
-      // Population covariance
-      final covariancePop = sumXY / n;
-
-      // Sample standard deviations
       final sX = math.sqrt(sumX2 / (n - 1));
       final sY = math.sqrt(sumY2 / (n - 1));
-
-      // Pearson correlation coefficient
-      final r = sumXY / (math.sqrt(sumX2) * math.sqrt(sumY2));
 
       // Coefficient of determination
       final r2 = r * r;
@@ -406,7 +403,7 @@ class _CorrelationCalculatorState extends State<_CorrelationCalculator> {
       // T-statistic for correlation
       final tStat = r * math.sqrt((n - 2) / (1 - r2));
 
-      // Spearman rank correlation
+      // Spearman rank correlation (still compute locally as Rust doesn't have it)
       final spearman = _computeSpearman(xData, yData);
 
       final buffer = StringBuffer();
@@ -423,9 +420,8 @@ class _CorrelationCalculatorState extends State<_CorrelationCalculator> {
       buffer.writeln('Sx (sample) = ${_fmt(sX)}');
       buffer.writeln('Sy (sample) = ${_fmt(sY)}');
       buffer.writeln();
-      buffer.writeln('──── Covariance ────');
+      buffer.writeln('──── Covariance (from Rust backend) ────');
       buffer.writeln('Cov(X,Y) sample = ${_fmt(covariance)}');
-      buffer.writeln('Cov(X,Y) population = ${_fmt(covariancePop)}');
       buffer.writeln();
       buffer.writeln('──── Correlation Coefficients ────');
       buffer.writeln('Pearson r = ${_fmt(r)}');
@@ -437,6 +433,7 @@ class _CorrelationCalculatorState extends State<_CorrelationCalculator> {
       buffer.writeln();
       buffer.writeln('──── Significance Test ────');
       buffer.writeln('t-statistic = ${_fmt(tStat)}');
+      buffer.writeln('p-value = ${_fmt(pValue)}');
       buffer.writeln('degrees of freedom = ${n - 2}');
 
       setState(() {

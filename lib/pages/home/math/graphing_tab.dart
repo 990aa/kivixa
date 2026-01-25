@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:kivixa/services/math/math_service.dart';
 
 /// Graphing tab - Function plotting and analysis
 class MathGraphingTab extends StatefulWidget {
@@ -39,25 +40,46 @@ class _MathGraphingTabState extends State<MathGraphingTab> {
   Future<void> _computeGraphs() async {
     setState(() => _isComputing = true);
 
-    // TODO: Call Rust backend api.evaluate_graph_points for parallel evaluation
-    await Future.delayed(const Duration(milliseconds: 300));
+    // Generate x values using Rust
+    final xValues = MathService.instance.generateXRange(
+      _xMin,
+      _xMax,
+      _resolution + 1,
+    );
 
-    // Placeholder: compute simple graphs locally for demo
+    // Compute graphs using Rust backend for parallel evaluation
     final List<List<Offset>> data = [];
     for (final fn in _functions) {
       if (!fn.visible) {
         data.add([]);
         continue;
       }
-      final points = <Offset>[];
-      for (int i = 0; i <= _resolution; i++) {
-        final x = _xMin + (_xMax - _xMin) * i / _resolution;
-        final y = _evaluatePlaceholder(fn.expression, x);
-        if (y.isFinite) {
-          points.add(Offset(x, y));
+      try {
+        final result = await MathService.instance.evaluateGraphPoints(
+          fn.expression,
+          'x',
+          xValues.toList(),
+        );
+
+        final points = <Offset>[];
+        for (final point in result.points) {
+          if (point.valid && point.y.isFinite) {
+            points.add(Offset(point.x, point.y));
+          }
         }
+        data.add(points);
+      } catch (e) {
+        // Fallback to placeholder evaluation on error
+        final points = <Offset>[];
+        for (int i = 0; i <= _resolution; i++) {
+          final x = _xMin + (_xMax - _xMin) * i / _resolution;
+          final y = _evaluatePlaceholder(fn.expression, x);
+          if (y.isFinite) {
+            points.add(Offset(x, y));
+          }
+        }
+        data.add(points);
       }
-      data.add(points);
     }
 
     setState(() {
@@ -85,45 +107,78 @@ class _MathGraphingTabState extends State<MathGraphingTab> {
       final fn = _functions[i];
       if (!fn.visible || fn.expression.isEmpty) continue;
 
-      // Find extrema by looking for sign changes in derivative
-      final extrema = <(double, double, String)>[];
-      double? prevDerivative;
+      try {
+        // Use Rust backend to find extrema
+        final (maxima, minima) = await MathService.instance.findExtrema(
+          fn.expression,
+          'x',
+          _xMin,
+          _xMax,
+          _resolution,
+        );
 
-      for (int j = 1; j < _resolution - 1; j++) {
-        final x = _xMin + (_xMax - _xMin) * j / _resolution;
-        final h = (_xMax - _xMin) / _resolution / 2;
+        if (maxima.isNotEmpty || minima.isNotEmpty) {
+          buffer.writeln('f${i + 1}(x) = ${fn.expression}:');
 
-        final y = _evaluatePlaceholder(fn.expression, x);
-        final yPlus = _evaluatePlaceholder(fn.expression, x + h);
-        final yMinus = _evaluatePlaceholder(fn.expression, x - h);
-
-        if (!y.isFinite || !yPlus.isFinite || !yMinus.isFinite) continue;
-
-        final derivative = (yPlus - yMinus) / (2 * h);
-
-        if (prevDerivative != null) {
-          // Check for sign change (extremum)
-          if (prevDerivative > 0 && derivative < 0) {
-            extrema.add((x, y, 'max'));
-          } else if (prevDerivative < 0 && derivative > 0) {
-            extrema.add((x, y, 'min'));
+          for (final e in maxima.take(5)) {
+            buffer.writeln(
+              '  Local max at x ≈ ${e.$1.toStringAsFixed(2)}, y ≈ ${e.$2.toStringAsFixed(4)}',
+            );
           }
-        }
-        prevDerivative = derivative;
-      }
+          if (maxima.length > 5) {
+            buffer.writeln('  ... and ${maxima.length - 5} more maxima');
+          }
 
-      if (extrema.isNotEmpty) {
-        buffer.writeln('f${i + 1}(x) = ${fn.expression}:');
-        for (final e in extrema.take(5)) {
-          final typeStr = e.$3 == 'max' ? 'Local max' : 'Local min';
-          buffer.writeln(
-            '  $typeStr at x ≈ ${e.$1.toStringAsFixed(2)}, y ≈ ${e.$2.toStringAsFixed(4)}',
-          );
+          for (final e in minima.take(5)) {
+            buffer.writeln(
+              '  Local min at x ≈ ${e.$1.toStringAsFixed(2)}, y ≈ ${e.$2.toStringAsFixed(4)}',
+            );
+          }
+          if (minima.length > 5) {
+            buffer.writeln('  ... and ${minima.length - 5} more minima');
+          }
+          buffer.writeln();
         }
-        if (extrema.length > 5) {
-          buffer.writeln('  ... and ${extrema.length - 5} more');
+      } catch (e) {
+        // Fallback to local computation on error
+        final extrema = <(double, double, String)>[];
+        double? prevDerivative;
+
+        for (int j = 1; j < _resolution - 1; j++) {
+          final x = _xMin + (_xMax - _xMin) * j / _resolution;
+          final h = (_xMax - _xMin) / _resolution / 2;
+
+          final y = _evaluatePlaceholder(fn.expression, x);
+          final yPlus = _evaluatePlaceholder(fn.expression, x + h);
+          final yMinus = _evaluatePlaceholder(fn.expression, x - h);
+
+          if (!y.isFinite || !yPlus.isFinite || !yMinus.isFinite) continue;
+
+          final derivative = (yPlus - yMinus) / (2 * h);
+
+          if (prevDerivative != null) {
+            if (prevDerivative > 0 && derivative < 0) {
+              extrema.add((x, y, 'max'));
+            } else if (prevDerivative < 0 && derivative > 0) {
+              extrema.add((x, y, 'min'));
+            }
+          }
+          prevDerivative = derivative;
         }
-        buffer.writeln();
+
+        if (extrema.isNotEmpty) {
+          buffer.writeln('f${i + 1}(x) = ${fn.expression}:');
+          for (final e in extrema.take(5)) {
+            final typeStr = e.$3 == 'max' ? 'Local max' : 'Local min';
+            buffer.writeln(
+              '  $typeStr at x ≈ ${e.$1.toStringAsFixed(2)}, y ≈ ${e.$2.toStringAsFixed(4)}',
+            );
+          }
+          if (extrema.length > 5) {
+            buffer.writeln('  ... and ${extrema.length - 5} more');
+          }
+          buffer.writeln();
+        }
       }
     }
 

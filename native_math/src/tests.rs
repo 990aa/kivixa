@@ -258,6 +258,63 @@ mod calculus_tests {
         assert!(result.success);
         assert!((result.value - 1.0).abs() < 1e-4);
     }
+
+    #[test]
+    fn test_partial_derivative() {
+        // ∂/∂x(x^2 + y^2) at (1, 2) should be 2x = 2
+        let point = vec![("x", 1.0), ("y", 2.0)];
+        let result = partial_derivative("x^2 + y^2", "x", point, 1);
+        assert!(result.success);
+        assert!((result.value - 2.0).abs() < 1e-4);
+
+        // ∂/∂y(x^2 + y^2) at (1, 2) should be 2y = 4
+        let point = vec![("x", 1.0), ("y", 2.0)];
+        let result = partial_derivative("x^2 + y^2", "y", point, 1);
+        assert!(result.success);
+        assert!((result.value - 4.0).abs() < 1e-4);
+    }
+
+    #[test]
+    fn test_mixed_partial_derivative() {
+        // ∂²/∂x∂y(x*y) should be 1
+        let point = vec![("x", 1.0), ("y", 2.0)];
+        let result = mixed_partial_derivative("x*y", "x", "y", point);
+        assert!(result.success);
+        assert!((result.value - 1.0).abs() < 1e-3);
+    }
+
+    #[test]
+    fn test_gradient() {
+        // ∇(x^2 + y^2) at (1, 2) = (2x, 2y) = (2, 4)
+        let point = vec![("x", 1.0), ("y", 2.0)];
+        let grad = gradient("x^2 + y^2", &["x", "y"], point);
+        assert!((grad[0] - 2.0).abs() < 1e-4);
+        assert!((grad[1] - 4.0).abs() < 1e-4);
+    }
+
+    #[test]
+    fn test_double_integral() {
+        // ∫₀¹∫₀¹ xy dx dy = 1/4
+        let result = double_integral("x*y", "x", "y", 0.0, 1.0, 0.0, 1.0, 50);
+        assert!(result.success);
+        assert!((result.value - 0.25).abs() < 1e-3);
+    }
+
+    #[test]
+    fn test_double_integral_constant() {
+        // ∫₀²∫₀³ 1 dx dy = 6
+        let result = double_integral("1", "x", "y", 0.0, 2.0, 0.0, 3.0, 50);
+        assert!(result.success);
+        assert!((result.value - 6.0).abs() < 1e-3);
+    }
+
+    #[test]
+    fn test_triple_integral() {
+        // ∫₀¹∫₀¹∫₀¹ 1 dx dy dz = 1
+        let result = triple_integral("1", "x", "y", "z", 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 20);
+        assert!(result.success);
+        assert!((result.value - 1.0).abs() < 1e-2);
+    }
 }
 
 #[cfg(test)]
@@ -314,6 +371,113 @@ mod statistics_tests {
         assert!(result.success);
         // Mean is close to 5.0, so shouldn't reject null
         assert!(!result.reject_null);
+    }
+
+    #[test]
+    fn test_correlation_covariance() {
+        // Perfect positive correlation
+        let x = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        let y = vec![2.0, 4.0, 6.0, 8.0, 10.0]; // y = 2x
+        let result = correlation_covariance(&x, &y);
+        assert!(result.success);
+        assert!((result.correlation - 1.0).abs() < 1e-10); // Perfect correlation
+        assert!((result.covariance - 5.0).abs() < 1e-10); // Sample covariance
+
+        // Perfect negative correlation
+        let y_neg = vec![10.0, 8.0, 6.0, 4.0, 2.0];
+        let result = correlation_covariance(&x, &y_neg);
+        assert!(result.success);
+        assert!((result.correlation - (-1.0)).abs() < 1e-10);
+    }
+
+    #[test]
+    fn test_confidence_interval_mean() {
+        let data = vec![10.0, 12.0, 14.0, 11.0, 13.0];
+        let result = confidence_interval_mean(&data, 0.95);
+        assert!(result.success);
+        // Mean is 12.0
+        assert!((result.center - 12.0).abs() < 1e-10);
+        // Check that the confidence interval contains the mean
+        assert!(result.lower < 12.0);
+        assert!(result.upper > 12.0);
+    }
+
+    #[test]
+    fn test_confidence_interval_proportion() {
+        // 50 successes out of 100 trials, 95% CI
+        let result = confidence_interval_proportion(50, 100, 0.95);
+        assert!(result.success);
+        assert!((result.center - 0.5).abs() < 1e-10);
+        // Standard CI for p=0.5, n=100 is approximately [0.402, 0.598]
+        assert!(result.lower > 0.35);
+        assert!(result.upper < 0.65);
+    }
+
+    #[test]
+    fn test_confidence_interval_variance() {
+        let data = vec![10.0, 12.0, 14.0, 11.0, 13.0];
+        let result = confidence_interval_variance(&data, 0.95);
+        assert!(result.success);
+        // Variance should be around 2.5
+        assert!(result.lower < result.center);
+        assert!(result.upper > result.center);
+    }
+
+    #[test]
+    fn test_z_test() {
+        // Known population std = 2.0, testing if mean = 100
+        let data = vec![98.0, 102.0, 100.0, 101.0, 99.0, 100.0, 98.0, 101.0];
+        let result = z_test(&data, 100.0, 2.0, 0.05);
+        assert!(result.success);
+        // Mean is close to 100, shouldn't reject null
+        assert!(!result.reject_null);
+    }
+
+    #[test]
+    fn test_two_sample_z_test() {
+        // Two samples with known population stds
+        let data1 = vec![10.0, 11.0, 12.0, 9.0, 10.5];
+        let data2 = vec![12.0, 13.0, 11.5, 12.5, 13.0];
+        let result = two_sample_z_test(&data1, &data2, 1.0, 1.0, 0.05);
+        assert!(result.success);
+        // Means are different (10.5 vs 12.4), should reject null
+        assert!(result.reject_null);
+    }
+
+    #[test]
+    fn test_anova() {
+        // Three groups with similar means
+        let groups = vec![
+            vec![5.0, 6.0, 7.0, 5.5],
+            vec![5.5, 6.5, 6.0, 5.0],
+            vec![6.0, 5.5, 6.5, 5.5],
+        ];
+        let result = anova(&groups, 0.05);
+        assert!(result.success);
+        // Similar means, shouldn't reject null
+        assert!(!result.reject_null);
+
+        // Three groups with different means
+        let groups_diff = vec![
+            vec![1.0, 2.0, 1.5, 2.5],
+            vec![10.0, 11.0, 10.5, 11.5],
+            vec![20.0, 21.0, 20.5, 21.5],
+        ];
+        let result_diff = anova(&groups_diff, 0.05);
+        assert!(result_diff.success);
+        // Very different means, should reject null
+        assert!(result_diff.reject_null);
+    }
+
+    #[test]
+    fn test_chi_squared() {
+        // Observed vs expected frequencies
+        let observed = vec![10.0, 20.0, 30.0, 40.0];
+        let expected = vec![25.0, 25.0, 25.0, 25.0]; // uniform distribution
+        let result = chi_squared_test(&observed, &expected, 0.05);
+        assert!(result.success);
+        // Observed significantly differs from expected
+        assert!(result.reject_null);
     }
 }
 
@@ -421,6 +585,68 @@ mod discrete_tests {
         let result = sieve_of_eratosthenes(30);
         assert!(result.success);
         assert_eq!(result.values, vec![2, 3, 5, 7, 11, 13, 17, 19, 23, 29]);
+    }
+
+    #[test]
+    fn test_mod_pow() {
+        // 2^10 mod 1000 = 1024 mod 1000 = 24
+        let result = mod_pow(2, 10, 1000);
+        assert!(result.success);
+        assert_eq!(result.value, 24);
+
+        // 3^5 mod 7 = 243 mod 7 = 5
+        let result = mod_pow(3, 5, 7);
+        assert!(result.success);
+        assert_eq!(result.value, 5);
+    }
+
+    #[test]
+    fn test_mod_inverse() {
+        // 3^(-1) mod 11 = 4 (since 3*4 = 12 ≡ 1 mod 11)
+        let result = mod_inverse(3, 11);
+        assert!(result.success);
+        assert_eq!(result.value, 4);
+    }
+
+    #[test]
+    fn test_mod_add() {
+        // (7 + 8) mod 10 = 15 mod 10 = 5
+        let result = mod_add(7, 8, 10);
+        assert!(result.success);
+        assert_eq!(result.value, 5);
+
+        // Large numbers that would overflow without u128
+        let result = mod_add(u64::MAX - 1, 5, 10);
+        assert!(result.success);
+    }
+
+    #[test]
+    fn test_mod_sub() {
+        // (15 - 7) mod 10 = 8
+        let result = mod_sub(15, 7, 10);
+        assert!(result.success);
+        assert_eq!(result.value, 8);
+
+        // (3 - 7) mod 10 = -4 mod 10 = 6
+        let result = mod_sub(3, 7, 10);
+        assert!(result.success);
+        assert_eq!(result.value, 6);
+    }
+
+    #[test]
+    fn test_mod_multiply() {
+        // (7 * 8) mod 10 = 56 mod 10 = 6
+        let result = mod_multiply(7, 8, 10);
+        assert!(result.success);
+        assert_eq!(result.value, 6);
+    }
+
+    #[test]
+    fn test_mod_divide() {
+        // (6 / 2) mod 7 = 3 (since 2*3 = 6 ≡ 6 mod 7)
+        let result = mod_divide(6, 2, 7);
+        assert!(result.success);
+        assert_eq!(result.value, 3);
     }
 }
 
