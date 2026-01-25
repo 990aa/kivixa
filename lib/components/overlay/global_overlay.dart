@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/overlay/assistant_window.dart';
 import 'package:kivixa/components/overlay/browser_window.dart';
-import 'package:kivixa/components/overlay/floating_calculator.dart';
 import 'package:kivixa/components/overlay/floating_clock.dart';
 import 'package:kivixa/components/overlay/floating_hub.dart';
+import 'package:kivixa/components/overlay/floating_math.dart';
 import 'package:kivixa/components/quick_notes/floating_quick_notes.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
@@ -82,7 +82,7 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
           const BrowserWindow(),
           const _ClockWindowWrapper(),
           const _QuickNotesWindowWrapper(),
-          const _CalculatorWindowWrapper(),
+          const _MathWindowWrapper(),
         ],
       );
     }
@@ -126,7 +126,7 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
           const BrowserWindow(),
           const _ClockWindowWrapper(),
           const _QuickNotesWindowWrapper(),
-          const _CalculatorWindowWrapper(),
+          const _MathWindowWrapper(),
         ],
       ),
     );
@@ -240,16 +240,15 @@ class _QuickNotesWindowWrapperState extends State<_QuickNotesWindowWrapper> {
   }
 }
 
-/// Wrapper for the calculator window that handles visibility
-class _CalculatorWindowWrapper extends StatefulWidget {
-  const _CalculatorWindowWrapper();
+/// Wrapper for the math window that handles visibility
+class _MathWindowWrapper extends StatefulWidget {
+  const _MathWindowWrapper();
 
   @override
-  State<_CalculatorWindowWrapper> createState() =>
-      _CalculatorWindowWrapperState();
+  State<_MathWindowWrapper> createState() => _MathWindowWrapperState();
 }
 
-class _CalculatorWindowWrapperState extends State<_CalculatorWindowWrapper> {
+class _MathWindowWrapperState extends State<_MathWindowWrapper> {
   @override
   void initState() {
     super.initState();
@@ -270,10 +269,10 @@ class _CalculatorWindowWrapperState extends State<_CalculatorWindowWrapper> {
   Widget build(BuildContext context) {
     final controller = OverlayController.instance;
 
-    if (!controller.isToolWindowOpen('calculator')) {
+    if (!controller.isToolWindowOpen('math')) {
       return const SizedBox.shrink();
     }
 
-    return const FloatingCalculatorWindow();
+    return const FloatingMathWindow();
   }
 }

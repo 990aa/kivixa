@@ -183,13 +183,13 @@ class OverlayController extends ChangeNotifier {
     );
     registerTool(
       OverlayTool(
-        id: 'calculator',
+        id: 'math',
         icon: Icons.calculate_rounded,
-        label: 'Calculator',
-        onTap: () => isToolWindowOpen('calculator')
-            ? closeToolWindow('calculator')
-            : openToolWindow('calculator'),
-        isActive: () => isToolWindowOpen('calculator'),
+        label: 'Math',
+        onTap: () => isToolWindowOpen('math')
+            ? closeToolWindow('math')
+            : openToolWindow('math'),
+        isActive: () => isToolWindowOpen('math'),
       ),
     );
   }

@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:kivixa/components/overlay/floating_window.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
 
-/// Floating calculator widget that shows in the overlay.
+/// Floating math widget that shows in the overlay.
 /// Supports basic operations: +, -, *, /, %, and exponent (^).
-class FloatingCalculatorWindow extends StatefulWidget {
-  const FloatingCalculatorWindow({super.key});
+class FloatingMathWindow extends StatefulWidget {
+  const FloatingMathWindow({super.key});
 
   @override
-  State<FloatingCalculatorWindow> createState() =>
-      _FloatingCalculatorWindowState();
+  State<FloatingMathWindow> createState() => _FloatingMathWindowState();
 }
 
-class _FloatingCalculatorWindowState extends State<FloatingCalculatorWindow> {
+class _FloatingMathWindowState extends State<FloatingMathWindow> {
   var _display = '0';
   var _expression = '';
   double? _firstOperand;
@@ -97,7 +96,10 @@ class _FloatingCalculatorWindowState extends State<FloatingCalculatorWindow> {
       if (result == result.toInt()) {
         _display = result.toInt().toString();
       } else {
-        _display = result.toStringAsFixed(10).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+        _display = result
+            .toStringAsFixed(10)
+            .replaceAll(RegExp(r'0+$'), '')
+            .replaceAll(RegExp(r'\.$'), '');
       }
       _expression = '';
       _firstOperand = result;
@@ -192,7 +194,10 @@ class _FloatingCalculatorWindowState extends State<FloatingCalculatorWindow> {
       if (result == result.toInt()) {
         _display = result.toInt().toString();
       } else {
-        _display = result.toStringAsFixed(10).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+        _display = result
+            .toStringAsFixed(10)
+            .replaceAll(RegExp(r'0+$'), '')
+            .replaceAll(RegExp(r'\.$'), '');
       }
       _shouldReset = true;
     });
@@ -212,19 +217,19 @@ class _FloatingCalculatorWindowState extends State<FloatingCalculatorWindow> {
   Widget build(BuildContext context) {
     final controller = OverlayController.instance;
     final rect =
-        controller.getToolWindowRect('calculator') ??
+        controller.getToolWindowRect('math') ??
         const Rect.fromLTWH(100, 100, 320, 480);
 
     return FloatingWindow(
       rect: rect,
       onRectChanged: (newRect) =>
-          controller.updateToolWindowRect('calculator', newRect),
-      onClose: () => controller.closeToolWindow('calculator'),
-      title: 'Calculator',
+          controller.updateToolWindowRect('math', newRect),
+      onClose: () => controller.closeToolWindow('math'),
+      title: 'Math',
       icon: Icons.calculate,
       minWidth: 280,
       minHeight: 400,
-      child: _CalculatorContent(
+      child: _MathContent(
         display: _display,
         expression: _expression,
         onDigitPressed: _onDigitPressed,
@@ -239,8 +244,8 @@ class _FloatingCalculatorWindowState extends State<FloatingCalculatorWindow> {
   }
 }
 
-class _CalculatorContent extends StatelessWidget {
-  const _CalculatorContent({
+class _MathContent extends StatelessWidget {
+  const _MathContent({
     required this.display,
     required this.expression,
     required this.onDigitPressed,
@@ -308,7 +313,7 @@ class _CalculatorContent extends StatelessWidget {
         const SizedBox(height: 16),
         // Calculator buttons
         Expanded(
-          child: _CalculatorKeypad(
+          child: _MathKeypad(
             onDigitPressed: onDigitPressed,
             onOperatorPressed: onOperatorPressed,
             onEqualsPressed: onEqualsPressed,
@@ -323,8 +328,8 @@ class _CalculatorContent extends StatelessWidget {
   }
 }
 
-class _CalculatorKeypad extends StatelessWidget {
-  const _CalculatorKeypad({
+class _MathKeypad extends StatelessWidget {
+  const _MathKeypad({
     required this.onDigitPressed,
     required this.onOperatorPressed,
     required this.onEqualsPressed,
