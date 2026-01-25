@@ -202,19 +202,19 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     if (widget.filePath != null) {
       try {
         _currentFilePath = widget.filePath! + AdvancedMarkdownEditor.extension;
-        print('DEBUG: Loading file: $_currentFilePath');
+        log.fine('Loading file: $_currentFilePath');
 
         try {
           final content = await FileManager.readFile(_currentFilePath!);
           if (content != null) {
-            print('DEBUG: File content loaded, length: ${content.length}');
+            log.fine('File content loaded, length: ${content.length}');
             fileContent = String.fromCharCodes(content);
             _fileName = _getFileNameFromPath(_currentFilePath!);
           } else {
-            print('DEBUG: File content is NULL');
+            log.fine('File content is NULL');
           }
         } catch (e) {
-          print('DEBUG: Error reading file: $e');
+          log.fine('Error reading file: $e');
           _currentFilePath =
               widget.filePath! + AdvancedMarkdownEditor.extension;
           _fileName = _getFileNameFromPath(widget.filePath!);
@@ -1469,34 +1469,21 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
       );
     }
 
-    // Local file
+    // Local file - use sync check since we're in build context
     final file = File(path);
-    return FutureBuilder<bool>(
-      future: file.exists(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Container(
-            width: 300,
-            height: 200,
-            color: Colors.grey[200],
-            child: const Center(child: CircularProgressIndicator()),
-          );
-        }
+    final exists = file.existsSync();
 
-        if (snapshot.data ?? false) {
-          return Image.file(
-            file,
-            fit: BoxFit.contain,
-            semanticLabel: altText,
-            errorBuilder: (context, error, stackTrace) {
-              log.warning('Failed to load local image: $path - $error');
-              return _buildImageError('Failed to load image file');
-            },
-          );
-        }
+    if (!exists) {
+      return _buildImageError('Image file not found');
+    }
 
-        log.warning('Image file not found: $path');
-        return _buildImageError('Image not found: $path');
+    return Image.file(
+      file,
+      fit: BoxFit.contain,
+      semanticLabel: altText,
+      errorBuilder: (context, error, stackTrace) {
+        log.warning('Failed to load local image: $path - $error');
+        return _buildImageError('Failed to load image file');
       },
     );
   }

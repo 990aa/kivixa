@@ -36,6 +36,7 @@ class FolderColorService {
     if (color == null) {
       _folderColors.remove(normalizedPath);
     } else {
+      // ignore: deprecated_member_use
       _folderColors[normalizedPath] = color.value;
     }
     await _saveColors();
@@ -68,7 +69,7 @@ class FolderColorService {
   Future<void> _loadColors() async {
     try {
       final file = File(_filePath);
-      if (await file.exists()) {
+      if (file.existsSync()) {
         final jsonString = await file.readAsString();
         final Map<String, dynamic> data = jsonDecode(jsonString);
         _folderColors.clear();

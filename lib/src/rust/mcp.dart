@@ -73,7 +73,7 @@ class MCPToolCall {
   /// The tool to execute
   final String tool;
 
-  /// Parameters for the tool as JSON string (HashMap<String, Value> serialized)
+  /// Parameters for the tool as JSON string (HashMap\<String, Value\> serialized)
   final String parametersJson;
 
   /// Human-readable description of what this call does

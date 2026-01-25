@@ -39,7 +39,7 @@ void main() {
         await tempDir.delete(recursive: true);
       }
     } catch (e) {
-      print('Warning: Failed to cleanup temp dir: ');
+      debugPrint('Warning: Failed to cleanup temp dir: ');
     }
   });
 
