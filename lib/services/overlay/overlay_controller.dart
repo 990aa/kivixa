@@ -181,6 +181,17 @@ class OverlayController extends ChangeNotifier {
         isActive: () => isToolWindowOpen('quick_notes'),
       ),
     );
+    registerTool(
+      OverlayTool(
+        id: 'math',
+        icon: Icons.calculate_rounded,
+        label: 'Math',
+        onTap: () => isToolWindowOpen('math')
+            ? closeToolWindow('math')
+            : openToolWindow('math'),
+        isActive: () => isToolWindowOpen('math'),
+      ),
+    );
   }
 
   // ============================================================

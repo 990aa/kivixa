@@ -143,3 +143,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Build Script**: The `scripts/build_native.ps1` now correctly copies native libraries to the right output directories
 
 ---
+## [0.1.6] - 2026-01-25
+
+### Added
+- **Folder Colors**: Users can now assign any custom color to folders using a full-spectrum color picker.
+- **Whiteboard Orientation**: Added ability to toggle between Portrait and Landscape modes in Whiteboard settings.
+- **Floating Math**: New floating tool for calculations with support for basic operations, exponents, and percentage.
+
+### Changed
+- **Update Dialog**: Removed automatic update dialog on startup. Updates can now be checked manually via "Settings > Updates".
+- **Floating Hub**: Renamed "Calculator" tool to "Math".
+
+### Fixed
+- **Settings**: Fixed font size of settings page title for consistency.
+- **Models**: Fixed issue where switching models in floating hub assistant wouldn't persist.
+- **MCP**: Fixed MCP mode toggle in floating assistant window.
+
+---

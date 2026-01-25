@@ -1830,10 +1830,10 @@ packages:
     dependency: transitive
     description:
       name: safe_local_storage
-      sha256: e9a21b6fec7a8aa62cc2585ff4c1b127df42f3185adbd2aca66b47abe2e80236
+      sha256: "608354d4cdfdabb29428bdb330c4e54dbc31aab238b09ba59fe73660580553cc"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "2.0.2"
   saver_gallery:
     dependency: "direct main"
     description:

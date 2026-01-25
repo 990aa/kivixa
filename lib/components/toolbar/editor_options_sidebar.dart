@@ -28,6 +28,8 @@ class EditorOptionsSidebar extends StatefulWidget {
     required this.redrawAndSave,
     required this.importPdf,
     required this.canRasterPdf,
+    this.isWhiteboard = false,
+    this.onOrientationToggle,
   });
 
   final bool invert;
@@ -43,6 +45,12 @@ class EditorOptionsSidebar extends StatefulWidget {
   final VoidCallback redrawAndSave;
   final Future<bool> Function() importPdf;
   final bool canRasterPdf;
+
+  /// Whether this is used in the whiteboard context
+  final bool isWhiteboard;
+
+  /// Callback when user wants to toggle orientation (whiteboard only)
+  final void Function(PageOrientation newOrientation)? onOrientationToggle;
 
   @override
   State<EditorOptionsSidebar> createState() => _EditorOptionsSidebarState();
@@ -122,6 +130,61 @@ class _EditorOptionsSidebarState extends State<EditorOptionsSidebar> {
                 ),
               ],
             ),
+            // Orientation toggle (whiteboard only)
+            if (widget.isWhiteboard && widget.onOrientationToggle != null) ...[
+              const SizedBox(height: 16),
+              Text(
+                'Page Orientation',
+                style: TextTheme.of(context).titleMedium,
+              ),
+              const SizedBox(height: 8),
+              SegmentedButton<PageOrientation>(
+                segments: const [
+                  ButtonSegment(
+                    value: PageOrientation.portrait,
+                    label: Text('Vertical'),
+                    icon: Icon(Icons.stay_current_portrait),
+                  ),
+                  ButtonSegment(
+                    value: PageOrientation.landscape,
+                    label: Text('Horizontal'),
+                    icon: Icon(Icons.stay_current_landscape),
+                  ),
+                ],
+                selected: {page?.orientation ?? PageOrientation.portrait},
+                onSelectionChanged: (selection) {
+                  final newOrientation = selection.first;
+                  final currentOrientation =
+                      page?.orientation ?? PageOrientation.portrait;
+                  if (newOrientation == currentOrientation) return;
+
+                  showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Change Orientation'),
+                      content: const Text(
+                        'Changing orientation will clear any changes made. '
+                        'Press OK to continue.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  ).then((confirmed) {
+                    if (confirmed ?? false) {
+                      widget.onOrientationToggle!(newOrientation);
+                    }
+                  });
+                },
+              ),
+            ],
             const SizedBox(height: 16),
             if (backgroundImage != null) ...[
               Text(

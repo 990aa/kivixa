@@ -3,6 +3,7 @@ import 'package:kivixa/components/overlay/assistant_window.dart';
 import 'package:kivixa/components/overlay/browser_window.dart';
 import 'package:kivixa/components/overlay/floating_clock.dart';
 import 'package:kivixa/components/overlay/floating_hub.dart';
+import 'package:kivixa/components/overlay/floating_math.dart';
 import 'package:kivixa/components/quick_notes/floating_quick_notes.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
@@ -81,6 +82,7 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
           const BrowserWindow(),
           const _ClockWindowWrapper(),
           const _QuickNotesWindowWrapper(),
+          const _MathWindowWrapper(),
         ],
       );
     }
@@ -124,6 +126,7 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
           const BrowserWindow(),
           const _ClockWindowWrapper(),
           const _QuickNotesWindowWrapper(),
+          const _MathWindowWrapper(),
         ],
       ),
     );
@@ -234,5 +237,42 @@ class _QuickNotesWindowWrapperState extends State<_QuickNotesWindowWrapper> {
         ),
       ),
     );
+  }
+}
+
+/// Wrapper for the math window that handles visibility
+class _MathWindowWrapper extends StatefulWidget {
+  const _MathWindowWrapper();
+
+  @override
+  State<_MathWindowWrapper> createState() => _MathWindowWrapperState();
+}
+
+class _MathWindowWrapperState extends State<_MathWindowWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    OverlayController.instance.addListener(_onOverlayChanged);
+  }
+
+  void _onOverlayChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    OverlayController.instance.removeListener(_onOverlayChanged);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = OverlayController.instance;
+
+    if (!controller.isToolWindowOpen('math')) {
+      return const SizedBox.shrink();
+    }
+
+    return const FloatingMathWindow();
   }
 }

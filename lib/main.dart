@@ -25,6 +25,7 @@ import 'package:kivixa/pages/split_screen/split_screen_page.dart';
 import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:kivixa/services/app_lifecycle_manager.dart';
 import 'package:kivixa/services/app_lock_service.dart';
+import 'package:kivixa/services/folder_color_service.dart';
 import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:kivixa/services/notification_service.dart';
 import 'package:kivixa/services/plugins/plugins.dart';
@@ -106,7 +107,10 @@ Future<void> appRunner(List<String> args) async {
   // LocaleSettings.setLocaleSync(AppLocale.en);
 
   await Future.wait([
-    stows.customDataDir.waitUntilRead().then((_) => FileManager.init()),
+    stows.customDataDir.waitUntilRead().then((_) async {
+      await FileManager.init();
+      await FolderColorService.instance.initialize();
+    }),
     if (Platform.isWindows) ...[
       windowManager.ensureInitialized().then((_) async {
         // Hide native title bar and use custom Flutter title bar
