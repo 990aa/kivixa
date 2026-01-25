@@ -56,3 +56,8 @@ build_windows_installer/
 run_log.txt
 Run_logs/
 
+# Signing Keys
+*.jks
+*.keystore
+*.pfx
+*_key.txt

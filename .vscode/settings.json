@@ -25,5 +25,11 @@
         "submodules",
         "packages"
     ],
-    "cmake.ignoreCMakeListsMissing": true
+    "cmake.ignoreCMakeListsMissing": true,
+    "groovyLint.exclude": [
+        "**/rust_builder/cargokit/**"
+    ],
+    "java.project.resourceFilters": [
+        "rust_builder/cargokit"
+    ]
 }

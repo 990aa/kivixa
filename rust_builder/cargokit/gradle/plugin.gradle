@@ -1,5 +1,6 @@
 // Cargokit Gradle plugin for building Rust native libraries
 // This is a simplified version that integrates Rust builds with Android Gradle
+// Note: VS Code may show import errors - these are false positives as Gradle provides these APIs at runtime
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
