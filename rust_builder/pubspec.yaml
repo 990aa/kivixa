@@ -1,6 +1,6 @@
 name: rust_lib_kivixa
 description: Native Rust library for Kivixa AI features
-version: 1.0.0
+version: 0.1.0
 publish_to: none
 
 environment:
