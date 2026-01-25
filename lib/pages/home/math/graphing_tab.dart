@@ -72,10 +72,58 @@ class _MathGraphingTabState extends State<MathGraphingTab> {
   }
 
   Future<void> _findExtrema() async {
-    // TODO: Call Rust backend api.find_extrema
+    final buffer = StringBuffer();
+
+    for (int i = 0; i < _functions.length; i++) {
+      final fn = _functions[i];
+      if (!fn.visible || fn.expression.isEmpty) continue;
+
+      // Find extrema by looking for sign changes in derivative
+      final extrema = <(double, double, String)>[];
+      double? prevDerivative;
+
+      for (int j = 1; j < _resolution - 1; j++) {
+        final x = _xMin + (_xMax - _xMin) * j / _resolution;
+        final h = (_xMax - _xMin) / _resolution / 2;
+
+        final y = _evaluatePlaceholder(fn.expression, x);
+        final yPlus = _evaluatePlaceholder(fn.expression, x + h);
+        final yMinus = _evaluatePlaceholder(fn.expression, x - h);
+
+        if (!y.isFinite || !yPlus.isFinite || !yMinus.isFinite) continue;
+
+        final derivative = (yPlus - yMinus) / (2 * h);
+
+        if (prevDerivative != null) {
+          // Check for sign change (extremum)
+          if (prevDerivative > 0 && derivative < 0) {
+            extrema.add((x, y, 'max'));
+          } else if (prevDerivative < 0 && derivative > 0) {
+            extrema.add((x, y, 'min'));
+          }
+        }
+        prevDerivative = derivative;
+      }
+
+      if (extrema.isNotEmpty) {
+        buffer.writeln('f${i + 1}(x) = ${fn.expression}:');
+        for (final e in extrema.take(5)) {
+          final typeStr = e.$3 == 'max' ? 'Local max' : 'Local min';
+          buffer.writeln(
+            '  $typeStr at x ≈ ${e.$1.toStringAsFixed(2)}, y ≈ ${e.$2.toStringAsFixed(4)}',
+          );
+        }
+        if (extrema.length > 5) {
+          buffer.writeln('  ... and ${extrema.length - 5} more');
+        }
+        buffer.writeln();
+      }
+    }
+
     setState(() {
-      _extremaInfo =
-          'sin(x) on [-10, 10]:\nLocal max at x ≈ 1.57, y = 1.0\nLocal min at x ≈ -1.57, y = -1.0\n(placeholder)';
+      _extremaInfo = buffer.isEmpty
+          ? 'No extrema found in the visible range'
+          : buffer.toString().trim();
     });
   }
 
@@ -373,7 +421,11 @@ class _FunctionEntry {
   Color color;
   bool visible;
 
-  _FunctionEntry({required this.expression, required this.color});
+  _FunctionEntry({
+    required this.expression,
+    required this.color,
+    this.visible = true,
+  });
 }
 
 class _GraphPainter extends CustomPainter {

@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/overlay/floating_window.dart';
+import 'package:kivixa/pages/home/math/general_tab.dart';
+import 'package:kivixa/pages/home/math/algebra_tab.dart';
+import 'package:kivixa/pages/home/math/calculus_tab.dart';
+import 'package:kivixa/pages/home/math/statistics_tab.dart';
+import 'package:kivixa/pages/home/math/discrete_tab.dart';
+import 'package:kivixa/pages/home/math/graphing_tab.dart';
+import 'package:kivixa/pages/home/math/tools_tab.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
 
 /// Floating math widget that shows in the overlay.
-/// Supports basic operations: +, -, *, /, %, and exponent (^).
+/// Contains all math tabs: General, Algebra, Calculus, Statistics, Discrete, Graphing, Tools
 class FloatingMathWindow extends StatefulWidget {
   const FloatingMathWindow({super.key});
 
@@ -11,206 +18,36 @@ class FloatingMathWindow extends StatefulWidget {
   State<FloatingMathWindow> createState() => _FloatingMathWindowState();
 }
 
-class _FloatingMathWindowState extends State<FloatingMathWindow> {
-  var _display = '0';
-  var _expression = '';
-  double? _firstOperand;
-  String? _operator;
-  var _shouldReset = false;
+class _FloatingMathWindowState extends State<FloatingMathWindow>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+  var _currentTab = 0;
 
-  void _onDigitPressed(String digit) {
-    setState(() {
-      if (_shouldReset) {
-        _display = digit;
-        _shouldReset = false;
-      } else if (_display == '0' && digit != '.') {
-        _display = digit;
-      } else if (digit == '.' && _display.contains('.')) {
-        // Don't add another decimal point
-        return;
-      } else {
-        _display += digit;
+  final _tabs = const [
+    Tab(text: 'General'),
+    Tab(text: 'Algebra'),
+    Tab(text: 'Calculus'),
+    Tab(text: 'Stats'),
+    Tab(text: 'Discrete'),
+    Tab(text: 'Graph'),
+    Tab(text: 'Tools'),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() => _currentTab = _tabController.index);
       }
     });
   }
 
-  void _onOperatorPressed(String op) {
-    setState(() {
-      if (_firstOperand != null && _operator != null && !_shouldReset) {
-        // Perform chained calculation
-        _calculate();
-      }
-      _firstOperand = double.tryParse(_display);
-      _operator = op;
-      _expression = '$_display $op';
-      _shouldReset = true;
-    });
-  }
-
-  void _calculate() {
-    if (_firstOperand == null || _operator == null) return;
-
-    final secondOperand = double.tryParse(_display);
-    if (secondOperand == null) return;
-
-    double result;
-    switch (_operator) {
-      case '+':
-        result = _firstOperand! + secondOperand;
-      case '-':
-        result = _firstOperand! - secondOperand;
-      case '×':
-        result = _firstOperand! * secondOperand;
-      case '÷':
-        if (secondOperand == 0) {
-          setState(() {
-            _display = 'Error';
-            _expression = '';
-            _firstOperand = null;
-            _operator = null;
-            _shouldReset = true;
-          });
-          return;
-        }
-        result = _firstOperand! / secondOperand;
-      case '%':
-        if (secondOperand == 0) {
-          setState(() {
-            _display = 'Error';
-            _expression = '';
-            _firstOperand = null;
-            _operator = null;
-            _shouldReset = true;
-          });
-          return;
-        }
-        result = _firstOperand! % secondOperand;
-      case '^':
-        result = _pow(_firstOperand!, secondOperand);
-      default:
-        return;
-    }
-
-    setState(() {
-      // Format result to remove unnecessary decimal places
-      if (result == result.toInt()) {
-        _display = result.toInt().toString();
-      } else {
-        _display = result
-            .toStringAsFixed(10)
-            .replaceAll(RegExp(r'0+$'), '')
-            .replaceAll(RegExp(r'\.$'), '');
-      }
-      _expression = '';
-      _firstOperand = result;
-      _operator = null;
-      _shouldReset = true;
-    });
-  }
-
-  double _pow(double base, double exponent) {
-    // Handle integer exponents for better precision
-    if (exponent == exponent.toInt() && exponent >= 0) {
-      double result = 1;
-      for (int i = 0; i < exponent.toInt(); i++) {
-        result *= base;
-      }
-      return result;
-    }
-    // Use dart:math for non-integer exponents
-    return _power(base, exponent);
-  }
-
-  double _power(double base, double exponent) {
-    if (base == 0) return 0;
-    if (exponent == 0) return 1;
-    if (exponent == 1) return base;
-
-    // Use logarithms for fractional exponents
-    if (base > 0) {
-      return _exp(exponent * _ln(base));
-    }
-    // Negative base with non-integer exponent results in NaN
-    return double.nan;
-  }
-
-  // Natural logarithm approximation
-  double _ln(double x) {
-    if (x <= 0) return double.nan;
-    double result = 0;
-    final double term = (x - 1) / (x + 1);
-    final double termSquared = term * term;
-    double currentTerm = term;
-    for (int n = 1; n <= 100; n += 2) {
-      result += currentTerm / n;
-      currentTerm *= termSquared;
-    }
-    return 2 * result;
-  }
-
-  // Exponential function approximation
-  double _exp(double x) {
-    double result = 1;
-    double term = 1;
-    for (int n = 1; n <= 100; n++) {
-      term *= x / n;
-      result += term;
-      if (term.abs() < 1e-15) break;
-    }
-    return result;
-  }
-
-  void _onEqualsPressed() {
-    _calculate();
-  }
-
-  void _onClearPressed() {
-    setState(() {
-      _display = '0';
-      _expression = '';
-      _firstOperand = null;
-      _operator = null;
-      _shouldReset = false;
-    });
-  }
-
-  void _onBackspacePressed() {
-    setState(() {
-      if (_display.length > 1) {
-        _display = _display.substring(0, _display.length - 1);
-      } else {
-        _display = '0';
-      }
-    });
-  }
-
-  void _onPercentValue() {
-    // Convert current value to percentage (divide by 100)
-    final value = double.tryParse(_display);
-    if (value == null) return;
-
-    setState(() {
-      final result = value / 100;
-      if (result == result.toInt()) {
-        _display = result.toInt().toString();
-      } else {
-        _display = result
-            .toStringAsFixed(10)
-            .replaceAll(RegExp(r'0+$'), '')
-            .replaceAll(RegExp(r'\.$'), '');
-      }
-      _shouldReset = true;
-    });
-  }
-
-  void _onNegate() {
-    setState(() {
-      if (_display.startsWith('-')) {
-        _display = _display.substring(1);
-      } else if (_display != '0') {
-        _display = '-$_display';
-      }
-    });
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -218,7 +55,7 @@ class _FloatingMathWindowState extends State<FloatingMathWindow> {
     final controller = OverlayController.instance;
     final rect =
         controller.getToolWindowRect('math') ??
-        const Rect.fromLTWH(100, 100, 320, 480);
+        const Rect.fromLTWH(100, 100, 600, 700);
 
     return FloatingWindow(
       rect: rect,
@@ -227,299 +64,34 @@ class _FloatingMathWindowState extends State<FloatingMathWindow> {
       onClose: () => controller.closeToolWindow('math'),
       title: 'Math',
       icon: Icons.calculate,
-      minWidth: 280,
-      minHeight: 400,
-      child: _MathContent(
-        display: _display,
-        expression: _expression,
-        onDigitPressed: _onDigitPressed,
-        onOperatorPressed: _onOperatorPressed,
-        onEqualsPressed: _onEqualsPressed,
-        onClearPressed: _onClearPressed,
-        onBackspacePressed: _onBackspacePressed,
-        onPercentValue: _onPercentValue,
-        onNegate: _onNegate,
-      ),
-    );
-  }
-}
-
-class _MathContent extends StatelessWidget {
-  const _MathContent({
-    required this.display,
-    required this.expression,
-    required this.onDigitPressed,
-    required this.onOperatorPressed,
-    required this.onEqualsPressed,
-    required this.onClearPressed,
-    required this.onBackspacePressed,
-    required this.onPercentValue,
-    required this.onNegate,
-  });
-
-  final String display;
-  final String expression;
-  final void Function(String) onDigitPressed;
-  final void Function(String) onOperatorPressed;
-  final VoidCallback onEqualsPressed;
-  final VoidCallback onClearPressed;
-  final VoidCallback onBackspacePressed;
-  final VoidCallback onPercentValue;
-  final VoidCallback onNegate;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Column(
-      children: [
-        // Display area
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(12),
+      minWidth: 400,
+      minHeight: 500,
+      child: Column(
+        children: [
+          // Tab bar
+          TabBar(
+            controller: _tabController,
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            tabs: _tabs,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // Expression
-              Text(
-                expression,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 4),
-              // Current value
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerRight,
-                child: Text(
-                  display,
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.w500,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Calculator buttons
-        Expanded(
-          child: _MathKeypad(
-            onDigitPressed: onDigitPressed,
-            onOperatorPressed: onOperatorPressed,
-            onEqualsPressed: onEqualsPressed,
-            onClearPressed: onClearPressed,
-            onBackspacePressed: onBackspacePressed,
-            onPercentValue: onPercentValue,
-            onNegate: onNegate,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _MathKeypad extends StatelessWidget {
-  const _MathKeypad({
-    required this.onDigitPressed,
-    required this.onOperatorPressed,
-    required this.onEqualsPressed,
-    required this.onClearPressed,
-    required this.onBackspacePressed,
-    required this.onPercentValue,
-    required this.onNegate,
-  });
-
-  final void Function(String) onDigitPressed;
-  final void Function(String) onOperatorPressed;
-  final VoidCallback onEqualsPressed;
-  final VoidCallback onClearPressed;
-  final VoidCallback onBackspacePressed;
-  final VoidCallback onPercentValue;
-  final VoidCallback onNegate;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Column(
-      children: [
-        // Row 1: C, ⌫, %, ÷
-        Expanded(
-          child: Row(
-            children: [
-              _CalcButton(
-                label: 'C',
-                onPressed: onClearPressed,
-                backgroundColor: colorScheme.errorContainer,
-                foregroundColor: colorScheme.onErrorContainer,
-              ),
-              _CalcButton(
-                label: '⌫',
-                onPressed: onBackspacePressed,
-                backgroundColor: colorScheme.secondaryContainer,
-                foregroundColor: colorScheme.onSecondaryContainer,
-              ),
-              _CalcButton(
-                label: '%',
-                onPressed: onPercentValue,
-                backgroundColor: colorScheme.secondaryContainer,
-                foregroundColor: colorScheme.onSecondaryContainer,
-              ),
-              _CalcButton(
-                label: '÷',
-                onPressed: () => onOperatorPressed('÷'),
-                backgroundColor: colorScheme.primaryContainer,
-                foregroundColor: colorScheme.onPrimaryContainer,
-              ),
-            ],
-          ),
-        ),
-        // Row 2: 7, 8, 9, ×
-        Expanded(
-          child: Row(
-            children: [
-              _CalcButton(label: '7', onPressed: () => onDigitPressed('7')),
-              _CalcButton(label: '8', onPressed: () => onDigitPressed('8')),
-              _CalcButton(label: '9', onPressed: () => onDigitPressed('9')),
-              _CalcButton(
-                label: '×',
-                onPressed: () => onOperatorPressed('×'),
-                backgroundColor: colorScheme.primaryContainer,
-                foregroundColor: colorScheme.onPrimaryContainer,
-              ),
-            ],
-          ),
-        ),
-        // Row 3: 4, 5, 6, -
-        Expanded(
-          child: Row(
-            children: [
-              _CalcButton(label: '4', onPressed: () => onDigitPressed('4')),
-              _CalcButton(label: '5', onPressed: () => onDigitPressed('5')),
-              _CalcButton(label: '6', onPressed: () => onDigitPressed('6')),
-              _CalcButton(
-                label: '-',
-                onPressed: () => onOperatorPressed('-'),
-                backgroundColor: colorScheme.primaryContainer,
-                foregroundColor: colorScheme.onPrimaryContainer,
-              ),
-            ],
-          ),
-        ),
-        // Row 4: 1, 2, 3, +
-        Expanded(
-          child: Row(
-            children: [
-              _CalcButton(label: '1', onPressed: () => onDigitPressed('1')),
-              _CalcButton(label: '2', onPressed: () => onDigitPressed('2')),
-              _CalcButton(label: '3', onPressed: () => onDigitPressed('3')),
-              _CalcButton(
-                label: '+',
-                onPressed: () => onOperatorPressed('+'),
-                backgroundColor: colorScheme.primaryContainer,
-                foregroundColor: colorScheme.onPrimaryContainer,
-              ),
-            ],
-          ),
-        ),
-        // Row 5: ±, 0, ., =
-        Expanded(
-          child: Row(
-            children: [
-              _CalcButton(
-                label: '±',
-                onPressed: onNegate,
-                backgroundColor: colorScheme.secondaryContainer,
-                foregroundColor: colorScheme.onSecondaryContainer,
-              ),
-              _CalcButton(label: '0', onPressed: () => onDigitPressed('0')),
-              _CalcButton(label: '.', onPressed: () => onDigitPressed('.')),
-              _CalcButton(
-                label: '=',
-                onPressed: onEqualsPressed,
-                backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
-              ),
-            ],
-          ),
-        ),
-        // Row 6: mod, ^, (extra operations)
-        Expanded(
-          child: Row(
-            children: [
-              _CalcButton(
-                label: 'mod',
-                onPressed: () => onOperatorPressed('%'),
-                backgroundColor: colorScheme.tertiaryContainer,
-                foregroundColor: colorScheme.onTertiaryContainer,
-                fontSize: 14,
-              ),
-              _CalcButton(
-                label: 'xʸ',
-                onPressed: () => onOperatorPressed('^'),
-                backgroundColor: colorScheme.tertiaryContainer,
-                foregroundColor: colorScheme.onTertiaryContainer,
-              ),
-              const Expanded(child: SizedBox()),
-              const Expanded(child: SizedBox()),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _CalcButton extends StatelessWidget {
-  const _CalcButton({
-    required this.label,
-    required this.onPressed,
-    this.backgroundColor,
-    this.foregroundColor,
-    this.fontSize,
-  });
-
-  final String label;
-  final VoidCallback onPressed;
-  final Color? backgroundColor;
-  final Color? foregroundColor;
-  final double? fontSize;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(4),
-        child: Material(
-          color: backgroundColor ?? colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            onTap: onPressed,
-            borderRadius: BorderRadius.circular(12),
-            child: Center(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: fontSize ?? 24,
-                  fontWeight: FontWeight.w500,
-                  color: foregroundColor ?? colorScheme.onSurface,
-                ),
-              ),
+          // Tab content
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              physics: const NeverScrollableScrollPhysics(),
+              children: const [
+                MathGeneralTab(),
+                MathAlgebraTab(),
+                MathCalculusTab(),
+                MathStatisticsTab(),
+                MathDiscreteTab(),
+                MathGraphingTab(),
+                MathToolsTab(),
+              ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
