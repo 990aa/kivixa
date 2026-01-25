@@ -101,7 +101,7 @@ class _PrimeCalculatorState extends State<_PrimeCalculator> {
   bool _isPrime(int n) {
     if (n < 2) return false;
     if (n == 2) return true;
-    if (n % 2 == 0) return false;
+    if (n.isEven) return false;
     for (var i = 3; i * i <= n; i += 2) {
       if (n % i == 0) return false;
     }
@@ -239,7 +239,7 @@ class _PrimeCalculatorState extends State<_PrimeCalculator> {
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
-                ).colorScheme.primaryContainer.withOpacity(0.3),
+                ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -369,7 +369,7 @@ class _FactorCalculatorState extends State<_FactorCalculator> {
       final factors = <int, int>{};
 
       // Find factors of 2
-      while (n % 2 == 0) {
+      while (n.isEven) {
         factors[2] = (factors[2] ?? 0) + 1;
         n ~/= 2;
       }
@@ -501,7 +501,7 @@ class _FactorCalculatorState extends State<_FactorCalculator> {
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
-                ).colorScheme.primaryContainer.withOpacity(0.3),
+                ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -560,7 +560,7 @@ class _FactorCalculatorState extends State<_FactorCalculator> {
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
-                ).colorScheme.primaryContainer.withOpacity(0.3),
+                ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -773,10 +773,10 @@ class _CombinatoricsCalculatorState extends State<_CombinatoricsCalculator> {
                 color: _result.startsWith('Error')
                     ? Theme.of(
                         context,
-                      ).colorScheme.errorContainer.withOpacity(0.3)
+                      ).colorScheme.errorContainer.withValues(alpha: 0.3)
                     : Theme.of(
                         context,
-                      ).colorScheme.primaryContainer.withOpacity(0.3),
+                      ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: SelectableText(
@@ -825,10 +825,10 @@ class _CombinatoricsCalculatorState extends State<_CombinatoricsCalculator> {
                 color: _factorialResult.startsWith('Error')
                     ? Theme.of(
                         context,
-                      ).colorScheme.errorContainer.withOpacity(0.3)
+                      ).colorScheme.errorContainer.withValues(alpha: 0.3)
                     : Theme.of(
                         context,
-                      ).colorScheme.primaryContainer.withOpacity(0.3),
+                      ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: SelectableText(
@@ -995,7 +995,7 @@ class _SequenceCalculatorState extends State<_SequenceCalculator> {
           const SizedBox(height: 16),
 
           DropdownButtonFormField<String>(
-            value: _sequence,
+            initialValue: _sequence,
             decoration: const InputDecoration(
               labelText: 'Sequence',
               border: OutlineInputBorder(),
@@ -1050,7 +1050,7 @@ class _SequenceCalculatorState extends State<_SequenceCalculator> {
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
-                ).colorScheme.errorContainer.withOpacity(0.3),
+                ).colorScheme.errorContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(

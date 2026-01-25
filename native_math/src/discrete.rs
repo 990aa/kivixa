@@ -1,7 +1,7 @@
 //! Discrete mathematics: number theory, combinatorics, sets
 
 use num_bigint::BigUint;
-use num_traits::{One, Zero, ToPrimitive};
+use num_traits::{One, ToPrimitive, Zero};
 use serde::{Deserialize, Serialize};
 
 /// Result of discrete math operations
@@ -147,7 +147,7 @@ pub fn mod_pow(base: u64, exponent: u64, modulus: u64) -> DiscreteResult {
     if modulus == 0 {
         return DiscreteResult::error("Modulus cannot be zero");
     }
-    
+
     let result = mod_pow_u64(base, exponent, modulus);
     DiscreteResult::value(result)
 }
@@ -162,7 +162,7 @@ pub fn factorial(n: u64) -> DiscreteResult {
     for i in 2..=n {
         result *= i;
     }
-    
+
     DiscreteResult::big(result)
 }
 
@@ -171,16 +171,16 @@ pub fn combinations(n: u64, k: u64) -> DiscreteResult {
     if k > n {
         return DiscreteResult::value(0);
     }
-    
+
     // Use smaller k to minimize computation
     let k = k.min(n - k);
-    
+
     let mut result = BigUint::one();
     for i in 0..k {
         result *= n - i;
         result /= i + 1;
     }
-    
+
     DiscreteResult::big(result)
 }
 
@@ -189,12 +189,12 @@ pub fn permutations(n: u64, k: u64) -> DiscreteResult {
     if k > n {
         return DiscreteResult::value(0);
     }
-    
+
     let mut result = BigUint::one();
     for i in 0..k {
         result *= n - i;
     }
-    
+
     DiscreteResult::big(result)
 }
 
@@ -230,7 +230,7 @@ pub fn extended_gcd(a: i64, b: i64) -> (i64, i64, i64) {
 /// Modular inverse using extended Euclidean algorithm
 pub fn mod_inverse(a: u64, m: u64) -> DiscreteResult {
     let (g, x, _) = extended_gcd(a as i64, m as i64);
-    
+
     if g != 1 {
         DiscreteResult::error("Modular inverse does not exist")
     } else {
@@ -275,7 +275,7 @@ pub fn sieve_of_eratosthenes(n: u64) -> DiscreteResult {
     if n < 2 {
         return DiscreteResult::list(vec![]);
     }
-    
+
     if n > 10_000_000 {
         return DiscreteResult::error("Limit too large (max 10 million)");
     }
@@ -493,7 +493,7 @@ pub fn is_perfect(n: u64) -> DiscreteResult {
     if n < 2 {
         return DiscreteResult::bool_val(false);
     }
-    
+
     let sum = sum_divisors(n);
     DiscreteResult::bool_val(sum.value - n == n)
 }

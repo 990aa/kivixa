@@ -54,12 +54,12 @@ pub fn evaluate_expression(expression: &str) -> ExpressionResult {
             "acos" => Some(args.first()?.acos()),
             "atan" => Some(args.first()?.atan()),
             "atan2" => Some(args.get(0)?.atan2(*args.get(1)?)),
-            
+
             // Trigonometric (degrees)
             "sind" => Some(args.first()?.to_radians().sin()),
             "cosd" => Some(args.first()?.to_radians().cos()),
             "tand" => Some(args.first()?.to_radians().tan()),
-            
+
             // Hyperbolic
             "sinh" => Some(args.first()?.sinh()),
             "cosh" => Some(args.first()?.cosh()),
@@ -67,40 +67,40 @@ pub fn evaluate_expression(expression: &str) -> ExpressionResult {
             "asinh" => Some(args.first()?.asinh()),
             "acosh" => Some(args.first()?.acosh()),
             "atanh" => Some(args.first()?.atanh()),
-            
+
             // Logarithms
             "ln" => Some(args.first()?.ln()),
             "log" => Some(args.first()?.log10()),
             "log2" => Some(args.first()?.log2()),
             "logb" => Some(args.get(0)?.log(*args.get(1)?)),
-            
+
             // Exponential
             "exp" => Some(args.first()?.exp()),
             "pow" => Some(args.get(0)?.powf(*args.get(1)?)),
             "sqrt" => Some(args.first()?.sqrt()),
             "cbrt" => Some(args.first()?.cbrt()),
             "root" => Some(args.get(0)?.powf(1.0 / args.get(1)?)),
-            
+
             // Rounding
             "floor" => Some(args.first()?.floor()),
             "ceil" => Some(args.first()?.ceil()),
             "round" => Some(args.first()?.round()),
             "trunc" => Some(args.first()?.trunc()),
             "frac" => Some(args.first()?.fract()),
-            
+
             // Other
             "abs" => Some(args.first()?.abs()),
             "sign" => Some(args.first()?.signum()),
             "min" => args.iter().copied().reduce(f64::min),
             "max" => args.iter().copied().reduce(f64::max),
             "clamp" => Some(args.get(0)?.clamp(*args.get(1)?, *args.get(2)?)),
-            
+
             // Constants
             "pi" => Some(std::f64::consts::PI),
             "e" => Some(std::f64::consts::E),
             "tau" => Some(std::f64::consts::TAU),
             "phi" => Some(1.618033988749895), // Golden ratio
-            
+
             // Factorial (for small numbers)
             "fact" | "factorial" => {
                 let n = args.first()?.round() as u64;
@@ -110,7 +110,7 @@ pub fn evaluate_expression(expression: &str) -> ExpressionResult {
                     Some((1..=n).fold(1u64, |a, b| a.saturating_mul(b)) as f64)
                 }
             }
-            
+
             _ => None,
         }
     };
@@ -140,14 +140,12 @@ pub fn convert_number_system(value: &str, from: NumberSystem, to: NumberSystem) 
     };
 
     match decimal {
-        Ok(dec) => {
-            match to {
-                NumberSystem::Binary => format!("{:b}", dec),
-                NumberSystem::Octal => format!("{:o}", dec),
-                NumberSystem::Decimal => dec.to_string(),
-                NumberSystem::Hexadecimal => format!("{:X}", dec),
-            }
-        }
+        Ok(dec) => match to {
+            NumberSystem::Binary => format!("{:b}", dec),
+            NumberSystem::Octal => format!("{:o}", dec),
+            NumberSystem::Decimal => dec.to_string(),
+            NumberSystem::Hexadecimal => format!("{:X}", dec),
+        },
         Err(_) => "Error".to_string(),
     }
 }
@@ -206,22 +204,48 @@ pub fn parse_formula_variables(formula: &str) -> Vec<String> {
 fn is_function_name(name: &str) -> bool {
     matches!(
         name.to_lowercase().as_str(),
-        "sin" | "cos" | "tan" | "asin" | "acos" | "atan" | "atan2" |
-        "sind" | "cosd" | "tand" |
-        "sinh" | "cosh" | "tanh" | "asinh" | "acosh" | "atanh" |
-        "ln" | "log" | "log2" | "logb" |
-        "exp" | "pow" | "sqrt" | "cbrt" | "root" |
-        "floor" | "ceil" | "round" | "trunc" | "frac" |
-        "abs" | "sign" | "min" | "max" | "clamp" |
-        "fact" | "factorial"
+        "sin"
+            | "cos"
+            | "tan"
+            | "asin"
+            | "acos"
+            | "atan"
+            | "atan2"
+            | "sind"
+            | "cosd"
+            | "tand"
+            | "sinh"
+            | "cosh"
+            | "tanh"
+            | "asinh"
+            | "acosh"
+            | "atanh"
+            | "ln"
+            | "log"
+            | "log2"
+            | "logb"
+            | "exp"
+            | "pow"
+            | "sqrt"
+            | "cbrt"
+            | "root"
+            | "floor"
+            | "ceil"
+            | "round"
+            | "trunc"
+            | "frac"
+            | "abs"
+            | "sign"
+            | "min"
+            | "max"
+            | "clamp"
+            | "fact"
+            | "factorial"
     )
 }
 
 fn is_constant_name(name: &str) -> bool {
-    matches!(
-        name.to_lowercase().as_str(),
-        "pi" | "e" | "tau" | "phi"
-    )
+    matches!(name.to_lowercase().as_str(), "pi" | "e" | "tau" | "phi")
 }
 
 /// Evaluate a formula with given variable values
@@ -248,12 +272,12 @@ fn format_number(value: f64) -> String {
     if value.is_infinite() {
         return if value > 0.0 { "∞" } else { "-∞" }.to_string();
     }
-    
+
     // Check if it's effectively an integer
     if value.fract().abs() < 1e-10 && value.abs() < 1e15 {
         return (value.round() as i64).to_string();
     }
-    
+
     // Use scientific notation for very large or small numbers
     if value.abs() >= 1e10 || (value.abs() < 1e-6 && value != 0.0) {
         format!("{:.6e}", value)

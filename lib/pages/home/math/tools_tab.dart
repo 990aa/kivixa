@@ -1,50 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-/// Tools tab - Unit conversion and formulas reference
+/// Tools tab - Unit conversion
 /// Note: Constants are now in the General tab
-class MathToolsTab extends StatefulWidget {
+class MathToolsTab extends StatelessWidget {
   const MathToolsTab({super.key});
 
   @override
-  State<MathToolsTab> createState() => _MathToolsTabState();
-}
-
-class _MathToolsTabState extends State<MathToolsTab>
-    with SingleTickerProviderStateMixin {
-  late final TabController _subTabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _subTabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _subTabController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TabBar(
-          controller: _subTabController,
-          tabs: const [
-            Tab(text: 'Unit Conversion'),
-            Tab(text: 'Formulas'),
-          ],
-        ),
-        Expanded(
-          child: TabBarView(
-            controller: _subTabController,
-            children: const [_UnitConverter(), _FormulasReference()],
-          ),
-        ),
-      ],
-    );
+    return const _UnitConverter();
   }
 }
 
@@ -281,7 +244,7 @@ class _UnitConverterState extends State<_UnitConverter> {
           const SizedBox(height: 16),
 
           DropdownButtonFormField<String>(
-            value: _category,
+            initialValue: _category,
             decoration: const InputDecoration(
               labelText: 'Category',
               border: OutlineInputBorder(),
@@ -325,7 +288,7 @@ class _UnitConverterState extends State<_UnitConverter> {
             children: [
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  value: units.contains(_fromUnit)
+                  initialValue: units.contains(_fromUnit)
                       ? _fromUnit
                       : (units.isNotEmpty ? units.first : null),
                   decoration: const InputDecoration(
@@ -359,7 +322,7 @@ class _UnitConverterState extends State<_UnitConverter> {
               ),
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  value: units.contains(_toUnit)
+                  initialValue: units.contains(_toUnit)
                       ? _toUnit
                       : (units.isNotEmpty ? units.first : null),
                   decoration: const InputDecoration(
@@ -404,10 +367,10 @@ class _UnitConverterState extends State<_UnitConverter> {
                 color: _result.startsWith('Error')
                     ? Theme.of(
                         context,
-                      ).colorScheme.errorContainer.withOpacity(0.3)
+                      ).colorScheme.errorContainer.withValues(alpha: 0.3)
                     : Theme.of(
                         context,
-                      ).colorScheme.primaryContainer.withOpacity(0.3),
+                      ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: SelectableText(
@@ -417,151 +380,6 @@ class _UnitConverterState extends State<_UnitConverter> {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-// ============================================================================
-// FORMULAS REFERENCE
-// ============================================================================
-
-class _FormulasReference extends StatelessWidget {
-  const _FormulasReference();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: const [
-        _FormulaSection(
-          title: 'Algebra',
-          formulas: [
-            ('Quadratic Formula', 'x = (-b ± √(b² - 4ac)) / 2a'),
-            ('Completing the Square', 'x² + bx = (x + b/2)² - (b/2)²'),
-            ('Difference of Squares', 'a² - b² = (a+b)(a-b)'),
-            ('Sum of Cubes', 'a³ + b³ = (a+b)(a² - ab + b²)'),
-            ('Binomial Theorem', '(a+b)ⁿ = Σ C(n,k) aⁿ⁻ᵏ bᵏ'),
-          ],
-        ),
-        _FormulaSection(
-          title: 'Trigonometry',
-          formulas: [
-            ('Pythagorean Identity', 'sin²θ + cos²θ = 1'),
-            ('Sum/Difference (sin)', 'sin(α ± β) = sinα cosβ ± cosα sinβ'),
-            ('Sum/Difference (cos)', 'cos(α ± β) = cosα cosβ ∓ sinα sinβ'),
-            ('Double Angle (sin)', 'sin(2θ) = 2 sinθ cosθ'),
-            ('Double Angle (cos)', 'cos(2θ) = cos²θ - sin²θ'),
-            ('Law of Cosines', 'c² = a² + b² - 2ab cosC'),
-            ('Law of Sines', 'a/sinA = b/sinB = c/sinC'),
-          ],
-        ),
-        _FormulaSection(
-          title: 'Calculus',
-          formulas: [
-            ('Power Rule', 'd/dx[xⁿ] = n xⁿ⁻¹'),
-            ('Product Rule', 'd/dx[fg] = f\'g + fg\''),
-            ('Quotient Rule', 'd/dx[f/g] = (f\'g - fg\') / g²'),
-            ('Chain Rule', 'd/dx[f(g(x))] = f\'(g(x)) · g\'(x)'),
-            ('Integration by Parts', '∫u dv = uv - ∫v du'),
-            ('Taylor Series', 'f(x) = Σ f⁽ⁿ⁾(a)/n! · (x-a)ⁿ'),
-          ],
-        ),
-        _FormulaSection(
-          title: 'Statistics',
-          formulas: [
-            ('Mean', 'μ = Σxᵢ / n'),
-            ('Variance', 'σ² = Σ(xᵢ - μ)² / n'),
-            ('Standard Deviation', 'σ = √(Σ(xᵢ - μ)² / n)'),
-            ('Normal Distribution', 'f(x) = (1/σ√2π) e^(-(x-μ)²/2σ²)'),
-            ('z-score', 'z = (x - μ) / σ'),
-            ('Correlation', 'r = Σ(xᵢ-x̄)(yᵢ-ȳ) / √(Σ(xᵢ-x̄)² Σ(yᵢ-ȳ)²)'),
-          ],
-        ),
-        _FormulaSection(
-          title: 'Geometry',
-          formulas: [
-            ('Circle Area', 'A = πr²'),
-            ('Circle Circumference', 'C = 2πr'),
-            ('Sphere Volume', 'V = (4/3)πr³'),
-            ('Sphere Surface Area', 'A = 4πr²'),
-            ('Cone Volume', 'V = (1/3)πr²h'),
-            ('Cylinder Volume', 'V = πr²h'),
-            ('Triangle Area (Heron)', 'A = √(s(s-a)(s-b)(s-c)), s = (a+b+c)/2'),
-          ],
-        ),
-        _FormulaSection(
-          title: 'Linear Algebra',
-          formulas: [
-            ('Matrix Multiplication', '(AB)ᵢⱼ = Σ Aᵢₖ Bₖⱼ'),
-            ('Transpose', '(Aᵀ)ᵢⱼ = Aⱼᵢ'),
-            ('Determinant 2×2', 'det(A) = ad - bc'),
-            ('Inverse 2×2', 'A⁻¹ = (1/det(A)) [[d,-b],[-c,a]]'),
-            ('Eigenvalue', 'det(A - λI) = 0'),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _FormulaSection extends StatelessWidget {
-  final String title;
-  final List<(String, String)> formulas;
-
-  const _FormulaSection({required this.title, required this.formulas});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            ...formulas.map((f) {
-              final (name, formula) = f;
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 180,
-                      child: Text(
-                        name,
-                        style: const TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Clipboard.setData(ClipboardData(text: formula));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Copied: $formula'),
-                              duration: const Duration(seconds: 1),
-                            ),
-                          );
-                        },
-                        child: SelectableText(
-                          formula,
-                          style: TextStyle(
-                            fontFamily: 'monospace',
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ],
-        ),
       ),
     );
   }

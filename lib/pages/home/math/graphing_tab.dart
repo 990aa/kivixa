@@ -401,10 +401,10 @@ class _MathGraphingTabState extends State<MathGraphingTab> {
                   yMax: _yMax,
                   axisColor: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.5),
+                  ).colorScheme.onSurface.withValues(alpha: 0.5),
                   gridColor: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.1),
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
                 ),
                 size: Size.infinite,
               ),

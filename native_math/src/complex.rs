@@ -28,7 +28,7 @@ impl ComplexResult {
         let magnitude = c.norm();
         let angle_rad = c.arg();
         let angle_deg = angle_rad.to_degrees();
-        
+
         Self {
             success: true,
             real: c.re,

@@ -40,11 +40,7 @@ impl GraphResult {
 }
 
 /// Evaluate a function at multiple x values in parallel
-pub fn evaluate_graph_points(
-    expression: &str,
-    variable: &str,
-    x_values: &[f64],
-) -> GraphResult {
+pub fn evaluate_graph_points(expression: &str, variable: &str, x_values: &[f64]) -> GraphResult {
     if x_values.is_empty() {
         return GraphResult::error("No x values provided");
     }
@@ -52,7 +48,7 @@ pub fn evaluate_graph_points(
     // Pre-compile the expression
     let parser = fasteval::Parser::new();
     let mut slab = Slab::new();
-    
+
     let compiled = match parser.parse(expression, &mut slab.ps) {
         Ok(expr) => expr.from(&slab.ps).compile(&slab.ps, &mut slab.cs),
         Err(e) => return GraphResult::error(&format!("Parse error: {:?}", e)),
@@ -64,25 +60,41 @@ pub fn evaluate_graph_points(
         .map(|&x| {
             let mut map = BTreeMap::new();
             map.insert(variable.to_string(), x);
-            
+
             match compiled.eval(&slab, &mut map) {
                 Ok(y) if y.is_finite() => GraphPoint { x, y, valid: true },
-                _ => GraphPoint { x, y: f64::NAN, valid: false },
+                _ => GraphPoint {
+                    x,
+                    y: f64::NAN,
+                    valid: false,
+                },
             }
         })
         .collect();
 
     // Calculate bounds from valid points
     let valid_points: Vec<&GraphPoint> = points.iter().filter(|p| p.valid).collect();
-    
+
     if valid_points.is_empty() {
         return GraphResult::error("No valid points computed");
     }
 
-    let x_min = valid_points.iter().map(|p| p.x).fold(f64::INFINITY, f64::min);
-    let x_max = valid_points.iter().map(|p| p.x).fold(f64::NEG_INFINITY, f64::max);
-    let y_min = valid_points.iter().map(|p| p.y).fold(f64::INFINITY, f64::min);
-    let y_max = valid_points.iter().map(|p| p.y).fold(f64::NEG_INFINITY, f64::max);
+    let x_min = valid_points
+        .iter()
+        .map(|p| p.x)
+        .fold(f64::INFINITY, f64::min);
+    let x_max = valid_points
+        .iter()
+        .map(|p| p.x)
+        .fold(f64::NEG_INFINITY, f64::max);
+    let y_min = valid_points
+        .iter()
+        .map(|p| p.y)
+        .fold(f64::INFINITY, f64::min);
+    let y_max = valid_points
+        .iter()
+        .map(|p| p.y)
+        .fold(f64::NEG_INFINITY, f64::max);
 
     GraphResult {
         success: true,
@@ -100,7 +112,7 @@ pub fn generate_x_range(start: f64, end: f64, num_points: usize) -> Vec<f64> {
     if num_points < 2 {
         return vec![start];
     }
-    
+
     let step = (end - start) / (num_points - 1) as f64;
     (0..num_points).map(|i| start + i as f64 * step).collect()
 }
@@ -127,7 +139,7 @@ pub fn find_zeros(
 ) -> Vec<f64> {
     let parser = fasteval::Parser::new();
     let mut slab = Slab::new();
-    
+
     let compiled = match parser.parse(expression, &mut slab.ps) {
         Ok(expr) => expr.from(&slab.ps).compile(&slab.ps, &mut slab.cs),
         Err(_) => return vec![],
@@ -145,7 +157,7 @@ pub fn find_zeros(
     for i in 0..x_vals.len() - 1 {
         let x1 = x_vals[i];
         let x2 = x_vals[i + 1];
-        
+
         let y1 = match eval(x1) {
             Some(y) => y,
             None => continue,
@@ -197,7 +209,7 @@ pub fn find_extrema(
 ) -> (Vec<(f64, f64)>, Vec<(f64, f64)>) {
     let parser = fasteval::Parser::new();
     let mut slab = Slab::new();
-    
+
     let compiled = match parser.parse(expression, &mut slab.ps) {
         Ok(expr) => expr.from(&slab.ps).compile(&slab.ps, &mut slab.cs),
         Err(_) => return (vec![], vec![]),
@@ -237,7 +249,8 @@ pub fn find_extrema(
             minima.push((refined, eval(refined).unwrap_or(f64::NAN)));
         } else if y_curr > y_prev && y_curr > y_next {
             // Local maximum
-            let refined = golden_section_min(|x| -eval(x).unwrap_or(f64::NEG_INFINITY), x_prev, x_next);
+            let refined =
+                golden_section_min(|x| -eval(x).unwrap_or(f64::NEG_INFINITY), x_prev, x_next);
             maxima.push((refined, eval(refined).unwrap_or(f64::NAN)));
         }
     }
@@ -252,7 +265,7 @@ fn golden_section_min<F: Fn(f64) -> f64>(f: F, mut a: f64, mut b: f64) -> f64 {
 
     let mut c = b - resphi * (b - a);
     let mut d = a + resphi * (b - a);
-    
+
     let mut fc = f(c);
     let mut fd = f(d);
 
@@ -280,18 +293,14 @@ fn golden_section_min<F: Fn(f64) -> f64>(f: F, mut a: f64, mut b: f64) -> f64 {
 }
 
 /// Calculate the derivative graph (numerical)
-pub fn derivative_graph(
-    expression: &str,
-    variable: &str,
-    x_values: &[f64],
-) -> GraphResult {
+pub fn derivative_graph(expression: &str, variable: &str, x_values: &[f64]) -> GraphResult {
     if x_values.is_empty() {
         return GraphResult::error("No x values provided");
     }
 
     let parser = fasteval::Parser::new();
     let mut slab = Slab::new();
-    
+
     let compiled = match parser.parse(expression, &mut slab.ps) {
         Ok(expr) => expr.from(&slab.ps).compile(&slab.ps, &mut slab.cs),
         Err(e) => return GraphResult::error(&format!("Parse error: {:?}", e)),
@@ -314,23 +323,43 @@ pub fn derivative_graph(
             match (y_plus, y_minus) {
                 (Some(yp), Some(ym)) if yp.is_finite() && ym.is_finite() => {
                     let deriv = (yp - ym) / (2.0 * h);
-                    GraphPoint { x, y: deriv, valid: deriv.is_finite() }
+                    GraphPoint {
+                        x,
+                        y: deriv,
+                        valid: deriv.is_finite(),
+                    }
                 }
-                _ => GraphPoint { x, y: f64::NAN, valid: false },
+                _ => GraphPoint {
+                    x,
+                    y: f64::NAN,
+                    valid: false,
+                },
             }
         })
         .collect();
 
     let valid_points: Vec<&GraphPoint> = points.iter().filter(|p| p.valid).collect();
-    
+
     if valid_points.is_empty() {
         return GraphResult::error("No valid derivative points");
     }
 
-    let x_min = valid_points.iter().map(|p| p.x).fold(f64::INFINITY, f64::min);
-    let x_max = valid_points.iter().map(|p| p.x).fold(f64::NEG_INFINITY, f64::max);
-    let y_min = valid_points.iter().map(|p| p.y).fold(f64::INFINITY, f64::min);
-    let y_max = valid_points.iter().map(|p| p.y).fold(f64::NEG_INFINITY, f64::max);
+    let x_min = valid_points
+        .iter()
+        .map(|p| p.x)
+        .fold(f64::INFINITY, f64::min);
+    let x_max = valid_points
+        .iter()
+        .map(|p| p.x)
+        .fold(f64::NEG_INFINITY, f64::max);
+    let y_min = valid_points
+        .iter()
+        .map(|p| p.y)
+        .fold(f64::INFINITY, f64::min);
+    let y_max = valid_points
+        .iter()
+        .map(|p| p.y)
+        .fold(f64::NEG_INFINITY, f64::max);
 
     GraphResult {
         success: true,
@@ -356,7 +385,7 @@ pub fn integral_graph(
 
     let parser = fasteval::Parser::new();
     let mut slab = Slab::new();
-    
+
     let compiled = match parser.parse(expression, &mut slab.ps) {
         Ok(expr) => expr.from(&slab.ps).compile(&slab.ps, &mut slab.cs),
         Err(e) => return GraphResult::error(&format!("Parse error: {:?}", e)),
@@ -393,15 +422,27 @@ pub fn integral_graph(
     }
 
     let valid_points: Vec<&GraphPoint> = points.iter().filter(|p| p.valid).collect();
-    
+
     if valid_points.is_empty() {
         return GraphResult::error("No valid integral points");
     }
 
-    let x_min = valid_points.iter().map(|p| p.x).fold(f64::INFINITY, f64::min);
-    let x_max = valid_points.iter().map(|p| p.x).fold(f64::NEG_INFINITY, f64::max);
-    let y_min = valid_points.iter().map(|p| p.y).fold(f64::INFINITY, f64::min);
-    let y_max = valid_points.iter().map(|p| p.y).fold(f64::NEG_INFINITY, f64::max);
+    let x_min = valid_points
+        .iter()
+        .map(|p| p.x)
+        .fold(f64::INFINITY, f64::min);
+    let x_max = valid_points
+        .iter()
+        .map(|p| p.x)
+        .fold(f64::NEG_INFINITY, f64::max);
+    let y_min = valid_points
+        .iter()
+        .map(|p| p.y)
+        .fold(f64::INFINITY, f64::min);
+    let y_max = valid_points
+        .iter()
+        .map(|p| p.y)
+        .fold(f64::NEG_INFINITY, f64::max);
 
     GraphResult {
         success: true,

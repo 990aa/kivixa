@@ -39,7 +39,7 @@ void main() {
       expect(find.byType(InkWell), findsWidgets);
     });
 
-    testWidgets('MathGeneralTab has calculate button', (
+    testWidgets('MathGeneralTab has nPr and nCr buttons', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -47,13 +47,47 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Look for a filled button (FilledButton.tonal) or any button type
-      expect(
-        find.byType(FilledButton).evaluate().isNotEmpty ||
-            find.byType(ElevatedButton).evaluate().isNotEmpty ||
-            find.byType(IconButton).evaluate().isNotEmpty,
-        isTrue,
+      // Should have nPr and nCr buttons
+      expect(find.text('nPr'), findsOneWidget);
+      expect(find.text('nCr'), findsOneWidget);
+    });
+
+    testWidgets('MathGeneralTab has number buttons', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: MathGeneralTab())),
       );
+      await tester.pumpAndSettle();
+
+      // Should have number buttons 0-9
+      for (var i = 0; i < 10; i++) {
+        expect(find.text('$i'), findsWidgets);
+      }
+    });
+
+    testWidgets('MathGeneralTab has scrollable content', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: MathGeneralTab())),
+      );
+      await tester.pumpAndSettle();
+
+      // Should have scrollable content
+      expect(find.byType(SingleChildScrollView), findsWidgets);
+    });
+
+    testWidgets('MathGeneralTab has constants section', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: MathGeneralTab())),
+      );
+      await tester.pumpAndSettle();
+
+      // Should have constants section with ListTile
+      expect(find.text('Constants'), findsOneWidget);
     });
   });
 }

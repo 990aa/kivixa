@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Algebra tab - Matrix operations, complex numbers, equation solving
 /// Features: Dynamic matrices, equation solver, system of linear equations
@@ -282,6 +281,54 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
           final rank = _computeRank(m.getData());
           result = 'rank(${m.name}) = $rank';
 
+        case 'rref':
+          if (selectedMatrices.length != 1) {
+            throw Exception('RREF requires exactly 1 matrix');
+          }
+          final m = selectedMatrices[0];
+          final rref = _computeRref(m.getData());
+          result = 'RREF(${m.name}) =\n${_formatMatrix(rref)}';
+
+        case 'lu':
+          if (selectedMatrices.length != 1) {
+            throw Exception('LU decomposition requires exactly 1 matrix');
+          }
+          final m = selectedMatrices[0];
+          if (m.rows != m.cols) {
+            throw Exception('LU decomposition requires a square matrix');
+          }
+          final lu = _computeLU(m.getData());
+          result =
+              'LU Decomposition of ${m.name}:\n\n'
+              'L =\n${_formatMatrix(lu.$1)}\n\n'
+              'U =\n${_formatMatrix(lu.$2)}';
+
+        case 'qr':
+          if (selectedMatrices.length != 1) {
+            throw Exception('QR decomposition requires exactly 1 matrix');
+          }
+          final m = selectedMatrices[0];
+          if (m.rows < m.cols) {
+            throw Exception('QR decomposition requires rows ≥ columns');
+          }
+          final qr = _computeQR(m.getData());
+          result =
+              'QR Decomposition of ${m.name}:\n\n'
+              'Q =\n${_formatMatrix(qr.$1)}\n\n'
+              'R =\n${_formatMatrix(qr.$2)}';
+
+        case 'svd':
+          if (selectedMatrices.length != 1) {
+            throw Exception('SVD requires exactly 1 matrix');
+          }
+          final m = selectedMatrices[0];
+          final svd = _computeSVD(m.getData());
+          result =
+              'SVD of ${m.name}:\n\n'
+              'U =\n${_formatMatrix(svd.$1)}\n\n'
+              'Σ (singular values) = ${svd.$2.map(_formatNumber).join(', ')}\n\n'
+              'Vᵀ =\n${_formatMatrix(svd.$3)}';
+
         default:
           throw Exception('Unknown operation');
       }
@@ -306,7 +353,7 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
 
     double det = 0;
     for (var j = 0; j < n; j++) {
-      det += (j % 2 == 0 ? 1 : -1) * m[0][j] * _determinant(_minor(m, 0, j));
+      det += (j.isEven ? 1 : -1) * m[0][j] * _determinant(_minor(m, 0, j));
     }
     return det;
   }
@@ -331,7 +378,7 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
       n,
       (i) => List.generate(n, (j) {
         final cofactor =
-            ((i + j) % 2 == 0 ? 1 : -1) * _determinant(_minor(m, j, i));
+            ((i + j).isEven ? 1 : -1) * _determinant(_minor(m, j, i));
         return cofactor / det;
       }),
     );
@@ -403,13 +450,42 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
     final g = m[2][0], h = m[2][1], i = m[2][2];
 
     final trace = a + e + i;
-    final det = _determinant(m);
-    final p2 = (a * e + e * i + a * i - b * d - c * g - f * h);
+    final determinant = _determinant(m);
+    final sumMinors = (a * e + e * i + a * i - b * d - c * g - f * h);
 
-    // Solve cubic: -λ³ + trace*λ² - p2*λ + det = 0
-    // Use Newton's method or return approximations
-    return [trace / 3, trace / 3, trace / 3]; // Simplified
+    // Solve cubic: λ³ - trace*λ² + sumMinors*λ - det = 0
+    // Using depressed cubic transformation: t = λ - trace/3
+    // t³ + pt + q = 0 where:
+    final p = sumMinors - trace * trace / 3;
+    final q =
+        2 * trace * trace * trace / 27 - trace * sumMinors / 3 + determinant;
+
+    // Use Cardano's formula for real roots
+    final discriminant = q * q / 4 + p * p * p / 27;
+    final shift = trace / 3;
+
+    if (discriminant >= 0) {
+      // One real root, two complex conjugates (return real parts)
+      final sqrtDisc = math.sqrt(discriminant);
+      final u = _cubeRoot(-q / 2 + sqrtDisc);
+      final v = _cubeRoot(-q / 2 - sqrtDisc);
+      final lambda1 = u + v + shift;
+      return [lambda1, shift, shift]; // Simplified
+    } else {
+      // Three distinct real roots (Vieta's trigonometric method)
+      final r = math.sqrt(-p * p * p / 27);
+      final phi = math.acos(-q / (2 * r));
+      final lambda1 = 2 * _cubeRoot(r) * math.cos(phi / 3) + shift;
+      final lambda2 =
+          2 * _cubeRoot(r) * math.cos((phi + 2 * math.pi) / 3) + shift;
+      final lambda3 =
+          2 * _cubeRoot(r) * math.cos((phi + 4 * math.pi) / 3) + shift;
+      return [lambda1, lambda2, lambda3];
+    }
   }
+
+  double _cubeRoot(double x) =>
+      x >= 0 ? math.pow(x, 1 / 3).toDouble() : -math.pow(-x, 1 / 3).toDouble();
 
   int _computeRank(List<List<double>> m) {
     // Use row echelon form to compute rank
@@ -444,6 +520,209 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
       rank++;
     }
     return rank;
+  }
+
+  List<List<double>> _computeRref(List<List<double>> m) {
+    final rows = m.length;
+    final cols = m[0].length;
+    final matrix = m.map((r) => r.toList()).toList();
+
+    var pivotRow = 0;
+    for (var col = 0; col < cols && pivotRow < rows; col++) {
+      // Find the largest pivot
+      var maxRow = pivotRow;
+      for (var row = pivotRow + 1; row < rows; row++) {
+        if (matrix[row][col].abs() > matrix[maxRow][col].abs()) {
+          maxRow = row;
+        }
+      }
+
+      if (matrix[maxRow][col].abs() < 1e-10) continue;
+
+      // Swap rows
+      final temp = matrix[pivotRow];
+      matrix[pivotRow] = matrix[maxRow];
+      matrix[maxRow] = temp;
+
+      // Scale pivot row to make pivot = 1
+      final pivot = matrix[pivotRow][col];
+      for (var c = 0; c < cols; c++) {
+        matrix[pivotRow][c] /= pivot;
+      }
+
+      // Eliminate all other entries in this column
+      for (var row = 0; row < rows; row++) {
+        if (row != pivotRow && matrix[row][col].abs() > 1e-10) {
+          final factor = matrix[row][col];
+          for (var c = 0; c < cols; c++) {
+            matrix[row][c] -= factor * matrix[pivotRow][c];
+          }
+        }
+      }
+      pivotRow++;
+    }
+
+    // Clean up very small values
+    for (var i = 0; i < rows; i++) {
+      for (var j = 0; j < cols; j++) {
+        if (matrix[i][j].abs() < 1e-10) matrix[i][j] = 0;
+      }
+    }
+
+    return matrix;
+  }
+
+  (List<List<double>>, List<List<double>>) _computeLU(List<List<double>> m) {
+    final n = m.length;
+    final L = List.generate(
+      n,
+      (i) => List.generate(n, (j) => i == j ? 1.0 : 0.0),
+    );
+    final U = m.map((r) => r.toList()).toList();
+
+    for (var k = 0; k < n; k++) {
+      for (var i = k + 1; i < n; i++) {
+        if (U[k][k].abs() < 1e-10) {
+          throw Exception('LU decomposition failed: zero pivot encountered');
+        }
+        L[i][k] = U[i][k] / U[k][k];
+        for (var j = k; j < n; j++) {
+          U[i][j] -= L[i][k] * U[k][j];
+        }
+      }
+    }
+
+    // Clean up small values
+    for (var i = 0; i < n; i++) {
+      for (var j = 0; j < n; j++) {
+        if (L[i][j].abs() < 1e-10) L[i][j] = 0;
+        if (U[i][j].abs() < 1e-10) U[i][j] = 0;
+      }
+    }
+
+    return (L, U);
+  }
+
+  (List<List<double>>, List<List<double>>) _computeQR(List<List<double>> m) {
+    final rows = m.length;
+    final cols = m[0].length;
+    final Q = List.generate(rows, (_) => List.filled(rows, 0.0));
+    final R = List.generate(rows, (_) => List.filled(cols, 0.0));
+    final A = m.map((r) => r.toList()).toList();
+
+    // Gram-Schmidt orthogonalization
+    final u = <List<double>>[];
+    for (var j = 0; j < cols; j++) {
+      // Get column j of A
+      final a = List.generate(rows, (i) => A[i][j]);
+      final proj = List.filled(rows, 0.0);
+
+      // Subtract projections
+      for (var k = 0; k < j; k++) {
+        final dot = _dotProduct(a, u[k]);
+        R[k][j] = dot;
+        for (var i = 0; i < rows; i++) {
+          proj[i] += dot * u[k][i];
+        }
+      }
+
+      final v = List.generate(rows, (i) => a[i] - proj[i]);
+      final norm = _vectorNorm(v);
+
+      if (norm > 1e-10) {
+        for (var i = 0; i < rows; i++) {
+          v[i] /= norm;
+        }
+        R[j][j] = norm;
+      }
+      u.add(v);
+
+      // Fill Q column
+      for (var i = 0; i < rows; i++) {
+        Q[i][j] = v[i];
+      }
+    }
+
+    // Fill remaining Q columns with orthogonal vectors if needed
+    for (var j = cols; j < rows; j++) {
+      for (var i = 0; i < rows; i++) {
+        Q[i][j] = i == j ? 1.0 : 0.0;
+      }
+    }
+
+    return (Q, R);
+  }
+
+  (List<List<double>>, List<double>, List<List<double>>) _computeSVD(
+    List<List<double>> m,
+  ) {
+    final rows = m.length;
+    final cols = m[0].length;
+
+    // Compute A^T * A
+    final ata = _multiplyMatrices(_transpose(m), m);
+
+    // Get eigenvalues and eigenvectors of A^T * A (simplified for small matrices)
+    // This is a basic power iteration approach
+    final k = math.min(rows, cols);
+    final singularValues = <double>[];
+    final V = List.generate(cols, (_) => List.filled(cols, 0.0));
+    final U = List.generate(rows, (_) => List.filled(k, 0.0));
+
+    final ataTemp = ata.map((r) => r.toList()).toList();
+
+    for (var i = 0; i < k; i++) {
+      // Power iteration for largest eigenvalue
+      var v = List.generate(cols, (j) => j == i ? 1.0 : 0.0);
+      for (var iter = 0; iter < 50; iter++) {
+        final newV = _matVecMul(ataTemp, v);
+        final norm = _vectorNorm(newV);
+        if (norm < 1e-10) break;
+        v = List.generate(cols, (j) => newV[j] / norm);
+      }
+
+      final eigenvalue = _dotProduct(_matVecMul(ataTemp, v), v);
+      final sigma = eigenvalue > 0 ? math.sqrt(eigenvalue) : 0.0;
+      singularValues.add(sigma);
+
+      // Store right singular vector
+      for (var j = 0; j < cols; j++) {
+        V[j][i] = v[j];
+      }
+
+      // Compute left singular vector: u = Av / sigma
+      if (sigma > 1e-10) {
+        final av = _matVecMul(m, v);
+        for (var j = 0; j < rows; j++) {
+          U[j][i] = av[j] / sigma;
+        }
+      }
+
+      // Deflate
+      for (var p = 0; p < cols; p++) {
+        for (var q = 0; q < cols; q++) {
+          ataTemp[p][q] -= eigenvalue * v[p] * v[q];
+        }
+      }
+    }
+
+    return (U, singularValues, _transpose(V));
+  }
+
+  double _dotProduct(List<double> a, List<double> b) {
+    var sum = 0.0;
+    for (var i = 0; i < a.length; i++) {
+      sum += a[i] * b[i];
+    }
+    return sum;
+  }
+
+  double _vectorNorm(List<double> v) {
+    return math.sqrt(_dotProduct(v, v));
+  }
+
+  List<double> _matVecMul(List<List<double>> m, List<double> v) {
+    return List.generate(m.length, (i) => _dotProduct(m[i], v));
   }
 
   String _formatNumber(double n) {
@@ -497,7 +776,11 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
               _opChip('inv', 'Inverse'),
               _opChip('transpose', 'Transpose'),
               _opChip('rank', 'Rank'),
+              _opChip('rref', 'RREF'),
               _opChip('eigenvalues', 'Eigenvalues'),
+              _opChip('lu', 'LU'),
+              _opChip('qr', 'QR'),
+              _opChip('svd', 'SVD'),
               _opChip('add', 'A + B'),
               _opChip('subtract', 'A - B'),
               _opChip('multiply', 'A × B'),
@@ -540,7 +823,7 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: colorScheme.primaryContainer.withOpacity(0.3),
+                color: colorScheme.primaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: SelectableText(
@@ -567,7 +850,9 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: isSelected ? colorScheme.primaryContainer.withOpacity(0.3) : null,
+      color: isSelected
+          ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+          : null,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -579,7 +864,7 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
                   value: isSelected,
                   onChanged: (v) {
                     setState(() {
-                      if (v == true) {
+                      if (v ?? false) {
                         _selectedIndices.add(index);
                       } else {
                         _selectedIndices.remove(index);
@@ -631,7 +916,7 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
                   visualDensity: VisualDensity.compact,
                   tooltip: 'Remove column',
                 ),
-                Text('cols'),
+                const Text('cols'),
                 IconButton(
                   icon: const Icon(Icons.add, size: 18),
                   onPressed: matrix.cols < 10
@@ -712,12 +997,25 @@ class _ComplexCalculator extends StatefulWidget {
 }
 
 class _ComplexCalculatorState extends State<_ComplexCalculator> {
-  final _aRealCtrl = TextEditingController(text: '1');
-  final _aImagCtrl = TextEditingController(text: '0');
+  // Input mode: 'rectangular' or 'polar'
+  var _inputMode = 'rectangular';
+
+  // Rectangular inputs
+  final _aRealCtrl = TextEditingController(text: '3');
+  final _aImagCtrl = TextEditingController(text: '4');
   final _bRealCtrl = TextEditingController(text: '1');
-  final _bImagCtrl = TextEditingController(text: '0');
+  final _bImagCtrl = TextEditingController(text: '2');
+
+  // Polar inputs
+  final _aMagCtrl = TextEditingController(text: '5');
+  final _aAngleCtrl = TextEditingController(text: '53.13');
+  final _bMagCtrl = TextEditingController(text: '2.236');
+  final _bAngleCtrl = TextEditingController(text: '63.43');
+  var _angleUnit = 'degrees';
+
   var _operation = 'add';
   var _result = '';
+  var _showBothForms = true;
 
   @override
   void dispose() {
@@ -725,14 +1023,56 @@ class _ComplexCalculatorState extends State<_ComplexCalculator> {
     _aImagCtrl.dispose();
     _bRealCtrl.dispose();
     _bImagCtrl.dispose();
+    _aMagCtrl.dispose();
+    _aAngleCtrl.dispose();
+    _bMagCtrl.dispose();
+    _bAngleCtrl.dispose();
     super.dispose();
   }
 
+  (double real, double imag) _getComplexA() {
+    if (_inputMode == 'rectangular') {
+      return (
+        double.tryParse(_aRealCtrl.text) ?? 0,
+        double.tryParse(_aImagCtrl.text) ?? 0,
+      );
+    } else {
+      final mag = double.tryParse(_aMagCtrl.text) ?? 0;
+      var angle = double.tryParse(_aAngleCtrl.text) ?? 0;
+      if (_angleUnit == 'degrees') angle = angle * math.pi / 180;
+      return (mag * math.cos(angle), mag * math.sin(angle));
+    }
+  }
+
+  (double real, double imag) _getComplexB() {
+    if (_inputMode == 'rectangular') {
+      return (
+        double.tryParse(_bRealCtrl.text) ?? 0,
+        double.tryParse(_bImagCtrl.text) ?? 0,
+      );
+    } else {
+      final mag = double.tryParse(_bMagCtrl.text) ?? 0;
+      var angle = double.tryParse(_bAngleCtrl.text) ?? 0;
+      if (_angleUnit == 'degrees') angle = angle * math.pi / 180;
+      return (mag * math.cos(angle), mag * math.sin(angle));
+    }
+  }
+
+  String _formatComplex(double real, double imag) {
+    final sign = imag >= 0 ? '+' : '-';
+    return '${_formatNum(real)} $sign ${_formatNum(imag.abs())}i';
+  }
+
+  String _formatPolar(double real, double imag) {
+    final mag = math.sqrt(real * real + imag * imag);
+    final angle = math.atan2(imag, real);
+    final angleDeg = angle * 180 / math.pi;
+    return '${_formatNum(mag)} ∠ ${_formatNum(angleDeg)}°  (= ${_formatNum(angle)} rad)';
+  }
+
   void _compute() {
-    final aReal = double.tryParse(_aRealCtrl.text) ?? 0;
-    final aImag = double.tryParse(_aImagCtrl.text) ?? 0;
-    final bReal = double.tryParse(_bRealCtrl.text) ?? 0;
-    final bImag = double.tryParse(_bImagCtrl.text) ?? 0;
+    final (aReal, aImag) = _getComplexA();
+    final (bReal, bImag) = _getComplexB();
 
     double resultReal, resultImag;
     String op;
@@ -752,7 +1092,7 @@ class _ComplexCalculatorState extends State<_ComplexCalculator> {
         op = '×';
       case 'div':
         final denom = bReal * bReal + bImag * bImag;
-        if (denom == 0) {
+        if (denom.abs() < 1e-15) {
           setState(() => _result = 'Error: Division by zero');
           return;
         }
@@ -760,27 +1100,63 @@ class _ComplexCalculatorState extends State<_ComplexCalculator> {
         resultImag = (aImag * bReal - aReal * bImag) / denom;
         op = '÷';
       case 'pow':
-        // (a+bi)^(c+di) using polar form
-        final r = math.sqrt(aReal * aReal + aImag * aImag);
-        final theta = math.atan2(aImag, aReal);
-        final newR = math.pow(r, bReal) * math.exp(-bImag * theta);
-        final newTheta = bReal * theta + bImag * math.log(r);
-        resultReal = newR * math.cos(newTheta);
-        resultImag = newR * math.sin(newTheta);
+        // (a+bi)^(c+di) using e^(n*ln(z))
+        if (aReal == 0 && aImag == 0) {
+          if (bReal > 0) {
+            resultReal = 0;
+            resultImag = 0;
+          } else {
+            setState(() => _result = 'Error: 0^(non-positive) is undefined');
+            return;
+          }
+        } else {
+          final r = math.sqrt(aReal * aReal + aImag * aImag);
+          final theta = math.atan2(aImag, aReal);
+          final lnR = math.log(r);
+          // (c+di) * (ln(r) + i*theta) = c*ln(r) - d*theta + i*(d*ln(r) + c*theta)
+          final newLnMag = bReal * lnR - bImag * theta;
+          final newTheta = bImag * lnR + bReal * theta;
+          final newMag = math.exp(newLnMag);
+          resultReal = newMag * math.cos(newTheta);
+          resultImag = newMag * math.sin(newTheta);
+        }
         op = '^';
+      case 'sqrt':
+        // sqrt(a+bi) - principal square root
+        final mag = math.sqrt(aReal * aReal + aImag * aImag);
+        resultReal = math.sqrt((mag + aReal) / 2);
+        resultImag = aImag >= 0
+            ? math.sqrt((mag - aReal) / 2)
+            : -math.sqrt((mag - aReal) / 2);
+        op = '√';
       default:
         return;
     }
 
-    final sign = resultImag >= 0 ? '+' : '-';
+    final aStr = _formatComplex(aReal, aImag);
+    final bStr = _formatComplex(bReal, bImag);
+
     setState(() {
-      _result =
-          '($aReal ${aImag >= 0 ? '+' : '-'} ${aImag.abs()}i) $op ($bReal ${bImag >= 0 ? '+' : '-'} ${bImag.abs()}i)\n= ${_formatNum(resultReal)} $sign ${_formatNum(resultImag.abs())}i';
+      var resultStr = '';
+      if (_operation == 'sqrt') {
+        resultStr = '√($aStr)\n';
+      } else {
+        resultStr = '($aStr) $op ($bStr)\n';
+      }
+      resultStr +=
+          '\nRectangular Form:\n  = ${_formatComplex(resultReal, resultImag)}';
+      if (_showBothForms) {
+        resultStr +=
+            '\n\nPolar Form:\n  = ${_formatPolar(resultReal, resultImag)}';
+      }
+      _result = resultStr;
     });
   }
 
   String _formatNum(double n) {
-    if (n == n.toInt().toDouble()) return n.toInt().toString();
+    if (n.abs() < 1e-10) return '0';
+    if (n == n.toInt().toDouble() && n.abs() < 1e10)
+      return n.toInt().toString();
     return n
         .toStringAsFixed(6)
         .replaceAll(RegExp(r'0+$'), '')
@@ -788,8 +1164,7 @@ class _ComplexCalculatorState extends State<_ComplexCalculator> {
   }
 
   void _computeConversion(String type) {
-    final real = double.tryParse(_aRealCtrl.text) ?? 0;
-    final imag = double.tryParse(_aImagCtrl.text) ?? 0;
+    final (real, imag) = _getComplexA();
 
     switch (type) {
       case 'polar':
@@ -798,22 +1173,38 @@ class _ComplexCalculatorState extends State<_ComplexCalculator> {
         final thetaDeg = theta * 180 / math.pi;
         setState(
           () => _result =
-              'Polar form:\nr = ${_formatNum(r)}\nθ = ${_formatNum(theta)} rad = ${_formatNum(thetaDeg)}°',
+              'Polar form of A:\n  r = ${_formatNum(r)}\n  θ = ${_formatNum(thetaDeg)}°  (= ${_formatNum(theta)} rad)\n\n  = ${_formatNum(r)} ∠ ${_formatNum(thetaDeg)}°',
+        );
+      case 'rectangular':
+        setState(
+          () => _result =
+              'Rectangular form of A:\n  = ${_formatComplex(real, imag)}',
         );
       case 'conjugate':
         setState(
-          () => _result =
-              'Conjugate:\n${_formatNum(real)} ${imag >= 0 ? '-' : '+'} ${_formatNum(imag.abs())}i',
+          () => _result = 'Conjugate of A:\n  = ${_formatComplex(real, -imag)}',
         );
       case 'magnitude':
         final mag = math.sqrt(real * real + imag * imag);
-        setState(() => _result = '|z| = ${_formatNum(mag)}');
+        setState(() => _result = 'Magnitude of A:\n  |z| = ${_formatNum(mag)}');
       case 'argument':
         final arg = math.atan2(imag, real);
         final argDeg = arg * 180 / math.pi;
         setState(
           () => _result =
-              'arg(z) = ${_formatNum(arg)} rad = ${_formatNum(argDeg)}°',
+              'Argument of A:\n  arg(z) = ${_formatNum(argDeg)}°  (= ${_formatNum(arg)} rad)',
+        );
+      case 'inverse':
+        final denom = real * real + imag * imag;
+        if (denom.abs() < 1e-15) {
+          setState(() => _result = 'Error: Cannot invert zero');
+          return;
+        }
+        final invReal = real / denom;
+        final invImag = -imag / denom;
+        setState(
+          () => _result =
+              'Inverse of A:\n  1/z = ${_formatComplex(invReal, invImag)}\n  Polar: ${_formatPolar(invReal, invImag)}',
         );
     }
   }
@@ -825,47 +1216,56 @@ class _ComplexCalculatorState extends State<_ComplexCalculator> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Input mode selector
+          Row(
+            children: [
+              Text(
+                'Input Mode:',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(width: 16),
+              SegmentedButton<String>(
+                segments: const [
+                  ButtonSegment(value: 'rectangular', label: Text('a + bi')),
+                  ButtonSegment(value: 'polar', label: Text('r ∠ θ')),
+                ],
+                selected: {_inputMode},
+                onSelectionChanged: (s) => setState(() => _inputMode = s.first),
+              ),
+            ],
+          ),
+          if (_inputMode == 'polar') ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  'Angle unit:',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(width: 8),
+                SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(value: 'degrees', label: Text('Degrees')),
+                    ButtonSegment(value: 'radians', label: Text('Radians')),
+                  ],
+                  selected: {_angleUnit},
+                  onSelectionChanged: (s) =>
+                      setState(() => _angleUnit = s.first),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 16),
+
           Text(
             'Complex Number A',
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _aRealCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Real',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                    signed: true,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Text('+'),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TextField(
-                  controller: _aImagCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Imaginary',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                    suffixText: 'i',
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                    signed: true,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          if (_inputMode == 'rectangular')
+            _buildRectangularInput(_aRealCtrl, _aImagCtrl)
+          else
+            _buildPolarInput(_aMagCtrl, _aAngleCtrl),
           const SizedBox(height: 16),
 
           Center(
@@ -876,6 +1276,7 @@ class _ComplexCalculatorState extends State<_ComplexCalculator> {
                 ButtonSegment(value: 'mul', label: Text('×')),
                 ButtonSegment(value: 'div', label: Text('÷')),
                 ButtonSegment(value: 'pow', label: Text('^')),
+                ButtonSegment(value: 'sqrt', label: Text('√A')),
               ],
               selected: {_operation},
               onSelectionChanged: (s) => setState(() => _operation = s.first),
@@ -883,48 +1284,29 @@ class _ComplexCalculatorState extends State<_ComplexCalculator> {
           ),
           const SizedBox(height: 16),
 
-          Text(
-            'Complex Number B',
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-          const SizedBox(height: 8),
+          if (_operation != 'sqrt') ...[
+            Text(
+              'Complex Number B',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 8),
+            if (_inputMode == 'rectangular')
+              _buildRectangularInput(_bRealCtrl, _bImagCtrl)
+            else
+              _buildPolarInput(_bMagCtrl, _bAngleCtrl),
+            const SizedBox(height: 16),
+          ],
+
           Row(
             children: [
-              Expanded(
-                child: TextField(
-                  controller: _bRealCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Real',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                    signed: true,
-                  ),
-                ),
+              Checkbox(
+                value: _showBothForms,
+                onChanged: (v) => setState(() => _showBothForms = v ?? true),
               ),
-              const SizedBox(width: 8),
-              const Text('+'),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TextField(
-                  controller: _bImagCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Imaginary',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                    suffixText: 'i',
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                    signed: true,
-                  ),
-                ),
-              ),
+              const Text('Show both rectangular & polar forms'),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 8),
 
           Center(
             child: FilledButton.icon(
@@ -940,20 +1322,24 @@ class _ComplexCalculatorState extends State<_ComplexCalculator> {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primaryContainer.withOpacity(0.3),
+                color: _result.startsWith('Error')
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.errorContainer.withValues(alpha: 0.3)
+                    : Theme.of(
+                        context,
+                      ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: SelectableText(
                 _result,
-                style: const TextStyle(fontSize: 16, fontFamily: 'monospace'),
+                style: const TextStyle(fontSize: 14, fontFamily: 'monospace'),
               ),
             ),
 
           const SizedBox(height: 24),
           Text(
-            'Conversions (for A)',
+            'Conversions & Properties (for A)',
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
@@ -964,6 +1350,10 @@ class _ComplexCalculatorState extends State<_ComplexCalculator> {
               ActionChip(
                 label: const Text('To Polar'),
                 onPressed: () => _computeConversion('polar'),
+              ),
+              ActionChip(
+                label: const Text('To Rectangular'),
+                onPressed: () => _computeConversion('rectangular'),
               ),
               ActionChip(
                 label: const Text('Conjugate'),
@@ -977,10 +1367,98 @@ class _ComplexCalculatorState extends State<_ComplexCalculator> {
                 label: const Text('Argument'),
                 onPressed: () => _computeConversion('argument'),
               ),
+              ActionChip(
+                label: const Text('Inverse (1/z)'),
+                onPressed: () => _computeConversion('inverse'),
+              ),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildRectangularInput(
+    TextEditingController realCtrl,
+    TextEditingController imagCtrl,
+  ) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: realCtrl,
+            decoration: const InputDecoration(
+              labelText: 'Real',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: true,
+              signed: true,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        const Text('+'),
+        const SizedBox(width: 8),
+        Expanded(
+          child: TextField(
+            controller: imagCtrl,
+            decoration: const InputDecoration(
+              labelText: 'Imaginary',
+              border: OutlineInputBorder(),
+              isDense: true,
+              suffixText: 'i',
+            ),
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: true,
+              signed: true,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPolarInput(
+    TextEditingController magCtrl,
+    TextEditingController angleCtrl,
+  ) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: magCtrl,
+            decoration: const InputDecoration(
+              labelText: 'Magnitude (r)',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: true,
+              signed: false,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        const Text('∠'),
+        const SizedBox(width: 8),
+        Expanded(
+          child: TextField(
+            controller: angleCtrl,
+            decoration: InputDecoration(
+              labelText: 'Angle (θ)',
+              border: const OutlineInputBorder(),
+              isDense: true,
+              suffixText: _angleUnit == 'degrees' ? '°' : 'rad',
+            ),
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: true,
+              signed: true,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1166,7 +1644,7 @@ class _EquationSolverState extends State<_EquationSolver> {
 
     final discriminant = q * q / 4 + p * p * p / 27;
 
-    List<double> roots = [];
+    final List<double> roots = [];
 
     if (discriminant > 0) {
       // One real root
@@ -1198,10 +1676,10 @@ class _EquationSolverState extends State<_EquationSolver> {
   List<double> _numericalSolve(String expr, String variable) {
     // Newton-Raphson method to find roots
     final roots = <double>[];
-    final h = 1e-7;
+    const h = 1e-7;
 
     double f(double x) {
-      var e = expr.replaceAll(variable, '($x)');
+      final e = expr.replaceAll(variable, '($x)');
       return _evaluateSimple(e);
     }
 
@@ -1358,10 +1836,10 @@ class _EquationSolverState extends State<_EquationSolver> {
                 color: _result.startsWith('Error')
                     ? Theme.of(
                         context,
-                      ).colorScheme.errorContainer.withOpacity(0.3)
+                      ).colorScheme.errorContainer.withValues(alpha: 0.3)
                     : Theme.of(
                         context,
-                      ).colorScheme.primaryContainer.withOpacity(0.3),
+                      ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: SelectableText(
@@ -1415,7 +1893,7 @@ class _SystemSolver extends StatefulWidget {
 }
 
 class _SystemSolverState extends State<_SystemSolver> {
-  final List<TextEditingController> _equations = [
+  final _equations = <TextEditingController>[
     TextEditingController(text: '2x + 3y = 8'),
     TextEditingController(text: 'x - y = 1'),
   ];
@@ -1654,10 +2132,10 @@ class _SystemSolverState extends State<_SystemSolver> {
                 color: _result.startsWith('Error')
                     ? Theme.of(
                         context,
-                      ).colorScheme.errorContainer.withOpacity(0.3)
+                      ).colorScheme.errorContainer.withValues(alpha: 0.3)
                     : Theme.of(
                         context,
-                      ).colorScheme.primaryContainer.withOpacity(0.3),
+                      ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: SelectableText(

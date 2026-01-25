@@ -8,8 +8,10 @@ use crate::calculus::{self, CalculusResult, SolveResult};
 use crate::complex::{self, ComplexResult};
 use crate::discrete::{self, DiscreteResult};
 use crate::graphing::{self, GraphResult};
-use crate::matrix::{self, MatrixResult, MatrixDecomposition};
-use crate::statistics::{self, StatisticsResult, DistributionResult, RegressionResult, HypothesisTestResult};
+use crate::matrix::{self, MatrixDecomposition, MatrixResult};
+use crate::statistics::{
+    self, DistributionResult, HypothesisTestResult, RegressionResult, StatisticsResult,
+};
 use crate::units::{self, UnitResult};
 use flutter_rust_bridge::frb;
 
@@ -87,11 +89,17 @@ pub async fn matrix_operation(
 ) -> MatrixResult {
     tokio::task::spawn_blocking(move || {
         matrix::matrix_operation(
-            &a_data, a_rows, a_cols,
-            b_data.as_deref(), b_rows, b_cols,
+            &a_data,
+            a_rows,
+            a_cols,
+            b_data.as_deref(),
+            b_rows,
+            b_cols,
             &operation,
         )
-    }).await.unwrap_or_else(|_| MatrixResult::error("Task panicked"))
+    })
+    .await
+    .unwrap_or_else(|_| MatrixResult::error("Task panicked"))
 }
 
 /// Compute matrix decompositions (LU, QR, SVD, Cholesky, Eigen)
@@ -101,31 +109,23 @@ pub async fn matrix_decomposition(
     cols: usize,
     decomposition_type: String,
 ) -> MatrixDecomposition {
-    tokio::task::spawn_blocking(move || {
-        matrix::decompose(&data, rows, cols, &decomposition_type)
-    }).await.unwrap_or_else(|_| MatrixDecomposition::error("Task panicked"))
+    tokio::task::spawn_blocking(move || matrix::decompose(&data, rows, cols, &decomposition_type))
+        .await
+        .unwrap_or_else(|_| MatrixDecomposition::error("Task panicked"))
 }
 
 /// Compute matrix properties (determinant, rank, trace, eigenvalues)
-pub async fn matrix_properties(
-    data: Vec<f64>,
-    rows: usize,
-    cols: usize,
-) -> MatrixResult {
-    tokio::task::spawn_blocking(move || {
-        matrix::compute_properties(&data, rows, cols)
-    }).await.unwrap_or_else(|_| MatrixResult::error("Task panicked"))
+pub async fn matrix_properties(data: Vec<f64>, rows: usize, cols: usize) -> MatrixResult {
+    tokio::task::spawn_blocking(move || matrix::compute_properties(&data, rows, cols))
+        .await
+        .unwrap_or_else(|_| MatrixResult::error("Task panicked"))
 }
 
 /// Row reduce matrix to echelon form (RREF)
-pub async fn matrix_rref(
-    data: Vec<f64>,
-    rows: usize,
-    cols: usize,
-) -> MatrixResult {
-    tokio::task::spawn_blocking(move || {
-        matrix::row_reduce(&data, rows, cols)
-    }).await.unwrap_or_else(|_| MatrixResult::error("Task panicked"))
+pub async fn matrix_rref(data: Vec<f64>, rows: usize, cols: usize) -> MatrixResult {
+    tokio::task::spawn_blocking(move || matrix::row_reduce(&data, rows, cols))
+        .await
+        .unwrap_or_else(|_| MatrixResult::error("Task panicked"))
 }
 
 // ============================================================================
@@ -141,7 +141,9 @@ pub async fn differentiate(
 ) -> CalculusResult {
     tokio::task::spawn_blocking(move || {
         calculus::differentiate(&expression, &variable, point, order)
-    }).await.unwrap_or_else(|_| CalculusResult::error("Task panicked"))
+    })
+    .await
+    .unwrap_or_else(|_| CalculusResult::error("Task panicked"))
 }
 
 /// Compute numerical integral (definite)
@@ -154,7 +156,9 @@ pub async fn integrate(
 ) -> CalculusResult {
     tokio::task::spawn_blocking(move || {
         calculus::integrate(&expression, &variable, lower, upper, num_intervals)
-    }).await.unwrap_or_else(|_| CalculusResult::error("Task panicked"))
+    })
+    .await
+    .unwrap_or_else(|_| CalculusResult::error("Task panicked"))
 }
 
 /// Solve equation f(x) = 0 using Newton-Raphson
@@ -166,8 +170,16 @@ pub async fn solve_equation(
     max_iterations: u32,
 ) -> SolveResult {
     tokio::task::spawn_blocking(move || {
-        calculus::solve_equation(&expression, &variable, initial_guess, tolerance, max_iterations)
-    }).await.unwrap_or_else(|_| SolveResult::error("Task panicked"))
+        calculus::solve_equation(
+            &expression,
+            &variable,
+            initial_guess,
+            tolerance,
+            max_iterations,
+        )
+    })
+    .await
+    .unwrap_or_else(|_| SolveResult::error("Task panicked"))
 }
 
 /// Find multiple roots in an interval
@@ -180,7 +192,9 @@ pub async fn find_roots_in_interval(
 ) -> SolveResult {
     tokio::task::spawn_blocking(move || {
         calculus::find_roots_in_interval(&expression, &variable, start, end, num_samples)
-    }).await.unwrap_or_else(|_| SolveResult::error("Task panicked"))
+    })
+    .await
+    .unwrap_or_else(|_| SolveResult::error("Task panicked"))
 }
 
 /// Compute limit numerically
@@ -192,8 +206,16 @@ pub async fn compute_limit(
     from_right: bool,
 ) -> CalculusResult {
     tokio::task::spawn_blocking(move || {
-        calculus::compute_limit(&expression, &variable, approach_value, from_left, from_right)
-    }).await.unwrap_or_else(|_| CalculusResult::error("Task panicked"))
+        calculus::compute_limit(
+            &expression,
+            &variable,
+            approach_value,
+            from_left,
+            from_right,
+        )
+    })
+    .await
+    .unwrap_or_else(|_| CalculusResult::error("Task panicked"))
 }
 
 /// Get Taylor series coefficients
@@ -205,7 +227,9 @@ pub async fn taylor_coefficients(
 ) -> Vec<f64> {
     tokio::task::spawn_blocking(move || {
         calculus::taylor_coefficients(&expression, &variable, around, num_terms)
-    }).await.unwrap_or_else(|_| vec![])
+    })
+    .await
+    .unwrap_or_else(|_| vec![])
 }
 
 // ============================================================================
@@ -214,9 +238,9 @@ pub async fn taylor_coefficients(
 
 /// Compute descriptive statistics from a dataset
 pub async fn compute_statistics(data: Vec<f64>) -> StatisticsResult {
-    tokio::task::spawn_blocking(move || {
-        statistics::compute_statistics(&data)
-    }).await.unwrap_or_else(|_| StatisticsResult::error("Task panicked"))
+    tokio::task::spawn_blocking(move || statistics::compute_statistics(&data))
+        .await
+        .unwrap_or_else(|_| StatisticsResult::error("Task panicked"))
 }
 
 /// Compute probability distribution values (PDF, CDF)
@@ -227,17 +251,16 @@ pub async fn distribution_compute(
 ) -> DistributionResult {
     tokio::task::spawn_blocking(move || {
         statistics::distribution_compute(&distribution_type, &params, x)
-    }).await.unwrap_or_else(|_| DistributionResult::error("Task panicked"))
+    })
+    .await
+    .unwrap_or_else(|_| DistributionResult::error("Task panicked"))
 }
 
 /// Perform linear regression
-pub async fn linear_regression(
-    x_data: Vec<f64>,
-    y_data: Vec<f64>,
-) -> RegressionResult {
-    tokio::task::spawn_blocking(move || {
-        statistics::linear_regression(&x_data, &y_data)
-    }).await.unwrap_or_else(|_| RegressionResult::error("Task panicked"))
+pub async fn linear_regression(x_data: Vec<f64>, y_data: Vec<f64>) -> RegressionResult {
+    tokio::task::spawn_blocking(move || statistics::linear_regression(&x_data, &y_data))
+        .await
+        .unwrap_or_else(|_| RegressionResult::error("Task panicked"))
 }
 
 /// Perform polynomial regression
@@ -246,20 +269,16 @@ pub async fn polynomial_regression(
     y_data: Vec<f64>,
     degree: usize,
 ) -> RegressionResult {
-    tokio::task::spawn_blocking(move || {
-        statistics::polynomial_regression(&x_data, &y_data, degree)
-    }).await.unwrap_or_else(|_| RegressionResult::error("Task panicked"))
+    tokio::task::spawn_blocking(move || statistics::polynomial_regression(&x_data, &y_data, degree))
+        .await
+        .unwrap_or_else(|_| RegressionResult::error("Task panicked"))
 }
 
 /// One-sample t-test
-pub async fn t_test(
-    data: Vec<f64>,
-    hypothesized_mean: f64,
-    alpha: f64,
-) -> HypothesisTestResult {
-    tokio::task::spawn_blocking(move || {
-        statistics::t_test(&data, hypothesized_mean, alpha)
-    }).await.unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
+pub async fn t_test(data: Vec<f64>, hypothesized_mean: f64, alpha: f64) -> HypothesisTestResult {
+    tokio::task::spawn_blocking(move || statistics::t_test(&data, hypothesized_mean, alpha))
+        .await
+        .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
 }
 
 /// Two-sample t-test
@@ -268,9 +287,9 @@ pub async fn two_sample_t_test(
     data2: Vec<f64>,
     alpha: f64,
 ) -> HypothesisTestResult {
-    tokio::task::spawn_blocking(move || {
-        statistics::two_sample_t_test(&data1, &data2, alpha)
-    }).await.unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
+    tokio::task::spawn_blocking(move || statistics::two_sample_t_test(&data1, &data2, alpha))
+        .await
+        .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
 }
 
 /// Chi-squared test
@@ -279,9 +298,9 @@ pub async fn chi_squared_test(
     expected: Vec<f64>,
     alpha: f64,
 ) -> HypothesisTestResult {
-    tokio::task::spawn_blocking(move || {
-        statistics::chi_squared_test(&observed, &expected, alpha)
-    }).await.unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
+    tokio::task::spawn_blocking(move || statistics::chi_squared_test(&observed, &expected, alpha))
+        .await
+        .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
 }
 // ============================================================================
 // Discrete Mathematics
@@ -343,9 +362,9 @@ pub fn prime_factors(n: u64) -> DiscreteResult {
 
 /// Generate primes up to n (sieve)
 pub async fn sieve_primes(n: u64) -> DiscreteResult {
-    tokio::task::spawn_blocking(move || {
-        discrete::sieve_of_eratosthenes(n)
-    }).await.unwrap_or_else(|_| DiscreteResult::error("Task panicked"))
+    tokio::task::spawn_blocking(move || discrete::sieve_of_eratosthenes(n))
+        .await
+        .unwrap_or_else(|_| DiscreteResult::error("Task panicked"))
 }
 
 /// Nth Fibonacci number
@@ -384,11 +403,7 @@ pub fn is_perfect(n: u64) -> DiscreteResult {
 
 /// Convert between units
 #[frb(sync)]
-pub fn convert_unit(
-    value: f64,
-    from_unit: String,
-    to_unit: String,
-) -> UnitResult {
+pub fn convert_unit(value: f64, from_unit: String, to_unit: String) -> UnitResult {
     units::convert_unit(value, &from_unit, &to_unit)
 }
 
@@ -423,7 +438,9 @@ pub async fn evaluate_graph_points(
 ) -> GraphResult {
     tokio::task::spawn_blocking(move || {
         graphing::evaluate_graph_points(&expression, &variable, &x_values)
-    }).await.unwrap_or_else(|_| GraphResult::error("Task panicked"))
+    })
+    .await
+    .unwrap_or_else(|_| GraphResult::error("Task panicked"))
 }
 
 /// Generate x values for a range
@@ -442,7 +459,9 @@ pub async fn find_graph_roots(
 ) -> Vec<f64> {
     tokio::task::spawn_blocking(move || {
         graphing::find_zeros(&expression, &variable, x_min, x_max, num_samples)
-    }).await.unwrap_or_else(|_| vec![])
+    })
+    .await
+    .unwrap_or_else(|_| vec![])
 }
 
 /// Find local extrema (maxima/minima) in a range
@@ -455,7 +474,9 @@ pub async fn find_extrema(
 ) -> (Vec<(f64, f64)>, Vec<(f64, f64)>) {
     tokio::task::spawn_blocking(move || {
         graphing::find_extrema(&expression, &variable, x_min, x_max, num_samples)
-    }).await.unwrap_or_else(|_| (vec![], vec![]))
+    })
+    .await
+    .unwrap_or_else(|_| (vec![], vec![]))
 }
 
 /// Compute derivative graph
@@ -466,7 +487,9 @@ pub async fn derivative_graph(
 ) -> GraphResult {
     tokio::task::spawn_blocking(move || {
         graphing::derivative_graph(&expression, &variable, &x_values)
-    }).await.unwrap_or_else(|_| GraphResult::error("Task panicked"))
+    })
+    .await
+    .unwrap_or_else(|_| GraphResult::error("Task panicked"))
 }
 
 /// Compute integral graph (cumulative)
@@ -478,7 +501,9 @@ pub async fn integral_graph(
 ) -> GraphResult {
     tokio::task::spawn_blocking(move || {
         graphing::integral_graph(&expression, &variable, &x_values, initial_value)
-    }).await.unwrap_or_else(|_| GraphResult::error("Task panicked"))
+    })
+    .await
+    .unwrap_or_else(|_| GraphResult::error("Task panicked"))
 }
 
 // ============================================================================
@@ -513,7 +538,7 @@ pub fn init_app() {
     {
         let _ = env_logger::try_init();
     }
-    
+
     // Pre-warm rayon thread pool
     rayon::ThreadPoolBuilder::new()
         .num_threads(num_cpus::get().max(2))

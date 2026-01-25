@@ -2,8 +2,8 @@
 
 use serde::{Deserialize, Serialize};
 use statrs::distribution::{
-    Bernoulli, Binomial, ChiSquared, Continuous, ContinuousCDF, Discrete, DiscreteCDF,
-    Exp, Geometric, Normal, Poisson, StudentsT, Uniform,
+    Bernoulli, Binomial, ChiSquared, Continuous, ContinuousCDF, Discrete, DiscreteCDF, Exp,
+    Geometric, Normal, Poisson, StudentsT, Uniform,
 };
 use statrs::statistics::{Distribution, Statistics};
 
@@ -176,14 +176,22 @@ pub fn compute_statistics(data: &[f64]) -> StatisticsResult {
 
     // Skewness and kurtosis
     let skewness = if n > 2.0 && std_dev > 0.0 {
-        let m3 = data.iter().map(|x| ((x - mean) / std_dev).powi(3)).sum::<f64>() / n;
+        let m3 = data
+            .iter()
+            .map(|x| ((x - mean) / std_dev).powi(3))
+            .sum::<f64>()
+            / n;
         m3
     } else {
         f64::NAN
     };
 
     let kurtosis = if n > 3.0 && std_dev > 0.0 {
-        let m4 = data.iter().map(|x| ((x - mean) / std_dev).powi(4)).sum::<f64>() / n;
+        let m4 = data
+            .iter()
+            .map(|x| ((x - mean) / std_dev).powi(4))
+            .sum::<f64>()
+            / n;
         m4 - 3.0 // Excess kurtosis
     } else {
         f64::NAN
@@ -237,11 +245,7 @@ fn find_mode(sorted: &[f64]) -> f64 {
 }
 
 /// Compute distribution values
-pub fn distribution_compute(
-    distribution_type: &str,
-    params: &[f64],
-    x: f64,
-) -> DistributionResult {
+pub fn distribution_compute(distribution_type: &str, params: &[f64], x: f64) -> DistributionResult {
     match distribution_type.to_lowercase().as_str() {
         "normal" | "gaussian" => {
             let mean = params.first().copied().unwrap_or(0.0);
@@ -336,7 +340,9 @@ pub fn linear_regression(x: &[f64], y: &[f64]) -> RegressionResult {
 
     // R-squared
     let ss_tot: f64 = y.iter().map(|yi| (yi - mean_y).powi(2)).sum();
-    let residuals: Vec<f64> = x.iter().zip(y.iter())
+    let residuals: Vec<f64> = x
+        .iter()
+        .zip(y.iter())
         .map(|(xi, yi)| yi - (slope * xi + intercept))
         .collect();
     let ss_res: f64 = residuals.iter().map(|r| r * r).sum();
@@ -383,16 +389,20 @@ pub fn polynomial_regression(x: &[f64], y: &[f64], degree: usize) -> RegressionR
     // Calculate R-squared
     let mean_y: f64 = y.iter().sum::<f64>() / n as f64;
     let ss_tot: f64 = y.iter().map(|yi| (yi - mean_y).powi(2)).sum();
-    
-    let residuals: Vec<f64> = x.iter().zip(y.iter())
+
+    let residuals: Vec<f64> = x
+        .iter()
+        .zip(y.iter())
         .map(|(xi, yi)| {
-            let pred: f64 = coeffs.iter().enumerate()
+            let pred: f64 = coeffs
+                .iter()
+                .enumerate()
                 .map(|(j, cj)| cj * xi.powi(j as i32))
                 .sum();
             yi - pred
         })
         .collect();
-    
+
     let ss_res: f64 = residuals.iter().map(|r| r * r).sum();
     let r_squared = 1.0 - ss_res / ss_tot;
 
@@ -408,7 +418,7 @@ pub fn polynomial_regression(x: &[f64], y: &[f64], degree: usize) -> RegressionR
 /// Solve linear system Ax = b using Gaussian elimination
 fn solve_linear_system(a: &[f64], b: &[f64], n: usize) -> Option<Vec<f64>> {
     let mut aug = vec![vec![0.0; n + 1]; n];
-    
+
     for i in 0..n {
         for j in 0..n {
             aug[i][j] = a[i * n + j];
@@ -541,7 +551,9 @@ pub fn chi_squared_test(observed: &[f64], expected: &[f64], alpha: f64) -> Hypot
         return HypothesisTestResult::error("Observed and expected must have same non-zero length");
     }
 
-    let chi_sq: f64 = observed.iter().zip(expected.iter())
+    let chi_sq: f64 = observed
+        .iter()
+        .zip(expected.iter())
         .map(|(o, e)| if *e > 0.0 { (o - e).powi(2) / e } else { 0.0 })
         .sum();
 

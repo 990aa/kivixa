@@ -136,7 +136,7 @@ pub fn matrix_operation(
         "mean" => MatrixResult::from_scalar(a.mean()),
         "min" => MatrixResult::from_scalar(a.min()),
         "max" => MatrixResult::from_scalar(a.max()),
-        
+
         // Power
         "power" | "pow" => {
             if a.nrows() != a.ncols() {
@@ -164,7 +164,7 @@ pub fn matrix_operation(
                 MatrixResult::from_matrix(&result)
             }
         }
-        
+
         // Scalar operations
         "scale" | "scalar_mul" => {
             let s = b_data.and_then(|d| d.first().copied()).unwrap_or(1.0);
@@ -217,7 +217,9 @@ pub fn matrix_operation(
                     Some(m) => m,
                     None => return MatrixResult::error("Invalid matrix B dimensions"),
                 },
-                _ => return MatrixResult::error("Matrix B required for element-wise multiplication"),
+                _ => {
+                    return MatrixResult::error("Matrix B required for element-wise multiplication")
+                }
             };
             if a.nrows() != b.nrows() || a.ncols() != b.ncols() {
                 return MatrixResult::error("Matrices must have same dimensions");
@@ -230,7 +232,12 @@ pub fn matrix_operation(
 }
 
 /// Compute matrix decompositions
-pub fn decompose(data: &[f64], rows: usize, cols: usize, decomposition_type: &str) -> MatrixDecomposition {
+pub fn decompose(
+    data: &[f64],
+    rows: usize,
+    cols: usize,
+    decomposition_type: &str,
+) -> MatrixDecomposition {
     let m = match create_matrix(data, rows, cols) {
         Some(m) => m,
         None => return MatrixDecomposition::error("Invalid matrix dimensions"),
@@ -248,10 +255,7 @@ pub fn decompose(data: &[f64], rows: usize, cols: usize, decomposition_type: &st
             MatrixDecomposition {
                 success: true,
                 decomposition_type: "LU".to_string(),
-                matrices: vec![
-                    MatrixResult::from_matrix(&l),
-                    MatrixResult::from_matrix(&u),
-                ],
+                matrices: vec![MatrixResult::from_matrix(&l), MatrixResult::from_matrix(&u)],
                 labels: vec!["L".to_string(), "U".to_string()],
                 error: None,
             }
@@ -274,22 +278,22 @@ pub fn decompose(data: &[f64], rows: usize, cols: usize, decomposition_type: &st
                 svd => {
                     let mut matrices = vec![];
                     let mut labels = vec![];
-                    
+
                     if let Some(u) = svd.u {
                         matrices.push(MatrixResult::from_matrix(&u));
                         labels.push("U".to_string());
                     }
-                    
+
                     // Singular values as diagonal matrix
                     let s = DMatrix::from_diagonal(&svd.singular_values);
                     matrices.push(MatrixResult::from_matrix(&s));
                     labels.push("Σ".to_string());
-                    
+
                     if let Some(v_t) = svd.v_t {
                         matrices.push(MatrixResult::from_matrix(&v_t));
                         labels.push("V^T".to_string());
                     }
-                    
+
                     MatrixDecomposition {
                         success: true,
                         decomposition_type: "SVD".to_string(),
@@ -305,26 +309,26 @@ pub fn decompose(data: &[f64], rows: usize, cols: usize, decomposition_type: &st
                 return MatrixDecomposition::error("Cholesky decomposition requires square matrix");
             }
             match m.cholesky() {
-                Some(chol) => {
-                    MatrixDecomposition {
-                        success: true,
-                        decomposition_type: "Cholesky".to_string(),
-                        matrices: vec![MatrixResult::from_matrix(&chol.l())],
-                        labels: vec!["L".to_string()],
-                        error: None,
-                    }
-                }
+                Some(chol) => MatrixDecomposition {
+                    success: true,
+                    decomposition_type: "Cholesky".to_string(),
+                    matrices: vec![MatrixResult::from_matrix(&chol.l())],
+                    labels: vec!["L".to_string()],
+                    error: None,
+                },
                 None => MatrixDecomposition::error("Matrix is not positive definite"),
             }
         }
         "eigen" | "eigenvalues" => {
             if rows != cols {
-                return MatrixDecomposition::error("Eigenvalue decomposition requires square matrix");
+                return MatrixDecomposition::error(
+                    "Eigenvalue decomposition requires square matrix",
+                );
             }
             // Make symmetric for guaranteed real eigenvalues
             let sym = (&m + m.transpose()) / 2.0;
             let eigen = SymmetricEigen::new(sym);
-            
+
             MatrixDecomposition {
                 success: true,
                 decomposition_type: "Eigen".to_string(),
@@ -349,10 +353,10 @@ pub fn compute_properties(data: &[f64], rows: usize, cols: usize) -> MatrixResul
 
     // Return multiple properties as a special matrix result
     let mut props = vec![];
-    
+
     // Rank
     props.push(m.rank(1e-10) as f64);
-    
+
     // Determinant (if square)
     if rows == cols {
         props.push(m.determinant());
@@ -361,10 +365,10 @@ pub fn compute_properties(data: &[f64], rows: usize, cols: usize) -> MatrixResul
         props.push(f64::NAN);
         props.push(f64::NAN);
     }
-    
+
     // Norms
     props.push(m.norm()); // Frobenius
-    
+
     MatrixResult {
         success: true,
         data: props,

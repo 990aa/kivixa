@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// General tab - Scientific Calculator with Constants & Number Conversion
@@ -192,6 +191,20 @@ class _MathGeneralTabState extends State<MathGeneralTab> {
       (m) => '(${_factorial(int.parse(m.group(1)!))})',
     );
 
+    // Handle nPr (permutation)
+    expr = expr.replaceAllMapped(
+      RegExp(r'(\d+)P(\d+)'),
+      (m) =>
+          '(${_permutation(int.parse(m.group(1)!), int.parse(m.group(2)!))})',
+    );
+
+    // Handle nCr (combination)
+    expr = expr.replaceAllMapped(
+      RegExp(r'(\d+)C(\d+)'),
+      (m) =>
+          '(${_combination(int.parse(m.group(1)!), int.parse(m.group(2)!))})',
+    );
+
     return expr;
   }
 
@@ -201,6 +214,27 @@ class _MathGeneralTabState extends State<MathGeneralTab> {
     var result = 1;
     for (var i = 2; i <= n; i++) {
       result *= i;
+    }
+    return result;
+  }
+
+  int _permutation(int n, int r) {
+    if (n < 0 || r < 0) throw Exception('n and r must be non-negative');
+    if (r > n) throw Exception('r cannot be greater than n');
+    var result = 1;
+    for (var i = n; i > n - r; i--) {
+      result *= i;
+    }
+    return result;
+  }
+
+  int _combination(int n, int r) {
+    if (n < 0 || r < 0) throw Exception('n and r must be non-negative');
+    if (r > n) throw Exception('r cannot be greater than n');
+    if (r > n - r) r = n - r; // Optimization: C(n,r) = C(n, n-r)
+    var result = 1;
+    for (var i = 0; i < r; i++) {
+      result = result * (n - i) ~/ (i + 1);
     }
     return result;
   }
@@ -364,7 +398,7 @@ class _MathGeneralTabState extends State<MathGeneralTab> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -380,7 +414,7 @@ class _MathGeneralTabState extends State<MathGeneralTab> {
             decoration: InputDecoration(
               hintText: 'Enter expression...',
               hintStyle: TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.5),
+                color: colorScheme.onSurface.withValues(alpha: 0.5),
               ),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
@@ -478,6 +512,18 @@ class _MathGeneralTabState extends State<MathGeneralTab> {
           colorScheme.tertiaryContainer,
         ),
         _compactBtn(
+          'nPr',
+          () => _insertText('P'),
+          colorScheme.tertiaryContainer,
+        ),
+        _compactBtn(
+          'nCr',
+          () => _insertText('C'),
+          colorScheme.tertiaryContainer,
+        ),
+
+        // Row 3: Constants and brackets
+        _compactBtn(
           'π',
           () => _insertText('π'),
           colorScheme.secondaryContainer,
@@ -487,86 +533,42 @@ class _MathGeneralTabState extends State<MathGeneralTab> {
           () => _insertText('e'),
           colorScheme.secondaryContainer,
         ),
-
-        // Row 3: Brackets and clear
-        _compactBtn('C', _clear, colorScheme.errorContainer),
         _compactBtn('(', () => _insertText('('), null),
         _compactBtn(')', () => _insertText(')'), null),
+        _compactBtn('C', _clear, colorScheme.errorContainer),
         _compactBtn(
           '⌫',
           _backspace,
-          colorScheme.errorContainer.withOpacity(0.5),
+          colorScheme.errorContainer.withValues(alpha: 0.5),
         ),
-        _compactBtn('%', () => _insertText('%'), colorScheme.primaryContainer),
-        _compactBtn('÷', () => _insertText('/'), colorScheme.primaryContainer),
 
-        // Row 4: Numbers 7-9 and multiply
+        // Row 4: Numbers 7-9 and operators
         _compactBtn('7', () => _insertText('7'), null),
         _compactBtn('8', () => _insertText('8'), null),
         _compactBtn('9', () => _insertText('9'), null),
+        _compactBtn('%', () => _insertText('%'), colorScheme.primaryContainer),
+        _compactBtn('÷', () => _insertText('/'), colorScheme.primaryContainer),
         _compactBtn('×', () => _insertText('*'), colorScheme.primaryContainer),
-        _compactBtn(
-          'A',
-          () => _insertText('A'),
-          colorScheme.surfaceContainerHigh,
-        ),
-        _compactBtn(
-          'B',
-          () => _insertText('B'),
-          colorScheme.surfaceContainerHigh,
-        ),
 
         // Row 5: Numbers 4-6 and subtract
         _compactBtn('4', () => _insertText('4'), null),
         _compactBtn('5', () => _insertText('5'), null),
         _compactBtn('6', () => _insertText('6'), null),
         _compactBtn('-', () => _insertText('-'), colorScheme.primaryContainer),
-        _compactBtn(
-          'C',
-          () => _insertText('C'),
-          colorScheme.surfaceContainerHigh,
-        ),
-        _compactBtn(
-          'D',
-          () => _insertText('D'),
-          colorScheme.surfaceContainerHigh,
-        ),
-
-        // Row 6: Numbers 1-3 and add
-        _compactBtn('1', () => _insertText('1'), null),
-        _compactBtn('2', () => _insertText('2'), null),
-        _compactBtn('3', () => _insertText('3'), null),
         _compactBtn('+', () => _insertText('+'), colorScheme.primaryContainer),
-        _compactBtn(
-          'E',
-          () => _insertText('E'),
-          colorScheme.surfaceContainerHigh,
-        ),
-        _compactBtn(
-          'F',
-          () => _insertText('F'),
-          colorScheme.surfaceContainerHigh,
-        ),
-
-        // Row 7: Zero, decimal, equals
-        _compactBtn('±', () {
-          final text = _expressionController.text;
-          if (text.startsWith('-')) {
-            _expressionController.text = text.substring(1);
-          } else if (text.isNotEmpty) {
-            _expressionController.text = '-$text';
-          }
-          _saveState();
-        }, null),
-        _compactBtn('0', () => _insertText('0'), null),
-        _compactBtn('.', () => _insertText('.'), null),
-        _compactBtn('=', _evaluate, colorScheme.primary, colorScheme.onPrimary),
-        _compactBtn(',', () => _insertText(','), null),
         _compactBtn('Ans', () {
           if (_result.startsWith('= ')) {
             _insertText(_result.substring(2));
           }
         }, colorScheme.secondaryContainer),
+
+        // Row 6: Numbers 1-3 and equals
+        _compactBtn('1', () => _insertText('1'), null),
+        _compactBtn('2', () => _insertText('2'), null),
+        _compactBtn('3', () => _insertText('3'), null),
+        _compactBtn('0', () => _insertText('0'), null),
+        _compactBtn('.', () => _insertText('.'), null),
+        _compactBtn('=', _evaluate, colorScheme.primary, colorScheme.onPrimary),
       ],
     );
   }
@@ -699,7 +701,7 @@ class _MathGeneralTabState extends State<MathGeneralTab> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer.withOpacity(0.3),
+                  color: colorScheme.primaryContainer.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: SelectableText(

@@ -15,7 +15,28 @@ void main() {
       expect(find.byType(MathAlgebraTab), findsOneWidget);
     });
 
-    testWidgets('MathAlgebraTab has input fields', (WidgetTester tester) async {
+    testWidgets('MathAlgebraTab has TabBar with 4 tabs', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: MathAlgebraTab())),
+      );
+      await tester.pumpAndSettle();
+
+      // Should have a TabBar
+      expect(find.byType(TabBar), findsOneWidget);
+
+      // Should have 4 tabs: Matrix, Complex, Equations, Systems
+      expect(find.byType(Tab), findsNWidgets(4));
+      expect(find.text('Matrix'), findsOneWidget);
+      expect(find.text('Complex'), findsOneWidget);
+      expect(find.text('Equations'), findsOneWidget);
+      expect(find.text('Systems'), findsOneWidget);
+    });
+
+    testWidgets('MathAlgebraTab has matrix input fields', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(home: Scaffold(body: MathAlgebraTab())),
       );
@@ -25,7 +46,23 @@ void main() {
       expect(find.byType(TextField), findsWidgets);
     });
 
-    testWidgets('MathAlgebraTab has section headers', (
+    testWidgets('MathAlgebraTab can navigate to Complex tab', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: MathAlgebraTab())),
+      );
+      await tester.pumpAndSettle();
+
+      // Navigate to Complex tab
+      await tester.tap(find.text('Complex'));
+      await tester.pumpAndSettle();
+
+      // Should have input fields for complex numbers
+      expect(find.byType(TextField), findsWidgets);
+    });
+
+    testWidgets('MathAlgebraTab has scrollable content', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(

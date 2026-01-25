@@ -15,13 +15,13 @@ mod frb_generated;
 
 pub mod api;
 pub mod basic;
-pub mod matrix;
 pub mod calculus;
-pub mod statistics;
+pub mod complex;
 pub mod discrete;
 pub mod graphing;
+pub mod matrix;
+pub mod statistics;
 pub mod units;
-pub mod complex;
 
 #[cfg(test)]
 mod tests;

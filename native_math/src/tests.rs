@@ -269,13 +269,21 @@ mod statistics_tests {
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
         let result = compute_statistics(&data);
         assert!(result.success);
-        
+
         // Mean should be 3.0
-        let mean = result.values.iter().find(|(k, _)| k == "mean").map(|(_, v)| *v);
+        let mean = result
+            .values
+            .iter()
+            .find(|(k, _)| k == "mean")
+            .map(|(_, v)| *v);
         assert!((mean.unwrap() - 3.0).abs() < 1e-10);
-        
+
         // Median should be 3.0
-        let median = result.values.iter().find(|(k, _)| k == "median").map(|(_, v)| *v);
+        let median = result
+            .values
+            .iter()
+            .find(|(k, _)| k == "median")
+            .map(|(_, v)| *v);
         assert!((median.unwrap() - 3.0).abs() < 1e-10);
     }
 

@@ -1,7 +1,7 @@
 //! Calculus operations: differentiation, integration, equation solving
 
-use serde::{Deserialize, Serialize};
 use fasteval::{Compiler, Evaler, Slab};
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 /// Result of calculus operations
@@ -84,23 +84,28 @@ impl SolveResult {
 fn eval_at(expr: &str, var: &str, val: f64) -> Result<f64, String> {
     let parser = fasteval::Parser::new();
     let mut slab = Slab::new();
-    
+
     let compiled = parser
         .parse(expr, &mut slab.ps)
         .map_err(|e| format!("Parse error: {:?}", e))?
         .from(&slab.ps)
         .compile(&slab.ps, &mut slab.cs);
-    
+
     let mut map = BTreeMap::new();
     map.insert(var.to_string(), val);
-    
+
     compiled
         .eval(&slab, &mut map)
         .map_err(|e| format!("Eval error: {:?}", e))
 }
 
 /// Numerical differentiation using central difference
-pub fn differentiate(expression: &str, variable: &str, at_value: f64, order: u32) -> CalculusResult {
+pub fn differentiate(
+    expression: &str,
+    variable: &str,
+    at_value: f64,
+    order: u32,
+) -> CalculusResult {
     if order == 0 {
         match eval_at(expression, variable, at_value) {
             Ok(val) => return CalculusResult::value(val),
@@ -141,7 +146,7 @@ pub fn differentiate(expression: &str, variable: &str, at_value: f64, order: u32
     } else {
         // Higher order derivatives using recursive finite differences
         let h_adj = h.powf(1.0 / order as f64);
-        
+
         fn finite_diff(expr: &str, var: &str, x: f64, h: f64, n: u32) -> Result<f64, String> {
             if n == 0 {
                 return eval_at(expr, var, x);
@@ -170,7 +175,11 @@ pub fn integrate(
         return CalculusResult::error("Lower bound must be less than upper bound");
     }
 
-    let n = if num_intervals < 2 { 100 } else { num_intervals };
+    let n = if num_intervals < 2 {
+        100
+    } else {
+        num_intervals
+    };
     let n = if n % 2 == 1 { n + 1 } else { n }; // Must be even for Simpson's
 
     let h = (upper_bound - lower_bound) / n as f64;
@@ -208,7 +217,11 @@ pub fn solve_equation(
     max_iterations: u32,
 ) -> SolveResult {
     let tol = if tolerance <= 0.0 { 1e-10 } else { tolerance };
-    let max_iter = if max_iterations == 0 { 100 } else { max_iterations };
+    let max_iter = if max_iterations == 0 {
+        100
+    } else {
+        max_iterations
+    };
     let h = 1e-8;
 
     let mut x = initial_guess;
@@ -342,7 +355,7 @@ pub fn compute_limit(
             // Two-sided limit
             let left = eval_at(expression, variable, approach_value - h).ok();
             let right = eval_at(expression, variable, approach_value + h).ok();
-            
+
             match (left, right) {
                 (Some(l), Some(r)) => {
                     if (l - r).abs() < 1e-6 {
@@ -368,7 +381,10 @@ pub fn compute_limit(
 
     // Check convergence
     let last = *values.last().unwrap();
-    let second_last = values.get(values.len().saturating_sub(2)).copied().unwrap_or(last);
+    let second_last = values
+        .get(values.len().saturating_sub(2))
+        .copied()
+        .unwrap_or(last);
 
     if (last - second_last).abs() < 1e-6 {
         CalculusResult::value(last)
