@@ -1,6 +1,7 @@
 param(
     [switch]$SkipAndroid,
-    [switch]$SkipWindows
+    [switch]$SkipWindows,
+    [switch]$SkipClean
 )
 
 $ErrorActionPreference = "Stop"
@@ -22,9 +23,12 @@ $winTarget = "x86_64-pc-windows-msvc"
 $winDllName = "$rustLibName.dll"
 $winDllPath = Join-Path $nativeDir "target\$winTarget\release\$winDllName"
 
-# Flutter Windows runner dirs
+# Flutter Windows runner dirs (multiple locations for Flutter to find)
 $winRunnerDebug  = Join-Path $projectRoot "build\windows\x64\runner\Debug"
 $winRunnerRelease = Join-Path $projectRoot "build\windows\x64\runner\Release"
+$winRunnerProfile = Join-Path $projectRoot "build\windows\x64\runner\Profile"
+# rust_builder plugin directory (Flutter build picks up from here)
+$rustBuilderWin = Join-Path $projectRoot "rust_builder\target\$winTarget\release"
 
 # Android targets & output
 $androidArm64Target = "aarch64-linux-android"
@@ -36,15 +40,24 @@ $androidArmv7SoName = "lib$rustLibName.so"
 $androidArm64SoPath = Join-Path $nativeDir "target\$androidArm64Target\release\$androidArm64SoName"
 $androidArmv7SoPath = Join-Path $nativeDir "target\$androidArmv7Target\release\$androidArmv7SoName"
 
-# Flutter Android jniLibs dirs
+# Flutter Android jniLibs dirs (multiple locations)
 $jniBase = Join-Path $projectRoot "android\app\src\main\jniLibs"
 $jniArm64Dir = Join-Path $jniBase "arm64-v8a"
 $jniArmv7Dir = Join-Path $jniBase "armeabi-v7a"
+# rust_builder plugin jniLibs directory
+$rustBuilderJniBase = Join-Path $projectRoot "rust_builder\android\src\main\jniLibs"
+$rustBuilderJniArm64 = Join-Path $rustBuilderJniBase "arm64-v8a"
+$rustBuilderJniArmv7 = Join-Path $rustBuilderJniBase "armeabi-v7a"
 
-# 3. Go to native/ and clean
-Write-Host "=== Cleaning Rust targets ===" -ForegroundColor Yellow
-Set-Location $nativeDir
-cargo clean
+# 3. Go to native/ and optionally clean
+if (-not $SkipClean) {
+    Write-Host "=== Cleaning Rust targets ===" -ForegroundColor Yellow
+    Set-Location $nativeDir
+    cargo clean
+} else {
+    Write-Host "=== Skipping clean (SkipClean flag set) ===" -ForegroundColor DarkYellow
+    Set-Location $nativeDir
+}
 
 # 4. Build for Windows
 if (-not $SkipWindows) {
@@ -57,17 +70,23 @@ if (-not $SkipWindows) {
         throw "Windows DLL not found at $winDllPath. Check build errors / target name."
     }
 
-    # Ensure runner dirs exist
+    # Ensure all runner dirs exist
     New-Item -ItemType Directory -Force -Path $winRunnerDebug | Out-Null
     New-Item -ItemType Directory -Force -Path $winRunnerRelease | Out-Null
+    New-Item -ItemType Directory -Force -Path $winRunnerProfile | Out-Null
+    New-Item -ItemType Directory -Force -Path $rustBuilderWin | Out-Null
 
-    Write-Host "Copying $winDllName to Windows runner folders..."
+    Write-Host "Copying $winDllName to all Windows locations..."
     Copy-Item $winDllPath $winRunnerDebug -Force
     Copy-Item $winDllPath $winRunnerRelease -Force
+    Copy-Item $winDllPath $winRunnerProfile -Force
+    Copy-Item $winDllPath $rustBuilderWin -Force
 
     Write-Host "Windows DLL copied to:"
     Write-Host "  $winRunnerDebug\$winDllName"
     Write-Host "  $winRunnerRelease\$winDllName"
+    Write-Host "  $winRunnerProfile\$winDllName"
+    Write-Host "  $rustBuilderWin\$winDllName"
 } else {
     Write-Host "Skipping Windows build (SkipWindows flag set)" -ForegroundColor DarkYellow
 }
@@ -143,17 +162,25 @@ if (-not $SkipAndroid) {
         throw "Android armeabi-v7a .so not found at $androidArmv7SoPath. Check build errors / target name."
     }
 
-    # Ensure jniLibs dirs exist
+    # Ensure all jniLibs dirs exist
     New-Item -ItemType Directory -Force -Path $jniArm64Dir | Out-Null
     New-Item -ItemType Directory -Force -Path $jniArmv7Dir | Out-Null
+    New-Item -ItemType Directory -Force -Path $rustBuilderJniArm64 | Out-Null
+    New-Item -ItemType Directory -Force -Path $rustBuilderJniArmv7 | Out-Null
 
-    Write-Host "Copying Android .so files to jniLibs..."
+    Write-Host "Copying Android .so files to all jniLibs locations..."
+    # Main app jniLibs
     Copy-Item $androidArm64SoPath $jniArm64Dir -Force
     Copy-Item $androidArmv7SoPath $jniArmv7Dir -Force
+    # rust_builder plugin jniLibs
+    Copy-Item $androidArm64SoPath $rustBuilderJniArm64 -Force
+    Copy-Item $androidArmv7SoPath $rustBuilderJniArmv7 -Force
 
     Write-Host "Android SOs copied to:"
     Write-Host "  $jniArm64Dir\$androidArm64SoName"
     Write-Host "  $jniArmv7Dir\$androidArmv7SoName"
+    Write-Host "  $rustBuilderJniArm64\$androidArm64SoName"
+    Write-Host "  $rustBuilderJniArmv7\$androidArmv7SoName"
 } else {
     Write-Host "Skipping Android build (SkipAndroid flag set)" -ForegroundColor DarkYellow
 }
