@@ -152,9 +152,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Math Module**: Comprehensive mathematics module with Rust backend for high-performance calculations.
   - **General Tab**: Scientific calculator, expression evaluation, trigonometry, logarithms, and unit conversions
   - **Algebra Tab**: Polynomial operations, equation solving (linear, quadratic, polynomial), factorization, and simplification
-  - **Calculus Tab**: Numerical derivatives, integrals, limits, Taylor series, and differential equation solvers
-  - **Statistics Tab**: Descriptive statistics (mean, std, variance), probability distributions, hypothesis testing, regression analysis
-  - **Discrete Tab**: Combinatorics (permutations, combinations, factorials), number theory (GCD, LCM, primality), set operations
+  - **Calculus Tab**: 
+    - Numerical derivatives (first, second, nth order)
+    - Definite and indefinite integrals
+    - **Partial Derivatives**: Compute partial derivatives with respect to multiple variables (∂f/∂x, ∂f/∂y, etc.)
+    - **Multiple Integrals**: Double and triple integrals over rectangular regions
+    - Limits with left/right-sided approach
+    - Taylor series expansion
+  - **Statistics Tab**: 
+    - Descriptive statistics (mean, median, mode, standard deviation, variance)
+    - Probability distributions (normal, exponential, binomial, Poisson)
+    - Hypothesis testing:
+      - One-sample and two-sample **t-tests**
+      - One-sample and two-sample **z-tests** (known population standard deviation)
+      - **Chi-squared test** for categorical data
+      - **ANOVA** (Analysis of Variance) for comparing multiple group means
+    - Confidence intervals for mean, proportion, and variance
+    - Linear and polynomial regression with R², slope, intercept
+  - **Discrete Tab**: Combinatorics (permutations, combinations, factorials), number theory (GCD, LCM, primality), modular arithmetic
   - **Graphing Tab**: 2D function plotting, parametric curves, polar coordinates, implicit functions
   - **Tools Tab**: Number system conversion (binary, octal, decimal, hex), constants reference, formula library
 - **Native Math Library**: New `kivixa_math` Rust library with:
@@ -171,10 +186,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Update Dialog**: Removed automatic update dialog on startup. Updates can now be checked manually via "Settings > Updates".
 - **Floating Hub**: Renamed "Calculator" tool to "Math".
+- **Build Scripts**: Updated `build_native.ps1` and `build_math.ps1` with:
+  - `-SkipClean` flag to preserve build cache
+  - Profile directory support for Windows
+  - Copies to `rust_builder` plugin directories for proper Flutter integration
+  - Copies to all jniLibs locations for Android (arm64-v8a, armeabi-v7a)
+- **Code Cleanup**: Removed unused expression evaluation helper functions (replaced by Rust backend)
 
 ### Fixed
 - **Settings**: Fixed font size of settings page title for consistency.
 - **Models**: Fixed issue where switching models in floating hub assistant wouldn't persist.
 - **MCP**: Fixed MCP mode toggle in floating assistant window.
+- **Android Build**: Fixed cross-compilation for Android targets on nightly Rust toolchain.
+- **Library Loading**: Native libraries now copied to all required directories for Flutter to detect them.
 
 ---
