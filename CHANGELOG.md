@@ -143,3 +143,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Build Script**: The `scripts/build_native.ps1` now correctly copies native libraries to the right output directories
 
 ---
+## [0.1.6] - 2026-01-25
+
+### Changed
+- Version bump to 0.1.6
+
+---
