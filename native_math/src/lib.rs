@@ -23,4 +23,7 @@ pub mod graphing;
 pub mod units;
 pub mod complex;
 
+#[cfg(test)]
+mod tests;
+
 pub use api::*;

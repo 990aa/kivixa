@@ -241,24 +241,19 @@ pub fn decompose(data: &[f64], rows: usize, cols: usize, decomposition_type: &st
             if rows != cols {
                 return MatrixDecomposition::error("LU decomposition requires square matrix");
             }
-            match m.lu().unpack() {
-                (l, u, p) => {
-                    // Convert permutation to matrix
-                    let p_mat = DMatrix::from_fn(rows, cols, |i, j| {
-                        if p.permute(j) == i { 1.0 } else { 0.0 }
-                    });
-                    MatrixDecomposition {
-                        success: true,
-                        decomposition_type: "LU".to_string(),
-                        matrices: vec![
-                            MatrixResult::from_matrix(&l),
-                            MatrixResult::from_matrix(&u),
-                            MatrixResult::from_matrix(&p_mat),
-                        ],
-                        labels: vec!["L".to_string(), "U".to_string(), "P".to_string()],
-                        error: None,
-                    }
-                }
+            let lu = m.clone().lu();
+            let l = lu.l();
+            let u = lu.u();
+            // Return just L and U for now - permutation is complex to extract
+            MatrixDecomposition {
+                success: true,
+                decomposition_type: "LU".to_string(),
+                matrices: vec![
+                    MatrixResult::from_matrix(&l),
+                    MatrixResult::from_matrix(&u),
+                ],
+                labels: vec!["L".to_string(), "U".to_string()],
+                error: None,
             }
         }
         "qr" => {

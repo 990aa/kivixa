@@ -1,7 +1,7 @@
 //! Calculus operations: differentiation, integration, equation solving
 
 use serde::{Deserialize, Serialize};
-use fasteval::{Compiler, Instruction, Slab};
+use fasteval::{Compiler, Evaler, Slab};
 use std::collections::BTreeMap;
 
 /// Result of calculus operations
@@ -266,7 +266,8 @@ pub fn find_roots_in_interval(
 ) -> SolveResult {
     let samples = if num_samples < 10 { 100 } else { num_samples };
     let step = (end - start) / samples as f64;
-    let mut roots = Vec::new();
+    let mut roots: Vec<f64> = Vec::new();
+    #[allow(unused_assignments)]
     let mut iterations = 0;
 
     let mut prev_x = start;

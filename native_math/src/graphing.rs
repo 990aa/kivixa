@@ -1,6 +1,6 @@
 //! Graphing utilities: evaluate functions in parallel for plotting
 
-use fasteval::{Compiler, Instruction, Slab};
+use fasteval::{Compiler, Evaler, Slab};
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;

@@ -3,10 +3,9 @@
 use serde::{Deserialize, Serialize};
 use statrs::distribution::{
     Bernoulli, Binomial, ChiSquared, Continuous, ContinuousCDF, Discrete, DiscreteCDF,
-    Exponential, Geometric, Normal, Poisson, StudentsT, Uniform,
+    Exp, Geometric, Normal, Poisson, StudentsT, Uniform,
 };
-use statrs::statistics::{Distribution, OrderStatistics, Statistics};
-use rayon::prelude::*;
+use statrs::statistics::{Distribution, Statistics};
 
 /// Result of statistical computations
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -265,7 +264,7 @@ pub fn distribution_compute(
         }
         "exponential" => {
             let rate = params.first().copied().unwrap_or(1.0);
-            match Exponential::new(rate) {
+            match Exp::new(rate) {
                 Ok(dist) => DistributionResult::continuous(&dist, x),
                 Err(e) => DistributionResult::error(&format!("Invalid parameters: {:?}", e)),
             }

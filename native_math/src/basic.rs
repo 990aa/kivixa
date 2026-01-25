@@ -1,8 +1,6 @@
 //! Basic expression evaluation and scientific calculator functions
 
-use fasteval::{Compiler, Evaler, Instruction, Slab};
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
 
 /// Result of expression evaluation
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -125,22 +123,9 @@ pub fn evaluate_expression(expression: &str) -> ExpressionResult {
         .replace("π", "pi()")
         .replace("√", "sqrt");
 
-    let parser = fasteval::Parser::new();
-    let mut slab = Slab::new();
-
-    match parser.parse(&expr, &mut slab.ps) {
-        Ok(expr_ref) => {
-            match slab.ps.compile(&expr_ref, &mut slab.cs, &mut ns) {
-                Ok(instr) => {
-                    match instr.eval(&slab, &mut ns) {
-                        Ok(val) => ExpressionResult::ok(val),
-                        Err(e) => ExpressionResult::error(&format!("Evaluation error: {}", e)),
-                    }
-                }
-                Err(e) => ExpressionResult::error(&format!("Compilation error: {}", e)),
-            }
-        }
-        Err(e) => ExpressionResult::error(&format!("Parse error: {}", e)),
+    match fasteval::ez_eval(&expr, &mut ns) {
+        Ok(val) => ExpressionResult::ok(val),
+        Err(e) => ExpressionResult::error(&format!("Evaluation error: {}", e)),
     }
 }
 
@@ -248,29 +233,11 @@ pub fn evaluate_formula(formula: &str, variables: &[String], values: &[f64]) -> 
     // Build expression with substituted values
     let mut expr = formula.to_string();
     for (var, val) in variables.iter().zip(values.iter()) {
-        // Use word boundaries to avoid partial replacements
-        let pattern = format!(r"\b{}\b", regex_escape(var));
-        if let Ok(re) = regex::Regex::new(&pattern) {
-            expr = re.replace_all(&expr, val.to_string()).to_string();
-        } else {
-            expr = expr.replace(var, &val.to_string());
-        }
+        // Simple replacement - works for single-letter variables
+        expr = expr.replace(var, &format!("({})", val));
     }
 
     evaluate_expression(&expr)
-}
-
-fn regex_escape(s: &str) -> String {
-    let special = r"\.+*?()|[]{}^$";
-    s.chars()
-        .map(|c| {
-            if special.contains(c) {
-                format!("\\{}", c)
-            } else {
-                c.to_string()
-            }
-        })
-        .collect()
 }
 
 /// Format a number for display

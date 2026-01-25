@@ -25,9 +25,21 @@ pub fn evaluate_expression(expression: String) -> ExpressionResult {
 }
 
 /// Convert between number systems (binary, octal, decimal, hex)
+/// from_base and to_base: 2 = binary, 8 = octal, 10 = decimal, 16 = hex
 #[frb(sync)]
 pub fn convert_number_system(value: String, from_base: u32, to_base: u32) -> String {
-    basic::convert_number_system(&value, from_base, to_base)
+    let from = base_to_number_system(from_base);
+    let to = base_to_number_system(to_base);
+    basic::convert_number_system(&value, from, to)
+}
+
+fn base_to_number_system(base: u32) -> basic::NumberSystem {
+    match base {
+        2 => basic::NumberSystem::Binary,
+        8 => basic::NumberSystem::Octal,
+        16 => basic::NumberSystem::Hexadecimal,
+        _ => basic::NumberSystem::Decimal,
+    }
 }
 
 /// Get mathematical constants

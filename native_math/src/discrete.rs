@@ -3,7 +3,6 @@
 use num_bigint::BigUint;
 use num_traits::{One, Zero, ToPrimitive};
 use serde::{Deserialize, Serialize};
-use rayon::prelude::*;
 
 /// Result of discrete math operations
 #[derive(Debug, Clone, Serialize, Deserialize)]
