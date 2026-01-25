@@ -1,0 +1,15 @@
+# Keystore configuration for local Android builds
+# This file should NOT be committed to version control
+# Copy this template to key.properties and fill in your values
+
+# Path to the keystore file (relative to android/app/)
+storeFile=upload-keystore.jks
+
+# Keystore password
+storePassword=YOUR_STORE_PASSWORD
+
+# Key alias within the keystore
+keyAlias=YOUR_KEY_ALIAS
+
+# Key password (often same as store password)
+keyPassword=YOUR_KEY_PASSWORD

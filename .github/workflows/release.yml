@@ -1,0 +1,375 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  FLUTTER_VERSION: '3.35.0'
+
+jobs:
+  # =============================================================================
+  # JOB 1: Build Android APKs
+  # =============================================================================
+  build-android:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      build_number: ${{ steps.version.outputs.build_number }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG=${GITHUB_REF#refs/tags/v}
+          VERSION=$(echo $TAG | cut -d'+' -f1)
+          BUILD_NUMBER=$(echo $TAG | grep -oP '\+\K\d+' || echo "")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION, build: $BUILD_NUMBER"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Decode Android Keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
+
+      - name: Create key.properties
+        run: |
+          cat > android/key.properties << EOF
+          storeFile=upload-keystore.jks
+          storePassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          EOF
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build APK (ARM64)
+        run: |
+          flutter build apk --release --target-platform android-arm64 --split-per-abi
+        env:
+          ANDROID_KEYSTORE_PATH: android/app/upload-keystore.jks
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Build APK (ARMv7)
+        run: |
+          flutter build apk --release --target-platform android-arm --split-per-abi
+        env:
+          ANDROID_KEYSTORE_PATH: android/app/upload-keystore.jks
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Build APK (x86_64)
+        run: |
+          flutter build apk --release --target-platform android-x64 --split-per-abi
+        env:
+          ANDROID_KEYSTORE_PATH: android/app/upload-keystore.jks
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Rename APKs
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          mkdir -p artifacts
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk artifacts/Kivixa-Android-${VERSION}-arm64.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk artifacts/Kivixa-Android-${VERSION}-armv7.apk
+          cp build/app/outputs/flutter-apk/app-x86_64-release.apk artifacts/Kivixa-Android-${VERSION}-x86_64.apk
+
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apks
+          path: artifacts/*.apk
+          retention-days: 5
+
+  # =============================================================================
+  # JOB 2: Build Windows Installer
+  # =============================================================================
+  build-windows:
+    runs-on: windows-latest
+    needs: build-android
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Decode Windows Certificate
+        shell: pwsh
+        run: |
+          $certBytes = [Convert]::FromBase64String("${{ secrets.WINDOWS_CERT_BASE64 }}")
+          [IO.File]::WriteAllBytes("windows/certificate.pfx", $certBytes)
+
+      - name: Setup Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Build native libraries
+        shell: pwsh
+        run: |
+          .\scripts\build_native.ps1 -SkipAndroid -SkipClean
+          .\scripts\build_math.ps1 -SkipAndroid -SkipBindings
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+      - name: Sign Windows executable
+        shell: pwsh
+        run: |
+          $cert = "windows\certificate.pfx"
+          $exe = "build\windows\x64\runner\Release\kivixa.exe"
+          $password = "${{ secrets.WINDOWS_CERT_PASSWORD }}"
+          
+          # Use signtool from Windows SDK
+          $signtool = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\signtool.exe"
+          if (!(Test-Path $signtool)) {
+            $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" | 
+                        Sort-Object { [version]($_.Directory.Parent.Name) } -Descending | 
+                        Select-Object -First 1 -ExpandProperty FullName
+          }
+          
+          if ($signtool) {
+            & $signtool sign /f $cert /p $password /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 $exe
+            Write-Host "Signed $exe successfully"
+          } else {
+            Write-Host "Warning: signtool not found, skipping signing"
+          }
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          choco install innosetup -y
+
+      - name: Build Windows Installer
+        shell: pwsh
+        run: |
+          $version = "${{ needs.build-android.outputs.version }}"
+          $issPath = "windows\installer\kivixa-installer.iss"
+          
+          # Create output directory
+          New-Item -ItemType Directory -Force -Path "build_windows_installer" | Out-Null
+          
+          # Build using existing ISS file
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" $issPath
+
+      - name: Sign Windows Installer
+        shell: pwsh
+        run: |
+          $cert = "windows\certificate.pfx"
+          $password = "${{ secrets.WINDOWS_CERT_PASSWORD }}"
+          $version = "${{ needs.build-android.outputs.version }}"
+          $installer = "build_windows_installer\Kivixa-Setup-${version}.exe"
+          
+          if (Test-Path $installer) {
+            $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" | 
+                        Sort-Object { [version]($_.Directory.Parent.Name) } -Descending | 
+                        Select-Object -First 1 -ExpandProperty FullName
+            
+            if ($signtool) {
+              & $signtool sign /f $cert /p $password /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 $installer
+              Write-Host "Signed installer successfully"
+            }
+          }
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: build_windows_installer/Kivixa-Setup-*.exe
+          retention-days: 5
+
+  # =============================================================================
+  # JOB 3: Create GitHub Release
+  # =============================================================================
+  release:
+    runs-on: ubuntu-latest
+    needs: [build-android, build-windows]
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Android artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apks
+          path: release-artifacts
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: release-artifacts
+
+      - name: List artifacts
+        run: ls -la release-artifacts/
+
+      - name: Extract changelog for version
+        id: changelog
+        run: |
+          VERSION=${{ needs.build-android.outputs.version }}
+          # Extract changelog section for this version
+          CHANGELOG=$(awk "/## \[${VERSION}\]/{flag=1; next} /## \[/{flag=0} flag" CHANGELOG.md | head -100)
+          if [ -z "$CHANGELOG" ]; then
+            CHANGELOG="Release version ${VERSION}"
+          fi
+          # Escape for GitHub Actions
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Kivixa v${{ needs.build-android.outputs.version }}
+          body: |
+            ## Kivixa v${{ needs.build-android.outputs.version }}
+            
+            ${{ steps.changelog.outputs.content }}
+            
+            ---
+            
+            ### Downloads
+            
+            **Windows:**
+            - `Kivixa-Setup-${{ needs.build-android.outputs.version }}.exe` - Windows Installer
+            
+            **Android:**
+            - `Kivixa-Android-${{ needs.build-android.outputs.version }}-arm64.apk` - ARM64 (most modern devices)
+            - `Kivixa-Android-${{ needs.build-android.outputs.version }}-armv7.apk` - ARMv7 (older devices)
+            - `Kivixa-Android-${{ needs.build-android.outputs.version }}-x86_64.apk` - x86_64 (emulators)
+          files: release-artifacts/*
+          draft: false
+          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # =============================================================================
+  # JOB 4: Update F-Droid Repository (gh-pages)
+  # =============================================================================
+  fdroid:
+    runs-on: ubuntu-latest
+    needs: [build-android, release]
+    if: ${{ !contains(github.ref, 'beta') && !contains(github.ref, 'alpha') }}
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          fetch-depth: 0
+
+      - name: Download Android artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apks
+          path: fdroid-apks
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install fdroidserver
+        run: |
+          pip install fdroidserver
+          sudo apt-get update
+          sudo apt-get install -y apksigner
+
+      - name: Setup F-Droid repository
+        run: |
+          VERSION=${{ needs.build-android.outputs.version }}
+          
+          # Create repo structure if not exists
+          mkdir -p repo
+          mkdir -p metadata/com.a990aa.kivixa
+          
+          # Copy APKs to repo
+          cp fdroid-apks/*.apk repo/
+          
+          # Create/update metadata
+          cat > metadata/com.a990aa.kivixa/en-US/full_description.txt << 'EOF'
+          Kivixa is a modern cross-platform notes and productivity application.
+          
+          Features:
+          - Rich Markdown Editor
+          - Digital Canvas with pressure sensitivity
+          - On-Device AI with multi-model support
+          - Knowledge Graph visualization
+          - PDF Integration
+          - Productivity Clock with Pomodoro
+          - Math Module with Rust backend
+          - And much more!
+          EOF
+          
+          cat > metadata/com.a990aa.kivixa/en-US/short_description.txt << 'EOF'
+          Modern cross-platform notes & productivity app
+          EOF
+          
+          # Create F-Droid config if not exists
+          if [ ! -f config.yml ]; then
+            cat > config.yml << 'EOF'
+          repo_url: https://990aa.github.io/kivixa/repo
+          repo_name: Kivixa F-Droid Repo
+          repo_icon: icon.png
+          repo_description: |
+            Official F-Droid repository for Kivixa app releases.
+          archive_older: 3
+          EOF
+          fi
+          
+          # Update repo
+          fdroid update --create-metadata --verbose || true
+
+      - name: Generate repo index
+        run: |
+          # Generate index files
+          fdroid update || echo "fdroid update completed with warnings"
+
+      - name: Commit and push F-Droid repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add -A
+          git commit -m "Update F-Droid repo for v${{ needs.build-android.outputs.version }}" || echo "No changes to commit"
+          git push origin gh-pages

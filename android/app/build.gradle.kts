@@ -1,4 +1,6 @@
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+import java.util.Properties
+import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
@@ -6,6 +8,21 @@ plugins {
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+// Load signing properties from key.properties or environment variables
+val keystorePropertiesFile = rootProject.file("key.properties")
+val keystoreProperties = Properties()
+
+// Try loading from key.properties file first (local builds)
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
+// Override with environment variables if present (CI builds)
+System.getenv("ANDROID_KEYSTORE_PATH")?.let { keystoreProperties["storeFile"] = it }
+System.getenv("ANDROID_STORE_PASSWORD")?.let { keystoreProperties["storePassword"] = it }
+System.getenv("ANDROID_KEY_ALIAS")?.let { keystoreProperties["keyAlias"] = it }
+System.getenv("ANDROID_KEY_PASSWORD")?.let { keystoreProperties["keyPassword"] = it }
 
 android {
     namespace = "com.a990aa.kivixa"
@@ -22,6 +39,19 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
+    // Signing configuration
+    signingConfigs {
+        create("release") {
+            val storeFilePath = keystoreProperties["storeFile"] as String?
+            if (storeFilePath != null) {
+                storeFile = file(storeFilePath)
+                storePassword = keystoreProperties["storePassword"] as String?
+                keyAlias = keystoreProperties["keyAlias"] as String?
+                keyPassword = keystoreProperties["keyPassword"] as String?
+            }
+        }
+    }
+
     defaultConfig {
         applicationId = "com.a990aa.kivixa"
         // You can update the following values to match your application needs.
@@ -34,7 +64,15 @@ android {
 
     buildTypes {
         release {
-            // No signing config - will use debug key
+            // Use release signing config if keystore is configured, otherwise debug key
+            val releaseSigningConfig = signingConfigs.findByName("release")
+            if (releaseSigningConfig?.storeFile != null) {
+                signingConfig = releaseSigningConfig
+            }
+            
+            // Enable minification for release builds
+            isMinifyEnabled = false  // Set to true if you want ProGuard/R8
+            isShrinkResources = false
         }
     }
 
