@@ -283,6 +283,50 @@ A comprehensive productivity timer system with advanced features for focused wor
   - **Clock Page** - Full sidebar page with tabs (Timer, Multi-Timer, Routines, Stats, Settings)
   - **Synchronized State** - Changes in either view reflect in the other
 
+### **Math Module**
+A comprehensive mathematics suite powered by a high-performance Rust backend for accurate, fast calculations.
+
+- **General Calculator**
+  - Scientific calculator with full expression evaluation
+  - Trigonometric, logarithmic, and exponential functions
+  - Constants (π, e, φ) and memory functions
+  - Unit conversions (length, mass, temperature, time)
+
+- **Algebra Tools**
+  - Polynomial operations (add, subtract, multiply, divide)
+  - Equation solving (linear, quadratic, cubic, polynomial)
+  - Factorization and simplification
+  - Systems of linear equations
+
+- **Calculus**
+  - Numerical differentiation (first, second, nth derivatives)
+  - Definite and indefinite integrals
+  - Taylor series expansion
+  - Ordinary differential equation solvers
+
+- **Statistics & Probability**
+  - Descriptive statistics (mean, median, mode, std deviation, variance)
+  - Probability distributions (normal, exponential, binomial, Poisson)
+  - Hypothesis testing (t-test, z-test, chi-square)
+  - Linear and polynomial regression
+
+- **Discrete Mathematics**
+  - Combinatorics (permutations, combinations, factorials)
+  - Number theory (GCD, LCM, prime factorization, modular arithmetic)
+  - Set operations (union, intersection, difference)
+  - Graph theory basics
+
+- **Graphing (Beta)**
+  - 2D function plotting
+  - Parametric curve visualization
+  - Polar coordinate graphs
+  - Interactive zoom and pan
+
+- **Tools & References**
+  - Number system converter (binary, octal, decimal, hexadecimal)
+  - Mathematical constants reference
+  - Formula library with common equations
+
 ### **Quick Notes**
 Ephemeral note-taking for those quick thoughts that don't need permanent storage.
 

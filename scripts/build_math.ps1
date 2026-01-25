@@ -6,6 +6,7 @@ param(
     [switch]$Release,
     [switch]$GenerateBindings,
     [switch]$Clean,
+    [switch]$Copy,
     [switch]$All
 )
 
@@ -13,6 +14,21 @@ $ErrorActionPreference = "Stop"
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $MathRoot = Join-Path $ProjectRoot "native_math"
 $TargetDir = Join-Path $MathRoot "target"
+
+# Library names
+$LibName = "kivixa_math"
+$WinDllName = "$LibName.dll"
+$LinuxSoName = "lib$LibName.so"
+$MacDylibName = "lib$LibName.dylib"
+
+# Destination directories for Windows
+$WinRunnerDebug = Join-Path $ProjectRoot "build/windows/x64/runner/Debug"
+$WinRunnerRelease = Join-Path $ProjectRoot "build/windows/x64/runner/Release"
+
+# Destination directories for jniLibs (Android)
+$JniBase = Join-Path $ProjectRoot "android/app/src/main/jniLibs"
+$JniArm64Dir = Join-Path $JniBase "arm64-v8a"
+$JniArmv7Dir = Join-Path $JniBase "armeabi-v7a"
 
 function Write-Header {
     param([string]$Message)
@@ -114,39 +130,83 @@ if (-not $Clean -or $All) {
     }
 }
 
-# Copy library to Flutter build directory (Windows)
-if ($All -and $IsWindows) {
-    Write-Header "Copying library for Flutter (Windows)"
+# Copy library to Flutter build directories
+if ($Copy -or $All) {
+    Write-Header "Copying libraries to Flutter build directories"
     
     $BuildMode = if ($Release) { "release" } else { "debug" }
-    $SourceDll = Join-Path $TargetDir "$BuildMode/kivixa_math.dll"
-    $DestDir = Join-Path $ProjectRoot "build/windows/x64/runner/$BuildMode"
     
-    if (Test-Path $SourceDll) {
-        if (-not (Test-Path $DestDir)) {
-            New-Item -ItemType Directory -Force -Path $DestDir | Out-Null
-        }
+    # Windows
+    if ($IsWindows -or $env:OS -eq "Windows_NT") {
+        $SourceDll = Join-Path $TargetDir "$BuildMode/$WinDllName"
         
-        Write-Step "Copying kivixa_math.dll to Flutter build..."
-        Copy-Item $SourceDll -Destination $DestDir -Force
-        Write-Success "Library copied successfully"
+        if (Test-Path $SourceDll) {
+            # Ensure directories exist
+            New-Item -ItemType Directory -Force -Path $WinRunnerDebug | Out-Null
+            New-Item -ItemType Directory -Force -Path $WinRunnerRelease | Out-Null
+            
+            Write-Step "Copying $WinDllName to Windows runner folders..."
+            Copy-Item $SourceDll -Destination $WinRunnerDebug -Force
+            Copy-Item $SourceDll -Destination $WinRunnerRelease -Force
+            
+            Write-Success "Windows DLL copied to:"
+            Write-Host "    $WinRunnerDebug\$WinDllName" -ForegroundColor Gray
+            Write-Host "    $WinRunnerRelease\$WinDllName" -ForegroundColor Gray
+        }
+        else {
+            Write-Host "Warning: Windows DLL not found at $SourceDll" -ForegroundColor Yellow
+            Write-Host "  Build the library first with: .\build_math.ps1 -Release" -ForegroundColor Gray
+        }
     }
-    else {
-        Write-Host "Note: DLL not found at $SourceDll (build Flutter app first)" -ForegroundColor Gray
+    
+    # Linux
+    if ($IsLinux) {
+        $SourceSo = Join-Path $TargetDir "$BuildMode/$LinuxSoName"
+        $LinuxDest = Join-Path $ProjectRoot "build/linux/x64/runner/$BuildMode"
+        
+        if (Test-Path $SourceSo) {
+            New-Item -ItemType Directory -Force -Path $LinuxDest | Out-Null
+            Write-Step "Copying $LinuxSoName to Linux runner..."
+            Copy-Item $SourceSo -Destination $LinuxDest -Force
+            Write-Success "Linux library copied to: $LinuxDest"
+        }
+        else {
+            Write-Host "Warning: Linux SO not found at $SourceSo" -ForegroundColor Yellow
+        }
     }
+    
+    # macOS
+    if ($IsMacOS) {
+        $SourceDylib = Join-Path $TargetDir "$BuildMode/$MacDylibName"
+        $MacDest = Join-Path $ProjectRoot "build/macos/Build/Products/$BuildMode"
+        
+        if (Test-Path $SourceDylib) {
+            New-Item -ItemType Directory -Force -Path $MacDest | Out-Null
+            Write-Step "Copying $MacDylibName to macOS build..."
+            Copy-Item $SourceDylib -Destination $MacDest -Force
+            Write-Success "macOS library copied to: $MacDest"
+        }
+        else {
+            Write-Host "Warning: macOS dylib not found at $SourceDylib" -ForegroundColor Yellow
+        }
+    }
+    
+    Write-Success "Copy operation completed"
 }
 
 Write-Header "Build script completed"
 
 # Usage instructions
-if (-not $Clean -and -not $GenerateBindings -and -not $Release -and -not $All) {
+if (-not $Clean -and -not $GenerateBindings -and -not $Release -and -not $Copy -and -not $All) {
     Write-Host @"
 Usage:
   .\build_math.ps1                    # Debug build
-  .\build_math.ps1 -Release           # Release build
+  .\build_math.ps1 -Release           # Release build  
+  .\build_math.ps1 -Copy              # Copy built libraries to Flutter directories
   .\build_math.ps1 -GenerateBindings  # Generate FRB bindings only
   .\build_math.ps1 -Clean             # Clean build artifacts
-  .\build_math.ps1 -All               # Clean + Generate bindings + Release build
+  .\build_math.ps1 -All               # Clean + Generate bindings + Release build + Copy
+  .\build_math.ps1 -Release -Copy     # Release build and copy
 
 "@ -ForegroundColor Gray
 }

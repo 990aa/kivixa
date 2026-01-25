@@ -45,7 +45,7 @@ class _MathPageState extends State<MathPage> with TickerProviderStateMixin {
     _MathTab(
       label: 'Discrete',
       icon: Icons.scatter_plot,
-      cupertinoIcon: CupertinoIcons.circles_bubble,
+      cupertinoIcon: CupertinoIcons.circle_grid_hex,
     ),
     _MathTab(
       label: 'Graphing',

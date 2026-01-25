@@ -149,6 +149,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Folder Colors**: Users can now assign any custom color to folders using a full-spectrum color picker.
 - **Whiteboard Orientation**: Added ability to toggle between Portrait and Landscape modes in Whiteboard settings.
 - **Floating Math**: New floating tool for calculations with support for basic operations, exponents, and percentage.
+- **Math Module**: Comprehensive mathematics module with Rust backend for high-performance calculations.
+  - **General Tab**: Scientific calculator, expression evaluation, trigonometry, logarithms, and unit conversions
+  - **Algebra Tab**: Polynomial operations, equation solving (linear, quadratic, polynomial), factorization, and simplification
+  - **Calculus Tab**: Numerical derivatives, integrals, limits, Taylor series, and differential equation solvers
+  - **Statistics Tab**: Descriptive statistics (mean, std, variance), probability distributions, hypothesis testing, regression analysis
+  - **Discrete Tab**: Combinatorics (permutations, combinations, factorials), number theory (GCD, LCM, primality), set operations
+  - **Graphing Tab**: 2D function plotting, parametric curves, polar coordinates, implicit functions
+  - **Tools Tab**: Number system conversion (binary, octal, decimal, hex), constants reference, formula library
+- **Native Math Library**: New `kivixa_math` Rust library with:
+  - Complex number arithmetic and operations
+  - Matrix operations using nalgebra (determinant, inverse, eigenvalues, LU/QR decomposition)
+  - Statistical distributions via statrs (normal, exponential, binomial, poisson)
+  - High-precision calculations with BigInt support
+  - Parallel computation for large datasets using rayon
+- **Math Build Script**: Dedicated `scripts/build_math.ps1` with flags for Release, Copy, GenerateBindings, Clean, and All operations
+- **Comprehensive Tests**: 
+  - 49 Rust unit tests covering all math modules
+  - 27 Flutter widget tests for math UI components
 
 ### Changed
 - **Update Dialog**: Removed automatic update dialog on startup. Updates can now be checked manually via "Settings > Updates".
