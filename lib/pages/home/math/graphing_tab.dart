@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 /// Graphing tab - Function plotting and analysis
@@ -22,6 +23,12 @@ class _MathGraphingTabState extends State<MathGraphingTab> {
   List<List<Offset>> _graphData = [];
   var _isComputing = false;
   var _extremaInfo = '';
+
+  // Pan and zoom state
+  Offset? _lastPanPosition;
+  Offset? _cursorPosition; // In graph coordinates
+  Size? _graphSize;
+  final _graphKey = GlobalKey();
 
   @override
   void initState() {
@@ -124,6 +131,110 @@ class _MathGraphingTabState extends State<MathGraphingTab> {
       _extremaInfo = buffer.isEmpty
           ? 'No extrema found in the visible range'
           : buffer.toString().trim();
+    });
+  }
+
+  void _handlePanStart(DragStartDetails details) {
+    _lastPanPosition = details.localPosition;
+  }
+
+  void _handlePanUpdate(DragUpdateDetails details) {
+    if (_lastPanPosition == null || _graphSize == null) return;
+
+    final delta = details.localPosition - _lastPanPosition!;
+    final xRange = _xMax - _xMin;
+    final yRange = _yMax - _yMin;
+
+    final dx = -delta.dx / _graphSize!.width * xRange;
+    final dy = delta.dy / _graphSize!.height * yRange;
+
+    setState(() {
+      _xMin += dx;
+      _xMax += dx;
+      _yMin += dy;
+      _yMax += dy;
+      _lastPanPosition = details.localPosition;
+    });
+    _computeGraphs();
+  }
+
+  void _handlePanEnd(DragEndDetails details) {
+    _lastPanPosition = null;
+  }
+
+  void _handleScroll(PointerSignalEvent event) {
+    if (event is PointerScrollEvent && _graphSize != null) {
+      final zoomFactor = event.scrollDelta.dy > 0 ? 1.1 : 0.9;
+      _zoomAt(event.localPosition, zoomFactor);
+    }
+  }
+
+  void _zoomAt(Offset position, double factor) {
+    if (_graphSize == null) return;
+
+    // Convert screen position to graph coordinates
+    final xRange = _xMax - _xMin;
+    final yRange = _yMax - _yMin;
+    final graphX = _xMin + position.dx / _graphSize!.width * xRange;
+    final graphY = _yMax - position.dy / _graphSize!.height * yRange;
+
+    // Zoom around the cursor position
+    final newXRange = xRange * factor;
+    final newYRange = yRange * factor;
+
+    final xRatio = (graphX - _xMin) / xRange;
+    final yRatio = (_yMax - graphY) / yRange;
+
+    setState(() {
+      _xMin = graphX - xRatio * newXRange;
+      _xMax = graphX + (1 - xRatio) * newXRange;
+      _yMin = graphY - (1 - yRatio) * newYRange;
+      _yMax = graphY + yRatio * newYRange;
+    });
+    _computeGraphs();
+  }
+
+  void _zoom(double factor) {
+    final centerX = (_xMin + _xMax) / 2;
+    final centerY = (_yMin + _yMax) / 2;
+    final xHalf = (_xMax - _xMin) / 2 * factor;
+    final yHalf = (_yMax - _yMin) / 2 * factor;
+
+    setState(() {
+      _xMin = centerX - xHalf;
+      _xMax = centerX + xHalf;
+      _yMin = centerY - yHalf;
+      _yMax = centerY + yHalf;
+    });
+    _computeGraphs();
+  }
+
+  void _resetView() {
+    setState(() {
+      _xMin = -10;
+      _xMax = 10;
+      _yMin = -5;
+      _yMax = 5;
+    });
+    _computeGraphs();
+  }
+
+  void _handleMouseMove(PointerHoverEvent event) {
+    if (_graphSize == null) return;
+
+    final xRange = _xMax - _xMin;
+    final yRange = _yMax - _yMin;
+    final graphX = _xMin + event.localPosition.dx / _graphSize!.width * xRange;
+    final graphY = _yMax - event.localPosition.dy / _graphSize!.height * yRange;
+
+    setState(() {
+      _cursorPosition = Offset(graphX, graphY);
+    });
+  }
+
+  void _handleMouseExit(PointerExitEvent event) {
+    setState(() {
+      _cursorPosition = null;
     });
   }
 
@@ -380,35 +491,127 @@ class _MathGraphingTabState extends State<MathGraphingTab> {
 
         // Right panel: graph
         Expanded(
-          child: Container(
-            margin: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outlineVariant,
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: CustomPaint(
-                painter: _GraphPainter(
-                  functions: _functions,
-                  graphData: _graphData,
-                  xMin: _xMin,
-                  xMax: _xMax,
-                  yMin: _yMin,
-                  yMax: _yMax,
-                  axisColor: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.5),
-                  gridColor: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.1),
+          child: Column(
+            children: [
+              // Zoom controls and coordinates
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
                 ),
-                size: Size.infinite,
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.zoom_in),
+                      onPressed: () => _zoom(0.8),
+                      tooltip: 'Zoom In',
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.zoom_out),
+                      onPressed: () => _zoom(1.25),
+                      tooltip: 'Zoom Out',
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.center_focus_strong),
+                      onPressed: _resetView,
+                      tooltip: 'Reset View',
+                    ),
+                    const SizedBox(width: 16),
+                    if (_cursorPosition != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'x: ${_cursorPosition!.dx.toStringAsFixed(3)}, '
+                          'y: ${_cursorPosition!.dy.toStringAsFixed(3)}',
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    const Spacer(),
+                    Text(
+                      'Scroll to zoom, drag to pan',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        _graphSize = constraints.biggest;
+                        return Listener(
+                          onPointerSignal: _handleScroll,
+                          child: MouseRegion(
+                            onHover: _handleMouseMove,
+                            onExit: _handleMouseExit,
+                            cursor: SystemMouseCursors.move,
+                            child: GestureDetector(
+                              onPanStart: _handlePanStart,
+                              onPanUpdate: _handlePanUpdate,
+                              onPanEnd: _handlePanEnd,
+                              child: Stack(
+                                children: [
+                                  CustomPaint(
+                                    key: _graphKey,
+                                    painter: _GraphPainter(
+                                      functions: _functions,
+                                      graphData: _graphData,
+                                      xMin: _xMin,
+                                      xMax: _xMax,
+                                      yMin: _yMin,
+                                      yMax: _yMax,
+                                      cursorPosition: _cursorPosition,
+                                      axisColor: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.5),
+                                      gridColor: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.1),
+                                      cursorColor: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.5),
+                                    ),
+                                    size: Size.infinite,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -432,7 +635,8 @@ class _GraphPainter extends CustomPainter {
   final List<_FunctionEntry> functions;
   final List<List<Offset>> graphData;
   final double xMin, xMax, yMin, yMax;
-  final Color axisColor, gridColor;
+  final Color axisColor, gridColor, cursorColor;
+  final Offset? cursorPosition;
 
   _GraphPainter({
     required this.functions,
@@ -443,6 +647,8 @@ class _GraphPainter extends CustomPainter {
     required this.yMax,
     required this.axisColor,
     required this.gridColor,
+    required this.cursorColor,
+    this.cursorPosition,
   });
 
   @override
@@ -518,6 +724,26 @@ class _GraphPainter extends CustomPainter {
 
       canvas.drawPath(path, paint);
     }
+
+    // Draw cursor crosshairs
+    if (cursorPosition != null) {
+      paint.color = cursorColor;
+      paint.strokeWidth = 1;
+      paint.style = PaintingStyle.stroke;
+
+      final sx = (cursorPosition!.dx - xMin) / xRange * size.width;
+      final sy =
+          size.height - (cursorPosition!.dy - yMin) / yRange * size.height;
+
+      // Vertical line
+      canvas.drawLine(Offset(sx, 0), Offset(sx, size.height), paint);
+      // Horizontal line
+      canvas.drawLine(Offset(0, sy), Offset(size.width, sy), paint);
+
+      // Draw a small circle at cursor position
+      paint.style = PaintingStyle.fill;
+      canvas.drawCircle(Offset(sx, sy), 4, paint);
+    }
   }
 
   double _niceStep(double rough) {
@@ -542,6 +768,7 @@ class _GraphPainter extends CustomPainter {
         xMin != oldDelegate.xMin ||
         xMax != oldDelegate.xMax ||
         yMin != oldDelegate.yMin ||
-        yMax != oldDelegate.yMax;
+        yMax != oldDelegate.yMax ||
+        cursorPosition != oldDelegate.cursorPosition;
   }
 }
