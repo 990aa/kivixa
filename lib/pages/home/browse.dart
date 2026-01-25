@@ -19,6 +19,7 @@ import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
 import 'package:kivixa/pages/textfile/text_file_editor.dart';
+import 'package:kivixa/services/folder_color_service.dart';
 
 class BrowsePage extends StatefulWidget {
   const BrowsePage({
@@ -153,9 +154,12 @@ class _BrowsePageState extends State<BrowsePage> {
     findChildrenOfPath();
   }
 
-  Future<void> createFolder(String folderName) async {
+  Future<void> createFolder(String folderName, {Color? color}) async {
     final folderPath = '${path ?? ''}/$folderName';
     await FileManager.createFolder(folderPath);
+    if (color != null) {
+      await FolderColorService.instance.setColor(folderPath, color);
+    }
     findChildrenOfPath();
   }
 

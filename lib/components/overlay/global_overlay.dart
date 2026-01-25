@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/overlay/assistant_window.dart';
 import 'package:kivixa/components/overlay/browser_window.dart';
+import 'package:kivixa/components/overlay/floating_calculator.dart';
 import 'package:kivixa/components/overlay/floating_clock.dart';
 import 'package:kivixa/components/overlay/floating_hub.dart';
 import 'package:kivixa/components/quick_notes/floating_quick_notes.dart';
@@ -81,6 +82,7 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
           const BrowserWindow(),
           const _ClockWindowWrapper(),
           const _QuickNotesWindowWrapper(),
+          const _CalculatorWindowWrapper(),
         ],
       );
     }
@@ -124,6 +126,7 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
           const BrowserWindow(),
           const _ClockWindowWrapper(),
           const _QuickNotesWindowWrapper(),
+          const _CalculatorWindowWrapper(),
         ],
       ),
     );
@@ -234,5 +237,43 @@ class _QuickNotesWindowWrapperState extends State<_QuickNotesWindowWrapper> {
         ),
       ),
     );
+  }
+}
+
+/// Wrapper for the calculator window that handles visibility
+class _CalculatorWindowWrapper extends StatefulWidget {
+  const _CalculatorWindowWrapper();
+
+  @override
+  State<_CalculatorWindowWrapper> createState() =>
+      _CalculatorWindowWrapperState();
+}
+
+class _CalculatorWindowWrapperState extends State<_CalculatorWindowWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    OverlayController.instance.addListener(_onOverlayChanged);
+  }
+
+  void _onOverlayChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    OverlayController.instance.removeListener(_onOverlayChanged);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = OverlayController.instance;
+
+    if (!controller.isToolWindowOpen('calculator')) {
+      return const SizedBox.shrink();
+    }
+
+    return const FloatingCalculatorWindow();
   }
 }

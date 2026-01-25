@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/navbar/responsive_navbar.dart';
-import 'package:kivixa/components/settings/update_manager.dart';
+
 import 'package:kivixa/components/theming/dynamic_material_app.dart';
 import 'package:kivixa/pages/home/ai_chat.dart';
 import 'package:kivixa/pages/home/browse.dart';
@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
   void _showDialogs() async {
     await null; // initState must be completed before using context
     if (!mounted) return;
-    UpdateManager.showUpdateDialog(context);
+    // Update dialog removed - users check updates from Settings > Updates
   }
 
   void _setState() {

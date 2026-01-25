@@ -4,9 +4,10 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:kivixa/components/home/delete_folder_button.dart';
 import 'package:kivixa/components/home/folder_picker_dialog.dart';
 import 'package:kivixa/components/home/rename_folder_button.dart';
-import 'package:kivixa/components/theming/adaptive_icon.dart';
+
 import 'package:kivixa/data/extensions/list_extensions.dart';
 import 'package:kivixa/i18n/strings.g.dart';
+import 'package:kivixa/services/folder_color_service.dart';
 
 class GridFolders extends StatelessWidget {
   const GridFolders({
@@ -240,18 +241,43 @@ class _GridFolderState extends State<_GridFolder> {
                             _FolderCardType.backFolder => t.home.backFolder,
                             _FolderCardType.realFolder => '',
                           },
-                          child: AdaptiveIcon(
-                            icon: switch (widget.cardType) {
-                              _FolderCardType.backFolder => Icons.folder_open,
-                              _FolderCardType.realFolder => Icons.folder,
+                          child: Builder(
+                            builder: (context) {
+                              final platform = Theme.of(context).platform;
+                              final cupertino =
+                                  platform == TargetPlatform.iOS ||
+                                  platform == TargetPlatform.macOS;
+
+                              // Get folder color from service
+                              Color? folderColor;
+                              if (widget.cardType ==
+                                      _FolderCardType.realFolder &&
+                                  widget.folderName != null) {
+                                final folderPath =
+                                    widget.currentPath?.isEmpty ?? true
+                                    ? '/${widget.folderName}'
+                                    : '${widget.currentPath}/${widget.folderName}';
+                                folderColor = FolderColorService.instance
+                                    .getColor(folderPath);
+                              }
+
+                              final iconData = switch (widget.cardType) {
+                                _FolderCardType.backFolder =>
+                                  cupertino
+                                      ? CupertinoIcons.folder_open
+                                      : Icons.folder_open,
+                                _FolderCardType.realFolder =>
+                                  cupertino
+                                      ? CupertinoIcons.folder_fill
+                                      : Icons.folder,
+                              };
+
+                              return Icon(
+                                iconData,
+                                size: 50,
+                                color: folderColor,
+                              );
                             },
-                            cupertinoIcon: switch (widget.cardType) {
-                              _FolderCardType.backFolder =>
-                                CupertinoIcons.folder_open,
-                              _FolderCardType.realFolder =>
-                                CupertinoIcons.folder_fill,
-                            },
-                            size: 50,
                           ),
                         ),
                       ),

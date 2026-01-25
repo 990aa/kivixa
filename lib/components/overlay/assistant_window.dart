@@ -104,9 +104,6 @@ class _AssistantWindowState extends State<AssistantWindow> {
   }
 
   Widget _buildAssistantContent(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     if (_isMcpMode && _mcpChatController != null) {
       return Column(
         children: [

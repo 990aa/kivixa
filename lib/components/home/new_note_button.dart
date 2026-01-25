@@ -20,7 +20,7 @@ class NewNoteButton extends StatefulWidget {
 
   final bool cupertino;
   final String? path;
-  final void Function(String)? createFolder;
+  final void Function(String, {Color? color})? createFolder;
   final bool Function(String)? doesFolderExist;
 
   @override

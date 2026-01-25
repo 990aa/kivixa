@@ -127,8 +127,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = ColorScheme.of(context);
-
     final requiresManualUpdates = FlavorConfig.appStore.isEmpty;
 
     final IconData materialIcon = switch (defaultTargetPlatform) {
@@ -146,19 +144,6 @@ class _SettingsPageState extends State<SettingsPage> {
               pinned: true,
               scrolledUnderElevation: 1,
               title: Text(t.home.titles.settings),
-              actions: [
-                if (UpdateManager.status.value != UpdateStatus.upToDate)
-                  IconButton(
-                    tooltip: t.home.tooltips.showUpdateDialog,
-                    icon: const Icon(Icons.system_update),
-                    onPressed: () {
-                      UpdateManager.showUpdateDialog(
-                        context,
-                        userTriggered: true,
-                      );
-                    },
-                  ),
-              ],
             ),
           ),
           SliverSafeArea(
