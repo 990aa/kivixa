@@ -142,16 +142,16 @@ class FileManager {
   }
 
   static Future<Uint8List?> readFile(String filePath, {int retries = 3}) async {
-    print(
-      'DEBUG: FileManager.readFile input: $filePath, docDir: $documentsDirectory',
+    log.fine(
+      'FileManager.readFile input: $filePath, docDir: $documentsDirectory',
     );
     filePath = _sanitisePath(filePath);
-    print('DEBUG: FileManager.readFile sanitised: $filePath');
+    log.fine('FileManager.readFile sanitised: $filePath');
 
     Uint8List? result;
     final file = getFile(filePath);
-    print(
-      'DEBUG: FileManager.readFile checking: ${file.path}, exists: ${file.existsSync()}',
+    log.fine(
+      'FileManager.readFile checking: ${file.path}, exists: ${file.existsSync()}',
     );
     if (file.existsSync()) {
       result = await file.readAsBytes();

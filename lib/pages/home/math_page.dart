@@ -102,14 +102,6 @@ class _MathPageState extends State<MathPage> with TickerProviderStateMixin {
           indicatorColor: colorScheme.primary,
           dividerColor: Colors.transparent,
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history),
-            tooltip: 'History',
-            onPressed: _showHistory,
-          ),
-          const SizedBox(width: 8),
-        ],
       ),
       body: TabBarView(
         controller: _tabController,
@@ -126,16 +118,6 @@ class _MathPageState extends State<MathPage> with TickerProviderStateMixin {
       ),
     );
   }
-
-  void _showHistory() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => const _HistorySheet(),
-      showDragHandle: true,
-      isScrollControlled: true,
-      useSafeArea: true,
-    );
-  }
 }
 
 class _MathTab {
@@ -148,54 +130,4 @@ class _MathTab {
     required this.icon,
     required this.cupertinoIcon,
   });
-}
-
-class _HistorySheet extends StatelessWidget {
-  const _HistorySheet();
-
-  @override
-  Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.5,
-      minChildSize: 0.25,
-      maxChildSize: 0.9,
-      expand: false,
-      builder: (context, scrollController) {
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Calculation History',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    tooltip: 'Clear history',
-                    onPressed: () {
-                      // TODO: Clear history
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-            Expanded(
-              child: ListView.builder(
-                controller: scrollController,
-                itemCount: 0, // TODO: Load from history
-                itemBuilder: (context, index) {
-                  return const ListTile(title: Text('Placeholder'));
-                },
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }

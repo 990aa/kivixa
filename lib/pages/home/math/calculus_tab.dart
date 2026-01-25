@@ -61,21 +61,6 @@ class _MathCalculusTabState extends State<MathCalculusTab>
   }
 }
 
-// Expression evaluator helper
-double _evaluateExpr(String expr, String variable, double value) {
-  expr = expr.replaceAll(' ', '').toLowerCase();
-  expr = expr.replaceAll(variable.toLowerCase(), '($value)');
-  expr = expr.replaceAll('pi', '(${math.pi})');
-  expr = expr.replaceAllMapped(
-    RegExp(r'(?<![a-zA-Z])e(?![a-zA-Z])'),
-    (m) => '(${math.e})',
-  );
-
-  // Handle functions
-  expr = _processFunctions(expr);
-  return _calculate(expr);
-}
-
 String _processFunctions(String expr) {
   var changed = true;
   var iterations = 0;
