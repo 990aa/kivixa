@@ -1123,8 +1123,8 @@ class _ModularArithmeticCalculatorState
   final _bCtrl = TextEditingController(text: '5');
   final _modCtrl = TextEditingController(text: '23');
   var _operation = 'add';
-  String _result = '';
-  String _error = '';
+  var _result = '';
+  var _error = '';
 
   @override
   void dispose() {

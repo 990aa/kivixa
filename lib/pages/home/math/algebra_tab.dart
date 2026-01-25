@@ -287,12 +287,14 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
             throw Exception('Eigenvector computation limited to 3×3 matrices');
           }
           final eigen = _computeEigenvectors(m.getData());
-          result = 'Eigenvectors of ${m.name}:\n\n';
+          final buffer = StringBuffer('Eigenvectors of ${m.name}:\n\n');
           for (var i = 0; i < eigen.length; i++) {
-            result +=
-                'λ${i + 1} = ${_formatNumber(eigen[i].$1)}\n'
-                'v${i + 1} = [${eigen[i].$2.map(_formatNumber).join(', ')}]\n\n';
+            buffer.writeln('λ${i + 1} = ${_formatNumber(eigen[i].$1)}');
+            buffer.writeln(
+              'v${i + 1} = [${eigen[i].$2.map(_formatNumber).join(', ')}]\n',
+            );
           }
+          result = buffer.toString();
 
         case 'trace':
           if (selectedMatrices.length != 1) {

@@ -13,7 +13,7 @@ class MathGraphingTab extends StatefulWidget {
 
 class _MathGraphingTabState extends State<MathGraphingTab> {
   final _functions = <_FunctionEntry>[
-    _FunctionEntry(expression: 'sin(x)', color: Colors.blue),
+    _FunctionEntry(expression: 'sin(x)', color: Colors.blue, visible: true),
   ];
   double _xMin = -10;
   double _xMax = 10;
@@ -244,6 +244,7 @@ class _MathGraphingTabState extends State<MathGraphingTab> {
         _FunctionEntry(
           expression: '',
           color: Colors.primaries[_functions.length % Colors.primaries.length],
+          visible: true,
         ),
       );
     });
@@ -627,7 +628,7 @@ class _FunctionEntry {
   _FunctionEntry({
     required this.expression,
     required this.color,
-    this.visible = true,
+    required this.visible,
   });
 }
 

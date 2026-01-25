@@ -18,7 +18,7 @@ class _MathStatisticsTabState extends State<MathStatisticsTab>
   @override
   void initState() {
     super.initState();
-    _subTabController = TabController(length: 4, vsync: this);
+    _subTabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -36,6 +36,7 @@ class _MathStatisticsTabState extends State<MathStatisticsTab>
           isScrollable: true,
           tabs: const [
             Tab(text: 'Descriptive'),
+            Tab(text: 'Correlation'),
             Tab(text: 'Distributions'),
             Tab(text: 'Regression'),
             Tab(text: 'Hypothesis'),
@@ -46,6 +47,7 @@ class _MathStatisticsTabState extends State<MathStatisticsTab>
             controller: _subTabController,
             children: const [
               _DescriptiveStats(),
+              _CorrelationCalculator(),
               _DistributionCalculator(),
               _RegressionCalculator(),
               _HypothesisCalculator(),
@@ -298,6 +300,295 @@ SUMMARY
                     : Theme.of(
                         context,
                       ).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: SelectableText(
+                _result,
+                style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// CORRELATION & COVARIANCE CALCULATOR
+// ============================================================================
+
+class _CorrelationCalculator extends StatefulWidget {
+  const _CorrelationCalculator();
+
+  @override
+  State<_CorrelationCalculator> createState() => _CorrelationCalculatorState();
+}
+
+class _CorrelationCalculatorState extends State<_CorrelationCalculator> {
+  final _xDataController = TextEditingController();
+  final _yDataController = TextEditingController();
+  var _result = '';
+  var _isComputing = false;
+
+  @override
+  void dispose() {
+    _xDataController.dispose();
+    _yDataController.dispose();
+    super.dispose();
+  }
+
+  void _compute() {
+    final xText = _xDataController.text.trim();
+    final yText = _yDataController.text.trim();
+
+    if (xText.isEmpty || yText.isEmpty) {
+      setState(() => _result = 'Please enter data for both X and Y');
+      return;
+    }
+
+    setState(() => _isComputing = true);
+
+    try {
+      final xData = xText
+          .split(RegExp(r'[,\s\n]+'))
+          .where((s) => s.isNotEmpty)
+          .map((s) => double.parse(s.trim()))
+          .toList();
+
+      final yData = yText
+          .split(RegExp(r'[,\s\n]+'))
+          .where((s) => s.isNotEmpty)
+          .map((s) => double.parse(s.trim()))
+          .toList();
+
+      if (xData.length != yData.length) {
+        throw Exception('X and Y must have the same number of data points');
+      }
+      if (xData.length < 2) {
+        throw Exception('Need at least 2 data points');
+      }
+
+      final n = xData.length;
+
+      // Calculate means
+      final xMean = xData.reduce((a, b) => a + b) / n;
+      final yMean = yData.reduce((a, b) => a + b) / n;
+
+      // Calculate deviations
+      double sumXY = 0;
+      double sumX2 = 0;
+      double sumY2 = 0;
+
+      for (var i = 0; i < n; i++) {
+        final dx = xData[i] - xMean;
+        final dy = yData[i] - yMean;
+        sumXY += dx * dy;
+        sumX2 += dx * dx;
+        sumY2 += dy * dy;
+      }
+
+      // Sample covariance
+      final covariance = sumXY / (n - 1);
+
+      // Population covariance
+      final covariancePop = sumXY / n;
+
+      // Sample standard deviations
+      final sX = math.sqrt(sumX2 / (n - 1));
+      final sY = math.sqrt(sumY2 / (n - 1));
+
+      // Pearson correlation coefficient
+      final r = sumXY / (math.sqrt(sumX2) * math.sqrt(sumY2));
+
+      // Coefficient of determination
+      final r2 = r * r;
+
+      // T-statistic for correlation
+      final tStat = r * math.sqrt((n - 2) / (1 - r2));
+
+      // Spearman rank correlation
+      final spearman = _computeSpearman(xData, yData);
+
+      final buffer = StringBuffer();
+      buffer.writeln('═══════════════════════════════════════════');
+      buffer.writeln('CORRELATION & COVARIANCE ANALYSIS');
+      buffer.writeln('═══════════════════════════════════════════');
+      buffer.writeln('n = $n data points');
+      buffer.writeln();
+      buffer.writeln('──── Means ────');
+      buffer.writeln('X̄ (mean of X) = ${_fmt(xMean)}');
+      buffer.writeln('Ȳ (mean of Y) = ${_fmt(yMean)}');
+      buffer.writeln();
+      buffer.writeln('──── Standard Deviations ────');
+      buffer.writeln('Sx (sample) = ${_fmt(sX)}');
+      buffer.writeln('Sy (sample) = ${_fmt(sY)}');
+      buffer.writeln();
+      buffer.writeln('──── Covariance ────');
+      buffer.writeln('Cov(X,Y) sample = ${_fmt(covariance)}');
+      buffer.writeln('Cov(X,Y) population = ${_fmt(covariancePop)}');
+      buffer.writeln();
+      buffer.writeln('──── Correlation Coefficients ────');
+      buffer.writeln('Pearson r = ${_fmt(r)}');
+      buffer.writeln('r² (coefficient of determination) = ${_fmt(r2)}');
+      buffer.writeln('Spearman ρ (rank correlation) = ${_fmt(spearman)}');
+      buffer.writeln();
+      buffer.writeln('──── Interpretation ────');
+      buffer.writeln(_interpretCorrelation(r));
+      buffer.writeln();
+      buffer.writeln('──── Significance Test ────');
+      buffer.writeln('t-statistic = ${_fmt(tStat)}');
+      buffer.writeln('degrees of freedom = ${n - 2}');
+
+      setState(() {
+        _result = buffer.toString().trim();
+        _isComputing = false;
+      });
+    } catch (e) {
+      setState(() {
+        _result = 'Error: ${e.toString().replaceAll('Exception: ', '')}';
+        _isComputing = false;
+      });
+    }
+  }
+
+  double _computeSpearman(List<double> x, List<double> y) {
+    final n = x.length;
+
+    // Get ranks
+    final rankX = _getRanks(x);
+    final rankY = _getRanks(y);
+
+    // Calculate sum of squared rank differences
+    double sumD2 = 0;
+    for (var i = 0; i < n; i++) {
+      final d = rankX[i] - rankY[i];
+      sumD2 += d * d;
+    }
+
+    // Spearman's formula
+    return 1 - (6 * sumD2) / (n * (n * n - 1));
+  }
+
+  List<double> _getRanks(List<double> data) {
+    final indexed = data.asMap().entries.toList();
+    indexed.sort((a, b) => a.value.compareTo(b.value));
+
+    final ranks = List.filled(data.length, 0.0);
+    var i = 0;
+    while (i < indexed.length) {
+      var j = i;
+      // Find all equal values
+      while (j < indexed.length - 1 &&
+          indexed[j].value == indexed[j + 1].value) {
+        j++;
+      }
+      // Assign average rank for ties
+      final avgRank = (i + j + 2) / 2;
+      for (var k = i; k <= j; k++) {
+        ranks[indexed[k].key] = avgRank;
+      }
+      i = j + 1;
+    }
+    return ranks;
+  }
+
+  String _interpretCorrelation(double r) {
+    final absR = r.abs();
+    String strength;
+    if (absR >= 0.9) {
+      strength = 'Very strong';
+    } else if (absR >= 0.7) {
+      strength = 'Strong';
+    } else if (absR >= 0.5) {
+      strength = 'Moderate';
+    } else if (absR >= 0.3) {
+      strength = 'Weak';
+    } else {
+      strength = 'Very weak or no';
+    }
+
+    final direction = r >= 0 ? 'positive' : 'negative';
+    return '$strength $direction correlation';
+  }
+
+  String _fmt(double n) {
+    if (n.isNaN) return 'NaN';
+    if (n.isInfinite) return n.isNegative ? '-∞' : '∞';
+    if (n.abs() < 1e-10) return '0';
+    if (n.abs() >= 1e6 || n.abs() < 1e-4) {
+      return n.toStringAsExponential(6);
+    }
+    return n
+        .toStringAsFixed(6)
+        .replaceAll(RegExp(r'0+$'), '')
+        .replaceAll(RegExp(r'\.$'), '');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Correlation & Covariance',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Analyze the relationship between two variables',
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 16),
+
+          TextField(
+            controller: _xDataController,
+            decoration: const InputDecoration(
+              labelText: 'X Data',
+              hintText: 'Enter values separated by commas, spaces, or newlines',
+              border: OutlineInputBorder(),
+            ),
+            maxLines: 3,
+          ),
+          const SizedBox(height: 12),
+
+          TextField(
+            controller: _yDataController,
+            decoration: const InputDecoration(
+              labelText: 'Y Data',
+              hintText: 'Enter values separated by commas, spaces, or newlines',
+              border: OutlineInputBorder(),
+            ),
+            maxLines: 3,
+          ),
+          const SizedBox(height: 16),
+
+          Center(
+            child: FilledButton.icon(
+              onPressed: _isComputing ? null : _compute,
+              icon: _isComputing
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.calculate),
+              label: const Text('Analyze'),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          if (_result.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: _result.startsWith('Error')
+                    ? colorScheme.errorContainer.withValues(alpha: 0.3)
+                    : colorScheme.primaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: SelectableText(
@@ -1385,6 +1676,9 @@ class _HypothesisCalculatorState extends State<_HypothesisCalculator> {
   var _isComputing = false;
 
   static const _testTypes = {
+    'ci_z': 'Z Confidence Interval',
+    'ci_t': 'T Confidence Interval',
+    'ci_proportion': 'Proportion Confidence Interval',
     'z_one_sample': 'Z-Test (One Sample)',
     'z_two_sample': 'Z-Test (Two Sample)',
     't_one_sample': 'T-Test (One Sample)',
@@ -1418,15 +1712,21 @@ class _HypothesisCalculatorState extends State<_HypothesisCalculator> {
       'contingency',
       'group_data',
       'alpha',
+      'confidence_level',
+      'successes',
+      'trials',
     ];
     for (final p in params) {
       _controllers[p] = TextEditingController();
     }
     _controllers['alpha']!.text = '0.05';
+    _controllers['confidence_level']!.text = '0.95';
     _controllers['pop_mean']!.text = '0';
     _controllers['pop_std']!.text = '1';
     _controllers['sample_mean']!.text = '1.5';
     _controllers['sample_size']!.text = '30';
+    _controllers['successes']!.text = '45';
+    _controllers['trials']!.text = '100';
   }
 
   @override
@@ -1441,6 +1741,29 @@ class _HypothesisCalculatorState extends State<_HypothesisCalculator> {
     final widgets = <Widget>[];
 
     switch (_testType) {
+      case 'ci_z':
+        widgets.addAll([
+          _buildField('sample_mean', 'Sample Mean (x̄)'),
+          _buildField('pop_std', 'Population Std Dev (σ)'),
+          _buildField('sample_size', 'Sample Size (n)'),
+          _buildField('confidence_level', 'Confidence Level (e.g., 0.95)'),
+        ]);
+
+      case 'ci_t':
+        widgets.addAll([
+          _buildField('sample_mean', 'Sample Mean (x̄)'),
+          _buildField('sample_std', 'Sample Std Dev (s)'),
+          _buildField('sample_size', 'Sample Size (n)'),
+          _buildField('confidence_level', 'Confidence Level (e.g., 0.95)'),
+        ]);
+
+      case 'ci_proportion':
+        widgets.addAll([
+          _buildField('successes', 'Number of Successes (x)'),
+          _buildField('trials', 'Number of Trials (n)'),
+          _buildField('confidence_level', 'Confidence Level (e.g., 0.95)'),
+        ]);
+
       case 'z_one_sample':
         widgets.addAll([
           _buildField('sample_mean', 'Sample Mean (x̄)'),
@@ -1516,7 +1839,10 @@ class _HypothesisCalculatorState extends State<_HypothesisCalculator> {
         );
     }
 
-    widgets.add(_buildField('alpha', 'Significance Level (α)'));
+    // Add alpha only for hypothesis tests (not confidence intervals)
+    if (!_testType.startsWith('ci_')) {
+      widgets.add(_buildField('alpha', 'Significance Level (α)'));
+    }
     return widgets;
   }
 
@@ -1563,6 +1889,12 @@ class _HypothesisCalculatorState extends State<_HypothesisCalculator> {
       String resultText;
 
       switch (_testType) {
+        case 'ci_z':
+          resultText = _ciZ();
+        case 'ci_t':
+          resultText = _ciT();
+        case 'ci_proportion':
+          resultText = _ciProportion();
         case 'z_one_sample':
           resultText = _zTestOneSample(alpha);
         case 'z_two_sample':
@@ -1593,6 +1925,140 @@ class _HypothesisCalculatorState extends State<_HypothesisCalculator> {
         _isComputing = false;
       });
     }
+  }
+
+  String _ciZ() {
+    final xBar = double.parse(_controllers['sample_mean']!.text);
+    final sigma = double.parse(_controllers['pop_std']!.text);
+    final n = int.parse(_controllers['sample_size']!.text);
+    final conf = double.parse(_controllers['confidence_level']!.text);
+
+    if (conf <= 0 || conf >= 1) {
+      throw Exception('Confidence level must be between 0 and 1');
+    }
+
+    final alpha = 1 - conf;
+    final zCrit = _zCritical(alpha, 'two_sided').abs();
+    final stdError = sigma / math.sqrt(n);
+    final marginError = zCrit * stdError;
+    final lower = xBar - marginError;
+    final upper = xBar + marginError;
+
+    return '''
+Z CONFIDENCE INTERVAL
+═════════════════════
+
+Input:
+  Sample Mean (x̄) = $xBar
+  Population Std (σ) = $sigma
+  Sample Size (n) = $n
+  Confidence Level = ${(conf * 100).toStringAsFixed(1)}%
+
+Calculation:
+  Standard Error = σ / √n = ${_formatNumber(stdError)}
+  Critical Value (z*) = ±${_formatNumber(zCrit)}
+  Margin of Error = z* × SE = ${_formatNumber(marginError)}
+
+${(conf * 100).toStringAsFixed(0)}% Confidence Interval:
+  ($xBar - ${_formatNumber(marginError)}, $xBar + ${_formatNumber(marginError)})
+  (${_formatNumber(lower)}, ${_formatNumber(upper)})
+
+Interpretation:
+We are ${(conf * 100).toStringAsFixed(0)}% confident that the true population 
+mean lies between ${_formatNumber(lower)} and ${_formatNumber(upper)}.
+''';
+  }
+
+  String _ciT() {
+    final xBar = double.parse(_controllers['sample_mean']!.text);
+    final s = double.parse(_controllers['sample_std']!.text);
+    final n = int.parse(_controllers['sample_size']!.text);
+    final conf = double.parse(_controllers['confidence_level']!.text);
+
+    if (conf <= 0 || conf >= 1) {
+      throw Exception('Confidence level must be between 0 and 1');
+    }
+    if (n < 2) {
+      throw Exception('Sample size must be at least 2');
+    }
+
+    final df = n - 1;
+    final alpha = 1 - conf;
+    final tCrit = _tCritical(alpha, df.toDouble(), 'two_sided').abs();
+    final stdError = s / math.sqrt(n);
+    final marginError = tCrit * stdError;
+    final lower = xBar - marginError;
+    final upper = xBar + marginError;
+
+    return '''
+T CONFIDENCE INTERVAL
+═════════════════════
+
+Input:
+  Sample Mean (x̄) = $xBar
+  Sample Std (s) = $s
+  Sample Size (n) = $n
+  Confidence Level = ${(conf * 100).toStringAsFixed(1)}%
+
+Calculation:
+  Degrees of Freedom = n - 1 = $df
+  Standard Error = s / √n = ${_formatNumber(stdError)}
+  Critical Value (t*) = ±${_formatNumber(tCrit)}
+  Margin of Error = t* × SE = ${_formatNumber(marginError)}
+
+${(conf * 100).toStringAsFixed(0)}% Confidence Interval:
+  ($xBar - ${_formatNumber(marginError)}, $xBar + ${_formatNumber(marginError)})
+  (${_formatNumber(lower)}, ${_formatNumber(upper)})
+
+Interpretation:
+We are ${(conf * 100).toStringAsFixed(0)}% confident that the true population 
+mean lies between ${_formatNumber(lower)} and ${_formatNumber(upper)}.
+''';
+  }
+
+  String _ciProportion() {
+    final x = int.parse(_controllers['successes']!.text);
+    final n = int.parse(_controllers['trials']!.text);
+    final conf = double.parse(_controllers['confidence_level']!.text);
+
+    if (conf <= 0 || conf >= 1) {
+      throw Exception('Confidence level must be between 0 and 1');
+    }
+    if (x > n || x < 0 || n <= 0) {
+      throw Exception('Invalid number of successes or trials');
+    }
+
+    final pHat = x / n;
+    final alpha = 1 - conf;
+    final zCrit = _zCritical(alpha, 'two_sided').abs();
+    final stdError = math.sqrt(pHat * (1 - pHat) / n);
+    final marginError = zCrit * stdError;
+    final lower = math.max(0.0, pHat - marginError);
+    final upper = math.min(1.0, pHat + marginError);
+
+    return '''
+PROPORTION CONFIDENCE INTERVAL (Wald Method)
+════════════════════════════════════════════
+
+Input:
+  Number of Successes (x) = $x
+  Number of Trials (n) = $n
+  Sample Proportion (p̂) = $x / $n = ${_formatNumber(pHat)}
+  Confidence Level = ${(conf * 100).toStringAsFixed(1)}%
+
+Calculation:
+  Standard Error = √(p̂(1-p̂)/n) = ${_formatNumber(stdError)}
+  Critical Value (z*) = ±${_formatNumber(zCrit)}
+  Margin of Error = z* × SE = ${_formatNumber(marginError)}
+
+${(conf * 100).toStringAsFixed(0)}% Confidence Interval:
+  (${_formatNumber(lower)}, ${_formatNumber(upper)})
+
+Interpretation:
+We are ${(conf * 100).toStringAsFixed(0)}% confident that the true population 
+proportion lies between ${_formatNumber(lower)} (${(lower * 100).toStringAsFixed(2)}%) 
+and ${_formatNumber(upper)} (${(upper * 100).toStringAsFixed(2)}%).
+''';
   }
 
   String _zTestOneSample(double alpha) {

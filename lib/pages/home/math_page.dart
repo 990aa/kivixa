@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:kivixa/pages/home/math/algebra_tab.dart';
 import 'package:kivixa/pages/home/math/calculus_tab.dart';
 import 'package:kivixa/pages/home/math/discrete_tab.dart';
+import 'package:kivixa/pages/home/math/formulae_tab.dart';
 import 'package:kivixa/pages/home/math/general_tab.dart';
 import 'package:kivixa/pages/home/math/graphing_tab.dart';
 import 'package:kivixa/pages/home/math/statistics_tab.dart';
@@ -51,6 +52,11 @@ class _MathPageState extends State<MathPage> with TickerProviderStateMixin {
       label: 'Graphing',
       icon: Icons.timeline,
       cupertinoIcon: CupertinoIcons.waveform_path,
+    ),
+    _MathTab(
+      label: 'Formulae',
+      icon: Icons.functions,
+      cupertinoIcon: CupertinoIcons.textformat_alt,
     ),
     _MathTab(
       label: 'Tools',
@@ -114,6 +120,7 @@ class _MathPageState extends State<MathPage> with TickerProviderStateMixin {
           MathStatisticsTab(),
           MathDiscreteTab(),
           MathGraphingTab(),
+          MathFormulaeTab(),
           MathToolsTab(),
         ],
       ),
