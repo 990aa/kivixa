@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:kivixa/pages/home/math/general_tab.dart';
 import 'package:kivixa/pages/home/math/algebra_tab.dart';
 import 'package:kivixa/pages/home/math/calculus_tab.dart';
-import 'package:kivixa/pages/home/math/statistics_tab.dart';
 import 'package:kivixa/pages/home/math/discrete_tab.dart';
+import 'package:kivixa/pages/home/math/general_tab.dart';
 import 'package:kivixa/pages/home/math/graphing_tab.dart';
+import 'package:kivixa/pages/home/math/statistics_tab.dart';
 import 'package:kivixa/pages/home/math/tools_tab.dart';
 
 /// Main Math page with 7 tabs for different math domains.

@@ -60,16 +60,16 @@ class _MatrixCalculator extends StatefulWidget {
 }
 
 class _MatrixCalculatorState extends State<_MatrixCalculator> {
-  int _rowsA = 3;
-  int _colsA = 3;
-  int _rowsB = 3;
-  int _colsB = 3;
-  String _operation = 'multiply';
+  var _rowsA = 3;
+  var _colsA = 3;
+  var _rowsB = 3;
+  var _colsB = 3;
+  var _operation = 'multiply';
   final List<List<TextEditingController>> _matrixA = [];
   final List<List<TextEditingController>> _matrixB = [];
   List<List<double>>? _result;
   String? _error;
-  bool _isComputing = false;
+  var _isComputing = false;
 
   @override
   void initState() {
@@ -94,13 +94,13 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
 
   @override
   void dispose() {
-    for (var row in _matrixA) {
-      for (var ctrl in row) {
+    for (final row in _matrixA) {
+      for (final ctrl in row) {
         ctrl.dispose();
       }
     }
-    for (var row in _matrixB) {
-      for (var ctrl in row) {
+    for (final row in _matrixB) {
+      for (final ctrl in row) {
         ctrl.dispose();
       }
     }
@@ -374,8 +374,8 @@ class _ComplexCalculatorState extends State<_ComplexCalculator> {
   final _aImagCtrl = TextEditingController(text: '0');
   final _bRealCtrl = TextEditingController(text: '1');
   final _bImagCtrl = TextEditingController(text: '0');
-  String _operation = 'add';
-  String _result = '';
+  var _operation = 'add';
+  var _result = '';
 
   @override
   void dispose() {
@@ -553,8 +553,8 @@ class _EquationSolverState extends State<_EquationSolver> {
   final _equationCtrl = TextEditingController(text: 'x^2 - 4');
   final _variableCtrl = TextEditingController(text: 'x');
   final _guessCtrl = TextEditingController(text: '1');
-  String _result = '';
-  bool _isComputing = false;
+  var _result = '';
+  var _isComputing = false;
 
   @override
   void dispose() {

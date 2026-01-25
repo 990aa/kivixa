@@ -65,7 +65,7 @@ class _DescriptiveStatsState extends State<_DescriptiveStats> {
     text: '1, 2, 3, 4, 5, 6, 7, 8, 9, 10',
   );
   Map<String, double> _results = {};
-  bool _isComputing = false;
+  var _isComputing = false;
 
   @override
   void dispose() {
@@ -186,13 +186,13 @@ class _DistributionCalculator extends StatefulWidget {
 }
 
 class _DistributionCalculatorState extends State<_DistributionCalculator> {
-  String _distribution = 'Normal';
+  var _distribution = 'Normal';
   final _param1Ctrl = TextEditingController(text: '0');
   final _param2Ctrl = TextEditingController(text: '1');
   final _xCtrl = TextEditingController(text: '1');
-  String _operation = 'pdf';
-  String _result = '';
-  bool _isComputing = false;
+  var _operation = 'pdf';
+  var _result = '';
+  var _isComputing = false;
 
   final _distributions = [
     'Normal',
@@ -273,7 +273,7 @@ class _DistributionCalculatorState extends State<_DistributionCalculator> {
           const SizedBox(height: 16),
 
           DropdownButtonFormField<String>(
-            value: _distribution,
+            initialValue: _distribution,
             decoration: const InputDecoration(
               labelText: 'Distribution',
               border: OutlineInputBorder(),
@@ -412,10 +412,10 @@ class _RegressionCalculator extends StatefulWidget {
 class _RegressionCalculatorState extends State<_RegressionCalculator> {
   final _xDataCtrl = TextEditingController(text: '1, 2, 3, 4, 5');
   final _yDataCtrl = TextEditingController(text: '2.1, 3.9, 6.1, 8.0, 10.2');
-  String _regressionType = 'linear';
-  int _polyDegree = 2;
-  String _result = '';
-  bool _isComputing = false;
+  var _regressionType = 'linear';
+  var _polyDegree = 2;
+  var _result = '';
+  var _isComputing = false;
 
   @override
   void dispose() {
@@ -552,13 +552,13 @@ class _HypothesisTest extends StatefulWidget {
 }
 
 class _HypothesisTestState extends State<_HypothesisTest> {
-  String _testType = 'one_sample_t';
+  var _testType = 'one_sample_t';
   final _dataCtrl = TextEditingController(text: '5.1, 5.2, 4.9, 5.3, 5.0, 5.1');
   final _hypothesizedMeanCtrl = TextEditingController(text: '5.0');
   final _data2Ctrl = TextEditingController(text: '4.8, 4.9, 5.0, 5.1, 4.7');
-  String _alternative = 'two_sided';
-  String _result = '';
-  bool _isComputing = false;
+  var _alternative = 'two_sided';
+  var _result = '';
+  var _isComputing = false;
 
   @override
   void dispose() {
@@ -595,7 +595,7 @@ class _HypothesisTestState extends State<_HypothesisTest> {
           const SizedBox(height: 16),
 
           DropdownButtonFormField<String>(
-            value: _testType,
+            initialValue: _testType,
             decoration: const InputDecoration(
               labelText: 'Test Type',
               border: OutlineInputBorder(),

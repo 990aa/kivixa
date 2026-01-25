@@ -13,11 +13,11 @@ class MathGeneralTab extends StatefulWidget {
 class _MathGeneralTabState extends State<MathGeneralTab> {
   final _expressionController = TextEditingController();
   final _focusNode = FocusNode();
-  String _result = '';
-  String _error = '';
-  bool _isComputing = false;
-  int _selectedBase = 10; // Decimal by default
-  bool _showScientific = true;
+  var _result = '';
+  var _error = '';
+  var _isComputing = false;
+  var _selectedBase = 10; // Decimal by default
+  var _showScientific = true;
 
   // History of calculations
   final List<_CalculationEntry> _history = [];
@@ -231,7 +231,7 @@ class _MathGeneralTabState extends State<MathGeneralTab> {
           onSelectionChanged: (set) {
             setState(() => _selectedBase = set.first);
           },
-          style: ButtonStyle(visualDensity: VisualDensity.compact),
+          style: const ButtonStyle(visualDensity: VisualDensity.compact),
         ),
         const Spacer(),
         // Scientific mode toggle

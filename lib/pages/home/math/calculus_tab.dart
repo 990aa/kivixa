@@ -64,9 +64,9 @@ class _DerivativeCalculatorState extends State<_DerivativeCalculator> {
   final _expressionCtrl = TextEditingController(text: 'x^2 + 3*x + 2');
   final _variableCtrl = TextEditingController(text: 'x');
   final _pointCtrl = TextEditingController(text: '1');
-  int _order = 1;
-  String _result = '';
-  bool _isComputing = false;
+  var _order = 1;
+  var _result = '';
+  var _isComputing = false;
 
   @override
   void dispose() {
@@ -213,8 +213,8 @@ class _IntegralCalculatorState extends State<_IntegralCalculator> {
   final _variableCtrl = TextEditingController(text: 'x');
   final _lowerCtrl = TextEditingController(text: '0');
   final _upperCtrl = TextEditingController(text: '1');
-  String _result = '';
-  bool _isComputing = false;
+  var _result = '';
+  var _isComputing = false;
 
   @override
   void dispose() {
@@ -351,10 +351,10 @@ class _LimitCalculatorState extends State<_LimitCalculator> {
   final _expressionCtrl = TextEditingController(text: 'sin(x)/x');
   final _variableCtrl = TextEditingController(text: 'x');
   final _approachCtrl = TextEditingController(text: '0');
-  bool _fromLeft = true;
-  bool _fromRight = true;
-  String _result = '';
-  bool _isComputing = false;
+  var _fromLeft = true;
+  var _fromRight = true;
+  var _result = '';
+  var _isComputing = false;
 
   @override
   void dispose() {
@@ -493,9 +493,9 @@ class _SeriesCalculatorState extends State<_SeriesCalculator> {
   final _expressionCtrl = TextEditingController(text: 'exp(x)');
   final _variableCtrl = TextEditingController(text: 'x');
   final _aroundCtrl = TextEditingController(text: '0');
-  int _numTerms = 5;
-  String _result = '';
-  bool _isComputing = false;
+  var _numTerms = 5;
+  var _result = '';
+  var _isComputing = false;
 
   @override
   void dispose() {

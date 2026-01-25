@@ -63,10 +63,10 @@ class _PrimeCalculator extends StatefulWidget {
 class _PrimeCalculatorState extends State<_PrimeCalculator> {
   final _numberCtrl = TextEditingController(text: '97');
   final _sieveUpToCtrl = TextEditingController(text: '100');
-  String _primeCheckResult = '';
+  var _primeCheckResult = '';
   List<int> _sieveResult = [];
-  bool _isChecking = false;
-  bool _isSieving = false;
+  var _isChecking = false;
+  var _isSieving = false;
 
   @override
   void dispose() {
@@ -255,10 +255,10 @@ class _FactorCalculatorState extends State<_FactorCalculator> {
   final _numberCtrl = TextEditingController(text: '360');
   final _aCtrl = TextEditingController(text: '48');
   final _bCtrl = TextEditingController(text: '18');
-  String _primeFactors = '';
-  String _gcdLcmResult = '';
-  bool _isFactoring = false;
-  bool _isComputingGcdLcm = false;
+  var _primeFactors = '';
+  var _gcdLcmResult = '';
+  var _isFactoring = false;
+  var _isComputingGcdLcm = false;
 
   @override
   void dispose() {
@@ -424,10 +424,10 @@ class _CombinatoricsCalculatorState extends State<_CombinatoricsCalculator> {
   final _nCtrl = TextEditingController(text: '10');
   final _rCtrl = TextEditingController(text: '3');
   final _factorialCtrl = TextEditingController(text: '10');
-  String _result = '';
-  String _factorialResult = '';
-  bool _isComputing = false;
-  bool _isComputingFactorial = false;
+  var _result = '';
+  var _factorialResult = '';
+  var _isComputing = false;
+  var _isComputingFactorial = false;
 
   @override
   void dispose() {
@@ -589,10 +589,10 @@ class _SequenceCalculator extends StatefulWidget {
 }
 
 class _SequenceCalculatorState extends State<_SequenceCalculator> {
-  String _sequence = 'fibonacci';
+  var _sequence = 'fibonacci';
   final _nCtrl = TextEditingController(text: '20');
   List<String> _result = [];
-  bool _isComputing = false;
+  var _isComputing = false;
 
   @override
   void dispose() {
@@ -677,7 +677,7 @@ class _SequenceCalculatorState extends State<_SequenceCalculator> {
           const SizedBox(height: 16),
 
           DropdownButtonFormField<String>(
-            value: _sequence,
+            initialValue: _sequence,
             decoration: const InputDecoration(
               labelText: 'Sequence',
               border: OutlineInputBorder(),

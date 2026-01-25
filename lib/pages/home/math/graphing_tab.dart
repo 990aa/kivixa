@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
 
 /// Graphing tab - Function plotting and analysis
 class MathGraphingTab extends StatefulWidget {
@@ -17,10 +18,10 @@ class _MathGraphingTabState extends State<MathGraphingTab> {
   double _xMax = 10;
   double _yMin = -5;
   double _yMax = 5;
-  int _resolution = 200;
+  var _resolution = 200;
   List<List<Offset>> _graphData = [];
-  bool _isComputing = false;
-  String _extremaInfo = '';
+  var _isComputing = false;
+  var _extremaInfo = '';
 
   @override
   void initState() {
@@ -372,11 +373,7 @@ class _FunctionEntry {
   Color color;
   bool visible;
 
-  _FunctionEntry({
-    required this.expression,
-    required this.color,
-    this.visible = true,
-  });
+  _FunctionEntry({required this.expression, required this.color});
 }
 
 class _GraphPainter extends CustomPainter {

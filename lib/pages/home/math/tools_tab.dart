@@ -59,12 +59,12 @@ class _UnitConverter extends StatefulWidget {
 }
 
 class _UnitConverterState extends State<_UnitConverter> {
-  String _category = 'length';
-  String _fromUnit = 'meter';
-  String _toUnit = 'foot';
+  var _category = 'length';
+  var _fromUnit = 'meter';
+  var _toUnit = 'foot';
   final _valueCtrl = TextEditingController(text: '1');
-  String _result = '';
-  bool _isConverting = false;
+  var _result = '';
+  var _isConverting = false;
 
   final _categories = {
     'length': [
@@ -184,7 +184,7 @@ class _UnitConverterState extends State<_UnitConverter> {
           const SizedBox(height: 16),
 
           DropdownButtonFormField<String>(
-            value: _category,
+            initialValue: _category,
             decoration: const InputDecoration(
               labelText: 'Category',
               border: OutlineInputBorder(),
@@ -223,7 +223,9 @@ class _UnitConverterState extends State<_UnitConverter> {
             children: [
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  value: _units.contains(_fromUnit) ? _fromUnit : _units.first,
+                  initialValue: _units.contains(_fromUnit)
+                      ? _fromUnit
+                      : _units.first,
                   decoration: const InputDecoration(
                     labelText: 'From',
                     border: OutlineInputBorder(),
@@ -255,7 +257,9 @@ class _UnitConverterState extends State<_UnitConverter> {
               ),
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  value: _units.contains(_toUnit) ? _toUnit : _units.first,
+                  initialValue: _units.contains(_toUnit)
+                      ? _toUnit
+                      : _units.first,
                   decoration: const InputDecoration(
                     labelText: 'To',
                     border: OutlineInputBorder(),
@@ -395,10 +399,10 @@ class _FormulasReference extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.all(16),
-      children: [
+      children: const [
         _FormulaSection(
           title: 'Algebra',
-          formulas: const [
+          formulas: [
             ('Quadratic Formula', 'x = (-b ± √(b² - 4ac)) / 2a'),
             ('Completing the Square', 'x² + bx = (x + b/2)² - (b/2)²'),
             ('Difference of Squares', 'a² - b² = (a+b)(a-b)'),
@@ -408,7 +412,7 @@ class _FormulasReference extends StatelessWidget {
         ),
         _FormulaSection(
           title: 'Trigonometry',
-          formulas: const [
+          formulas: [
             ('Pythagorean Identity', 'sin²θ + cos²θ = 1'),
             ('Sum/Difference (sin)', 'sin(α ± β) = sinα cosβ ± cosα sinβ'),
             ('Sum/Difference (cos)', 'cos(α ± β) = cosα cosβ ∓ sinα sinβ'),
@@ -420,7 +424,7 @@ class _FormulasReference extends StatelessWidget {
         ),
         _FormulaSection(
           title: 'Calculus',
-          formulas: const [
+          formulas: [
             ('Power Rule', 'd/dx[xⁿ] = n xⁿ⁻¹'),
             ('Product Rule', 'd/dx[fg] = f\'g + fg\''),
             ('Quotient Rule', 'd/dx[f/g] = (f\'g - fg\') / g²'),
@@ -431,7 +435,7 @@ class _FormulasReference extends StatelessWidget {
         ),
         _FormulaSection(
           title: 'Statistics',
-          formulas: const [
+          formulas: [
             ('Mean', 'μ = Σxᵢ / n'),
             ('Variance', 'σ² = Σ(xᵢ - μ)² / n'),
             ('Standard Deviation', 'σ = √(Σ(xᵢ - μ)² / n)'),
@@ -442,7 +446,7 @@ class _FormulasReference extends StatelessWidget {
         ),
         _FormulaSection(
           title: 'Geometry',
-          formulas: const [
+          formulas: [
             ('Circle Area', 'A = πr²'),
             ('Circle Circumference', 'C = 2πr'),
             ('Sphere Volume', 'V = (4/3)πr³'),
