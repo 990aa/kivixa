@@ -283,10 +283,7 @@ pub fn find_roots_in_interval(
     let mut iterations = 0;
 
     let mut prev_x = start;
-    let mut prev_y = match eval_at(expression, variable, prev_x) {
-        Ok(v) => v,
-        Err(_) => f64::NAN,
-    };
+    let mut prev_y = eval_at(expression, variable, prev_x).unwrap_or(f64::NAN);
 
     for i in 1..=samples {
         let x = start + i as f64 * step;
@@ -460,7 +457,10 @@ pub fn partial_derivative(
     let mut vars: BTreeMap<String, f64> = point.iter().map(|(k, v)| (k.to_string(), *v)).collect();
 
     if order == 1 {
-        let original = *vars.get(variable).ok_or("Variable not found").unwrap_or(&0.0);
+        let original = *vars
+            .get(variable)
+            .ok_or("Variable not found")
+            .unwrap_or(&0.0);
 
         // f(x+h)
         vars.insert(variable.to_string(), original + h);
@@ -479,7 +479,10 @@ pub fn partial_derivative(
         let derivative = (f_plus - f_minus) / (2.0 * h);
         CalculusResult::value(derivative)
     } else if order == 2 {
-        let original = *vars.get(variable).ok_or("Variable not found").unwrap_or(&0.0);
+        let original = *vars
+            .get(variable)
+            .ok_or("Variable not found")
+            .unwrap_or(&0.0);
 
         // f(x+h)
         vars.insert(variable.to_string(), original + h);
@@ -591,11 +594,7 @@ pub fn mixed_partial_derivative(
 }
 
 /// Gradient vector (all first partial derivatives)
-pub fn gradient(
-    expression: &str,
-    variables: &[&str],
-    point: Vec<(&str, f64)>,
-) -> Vec<f64> {
+pub fn gradient(expression: &str, variables: &[&str], point: Vec<(&str, f64)>) -> Vec<f64> {
     variables
         .iter()
         .map(|var| {
@@ -615,6 +614,7 @@ pub fn gradient(
 
 /// Double integral using iterated Simpson's rule
 /// ∫∫ f(x,y) dx dy over [x_min, x_max] × [y_min, y_max]
+#[allow(clippy::too_many_arguments)]
 pub fn double_integral(
     expression: &str,
     x_var: &str,
@@ -676,6 +676,7 @@ pub fn double_integral(
 
 /// Triple integral using iterated Simpson's rule
 /// ∫∫∫ f(x,y,z) dx dy dz over [x_min, x_max] × [y_min, y_max] × [z_min, z_max]
+#[allow(clippy::too_many_arguments)]
 pub fn triple_integral(
     expression: &str,
     x_var: &str,
@@ -694,7 +695,11 @@ pub fn triple_integral(
     }
 
     // Use fewer intervals for triple integral due to O(n³) complexity
-    let n = if num_intervals < 4 { 20 } else { num_intervals.min(40) };
+    let n = if num_intervals < 4 {
+        20
+    } else {
+        num_intervals.min(40)
+    };
     let n = if n % 2 == 1 { n + 1 } else { n };
 
     let hx = (x_max - x_min) / n as f64;
@@ -756,8 +761,8 @@ pub fn triple_integral(
 /// ∫_C f(x,y) ds where x = x(t), y = y(t) for t in [t_min, t_max]
 pub fn line_integral(
     expression: &str,
-    x_param: &str,  // expression for x(t)
-    y_param: &str,  // expression for y(t)
+    x_param: &str, // expression for x(t)
+    y_param: &str, // expression for y(t)
     t_var: &str,
     t_min: f64,
     t_max: f64,
@@ -767,7 +772,11 @@ pub fn line_integral(
         return CalculusResult::error("t_min must be less than t_max");
     }
 
-    let n = if num_intervals < 10 { 100 } else { num_intervals };
+    let n = if num_intervals < 10 {
+        100
+    } else {
+        num_intervals
+    };
     let h = (t_max - t_min) / n as f64;
 
     let mut sum = 0.0;

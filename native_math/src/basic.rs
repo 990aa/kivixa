@@ -53,7 +53,7 @@ pub fn evaluate_expression(expression: &str) -> ExpressionResult {
             "asin" => Some(args.first()?.asin()),
             "acos" => Some(args.first()?.acos()),
             "atan" => Some(args.first()?.atan()),
-            "atan2" => Some(args.get(0)?.atan2(*args.get(1)?)),
+            "atan2" => Some(args.first()?.atan2(*args.get(1)?)),
 
             // Trigonometric (degrees)
             "sind" => Some(args.first()?.to_radians().sin()),
@@ -72,14 +72,14 @@ pub fn evaluate_expression(expression: &str) -> ExpressionResult {
             "ln" => Some(args.first()?.ln()),
             "log" => Some(args.first()?.log10()),
             "log2" => Some(args.first()?.log2()),
-            "logb" => Some(args.get(0)?.log(*args.get(1)?)),
+            "logb" => Some(args.first()?.log(*args.get(1)?)),
 
             // Exponential
             "exp" => Some(args.first()?.exp()),
-            "pow" => Some(args.get(0)?.powf(*args.get(1)?)),
+            "pow" => Some(args.first()?.powf(*args.get(1)?)),
             "sqrt" => Some(args.first()?.sqrt()),
             "cbrt" => Some(args.first()?.cbrt()),
-            "root" => Some(args.get(0)?.powf(1.0 / args.get(1)?)),
+            "root" => Some(args.first()?.powf(1.0 / args.get(1)?)),
 
             // Rounding
             "floor" => Some(args.first()?.floor()),
@@ -93,7 +93,7 @@ pub fn evaluate_expression(expression: &str) -> ExpressionResult {
             "sign" => Some(args.first()?.signum()),
             "min" => args.iter().copied().reduce(f64::min),
             "max" => args.iter().copied().reduce(f64::max),
-            "clamp" => Some(args.get(0)?.clamp(*args.get(1)?, *args.get(2)?)),
+            "clamp" => Some(args.first()?.clamp(*args.get(1)?, *args.get(2)?)),
 
             // Constants
             "pi" => Some(std::f64::consts::PI),
@@ -181,10 +181,12 @@ pub fn parse_formula_variables(formula: &str) -> Vec<String> {
             current.push(c);
             in_word = true;
         } else {
-            if !current.is_empty() && !is_function_name(&current) && !is_constant_name(&current) {
-                if !variables.contains(&current) {
-                    variables.push(current.clone());
-                }
+            if !current.is_empty()
+                && !is_function_name(&current)
+                && !is_constant_name(&current)
+                && !variables.contains(&current)
+            {
+                variables.push(current.clone());
             }
             current.clear();
             in_word = false;
@@ -192,10 +194,12 @@ pub fn parse_formula_variables(formula: &str) -> Vec<String> {
     }
 
     // Check last word
-    if !current.is_empty() && !is_function_name(&current) && !is_constant_name(&current) {
-        if !variables.contains(&current) {
-            variables.push(current);
-        }
+    if !current.is_empty()
+        && !is_function_name(&current)
+        && !is_constant_name(&current)
+        && !variables.contains(&current)
+    {
+        variables.push(current);
     }
 
     variables

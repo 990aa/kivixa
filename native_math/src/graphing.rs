@@ -199,14 +199,18 @@ pub fn find_zeros(
     zeros
 }
 
+/// Extrema result type (minima, maxima)
+pub type ExtremaResult = (Vec<(f64, f64)>, Vec<(f64, f64)>);
+
 /// Find local extrema (minima and maxima) of a function
+#[allow(clippy::type_complexity)]
 pub fn find_extrema(
     expression: &str,
     variable: &str,
     x_start: f64,
     x_end: f64,
     num_samples: usize,
-) -> (Vec<(f64, f64)>, Vec<(f64, f64)>) {
+) -> ExtremaResult {
     let parser = fasteval::Parser::new();
     let mut slab = Slab::new();
 

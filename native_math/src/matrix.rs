@@ -274,34 +274,31 @@ pub fn decompose(
             }
         }
         "svd" => {
-            match m.svd(true, true) {
-                svd => {
-                    let mut matrices = vec![];
-                    let mut labels = vec![];
+            let svd = m.svd(true, true);
+            let mut matrices = vec![];
+            let mut labels = vec![];
 
-                    if let Some(u) = svd.u {
-                        matrices.push(MatrixResult::from_matrix(&u));
-                        labels.push("U".to_string());
-                    }
+            if let Some(u) = svd.u {
+                matrices.push(MatrixResult::from_matrix(&u));
+                labels.push("U".to_string());
+            }
 
-                    // Singular values as diagonal matrix
-                    let s = DMatrix::from_diagonal(&svd.singular_values);
-                    matrices.push(MatrixResult::from_matrix(&s));
-                    labels.push("Σ".to_string());
+            // Singular values as diagonal matrix
+            let s = DMatrix::from_diagonal(&svd.singular_values);
+            matrices.push(MatrixResult::from_matrix(&s));
+            labels.push("Σ".to_string());
 
-                    if let Some(v_t) = svd.v_t {
-                        matrices.push(MatrixResult::from_matrix(&v_t));
-                        labels.push("V^T".to_string());
-                    }
+            if let Some(v_t) = svd.v_t {
+                matrices.push(MatrixResult::from_matrix(&v_t));
+                labels.push("V^T".to_string());
+            }
 
-                    MatrixDecomposition {
-                        success: true,
-                        decomposition_type: "SVD".to_string(),
-                        matrices,
-                        labels,
-                        error: None,
-                    }
-                }
+            MatrixDecomposition {
+                success: true,
+                decomposition_type: "SVD".to_string(),
+                matrices,
+                labels,
+                error: None,
             }
         }
         "cholesky" => {

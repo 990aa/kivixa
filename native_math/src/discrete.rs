@@ -81,7 +81,7 @@ pub fn is_prime(n: u64) -> bool {
     if n == 2 || n == 3 {
         return true;
     }
-    if n % 2 == 0 {
+    if n.is_multiple_of(2) {
         return false;
     }
 
@@ -91,7 +91,7 @@ pub fn is_prime(n: u64) -> bool {
     // Write n-1 as 2^r * d
     let mut d = n - 1;
     let mut r = 0u32;
-    while d % 2 == 0 {
+    while d.is_multiple_of(2) {
         d /= 2;
         r += 1;
     }
@@ -257,11 +257,7 @@ pub fn mod_sub(a: u64, b: u64, m: u64) -> DiscreteResult {
     // Handle negative results by adding m
     let a = a % m;
     let b = b % m;
-    let result = if a >= b {
-        a - b
-    } else {
-        m - (b - a)
-    };
+    let result = if a >= b { a - b } else { m - (b - a) };
     DiscreteResult::value(result)
 }
 
@@ -283,13 +279,13 @@ pub fn mod_divide(a: u64, b: u64, m: u64) -> DiscreteResult {
     if b == 0 {
         return DiscreteResult::error("Division by zero");
     }
-    
+
     // Get modular inverse of b
     let inv_result = mod_inverse(b, m);
     if !inv_result.success {
         return DiscreteResult::error("Division not possible - modular inverse does not exist");
     }
-    
+
     // Multiply a by inverse of b
     mod_multiply(a, inv_result.value, m)
 }
@@ -303,7 +299,7 @@ pub fn prime_factors(mut n: u64) -> DiscreteResult {
     let mut factors = Vec::new();
 
     // Factor out 2s
-    while n % 2 == 0 {
+    while n.is_multiple_of(2) {
         factors.push(2);
         n /= 2;
     }
@@ -311,7 +307,7 @@ pub fn prime_factors(mut n: u64) -> DiscreteResult {
     // Factor out odd primes
     let mut i = 3u64;
     while i * i <= n {
-        while n % i == 0 {
+        while n.is_multiple_of(i) {
             factors.push(i);
             n /= i;
         }
@@ -413,7 +409,7 @@ pub fn num_divisors(n: u64) -> DiscreteResult {
     let mut count = 0u64;
     let mut i = 1u64;
     while i * i <= n {
-        if n % i == 0 {
+        if n.is_multiple_of(i) {
             count += 1;
             if i != n / i {
                 count += 1;
@@ -434,7 +430,7 @@ pub fn sum_divisors(n: u64) -> DiscreteResult {
     let mut sum = 0u64;
     let mut i = 1u64;
     while i * i <= n {
-        if n % i == 0 {
+        if n.is_multiple_of(i) {
             sum += i;
             if i != n / i {
                 sum += n / i;
@@ -455,7 +451,7 @@ pub fn list_divisors(n: u64) -> DiscreteResult {
     let mut divisors = Vec::new();
     let mut i = 1u64;
     while i * i <= n {
-        if n % i == 0 {
+        if n.is_multiple_of(i) {
             divisors.push(i);
             if i != n / i {
                 divisors.push(n / i);

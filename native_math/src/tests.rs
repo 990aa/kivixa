@@ -248,7 +248,7 @@ mod calculus_tests {
         // sin(x) = 0 in [0, 4] has roots at 0 and π
         let result = find_roots_in_interval("sin(x)", "x", 0.1, 4.0, 100);
         assert!(result.success);
-        assert!(result.roots.len() >= 1);
+        assert!(!result.roots.is_empty());
     }
 
     #[test]
@@ -681,7 +681,7 @@ mod graphing_tests {
     #[test]
     fn test_find_extrema() {
         // x² has a minimum at x=0
-        let (minima, maxima) = find_extrema("x^2", "x", -2.0, 2.0, 100);
+        let (minima, _maxima) = find_extrema("x^2", "x", -2.0, 2.0, 100);
         assert!(!minima.is_empty());
         assert!((minima[0].0).abs() < 0.1);
     }

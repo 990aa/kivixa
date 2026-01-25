@@ -2,9 +2,9 @@
 
 use serde::{Deserialize, Serialize};
 use statrs::distribution::{
-    Bernoulli, Beta, Binomial, Cauchy, ChiSquared, Continuous, ContinuousCDF, Discrete, 
-    DiscreteCDF, Exp, FisherSnedecor, Gamma, Geometric, Hypergeometric, Normal, Poisson, 
-    StudentsT, Uniform,
+    Bernoulli, Beta, Binomial, Cauchy, ChiSquared, Continuous, ContinuousCDF, Discrete,
+    DiscreteCDF, Exp, FisherSnedecor, Gamma, Geometric, Hypergeometric, Normal, Poisson, StudentsT,
+    Uniform,
 };
 use statrs::statistics::{Distribution, Statistics};
 
@@ -159,7 +159,7 @@ pub fn compute_statistics(data: &[f64]) -> StatisticsResult {
     let max = data.max();
 
     // Median
-    let median = if sorted.len() % 2 == 0 {
+    let median = if sorted.len().is_multiple_of(2) {
         (sorted[sorted.len() / 2 - 1] + sorted[sorted.len() / 2]) / 2.0
     } else {
         sorted[sorted.len() / 2]
@@ -459,6 +459,7 @@ pub fn polynomial_regression(x: &[f64], y: &[f64], degree: usize) -> RegressionR
 }
 
 /// Solve linear system Ax = b using Gaussian elimination
+#[allow(clippy::needless_range_loop)]
 fn solve_linear_system(a: &[f64], b: &[f64], n: usize) -> Option<Vec<f64>> {
     let mut aug = vec![vec![0.0; n + 1]; n];
 
@@ -622,7 +623,12 @@ pub fn chi_squared_test(observed: &[f64], expected: &[f64], alpha: f64) -> Hypot
 }
 
 /// One-sample z-test (known population standard deviation)
-pub fn z_test(data: &[f64], hypothesized_mean: f64, population_std: f64, alpha: f64) -> HypothesisTestResult {
+pub fn z_test(
+    data: &[f64],
+    hypothesized_mean: f64,
+    population_std: f64,
+    alpha: f64,
+) -> HypothesisTestResult {
     if data.is_empty() {
         return HypothesisTestResult::error("Need at least 1 data point");
     }
@@ -633,7 +639,7 @@ pub fn z_test(data: &[f64], hypothesized_mean: f64, population_std: f64, alpha: 
     let n = data.len() as f64;
     let mean = data.mean();
     let se = population_std / n.sqrt();
-    
+
     let z_stat = (mean - hypothesized_mean) / se;
 
     // Standard normal distribution
@@ -661,7 +667,13 @@ pub fn z_test(data: &[f64], hypothesized_mean: f64, population_std: f64, alpha: 
 }
 
 /// Two-sample z-test (known population standard deviations)
-pub fn two_sample_z_test(data1: &[f64], data2: &[f64], std1: f64, std2: f64, alpha: f64) -> HypothesisTestResult {
+pub fn two_sample_z_test(
+    data1: &[f64],
+    data2: &[f64],
+    std1: f64,
+    std2: f64,
+    alpha: f64,
+) -> HypothesisTestResult {
     if data1.is_empty() || data2.is_empty() {
         return HypothesisTestResult::error("Need at least 1 data point in each sample");
     }
@@ -706,59 +718,64 @@ pub fn anova(groups: &[Vec<f64>], alpha: f64) -> HypothesisTestResult {
     if groups.len() < 2 {
         return HypothesisTestResult::error("Need at least 2 groups for ANOVA");
     }
-    
+
     for (i, group) in groups.iter().enumerate() {
         if group.len() < 2 {
-            return HypothesisTestResult::error(&format!("Group {} needs at least 2 observations", i + 1));
+            return HypothesisTestResult::error(&format!(
+                "Group {} needs at least 2 observations",
+                i + 1
+            ));
         }
     }
 
     let k = groups.len() as f64; // Number of groups
     let n: f64 = groups.iter().map(|g| g.len() as f64).sum(); // Total observations
-    
+
     // Grand mean
     let grand_total: f64 = groups.iter().flat_map(|g| g.iter()).sum();
     let grand_mean = grand_total / n;
-    
+
     // Between-group sum of squares (SSB)
-    let ssb: f64 = groups.iter()
+    let ssb: f64 = groups
+        .iter()
         .map(|g| {
             let group_mean: f64 = g.iter().sum::<f64>() / g.len() as f64;
             g.len() as f64 * (group_mean - grand_mean).powi(2)
         })
         .sum();
-    
+
     // Within-group sum of squares (SSW)
-    let ssw: f64 = groups.iter()
+    let ssw: f64 = groups
+        .iter()
         .map(|g| {
             let group_mean: f64 = g.iter().sum::<f64>() / g.len() as f64;
             g.iter().map(|x| (x - group_mean).powi(2)).sum::<f64>()
         })
         .sum();
-    
+
     let df_between = k - 1.0;
     let df_within = n - k;
-    
+
     // Mean squares
     let msb = ssb / df_between;
     let msw = ssw / df_within;
-    
+
     // F-statistic
     let f_stat = if msw.abs() < 1e-12 {
         return HypothesisTestResult::error("Within-group variance is zero");
     } else {
         msb / msw
     };
-    
+
     // F-distribution
     let f_dist = match FisherSnedecor::new(df_between, df_within) {
         Ok(d) => d,
         Err(_) => return HypothesisTestResult::error("Failed to create F-distribution"),
     };
-    
+
     let p_value = 1.0 - f_dist.cdf(f_stat);
     let critical = f_dist.inverse_cdf(1.0 - alpha);
-    
+
     HypothesisTestResult {
         success: true,
         test_statistic: f_stat,
@@ -830,7 +847,7 @@ pub fn correlation_covariance(x: &[f64], y: &[f64]) -> CorrelationResult {
     // P-value using t-distribution transformation
     let df = n - 2.0;
     let t_stat = correlation * (df / (1.0 - correlation * correlation)).sqrt();
-    
+
     let p_value = if let Ok(t_dist) = StudentsT::new(0.0, 1.0, df) {
         2.0 * (1.0 - t_dist.cdf(t_stat.abs()))
     } else {
@@ -905,7 +922,11 @@ pub fn confidence_interval_mean(data: &[f64], confidence_level: f64) -> Confiden
 }
 
 /// Calculate confidence interval for proportion
-pub fn confidence_interval_proportion(successes: u64, n: u64, confidence_level: f64) -> ConfidenceIntervalResult {
+pub fn confidence_interval_proportion(
+    successes: u64,
+    n: u64,
+    confidence_level: f64,
+) -> ConfidenceIntervalResult {
     if n == 0 {
         return ConfidenceIntervalResult::error("Sample size must be greater than 0");
     }
@@ -940,7 +961,10 @@ pub fn confidence_interval_proportion(successes: u64, n: u64, confidence_level: 
 }
 
 /// Calculate confidence interval for variance (using chi-squared distribution)
-pub fn confidence_interval_variance(data: &[f64], confidence_level: f64) -> ConfidenceIntervalResult {
+pub fn confidence_interval_variance(
+    data: &[f64],
+    confidence_level: f64,
+) -> ConfidenceIntervalResult {
     if data.len() < 2 {
         return ConfidenceIntervalResult::error("Need at least 2 data points");
     }
@@ -955,7 +979,9 @@ pub fn confidence_interval_variance(data: &[f64], confidence_level: f64) -> Conf
 
     let chi_dist = match ChiSquared::new(df) {
         Ok(d) => d,
-        Err(_) => return ConfidenceIntervalResult::error("Failed to create chi-squared distribution"),
+        Err(_) => {
+            return ConfidenceIntervalResult::error("Failed to create chi-squared distribution")
+        }
     };
 
     let chi_lower = chi_dist.inverse_cdf(alpha / 2.0);

@@ -278,6 +278,7 @@ pub async fn gradient(
 }
 
 /// Compute double integral ∫∫ f(x,y) dx dy
+#[allow(clippy::too_many_arguments)]
 pub async fn double_integral(
     expression: String,
     x_var: String,
@@ -305,6 +306,7 @@ pub async fn double_integral(
 }
 
 /// Compute triple integral ∫∫∫ f(x,y,z) dx dy dz
+#[allow(clippy::too_many_arguments)]
 pub async fn triple_integral(
     expression: String,
     x_var: String,
@@ -440,9 +442,11 @@ pub async fn z_test(
     population_std: f64,
     alpha: f64,
 ) -> HypothesisTestResult {
-    tokio::task::spawn_blocking(move || statistics::z_test(&data, hypothesized_mean, population_std, alpha))
-        .await
-        .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
+    tokio::task::spawn_blocking(move || {
+        statistics::z_test(&data, hypothesized_mean, population_std, alpha)
+    })
+    .await
+    .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
 }
 
 /// Two-sample z-test (known population standard deviations)
@@ -453,26 +457,22 @@ pub async fn two_sample_z_test(
     std2: f64,
     alpha: f64,
 ) -> HypothesisTestResult {
-    tokio::task::spawn_blocking(move || statistics::two_sample_z_test(&data1, &data2, std1, std2, alpha))
-        .await
-        .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
+    tokio::task::spawn_blocking(move || {
+        statistics::two_sample_z_test(&data1, &data2, std1, std2, alpha)
+    })
+    .await
+    .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
 }
 
 /// One-way ANOVA (Analysis of Variance)
-pub async fn anova(
-    groups: Vec<Vec<f64>>,
-    alpha: f64,
-) -> HypothesisTestResult {
+pub async fn anova(groups: Vec<Vec<f64>>, alpha: f64) -> HypothesisTestResult {
     tokio::task::spawn_blocking(move || statistics::anova(&groups, alpha))
         .await
         .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
 }
 
 /// Correlation and covariance
-pub async fn correlation_covariance(
-    x: Vec<f64>,
-    y: Vec<f64>,
-) -> statistics::CorrelationResult {
+pub async fn correlation_covariance(x: Vec<f64>, y: Vec<f64>) -> statistics::CorrelationResult {
     tokio::task::spawn_blocking(move || statistics::correlation_covariance(&x, &y))
         .await
         .unwrap_or_else(|_| statistics::CorrelationResult::error("Task panicked"))
@@ -483,9 +483,11 @@ pub async fn confidence_interval_mean(
     data: Vec<f64>,
     confidence_level: f64,
 ) -> statistics::ConfidenceIntervalResult {
-    tokio::task::spawn_blocking(move || statistics::confidence_interval_mean(&data, confidence_level))
-        .await
-        .unwrap_or_else(|_| statistics::ConfidenceIntervalResult::error("Task panicked"))
+    tokio::task::spawn_blocking(move || {
+        statistics::confidence_interval_mean(&data, confidence_level)
+    })
+    .await
+    .unwrap_or_else(|_| statistics::ConfidenceIntervalResult::error("Task panicked"))
 }
 
 /// Confidence interval for proportion
@@ -503,9 +505,11 @@ pub async fn confidence_interval_variance(
     data: Vec<f64>,
     confidence_level: f64,
 ) -> statistics::ConfidenceIntervalResult {
-    tokio::task::spawn_blocking(move || statistics::confidence_interval_variance(&data, confidence_level))
-        .await
-        .unwrap_or_else(|_| statistics::ConfidenceIntervalResult::error("Task panicked"))
+    tokio::task::spawn_blocking(move || {
+        statistics::confidence_interval_variance(&data, confidence_level)
+    })
+    .await
+    .unwrap_or_else(|_| statistics::ConfidenceIntervalResult::error("Task panicked"))
 }
 
 // ============================================================================
