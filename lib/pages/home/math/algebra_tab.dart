@@ -125,6 +125,8 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
   String? _result;
   String? _error;
   var _isComputing = false;
+  var _matrixPowerN = 2; // For matrix power operation
+  var _scalarValue = 2.0; // For scalar multiplication
 
   @override
   void initState() {
@@ -272,6 +274,97 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
           final eigenvalues = _computeEigenvalues(m.getData());
           result =
               'Eigenvalues of ${m.name}:\n${eigenvalues.map((e) => _formatNumber(e)).join(', ')}';
+
+        case 'eigenvectors':
+          if (selectedMatrices.length != 1) {
+            throw Exception('Eigenvectors requires exactly 1 matrix');
+          }
+          final m = selectedMatrices[0];
+          if (m.rows != m.cols) {
+            throw Exception('Eigenvectors require a square matrix');
+          }
+          if (m.rows > 3) {
+            throw Exception('Eigenvector computation limited to 3×3 matrices');
+          }
+          final eigen = _computeEigenvectors(m.getData());
+          result = 'Eigenvectors of ${m.name}:\n\n';
+          for (var i = 0; i < eigen.length; i++) {
+            result +=
+                'λ${i + 1} = ${_formatNumber(eigen[i].$1)}\n'
+                'v${i + 1} = [${eigen[i].$2.map(_formatNumber).join(', ')}]\n\n';
+          }
+
+        case 'trace':
+          if (selectedMatrices.length != 1) {
+            throw Exception('Trace requires exactly 1 matrix');
+          }
+          final m = selectedMatrices[0];
+          if (m.rows != m.cols) {
+            throw Exception('Trace requires a square matrix');
+          }
+          final trace = _computeTrace(m.getData());
+          result = 'tr(${m.name}) = ${_formatNumber(trace)}';
+
+        case 'norm':
+          if (selectedMatrices.length != 1) {
+            throw Exception('Norm requires exactly 1 matrix');
+          }
+          final m = selectedMatrices[0];
+          final frobenius = _computeFrobeniusNorm(m.getData());
+          result = '‖${m.name}‖_F = ${_formatNumber(frobenius)}';
+
+        case 'power':
+          if (selectedMatrices.length != 1) {
+            throw Exception('Matrix power requires exactly 1 matrix');
+          }
+          final m = selectedMatrices[0];
+          if (m.rows != m.cols) {
+            throw Exception('Matrix power requires a square matrix');
+          }
+          // Use power = 2 as default; user can modify matrix name to indicate power
+          final powered = _matrixPower(m.getData(), _matrixPowerN);
+          result = '${m.name}^$_matrixPowerN =\n${_formatMatrix(powered)}';
+
+        case 'adjoint':
+          if (selectedMatrices.length != 1) {
+            throw Exception('Adjoint requires exactly 1 matrix');
+          }
+          final m = selectedMatrices[0];
+          if (m.rows != m.cols) {
+            throw Exception('Adjoint requires a square matrix');
+          }
+          final adj = _computeAdjoint(m.getData());
+          result = 'adj(${m.name}) =\n${_formatMatrix(adj)}';
+
+        case 'scalar':
+          if (selectedMatrices.length != 1) {
+            throw Exception('Scalar multiplication requires exactly 1 matrix');
+          }
+          final m = selectedMatrices[0];
+          final scaled = _scalarMultiply(m.getData(), _scalarValue);
+          result = '$_scalarValue × ${m.name} =\n${_formatMatrix(scaled)}';
+
+        case 'dot':
+          if (selectedMatrices.length != 2) {
+            throw Exception(
+              'Dot product requires exactly 2 matrices (vectors)',
+            );
+          }
+          final a = selectedMatrices[0];
+          final b = selectedMatrices[1];
+          // For vectors, convert to 1D arrays
+          final aData = a.getData();
+          final bData = b.getData();
+          // Flatten matrices to vectors for dot product
+          final aVec = aData.expand((r) => r).toList();
+          final bVec = bData.expand((r) => r).toList();
+          if (aVec.length != bVec.length) {
+            throw Exception(
+              'Vectors must have the same dimension for dot product',
+            );
+          }
+          final dot = _dotProduct(aVec, bVec);
+          result = '${a.name} · ${b.name} = ${_formatNumber(dot)}';
 
         case 'rank':
           if (selectedMatrices.length != 1) {
@@ -426,6 +519,146 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
         return sum;
       }),
     );
+  }
+
+  // Compute trace (sum of diagonal elements)
+  double _computeTrace(List<List<double>> m) {
+    double trace = 0;
+    for (var i = 0; i < m.length; i++) {
+      trace += m[i][i];
+    }
+    return trace;
+  }
+
+  // Compute Frobenius norm (sqrt of sum of squared elements)
+  double _computeFrobeniusNorm(List<List<double>> m) {
+    double sum = 0;
+    for (final row in m) {
+      for (final val in row) {
+        sum += val * val;
+      }
+    }
+    return math.sqrt(sum);
+  }
+
+  // Matrix power A^n using repeated multiplication
+  List<List<double>> _matrixPower(List<List<double>> m, int n) {
+    if (n == 0) {
+      // Return identity matrix
+      return List.generate(
+        m.length,
+        (i) => List.generate(m.length, (j) => i == j ? 1.0 : 0.0),
+      );
+    }
+    if (n == 1) return m;
+    if (n < 0) {
+      // For negative powers, compute inverse first then power
+      final inv = _inverse(m);
+      return _matrixPower(inv, -n);
+    }
+    // Use binary exponentiation for efficiency
+    var result = _matrixPower(m, n ~/ 2);
+    result = _multiplyMatrices(result, result);
+    if (n.isOdd) {
+      result = _multiplyMatrices(result, m);
+    }
+    return result;
+  }
+
+  // Compute adjoint (adjugate) matrix
+  List<List<double>> _computeAdjoint(List<List<double>> m) {
+    final n = m.length;
+    return List.generate(
+      n,
+      (i) => List.generate(n, (j) {
+        // Cofactor with transpose (swap i,j)
+        return ((i + j).isEven ? 1 : -1) * _determinant(_minor(m, j, i));
+      }),
+    );
+  }
+
+  // Scalar multiplication
+  List<List<double>> _scalarMultiply(List<List<double>> m, double scalar) {
+    return m.map((row) => row.map((val) => val * scalar).toList()).toList();
+  }
+
+  // Compute eigenvectors for 2x2 and 3x3 matrices
+  List<(double, List<double>)> _computeEigenvectors(List<List<double>> m) {
+    final eigenvalues = _computeEigenvalues(m);
+    final results = <(double, List<double>)>[];
+
+    for (final lambda in eigenvalues) {
+      final n = m.length;
+      // Create (A - λI)
+      final shifted = List.generate(
+        n,
+        (i) => List.generate(n, (j) => m[i][j] - (i == j ? lambda : 0)),
+      );
+
+      // Find null space using RREF
+      final rref = _computeRref(shifted);
+
+      // Find free variables and construct eigenvector
+      final eigenvector = List.filled(n, 0.0);
+      var foundFree = false;
+
+      for (var col = n - 1; col >= 0; col--) {
+        var isPivot = false;
+        for (var row = 0; row < n; row++) {
+          if (rref[row][col].abs() > 1e-10) {
+            var isLeading = true;
+            for (var c = 0; c < col; c++) {
+              if (rref[row][c].abs() > 1e-10) {
+                isLeading = false;
+                break;
+              }
+            }
+            if (isLeading) {
+              isPivot = true;
+              break;
+            }
+          }
+        }
+
+        if (!isPivot && !foundFree) {
+          eigenvector[col] = 1.0;
+          foundFree = true;
+        }
+      }
+
+      // Back substitute to find dependent variables
+      for (var row = n - 1; row >= 0; row--) {
+        var pivotCol = -1;
+        for (var col = 0; col < n; col++) {
+          if (rref[row][col].abs() > 1e-10) {
+            pivotCol = col;
+            break;
+          }
+        }
+        if (pivotCol >= 0) {
+          double sum = 0;
+          for (var col = pivotCol + 1; col < n; col++) {
+            sum += rref[row][col] * eigenvector[col];
+          }
+          eigenvector[pivotCol] = -sum;
+        }
+      }
+
+      // Normalize
+      final norm = _vectorNorm(eigenvector);
+      if (norm > 1e-10) {
+        for (var i = 0; i < n; i++) {
+          eigenvector[i] /= norm;
+        }
+      } else {
+        // Fallback: use a unit vector
+        eigenvector[0] = 1.0;
+      }
+
+      results.add((lambda, eigenvector));
+    }
+
+    return results;
   }
 
   List<double> _computeEigenvalues(List<List<double>> m) {
@@ -775,17 +1008,101 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
               _opChip('det', 'Determinant'),
               _opChip('inv', 'Inverse'),
               _opChip('transpose', 'Transpose'),
+              _opChip('trace', 'Trace'),
               _opChip('rank', 'Rank'),
+              _opChip('norm', 'Norm'),
               _opChip('rref', 'RREF'),
               _opChip('eigenvalues', 'Eigenvalues'),
+              _opChip('eigenvectors', 'Eigenvectors'),
+              _opChip('power', 'A^n'),
+              _opChip('adjoint', 'Adjoint'),
               _opChip('lu', 'LU'),
               _opChip('qr', 'QR'),
               _opChip('svd', 'SVD'),
               _opChip('add', 'A + B'),
               _opChip('subtract', 'A - B'),
               _opChip('multiply', 'A × B'),
+              _opChip('scalar', 'k × A'),
+              _opChip('dot', 'A · B'),
             ],
           ),
+
+          // Additional inputs for power and scalar operations
+          if (_operation == 'power') ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Text('Power n = '),
+                SizedBox(
+                  width: 60,
+                  child: TextField(
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 8,
+                      ),
+                      border: OutlineInputBorder(),
+                    ),
+                    controller: TextEditingController(
+                      text: _matrixPowerN.toString(),
+                    ),
+                    onChanged: (v) {
+                      final n = int.tryParse(v);
+                      if (n != null) {
+                        setState(() => _matrixPowerN = n);
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '(negative for inverse)',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (_operation == 'scalar') ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Text('Scalar k = '),
+                SizedBox(
+                  width: 80,
+                  child: TextField(
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                      signed: true,
+                    ),
+                    textAlign: TextAlign.center,
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 8,
+                      ),
+                      border: OutlineInputBorder(),
+                    ),
+                    controller: TextEditingController(
+                      text: _scalarValue.toString(),
+                    ),
+                    onChanged: (v) {
+                      final k = double.tryParse(v);
+                      if (k != null) {
+                        setState(() => _scalarValue = k);
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 16),
 
           // Compute button

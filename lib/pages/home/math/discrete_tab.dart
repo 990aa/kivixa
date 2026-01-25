@@ -17,7 +17,7 @@ class _MathDiscreteTabState extends State<MathDiscreteTab>
   @override
   void initState() {
     super.initState();
-    _subTabController = TabController(length: 4, vsync: this);
+    _subTabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -32,9 +32,11 @@ class _MathDiscreteTabState extends State<MathDiscreteTab>
       children: [
         TabBar(
           controller: _subTabController,
+          isScrollable: true,
           tabs: const [
             Tab(text: 'Primes'),
             Tab(text: 'Factors'),
+            Tab(text: 'Modular'),
             Tab(text: 'Combinatorics'),
             Tab(text: 'Sequences'),
           ],
@@ -45,6 +47,7 @@ class _MathDiscreteTabState extends State<MathDiscreteTab>
             children: const [
               _PrimeCalculator(),
               _FactorCalculator(),
+              _ModularArithmeticCalculator(),
               _CombinatoricsCalculator(),
               _SequenceCalculator(),
             ],
@@ -1097,6 +1100,327 @@ class _SequenceCalculatorState extends State<_SequenceCalculator> {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// MODULAR ARITHMETIC CALCULATOR
+// ============================================================================
+
+class _ModularArithmeticCalculator extends StatefulWidget {
+  const _ModularArithmeticCalculator();
+
+  @override
+  State<_ModularArithmeticCalculator> createState() =>
+      _ModularArithmeticCalculatorState();
+}
+
+class _ModularArithmeticCalculatorState
+    extends State<_ModularArithmeticCalculator> {
+  final _aCtrl = TextEditingController(text: '17');
+  final _bCtrl = TextEditingController(text: '5');
+  final _modCtrl = TextEditingController(text: '23');
+  var _operation = 'add';
+  String _result = '';
+  String _error = '';
+
+  @override
+  void dispose() {
+    _aCtrl.dispose();
+    _bCtrl.dispose();
+    _modCtrl.dispose();
+    super.dispose();
+  }
+
+  void _calculate() {
+    setState(() {
+      _error = '';
+      _result = '';
+    });
+
+    try {
+      final a = BigInt.parse(_aCtrl.text.trim());
+      final b = BigInt.parse(_bCtrl.text.trim());
+      final m = BigInt.parse(_modCtrl.text.trim());
+
+      if (m <= BigInt.zero) {
+        throw Exception('Modulus must be positive');
+      }
+
+      BigInt result;
+      String opSymbol;
+
+      switch (_operation) {
+        case 'add':
+          result = (a + b) % m;
+          opSymbol = '+';
+        case 'sub':
+          result = ((a - b) % m + m) % m; // Handle negative result
+          opSymbol = '-';
+        case 'mul':
+          result = (a * b) % m;
+          opSymbol = '×';
+        case 'pow':
+          if (b < BigInt.zero) {
+            throw Exception(
+              'Exponent must be non-negative for modular exponentiation',
+            );
+          }
+          result = _modPow(a, b, m);
+          opSymbol = '^';
+        case 'inv':
+          result = _modInverse(a, m);
+          opSymbol = '⁻¹';
+        default:
+          throw Exception('Unknown operation');
+      }
+
+      setState(() {
+        if (_operation == 'inv') {
+          _result =
+              '$a⁻¹ ≡ $result (mod $m)\n\nVerification: $a × $result ≡ ${(a * result) % m} (mod $m)';
+        } else if (_operation == 'pow') {
+          _result = '$a^$b ≡ $result (mod $m)';
+        } else {
+          _result = '$a $opSymbol $b ≡ $result (mod $m)';
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString().replaceAll('Exception: ', '');
+      });
+    }
+  }
+
+  // Modular exponentiation using binary exponentiation
+  BigInt _modPow(BigInt base, BigInt exp, BigInt mod) {
+    if (exp == BigInt.zero) return BigInt.one;
+    if (exp == BigInt.one) return base % mod;
+
+    var result = BigInt.one;
+    base = base % mod;
+
+    while (exp > BigInt.zero) {
+      if (exp.isOdd) {
+        result = (result * base) % mod;
+      }
+      exp = exp >> 1;
+      base = (base * base) % mod;
+    }
+
+    return result;
+  }
+
+  // Modular multiplicative inverse using extended Euclidean algorithm
+  BigInt _modInverse(BigInt a, BigInt m) {
+    final (gcd, x, _) = _extendedGcd(a, m);
+    if (gcd != BigInt.one) {
+      throw Exception(
+        'Modular inverse does not exist (gcd($a, $m) = $gcd ≠ 1)',
+      );
+    }
+    return ((x % m) + m) % m;
+  }
+
+  // Extended Euclidean Algorithm: returns (gcd, x, y) where ax + by = gcd
+  (BigInt, BigInt, BigInt) _extendedGcd(BigInt a, BigInt b) {
+    if (b == BigInt.zero) {
+      return (a, BigInt.one, BigInt.zero);
+    }
+    final (gcd, x1, y1) = _extendedGcd(b, a % b);
+    final x = y1;
+    final y = x1 - (a ~/ b) * y1;
+    return (gcd, x, y);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Modular Arithmetic',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Perform arithmetic operations under a modulus',
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 16),
+
+          // Input fields
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _aCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'a',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              if (_operation != 'inv')
+                Expanded(
+                  child: TextField(
+                    controller: _bCtrl,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: _operation == 'pow' ? 'n (exponent)' : 'b',
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: _modCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'mod m',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Operation selector
+          Text('Operation', style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _opChip('add', 'a + b', 'Addition'),
+              _opChip('sub', 'a - b', 'Subtraction'),
+              _opChip('mul', 'a × b', 'Multiplication'),
+              _opChip('pow', 'aⁿ', 'Exponentiation'),
+              _opChip('inv', 'a⁻¹', 'Inverse'),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Calculate button
+          Center(
+            child: FilledButton.icon(
+              onPressed: _calculate,
+              icon: const Icon(Icons.calculate),
+              label: const Text('Calculate'),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Error display
+          if (_error.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colorScheme.errorContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(_error, style: TextStyle(color: colorScheme.error)),
+            ),
+
+          // Result display
+          if (_result.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: SelectableText(
+                _result,
+                style: const TextStyle(fontFamily: 'monospace', fontSize: 16),
+              ),
+            ),
+
+          const SizedBox(height: 24),
+          const Divider(),
+          const SizedBox(height: 16),
+
+          // Quick reference
+          Text(
+            'Quick Reference',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _referenceItem('Addition', '(a + b) mod m'),
+                _referenceItem('Subtraction', '(a - b) mod m'),
+                _referenceItem('Multiplication', '(a × b) mod m'),
+                _referenceItem(
+                  'Exponentiation',
+                  'aⁿ mod m (efficient binary method)',
+                ),
+                _referenceItem('Inverse', 'a⁻¹ such that a × a⁻¹ ≡ 1 (mod m)'),
+                const SizedBox(height: 8),
+                Text(
+                  'Note: Modular inverse exists only when gcd(a, m) = 1',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _opChip(String value, String symbol, String tooltip) {
+    return Tooltip(
+      message: tooltip,
+      child: ChoiceChip(
+        label: Text(symbol),
+        selected: _operation == value,
+        onSelected: (_) => setState(() => _operation = value),
+      ),
+    );
+  }
+
+  Widget _referenceItem(String name, String formula) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: RichText(
+        text: TextSpan(
+          style: DefaultTextStyle.of(context).style,
+          children: [
+            TextSpan(
+              text: '$name: ',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            TextSpan(text: formula),
+          ],
+        ),
       ),
     );
   }
