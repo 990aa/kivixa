@@ -300,15 +300,23 @@ A comprehensive mathematics suite powered by a high-performance Rust backend for
 
 - **Calculus**
   - Numerical differentiation (first, second, nth derivatives)
+  - **Partial derivatives** (∂f/∂x, ∂f/∂y for multivariable functions)
   - Definite and indefinite integrals
+  - **Multiple integrals** (double and triple integrals over rectangular regions)
+  - Limits with left/right-sided approach options
   - Taylor series expansion
   - Ordinary differential equation solvers
 
 - **Statistics & Probability**
   - Descriptive statistics (mean, median, mode, std deviation, variance)
   - Probability distributions (normal, exponential, binomial, Poisson)
-  - Hypothesis testing (t-test, z-test, chi-square)
-  - Linear and polynomial regression
+  - Hypothesis testing:
+    - One-sample and two-sample **t-tests**
+    - One-sample and two-sample **z-tests** (known population σ)
+    - **Chi-squared test** for categorical data
+    - **ANOVA** (Analysis of Variance) for comparing multiple groups
+  - Confidence intervals (mean, proportion, variance)
+  - Linear and polynomial regression with R² analysis
 
 - **Discrete Mathematics**
   - Combinatorics (permutations, combinations, factorials)
