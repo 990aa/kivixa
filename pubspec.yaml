@@ -100,18 +100,17 @@ dependencies:
   rust_lib_kivixa:
     path: rust_builder
 
-
 dependency_overrides:
   flutter_local_notifications_windows:
     path: packages/flutter_local_notifications_windows_stub
 
 dev_dependencies:
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
   integration_test:
     sdk: flutter
 
-  flutter_lints: ^6.0.0
   icons_launcher: ^3.0.0
   simplytranslate: ^2.0.1
   yaml: ^3.1.2
