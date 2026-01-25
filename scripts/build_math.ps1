@@ -4,7 +4,9 @@
 
 param(
     [switch]$SkipAndroid,
-    [switch]$SkipWindows
+    [switch]$SkipWindows,
+    [switch]$SkipClean,
+    [switch]$SkipBindings
 )
 
 $ErrorActionPreference = "Stop"
@@ -27,6 +29,7 @@ $AndroidArmv7Target = "armv7-linux-androideabi"
 # Destination directories for Windows
 $WinRunnerDebug = Join-Path $ProjectRoot "build/windows/x64/runner/Debug"
 $WinRunnerRelease = Join-Path $ProjectRoot "build/windows/x64/runner/Release"
+$WinRunnerProfile = Join-Path $ProjectRoot "build/windows/x64/runner/Profile"
 
 # Destination directories for jniLibs (Android)
 $JniBase = Join-Path $ProjectRoot "android/app/src/main/jniLibs"
@@ -58,38 +61,46 @@ function Write-Err {
 # Step 1: Clean build artifacts
 Write-Header "Step 1: Cleaning build artifacts"
 
-if (Test-Path $TargetDir) {
-    Write-Step "Removing target directory..."
-    Remove-Item -Recurse -Force $TargetDir
-}
+if (-not $SkipClean) {
+    if (Test-Path $TargetDir) {
+        Write-Step "Removing target directory..."
+        Remove-Item -Recurse -Force $TargetDir
+    }
 
-$DartOutput = Join-Path $ProjectRoot "lib/src/rust_math"
-if (Test-Path $DartOutput) {
-    Write-Step "Removing generated Dart files..."
-    Remove-Item -Recurse -Force $DartOutput
-}
+    $DartOutput = Join-Path $ProjectRoot "lib/src/rust_math"
+    if (Test-Path $DartOutput) {
+        Write-Step "Removing generated Dart files..."
+        Remove-Item -Recurse -Force $DartOutput
+    }
 
-Write-Success "Clean completed"
+    Write-Success "Clean completed"
+} else {
+    Write-Host "Skipping clean (SkipClean flag set)" -ForegroundColor DarkYellow
+}
 
 # Step 2: Generate Flutter Rust Bridge bindings
-Write-Header "Step 2: Generating Flutter Rust Bridge bindings"
+if (-not $SkipBindings) {
+    Write-Header "Step 2: Generating Flutter Rust Bridge bindings"
 
-Push-Location $ProjectRoot
-try {
-    Write-Step "Running flutter_rust_bridge_codegen..."
-    flutter_rust_bridge_codegen generate --config-file flutter_rust_bridge_math.yaml
-    
-    if ($LASTEXITCODE -ne 0) {
-        Write-Err "Failed to generate bindings"
-        Write-Host "Note: Binding generation may fail if flutter_rust_bridge_codegen is not installed or config is invalid." -ForegroundColor Yellow
-        Write-Host "Continuing with build..." -ForegroundColor Yellow
+    Push-Location $ProjectRoot
+    try {
+        Write-Step "Running flutter_rust_bridge_codegen..."
+        flutter_rust_bridge_codegen generate --config-file flutter_rust_bridge_math.yaml
+        
+        if ($LASTEXITCODE -ne 0) {
+            Write-Err "Failed to generate bindings"
+            Write-Host "Note: Binding generation may fail if flutter_rust_bridge_codegen is not installed or config is invalid." -ForegroundColor Yellow
+            Write-Host "Continuing with build..." -ForegroundColor Yellow
+        }
+        else {
+            Write-Success "Bindings generated successfully"
+        }
     }
-    else {
-        Write-Success "Bindings generated successfully"
+    finally {
+        Pop-Location
     }
-}
-finally {
-    Pop-Location
+} else {
+    Write-Host "Skipping bindings generation (SkipBindings flag set)" -ForegroundColor DarkYellow
 }
 
 # Step 3: Build the Rust library for Windows
@@ -113,14 +124,17 @@ if (-not $SkipWindows) {
         if (Test-Path $SourceDll) {
             New-Item -ItemType Directory -Force -Path $WinRunnerDebug | Out-Null
             New-Item -ItemType Directory -Force -Path $WinRunnerRelease | Out-Null
+            New-Item -ItemType Directory -Force -Path $WinRunnerProfile | Out-Null
             
-            Write-Step "Copying $WinDllName to Windows runner folders..."
+            Write-Step "Copying $WinDllName to all Windows runner folders..."
             Copy-Item $SourceDll -Destination $WinRunnerDebug -Force
             Copy-Item $SourceDll -Destination $WinRunnerRelease -Force
+            Copy-Item $SourceDll -Destination $WinRunnerProfile -Force
             
             Write-Success "Windows DLL copied to:"
             Write-Host "    $WinRunnerDebug\$WinDllName" -ForegroundColor Gray
             Write-Host "    $WinRunnerRelease\$WinDllName" -ForegroundColor Gray
+            Write-Host "    $WinRunnerProfile\$WinDllName" -ForegroundColor Gray
         }
         else {
             Write-Err "Windows DLL not found at $SourceDll"
