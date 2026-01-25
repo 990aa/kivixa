@@ -13,11 +13,11 @@ class FloatingCalculatorWindow extends StatefulWidget {
 }
 
 class _FloatingCalculatorWindowState extends State<FloatingCalculatorWindow> {
-  String _display = '0';
-  String _expression = '';
+  var _display = '0';
+  var _expression = '';
   double? _firstOperand;
   String? _operator;
-  bool _shouldReset = false;
+  var _shouldReset = false;
 
   void _onDigitPressed(String digit) {
     setState(() {
@@ -136,8 +136,8 @@ class _FloatingCalculatorWindowState extends State<FloatingCalculatorWindow> {
   double _ln(double x) {
     if (x <= 0) return double.nan;
     double result = 0;
-    double term = (x - 1) / (x + 1);
-    double termSquared = term * term;
+    final double term = (x - 1) / (x + 1);
+    final double termSquared = term * term;
     double currentTerm = term;
     for (int n = 1; n <= 100; n += 2) {
       result += currentTerm / n;

@@ -99,7 +99,7 @@ class _NewFolderDialogState extends State<NewFolderDialog> {
                       border: Border.all(color: colorScheme.outline, width: 2),
                     ),
                     child: _selectedColor == null
-                        ? Icon(Icons.folder, color: Colors.white, size: 20)
+                        ? const Icon(Icons.folder, color: Colors.white, size: 20)
                         : null,
                   ),
                 ),
@@ -194,12 +194,12 @@ class _FolderColorPickerDialogState extends State<_FolderColorPickerDialog> {
                 shape: BoxShape.circle,
                 border: Border.all(color: colorScheme.outline, width: 2),
               ),
-              child: Icon(Icons.folder, color: Colors.white, size: 40),
+              child: const Icon(Icons.folder, color: Colors.white, size: 40),
             ),
             const SizedBox(height: 24),
 
             // Hue slider (color wheel effect)
-            Text('Hue', style: TextStyle(fontWeight: FontWeight.w500)),
+            const Text('Hue', style: TextStyle(fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             Container(
               height: 30,
@@ -242,7 +242,7 @@ class _FolderColorPickerDialogState extends State<_FolderColorPickerDialog> {
             const SizedBox(height: 16),
 
             // Saturation slider
-            Text('Saturation', style: TextStyle(fontWeight: FontWeight.w500)),
+            const Text('Saturation', style: TextStyle(fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             Slider(
               value: _saturation,
@@ -253,7 +253,7 @@ class _FolderColorPickerDialogState extends State<_FolderColorPickerDialog> {
             ),
 
             // Lightness slider
-            Text('Lightness', style: TextStyle(fontWeight: FontWeight.w500)),
+            const Text('Lightness', style: TextStyle(fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             Slider(
               value: _lightness,

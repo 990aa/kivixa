@@ -15,7 +15,7 @@ class FolderColorService {
   /// Map of folder path to color value (as int)
   final Map<String, int> _folderColors = {};
 
-  bool _initialized = false;
+  var _initialized = false;
 
   /// Initialize the service by loading colors from storage
   Future<void> initialize() async {

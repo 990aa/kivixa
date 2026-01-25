@@ -178,7 +178,7 @@ class _EditorOptionsSidebarState extends State<EditorOptionsSidebar> {
                       ],
                     ),
                   ).then((confirmed) {
-                    if (confirmed == true) {
+                    if (confirmed ?? false) {
                       widget.onOrientationToggle!(newOrientation);
                     }
                   });
