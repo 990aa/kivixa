@@ -1,7 +1,11 @@
 # build_math.ps1
 # Build script for the kivixa_math native library
-# Isolated from the main AI inference native module
-# Always runs: Clean + Generate Bindings + Release Build + Copy
+# Builds for Windows and Android only
+
+param(
+    [switch]$SkipAndroid,
+    [switch]$SkipWindows
+)
 
 $ErrorActionPreference = "Stop"
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
@@ -11,8 +15,14 @@ $TargetDir = Join-Path $MathRoot "target"
 # Library names
 $LibName = "kivixa_math"
 $WinDllName = "$LibName.dll"
-$LinuxSoName = "lib$LibName.so"
-$MacDylibName = "lib$LibName.dylib"
+$AndroidSoName = "lib$LibName.so"
+
+# Windows target
+$WinTarget = "x86_64-pc-windows-msvc"
+
+# Android targets
+$AndroidArm64Target = "aarch64-linux-android"
+$AndroidArmv7Target = "armv7-linux-androideabi"
 
 # Destination directories for Windows
 $WinRunnerDebug = Join-Path $ProjectRoot "build/windows/x64/runner/Debug"
@@ -40,7 +50,7 @@ function Write-Success {
     Write-Host "✓ $Message" -ForegroundColor Green
 }
 
-function Write-Error {
+function Write-Err {
     param([string]$Message)
     Write-Host "✗ $Message" -ForegroundColor Red
 }
@@ -70,7 +80,7 @@ try {
     flutter_rust_bridge_codegen generate --config-file flutter_rust_bridge_math.yaml
     
     if ($LASTEXITCODE -ne 0) {
-        Write-Error "Failed to generate bindings"
+        Write-Err "Failed to generate bindings"
         Write-Host "Note: Binding generation may fail if flutter_rust_bridge_codegen is not installed or config is invalid." -ForegroundColor Yellow
         Write-Host "Continuing with build..." -ForegroundColor Yellow
     }
@@ -82,94 +92,152 @@ finally {
     Pop-Location
 }
 
-# Step 3: Build the Rust library in release mode
-Write-Header "Step 3: Building kivixa_math library (Release)"
+# Step 3: Build the Rust library for Windows
+if (-not $SkipWindows) {
+    Write-Header "Step 3a: Building kivixa_math library for Windows ($WinTarget)"
 
-Push-Location $MathRoot
-try {
-    Write-Step "Building in release mode..."
-    cargo build --release
-    
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "Build failed"
-        exit 1
-    }
-    
-    Write-Success "Build completed successfully"
-    
-    $OutputPath = Join-Path $TargetDir "release"
-    Write-Host "`nOutput location: $OutputPath" -ForegroundColor Gray
-    
-    Write-Step "Built artifacts:"
-    Get-ChildItem -Path $OutputPath -Filter "*.dll" -ErrorAction SilentlyContinue | ForEach-Object { Write-Host "  - $($_.Name)" }
-    Get-ChildItem -Path $OutputPath -Filter "*.so" -ErrorAction SilentlyContinue | ForEach-Object { Write-Host "  - $($_.Name)" }
-    Get-ChildItem -Path $OutputPath -Filter "*.dylib" -ErrorAction SilentlyContinue | ForEach-Object { Write-Host "  - $($_.Name)" }
-    Get-ChildItem -Path $OutputPath -Filter "*.a" -ErrorAction SilentlyContinue | ForEach-Object { Write-Host "  - $($_.Name)" }
-}
-finally {
-    Pop-Location
-}
-
-# Step 4: Copy library to Flutter build directories
-Write-Header "Step 4: Copying libraries to Flutter build directories"
-
-# Windows
-if ($IsWindows -or $env:OS -eq "Windows_NT") {
-    $SourceDll = Join-Path $TargetDir "release/$WinDllName"
-    
-    if (Test-Path $SourceDll) {
-        New-Item -ItemType Directory -Force -Path $WinRunnerDebug | Out-Null
-        New-Item -ItemType Directory -Force -Path $WinRunnerRelease | Out-Null
+    Push-Location $MathRoot
+    try {
+        Write-Step "Building in release mode for Windows..."
+        cargo build --release --target $WinTarget
         
-        Write-Step "Copying $WinDllName to Windows runner folders..."
-        Copy-Item $SourceDll -Destination $WinRunnerDebug -Force
-        Copy-Item $SourceDll -Destination $WinRunnerRelease -Force
+        if ($LASTEXITCODE -ne 0) {
+            Write-Err "Windows build failed"
+            exit 1
+        }
         
-        Write-Success "Windows DLL copied to:"
-        Write-Host "    $WinRunnerDebug\$WinDllName" -ForegroundColor Gray
-        Write-Host "    $WinRunnerRelease\$WinDllName" -ForegroundColor Gray
+        Write-Success "Windows build completed successfully"
+        
+        $SourceDll = Join-Path $TargetDir "$WinTarget/release/$WinDllName"
+        
+        if (Test-Path $SourceDll) {
+            New-Item -ItemType Directory -Force -Path $WinRunnerDebug | Out-Null
+            New-Item -ItemType Directory -Force -Path $WinRunnerRelease | Out-Null
+            
+            Write-Step "Copying $WinDllName to Windows runner folders..."
+            Copy-Item $SourceDll -Destination $WinRunnerDebug -Force
+            Copy-Item $SourceDll -Destination $WinRunnerRelease -Force
+            
+            Write-Success "Windows DLL copied to:"
+            Write-Host "    $WinRunnerDebug\$WinDllName" -ForegroundColor Gray
+            Write-Host "    $WinRunnerRelease\$WinDllName" -ForegroundColor Gray
+        }
+        else {
+            Write-Err "Windows DLL not found at $SourceDll"
+            exit 1
+        }
     }
-    else {
-        Write-Error "Windows DLL not found at $SourceDll"
-        exit 1
+    finally {
+        Pop-Location
     }
+} else {
+    Write-Host "Skipping Windows build (SkipWindows flag set)" -ForegroundColor DarkYellow
 }
 
-# Linux
-if ($IsLinux) {
-    $SourceSo = Join-Path $TargetDir "release/$LinuxSoName"
-    $LinuxDest = Join-Path $ProjectRoot "build/linux/x64/runner/release"
-    
-    if (Test-Path $SourceSo) {
-        New-Item -ItemType Directory -Force -Path $LinuxDest | Out-Null
-        Write-Step "Copying $LinuxSoName to Linux runner..."
-        Copy-Item $SourceSo -Destination $LinuxDest -Force
-        Write-Success "Linux library copied to: $LinuxDest"
+# Step 4: Build for Android
+if (-not $SkipAndroid) {
+    Write-Header "Step 3b: Building kivixa_math library for Android"
+
+    # Detect NDK path
+    $ndkPath = $env:ANDROID_NDK_HOME
+    if (-not $ndkPath) {
+        $ndkPath = $env:NDK_HOME
+    }
+    if (-not $ndkPath) {
+        # Try common locations
+        $sdkPath = $env:ANDROID_SDK_ROOT
+        if (-not $sdkPath) {
+            $sdkPath = "$env:LOCALAPPDATA\Android\Sdk"
+        }
+        # Find latest NDK version
+        $ndkDir = Join-Path $sdkPath "ndk"
+        if (Test-Path $ndkDir) {
+            $latestNdk = Get-ChildItem $ndkDir -Directory | Sort-Object Name -Descending | Select-Object -First 1
+            if ($latestNdk) {
+                $ndkPath = $latestNdk.FullName
+            }
+        }
+    }
+
+    if (-not $ndkPath -or -not (Test-Path $ndkPath)) {
+        Write-Err "Android NDK not found. Set ANDROID_NDK_HOME environment variable."
+        Write-Host "Skipping Android build..." -ForegroundColor Yellow
     }
     else {
-        Write-Error "Linux SO not found at $SourceSo"
-        exit 1
+        Write-Host "Using Android NDK: $ndkPath" -ForegroundColor Gray
+
+        # Set up toolchain paths for NDK r25+
+        $toolchainDir = Join-Path $ndkPath "toolchains\llvm\prebuilt\windows-x86_64"
+        $binDir = Join-Path $toolchainDir "bin"
+        
+        # API level (minimum 23 for most features)
+        $apiLevel = 23
+
+        # Set environment for cross-compilation
+        $env:PATH = "$binDir;$env:PATH"
+        $env:ANDROID_NDK = $ndkPath
+        $env:ANDROID_NDK_ROOT = $ndkPath
+        $env:ANDROID_PLATFORM = "android-$apiLevel"
+        $env:CLANG_PATH = $null
+
+        Push-Location $MathRoot
+        try {
+            # arm64-v8a
+            Write-Step "Building for Android arm64-v8a ($AndroidArm64Target)..."
+            $env:CC_aarch64_linux_android = Join-Path $binDir "aarch64-linux-android$apiLevel-clang.cmd"
+            $env:AR_aarch64_linux_android = Join-Path $binDir "llvm-ar.exe"
+            $env:CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER = Join-Path $binDir "aarch64-linux-android$apiLevel-clang.cmd"
+            cargo build --release --target $AndroidArm64Target
+
+            if ($LASTEXITCODE -ne 0) {
+                Write-Err "Android arm64-v8a build failed"
+                exit 1
+            }
+
+            # armeabi-v7a
+            Write-Step "Building for Android armeabi-v7a ($AndroidArmv7Target)..."
+            $env:CC_armv7_linux_androideabi = Join-Path $binDir "armv7a-linux-androideabi$apiLevel-clang.cmd"
+            $env:AR_armv7_linux_androideabi = Join-Path $binDir "llvm-ar.exe"
+            $env:CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER = Join-Path $binDir "armv7a-linux-androideabi$apiLevel-clang.cmd"
+            cargo build --release --target $AndroidArmv7Target
+
+            if ($LASTEXITCODE -ne 0) {
+                Write-Err "Android armeabi-v7a build failed"
+                exit 1
+            }
+
+            Write-Success "Android builds completed successfully"
+
+            # Copy to jniLibs
+            $SourceArm64So = Join-Path $TargetDir "$AndroidArm64Target/release/$AndroidSoName"
+            $SourceArmv7So = Join-Path $TargetDir "$AndroidArmv7Target/release/$AndroidSoName"
+
+            if ((Test-Path $SourceArm64So) -and (Test-Path $SourceArmv7So)) {
+                New-Item -ItemType Directory -Force -Path $JniArm64Dir | Out-Null
+                New-Item -ItemType Directory -Force -Path $JniArmv7Dir | Out-Null
+
+                Write-Step "Copying Android .so files to jniLibs..."
+                Copy-Item $SourceArm64So -Destination $JniArm64Dir -Force
+                Copy-Item $SourceArmv7So -Destination $JniArmv7Dir -Force
+
+                Write-Success "Android SOs copied to:"
+                Write-Host "    $JniArm64Dir\$AndroidSoName" -ForegroundColor Gray
+                Write-Host "    $JniArmv7Dir\$AndroidSoName" -ForegroundColor Gray
+            }
+            else {
+                Write-Err "Android .so files not found"
+                exit 1
+            }
+        }
+        finally {
+            Pop-Location
+        }
     }
+} else {
+    Write-Host "Skipping Android build (SkipAndroid flag set)" -ForegroundColor DarkYellow
 }
 
-# macOS
-if ($IsMacOS) {
-    $SourceDylib = Join-Path $TargetDir "release/$MacDylibName"
-    $MacDest = Join-Path $ProjectRoot "build/macos/Build/Products/Release"
-    
-    if (Test-Path $SourceDylib) {
-        New-Item -ItemType Directory -Force -Path $MacDest | Out-Null
-        Write-Step "Copying $MacDylibName to macOS build..."
-        Copy-Item $SourceDylib -Destination $MacDest -Force
-        Write-Success "macOS library copied to: $MacDest"
-    }
-    else {
-        Write-Error "macOS dylib not found at $SourceDylib"
-        exit 1
-    }
-}
-
-Write-Success "Copy operation completed"
+Write-Success "Build operations completed"
 
 Write-Header "Build script completed successfully"
-Write-Host "All steps completed: Clean → Bindings → Release Build → Copy" -ForegroundColor Green
+Write-Host "All steps completed: Clean → Bindings → Windows Build → Android Build → Copy" -ForegroundColor Green
