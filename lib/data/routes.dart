@@ -116,6 +116,14 @@ abstract class HomeRoutes {
       ),
     ),
     _Route(
+      routePath: _homeFunction({'subpage': HomePage.mathSubpage}),
+      label: 'Math',
+      icon: const AdaptiveIcon(
+        icon: Icons.calculate,
+        cupertinoIcon: CupertinoIcons.function,
+      ),
+    ),
+    _Route(
       routePath: _homeFunction({'subpage': HomePage.aiChatSubpage}),
       label: 'AI Chat',
       icon: const AdaptiveIcon(

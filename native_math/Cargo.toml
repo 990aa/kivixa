@@ -1,0 +1,68 @@
+[package]
+name = "kivixa_math"
+version = "1.0.0"
+edition = "2021"
+description = "Native Rust math engine for Kivixa - isolated from AI inference"
+authors = ["990aa"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
+
+[lib]
+name = "kivixa_math"
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+# Flutter Rust Bridge for Dart interop
+flutter_rust_bridge = "=2.11.1"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Matrix/Linear Algebra
+nalgebra = { version = "0.32", features = ["serde-serialize"] }
+
+# Statistics and Probability distributions
+statrs = "0.17"
+
+# Expression parsing for formulas and graphing
+fasteval = "0.2"
+
+# Complex numbers
+num-complex = "0.4"
+
+# Root finding
+# roots = "0.0.8"  # Using manual Newton-Raphson instead for more control
+
+# High-precision arithmetic
+num-bigint = "0.4"
+num-traits = "0.2"
+num-integer = "0.1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Async runtime and parallelism
+tokio = { version = "1", features = ["rt-multi-thread", "sync", "macros"] }
+rayon = "1.10"
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
+
+# System info
+num_cpus = "1.16"
+
+# Thread-safe primitives
+parking_lot = "0.12"
+once_cell = "1.19"
+
+# For unit conversions - using a simpler approach
+# uom = "0.36"  # Too complex, implementing manually for simplicity
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3

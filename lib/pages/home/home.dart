@@ -8,6 +8,7 @@ import 'package:kivixa/pages/home/browse.dart';
 import 'package:kivixa/pages/home/browser.dart';
 import 'package:kivixa/pages/home/clock_page.dart';
 import 'package:kivixa/pages/home/knowledge_graph.dart';
+import 'package:kivixa/pages/home/math_page.dart';
 import 'package:kivixa/pages/home/settings.dart';
 import 'package:kivixa/pages/home/syncfusion_calendar_page.dart';
 import 'package:kivixa/pages/home/whiteboard.dart';
@@ -28,6 +29,7 @@ class HomePage extends StatefulWidget {
   static const projectsSubpage = 'projects';
   static const clockSubpage = 'clock';
   static const knowledgeGraphSubpage = 'knowledge-graph';
+  static const mathSubpage = 'math';
   static const aiChatSubpage = 'ai-chat';
   static const browserSubpage = 'browser';
   static const settingsSubpage = 'settings';
@@ -38,6 +40,7 @@ class HomePage extends StatefulWidget {
     projectsSubpage,
     clockSubpage,
     knowledgeGraphSubpage,
+    mathSubpage,
     aiChatSubpage,
     browserSubpage,
     settingsSubpage,
@@ -72,6 +75,7 @@ class _HomePageState extends State<HomePage> {
         HomePage.projectsSubpage => const ProjectManagerPage(),
         HomePage.clockSubpage => const ClockPage(),
         HomePage.knowledgeGraphSubpage => const KnowledgeGraphPage(),
+        HomePage.mathSubpage => const MathPage(),
         HomePage.aiChatSubpage => const AIChatPage(),
         HomePage.browserSubpage => const BrowserPage(),
         HomePage.settingsSubpage => const SettingsPage(),
