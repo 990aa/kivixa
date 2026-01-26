@@ -118,11 +118,6 @@ Kivixa uses semantic versioning with build numbers:
 v{MAJOR}.{MINOR}.{PATCH}+{BUILD}
 ```
 
-Examples:
-- `v0.1.6+1006` - Beta release
-- `v1.0.0+1000` - First stable release
-- `v1.2.3-beta+1234` - Explicit beta tag
-
 ## Artifact Naming
 
 | Platform | Artifact |
@@ -174,11 +169,3 @@ If Rust compilation fails:
 1. Ensure `gh-pages` branch exists
 2. Check fdroidserver is installing correctly
 3. Verify APK signatures
-
-## Workflow File
-
-The complete workflow is at: [`.github/workflows/release.yml`](../.github/workflows/release.yml)
-
-## Contact
-
-For release issues, open a GitHub Issue or contact the maintainer.
