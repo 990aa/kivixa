@@ -1,7 +1,7 @@
 # =============================================================================
 # Kivixa Release Workflow
 # =============================================================================
-# Triggered by pushing a version tag (e.g., v0.1.7+1007)
+# Triggered by pushing a version tag (e.g., v0.1.7+1007) or manually
 #
 # This workflow:
 # 1. Builds Rust native libraries for Android and Windows
@@ -9,8 +9,7 @@
 # 3. Builds Windows installer with code signing
 # 4. Creates GitHub Release
 # 5. Updates F-Droid repository (gh-pages)
-# 6. Submits to Winget
-# 7. Updates README.md with new download links
+# 6. Updates README.md with new download links
 # =============================================================================
 
 name: Build and Release
@@ -19,6 +18,22 @@ on:
   push:
     tags:
       - 'v*'
+  
+  # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      test_version:
+        description: 'Test version (e.g., 0.0.1-test)'
+        required: true
+        default: '0.0.1-test'
+      skip_release:
+        description: 'Skip GitHub Release creation'
+        type: boolean
+        default: true
+      skip_fdroid:
+        description: 'Skip F-Droid update'
+        type: boolean
+        default: true
 
 env:
   FLUTTER_VERSION: '3.35.0'
@@ -44,11 +59,20 @@ jobs:
       - name: Extract version from tag
         id: version
         run: |
-          TAG=${GITHUB_REF#refs/tags/v}
-          # Handle both v0.1.7+1007 and v0.1.7 formats
-          VERSION=$(echo $TAG | cut -d'+' -f1)
-          BUILD_NUMBER=$(echo $TAG | grep -oP '\+\K\d+' || echo "")
-          TAG_NAME=${GITHUB_REF#refs/tags/}
+          # Handle both tag push and workflow_dispatch
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.test_version }}"
+            BUILD_NUMBER=""
+            TAG_NAME="v${VERSION}"
+            echo "Using workflow_dispatch test version: $VERSION"
+          else
+            TAG=${GITHUB_REF#refs/tags/v}
+            # Handle both v0.1.7+1007 and v0.1.7 formats
+            VERSION=$(echo $TAG | cut -d'+' -f1)
+            BUILD_NUMBER=$(echo $TAG | grep -oP '\+\K\d+' || echo "")
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+          fi
+          
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
@@ -412,6 +436,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     needs: [build-android, build-windows]
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.skip_release != 'true'
     permissions:
       contents: write
     outputs:
@@ -477,7 +502,6 @@ jobs:
             
             ### Alternative Downloads
             - **F-Droid**: Add our repo at `https://990aa.github.io/kivixa/repo`
-            - **Winget**: `winget install 990aa.Kivixa`
           files: release-artifacts/*
           draft: false
           prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
@@ -490,6 +514,7 @@ jobs:
   fdroid:
     runs-on: ubuntu-latest
     needs: [build-android, release]
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.skip_fdroid != 'true'
     permissions:
       contents: write
     
@@ -575,48 +600,12 @@ jobs:
           git push origin gh-pages
 
   # =============================================================================
-  # JOB 5: Submit to Winget
-  # =============================================================================
-  winget:
-    runs-on: windows-latest
-    needs: [build-android, release]
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download Windows installer
-        uses: actions/download-artifact@v4
-        with:
-          name: windows-installer
-          path: installer
-
-      - name: Get installer hash
-        id: hash
-        shell: pwsh
-        run: |
-          $installer = Get-ChildItem "installer\Kivixa-Setup-*.exe" | Select-Object -First 1
-          $hash = (Get-FileHash $installer.FullName -Algorithm SHA256).Hash
-          echo "sha256=$hash" >> $env:GITHUB_OUTPUT
-          echo "filename=$($installer.Name)" >> $env:GITHUB_OUTPUT
-          Write-Host "Installer: $($installer.Name)"
-          Write-Host "SHA256: $hash"
-
-      - name: Submit to Winget
-        uses: vedantmgoyal9/winget-releaser@main
-        with:
-          identifier: 990aa.Kivixa
-          version: ${{ needs.build-android.outputs.version }}
-          installers-regex: 'Kivixa-Setup-.*\.exe$'
-          token: ${{ secrets.WINGET_TOKEN }}
-        continue-on-error: true
-
-  # =============================================================================
-  # JOB 6: Update README.md with new download links
+  # JOB 5: Update README.md with new download links
   # =============================================================================
   update-readme:
     runs-on: ubuntu-latest
     needs: [build-android, release]
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.skip_release != 'true'
     permissions:
       contents: write
     

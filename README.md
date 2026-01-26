@@ -16,7 +16,6 @@
 [![Version](https://img.shields.io/badge/Version-0.1.6%2B1006--beta-orange)](CHANGELOG.md)
 
 [![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.1.6%2B1006/Kivixa-Setup-0.1.6.exe)
-[![Winget](https://img.shields.io/badge/Winget-990aa.Kivixa-0078D4?logo=windows)](https://winstall.app/apps/990aa.Kivixa)
 
 **Android Downloads:**
 [![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.1.6%2B1006/Kivixa-Android-0.1.6-arm64.apk)
