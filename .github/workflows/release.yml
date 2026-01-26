@@ -426,6 +426,16 @@ jobs:
         shell: pwsh
         run: choco install innosetup -y
 
+      - name: Download WebView2 Bootstrapper
+        shell: pwsh
+        run: |
+          $dir = "windows\installer\Evergreen Bootstrapper"
+          New-Item -ItemType Directory -Force -Path $dir
+          Write-Host "Downloading WebView2 Bootstrapper..."
+          # Official Microsoft Download Link for the Evergreen Bootstrapper
+          Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "$dir\MicrosoftEdgeWebview2Setup.exe"
+          Write-Host "Download Complete."
+
       - name: Build Windows Installer
         shell: pwsh
         run: |
