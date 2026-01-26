@@ -427,11 +427,11 @@ A fully-featured web browser built into Kivixa for seamless research and referen
 
 ### Prerequisites
 
-- [Flutter](https://flutter.dev/docs/get-started/install) 3.35.0 or higher
-- [Dart](https://dart.dev/get-dart) 3.9.0 or higher
-- [Rust](https://rustup.rs/) (for building native AI engine)
+- [Flutter](https://flutter.dev/docs/get-started/install) 3.38.6 or higher
+- [Dart](https://dart.dev/get-dart) 3.10.7 or higher
+- [Rust](https://rustup.rs/) (for building native code)
 - Platform-specific requirements:
-  - **Windows**: Visual Studio 2022 with C++ desktop development, Vulkan SDK
+  - **Windows**: Visual Studio 2026 with C++ desktop development, Vulkan SDK
   - **macOS**: Xcode 15+, Rust with aarch64-apple-darwin target
   - **Linux**: Standard build tools (`clang`, `cmake`, `ninja-build`), Vulkan SDK
   - **Android**: Android Studio / Android SDK, NDK for Rust cross-compilation
@@ -450,26 +450,13 @@ A fully-featured web browser built into Kivixa for seamless research and referen
    flutter pub get
    ```
 
-3. **Build native Rust library** (required for AI features)
-   ```bash
-   cd native
-   cargo build --release
-   cd ..
-   
-   # Generate Dart bindings
-   flutter_rust_bridge_codegen generate
-   ```
-
-4. **Run the app**
+3. **Run the app**
    ```bash
    # For desktop (Windows/macOS/Linux)
    flutter run -d windows  # or macos, linux
    
    # For mobile (Android/iOS)
    flutter run -d android  # or ios
-   
-   # Let Flutter choose the best available device
-   flutter run
    ```
 
 ### Build for Production
@@ -492,6 +479,7 @@ flutter build linux --release
 
 # iOS
 flutter build ios --release
+```
 
 ### Windows Installer (Inno Setup)
 
@@ -501,12 +489,9 @@ For Windows distribution, we use [Inno Setup](https://jrsoftware.org/isinfo.php)
 *   **Output:** `build/windows/installer/`
 *   **Versioning:** Automatically synced with the `VERSION` file.
 
-To build the installer:
-1.  Run `flutter build windows --release`
-2.  Run `iscc windows/installer/kivixa-installer.iss` (requires Inno Setup)
+To build the installer run `iscc windows/installer/kivixa-installer.iss` (requires Inno Setup)
 
-The installer includes a custom uninstaller that allows users to optionally wipe their data (`Documents\Kivixa`) upon removal. See [md_files/installer_guide.md](md_files/installer_guide.md) for details.
-```
+The installer includes a custom uninstaller that allows users to optionally wipe their data (`Documents\Kivixa`) upon removal.
 
 ---
 
@@ -515,26 +500,8 @@ The installer includes a custom uninstaller that allows users to optionally wipe
 ### Core Technologies
 - **[Flutter](https://flutter.dev)** - Cross-platform UI framework
 - **[Dart](https://dart.dev)** - Programming language
-- **[Rust](https://www.rust-lang.org)** - Native AI engine via flutter_rust_bridge
+- **[Rust](https://www.rust-lang.org)** - Native AI engine and math module via flutter_rust_bridge
 - **[llama.cpp](https://github.com/ggerganov/llama.cpp)** - Efficient LLM inference
-- **[Phi-4 Mini](https://huggingface.co/microsoft/phi-4)** - Microsoft's efficient on-device AI model
-- **[AppFlowy Editor](https://appflowy.io)** - Rich text editing
-- **[Perfect Freehand](https://github.com/steveruizok/perfect-freehand)** - Smooth drawing strokes
-- **[Lua Dardo](https://pub.dev/packages/lua_dardo)** - Pure Dart Lua 5.3 VM for plugin scripting
-
-### Key Dependencies
-- **AI/ML**: `flutter_rust_bridge`, `llama-cpp-2` (Rust), `fdg-sim` (graph physics)
-- **UI/UX**: `material_symbols_icons`, `dynamic_color`, `animations`
-- **Drawing**: `perfect_freehand`, `vector_math`, `flutter_quill`
-- **File Management**: `path_provider`, `file_picker`, `share_plus`
-- **PDF**: `pdf`, `pdfrx`, `printing`
-- **Storage**: `shared_preferences`, `flutter_secure_storage`
-- **Version Control**: `crypto` (SHA-256 for content-addressable storage)
-- **Scripting**: `lua_dardo` (Lua 5.3 interpreter)
-- **Browser**: `flutter_inappwebview` (WebView2/WebView integration)
-- **Utilities**: `go_router`, `url_launcher`, `screenshot`
-
-*Full dependency list available in [pubspec](pubspec.yaml)*
 
 ---
 
@@ -603,7 +570,6 @@ To report a new issue, use [Bug Report Template](.github/ISSUE_TEMPLATE/bug_repo
 
 - **Issues**: [GitHub Issues](https://github.com/990aa/kivixa/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/990aa/kivixa/discussions)
-- **Repository**: [kivixa](https://github.com/990aa/kivixa)
 
 ---
 
