@@ -109,13 +109,9 @@ jobs:
       # RUST SETUP FOR ANDROID
       # =========================================================================
       - name: Setup Rust
-        uses: dtolnay/rust-action@stable
-
-      - name: Add Rust Android targets
-        run: |
-          rustup target add aarch64-linux-android
-          rustup target add armv7-linux-androideabi
-          rustup target add x86_64-linux-android
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android, armv7-linux-androideabi, x86_64-linux-android
 
       - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
@@ -159,7 +155,7 @@ jobs:
           
           cd ..
           
-          # Copy to jniLibs
+          # Copy to jniLibs (main app)
           mkdir -p android/app/src/main/jniLibs/arm64-v8a
           mkdir -p android/app/src/main/jniLibs/armeabi-v7a
           mkdir -p android/app/src/main/jniLibs/x86_64
@@ -168,7 +164,18 @@ jobs:
           cp native/target/armv7-linux-androideabi/release/libkivixa_native.so android/app/src/main/jniLibs/armeabi-v7a/
           cp native/target/x86_64-linux-android/release/libkivixa_native.so android/app/src/main/jniLibs/x86_64/
           
-          echo "kivixa_native libraries copied to jniLibs"
+          # Copy to rust_builder jniLibs (for Flutter plugin detection)
+          mkdir -p rust_builder/android/src/main/jniLibs/arm64-v8a
+          mkdir -p rust_builder/android/src/main/jniLibs/armeabi-v7a
+          mkdir -p rust_builder/android/src/main/jniLibs/x86_64
+          
+          cp native/target/aarch64-linux-android/release/libkivixa_native.so rust_builder/android/src/main/jniLibs/arm64-v8a/
+          cp native/target/armv7-linux-androideabi/release/libkivixa_native.so rust_builder/android/src/main/jniLibs/armeabi-v7a/
+          cp native/target/x86_64-linux-android/release/libkivixa_native.so rust_builder/android/src/main/jniLibs/x86_64/
+          
+          echo "kivixa_native libraries copied to all jniLibs locations"
+          ls -la android/app/src/main/jniLibs/arm64-v8a/
+          ls -la rust_builder/android/src/main/jniLibs/arm64-v8a/
 
       - name: Build Rust math library for Android
         env:
@@ -196,15 +203,29 @@ jobs:
           export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="${NDK_BIN}/armv7a-linux-androideabi${API_LEVEL}-clang"
           cargo build --release --target armv7-linux-androideabi
           
+          # x86_64-linux-android
+          echo "Building x86_64-linux-android..."
+          export CC_x86_64_linux_android="${NDK_BIN}/x86_64-linux-android${API_LEVEL}-clang"
+          export AR_x86_64_linux_android="${NDK_BIN}/llvm-ar"
+          export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="${NDK_BIN}/x86_64-linux-android${API_LEVEL}-clang"
+          cargo build --release --target x86_64-linux-android
+          
           cd ..
           
-          # Copy to jniLibs
+          # Copy to jniLibs (main app)
           cp native_math/target/aarch64-linux-android/release/libkivixa_math.so android/app/src/main/jniLibs/arm64-v8a/
           cp native_math/target/armv7-linux-androideabi/release/libkivixa_math.so android/app/src/main/jniLibs/armeabi-v7a/
+          cp native_math/target/x86_64-linux-android/release/libkivixa_math.so android/app/src/main/jniLibs/x86_64/
           
-          echo "kivixa_math libraries copied to jniLibs"
+          # Copy to rust_builder jniLibs (for Flutter plugin detection)
+          cp native_math/target/aarch64-linux-android/release/libkivixa_math.so rust_builder/android/src/main/jniLibs/arm64-v8a/
+          cp native_math/target/armv7-linux-androideabi/release/libkivixa_math.so rust_builder/android/src/main/jniLibs/armeabi-v7a/
+          cp native_math/target/x86_64-linux-android/release/libkivixa_math.so rust_builder/android/src/main/jniLibs/x86_64/
+          
+          echo "kivixa_math libraries copied to all jniLibs locations"
           ls -la android/app/src/main/jniLibs/arm64-v8a/
           ls -la android/app/src/main/jniLibs/armeabi-v7a/
+          ls -la android/app/src/main/jniLibs/x86_64/
 
       # =========================================================================
       # ANDROID BUILD
@@ -295,7 +316,7 @@ jobs:
       # RUST SETUP FOR WINDOWS
       # =========================================================================
       - name: Setup Rust
-        uses: dtolnay/rust-action@stable
+        uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-pc-windows-msvc
 
@@ -307,12 +328,20 @@ jobs:
           cargo build --release --target x86_64-pc-windows-msvc
           Set-Location ..
           
-          # Create output directories
+          # Create all output directories (Debug, Release, Profile, rust_builder)
+          New-Item -ItemType Directory -Force -Path "build/windows/x64/runner/Debug" | Out-Null
           New-Item -ItemType Directory -Force -Path "build/windows/x64/runner/Release" | Out-Null
+          New-Item -ItemType Directory -Force -Path "build/windows/x64/runner/Profile" | Out-Null
+          New-Item -ItemType Directory -Force -Path "rust_builder/target/x86_64-pc-windows-msvc/release" | Out-Null
           
-          # Copy DLL
-          Copy-Item "native/target/x86_64-pc-windows-msvc/release/kivixa_native.dll" "build/windows/x64/runner/Release/" -Force
-          Write-Host "kivixa_native.dll copied to build/windows/x64/runner/Release/"
+          # Copy DLL to all locations
+          $dllSource = "native/target/x86_64-pc-windows-msvc/release/kivixa_native.dll"
+          Copy-Item $dllSource "build/windows/x64/runner/Debug/" -Force
+          Copy-Item $dllSource "build/windows/x64/runner/Release/" -Force
+          Copy-Item $dllSource "build/windows/x64/runner/Profile/" -Force
+          Copy-Item $dllSource "rust_builder/target/x86_64-pc-windows-msvc/release/" -Force
+          
+          Write-Host "kivixa_native.dll copied to all Windows locations"
 
       - name: Build Rust math library for Windows
         shell: pwsh
@@ -322,10 +351,13 @@ jobs:
           cargo build --release --target x86_64-pc-windows-msvc
           Set-Location ..
           
-          # Copy DLL
-          Copy-Item "native_math/target/x86_64-pc-windows-msvc/release/kivixa_math.dll" "build/windows/x64/runner/Release/" -Force
-          Write-Host "kivixa_math.dll copied to build/windows/x64/runner/Release/"
+          # Copy DLL to all locations
+          $dllSource = "native_math/target/x86_64-pc-windows-msvc/release/kivixa_math.dll"
+          Copy-Item $dllSource "build/windows/x64/runner/Debug/" -Force
+          Copy-Item $dllSource "build/windows/x64/runner/Release/" -Force
+          Copy-Item $dllSource "build/windows/x64/runner/Profile/" -Force
           
+          Write-Host "kivixa_math.dll copied to all Windows locations"
           Get-ChildItem "build/windows/x64/runner/Release/*.dll"
 
       # =========================================================================
