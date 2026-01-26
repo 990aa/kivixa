@@ -501,7 +501,7 @@ The installer includes a custom uninstaller that allows users to optionally wipe
 - **[Flutter](https://flutter.dev)** - Cross-platform UI framework
 - **[Dart](https://dart.dev)** - Programming language
 - **[Rust](https://www.rust-lang.org)** - Native AI engine and math module via flutter_rust_bridge
-- **[llama.cpp](https://github.com/ggerganov/llama.cpp)** - Efficient LLM inference
+- **[llama.cpp](https://github.com/ggerganov/llama.cpp)** - Efficient SLM/LLM inference
 
 ---
 
