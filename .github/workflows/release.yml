@@ -620,10 +620,10 @@ jobs:
           Features:
           - Rich Markdown Editor
           - Digital Canvas with pressure sensitivity
-          - On-Device AI with multi-model support
+          - On-Device AI with multi-model MCP support
           - Knowledge Graph visualization
           - PDF Integration
-          - Productivity Clock with Pomodoro
+          - Productivity Clock with Pomodoro and Custom Sessions
           - Math Module with Rust backend
           - And much more!
           DESCEOF
@@ -632,14 +632,17 @@ jobs:
           Modern cross-platform notes & productivity app
           DESCEOF
           
-          # 4. CRITICAL FIX: Initialize Repository Keys
-          # This creates the keystore.p12 needed to sign the index.xml
+          # 4. CRITICAL FIX: Handle Fresh Runner State
+          # If we don't have the key, we must wipe the config to let 'init' run
           if [ ! -f keystore.p12 ]; then
+            echo "Keystore missing. Deleting old config to force re-initialization..."
+            rm -f config.yml
+            
             echo "Initializing F-Droid Repository keys..."
             fdroid init --verbose
           fi
           
-          # 5. Create Config (only if missing)
+          # 5. Create Config (Since we might have just deleted it)
           if [ ! -f config.yml ]; then
             cat > config.yml << 'CFGEOF'
           repo_url: https://990aa.github.io/kivixa/repo
@@ -652,17 +655,4 @@ jobs:
           fi
           
           # 6. Update repo (Generates index.xml)
-          # We use --pretty so the XML is readable for debugging if needed
           fdroid update --create-metadata --verbose --pretty
-
-      - name: Commit and push F-Droid repo
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # CRITICAL FIX: Add .nojekyll to prevent 404 errors
-          touch .nojekyll
-          
-          git add -A
-          git commit -m "Update F-Droid repo for v${{ needs.build-android.outputs.version }}" || echo "No changes to commit"
-          git push origin gh-pages
