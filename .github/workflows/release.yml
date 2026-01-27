@@ -439,13 +439,20 @@ jobs:
       - name: Build Windows Installer
         shell: pwsh
         run: |
+          $version = "${{ needs.build-android.outputs.version }}"
           $issPath = "windows\installer\kivixa-installer.iss"
           
-          # Ensure output directory exists
-          New-Item -ItemType Directory -Force -Path "build_windows_installer" | Out-Null
+          # Create output directory explicitly
+          $outDir = Join-Path $pwd "build_windows_installer"
+          New-Item -ItemType Directory -Force -Path $outDir | Out-Null
           
-          # Build installer
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" $issPath
+          Write-Host "Building installer for version $version..."
+          Write-Host "Output Directory: $outDir"
+          
+          # RUN ISCC WITH OVERRIDES
+          # /O = Force output path to our build folder
+          # /F = Force filename to 'Kivixa-Setup-<version>'
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /O"$outDir" /F"Kivixa-Setup-$version" "$issPath"
           
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Inno Setup failed with exit code $LASTEXITCODE" -ForegroundColor Red
