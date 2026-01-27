@@ -9,7 +9,8 @@
 # 3. Builds Windows installer with code signing
 # 4. Creates GitHub Release
 # 5. Updates F-Droid repository (gh-pages)
-# 6. Updates README.md with new download links
+#
+# Note: README.md is updated locally by scripts/release.ps1 before tagging
 # =============================================================================
 
 name: Build and Release
@@ -657,58 +658,3 @@ jobs:
           git add -A
           git commit -m "Update F-Droid repo for v${{ needs.build-android.outputs.version }}" || echo "No changes to commit"
           git push origin gh-pages
-
-  # =============================================================================
-  # JOB 5: Update README.md with new download links
-  # =============================================================================
-  update-readme:
-    runs-on: ubuntu-latest
-    needs: [build-android, release]
-    if: github.event_name != 'workflow_dispatch' || github.event.inputs.skip_release != 'true'
-    permissions:
-      contents: write
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.repository.default_branch }}
-          fetch-depth: 0
-
-      - name: Update README download links
-        run: |
-          VERSION="${{ needs.build-android.outputs.version }}"
-          BUILD="${{ needs.build-android.outputs.build_number }}"
-          TAG="${{ needs.build-android.outputs.tag_name }}"
-          
-          # URL encode the + sign
-          TAG_ENCODED=$(echo "$TAG" | sed 's/+/%2B/g')
-          
-          echo "Updating README.md for version $VERSION (tag: $TAG)"
-          
-          # Update Version badge
-          sed -i -E "s|\[!\[Version\]\(https://img\.shields\.io/badge/Version-[^\)]+\)\]\(CHANGELOG\.md\)|[![Version](https://img.shields.io/badge/Version-${VERSION}%2B${BUILD}--beta-orange)](CHANGELOG.md)|g" README.md
-          
-          # Update Windows download link
-          sed -i -E "s|\[!\[Download Windows\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Setup-[^\)]+\.exe\)|[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/${TAG_ENCODED}/Kivixa-Setup-${VERSION}.exe)|g" README.md
-          
-          # Update Android ARM64 download link
-          sed -i -E "s|\[!\[Android ARM64\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+arm64[^\)]*\.apk\)|[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android\&logoColor=white)](https://github.com/990aa/kivixa/releases/download/${TAG_ENCODED}/Kivixa-Android-${VERSION}-arm64.apk)|g" README.md
-          
-          # Update Android ARMv7 download link
-          sed -i -E "s|\[!\[Android ARMv7\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+armv7[^\)]*\.apk\)|[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android\&logoColor=white)](https://github.com/990aa/kivixa/releases/download/${TAG_ENCODED}/Kivixa-Android-${VERSION}-armv7.apk)|g" README.md
-          
-          # Update Android x86_64 download link
-          sed -i -E "s|\[!\[Android x86_64\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+x86_64[^\)]*\.apk\)|[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android\&logoColor=white)](https://github.com/990aa/kivixa/releases/download/${TAG_ENCODED}/Kivixa-Android-${VERSION}-x86_64.apk)|g" README.md
-          
-          echo "README.md updated. Changes:"
-          git diff README.md || echo "No changes detected"
-
-      - name: Commit and push README changes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git add README.md
-          git commit -m "docs: update download links for v${{ needs.build-android.outputs.version }}" || echo "No changes to commit"
-          git push origin ${{ github.event.repository.default_branch }}

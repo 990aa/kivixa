@@ -21,7 +21,19 @@
 [![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.1.6%2B1006/Kivixa-Android-0.1.6-arm64.apk)
 [![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.1.6%2B1006/Kivixa-Android-0.1.6-armv7.apk)
 [![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.1.6%2B1006/Kivixa-Android-0.1.6-x86_64.apk)
+
+**F-Droid Repository:**
+
 [![F-Droid Repo](https://img.shields.io/badge/F--Droid-Add%20Repo-F5BB00?logo=fdroid)](https://990aa.github.io/kivixa/)
+
+<details>
+<summary>Scan QR Code to add F-Droid repo</summary>
+
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://990aa.github.io/kivixa/repo" alt="F-Droid Repo QR Code" width="200">
+
+*Scan with F-Droid app to auto-add the repository*
+
+</details>
 
 </div>
 

@@ -117,7 +117,43 @@ BUILD_NUMBER=$buildNumber
 }
 Write-Host ""
 
-# Step 4: Git operations
+# Step 2b: Update README.md with new download links
+Write-Host "[2b/5] Updating README.md download links..." -ForegroundColor Yellow
+
+$readmeFile = Join-Path $projectRoot "README.md"
+$tagEncoded = "v$version%2B$buildNumber"
+
+if (-not $DryRun) {
+    $readmeContent = Get-Content $readmeFile -Raw
+    
+    # Update Version badge
+    $readmeContent = $readmeContent -replace '\[!\[Version\]\(https://img\.shields\.io/badge/Version-[^\)]+\)\]\(CHANGELOG\.md\)', "[![Version](https://img.shields.io/badge/Version-$version%2B$buildNumber--beta-orange)](CHANGELOG.md)"
+    
+    # Update Windows download link
+    $readmeContent = $readmeContent -replace '\[!\[Download Windows\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Setup-[^\)]+\.exe\)', "[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/$tagEncoded/Kivixa-Setup-$version.exe)"
+    
+    # Update Android ARM64 download link
+    $readmeContent = $readmeContent -replace '\[!\[Android ARM64\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+arm64[^\)]*\.apk\)', "[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/$tagEncoded/Kivixa-Android-$version-arm64.apk)"
+    
+    # Update Android ARMv7 download link
+    $readmeContent = $readmeContent -replace '\[!\[Android ARMv7\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+armv7[^\)]*\.apk\)', "[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/$tagEncoded/Kivixa-Android-$version-armv7.apk)"
+    
+    # Update Android x86_64 download link
+    $readmeContent = $readmeContent -replace '\[!\[Android x86_64\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+x86_64[^\)]*\.apk\)', "[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/$tagEncoded/Kivixa-Android-$version-x86_64.apk)"
+    
+    $readmeContent | Set-Content $readmeFile -NoNewline
+    Write-Host "  README.md download links updated" -ForegroundColor Green
+} else {
+    Write-Host "  [DRY RUN] Would update README.md with:" -ForegroundColor Magenta
+    Write-Host "    - Version badge: $version+$buildNumber" -ForegroundColor DarkMagenta
+    Write-Host "    - Windows: Kivixa-Setup-$version.exe" -ForegroundColor DarkMagenta
+    Write-Host "    - Android ARM64: Kivixa-Android-$version-arm64.apk" -ForegroundColor DarkMagenta
+    Write-Host "    - Android ARMv7: Kivixa-Android-$version-armv7.apk" -ForegroundColor DarkMagenta
+    Write-Host "    - Android x86_64: Kivixa-Android-$version-x86_64.apk" -ForegroundColor DarkMagenta
+}
+Write-Host ""
+
+# Step 5: Git operations
 Write-Host "[3/5] Git operations..." -ForegroundColor Yellow
 
 # Check for changes
@@ -170,7 +206,7 @@ if (-not $DryRun) {
 }
 Write-Host ""
 
-# Step 5: Wait for GitHub Actions
+# Step 4: Wait for GitHub Actions
 Write-Host "[4/5] GitHub Actions Triggered!" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "  The workflow will now:" -ForegroundColor Gray
@@ -179,59 +215,23 @@ Write-Host "    2. Build Android APKs (arm64, armv7, x86_64)" -ForegroundColor G
 Write-Host "    3. Build Windows installer" -ForegroundColor Gray
 Write-Host "    4. Create GitHub Release" -ForegroundColor Gray
 Write-Host "    5. Update F-Droid repository" -ForegroundColor Gray
-Write-Host "    6. Submit to Winget" -ForegroundColor Gray
-Write-Host "    7. Update README.md with download links" -ForegroundColor Gray
+Write-Host ""
+Write-Host "  README.md has already been updated locally with new download links." -ForegroundColor Gray
 Write-Host ""
 
 if (-not $DryRun) {
     Write-Host "  Watch progress at:" -ForegroundColor Cyan
     Write-Host "  https://github.com/990aa/kivixa/actions" -ForegroundColor White
     Write-Host ""
-    
-    $waitForReadme = Read-Host "  Wait for workflow to complete and sync README? (y/N)"
-    if ($waitForReadme -eq 'y' -or $waitForReadme -eq 'Y') {
-        Write-Host ""
-        Write-Host "[5/5] Waiting for workflow completion..." -ForegroundColor Yellow
-        Write-Host "  Press Ctrl+C to stop waiting and sync manually later" -ForegroundColor DarkGray
-        Write-Host ""
-        
-        # Poll for workflow completion (check README changes)
-        $maxWaitMinutes = 30
-        $waitIntervalSeconds = 30
-        $waited = 0
-        $maxWaitSeconds = $maxWaitMinutes * 60
-        
-        while ($waited -lt $maxWaitSeconds) {
-            Start-Sleep -Seconds $waitIntervalSeconds
-            $waited += $waitIntervalSeconds
-            
-            # Fetch and check for README changes
-            git fetch origin
-            $remoteDiff = git diff HEAD origin/main -- README.md 2>$null
-            
-            if ($remoteDiff) {
-                Write-Host "  README.md updated on remote!" -ForegroundColor Green
-                git pull origin main
-                Write-Host "  Local repo synced!" -ForegroundColor Green
-                break
-            }
-            
-            $waitedMinutes = [math]::Floor($waited / 60)
-            $waitedSecs = $waited % 60
-            Write-Host "  Waiting... ($waitedMinutes`:$($waitedSecs.ToString('00')) elapsed)" -ForegroundColor DarkGray
-        }
-        
-        if ($waited -ge $maxWaitSeconds) {
-            Write-Host "  Timeout reached. Sync manually with: git pull origin main" -ForegroundColor Yellow
-        }
-    }
 } else {
     Write-Host "  [DRY RUN] Would trigger workflow" -ForegroundColor Magenta
 }
 
 Write-Host ""
+Write-Host "[5/5] Release Process Complete!" -ForegroundColor Green
+Write-Host ""
 Write-Host "============================================" -ForegroundColor Cyan
-Write-Host "    Release Process Complete!" -ForegroundColor Green
+Write-Host "    Release Summary" -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  Version: $version" -ForegroundColor White
