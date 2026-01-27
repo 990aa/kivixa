@@ -606,14 +606,14 @@ jobs:
         run: |
           VERSION=${{ needs.build-android.outputs.version }}
           
-          # Create repo structure if not exists
+          # 1. Prepare directories
           mkdir -p repo
           mkdir -p metadata/com.a990aa.kivixa/en-US
           
-          # Copy APKs to repo
+          # 2. Copy APKs to repo
           cp fdroid-apks/*.apk repo/
           
-          # Create/update metadata
+          # 3. Create Metadata files
           cat > metadata/com.a990aa.kivixa/en-US/full_description.txt << 'DESCEOF'
           Kivixa is a modern cross-platform notes and productivity application.
           
@@ -632,7 +632,14 @@ jobs:
           Modern cross-platform notes & productivity app
           DESCEOF
           
-          # Create F-Droid config if not exists
+          # 4. CRITICAL FIX: Initialize Repository Keys
+          # This creates the keystore.p12 needed to sign the index.xml
+          if [ ! -f keystore.p12 ]; then
+            echo "Initializing F-Droid Repository keys..."
+            fdroid init --verbose
+          fi
+          
+          # 5. Create Config (only if missing)
           if [ ! -f config.yml ]; then
             cat > config.yml << 'CFGEOF'
           repo_url: https://990aa.github.io/kivixa/repo
@@ -644,16 +651,17 @@ jobs:
           CFGEOF
           fi
           
-          # Update repo
-          fdroid update --create-metadata --verbose || true
-
-      - name: Generate repo index
-        run: fdroid update || echo "fdroid update completed with warnings"
+          # 6. Update repo (Generates index.xml)
+          # We use --pretty so the XML is readable for debugging if needed
+          fdroid update --create-metadata --verbose --pretty
 
       - name: Commit and push F-Droid repo
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # CRITICAL FIX: Add .nojekyll to prevent 404 errors
+          touch .nojekyll
           
           git add -A
           git commit -m "Update F-Droid repo for v${{ needs.build-android.outputs.version }}" || echo "No changes to commit"

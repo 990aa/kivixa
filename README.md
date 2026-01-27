@@ -24,7 +24,7 @@
 
 **F-Droid Repository:**
 
-[![F-Droid Repo](https://img.shields.io/badge/F--Droid-Add%20Repo-F5BB00?logo=fdroid)](https://990aa.github.io/kivixa/)
+[![F-Droid Repo](https://img.shields.io/badge/F--Droid-Add%20Repo-F5BB00?logo=fdroid)](https://990aa.github.io/kivixa/repo/)
 
 <details>
 <summary>Scan QR Code to add F-Droid repo</summary>
