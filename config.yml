@@ -1,0 +1,6 @@
+repo_url: https://990aa.github.io/kivixa/repo
+repo_name: Kivixa F-Droid Repo
+repo_icon: icon.png
+repo_description: |
+  Official F-Droid repository for Kivixa app releases.
+archive_older: 3
