@@ -22,7 +22,6 @@ dependencies:
   path_to_regexp: ^0.4.0
   perfect_freehand: ^2.2.1
   path_provider: ^2.0.11
-  shared_preferences: ^2.0.17
   flutter_secure_storage: ^10.0.0
   url_launcher: ^6.1.8
   collapsible: ^1.0.0
@@ -99,6 +98,7 @@ dependencies:
   visibility_detector: ^0.4.0+2         # Lazy loading media
   rust_lib_kivixa:
     path: rust_builder
+  shared_preferences: ^2.5.4
 
 dependency_overrides:
   flutter_local_notifications_windows:
