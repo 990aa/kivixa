@@ -4,34 +4,37 @@
     "/opt/hostedtoolcache/Python/3.11.14/x64/bin/fdroid update"
   ],
   "fdroiddata": {
-    "commitId": "13a161a4cddde756523db0f3d9a4251cbda6850f",
-    "isDirty": false,
-    "modifiedFiles": [],
-    "untrackedFiles": [
-      "config.yml",
-      "fdroid-apks/Kivixa-Android-0.0.7-test-arm64.apk",
-      "fdroid-apks/Kivixa-Android-0.0.7-test-armv7.apk",
-      "fdroid-apks/Kivixa-Android-0.0.7-test-x86_64.apk",
-      "metadata/com.a990aa.kivixa.yml",
-      "metadata/com.a990aa.kivixa/en-US/full_description.txt",
-      "metadata/com.a990aa.kivixa/en-US/short_description.txt",
+    "commitId": "9aece6871795d98cbd8d73015a502c56ed13b0e2",
+    "isDirty": true,
+    "modifiedFiles": [
       "repo/Kivixa-Android-0.0.7-test-arm64.apk",
       "repo/Kivixa-Android-0.0.7-test-armv7.apk",
       "repo/Kivixa-Android-0.0.7-test-x86_64.apk",
       "repo/status/running.json",
       "tmp/apkcache.json"
+    ],
+    "untrackedFiles": [
+      "archive/Kivixa-Android-0.0.7-test-arm64.apk",
+      "archive/Kivixa-Android-0.0.7-test-armv7.apk",
+      "archive/Kivixa-Android-0.0.7-test-x86_64.apk",
+      "fdroid-apks/Kivixa-Android-0.1.6-arm64.apk",
+      "fdroid-apks/Kivixa-Android-0.1.6-armv7.apk",
+      "fdroid-apks/Kivixa-Android-0.1.6-x86_64.apk",
+      "repo/Kivixa-Android-0.1.6-arm64.apk",
+      "repo/Kivixa-Android-0.1.6-armv7.apk",
+      "repo/Kivixa-Android-0.1.6-x86_64.apk"
     ]
   },
   "stages": {
-    "archive_old_apks archive": 1769478756577,
-    "delete_disabled_builds": 1769478756576,
-    "index.make archive": 1769478756578,
-    "prepare_apps archive": 1769478756577,
-    "process_apks": 1769478756576,
-    "read_added_date_from_all_apks": 1769478756577,
-    "remove_apks": 1769478756577,
-    "scan_repo_files": 1769478756576
+    "archive_old_apks archive": 1769525191094,
+    "delete_disabled_builds": 1769525191092,
+    "index.make archive": 1769525191095,
+    "prepare_apps archive": 1769525191095,
+    "process_apks": 1769525191092,
+    "read_added_date_from_all_apks": 1769525191094,
+    "remove_apks": 1769525191093,
+    "scan_repo_files": 1769525191093
   },
-  "startTimestamp": 1769478756000,
+  "startTimestamp": 1769525191000,
   "subcommand": "update"
 }
