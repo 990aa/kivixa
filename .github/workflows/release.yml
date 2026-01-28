@@ -602,18 +602,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y apksigner
 
-      - name: Setup F-Droid repository
+      - name: Setup and Publish F-Droid Repo
         run: |
           VERSION=${{ needs.build-android.outputs.version }}
           
-          # 1. Prepare directories
+          # --- 1. PREPARE DIRECTORIES ---
           mkdir -p repo
           mkdir -p metadata/com.a990aa.kivixa/en-US
           
-          # 2. Copy APKs to repo
+          # --- 2. COPY APKs ---
           cp fdroid-apks/*.apk repo/
           
-          # 3. Create Metadata files
+          # --- 3. CREATE METADATA ---
           cat > metadata/com.a990aa.kivixa/en-US/full_description.txt << 'DESCEOF'
           Kivixa is a modern cross-platform notes and productivity application.
           
@@ -632,17 +632,17 @@ jobs:
           Modern cross-platform notes & productivity app
           DESCEOF
           
-          # 4. CRITICAL FIX: Handle Fresh Runner State
-          # If we don't have the key, we must wipe the config to let 'init' run
+          # --- 4. HANDLE KEYSTORE (CRITICAL) ---
+          # If we don't have the key, delete old config to force fresh init
           if [ ! -f keystore.p12 ]; then
-            echo "Keystore missing. Deleting old config to force re-initialization..."
+            echo "Keystore missing. Cleaning up to force re-initialization..."
             rm -f config.yml
             
             echo "Initializing F-Droid Repository keys..."
             fdroid init --verbose
           fi
           
-          # 5. Create Config (Since we might have just deleted it)
+          # --- 5. CREATE CONFIG ---
           if [ ! -f config.yml ]; then
             cat > config.yml << 'CFGEOF'
           repo_url: https://990aa.github.io/kivixa/repo
@@ -654,5 +654,29 @@ jobs:
           CFGEOF
           fi
           
-          # 6. Update repo (Generates index.xml)
+          # --- 6. UPDATE REPO (GENERATE INDEX) ---
+          echo "Running F-Droid Update..."
           fdroid update --create-metadata --verbose --pretty
+          
+          # --- 7. PUBLISH TO GITHUB (PUSH) ---
+          echo "Starting Git Publish..."
+          
+          # Configure Git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Add .nojekyll to ensure links work
+          touch .nojekyll
+          
+          # Add ALL files (including the new keystore so we don't regenerate it next time)
+          git add -A
+          
+          # Debug: Show what we are about to commit
+          echo "Files staged for commit:"
+          git status --short
+          
+          # Commit and Push
+          git commit -m "Update F-Droid repo for v$VERSION" || echo "No changes to commit"
+          git push origin gh-pages
+          
+          echo "SUCCESS: Repo updated and pushed!"
