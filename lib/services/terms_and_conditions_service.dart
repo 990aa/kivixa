@@ -138,24 +138,35 @@ Your data is stored in the following locations:
 - Notes and documents: Local device storage
 - Settings and preferences: Local app preferences
 - Calendar events: Local device storage
+- AI models (if downloaded): Local device storage
 
-3. DATA SHARING
+3. LOCAL AI FEATURES
+
+3.1 On-Device Processing: Kivixa includes optional AI features powered by Small Language Models (SLMs) and Large Language Models (LLMs) that run entirely on your device. All AI processing occurs locally without any data being sent to external servers.
+
+3.2 No Cloud AI: Unlike many applications, Kivixa does NOT use cloud-based AI services. Your notes, documents, and any content processed by AI features never leave your device.
+
+3.3 AI Model Storage: Downloaded AI models are stored locally on your device and can be removed at any time through the app settings.
+
+3.4 Privacy by Design: The local AI architecture ensures complete privacy - your conversations with AI, document analysis, and all AI-assisted features remain entirely private on your device.
+
+4. DATA SHARING
 
 We do not share your data with third parties.
 
-4. SECURITY
+5. SECURITY
 
 While we implement reasonable security measures, no system is completely secure. You are responsible for maintaining the security of your device.
 
-5. CHILDREN'S PRIVACY
+6. CHILDREN'S PRIVACY
 
 Kivixa is not intended for children under 13 years of age.
 
-6. CHANGES TO THIS POLICY
+7. CHANGES TO THIS POLICY
 
 We may update this Privacy Policy from time to time. Continued use of the App constitutes acceptance of any changes.
 
-7. CONTACT
+8. CONTACT
 
 For privacy-related questions, please visit our repository or contact the development team.
 ''';

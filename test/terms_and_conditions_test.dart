@@ -143,6 +143,22 @@ void main() {
       expect(privacy.contains('SECURITY'), true);
     });
 
+    test('privacy policy contains Local AI section', () {
+      final privacy = TermsAndConditionsService.getPrivacyPolicyText();
+
+      // Verify the new LOCAL AI FEATURES section exists
+      expect(privacy.contains('LOCAL AI FEATURES'), true);
+      expect(privacy.contains('On-Device Processing'), true);
+      expect(privacy.contains('No Cloud AI'), true);
+      expect(privacy.contains('AI Model Storage'), true);
+      expect(privacy.contains('Privacy by Design'), true);
+
+      // Verify it mentions SLMs and LLMs running locally
+      expect(privacy.contains('Small Language Models'), true);
+      expect(privacy.contains('Large Language Models'), true);
+      expect(privacy.contains('entirely on your device'), true);
+    });
+
     test('currentTermsVersion is valid semantic version', () {
       const version = TermsAndConditionsService.currentTermsVersion;
 

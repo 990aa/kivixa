@@ -4,11 +4,13 @@
 // 1. Update version comparison - no "Update available" when versions match
 // 2. Horizontal navbar scrolling on small screens
 // 3. Floating hub menu display and animation
+// 4. File type tracking for browse filtering (KivixaFileType)
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/navbar/horizontal_navbar.dart';
 import 'package:kivixa/components/settings/update_manager.dart';
+import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/kivixa_version.dart';
 
 void main() {
@@ -198,6 +200,89 @@ void main() {
       final v3 = KivixaVersion(1, 2, 4);
       expect(v1 == v2, isTrue);
       expect(v1 == v3, isFalse);
+    });
+  });
+
+  group('KivixaFileType and DirectoryChildren Tests', () {
+    test('DirectoryChildren tracks file types correctly', () {
+      final fileTypes = <String, KivixaFileType>{
+        'note1': KivixaFileType.handwritten,
+        'note2': KivixaFileType.markdown,
+        'note3': KivixaFileType.text,
+      };
+
+      final children = DirectoryChildren(
+        ['folder1', 'folder2'],
+        ['note1', 'note2', 'note3'],
+        fileTypes,
+      );
+
+      expect(children.directories.length, equals(2));
+      expect(children.files.length, equals(3));
+      expect(children.getFileType('note1'), equals(KivixaFileType.handwritten));
+      expect(children.getFileType('note2'), equals(KivixaFileType.markdown));
+      expect(children.getFileType('note3'), equals(KivixaFileType.text));
+    });
+
+    test('DirectoryChildren.isFileType returns correct boolean', () {
+      final fileTypes = <String, KivixaFileType>{
+        'handwritten_note': KivixaFileType.handwritten,
+        'markdown_note': KivixaFileType.markdown,
+      };
+
+      final children = DirectoryChildren([], [
+        'handwritten_note',
+        'markdown_note',
+      ], fileTypes);
+
+      expect(
+        children.isFileType('handwritten_note', KivixaFileType.handwritten),
+        isTrue,
+      );
+      expect(
+        children.isFileType('handwritten_note', KivixaFileType.markdown),
+        isFalse,
+      );
+      expect(
+        children.isFileType('markdown_note', KivixaFileType.markdown),
+        isTrue,
+      );
+    });
+
+    test('DirectoryChildren.getFileType returns null for unknown file', () {
+      final children = DirectoryChildren([], ['unknown_file'], {});
+      expect(children.getFileType('unknown_file'), isNull);
+    });
+
+    test('DirectoryChildren isEmpty and isNotEmpty work correctly', () {
+      final emptyChildren = DirectoryChildren([], [], {});
+      final nonEmptyChildren = DirectoryChildren(['folder'], [], {});
+      final filesOnlyChildren = DirectoryChildren([], ['file'], {});
+
+      expect(emptyChildren.isEmpty, isTrue);
+      expect(emptyChildren.isNotEmpty, isFalse);
+      expect(nonEmptyChildren.isEmpty, isFalse);
+      expect(nonEmptyChildren.isNotEmpty, isTrue);
+      expect(filesOnlyChildren.isEmpty, isFalse);
+      expect(filesOnlyChildren.isNotEmpty, isTrue);
+    });
+
+    test('DirectoryChildren.onlyOneChild works correctly', () {
+      expect(DirectoryChildren([], [], {}).onlyOneChild(), isTrue);
+      expect(DirectoryChildren(['folder'], [], {}).onlyOneChild(), isTrue);
+      expect(DirectoryChildren([], ['file'], {}).onlyOneChild(), isTrue);
+      expect(
+        DirectoryChildren(['folder'], ['file'], {}).onlyOneChild(),
+        isFalse,
+      );
+      expect(DirectoryChildren(['f1', 'f2'], [], {}).onlyOneChild(), isFalse);
+    });
+
+    test('KivixaFileType enum has correct values', () {
+      expect(KivixaFileType.values.length, equals(3));
+      expect(KivixaFileType.handwritten.index, equals(0));
+      expect(KivixaFileType.markdown.index, equals(1));
+      expect(KivixaFileType.text.index, equals(2));
     });
   });
 }

@@ -339,27 +339,21 @@ class _BrowsePageState extends State<BrowsePage> {
       }).toList();
     }
 
-    // Apply file type filter
+    // Apply file type filter using the pre-computed file type info
+    // This avoids synchronous file system checks which can fail on Android
     switch (_filterType) {
       case FileFilterType.handwritten:
         files = files.where((file) {
-          // Check if .kvx file exists
-          final fullPath = "${path ?? ""}/$file";
-          return FileManager.doesFileExist('$fullPath${Editor.extension}');
+          // Use the file type info from DirectoryChildren
+          return children!.isFileType(file, KivixaFileType.handwritten);
         }).toList();
       case FileFilterType.markdown:
         files = files.where((file) {
-          // Check if .md file exists
-          final fullPath = "${path ?? ""}/$file";
-          return FileManager.doesFileExist('$fullPath.md');
+          return children!.isFileType(file, KivixaFileType.markdown);
         }).toList();
       case FileFilterType.text:
         files = files.where((file) {
-          // Check if .kvtx file exists
-          final fullPath = "${path ?? ""}/$file";
-          return FileManager.doesFileExist(
-            '$fullPath${TextFileEditor.internalExtension}',
-          );
+          return children!.isFileType(file, KivixaFileType.text);
         }).toList();
       case FileFilterType.all:
     }

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -532,6 +533,10 @@ class _BrowserWindowState extends State<BrowserWindow> {
     final tab = _currentTab;
     if (tab == null) return const Center(child: Text('No tab'));
 
+    // On Android, we need special handling to prevent gesture conflicts
+    // that can cause taps to trigger reloads instead of normal actions
+    final isAndroid = !kIsWeb && Platform.isAndroid;
+
     return InAppWebView(
       key: ValueKey(tab.id),
       initialUrlRequest: URLRequest(url: WebUri(tab.url)),
@@ -541,12 +546,32 @@ class _BrowserWindowState extends State<BrowserWindow> {
         supportZoom: true,
         builtInZoomControls: !_isDesktop,
         displayZoomControls: false,
+        // On Android, use hybrid composition for better touch handling
+        // but also set specific gesture options
         useHybridComposition: true,
         allowsInlineMediaPlayback: true,
         mediaPlaybackRequiresUserGesture: false,
         transparentBackground: false,
         useShouldOverrideUrlLoading: true,
+        // Android-specific settings to prevent gesture conflicts
+        // This prevents the WebView from intercepting gestures meant for parent widgets
+        overScrollMode: isAndroid ? OverScrollMode.NEVER : null,
+        // Disable pull-to-refresh which can conflict with taps on Android
+        disallowOverScroll: isAndroid,
+        // Enable smooth scrolling
+        scrollBarStyle: ScrollBarStyle.SCROLLBARS_OUTSIDE_OVERLAY,
+        // Ensure touch events are handled correctly on Android
+        verticalScrollBarEnabled: true,
+        horizontalScrollBarEnabled: true,
       ),
+      // Use a gesture recognizer factory on Android to prevent conflicts
+      gestureRecognizers: isAndroid
+          ? <Factory<OneSequenceGestureRecognizer>>{
+              Factory<VerticalDragGestureRecognizer>(
+                () => VerticalDragGestureRecognizer(),
+              ),
+            }
+          : null,
       onWebViewCreated: (controller) {
         tab.controller = controller;
       },

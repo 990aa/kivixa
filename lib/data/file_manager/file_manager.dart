@@ -514,8 +514,8 @@ class FileManager {
     directory = _sanitisePath(directory);
     if (!directory.endsWith('/')) directory += '/';
 
-    final Iterable<String> allChildren;
     final List<String> directories = [], files = [];
+    final Map<String, KivixaFileType> fileTypes = {};
 
     final dir = Directory(documentsDirectory + directory);
     if (!dir.existsSync()) return null;
@@ -523,73 +523,88 @@ class FileManager {
     final int directoryPrefixLength = directory.endsWith('/')
         ? directory.length
         : directory.length + 1;
-    allChildren = await dir
-        .list()
-        .map((FileSystemEntity entity) {
-          final filePath = entity.path.substring(documentsDirectory.length);
 
-          if (entity is Directory) return filePath;
+    // Process directory listing and track file types
+    final entities = await dir.list().toList();
+    for (final entity in entities) {
+      final filePath = entity.path.substring(documentsDirectory.length);
 
-          if (Editor.isReservedPath(filePath)) return null;
-
-          late final iskvx = filePath.endsWith(Editor.extension);
-          late final iskvx1 = filePath.endsWith(Editor.extensionOldJson);
-          late final ismd = filePath.endsWith('.md');
-          late final iskvtx = filePath.endsWith(
-            TextFileEditor.internalExtension,
-          );
-
-          if (!includeExtensions) {
-            if (iskvx) {
-              return filePath.substring(
-                0,
-                filePath.length - Editor.extension.length,
-              );
-            } else if (iskvx1) {
-              return filePath.substring(
-                0,
-                filePath.length - Editor.extensionOldJson.length,
-              );
-            } else if (ismd) {
-              return filePath.substring(0, filePath.length - '.md'.length);
-            } else if (iskvtx) {
-              return filePath.substring(
-                0,
-                filePath.length - TextFileEditor.internalExtension.length,
-              );
-            } else {
-              return null;
-            }
-          } else if (!includeAssets) {
-            final isAsset = !iskvx && !iskvx1 && !ismd && !iskvtx;
-            if (isAsset) return null;
-          }
-
-          return filePath;
-        })
-        .where((String? file) => file != null)
-        .map((file) => file!.substring(directoryPrefixLength))
-        .toList();
-
-    // Hidden directories that should not appear in the browse view
-    const hiddenDirectories = {'plugins', '.lifegit', 'models'};
-
-    await Future.wait(
-      allChildren.map((child) async {
-        if (FileManager.isDirectory(directory + child) &&
-            !directories.contains(child)) {
-          // Skip hidden directories
-          if (hiddenDirectories.contains(child)) return;
-          directories.add(child);
-        } else if (!includeAssets && assetFileRegex.hasMatch(child)) {
-        } else if (!files.contains(child)) {
-          // Only add if not already in the list (handles same base name with different extensions)
-          files.add(child);
+      if (entity is Directory) {
+        final childName = filePath.substring(directoryPrefixLength);
+        // Hidden directories that should not appear in the browse view
+        const hiddenDirectories = {'plugins', '.lifegit', 'models'};
+        if (!hiddenDirectories.contains(childName) &&
+            !directories.contains(childName)) {
+          directories.add(childName);
         }
-      }),
-    );
+        continue;
+      }
 
-    return DirectoryChildren(directories, files);
+      if (Editor.isReservedPath(filePath)) continue;
+
+      final iskvx = filePath.endsWith(Editor.extension);
+      final iskvx1 = filePath.endsWith(Editor.extensionOldJson);
+      final ismd = filePath.endsWith('.md');
+      final iskvtx = filePath.endsWith(TextFileEditor.internalExtension);
+
+      String? childName;
+      KivixaFileType? fileType;
+
+      if (!includeExtensions) {
+        if (iskvx) {
+          childName = filePath.substring(
+            directoryPrefixLength,
+            filePath.length - Editor.extension.length,
+          );
+          fileType = KivixaFileType.handwritten;
+        } else if (iskvx1) {
+          childName = filePath.substring(
+            directoryPrefixLength,
+            filePath.length - Editor.extensionOldJson.length,
+          );
+          fileType = KivixaFileType.handwritten;
+        } else if (ismd) {
+          childName = filePath.substring(
+            directoryPrefixLength,
+            filePath.length - '.md'.length,
+          );
+          fileType = KivixaFileType.markdown;
+        } else if (iskvtx) {
+          childName = filePath.substring(
+            directoryPrefixLength,
+            filePath.length - TextFileEditor.internalExtension.length,
+          );
+          fileType = KivixaFileType.text;
+        }
+      } else {
+        if (!includeAssets) {
+          final isAsset = !iskvx && !iskvx1 && !ismd && !iskvtx;
+          if (isAsset) continue;
+        }
+        childName = filePath.substring(directoryPrefixLength);
+        if (iskvx || iskvx1) {
+          fileType = KivixaFileType.handwritten;
+        } else if (ismd) {
+          fileType = KivixaFileType.markdown;
+        } else if (iskvtx) {
+          fileType = KivixaFileType.text;
+        }
+      }
+
+      if (childName != null) {
+        // Skip asset files
+        if (!includeAssets && assetFileRegex.hasMatch(childName)) continue;
+
+        if (!files.contains(childName)) {
+          files.add(childName);
+          if (fileType != null) {
+            fileTypes[childName] = fileType;
+          }
+        }
+      }
+    }
+
+    return DirectoryChildren(directories, files, fileTypes);
   }
 
   static Future<List<String>> getAllFiles({
@@ -889,16 +904,40 @@ class FileManager {
   static const maxRecentlyAccessedFiles = 30;
 }
 
+/// Note file type enumeration for browse filtering
+/// Named KivixaFileType to avoid conflict with file_picker's FileType
+enum KivixaFileType {
+  handwritten, // .kvx files
+  markdown, // .md files
+  text, // .kvtx files
+}
+
 class DirectoryChildren {
   final List<String> directories;
   final List<String> files;
 
-  DirectoryChildren(this.directories, this.files);
+  /// Maps file name (without extension) to its file type
+  /// This is populated during directory listing for efficient filtering
+  final Map<String, KivixaFileType> fileTypes;
+
+  DirectoryChildren(
+    this.directories,
+    this.files, [
+    Map<String, KivixaFileType>? fileTypes,
+  ]) : fileTypes = fileTypes ?? {};
 
   bool onlyOneChild() => directories.length + files.length <= 1;
 
   bool get isEmpty => directories.isEmpty && files.isEmpty;
   bool get isNotEmpty => !isEmpty;
+
+  /// Get the file type for a given file name
+  /// Returns null if the file type is unknown
+  KivixaFileType? getFileType(String fileName) => fileTypes[fileName];
+
+  /// Check if a file is of a specific type
+  bool isFileType(String fileName, KivixaFileType type) =>
+      fileTypes[fileName] == type;
 }
 
 enum FileOperationType { write, delete }

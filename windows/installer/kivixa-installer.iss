@@ -84,39 +84,63 @@ Filename: "{tmp}\MicrosoftEdgeWebview2Setup.exe"; Parameters: "/silent /install"
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 ; ------------------------------------------------------------------------------
-; Code Section: Modern Dark UI
+; Code Section: Modern Light UI with Purple/Blue Theme
 ; ------------------------------------------------------------------------------
 [Code]
 
 var
   CustomWelcomePage: TWizardPage;
+  TermsPage: TWizardPage;
+  PrivacyPage: TWizardPage;
   WelcomeTitle, WelcomeDesc, WelcomeDev: TNewStaticText;
+  TermsMemo, PrivacyMemo: TNewMemo;
+  TermsCheckBox, PrivacyCheckBox: TNewCheckBox;
   FooterPanel: TPanel;
   FooterImage: TBitmapImage;
   FooterBitmap: TBitmap;
 
 // ---------------------------------------------------------
+// Color Constants - Light Theme with Purple/Blue accents
+// ---------------------------------------------------------
+const
+  // Background colors (light greys)
+  BgLight = $F5F5F5;        // Very light grey background
+  BgMedium = $EBEBEB;       // Medium light grey
+  BgDark = $E0E0E0;         // Slightly darker grey for contrast
+  
+  // Accent colors (purple/blue)
+  AccentPurple = $A06040;   // Purple accent (BGR: light purple)
+  AccentBlue = $C08050;     // Blue accent (BGR: soft blue)
+  AccentGradientStart = $C08060; // Light blue-purple
+  AccentGradientEnd = $905040;   // Deeper purple
+  
+  // Text colors
+  TextPrimary = $202020;    // Dark text on light background
+  TextSecondary = $606060;  // Secondary text
+  TextMuted = $909090;      // Muted text
+
+// ---------------------------------------------------------
 // Helper: Gradient Drawing Function
 // ---------------------------------------------------------
-procedure DrawGradient(Canvas: TCanvas; Rect: TRect; StartColor, EndColor: TColor);
+procedure DrawGradient(Canvas: TCanvas; R: TRect; StartColor, EndColor: TColor);
 var
-  X, Width: Integer;
+  X, W: Integer;
   R0, G0, B0, R1, G1, B1: Integer;
-  R, G, B: Integer;
+  RC, GC, BC: Integer;
 begin
   R0 := (StartColor) and $FF; G0 := (StartColor shr 8) and $FF; B0 := (StartColor shr 16) and $FF;
   R1 := (EndColor) and $FF;   G1 := (EndColor shr 8) and $FF;   B1 := (EndColor shr 16) and $FF;
-  Width := Rect.Right - Rect.Left;
-  if Width = 0 then Exit;
+  W := R.Right - R.Left;
+  if W = 0 then Exit;
 
-  for X := Rect.Left to Rect.Right do
+  for X := R.Left to R.Right do
   begin
-    R := R0 + ((X - Rect.Left) * (R1 - R0)) div Width;
-    G := G0 + ((X - Rect.Left) * (G1 - G0)) div Width;
-    B := B0 + ((X - Rect.Left) * (B1 - B0)) div Width;
-    Canvas.Pen.Color := (R or (G shl 8) or (B shl 16));
-    Canvas.MoveTo(X, Rect.Top);
-    Canvas.LineTo(X, Rect.Bottom);
+    RC := R0 + ((X - R.Left) * (R1 - R0)) div W;
+    GC := G0 + ((X - R.Left) * (G1 - G0)) div W;
+    BC := B0 + ((X - R.Left) * (B1 - B0)) div W;
+    Canvas.Pen.Color := (RC or (GC shl 8) or (BC shl 16));
+    Canvas.MoveTo(X, R.Top);
+    Canvas.LineTo(X, R.Bottom);
   end;
 end;
 
@@ -132,16 +156,153 @@ begin
 end;
 
 // ---------------------------------------------------------
+// Terms and Conditions Text
+// ---------------------------------------------------------
+function GetTermsText: String;
+begin
+  Result := 
+    'KIVIXA TERMS AND CONDITIONS' + #13#10 +
+    #13#10 +
+    'Last Updated: December 2025' + #13#10 +
+    'Version: 0.1.7' + #13#10 +
+    #13#10 +
+    'By using Kivixa, you agree to these terms and conditions.' + #13#10 +
+    #13#10 +
+    '1. ACCEPTANCE OF TERMS' + #13#10 +
+    #13#10 +
+    'By downloading, installing, or using the Kivixa application ("App"), you agree to be bound by these Terms and Conditions ("Terms"). If you do not agree to these Terms, do not use the App.' + #13#10 +
+    #13#10 +
+    '2. LICENSE' + #13#10 +
+    #13#10 +
+    'Kivixa grants you a limited, non-exclusive, non-transferable, revocable license to use the App for personal or educational purposes, subject to these Terms.' + #13#10 +
+    #13#10 +
+    '3. USER DATA' + #13#10 +
+    #13#10 +
+    '3.1 Local Storage: Your notes, projects, and other data are stored locally on your device. Kivixa does not collect or transmit your personal data to external servers unless you explicitly use sync or backup features.' + #13#10 +
+    #13#10 +
+    '3.2 Data Responsibility: You are responsible for backing up your data. Kivixa is not responsible for any data loss due to device failure, app updates, or user error.' + #13#10 +
+    #13#10 +
+    '3.3 Data Clearing: The App provides options to clear your data. Once cleared, data cannot be recovered.' + #13#10 +
+    #13#10 +
+    '4. INTELLECTUAL PROPERTY' + #13#10 +
+    #13#10 +
+    '4.1 App Content: The App, including its design, code, graphics, and documentation, is the property of the Kivixa development team and is protected by intellectual property laws.' + #13#10 +
+    #13#10 +
+    '4.2 User Content: You retain ownership of all content you create using the App. By using the App, you grant Kivixa a limited license to process your content solely for the purpose of providing App functionality.' + #13#10 +
+    #13#10 +
+    '5. PROHIBITED USES' + #13#10 +
+    #13#10 +
+    'You agree not to:' + #13#10 +
+    '- Reverse engineer, decompile, or disassemble the App' + #13#10 +
+    '- Use the App for any illegal or unauthorized purpose' + #13#10 +
+    '- Distribute, sell, or sublicense the App' + #13#10 +
+    '- Remove any proprietary notices from the App' + #13#10 +
+    #13#10 +
+    '6. DISCLAIMER OF WARRANTIES' + #13#10 +
+    #13#10 +
+    'THE APP IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. KIVIXA DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.' + #13#10 +
+    #13#10 +
+    '7. LIMITATION OF LIABILITY' + #13#10 +
+    #13#10 +
+    'IN NO EVENT SHALL KIVIXA BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR RELATED TO YOUR USE OF THE APP.' + #13#10 +
+    #13#10 +
+    '8. UPDATES AND MODIFICATIONS' + #13#10 +
+    #13#10 +
+    'Kivixa may update or modify the App at any time. Continued use of the App after updates constitutes acceptance of any modified Terms.' + #13#10 +
+    #13#10 +
+    '9. TERMINATION' + #13#10 +
+    #13#10 +
+    'Kivixa may terminate your access to the App at any time for any reason. Upon termination, you must cease all use of the App.' + #13#10 +
+    #13#10 +
+    '10. GOVERNING LAW' + #13#10 +
+    #13#10 +
+    'These Terms shall be governed by and construed in accordance with applicable laws, without regard to conflict of law principles.' + #13#10 +
+    #13#10 +
+    '11. CONTACT' + #13#10 +
+    #13#10 +
+    'For questions about these Terms, please visit our repository or contact the development team.';
+end;
+
+// ---------------------------------------------------------
+// Privacy Policy Text
+// ---------------------------------------------------------
+function GetPrivacyText: String;
+begin
+  Result := 
+    'KIVIXA PRIVACY POLICY' + #13#10 +
+    #13#10 +
+    'Last Updated: December 2025' + #13#10 +
+    #13#10 +
+    '1. INFORMATION WE COLLECT' + #13#10 +
+    #13#10 +
+    'Kivixa is designed with privacy in mind. We do not collect personal information unless explicitly stated.' + #13#10 +
+    #13#10 +
+    '1.1 Local Data: All notes, projects, and settings are stored locally on your device.' + #13#10 +
+    #13#10 +
+    '1.2 No Telemetry: Kivixa does not send usage statistics or telemetry data.' + #13#10 +
+    #13#10 +
+    '2. DATA STORAGE' + #13#10 +
+    #13#10 +
+    'Your data is stored in the following locations:' + #13#10 +
+    '- Notes and documents: Local device storage' + #13#10 +
+    '- Settings and preferences: Local app preferences' + #13#10 +
+    '- Calendar events: Local device storage' + #13#10 +
+    '- AI models (if downloaded): Local device storage' + #13#10 +
+    #13#10 +
+    '3. LOCAL AI FEATURES' + #13#10 +
+    #13#10 +
+    '3.1 On-Device Processing: Kivixa includes optional AI features powered by Small Language Models (SLMs) and Large Language Models (LLMs) that run entirely on your device. All AI processing occurs locally without any data being sent to external servers.' + #13#10 +
+    #13#10 +
+    '3.2 No Cloud AI: Unlike many applications, Kivixa does NOT use cloud-based AI services. Your notes, documents, and any content processed by AI features never leave your device.' + #13#10 +
+    #13#10 +
+    '3.3 AI Model Storage: Downloaded AI models are stored locally on your device and can be removed at any time through the app settings.' + #13#10 +
+    #13#10 +
+    '3.4 Privacy by Design: The local AI architecture ensures complete privacy - your conversations with AI, document analysis, and all AI-assisted features remain entirely private on your device.' + #13#10 +
+    #13#10 +
+    '4. DATA SHARING' + #13#10 +
+    #13#10 +
+    'We do not share your data with third parties.' + #13#10 +
+    #13#10 +
+    '5. SECURITY' + #13#10 +
+    #13#10 +
+    'While we implement reasonable security measures, no system is completely secure. You are responsible for maintaining the security of your device.' + #13#10 +
+    #13#10 +
+    '6. CHILDREN''S PRIVACY' + #13#10 +
+    #13#10 +
+    'Kivixa is not intended for children under 13 years of age.' + #13#10 +
+    #13#10 +
+    '7. CHANGES TO THIS POLICY' + #13#10 +
+    #13#10 +
+    'We may update this Privacy Policy from time to time. Continued use of the App constitutes acceptance of any changes.' + #13#10 +
+    #13#10 +
+    '8. CONTACT' + #13#10 +
+    #13#10 +
+    'For privacy-related questions, please visit our repository or contact the development team.';
+end;
+
+// ---------------------------------------------------------
+// Checkbox Click Handler
+// ---------------------------------------------------------
+procedure CheckBoxClick(Sender: TObject);
+begin
+  // Enable/disable next button based on checkbox state
+  WizardForm.NextButton.Enabled := 
+    (WizardForm.CurPageID <> TermsPage.ID) or TermsCheckBox.Checked;
+  WizardForm.NextButton.Enabled := 
+    (WizardForm.CurPageID <> PrivacyPage.ID) or PrivacyCheckBox.Checked;
+end;
+
+// ---------------------------------------------------------
 // UI Initialization
 // ---------------------------------------------------------
 procedure InitializeWizard;
 var
   FooterHeight: Integer;
 begin
-  // 1. Set Global Dark Theme Colors
-  WizardForm.Color := $282828; 
-  WizardForm.InnerPage.Color := $282828;
-  WizardForm.MainPanel.Color := $282828;
+  // 1. Set Global Light Theme Colors
+  WizardForm.Color := BgLight; 
+  WizardForm.InnerPage.Color := BgLight;
+  WizardForm.MainPanel.Color := BgMedium;
 
   // 2. Create the Footer Panel Gradient Accent
   FooterHeight := 45; 
@@ -156,11 +317,11 @@ begin
     SendToBack; 
   end;
 
-  // Draw Gradient on Footer
+  // Draw Gradient on Footer with purple/blue colors
   FooterBitmap := TBitmap.Create;
   FooterBitmap.Width := WizardForm.ClientWidth;
   FooterBitmap.Height := FooterHeight;
-  DrawGradient(FooterBitmap.Canvas, Rect(0, 0, FooterBitmap.Width, FooterBitmap.Height), $301E14, $553B24);
+  DrawGradient(FooterBitmap.Canvas, Rect(0, 0, FooterBitmap.Width, FooterBitmap.Height), AccentGradientStart, AccentGradientEnd);
 
   FooterImage := TBitmapImage.Create(WizardForm);
   with FooterImage do
@@ -187,7 +348,7 @@ begin
     Font.Name := 'Segoe UI'; 
     Font.Style := [fsBold];
     Font.Size := 22;
-    Font.Color := clWhite;
+    Font.Color := TextPrimary;
     Top := 40;
     Left := 20;
     Color := WizardForm.Color; 
@@ -200,10 +361,10 @@ begin
     Parent := CustomWelcomePage.Surface;
     Caption := 'A Modern Cross-Platform Notes & Productivity App.' + #13#10 + #13#10 +
                 'This wizard will install {#MyAppName} on your computer.' + #13#10 +
-                'Click Next to continue.';
+                'Click Next to review the Terms and Conditions.';
     Font.Name := 'Segoe UI';
     Font.Size := 11;
-    Font.Color := $E0E0E0; // Light gray
+    Font.Color := TextSecondary;
     Top := 100;
     Left := 20;
     Width := CustomWelcomePage.Surface.Width - 40;
@@ -218,15 +379,81 @@ begin
     Parent := CustomWelcomePage.Surface;
     Caption := 'Developed by {#MyAppPublisher}';
     Font.Size := 9;
-    Font.Color := clSilver;
+    Font.Color := TextMuted;
     Top := CustomWelcomePage.Surface.Height - 30;
     Left := 20;
     Color := WizardForm.Color;
   end;
+
+  // 4. Create Terms and Conditions Page
+  TermsPage := CreateCustomPage(CustomWelcomePage.ID, 'Terms and Conditions', 'Please read and accept the terms and conditions');
+  
+  TermsMemo := TNewMemo.Create(WizardForm);
+  with TermsMemo do
+  begin
+    Parent := TermsPage.Surface;
+    Left := 0;
+    Top := 0;
+    Width := TermsPage.Surface.Width;
+    Height := TermsPage.Surface.Height - 40;
+    ScrollBars := ssVertical;
+    ReadOnly := True;
+    Text := GetTermsText;
+    Color := $FFFFFF;
+    Font.Name := 'Segoe UI';
+    Font.Size := 9;
+    Font.Color := TextPrimary;
+  end;
+  
+  TermsCheckBox := TNewCheckBox.Create(WizardForm);
+  with TermsCheckBox do
+  begin
+    Parent := TermsPage.Surface;
+    Left := 0;
+    Top := TermsPage.Surface.Height - 30;
+    Width := TermsPage.Surface.Width;
+    Caption := 'I have read and accept the Terms and Conditions';
+    Font.Name := 'Segoe UI';
+    Font.Color := TextPrimary;
+    OnClick := @CheckBoxClick;
+  end;
+
+  // 5. Create Privacy Policy Page
+  PrivacyPage := CreateCustomPage(TermsPage.ID, 'Privacy Policy', 'Please read and accept the privacy policy');
+  
+  PrivacyMemo := TNewMemo.Create(WizardForm);
+  with PrivacyMemo do
+  begin
+    Parent := PrivacyPage.Surface;
+    Left := 0;
+    Top := 0;
+    Width := PrivacyPage.Surface.Width;
+    Height := PrivacyPage.Surface.Height - 40;
+    ScrollBars := ssVertical;
+    ReadOnly := True;
+    Text := GetPrivacyText;
+    Color := $FFFFFF;
+    Font.Name := 'Segoe UI';
+    Font.Size := 9;
+    Font.Color := TextPrimary;
+  end;
+  
+  PrivacyCheckBox := TNewCheckBox.Create(WizardForm);
+  with PrivacyCheckBox do
+  begin
+    Parent := PrivacyPage.Surface;
+    Left := 0;
+    Top := PrivacyPage.Surface.Height - 30;
+    Width := PrivacyPage.Surface.Width;
+    Caption := 'I have read and accept the Privacy Policy';
+    Font.Name := 'Segoe UI';
+    Font.Color := TextPrimary;
+    OnClick := @CheckBoxClick;
+  end;
 end;
 
 // ---------------------------------------------------------
-// Page Handling: Apply Dark Mode text colors dynamically
+// Page Handling: Apply Light Mode text colors dynamically
 // ---------------------------------------------------------
 procedure CurPageChanged(CurPageID: Integer);
 begin
@@ -240,27 +467,39 @@ begin
     WizardForm.MainPanel.Visible := True; 
   end;
 
-  // 2. Force Labels to White for Dark Mode
-  WizardForm.PageNameLabel.Font.Color := clWhite;
-  WizardForm.PageDescriptionLabel.Font.Color := clSilver;
+  // 2. Handle Terms Page - Disable Next until accepted
+  if CurPageID = TermsPage.ID then
+  begin
+    WizardForm.NextButton.Enabled := TermsCheckBox.Checked;
+  end;
+  
+  // 3. Handle Privacy Page - Disable Next until accepted
+  if CurPageID = PrivacyPage.ID then
+  begin
+    WizardForm.NextButton.Enabled := PrivacyCheckBox.Checked;
+  end;
+
+  // 4. Force Labels to dark text for Light Mode
+  WizardForm.PageNameLabel.Font.Color := TextPrimary;
+  WizardForm.PageDescriptionLabel.Font.Color := TextSecondary;
   
   // Input fields
-  WizardForm.DirEdit.Color := $383838;
-  WizardForm.DirEdit.Font.Color := clWhite;
+  WizardForm.DirEdit.Color := $FFFFFF;
+  WizardForm.DirEdit.Font.Color := TextPrimary;
   
   // Text labels on pages
-  WizardForm.SelectDirLabel.Font.Color := clWhite;
+  WizardForm.SelectDirLabel.Font.Color := TextPrimary;
   
   // Tasks List (Checkboxes)
   if WizardForm.TasksList <> nil then
   begin
-    WizardForm.TasksList.Color := $282828;
-    WizardForm.TasksList.Font.Color := clWhite;
+    WizardForm.TasksList.Color := BgLight;
+    WizardForm.TasksList.Font.Color := TextPrimary;
   end;
 
   // Finished Page
-  WizardForm.FinishedLabel.Font.Color := clWhite;
-  WizardForm.FinishedHeadingLabel.Font.Color := clWhite;
+  WizardForm.FinishedLabel.Font.Color := TextPrimary;
+  WizardForm.FinishedHeadingLabel.Font.Color := TextPrimary;
 end;
 
 procedure DeinitializeSetup;
