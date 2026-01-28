@@ -68,7 +68,7 @@
     "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
     "size": 71888777,
     "apkName": "Kivixa-Android-0.0.7-test-arm64.apk",
-    "added": 1769525187.452697
+    "added": 1769565174.088854
   },
   "Kivixa-Android-0.0.7-test-armv7.apk": {
     "hash": "71927186dfa3083f86802a31d00f1da0bf02522a9658ec031390232a0058519c",
@@ -137,7 +137,7 @@
     "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
     "size": 66426775,
     "apkName": "Kivixa-Android-0.0.7-test-armv7.apk",
-    "added": 1769525188.093577
+    "added": 1769565174.814886
   },
   "Kivixa-Android-0.0.7-test-x86_64.apk": {
     "hash": "df840a2ad8a61079d5bf9bab3587488afb9c03fd61025e914c4c6d69fa0a2085",
@@ -206,10 +206,10 @@
     "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
     "size": 77972408,
     "apkName": "Kivixa-Android-0.0.7-test-x86_64.apk",
-    "added": 1769525188.777692
+    "added": 1769565175.564892
   },
   "Kivixa-Android-0.1.6-arm64.apk": {
-    "hash": "3ade581ea1ab4bdd2efa418985a21448f4bda561a950f1c933dc4c6282b04712",
+    "hash": "0057e552f3afb9975a4bd9e11edbb4696b0c45985c0ffce072bf6ec3700f2b10",
     "hashType": "sha256",
     "uses-permission": [
       [
@@ -275,10 +275,10 @@
     "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
     "size": 71888773,
     "apkName": "Kivixa-Android-0.1.6-arm64.apk",
-    "added": 1769525189.467523
+    "added": 1769565176.279114
   },
   "Kivixa-Android-0.1.6-armv7.apk": {
-    "hash": "734946b243a2a8f1dba51457b590399778adff48b17660eb5d391b1f6a3af53e",
+    "hash": "b6f0d5e0c3757539d82747f94aa4d000969a825f7280b9dd64c74e78a5904b37",
     "hashType": "sha256",
     "uses-permission": [
       [
@@ -344,10 +344,10 @@
     "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
     "size": 66426771,
     "apkName": "Kivixa-Android-0.1.6-armv7.apk",
-    "added": 1769525190.130497
+    "added": 1769565177.006087
   },
   "Kivixa-Android-0.1.6-x86_64.apk": {
-    "hash": "2d6b00d9943cceb7e729bfa7e91433751762cb341248ebeb1c2c6fc4dbaa6266",
+    "hash": "9f49b8c094b0650e219818b3df33a2570dde9bf88cab0e5f0cc5d2d109d4ec68",
     "hashType": "sha256",
     "uses-permission": [
       [
@@ -413,6 +413,6 @@
     "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
     "size": 77972404,
     "apkName": "Kivixa-Android-0.1.6-x86_64.apk",
-    "added": 1769525190.810653
+    "added": 1769565177.760649
   }
 }

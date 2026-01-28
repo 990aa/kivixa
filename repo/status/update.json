@@ -1,0 +1,57 @@
+{
+  "/etc/issue.net": "Ubuntu 24.04.3 LTS",
+  "antiFeatures": {},
+  "apksigner": "/usr/bin/apksigner",
+  "archivePolicy0": [],
+  "commandLine": [
+    "/opt/hostedtoolcache/Python/3.11.14/x64/bin/fdroid update",
+    "--create-metadata",
+    "--verbose",
+    "--pretty"
+  ],
+  "disabled": [],
+  "endTimestamp": 1769565181026,
+  "failedBuilds": {},
+  "fdroiddata": {
+    "commitId": "9472666335d917a5dc6d7910c8e6b6c6bb3d3f35",
+    "isDirty": true,
+    "modifiedFiles": [
+      "config.yml",
+      "fdroid-apks/Kivixa-Android-0.1.6-arm64.apk",
+      "fdroid-apks/Kivixa-Android-0.1.6-armv7.apk",
+      "fdroid-apks/Kivixa-Android-0.1.6-x86_64.apk",
+      "metadata/com.a990aa.kivixa/en-US/full_description.txt",
+      "repo/Kivixa-Android-0.1.6-arm64.apk",
+      "repo/Kivixa-Android-0.1.6-armv7.apk",
+      "repo/Kivixa-Android-0.1.6-x86_64.apk"
+    ],
+    "untrackedFiles": [
+      "keystore.p12",
+      "repo/Kivixa-Android-0.0.7-test-arm64.apk",
+      "repo/Kivixa-Android-0.0.7-test-armv7.apk",
+      "repo/Kivixa-Android-0.0.7-test-x86_64.apk"
+    ]
+  },
+  "jarsigner": "/usr/bin/jarsigner",
+  "keytool": "/usr/bin/keytool",
+  "needsUpdate": [
+    "com.a990aa.kivixa"
+  ],
+  "noPackages": [
+    "com.a990aa.kivixa"
+  ],
+  "noUpdateCheck": [
+    "com.a990aa.kivixa"
+  ],
+  "stages": {
+    "delete_disabled_builds": 1769565173031,
+    "index.make repo": 1769565177763,
+    "prepare_apps repo": 1769565177762,
+    "process_apks": 1769565173031,
+    "read_added_date_from_all_apks": 1769565177762,
+    "remove_apks": 1769565177761,
+    "scan_repo_files": 1769565177760
+  },
+  "startTimestamp": 1769565167000,
+  "subcommand": "update"
+}
