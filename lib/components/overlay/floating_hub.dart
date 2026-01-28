@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -48,6 +49,9 @@ class _FloatingHubOverlayState extends State<FloatingHubOverlay>
       defaultTargetPlatform == TargetPlatform.macOS ||
       defaultTargetPlatform == TargetPlatform.linux;
 
+  /// Whether we're on Android.
+  bool get _isAndroid => Platform.isAndroid;
+
   @override
   void initState() {
     super.initState();
@@ -64,10 +68,24 @@ class _FloatingHubOverlayState extends State<FloatingHubOverlay>
       curve: Curves.easeOutBack,
     );
     OverlayController.instance.addListener(_onOverlayChanged);
+
+    // If hub menu was already expanded when we build, start animation
+    if (OverlayController.instance.hubMenuExpanded) {
+      _hoverController.forward();
+    }
   }
 
   void _onOverlayChanged() {
-    if (mounted) setState(() {});
+    if (mounted) {
+      // Trigger animation when menu expands/collapses
+      final controller = OverlayController.instance;
+      if (controller.hubMenuExpanded && !_hoverController.isAnimating) {
+        _hoverController.forward();
+      } else if (!controller.hubMenuExpanded && !_isHovering && !_isDragging) {
+        _hoverController.reverse();
+      }
+      setState(() {});
+    }
   }
 
   @override
@@ -136,8 +154,13 @@ class _FloatingHubOverlayState extends State<FloatingHubOverlay>
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final hubSize = 56.0 * controller.hubScale;
-    // Increase touch targets on desktop for better mouse interaction
-    final touchPadding = _isDesktop ? 4.0 : 0.0;
+    // Increase touch targets on desktop for better mouse interaction, larger on mobile for fingers
+    final touchPadding = _isDesktop ? 4.0 : (_isAndroid ? 8.0 : 0.0);
+
+    // Determine if menu should appear above or below the hub based on position
+    // If hub is in upper half of screen, show menu below; otherwise show above
+    final hubY = controller.hubPosition.dy * (screenSize.height - hubSize);
+    final showMenuBelow = hubY < screenSize.height / 2;
 
     return MouseRegion(
       onEnter: (_) => _onHoverEnter(),
@@ -145,7 +168,8 @@ class _FloatingHubOverlayState extends State<FloatingHubOverlay>
       child: HoverAnimationBuilder(
         animation: _hoverAnimation,
         builder: (context, child) {
-          final opacity = _isDragging || _isHovering
+          final opacity =
+              _isDragging || _isHovering || controller.hubMenuExpanded
               ? 1.0
               : controller.hubOpacity +
                     (_hoverAnimation.value * (1.0 - controller.hubOpacity));
@@ -156,9 +180,9 @@ class _FloatingHubOverlayState extends State<FloatingHubOverlay>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Expanded menu items using registered tools
-                if (controller.hubMenuExpanded)
-                  _buildMenu(context, controller, hubSize),
+                // Expanded menu items using registered tools (shown above hub)
+                if (controller.hubMenuExpanded && !showMenuBelow)
+                  _buildMenu(context, controller, hubSize, showBelow: false),
 
                 // Main hub button
                 Padding(
@@ -184,11 +208,17 @@ class _FloatingHubOverlayState extends State<FloatingHubOverlay>
                     },
                     onPanEnd: (details) {
                       _isDragging = false;
-                      if (!_isHovering) {
+                      if (!_isHovering && !controller.hubMenuExpanded) {
                         _hoverController.reverse();
                       }
                     },
-                    onTap: controller.toggleHubMenu,
+                    onTap: () {
+                      controller.toggleHubMenu();
+                      // On Android, ensure animation runs when tapped
+                      if (controller.hubMenuExpanded) {
+                        _hoverController.forward();
+                      }
+                    },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       width: hubSize,
@@ -225,6 +255,10 @@ class _FloatingHubOverlayState extends State<FloatingHubOverlay>
                     ),
                   ),
                 ),
+
+                // Expanded menu items shown below hub (when hub is at top of screen)
+                if (controller.hubMenuExpanded && showMenuBelow)
+                  _buildMenu(context, controller, hubSize, showBelow: true),
               ],
             ),
           );
@@ -236,14 +270,20 @@ class _FloatingHubOverlayState extends State<FloatingHubOverlay>
   Widget _buildMenu(
     BuildContext context,
     OverlayController controller,
-    double hubSize,
-  ) {
+    double hubSize, {
+    bool showBelow = false,
+  }) {
     final tools = controller.registeredTools;
     if (tools.isEmpty) return const SizedBox.shrink();
 
     switch (widget.menuLayout) {
       case HubMenuLayout.vertical:
-        return _buildVerticalMenu(context, tools, hubSize);
+        return _buildVerticalMenu(
+          context,
+          tools,
+          hubSize,
+          showBelow: showBelow,
+        );
       case HubMenuLayout.circular:
         return _buildCircularMenu(context, tools, hubSize);
     }
@@ -252,19 +292,23 @@ class _FloatingHubOverlayState extends State<FloatingHubOverlay>
   Widget _buildVerticalMenu(
     BuildContext context,
     List<OverlayTool> tools,
-    double hubSize,
-  ) {
+    double hubSize, {
+    bool showBelow = false,
+  }) {
     return AnimatedBuilder(
       animation: _menuAnimation,
       builder: (context, child) {
         return Transform.scale(
           scale: _menuAnimation.value,
-          alignment: Alignment.bottomCenter,
+          // Align from top when showing below, from bottom when showing above
+          alignment: showBelow ? Alignment.topCenter : Alignment.bottomCenter,
           child: Opacity(
             opacity: _menuAnimation.value.clamp(0.0, 1.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Add spacing at top when showing below
+                if (showBelow) const SizedBox(height: 12),
                 for (int i = 0; i < tools.length; i++) ...[
                   _buildMenuItem(
                     context: context,
@@ -274,7 +318,8 @@ class _FloatingHubOverlayState extends State<FloatingHubOverlay>
                   ),
                   if (i < tools.length - 1) const SizedBox(height: 8),
                 ],
-                const SizedBox(height: 12),
+                // Add spacing at bottom when showing above
+                if (!showBelow) const SizedBox(height: 12),
               ],
             ),
           ),
@@ -355,8 +400,10 @@ class _FloatingHubOverlayState extends State<FloatingHubOverlay>
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isActive = tool.active;
-    // Increase touch targets on desktop
-    final touchPadding = _isDesktop ? 4.0 : 0.0;
+    // Larger touch targets on Android for better finger interaction
+    final touchPadding = _isDesktop ? 4.0 : (_isAndroid ? 8.0 : 4.0);
+    // Make items slightly larger on Android
+    final effectiveSize = _isAndroid ? size * 1.1 : size;
 
     return Tooltip(
       message: tool.label,
@@ -366,20 +413,20 @@ class _FloatingHubOverlayState extends State<FloatingHubOverlay>
           color: isActive
               ? colorScheme.primaryContainer
               : colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(size / 2),
+          borderRadius: BorderRadius.circular(effectiveSize / 2),
           elevation: isActive ? 4 : 2,
           child: InkWell(
             onTap: tool.onTap,
-            borderRadius: BorderRadius.circular(size / 2),
+            borderRadius: BorderRadius.circular(effectiveSize / 2),
             child: SizedBox(
-              width: size,
-              height: size,
+              width: effectiveSize,
+              height: effectiveSize,
               child: Icon(
                 tool.icon,
                 color: isActive
                     ? colorScheme.primary
                     : colorScheme.onSurfaceVariant,
-                size: size * 0.5,
+                size: effectiveSize * 0.5,
               ),
             ),
           ),

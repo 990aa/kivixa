@@ -43,6 +43,7 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
     stows.floatingHubEnabled.addListener(_onSettingsChanged);
     stows.floatingHubSize.addListener(_onSettingsChanged);
     stows.floatingHubTransparency.addListener(_onSettingsChanged);
+    OverlayController.instance.addListener(_onSettingsChanged);
   }
 
   @override
@@ -50,6 +51,7 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
     stows.floatingHubEnabled.removeListener(_onSettingsChanged);
     stows.floatingHubSize.removeListener(_onSettingsChanged);
     stows.floatingHubTransparency.removeListener(_onSettingsChanged);
+    OverlayController.instance.removeListener(_onSettingsChanged);
     super.dispose();
   }
 
@@ -60,6 +62,13 @@ class _GlobalOverlayState extends State<GlobalOverlay> {
   Future<void> _initialize() async {
     await OverlayController.instance.initialize();
     await QuickNotesService.instance.initialize();
+
+    // Ensure default tools are registered (may have been missed on some platforms)
+    final controller = OverlayController.instance;
+    if (controller.registeredTools.isEmpty) {
+      controller.registerDefaultTools();
+    }
+
     if (mounted) {
       setState(() => _initialized = true);
     }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
@@ -76,7 +78,10 @@ class _UpdatesDialogState extends State<UpdatesDialog> {
     await _loadVersionInfo();
   }
 
+  /// Check if an update is truly available using semantic version comparison.
+  /// Returns false if versions are equal or current is newer.
   bool get _hasUpdate => UpdateManager.isUpdateAvailable();
+  bool get _isAndroid => Platform.isAndroid;
 
   String get _currentVersionString => version.buildName;
 
@@ -182,12 +187,27 @@ class _UpdatesDialogState extends State<UpdatesDialog> {
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: Text(
-                                'Update available!',
-                                style: TextStyle(
-                                  color: colorScheme.onPrimaryContainer,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Update available!',
+                                    style: TextStyle(
+                                      color: colorScheme.onPrimaryContainer,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  if (_isAndroid)
+                                    Text(
+                                      'Get the latest version from F-Droid',
+                                      style: TextStyle(
+                                        color: colorScheme.onPrimaryContainer
+                                            .withValues(alpha: 0.8),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
                           ],
@@ -387,12 +407,26 @@ class _UpdatesDialogState extends State<UpdatesDialog> {
     switch (state) {
       case BackgroundUpdateState.idle:
         if (_hasUpdate) {
-          actions.add(
-            CupertinoDialogAction(
-              onPressed: _startUpdate,
-              child: const Text('Download Update'),
-            ),
-          );
+          if (_isAndroid) {
+            // On Android, direct users to F-Droid for updates
+            actions.add(
+              CupertinoDialogAction(
+                onPressed: () => launchUrl(
+                  Uri.parse('https://990aa.github.io/kivixa/repo'),
+                  mode: LaunchMode.externalApplication,
+                ),
+                child: const Text('Get from F-Droid'),
+              ),
+            );
+          } else {
+            // On Windows/other platforms, allow direct download
+            actions.add(
+              CupertinoDialogAction(
+                onPressed: _startUpdate,
+                child: const Text('Download Update'),
+              ),
+            );
+          }
         }
       case BackgroundUpdateState.downloading:
         actions.add(

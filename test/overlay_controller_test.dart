@@ -282,16 +282,20 @@ void main() {
     });
 
     group('Tool Registration', () {
-      test('registerDefaultTools adds AI, browser, clock, and quick_notes', () {
-        controller.registerDefaultTools();
-        final tools = controller.registeredTools;
+      test(
+        'registerDefaultTools adds AI, browser, clock, quick_notes, and math',
+        () {
+          controller.registerDefaultTools();
+          final tools = controller.registeredTools;
 
-        expect(tools.length, 4);
-        expect(tools.any((t) => t.id == 'assistant'), true);
-        expect(tools.any((t) => t.id == 'browser'), true);
-        expect(tools.any((t) => t.id == 'clock'), true);
-        expect(tools.any((t) => t.id == 'quick_notes'), true);
-      });
+          expect(tools.length, 5);
+          expect(tools.any((t) => t.id == 'assistant'), true);
+          expect(tools.any((t) => t.id == 'browser'), true);
+          expect(tools.any((t) => t.id == 'clock'), true);
+          expect(tools.any((t) => t.id == 'quick_notes'), true);
+          expect(tools.any((t) => t.id == 'math'), true);
+        },
+      );
 
       test('registerTool adds custom tools', () {
         controller.registerTool(

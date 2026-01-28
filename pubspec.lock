@@ -5,10 +5,10 @@ packages:
     dependency: transitive
     description:
       name: _fe_analyzer_shared
-      sha256: c209688d9f5a5f26b2fb47a188131a6fb9e876ae9e47af3737c0b4f58a93470d
+      sha256: "8d7ff3948166b8ec5da0fbb5962000926b8e02f2ed9b3e51d1738905fbd4c98d"
       url: "https://pub.dev"
     source: hosted
-    version: "91.0.0"
+    version: "93.0.0"
   abstract_sync:
     dependency: "direct main"
     description:
@@ -21,10 +21,10 @@ packages:
     dependency: transitive
     description:
       name: analyzer
-      sha256: f51c8499b35f9b26820cfe914828a6a98a94efd5cc78b37bb7d03debae3a1d08
+      sha256: de7148ed2fcec579b19f122c1800933dfa028f6d9fd38a152b04b1516cec120b
       url: "https://pub.dev"
     source: hosted
-    version: "8.4.1"
+    version: "10.0.1"
   animated_vector:
     dependency: transitive
     description:
@@ -125,10 +125,10 @@ packages:
     dependency: "direct main"
     description:
       name: bson
-      sha256: f8c80be7a62a88f4add7c48cc83567c36a77532de107224df8328ef71f125045
+      sha256: "6e322cdf827db905ca48b018deed1804934840bce8ff6b3c2f5b2f81f99d8344"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.7"
+    version: "5.0.8"
   build:
     dependency: transitive
     description:
@@ -349,10 +349,10 @@ packages:
     dependency: transitive
     description:
       name: dart_style
-      sha256: a9c30492da18ff84efe2422ba2d319a89942d93e58eb0b73d32abe822ef54b7b
+      sha256: "8a0aa2b9bae196552b71575efc94580e447546c26c7120577bb6f81fbd33b52e"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.3"
+    version: "3.1.4"
   dbus:
     dependency: transitive
     description:
@@ -469,10 +469,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: d974b6ba2606371ac71dd94254beefb6fa81185bde0b59bdc1df09885da85fde
+      sha256: "57d9a1dd5063f85fa3107fb42d1faffda52fdc948cefd5fe5ea85267a5fc7343"
       url: "https://pub.dev"
     source: hosted
-    version: "10.3.8"
+    version: "10.3.10"
   file_selector_platform_interface:
     dependency: transitive
     description:
@@ -1279,26 +1279,26 @@ packages:
     dependency: "direct main"
     description:
       name: objectbox
-      sha256: "0a2528c5d0c20631938da3a04313011d3f996e4322a14edf36a7888bdf0c5891"
+      sha256: ac1e1ef852f60ea0af01fddb28811c8aa169f2b1ae9284e91e7b822abe5ed603
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.0"
+    version: "5.2.0"
   objectbox_flutter_libs:
     dependency: "direct main"
     description:
       name: objectbox_flutter_libs
-      sha256: f7f1f99e88e18ee2a61878e0b15526500b41c6ef367266cc88d36b3c22e85c37
+      sha256: "928aeabb2c246db225866cd931f2fea6c7684cc7046d54c02355a7b227ae5ba5"
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.0"
+    version: "5.2.0"
   objectbox_generator:
     dependency: "direct dev"
     description:
       name: objectbox_generator
-      sha256: ad422deb352a562a07f64d310e0f8beff8d781db1207d6856af07deeb0a478e2
+      sha256: "28628fa65d4fe8ade868cd50aa323ecdfd6d435fcda2cc7484071b84031f8c5e"
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.0"
+    version: "5.2.0"
   objective_c:
     dependency: transitive
     description:
@@ -1559,10 +1559,10 @@ packages:
     dependency: "direct main"
     description:
       name: perfect_freehand
-      sha256: "7a6a591832be33fe82d8ecab68562a794d39837af16e7413fe0ccebdd0c3e3c0"
+      sha256: f42b8164c4e7e689b278f4e2e8e8f5006e716f8c127eb44404f21bd73b1d3b56
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.1"
+    version: "2.5.2+1"
   permission_handler:
     dependency: "direct main"
     description:
@@ -1926,10 +1926,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: "83af5c682796c0f7719c2bbf74792d113e40ae97981b8f266fa84574573556bc"
+      sha256: cbc40be9be1c5af4dab4d6e0de4d5d3729e6f3d65b89d21e1815d57705644a6f
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.18"
+    version: "2.4.20"
   shared_preferences_foundation:
     dependency: transitive
     description:
@@ -2171,26 +2171,26 @@ packages:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: "2c6ba5e21f944e9c18db7be9fb40a9e09747b6f9942c9c0e77eb573c15e68338"
+      sha256: "44ec7f2bc3257d4d5ecae9ad2ed73ec1ca123323e0b1662441bc7f756530844f"
       url: "https://pub.dev"
     source: hosted
-    version: "32.1.24"
+    version: "32.1.25"
   syncfusion_flutter_datepicker:
     dependency: transitive
     description:
       name: syncfusion_flutter_datepicker
-      sha256: "4be2ad5fe823a63a628aa619ca647d5dd42f6613b2fda6d87c92851c77f4ec15"
+      sha256: "04ad5b75fe3d40fbe67679d24e3ec05f43ad7ac23c72eb81a6e9c8acd0a52255"
       url: "https://pub.dev"
     source: hosted
-    version: "32.1.24"
+    version: "32.1.25"
   syncfusion_localizations:
     dependency: transitive
     description:
       name: syncfusion_localizations
-      sha256: cefc5a9020255a3135a4bed52ea74b51ec9003fa33243552d59bf20fb72a1579
+      sha256: "335d6b6acc24bb6d5bf2ccaa0551a4a2168fd654bd6ce1a8da077a863d8b8f0b"
       url: "https://pub.dev"
     source: hosted
-    version: "32.1.24"
+    version: "32.1.25"
   synchronized:
     dependency: transitive
     description:

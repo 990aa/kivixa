@@ -184,9 +184,41 @@ jobs:
           cp native/target/armv7-linux-androideabi/release/libkivixa_native.so rust_builder/android/src/main/jniLibs/armeabi-v7a/
           cp native/target/x86_64-linux-android/release/libkivixa_native.so rust_builder/android/src/main/jniLibs/x86_64/
           
+          # Copy libc++_shared.so from NDK (required for C++ dependencies like llama.cpp)
+          NDK_LIBCPP_ARM64="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so"
+          NDK_LIBCPP_ARMV7="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/arm-linux-androideabi/libc++_shared.so"
+          NDK_LIBCPP_X86_64="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so"
+          
+          if [ -f "$NDK_LIBCPP_ARM64" ]; then
+            cp "$NDK_LIBCPP_ARM64" android/app/src/main/jniLibs/arm64-v8a/
+            cp "$NDK_LIBCPP_ARM64" rust_builder/android/src/main/jniLibs/arm64-v8a/
+          fi
+          if [ -f "$NDK_LIBCPP_ARMV7" ]; then
+            cp "$NDK_LIBCPP_ARMV7" android/app/src/main/jniLibs/armeabi-v7a/
+            cp "$NDK_LIBCPP_ARMV7" rust_builder/android/src/main/jniLibs/armeabi-v7a/
+          fi
+          if [ -f "$NDK_LIBCPP_X86_64" ]; then
+            cp "$NDK_LIBCPP_X86_64" android/app/src/main/jniLibs/x86_64/
+            cp "$NDK_LIBCPP_X86_64" rust_builder/android/src/main/jniLibs/x86_64/
+          fi
+          
+          # Also copy to build output directories (fallback locations Flutter might check)
+          mkdir -p build/native_assets/android_arm64-v8a
+          mkdir -p build/native_assets/android_armeabi-v7a
+          mkdir -p build/native_assets/android_x86_64
+          
+          cp native/target/aarch64-linux-android/release/libkivixa_native.so build/native_assets/android_arm64-v8a/
+          cp native/target/armv7-linux-androideabi/release/libkivixa_native.so build/native_assets/android_armeabi-v7a/
+          cp native/target/x86_64-linux-android/release/libkivixa_native.so build/native_assets/android_x86_64/
+          
           echo "kivixa_native libraries copied to all jniLibs locations"
           ls -la android/app/src/main/jniLibs/arm64-v8a/
           ls -la rust_builder/android/src/main/jniLibs/arm64-v8a/
+          
+          # Verify libraries are valid ELF files and check dependencies
+          echo "=== Verifying library integrity ==="
+          file android/app/src/main/jniLibs/arm64-v8a/libkivixa_native.so
+          readelf -d android/app/src/main/jniLibs/arm64-v8a/libkivixa_native.so | grep NEEDED || true
 
       - name: Build Rust math library for Android
         env:
@@ -275,6 +307,36 @@ jobs:
           cp build/app/outputs/flutter-apk/app-x86_64-release.apk artifacts/Kivixa-Android-${VERSION}-x86_64.apk
           echo "=== Artifacts ==="
           ls -la artifacts/
+
+      - name: Verify native libraries in APKs
+        run: |
+          echo "=== Verifying native libraries are included in APKs ==="
+          
+          # Check arm64 APK
+          echo "--- arm64 APK contents ---"
+          unzip -l artifacts/Kivixa-Android-*-arm64.apk | grep -E "\.so$" || true
+          
+          # Verify required libraries exist
+          REQUIRED_LIBS="libkivixa_native.so libkivixa_math.so"
+          for LIB in $REQUIRED_LIBS; do
+            if unzip -l artifacts/Kivixa-Android-*-arm64.apk | grep -q "$LIB"; then
+              echo "[OK] $LIB found in APK"
+            else
+              echo "[ERROR] $LIB NOT found in APK!"
+              exit 1
+            fi
+          done
+          
+          # Extract and check library dependencies
+          mkdir -p /tmp/apk_check
+          unzip -o artifacts/Kivixa-Android-*-arm64.apk "lib/arm64-v8a/*.so" -d /tmp/apk_check || true
+          
+          if [ -f "/tmp/apk_check/lib/arm64-v8a/libkivixa_native.so" ]; then
+            echo "=== libkivixa_native.so dependencies ==="
+            readelf -d /tmp/apk_check/lib/arm64-v8a/libkivixa_native.so | grep NEEDED || echo "No NEEDED entries found"
+          fi
+          
+          rm -rf /tmp/apk_check
 
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
