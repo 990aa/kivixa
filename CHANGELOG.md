@@ -201,3 +201,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Library Loading**: Native libraries now copied to all required directories for Flutter to detect them.
 
 ---
+## [0.1.7] - 2026-01-28
+
+### Changed
+- Version bump to 0.1.7
+
+---
