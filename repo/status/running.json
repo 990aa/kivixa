@@ -10,26 +10,19 @@
     "--pretty"
   ],
   "disabled": [],
-  "endTimestamp": 1769565181026,
+  "endTimestamp": 1769706233204,
   "failedBuilds": {},
   "fdroiddata": {
-    "commitId": "9472666335d917a5dc6d7910c8e6b6c6bb3d3f35",
-    "isDirty": true,
-    "modifiedFiles": [
-      "config.yml",
-      "fdroid-apks/Kivixa-Android-0.1.6-arm64.apk",
-      "fdroid-apks/Kivixa-Android-0.1.6-armv7.apk",
-      "fdroid-apks/Kivixa-Android-0.1.6-x86_64.apk",
-      "metadata/com.a990aa.kivixa/en-US/full_description.txt",
-      "repo/Kivixa-Android-0.1.6-arm64.apk",
-      "repo/Kivixa-Android-0.1.6-armv7.apk",
-      "repo/Kivixa-Android-0.1.6-x86_64.apk"
-    ],
+    "commitId": "5592740f8dc01de14ec462da6a192508e3ea2063",
+    "isDirty": false,
+    "modifiedFiles": [],
     "untrackedFiles": [
-      "keystore.p12",
-      "repo/Kivixa-Android-0.0.7-test-arm64.apk",
-      "repo/Kivixa-Android-0.0.7-test-armv7.apk",
-      "repo/Kivixa-Android-0.0.7-test-x86_64.apk"
+      "fdroid-apks/Kivixa-Android-0.1.7-arm64.apk",
+      "fdroid-apks/Kivixa-Android-0.1.7-armv7.apk",
+      "fdroid-apks/Kivixa-Android-0.1.7-x86_64.apk",
+      "repo/Kivixa-Android-0.1.7-arm64.apk",
+      "repo/Kivixa-Android-0.1.7-armv7.apk",
+      "repo/Kivixa-Android-0.1.7-x86_64.apk"
     ]
   },
   "jarsigner": "/usr/bin/jarsigner",
@@ -44,14 +37,14 @@
     "com.a990aa.kivixa"
   ],
   "stages": {
-    "delete_disabled_builds": 1769565173031,
-    "index.make repo": 1769565177763,
-    "prepare_apps repo": 1769565177762,
-    "process_apks": 1769565173031,
-    "read_added_date_from_all_apks": 1769565177762,
-    "remove_apks": 1769565177761,
-    "scan_repo_files": 1769565177760
+    "delete_disabled_builds": 1769706215426,
+    "index.make repo": 1769706228037,
+    "prepare_apps repo": 1769706228036,
+    "process_apks": 1769706215427,
+    "read_added_date_from_all_apks": 1769706228036,
+    "remove_apks": 1769706228035,
+    "scan_repo_files": 1769706228034
   },
-  "startTimestamp": 1769565167000,
+  "startTimestamp": 1769706212000,
   "subcommand": "update"
 }
