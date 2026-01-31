@@ -111,6 +111,23 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
   - No API keys or subscriptions needed
   - Your notes stay private
 
+- **Audio Intelligence**
+  - **Speech-to-Text (STT)** - Whisper-based offline transcription
+    - Multiple model sizes (Tiny to Large) for accuracy/speed tradeoffs
+    - Real-time streaming transcription with word-level timestamps
+    - Semantic audio indexing - search by spoken content
+    - Multi-language support with automatic detection
+  - **Text-to-Speech (TTS)** - Kokoro neural speech synthesis
+    - Natural-sounding voices (Male, Female, Custom)
+    - Adjustable rate and pitch controls
+    - Word boundary tracking for lip-sync
+    - High-quality 24kHz audio output
+  - **Voice Activity Detection (VAD)**
+    - Efficient speech/silence detection
+    - Automatic noise floor calibration
+    - Saves battery by only processing speech
+  - **Fully Offline** - All audio processing runs locally
+
 ### **Notes & Documents**
 - **Rich Markdown Editor** - Create beautiful formatted documents with AppFlowy Editor
   - Text formatting (bold, italic, underline, strikethrough)

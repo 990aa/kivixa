@@ -226,7 +226,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.2.0] - 2026-01-31
 
-### Changed
-- Version bump to 0.2.0
+### Added
+- **Audio Intelligence Module** - Complete native Rust audio processing pipeline ("Ear" & "Voice"):
+  - **Speech-to-Text (STT)** - Whisper-based transcription engine
+    - Support for multiple Whisper model sizes (Tiny, Base, Small, Medium, Large)
+    - Real-time streaming transcription with timestamp tracking
+    - Word-level timestamps for semantic audio indexing
+    - Search through transcriptions by text content
+    - Language detection and multi-language support
+  - **Text-to-Speech (TTS)** - Kokoro neural speech synthesis
+    - Multiple voice styles (Default, Female, Male, Custom)
+    - Adjustable speech rate and pitch control
+    - High-quality 24kHz audio output
+    - Word boundary tracking for lip-sync applications
+    - Phoneme-level synthesis control
+  - **Voice Activity Detection (VAD)** - Silero-style voice detection
+    - Energy-based speech detection with adaptive thresholds
+    - Zero-crossing rate analysis for speech quality
+    - State machine for speech segment tracking
+    - Automatic noise floor calibration
+    - Configurable speech/silence duration thresholds
+  - **Audio Ring Buffer** - Streaming audio pipeline
+    - 30-second circular buffer optimized for Whisper
+    - Thread-safe audio capture and processing
+    - Support for raw bytes, i16, and f32 sample formats
+    - Automatic sample rate conversion (rubato)
+  - **Phonemizer** - Text-to-phoneme conversion
+    - English phoneme support (39 phonemes)
+    - Dictionary-based lookup with G2P fallback
+    - Number and abbreviation expansion
+    - Stress markers and syllable boundaries
+- **Native Audio Library** (`native_audio`) - New Rust library for audio processing:
+  - Thread-safe shared engine wrappers for concurrent access
+  - 90 comprehensive unit tests covering all modules
+  - Flutter Rust Bridge integration for Dart interop
+  - Cross-platform support (Windows, Android)
+- **Audio Build Script** - New `scripts/build_audio.ps1` with:
+  - Windows and Android cross-compilation
+  - Release/Debug build modes
+  - Flutter Rust Bridge code generation
+  - Automatic library copying to proper directories
 
----
+### Changed
+- Version bump to 0.2.0 (feature release)
+- Updated project structure to include `native_audio` module
