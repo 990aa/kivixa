@@ -218,3 +218,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Settings**: Fixed "Update available" message appearing even when the application is up to date.
 
 ---
+## [0.1.9] - 2026-01-31
+
+### Changed
+- Version bump to 0.1.9
+
+---
