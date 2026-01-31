@@ -208,3 +208,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Copy AI Engine's .so files to proper destinations
 
 ---
+## [0.1.8] - 2026-01-31
+
+### Changed
+- Version bump to 0.1.8
+
+---

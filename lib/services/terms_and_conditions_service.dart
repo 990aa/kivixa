@@ -8,7 +8,7 @@ class TermsAndConditionsService {
 
   /// Current version of the terms and conditions
   /// Bump this when terms are updated to require re-acceptance
-  static const currentTermsVersion = '0.1.7';
+  static const currentTermsVersion = '0.1.8';
 
   /// Check if user has accepted the current terms
   static Future<bool> hasAcceptedTerms() async {
