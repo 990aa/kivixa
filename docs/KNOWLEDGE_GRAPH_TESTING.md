@@ -2,12 +2,6 @@
 
 This document provides detailed instructions for testing every feature of the Neural Knowledge Graph implementation.
 
-## Prerequisites
-
-1. **Flutter Environment**: Ensure Flutter is installed and configured
-2. **Run the App**: `flutter run -d windows` (or your target platform)
-3. **Navigate to Knowledge Graph**: Click "Knowledge Graph" in the left sidebar
-
 ---
 
 ## Test Suite Overview

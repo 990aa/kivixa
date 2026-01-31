@@ -2,7 +2,7 @@ name: kivixa
 description: A cross-platform notes app
 publish_to: 'none' 
 
-version: 0.1.9+1009
+version: 0.2.0+2000
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
