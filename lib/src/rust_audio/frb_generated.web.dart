@@ -3,821 +3,436 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
+
 // Static analysis wrongly picks the IO variant, thus ignore this
 // ignore_for_file: argument_type_not_assignable
 
+import 'api.dart';
 import 'dart:async';
 import 'dart:convert';
-
+import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_web.dart';
-import 'package:kivixa/src/rust_audio/api.dart';
-import 'package:kivixa/src/rust_audio/frb_generated.dart';
 
-abstract class AudioRustLibApiImplPlatform
-    extends BaseApiImpl<AudioRustLibWire> {
-  AudioRustLibApiImplPlatform({
-    required super.handler,
-    required super.wire,
-    required super.generalizedFrbRustBinding,
-    required super.portManager,
-  });
 
-  @protected
-  AnyhowException dco_decode_AnyhowException(dynamic raw);
 
-  @protected
-  String dco_decode_String(dynamic raw);
 
-  @protected
-  bool dco_decode_bool(dynamic raw);
+                abstract class AudioRustLibApiImplPlatform extends BaseApiImpl<AudioRustLibWire> {
+                  AudioRustLibApiImplPlatform({
+                    required super.handler,
+                    required super.wire,
+                    required super.generalizedFrbRustBinding,
+                    required super.portManager,
+                  });
 
-  @protected
-  DartTranscription dco_decode_box_autoadd_dart_transcription(dynamic raw);
+                  
 
-  @protected
-  DartSynthesizedAudio dco_decode_dart_synthesized_audio(dynamic raw);
+                  @protected AnyhowException dco_decode_AnyhowException(dynamic raw);
 
-  @protected
-  DartTranscription dco_decode_dart_transcription(dynamic raw);
+@protected String dco_decode_String(dynamic raw);
 
-  @protected
-  DartTranscriptionSegment dco_decode_dart_transcription_segment(dynamic raw);
+@protected bool dco_decode_bool(dynamic raw);
 
-  @protected
-  DartVadResult dco_decode_dart_vad_result(dynamic raw);
+@protected DartTranscription dco_decode_box_autoadd_dart_transcription(dynamic raw);
 
-  @protected
-  DartVoiceStyle dco_decode_dart_voice_style(dynamic raw);
+@protected DartSynthesizedAudio dco_decode_dart_synthesized_audio(dynamic raw);
 
-  @protected
-  double dco_decode_f_32(dynamic raw);
+@protected DartTranscription dco_decode_dart_transcription(dynamic raw);
 
-  @protected
-  int dco_decode_i_16(dynamic raw);
+@protected DartTranscriptionSegment dco_decode_dart_transcription_segment(dynamic raw);
 
-  @protected
-  int dco_decode_i_32(dynamic raw);
+@protected DartVadResult dco_decode_dart_vad_result(dynamic raw);
 
-  @protected
-  List<String> dco_decode_list_String(dynamic raw);
+@protected DartVoiceStyle dco_decode_dart_voice_style(dynamic raw);
 
-  @protected
-  List<DartTranscriptionSegment> dco_decode_list_dart_transcription_segment(
-    dynamic raw,
-  );
+@protected double dco_decode_f_32(dynamic raw);
 
-  @protected
-  List<DartVoiceStyle> dco_decode_list_dart_voice_style(dynamic raw);
+@protected int dco_decode_i_16(dynamic raw);
 
-  @protected
-  List<double> dco_decode_list_prim_f_32_loose(dynamic raw);
+@protected int dco_decode_i_32(dynamic raw);
 
-  @protected
-  Float32List dco_decode_list_prim_f_32_strict(dynamic raw);
+@protected List<String> dco_decode_list_String(dynamic raw);
 
-  @protected
-  List<int> dco_decode_list_prim_i_16_loose(dynamic raw);
+@protected List<DartTranscriptionSegment> dco_decode_list_dart_transcription_segment(dynamic raw);
 
-  @protected
-  Int16List dco_decode_list_prim_i_16_strict(dynamic raw);
+@protected List<DartVoiceStyle> dco_decode_list_dart_voice_style(dynamic raw);
 
-  @protected
-  List<int> dco_decode_list_prim_u_8_loose(dynamic raw);
+@protected List<double> dco_decode_list_prim_f_32_loose(dynamic raw);
 
-  @protected
-  Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+@protected Float32List dco_decode_list_prim_f_32_strict(dynamic raw);
 
-  @protected
-  String? dco_decode_opt_String(dynamic raw);
+@protected List<int> dco_decode_list_prim_i_16_loose(dynamic raw);
 
-  @protected
-  DartTranscription? dco_decode_opt_box_autoadd_dart_transcription(dynamic raw);
+@protected Int16List dco_decode_list_prim_i_16_strict(dynamic raw);
 
-  @protected
-  StreamingResult dco_decode_streaming_result(dynamic raw);
+@protected List<int> dco_decode_list_prim_u_8_loose(dynamic raw);
 
-  @protected
-  int dco_decode_u_32(dynamic raw);
+@protected Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
-  @protected
-  BigInt dco_decode_u_64(dynamic raw);
+@protected String? dco_decode_opt_String(dynamic raw);
 
-  @protected
-  int dco_decode_u_8(dynamic raw);
+@protected DartTranscription? dco_decode_opt_box_autoadd_dart_transcription(dynamic raw);
 
-  @protected
-  void dco_decode_unit(dynamic raw);
+@protected StreamingResult dco_decode_streaming_result(dynamic raw);
 
-  @protected
-  BigInt dco_decode_usize(dynamic raw);
+@protected int dco_decode_u_32(dynamic raw);
 
-  @protected
-  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+@protected BigInt dco_decode_u_64(dynamic raw);
 
-  @protected
-  String sse_decode_String(SseDeserializer deserializer);
+@protected int dco_decode_u_8(dynamic raw);
 
-  @protected
-  bool sse_decode_bool(SseDeserializer deserializer);
+@protected void dco_decode_unit(dynamic raw);
 
-  @protected
-  DartTranscription sse_decode_box_autoadd_dart_transcription(
-    SseDeserializer deserializer,
-  );
+@protected BigInt dco_decode_usize(dynamic raw);
 
-  @protected
-  DartSynthesizedAudio sse_decode_dart_synthesized_audio(
-    SseDeserializer deserializer,
-  );
+@protected AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
-  @protected
-  DartTranscription sse_decode_dart_transcription(SseDeserializer deserializer);
+@protected String sse_decode_String(SseDeserializer deserializer);
 
-  @protected
-  DartTranscriptionSegment sse_decode_dart_transcription_segment(
-    SseDeserializer deserializer,
-  );
+@protected bool sse_decode_bool(SseDeserializer deserializer);
 
-  @protected
-  DartVadResult sse_decode_dart_vad_result(SseDeserializer deserializer);
+@protected DartTranscription sse_decode_box_autoadd_dart_transcription(SseDeserializer deserializer);
 
-  @protected
-  DartVoiceStyle sse_decode_dart_voice_style(SseDeserializer deserializer);
+@protected DartSynthesizedAudio sse_decode_dart_synthesized_audio(SseDeserializer deserializer);
 
-  @protected
-  double sse_decode_f_32(SseDeserializer deserializer);
+@protected DartTranscription sse_decode_dart_transcription(SseDeserializer deserializer);
 
-  @protected
-  int sse_decode_i_16(SseDeserializer deserializer);
-
-  @protected
-  int sse_decode_i_32(SseDeserializer deserializer);
-
-  @protected
-  List<String> sse_decode_list_String(SseDeserializer deserializer);
-
-  @protected
-  List<DartTranscriptionSegment> sse_decode_list_dart_transcription_segment(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  List<DartVoiceStyle> sse_decode_list_dart_voice_style(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  List<double> sse_decode_list_prim_f_32_loose(SseDeserializer deserializer);
-
-  @protected
-  Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer);
-
-  @protected
-  List<int> sse_decode_list_prim_i_16_loose(SseDeserializer deserializer);
-
-  @protected
-  Int16List sse_decode_list_prim_i_16_strict(SseDeserializer deserializer);
-
-  @protected
-  List<int> sse_decode_list_prim_u_8_loose(SseDeserializer deserializer);
-
-  @protected
-  Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
-
-  @protected
-  String? sse_decode_opt_String(SseDeserializer deserializer);
-
-  @protected
-  DartTranscription? sse_decode_opt_box_autoadd_dart_transcription(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  StreamingResult sse_decode_streaming_result(SseDeserializer deserializer);
-
-  @protected
-  int sse_decode_u_32(SseDeserializer deserializer);
-
-  @protected
-  BigInt sse_decode_u_64(SseDeserializer deserializer);
-
-  @protected
-  int sse_decode_u_8(SseDeserializer deserializer);
-
-  @protected
-  void sse_decode_unit(SseDeserializer deserializer);
-
-  @protected
-  BigInt sse_decode_usize(SseDeserializer deserializer);
-
-  @protected
-  String cst_encode_AnyhowException(AnyhowException raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    throw UnimplementedError();
-  }
-
-  @protected
-  String cst_encode_String(String raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw;
-  }
-
-  @protected
-  JSAny cst_encode_box_autoadd_dart_transcription(DartTranscription raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return cst_encode_dart_transcription(raw);
-  }
-
-  @protected
-  JSAny cst_encode_dart_synthesized_audio(DartSynthesizedAudio raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return [
-      cst_encode_list_prim_f_32_strict(raw.samples),
-      cst_encode_u_32(raw.sampleRate),
-      cst_encode_f_32(raw.duration),
-    ].jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_dart_transcription(DartTranscription raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return [
-      cst_encode_list_dart_transcription_segment(raw.segments),
-      cst_encode_opt_String(raw.language),
-      cst_encode_f_32(raw.duration),
-      cst_encode_u_64(raw.processingTimeMs),
-      cst_encode_String(raw.fullText),
-    ].jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_dart_transcription_segment(DartTranscriptionSegment raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return [
-      cst_encode_u_32(raw.id),
-      cst_encode_String(raw.text),
-      cst_encode_f_32(raw.startTime),
-      cst_encode_f_32(raw.endTime),
-      cst_encode_opt_String(raw.language),
-      cst_encode_f_32(raw.confidence),
-      cst_encode_bool(raw.isFinal),
-    ].jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_dart_vad_result(DartVadResult raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return [
-      cst_encode_i_32(raw.state),
-      cst_encode_f_32(raw.speechProbability),
-      cst_encode_bool(raw.isSpeech),
-      cst_encode_f_32(raw.stateDuration),
-    ].jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_dart_voice_style(DartVoiceStyle raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return [
-      cst_encode_String(raw.id),
-      cst_encode_String(raw.name),
-      cst_encode_String(raw.description),
-      cst_encode_f_32(raw.rate),
-      cst_encode_f_32(raw.pitch),
-    ].jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_list_String(List<String> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_String).toList().jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_list_dart_transcription_segment(
-    List<DartTranscriptionSegment> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_dart_transcription_segment).toList().jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_list_dart_voice_style(List<DartVoiceStyle> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_dart_voice_style).toList().jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_list_prim_f_32_loose(List<double> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_list_prim_f_32_strict(Float32List raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_list_prim_i_16_loose(List<int> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_list_prim_i_16_strict(Int16List raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_list_prim_u_8_loose(List<int> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_list_prim_u_8_strict(Uint8List raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.jsify()!;
-  }
-
-  @protected
-  String? cst_encode_opt_String(String? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? null : cst_encode_String(raw);
-  }
-
-  @protected
-  JSAny? cst_encode_opt_box_autoadd_dart_transcription(DartTranscription? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? null : cst_encode_box_autoadd_dart_transcription(raw);
-  }
-
-  @protected
-  JSAny cst_encode_streaming_result(StreamingResult raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return [
-      cst_encode_dart_vad_result(raw.vad),
-      cst_encode_bool(raw.transcriptionAttempted),
-      cst_encode_opt_box_autoadd_dart_transcription(raw.transcription),
-    ].jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_u_64(BigInt raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return castNativeBigInt(raw);
-  }
-
-  @protected
-  JSAny cst_encode_usize(BigInt raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return castNativeBigInt(raw);
-  }
-
-  @protected
-  bool cst_encode_bool(bool raw);
-
-  @protected
-  double cst_encode_f_32(double raw);
-
-  @protected
-  int cst_encode_i_16(int raw);
-
-  @protected
-  int cst_encode_i_32(int raw);
-
-  @protected
-  int cst_encode_u_32(int raw);
-
-  @protected
-  int cst_encode_u_8(int raw);
-
-  @protected
-  void cst_encode_unit(void raw);
-
-  @protected
-  void sse_encode_AnyhowException(
-    AnyhowException self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_String(String self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_box_autoadd_dart_transcription(
-    DartTranscription self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_dart_synthesized_audio(
-    DartSynthesizedAudio self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_dart_transcription(
-    DartTranscription self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_dart_transcription_segment(
-    DartTranscriptionSegment self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_dart_vad_result(DartVadResult self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_dart_voice_style(
-    DartVoiceStyle self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_f_32(double self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_i_16(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_i_32(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_list_String(List<String> self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_list_dart_transcription_segment(
-    List<DartTranscriptionSegment> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_dart_voice_style(
-    List<DartVoiceStyle> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_f_32_loose(
-    List<double> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_f_32_strict(
-    Float32List self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_i_16_loose(
-    List<int> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_i_16_strict(
-    Int16List self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_u_8_loose(List<int> self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_list_prim_u_8_strict(
-    Uint8List self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_opt_String(String? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_box_autoadd_dart_transcription(
-    DartTranscription? self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_streaming_result(
-    StreamingResult self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_u_32(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_u_64(BigInt self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_u_8(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_unit(void self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_usize(BigInt self, SseSerializer serializer);
-}
+@protected DartTranscriptionSegment sse_decode_dart_transcription_segment(SseDeserializer deserializer);
+
+@protected DartVadResult sse_decode_dart_vad_result(SseDeserializer deserializer);
+
+@protected DartVoiceStyle sse_decode_dart_voice_style(SseDeserializer deserializer);
+
+@protected double sse_decode_f_32(SseDeserializer deserializer);
+
+@protected int sse_decode_i_16(SseDeserializer deserializer);
+
+@protected int sse_decode_i_32(SseDeserializer deserializer);
+
+@protected List<String> sse_decode_list_String(SseDeserializer deserializer);
+
+@protected List<DartTranscriptionSegment> sse_decode_list_dart_transcription_segment(SseDeserializer deserializer);
+
+@protected List<DartVoiceStyle> sse_decode_list_dart_voice_style(SseDeserializer deserializer);
+
+@protected List<double> sse_decode_list_prim_f_32_loose(SseDeserializer deserializer);
+
+@protected Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer);
+
+@protected List<int> sse_decode_list_prim_i_16_loose(SseDeserializer deserializer);
+
+@protected Int16List sse_decode_list_prim_i_16_strict(SseDeserializer deserializer);
+
+@protected List<int> sse_decode_list_prim_u_8_loose(SseDeserializer deserializer);
+
+@protected Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+
+@protected String? sse_decode_opt_String(SseDeserializer deserializer);
+
+@protected DartTranscription? sse_decode_opt_box_autoadd_dart_transcription(SseDeserializer deserializer);
+
+@protected StreamingResult sse_decode_streaming_result(SseDeserializer deserializer);
+
+@protected int sse_decode_u_32(SseDeserializer deserializer);
+
+@protected BigInt sse_decode_u_64(SseDeserializer deserializer);
+
+@protected int sse_decode_u_8(SseDeserializer deserializer);
+
+@protected void sse_decode_unit(SseDeserializer deserializer);
+
+@protected BigInt sse_decode_usize(SseDeserializer deserializer);
+
+@protected String cst_encode_AnyhowException(AnyhowException raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+throw UnimplementedError(); }
+
+@protected String cst_encode_String(String raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw; }
+
+@protected JSAny cst_encode_box_autoadd_dart_transcription(DartTranscription raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return cst_encode_dart_transcription(raw); }
+
+@protected JSAny cst_encode_dart_synthesized_audio(DartSynthesizedAudio raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return [cst_encode_list_prim_f_32_strict(raw.samples),cst_encode_u_32(raw.sampleRate),cst_encode_f_32(raw.duration)].jsify()!; }
+
+@protected JSAny cst_encode_dart_transcription(DartTranscription raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return [cst_encode_list_dart_transcription_segment(raw.segments),cst_encode_opt_String(raw.language),cst_encode_f_32(raw.duration),cst_encode_u_64(raw.processingTimeMs),cst_encode_String(raw.fullText)].jsify()!; }
+
+@protected JSAny cst_encode_dart_transcription_segment(DartTranscriptionSegment raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return [cst_encode_u_32(raw.id),cst_encode_String(raw.text),cst_encode_f_32(raw.startTime),cst_encode_f_32(raw.endTime),cst_encode_opt_String(raw.language),cst_encode_f_32(raw.confidence),cst_encode_bool(raw.isFinal)].jsify()!; }
+
+@protected JSAny cst_encode_dart_vad_result(DartVadResult raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return [cst_encode_i_32(raw.state),cst_encode_f_32(raw.speechProbability),cst_encode_bool(raw.isSpeech),cst_encode_f_32(raw.stateDuration)].jsify()!; }
+
+@protected JSAny cst_encode_dart_voice_style(DartVoiceStyle raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return [cst_encode_String(raw.id),cst_encode_String(raw.name),cst_encode_String(raw.description),cst_encode_f_32(raw.rate),cst_encode_f_32(raw.pitch)].jsify()!; }
+
+@protected JSAny cst_encode_list_String(List<String> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw.map(cst_encode_String).toList().jsify()!; }
+
+@protected JSAny cst_encode_list_dart_transcription_segment(List<DartTranscriptionSegment> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw.map(cst_encode_dart_transcription_segment).toList().jsify()!; }
+
+@protected JSAny cst_encode_list_dart_voice_style(List<DartVoiceStyle> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw.map(cst_encode_dart_voice_style).toList().jsify()!; }
+
+@protected JSAny cst_encode_list_prim_f_32_loose(List<double> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw.jsify()!; }
+
+@protected JSAny cst_encode_list_prim_f_32_strict(Float32List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw.jsify()!; }
+
+@protected JSAny cst_encode_list_prim_i_16_loose(List<int> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw.jsify()!; }
+
+@protected JSAny cst_encode_list_prim_i_16_strict(Int16List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw.jsify()!; }
+
+@protected JSAny cst_encode_list_prim_u_8_loose(List<int> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw.jsify()!; }
+
+@protected JSAny cst_encode_list_prim_u_8_strict(Uint8List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw.jsify()!; }
+
+@protected String? cst_encode_opt_String(String? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? null : cst_encode_String(raw); }
+
+@protected JSAny? cst_encode_opt_box_autoadd_dart_transcription(DartTranscription? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? null : cst_encode_box_autoadd_dart_transcription(raw); }
+
+@protected JSAny cst_encode_streaming_result(StreamingResult raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return [cst_encode_dart_vad_result(raw.vad),cst_encode_bool(raw.transcriptionAttempted),cst_encode_opt_box_autoadd_dart_transcription(raw.transcription)].jsify()!; }
+
+@protected JSAny cst_encode_u_64(BigInt raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return castNativeBigInt(raw); }
+
+@protected JSAny cst_encode_usize(BigInt raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return castNativeBigInt(raw); }
+
+@protected bool cst_encode_bool(bool raw);
+
+@protected double cst_encode_f_32(double raw);
+
+@protected int cst_encode_i_16(int raw);
+
+@protected int cst_encode_i_32(int raw);
+
+@protected int cst_encode_u_32(int raw);
+
+@protected int cst_encode_u_8(int raw);
+
+@protected void cst_encode_unit(void raw);
+
+@protected void sse_encode_AnyhowException(AnyhowException self, SseSerializer serializer);
+
+@protected void sse_encode_String(String self, SseSerializer serializer);
+
+@protected void sse_encode_bool(bool self, SseSerializer serializer);
+
+@protected void sse_encode_box_autoadd_dart_transcription(DartTranscription self, SseSerializer serializer);
+
+@protected void sse_encode_dart_synthesized_audio(DartSynthesizedAudio self, SseSerializer serializer);
+
+@protected void sse_encode_dart_transcription(DartTranscription self, SseSerializer serializer);
+
+@protected void sse_encode_dart_transcription_segment(DartTranscriptionSegment self, SseSerializer serializer);
+
+@protected void sse_encode_dart_vad_result(DartVadResult self, SseSerializer serializer);
+
+@protected void sse_encode_dart_voice_style(DartVoiceStyle self, SseSerializer serializer);
+
+@protected void sse_encode_f_32(double self, SseSerializer serializer);
+
+@protected void sse_encode_i_16(int self, SseSerializer serializer);
+
+@protected void sse_encode_i_32(int self, SseSerializer serializer);
+
+@protected void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+@protected void sse_encode_list_dart_transcription_segment(List<DartTranscriptionSegment> self, SseSerializer serializer);
+
+@protected void sse_encode_list_dart_voice_style(List<DartVoiceStyle> self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_f_32_loose(List<double> self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_f_32_strict(Float32List self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_i_16_loose(List<int> self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_i_16_strict(Int16List self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_u_8_loose(List<int> self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_u_8_strict(Uint8List self, SseSerializer serializer);
+
+@protected void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_box_autoadd_dart_transcription(DartTranscription? self, SseSerializer serializer);
+
+@protected void sse_encode_streaming_result(StreamingResult self, SseSerializer serializer);
+
+@protected void sse_encode_u_32(int self, SseSerializer serializer);
+
+@protected void sse_encode_u_64(BigInt self, SseSerializer serializer);
+
+@protected void sse_encode_u_8(int self, SseSerializer serializer);
+
+@protected void sse_encode_unit(void self, SseSerializer serializer);
+
+@protected void sse_encode_usize(BigInt self, SseSerializer serializer);
+                }
+                
+
 
 // Section: wire_class
 
 class AudioRustLibWire implements BaseWire {
-  AudioRustLibWire.fromExternalLibrary(ExternalLibrary lib);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_available() =>
-      wasmModule.wire__crate__api__audio_buffer_available();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_available_duration() =>
-      wasmModule.wire__crate__api__audio_buffer_available_duration();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_clear() =>
-      wasmModule.wire__crate__api__audio_buffer_clear();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_has_full_chunk() =>
-      wasmModule.wire__crate__api__audio_buffer_has_full_chunk();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_read(JSAny count) =>
-      wasmModule.wire__crate__api__audio_buffer_read(count);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_read_all() =>
-      wasmModule.wire__crate__api__audio_buffer_read_all();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_write_bytes(JSAny bytes) =>
-      wasmModule.wire__crate__api__audio_buffer_write_bytes(bytes);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_write_i16(JSAny samples) =>
-      wasmModule.wire__crate__api__audio_buffer_write_i16(samples);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_write_samples(JSAny samples) =>
-      wasmModule.wire__crate__api__audio_buffer_write_samples(samples);
-
-  void wire__crate__api__audio_initialize_all(NativePortType port_) =>
-      wasmModule.wire__crate__api__audio_initialize_all(port_);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_module_health_check() =>
-      wasmModule.wire__crate__api__audio_module_health_check();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_module_version() =>
-      wasmModule.wire__crate__api__audio_module_version();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_reset_all() =>
-      wasmModule.wire__crate__api__audio_reset_all();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__get_whisper_sample_rate() =>
-      wasmModule.wire__crate__api__get_whisper_sample_rate();
-
-  void wire__crate__api__process_streaming_audio(
-    NativePortType port_,
-    JSAny bytes,
-    double start_time,
-    bool force_transcribe,
-  ) => wasmModule.wire__crate__api__process_streaming_audio(
-    port_,
-    bytes,
-    start_time,
-    force_transcribe,
-  );
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__stt_available_models() =>
-      wasmModule.wire__crate__api__stt_available_models();
-
-  void wire__crate__api__stt_initialize(NativePortType port_) =>
-      wasmModule.wire__crate__api__stt_initialize(port_);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__stt_is_ready() =>
-      wasmModule.wire__crate__api__stt_is_ready();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__stt_model_size(String model_name) =>
-      wasmModule.wire__crate__api__stt_model_size(model_name);
-
-  void wire__crate__api__stt_process(
-    NativePortType port_,
-    JSAny samples,
-    double start_time,
-  ) => wasmModule.wire__crate__api__stt_process(port_, samples, start_time);
-
-  void wire__crate__api__stt_process_buffer(
-    NativePortType port_,
-    double start_time,
-  ) => wasmModule.wire__crate__api__stt_process_buffer(port_, start_time);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__stt_reset() => wasmModule.wire__crate__api__stt_reset();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__stt_state() => wasmModule.wire__crate__api__stt_state();
+            AudioRustLibWire.fromExternalLibrary(ExternalLibrary lib);
 
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__tts_available_voices() =>
-      wasmModule.wire__crate__api__tts_available_voices();
+            JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_available() => wasmModule.wire__crate__api__audio_buffer_available();
 
-  void wire__crate__api__tts_initialize(NativePortType port_) =>
-      wasmModule.wire__crate__api__tts_initialize(port_);
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_available_duration() => wasmModule.wire__crate__api__audio_buffer_available_duration();
 
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__tts_is_ready() =>
-      wasmModule.wire__crate__api__tts_is_ready();
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_clear() => wasmModule.wire__crate__api__audio_buffer_clear();
 
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__tts_state() => wasmModule.wire__crate__api__tts_state();
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_has_full_chunk() => wasmModule.wire__crate__api__audio_buffer_has_full_chunk();
 
-  void wire__crate__api__tts_synthesize(NativePortType port_, String text) =>
-      wasmModule.wire__crate__api__tts_synthesize(port_, text);
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_read(JSAny count) => wasmModule.wire__crate__api__audio_buffer_read(count);
 
-  void wire__crate__api__tts_synthesize_to_bytes(
-    NativePortType port_,
-    String text,
-  ) => wasmModule.wire__crate__api__tts_synthesize_to_bytes(port_, text);
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_read_all() => wasmModule.wire__crate__api__audio_buffer_read_all();
 
-  void wire__crate__api__tts_synthesize_to_i16(
-    NativePortType port_,
-    String text,
-  ) => wasmModule.wire__crate__api__tts_synthesize_to_i16(port_, text);
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_write_bytes(JSAny bytes) => wasmModule.wire__crate__api__audio_buffer_write_bytes(bytes);
 
-  void wire__crate__api__tts_synthesize_with_voice(
-    NativePortType port_,
-    String text,
-    String voice_id,
-  ) => wasmModule.wire__crate__api__tts_synthesize_with_voice(
-    port_,
-    text,
-    voice_id,
-  );
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_write_i16(JSAny samples) => wasmModule.wire__crate__api__audio_buffer_write_i16(samples);
 
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__vad_current_state() =>
-      wasmModule.wire__crate__api__vad_current_state();
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_write_samples(JSAny samples) => wasmModule.wire__crate__api__audio_buffer_write_samples(samples);
 
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__vad_is_speech() =>
-      wasmModule.wire__crate__api__vad_is_speech();
+void wire__crate__api__audio_initialize_all(NativePortType port_) => wasmModule.wire__crate__api__audio_initialize_all(port_);
 
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__vad_process(JSAny samples) =>
-      wasmModule.wire__crate__api__vad_process(samples);
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_module_health_check() => wasmModule.wire__crate__api__audio_module_health_check();
 
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__vad_reset() => wasmModule.wire__crate__api__vad_reset();
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_module_version() => wasmModule.wire__crate__api__audio_module_version();
 
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__vad_set_threshold(double threshold) =>
-      wasmModule.wire__crate__api__vad_set_threshold(threshold);
-}
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_reset_all() => wasmModule.wire__crate__api__audio_reset_all();
 
-@JS('wasm_bindgen')
-external AudioRustLibWasmModule get wasmModule;
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__get_whisper_sample_rate() => wasmModule.wire__crate__api__get_whisper_sample_rate();
 
-@JS()
-@anonymous
-extension type AudioRustLibWasmModule._(JSObject _) implements JSObject {
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_available();
+void wire__crate__api__process_streaming_audio(NativePortType port_,JSAny bytes,double start_time,bool force_transcribe) => wasmModule.wire__crate__api__process_streaming_audio(port_,bytes,start_time,force_transcribe);
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_available_duration();
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__stt_available_models() => wasmModule.wire__crate__api__stt_available_models();
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_clear();
+void wire__crate__api__stt_initialize(NativePortType port_) => wasmModule.wire__crate__api__stt_initialize(port_);
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_has_full_chunk();
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__stt_is_ready() => wasmModule.wire__crate__api__stt_is_ready();
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_read(JSAny count);
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__stt_model_size(String model_name) => wasmModule.wire__crate__api__stt_model_size(model_name);
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_read_all();
+void wire__crate__api__stt_process(NativePortType port_,JSAny samples,double start_time) => wasmModule.wire__crate__api__stt_process(port_,samples,start_time);
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_write_bytes(JSAny bytes);
+void wire__crate__api__stt_process_buffer(NativePortType port_,double start_time) => wasmModule.wire__crate__api__stt_process_buffer(port_,start_time);
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_write_i16(JSAny samples);
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__stt_reset() => wasmModule.wire__crate__api__stt_reset();
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_buffer_write_samples(JSAny samples);
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__stt_state() => wasmModule.wire__crate__api__stt_state();
 
-  external void wire__crate__api__audio_initialize_all(NativePortType port_);
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__tts_available_voices() => wasmModule.wire__crate__api__tts_available_voices();
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_module_health_check();
+void wire__crate__api__tts_initialize(NativePortType port_) => wasmModule.wire__crate__api__tts_initialize(port_);
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_module_version();
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__tts_is_ready() => wasmModule.wire__crate__api__tts_is_ready();
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__audio_reset_all();
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__tts_state() => wasmModule.wire__crate__api__tts_state();
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__get_whisper_sample_rate();
+void wire__crate__api__tts_synthesize(NativePortType port_,String text) => wasmModule.wire__crate__api__tts_synthesize(port_,text);
 
-  external void wire__crate__api__process_streaming_audio(
-    NativePortType port_,
-    JSAny bytes,
-    double start_time,
-    bool force_transcribe,
-  );
+void wire__crate__api__tts_synthesize_to_bytes(NativePortType port_,String text) => wasmModule.wire__crate__api__tts_synthesize_to_bytes(port_,text);
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__stt_available_models();
+void wire__crate__api__tts_synthesize_to_i16(NativePortType port_,String text) => wasmModule.wire__crate__api__tts_synthesize_to_i16(port_,text);
 
-  external void wire__crate__api__stt_initialize(NativePortType port_);
+void wire__crate__api__tts_synthesize_with_voice(NativePortType port_,String text,String voice_id) => wasmModule.wire__crate__api__tts_synthesize_with_voice(port_,text,voice_id);
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__stt_is_ready();
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__vad_current_state() => wasmModule.wire__crate__api__vad_current_state();
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__stt_model_size(String model_name);
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__vad_is_speech() => wasmModule.wire__crate__api__vad_is_speech();
 
-  external void wire__crate__api__stt_process(
-    NativePortType port_,
-    JSAny samples,
-    double start_time,
-  );
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__vad_process(JSAny samples) => wasmModule.wire__crate__api__vad_process(samples);
 
-  external void wire__crate__api__stt_process_buffer(
-    NativePortType port_,
-    double start_time,
-  );
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__vad_reset() => wasmModule.wire__crate__api__vad_reset();
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__stt_reset();
+JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__vad_set_threshold(double threshold) => wasmModule.wire__crate__api__vad_set_threshold(threshold);
+        }
+        @JS('wasm_bindgen') external AudioRustLibWasmModule get wasmModule;
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__stt_state();
+        @JS() @anonymous extension type AudioRustLibWasmModule._(JSObject _) implements JSObject {
+            external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_available();
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__tts_available_voices();
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_available_duration();
 
-  external void wire__crate__api__tts_initialize(NativePortType port_);
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_clear();
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__tts_is_ready();
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_has_full_chunk();
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__tts_state();
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_read(JSAny count);
 
-  external void wire__crate__api__tts_synthesize(
-    NativePortType port_,
-    String text,
-  );
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_read_all();
 
-  external void wire__crate__api__tts_synthesize_to_bytes(
-    NativePortType port_,
-    String text,
-  );
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_write_bytes(JSAny bytes);
 
-  external void wire__crate__api__tts_synthesize_to_i16(
-    NativePortType port_,
-    String text,
-  );
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_write_i16(JSAny samples);
 
-  external void wire__crate__api__tts_synthesize_with_voice(
-    NativePortType port_,
-    String text,
-    String voice_id,
-  );
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_buffer_write_samples(JSAny samples);
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__vad_current_state();
+external void wire__crate__api__audio_initialize_all(NativePortType port_);
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__vad_is_speech();
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_module_health_check();
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__vad_process(JSAny samples);
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_module_version();
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__vad_reset();
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__audio_reset_all();
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__vad_set_threshold(double threshold);
-}
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__get_whisper_sample_rate();
+
+external void wire__crate__api__process_streaming_audio(NativePortType port_,JSAny bytes,double start_time,bool force_transcribe);
+
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__stt_available_models();
+
+external void wire__crate__api__stt_initialize(NativePortType port_);
+
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__stt_is_ready();
+
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__stt_model_size(String model_name);
+
+external void wire__crate__api__stt_process(NativePortType port_,JSAny samples,double start_time);
+
+external void wire__crate__api__stt_process_buffer(NativePortType port_,double start_time);
+
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__stt_reset();
+
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__stt_state();
+
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__tts_available_voices();
+
+external void wire__crate__api__tts_initialize(NativePortType port_);
+
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__tts_is_ready();
+
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__tts_state();
+
+external void wire__crate__api__tts_synthesize(NativePortType port_,String text);
+
+external void wire__crate__api__tts_synthesize_to_bytes(NativePortType port_,String text);
+
+external void wire__crate__api__tts_synthesize_to_i16(NativePortType port_,String text);
+
+external void wire__crate__api__tts_synthesize_with_voice(NativePortType port_,String text,String voice_id);
+
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__vad_current_state();
+
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__vad_is_speech();
+
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__vad_process(JSAny samples);
+
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__vad_reset();
+
+external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */ wire__crate__api__vad_set_threshold(double threshold);
+        }
+        

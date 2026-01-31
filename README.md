@@ -126,6 +126,31 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
     - Efficient speech/silence detection
     - Automatic noise floor calibration
     - Saves battery by only processing speech
+  - **Neural Dictation Bar** - Smart voice input accessory
+    - Text and Command dictation modes
+    - Live confidence indicator
+    - Seamless keyboard integration
+    - Auto-insert into text fields
+  - **Voice Notes** - Record and transcribe voice memos
+    - Interactive waveform visualization (bars, line, circular, orb)
+    - Karaoke-style transcript highlighting
+    - Search within transcript
+    - Speaker identification support
+  - **Voice Search** - Search notes by voice
+    - Press-and-hold or tap-to-toggle modes
+    - Real-time transcription preview
+    - Confidence-based result filtering
+  - **AI Walkie-Talkie** - Hands-free AI conversations
+    - Full-screen immersive interface
+    - Dual animated orbs (user/AI)
+    - Conversation history
+    - Push-to-talk or auto-listen modes
+  - **Read Aloud** - TTS accessibility features
+    - Mini player with playback controls
+    - Speed adjustment (0.5x - 2.0x)
+    - Sentence-by-sentence navigation
+    - Voice selection
+    - Floating action button integration
   - **Fully Offline** - All audio processing runs locally
 
 ### **Notes & Documents**

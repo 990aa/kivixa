@@ -10,586 +10,321 @@ import 'dart:ffi' as ffi;
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
 
-abstract class AudioRustLibApiImplPlatform
-    extends BaseApiImpl<AudioRustLibWire> {
-  AudioRustLibApiImplPlatform({
-    required super.handler,
-    required super.wire,
-    required super.generalizedFrbRustBinding,
-    required super.portManager,
-  });
 
-  @protected
-  AnyhowException dco_decode_AnyhowException(dynamic raw);
 
-  @protected
-  String dco_decode_String(dynamic raw);
 
-  @protected
-  bool dco_decode_bool(dynamic raw);
+                abstract class AudioRustLibApiImplPlatform extends BaseApiImpl<AudioRustLibWire> {
+                  AudioRustLibApiImplPlatform({
+                    required super.handler,
+                    required super.wire,
+                    required super.generalizedFrbRustBinding,
+                    required super.portManager,
+                  });
 
-  @protected
-  DartTranscription dco_decode_box_autoadd_dart_transcription(dynamic raw);
+                  
 
-  @protected
-  DartSynthesizedAudio dco_decode_dart_synthesized_audio(dynamic raw);
+                  @protected AnyhowException dco_decode_AnyhowException(dynamic raw);
 
-  @protected
-  DartTranscription dco_decode_dart_transcription(dynamic raw);
+@protected String dco_decode_String(dynamic raw);
 
-  @protected
-  DartTranscriptionSegment dco_decode_dart_transcription_segment(dynamic raw);
+@protected bool dco_decode_bool(dynamic raw);
 
-  @protected
-  DartVadResult dco_decode_dart_vad_result(dynamic raw);
+@protected DartTranscription dco_decode_box_autoadd_dart_transcription(dynamic raw);
 
-  @protected
-  DartVoiceStyle dco_decode_dart_voice_style(dynamic raw);
+@protected DartSynthesizedAudio dco_decode_dart_synthesized_audio(dynamic raw);
 
-  @protected
-  double dco_decode_f_32(dynamic raw);
+@protected DartTranscription dco_decode_dart_transcription(dynamic raw);
 
-  @protected
-  int dco_decode_i_16(dynamic raw);
+@protected DartTranscriptionSegment dco_decode_dart_transcription_segment(dynamic raw);
 
-  @protected
-  int dco_decode_i_32(dynamic raw);
+@protected DartVadResult dco_decode_dart_vad_result(dynamic raw);
 
-  @protected
-  List<String> dco_decode_list_String(dynamic raw);
+@protected DartVoiceStyle dco_decode_dart_voice_style(dynamic raw);
 
-  @protected
-  List<DartTranscriptionSegment> dco_decode_list_dart_transcription_segment(
-    dynamic raw,
-  );
+@protected double dco_decode_f_32(dynamic raw);
 
-  @protected
-  List<DartVoiceStyle> dco_decode_list_dart_voice_style(dynamic raw);
+@protected int dco_decode_i_16(dynamic raw);
 
-  @protected
-  List<double> dco_decode_list_prim_f_32_loose(dynamic raw);
+@protected int dco_decode_i_32(dynamic raw);
 
-  @protected
-  Float32List dco_decode_list_prim_f_32_strict(dynamic raw);
+@protected List<String> dco_decode_list_String(dynamic raw);
 
-  @protected
-  List<int> dco_decode_list_prim_i_16_loose(dynamic raw);
+@protected List<DartTranscriptionSegment> dco_decode_list_dart_transcription_segment(dynamic raw);
 
-  @protected
-  Int16List dco_decode_list_prim_i_16_strict(dynamic raw);
+@protected List<DartVoiceStyle> dco_decode_list_dart_voice_style(dynamic raw);
 
-  @protected
-  List<int> dco_decode_list_prim_u_8_loose(dynamic raw);
+@protected List<double> dco_decode_list_prim_f_32_loose(dynamic raw);
 
-  @protected
-  Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+@protected Float32List dco_decode_list_prim_f_32_strict(dynamic raw);
 
-  @protected
-  String? dco_decode_opt_String(dynamic raw);
+@protected List<int> dco_decode_list_prim_i_16_loose(dynamic raw);
 
-  @protected
-  DartTranscription? dco_decode_opt_box_autoadd_dart_transcription(dynamic raw);
+@protected Int16List dco_decode_list_prim_i_16_strict(dynamic raw);
 
-  @protected
-  StreamingResult dco_decode_streaming_result(dynamic raw);
+@protected List<int> dco_decode_list_prim_u_8_loose(dynamic raw);
 
-  @protected
-  int dco_decode_u_32(dynamic raw);
+@protected Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
-  @protected
-  BigInt dco_decode_u_64(dynamic raw);
+@protected String? dco_decode_opt_String(dynamic raw);
 
-  @protected
-  int dco_decode_u_8(dynamic raw);
+@protected DartTranscription? dco_decode_opt_box_autoadd_dart_transcription(dynamic raw);
 
-  @protected
-  void dco_decode_unit(dynamic raw);
+@protected StreamingResult dco_decode_streaming_result(dynamic raw);
 
-  @protected
-  BigInt dco_decode_usize(dynamic raw);
+@protected int dco_decode_u_32(dynamic raw);
 
-  @protected
-  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+@protected BigInt dco_decode_u_64(dynamic raw);
 
-  @protected
-  String sse_decode_String(SseDeserializer deserializer);
+@protected int dco_decode_u_8(dynamic raw);
 
-  @protected
-  bool sse_decode_bool(SseDeserializer deserializer);
+@protected void dco_decode_unit(dynamic raw);
 
-  @protected
-  DartTranscription sse_decode_box_autoadd_dart_transcription(
-    SseDeserializer deserializer,
-  );
+@protected BigInt dco_decode_usize(dynamic raw);
 
-  @protected
-  DartSynthesizedAudio sse_decode_dart_synthesized_audio(
-    SseDeserializer deserializer,
-  );
+@protected AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
-  @protected
-  DartTranscription sse_decode_dart_transcription(SseDeserializer deserializer);
+@protected String sse_decode_String(SseDeserializer deserializer);
 
-  @protected
-  DartTranscriptionSegment sse_decode_dart_transcription_segment(
-    SseDeserializer deserializer,
-  );
+@protected bool sse_decode_bool(SseDeserializer deserializer);
 
-  @protected
-  DartVadResult sse_decode_dart_vad_result(SseDeserializer deserializer);
+@protected DartTranscription sse_decode_box_autoadd_dart_transcription(SseDeserializer deserializer);
 
-  @protected
-  DartVoiceStyle sse_decode_dart_voice_style(SseDeserializer deserializer);
+@protected DartSynthesizedAudio sse_decode_dart_synthesized_audio(SseDeserializer deserializer);
 
-  @protected
-  double sse_decode_f_32(SseDeserializer deserializer);
-
-  @protected
-  int sse_decode_i_16(SseDeserializer deserializer);
-
-  @protected
-  int sse_decode_i_32(SseDeserializer deserializer);
-
-  @protected
-  List<String> sse_decode_list_String(SseDeserializer deserializer);
-
-  @protected
-  List<DartTranscriptionSegment> sse_decode_list_dart_transcription_segment(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  List<DartVoiceStyle> sse_decode_list_dart_voice_style(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  List<double> sse_decode_list_prim_f_32_loose(SseDeserializer deserializer);
-
-  @protected
-  Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer);
-
-  @protected
-  List<int> sse_decode_list_prim_i_16_loose(SseDeserializer deserializer);
-
-  @protected
-  Int16List sse_decode_list_prim_i_16_strict(SseDeserializer deserializer);
-
-  @protected
-  List<int> sse_decode_list_prim_u_8_loose(SseDeserializer deserializer);
-
-  @protected
-  Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
-
-  @protected
-  String? sse_decode_opt_String(SseDeserializer deserializer);
-
-  @protected
-  DartTranscription? sse_decode_opt_box_autoadd_dart_transcription(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  StreamingResult sse_decode_streaming_result(SseDeserializer deserializer);
-
-  @protected
-  int sse_decode_u_32(SseDeserializer deserializer);
-
-  @protected
-  BigInt sse_decode_u_64(SseDeserializer deserializer);
-
-  @protected
-  int sse_decode_u_8(SseDeserializer deserializer);
-
-  @protected
-  void sse_decode_unit(SseDeserializer deserializer);
-
-  @protected
-  BigInt sse_decode_usize(SseDeserializer deserializer);
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_AnyhowException(
-    AnyhowException raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    throw UnimplementedError();
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_String(String raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return cst_encode_list_prim_u_8_strict(utf8.encoder.convert(raw));
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_dart_transcription>
-  cst_encode_box_autoadd_dart_transcription(DartTranscription raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ptr = wire.cst_new_box_autoadd_dart_transcription();
-    cst_api_fill_to_wire_dart_transcription(raw, ptr.ref);
-    return ptr;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_String> cst_encode_list_String(List<String> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_String(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      ans.ref.ptr[i] = cst_encode_String(raw[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_dart_transcription_segment>
-  cst_encode_list_dart_transcription_segment(
-    List<DartTranscriptionSegment> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_dart_transcription_segment(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_dart_transcription_segment(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_dart_voice_style> cst_encode_list_dart_voice_style(
-    List<DartVoiceStyle> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_dart_voice_style(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_dart_voice_style(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_f_32_loose> cst_encode_list_prim_f_32_loose(
-    List<double> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_f_32_loose(raw.length);
-    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_f_32_strict> cst_encode_list_prim_f_32_strict(
-    Float32List raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_f_32_strict(raw.length);
-    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_i_16_loose> cst_encode_list_prim_i_16_loose(
-    List<int> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_i_16_loose(raw.length);
-    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_i_16_strict> cst_encode_list_prim_i_16_strict(
-    Int16List raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_i_16_strict(raw.length);
-    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_u_8_loose> cst_encode_list_prim_u_8_loose(
-    List<int> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_u_8_loose(raw.length);
-    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(
-    Uint8List raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_u_8_strict(raw.length);
-    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_opt_String(
-    String? raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_String(raw);
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_dart_transcription>
-  cst_encode_opt_box_autoadd_dart_transcription(DartTranscription? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null
-        ? ffi.nullptr
-        : cst_encode_box_autoadd_dart_transcription(raw);
-  }
-
-  @protected
-  int cst_encode_u_64(BigInt raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.toSigned(64).toInt();
-  }
-
-  @protected
-  int cst_encode_usize(BigInt raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.toSigned(64).toInt();
-  }
-
-  @protected
-  void cst_api_fill_to_wire_box_autoadd_dart_transcription(
-    DartTranscription apiObj,
-    ffi.Pointer<wire_cst_dart_transcription> wireObj,
-  ) {
-    cst_api_fill_to_wire_dart_transcription(apiObj, wireObj.ref);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_dart_synthesized_audio(
-    DartSynthesizedAudio apiObj,
-    wire_cst_dart_synthesized_audio wireObj,
-  ) {
-    wireObj.samples = cst_encode_list_prim_f_32_strict(apiObj.samples);
-    wireObj.sample_rate = cst_encode_u_32(apiObj.sampleRate);
-    wireObj.duration = cst_encode_f_32(apiObj.duration);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_dart_transcription(
-    DartTranscription apiObj,
-    wire_cst_dart_transcription wireObj,
-  ) {
-    wireObj.segments = cst_encode_list_dart_transcription_segment(
-      apiObj.segments,
-    );
-    wireObj.language = cst_encode_opt_String(apiObj.language);
-    wireObj.duration = cst_encode_f_32(apiObj.duration);
-    wireObj.processing_time_ms = cst_encode_u_64(apiObj.processingTimeMs);
-    wireObj.full_text = cst_encode_String(apiObj.fullText);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_dart_transcription_segment(
-    DartTranscriptionSegment apiObj,
-    wire_cst_dart_transcription_segment wireObj,
-  ) {
-    wireObj.id = cst_encode_u_32(apiObj.id);
-    wireObj.text = cst_encode_String(apiObj.text);
-    wireObj.start_time = cst_encode_f_32(apiObj.startTime);
-    wireObj.end_time = cst_encode_f_32(apiObj.endTime);
-    wireObj.language = cst_encode_opt_String(apiObj.language);
-    wireObj.confidence = cst_encode_f_32(apiObj.confidence);
-    wireObj.is_final = cst_encode_bool(apiObj.isFinal);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_dart_vad_result(
-    DartVadResult apiObj,
-    wire_cst_dart_vad_result wireObj,
-  ) {
-    wireObj.state = cst_encode_i_32(apiObj.state);
-    wireObj.speech_probability = cst_encode_f_32(apiObj.speechProbability);
-    wireObj.is_speech = cst_encode_bool(apiObj.isSpeech);
-    wireObj.state_duration = cst_encode_f_32(apiObj.stateDuration);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_dart_voice_style(
-    DartVoiceStyle apiObj,
-    wire_cst_dart_voice_style wireObj,
-  ) {
-    wireObj.id = cst_encode_String(apiObj.id);
-    wireObj.name = cst_encode_String(apiObj.name);
-    wireObj.description = cst_encode_String(apiObj.description);
-    wireObj.rate = cst_encode_f_32(apiObj.rate);
-    wireObj.pitch = cst_encode_f_32(apiObj.pitch);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_streaming_result(
-    StreamingResult apiObj,
-    wire_cst_streaming_result wireObj,
-  ) {
-    cst_api_fill_to_wire_dart_vad_result(apiObj.vad, wireObj.vad);
-    wireObj.transcription_attempted = cst_encode_bool(
-      apiObj.transcriptionAttempted,
-    );
-    wireObj.transcription = cst_encode_opt_box_autoadd_dart_transcription(
-      apiObj.transcription,
-    );
-  }
-
-  @protected
-  bool cst_encode_bool(bool raw);
-
-  @protected
-  double cst_encode_f_32(double raw);
-
-  @protected
-  int cst_encode_i_16(int raw);
-
-  @protected
-  int cst_encode_i_32(int raw);
-
-  @protected
-  int cst_encode_u_32(int raw);
-
-  @protected
-  int cst_encode_u_8(int raw);
-
-  @protected
-  void cst_encode_unit(void raw);
-
-  @protected
-  void sse_encode_AnyhowException(
-    AnyhowException self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_String(String self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_box_autoadd_dart_transcription(
-    DartTranscription self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_dart_synthesized_audio(
-    DartSynthesizedAudio self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_dart_transcription(
-    DartTranscription self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_dart_transcription_segment(
-    DartTranscriptionSegment self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_dart_vad_result(DartVadResult self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_dart_voice_style(
-    DartVoiceStyle self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_f_32(double self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_i_16(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_i_32(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_list_String(List<String> self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_list_dart_transcription_segment(
-    List<DartTranscriptionSegment> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_dart_voice_style(
-    List<DartVoiceStyle> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_f_32_loose(
-    List<double> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_f_32_strict(
-    Float32List self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_i_16_loose(
-    List<int> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_i_16_strict(
-    Int16List self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_u_8_loose(List<int> self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_list_prim_u_8_strict(
-    Uint8List self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_opt_String(String? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_box_autoadd_dart_transcription(
-    DartTranscription? self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_streaming_result(
-    StreamingResult self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_u_32(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_u_64(BigInt self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_u_8(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_unit(void self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_usize(BigInt self, SseSerializer serializer);
-}
+@protected DartTranscription sse_decode_dart_transcription(SseDeserializer deserializer);
+
+@protected DartTranscriptionSegment sse_decode_dart_transcription_segment(SseDeserializer deserializer);
+
+@protected DartVadResult sse_decode_dart_vad_result(SseDeserializer deserializer);
+
+@protected DartVoiceStyle sse_decode_dart_voice_style(SseDeserializer deserializer);
+
+@protected double sse_decode_f_32(SseDeserializer deserializer);
+
+@protected int sse_decode_i_16(SseDeserializer deserializer);
+
+@protected int sse_decode_i_32(SseDeserializer deserializer);
+
+@protected List<String> sse_decode_list_String(SseDeserializer deserializer);
+
+@protected List<DartTranscriptionSegment> sse_decode_list_dart_transcription_segment(SseDeserializer deserializer);
+
+@protected List<DartVoiceStyle> sse_decode_list_dart_voice_style(SseDeserializer deserializer);
+
+@protected List<double> sse_decode_list_prim_f_32_loose(SseDeserializer deserializer);
+
+@protected Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer);
+
+@protected List<int> sse_decode_list_prim_i_16_loose(SseDeserializer deserializer);
+
+@protected Int16List sse_decode_list_prim_i_16_strict(SseDeserializer deserializer);
+
+@protected List<int> sse_decode_list_prim_u_8_loose(SseDeserializer deserializer);
+
+@protected Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+
+@protected String? sse_decode_opt_String(SseDeserializer deserializer);
+
+@protected DartTranscription? sse_decode_opt_box_autoadd_dart_transcription(SseDeserializer deserializer);
+
+@protected StreamingResult sse_decode_streaming_result(SseDeserializer deserializer);
+
+@protected int sse_decode_u_32(SseDeserializer deserializer);
+
+@protected BigInt sse_decode_u_64(SseDeserializer deserializer);
+
+@protected int sse_decode_u_8(SseDeserializer deserializer);
+
+@protected void sse_decode_unit(SseDeserializer deserializer);
+
+@protected BigInt sse_decode_usize(SseDeserializer deserializer);
+
+@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_AnyhowException(AnyhowException raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+throw UnimplementedError(); }
+
+@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_String(String raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return cst_encode_list_prim_u_8_strict(utf8.encoder.convert(raw)); }
+
+@protected ffi.Pointer<wire_cst_dart_transcription> cst_encode_box_autoadd_dart_transcription(DartTranscription raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ptr = wire.cst_new_box_autoadd_dart_transcription();
+                    cst_api_fill_to_wire_dart_transcription(raw, ptr.ref);
+                    return ptr; }
+
+@protected ffi.Pointer<wire_cst_list_String> cst_encode_list_String(List<String> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_String(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    ans.ref.ptr[i] = cst_encode_String(raw[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_dart_transcription_segment> cst_encode_list_dart_transcription_segment(List<DartTranscriptionSegment> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_dart_transcription_segment(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_dart_transcription_segment(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_dart_voice_style> cst_encode_list_dart_voice_style(List<DartVoiceStyle> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_dart_voice_style(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_dart_voice_style(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_prim_f_32_loose> cst_encode_list_prim_f_32_loose(List<double> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_prim_f_32_loose(raw.length);
+                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+                return ans; }
+
+@protected ffi.Pointer<wire_cst_list_prim_f_32_strict> cst_encode_list_prim_f_32_strict(Float32List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_prim_f_32_strict(raw.length);
+                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+                return ans; }
+
+@protected ffi.Pointer<wire_cst_list_prim_i_16_loose> cst_encode_list_prim_i_16_loose(List<int> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_prim_i_16_loose(raw.length);
+                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+                return ans; }
+
+@protected ffi.Pointer<wire_cst_list_prim_i_16_strict> cst_encode_list_prim_i_16_strict(Int16List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_prim_i_16_strict(raw.length);
+                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+                return ans; }
+
+@protected ffi.Pointer<wire_cst_list_prim_u_8_loose> cst_encode_list_prim_u_8_loose(List<int> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_prim_u_8_loose(raw.length);
+                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+                return ans; }
+
+@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(Uint8List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_prim_u_8_strict(raw.length);
+                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+                return ans; }
+
+@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_opt_String(String? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_String(raw); }
+
+@protected ffi.Pointer<wire_cst_dart_transcription> cst_encode_opt_box_autoadd_dart_transcription(DartTranscription? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_box_autoadd_dart_transcription(raw); }
+
+@protected int cst_encode_u_64(BigInt raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw.toSigned(64).toInt(); }
+
+@protected int cst_encode_usize(BigInt raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw.toSigned(64).toInt(); }
+
+@protected void cst_api_fill_to_wire_box_autoadd_dart_transcription(DartTranscription apiObj, ffi.Pointer<wire_cst_dart_transcription> wireObj){ cst_api_fill_to_wire_dart_transcription(apiObj, wireObj.ref); }
+
+@protected void cst_api_fill_to_wire_dart_synthesized_audio(DartSynthesizedAudio apiObj, wire_cst_dart_synthesized_audio wireObj){ wireObj.samples = cst_encode_list_prim_f_32_strict(apiObj.samples);
+wireObj.sample_rate = cst_encode_u_32(apiObj.sampleRate);
+wireObj.duration = cst_encode_f_32(apiObj.duration); }
+
+@protected void cst_api_fill_to_wire_dart_transcription(DartTranscription apiObj, wire_cst_dart_transcription wireObj){ wireObj.segments = cst_encode_list_dart_transcription_segment(apiObj.segments);
+wireObj.language = cst_encode_opt_String(apiObj.language);
+wireObj.duration = cst_encode_f_32(apiObj.duration);
+wireObj.processing_time_ms = cst_encode_u_64(apiObj.processingTimeMs);
+wireObj.full_text = cst_encode_String(apiObj.fullText); }
+
+@protected void cst_api_fill_to_wire_dart_transcription_segment(DartTranscriptionSegment apiObj, wire_cst_dart_transcription_segment wireObj){ wireObj.id = cst_encode_u_32(apiObj.id);
+wireObj.text = cst_encode_String(apiObj.text);
+wireObj.start_time = cst_encode_f_32(apiObj.startTime);
+wireObj.end_time = cst_encode_f_32(apiObj.endTime);
+wireObj.language = cst_encode_opt_String(apiObj.language);
+wireObj.confidence = cst_encode_f_32(apiObj.confidence);
+wireObj.is_final = cst_encode_bool(apiObj.isFinal); }
+
+@protected void cst_api_fill_to_wire_dart_vad_result(DartVadResult apiObj, wire_cst_dart_vad_result wireObj){ wireObj.state = cst_encode_i_32(apiObj.state);
+wireObj.speech_probability = cst_encode_f_32(apiObj.speechProbability);
+wireObj.is_speech = cst_encode_bool(apiObj.isSpeech);
+wireObj.state_duration = cst_encode_f_32(apiObj.stateDuration); }
+
+@protected void cst_api_fill_to_wire_dart_voice_style(DartVoiceStyle apiObj, wire_cst_dart_voice_style wireObj){ wireObj.id = cst_encode_String(apiObj.id);
+wireObj.name = cst_encode_String(apiObj.name);
+wireObj.description = cst_encode_String(apiObj.description);
+wireObj.rate = cst_encode_f_32(apiObj.rate);
+wireObj.pitch = cst_encode_f_32(apiObj.pitch); }
+
+@protected void cst_api_fill_to_wire_streaming_result(StreamingResult apiObj, wire_cst_streaming_result wireObj){ cst_api_fill_to_wire_dart_vad_result(apiObj.vad, wireObj.vad);
+wireObj.transcription_attempted = cst_encode_bool(apiObj.transcriptionAttempted);
+wireObj.transcription = cst_encode_opt_box_autoadd_dart_transcription(apiObj.transcription); }
+
+@protected bool cst_encode_bool(bool raw);
+
+@protected double cst_encode_f_32(double raw);
+
+@protected int cst_encode_i_16(int raw);
+
+@protected int cst_encode_i_32(int raw);
+
+@protected int cst_encode_u_32(int raw);
+
+@protected int cst_encode_u_8(int raw);
+
+@protected void cst_encode_unit(void raw);
+
+@protected void sse_encode_AnyhowException(AnyhowException self, SseSerializer serializer);
+
+@protected void sse_encode_String(String self, SseSerializer serializer);
+
+@protected void sse_encode_bool(bool self, SseSerializer serializer);
+
+@protected void sse_encode_box_autoadd_dart_transcription(DartTranscription self, SseSerializer serializer);
+
+@protected void sse_encode_dart_synthesized_audio(DartSynthesizedAudio self, SseSerializer serializer);
+
+@protected void sse_encode_dart_transcription(DartTranscription self, SseSerializer serializer);
+
+@protected void sse_encode_dart_transcription_segment(DartTranscriptionSegment self, SseSerializer serializer);
+
+@protected void sse_encode_dart_vad_result(DartVadResult self, SseSerializer serializer);
+
+@protected void sse_encode_dart_voice_style(DartVoiceStyle self, SseSerializer serializer);
+
+@protected void sse_encode_f_32(double self, SseSerializer serializer);
+
+@protected void sse_encode_i_16(int self, SseSerializer serializer);
+
+@protected void sse_encode_i_32(int self, SseSerializer serializer);
+
+@protected void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+@protected void sse_encode_list_dart_transcription_segment(List<DartTranscriptionSegment> self, SseSerializer serializer);
+
+@protected void sse_encode_list_dart_voice_style(List<DartVoiceStyle> self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_f_32_loose(List<double> self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_f_32_strict(Float32List self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_i_16_loose(List<int> self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_i_16_strict(Int16List self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_u_8_loose(List<int> self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_u_8_strict(Uint8List self, SseSerializer serializer);
+
+@protected void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_box_autoadd_dart_transcription(DartTranscription? self, SseSerializer serializer);
+
+@protected void sse_encode_streaming_result(StreamingResult self, SseSerializer serializer);
+
+@protected void sse_encode_u_32(int self, SseSerializer serializer);
+
+@protected void sse_encode_u_64(BigInt self, SseSerializer serializer);
+
+@protected void sse_encode_u_8(int self, SseSerializer serializer);
+
+@protected void sse_encode_unit(void self, SseSerializer serializer);
+
+@protected void sse_encode_usize(BigInt self, SseSerializer serializer);
+                }
+                
+
 
 // Section: wire_class
 
@@ -601,9 +336,10 @@ abstract class AudioRustLibApiImplPlatform
 
 /// generated by flutter_rust_bridge
 class AudioRustLibWire implements BaseWire {
-  factory AudioRustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
-      AudioRustLibWire(lib.ffiDynamicLibrary);
 
+            factory AudioRustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
+              AudioRustLibWire(lib.ffiDynamicLibrary);
+        
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
   _lookup;
@@ -1346,6 +1082,12 @@ class AudioRustLibWire implements BaseWire {
       _dummy_method_to_enforce_bundlingPtr.asFunction<int Function()>();
 }
 
+
+
+
+
+
+
 typedef DartPort = ffi.Int64;
 typedef DartDartPort = int;
 typedef DartPostCObjectFnTypeFunction =
@@ -1354,6 +1096,8 @@ typedef DartDartPostCObjectFnTypeFunction =
     bool Function(DartDartPort port_id, ffi.Pointer<ffi.Void> message);
 typedef DartPostCObjectFnType =
     ffi.Pointer<ffi.NativeFunction<DartPostCObjectFnTypeFunction>>;
+
+
 
 final class wire_cst_list_prim_u_8_loose extends ffi.Struct {
   external ffi.Pointer<ffi.Uint8> ptr;
