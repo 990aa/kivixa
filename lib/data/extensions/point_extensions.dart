@@ -29,7 +29,7 @@ extension PointExtensions on PointVector {
     final Float32List point = Float32List.fromList([
       x,
       y,
-      if (pressure != null) pressure!,
+      ?pressure,
     ]);
     return BsonBinary.from(point.buffer.asUint8List());
   }

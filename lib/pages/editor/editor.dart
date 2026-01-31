@@ -1757,7 +1757,7 @@ class EditorState extends State<Editor> {
                   child: Column(
                     children: [
                       Expanded(child: canvas),
-                      if (readonlyBanner != null) readonlyBanner,
+                      ?readonlyBanner,
                     ],
                   ),
                 ),
@@ -1780,7 +1780,7 @@ class EditorState extends State<Editor> {
               children: [
                 Expanded(child: canvas),
                 toolbar,
-                if (readonlyBanner != null) readonlyBanner,
+                ?readonlyBanner,
               ],
             ),
           ),

@@ -890,6 +890,11 @@ fn main() {
         TargetOs::Linux => {
             println!("cargo:rustc-link-lib=dylib=stdc++");
         }
+        TargetOs::Android => {
+            // Android uses c++_shared from NDK, must be bundled with the app
+            println!("cargo:rustc-link-lib=dylib=c++_shared");
+            println!("cargo:rustc-link-lib=log");
+        }
         TargetOs::Apple(variant) => {
             println!("cargo:rustc-link-lib=framework=Foundation");
             println!("cargo:rustc-link-lib=framework=Metal");

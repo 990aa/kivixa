@@ -69,6 +69,8 @@ class InferenceService {
 
   var _isInitialized = false;
   var _isModelLoaded = false;
+  var _initializationFailed = false;
+  String? _initializationError;
   int? _embeddingDimension;
 
   /// Whether the service is initialized
@@ -77,18 +79,32 @@ class InferenceService {
   /// Whether the model is loaded and ready
   bool get isModelLoaded => _isModelLoaded;
 
+  /// Whether initialization failed (native library couldn't load)
+  bool get initializationFailed => _initializationFailed;
+
+  /// Error message if initialization failed
+  String? get initializationError => _initializationError;
+
   /// The embedding dimension of the loaded model
   int? get embeddingDimension => _embeddingDimension;
 
   /// Initialize the inference service
   Future<void> initialize() async {
     if (_isInitialized) return;
+    if (_initializationFailed) return; // Don't retry if already failed
 
     // Initialize flutter_rust_bridge with platform-specific library loading
-    await _initializeRustLib();
-
-    _isInitialized = true;
-    debugPrint('InferenceService initialized');
+    try {
+      await _initializeRustLib();
+      _isInitialized = true;
+      debugPrint('InferenceService initialized');
+    } catch (e, stack) {
+      _initializationFailed = true;
+      _initializationError = e.toString();
+      debugPrint('InferenceService initialization failed: $e');
+      debugPrint('Stack trace: $stack');
+      // Don't rethrow - allow app to continue without AI features
+    }
   }
 
   /// Initialize RustLib with proper library path resolution
@@ -141,6 +157,14 @@ class InferenceService {
   /// Load the AI model from the given path
   Future<void> loadModel(String modelPath, [InferenceConfig? config]) async {
     await initialize();
+
+    // Check if initialization failed
+    if (_initializationFailed) {
+      throw StateError(
+        'Native library failed to load: $_initializationError\n'
+        'AI features are not available.',
+      );
+    }
 
     // Skip if model is already loaded to prevent BackendAlreadyInitialized error
     if (_isModelLoaded) {
@@ -273,6 +297,12 @@ class InferenceService {
   }
 
   void _ensureModelLoaded() {
+    if (_initializationFailed) {
+      throw StateError(
+        'Native library failed to load: $_initializationError\n'
+        'AI features are not available.',
+      );
+    }
     if (!_isModelLoaded) {
       throw StateError('Model not loaded. Call loadModel() first.');
     }
@@ -282,6 +312,7 @@ class InferenceService {
   Future<bool> healthCheck() async {
     try {
       await initialize();
+      if (_initializationFailed) return false;
       final result = native.healthCheck();
       return result == 'Kivixa Native OK';
     } catch (e) {
@@ -292,11 +323,13 @@ class InferenceService {
 
   /// Get version info from native library
   String getVersion() {
+    if (_initializationFailed) return 'N/A (native library not loaded)';
     return native.getVersion();
   }
 
   /// Check if model is loaded via native call
   bool checkModelLoaded() {
+    if (_initializationFailed) return false;
     return native.isModelLoaded();
   }
 }

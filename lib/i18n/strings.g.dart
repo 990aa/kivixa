@@ -453,7 +453,7 @@ class TranslationsEditor {
   String get pages => 'Pages';
   String get untitled => 'Untitled';
   String get needsToSaveBeforeExiting =>
-      'Saving your changes... You can safely exit the editor when it\'s done';
+      'Saving changes... You can exit the editor in a few seconds.';
 }
 
 class TranslationsEditorToolbar {

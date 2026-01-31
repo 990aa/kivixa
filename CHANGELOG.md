@@ -210,7 +210,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.1.8] - 2026-01-31
 
-### Changed
-- Version bump to 0.1.8
+### Fixed
+- **Android**: Fixed loading indicator alignment in AI interface.
+- **Android**: Fixed back button behavior; now supports double-tap to exit and proper navigation stack handling.
+- **Android**: Fixed file browsing on Android 13+ devices using native file picker.
+- **Android**: Fixed system status bar color inconsistencies.
+- **Settings**: Fixed "Update available" message appearing even when the application is up to date.
 
 ---

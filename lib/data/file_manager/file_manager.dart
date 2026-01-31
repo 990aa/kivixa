@@ -520,59 +520,59 @@ class FileManager {
     final dir = Directory(documentsDirectory + directory);
     if (!dir.existsSync()) return null;
 
-    final int directoryPrefixLength = directory.endsWith('/')
-        ? directory.length
-        : directory.length + 1;
-
     // Process directory listing and track file types
     final entities = await dir.list().toList();
     for (final entity in entities) {
-      final filePath = entity.path.substring(documentsDirectory.length);
+      // FIX: On Android, entity.path may resolve through symlinks and have a
+      // different prefix than documentsDirectory (e.g., /data/data/ vs /data/user/0/).
+      // Instead of substring, we extract the basename and build the relative path.
+      final entityBasename = entity.path.split('/').last;
+      final filePath = '$directory$entityBasename';
 
       if (entity is Directory) {
-        final childName = filePath.substring(directoryPrefixLength);
         // Hidden directories that should not appear in the browse view
         const hiddenDirectories = {'plugins', '.lifegit', 'models'};
-        if (!hiddenDirectories.contains(childName) &&
-            !directories.contains(childName)) {
-          directories.add(childName);
+        if (!hiddenDirectories.contains(entityBasename) &&
+            !directories.contains(entityBasename)) {
+          directories.add(entityBasename);
         }
         continue;
       }
 
       if (Editor.isReservedPath(filePath)) continue;
 
-      final iskvx = filePath.endsWith(Editor.extension);
-      final iskvx1 = filePath.endsWith(Editor.extensionOldJson);
-      final ismd = filePath.endsWith('.md');
-      final iskvtx = filePath.endsWith(TextFileEditor.internalExtension);
+      final iskvx = entityBasename.endsWith(Editor.extension);
+      final iskvx1 = entityBasename.endsWith(Editor.extensionOldJson);
+      final ismd = entityBasename.endsWith('.md');
+      final iskvtx = entityBasename.endsWith(TextFileEditor.internalExtension);
 
       String? childName;
       KivixaFileType? fileType;
 
       if (!includeExtensions) {
         if (iskvx) {
-          childName = filePath.substring(
-            directoryPrefixLength,
-            filePath.length - Editor.extension.length,
+          // Strip extension from basename to get the file name
+          childName = entityBasename.substring(
+            0,
+            entityBasename.length - Editor.extension.length,
           );
           fileType = KivixaFileType.handwritten;
         } else if (iskvx1) {
-          childName = filePath.substring(
-            directoryPrefixLength,
-            filePath.length - Editor.extensionOldJson.length,
+          childName = entityBasename.substring(
+            0,
+            entityBasename.length - Editor.extensionOldJson.length,
           );
           fileType = KivixaFileType.handwritten;
         } else if (ismd) {
-          childName = filePath.substring(
-            directoryPrefixLength,
-            filePath.length - '.md'.length,
+          childName = entityBasename.substring(
+            0,
+            entityBasename.length - '.md'.length,
           );
           fileType = KivixaFileType.markdown;
         } else if (iskvtx) {
-          childName = filePath.substring(
-            directoryPrefixLength,
-            filePath.length - TextFileEditor.internalExtension.length,
+          childName = entityBasename.substring(
+            0,
+            entityBasename.length - TextFileEditor.internalExtension.length,
           );
           fileType = KivixaFileType.text;
         }
@@ -581,7 +581,7 @@ class FileManager {
           final isAsset = !iskvx && !iskvx1 && !ismd && !iskvtx;
           if (isAsset) continue;
         }
-        childName = filePath.substring(directoryPrefixLength);
+        childName = entityBasename;
         if (iskvx || iskvx1) {
           fileType = KivixaFileType.handwritten;
         } else if (ismd) {

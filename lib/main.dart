@@ -23,6 +23,7 @@ import 'package:kivixa/pages/markdown/advanced_markdown_editor.dart';
 import 'package:kivixa/pages/plugins/plugins_page.dart';
 import 'package:kivixa/pages/split_screen/split_screen_page.dart';
 import 'package:kivixa/pages/textfile/text_file_editor.dart';
+import 'package:kivixa/services/android_back_handler.dart';
 import 'package:kivixa/services/app_lifecycle_manager.dart';
 import 'package:kivixa/services/app_lock_service.dart';
 import 'package:kivixa/services/folder_color_service.dart';
@@ -135,8 +136,11 @@ Future<void> appRunner(List<String> args) async {
         await windowManager.setTitle('Kivixa');
       }),
     ],
-    // Enable full screen on mobile (immersive mode)
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky),
+    // FIX: Use edgeToEdge instead of immersiveSticky on startup.
+    // immersiveSticky hides system bars which triggers isFullscreen=true,
+    // causing the app bar to disappear in the editor/whiteboard on Android.
+    // edgeToEdge extends content behind system bars without hiding them.
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge),
     workerManager.init(),
     PencilShader.init(),
     // PencilSound.preload(), // Audio functionality removed
@@ -369,8 +373,11 @@ class _AppState extends State<App> {
 
     // Terms accepted and unlocked, show the main app
     // Wrapped with ActivityDetector for idle state management
+    // Wrapped with AndroidBackButtonHandler for double-tap-to-exit on Android
     return ActivityDetector(
-      child: DynamicMaterialApp(title: 'kivixa', router: App._router),
+      child: AndroidBackButtonHandler(
+        child: DynamicMaterialApp(title: 'kivixa', router: App._router),
+      ),
     );
   }
 }

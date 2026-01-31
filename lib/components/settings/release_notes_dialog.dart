@@ -172,7 +172,8 @@ class _UpdatesDialogState extends State<UpdatesDialog> {
                       _buildInstalling(context)
                     else if (backgroundState == BackgroundUpdateState.error)
                       _buildDownloadError(context)
-                    else if (_hasUpdate)
+                    else if (_hasUpdate &&
+                        _currentVersionString != _latestVersionString)
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(

@@ -288,6 +288,91 @@ void main() {
       skip:
           'Test environment issue with PlainStow - functionality works in actual app',
     );
+
+    group('getChildrenOfDirectory file type detection', () {
+      // Test for the fix: Android path handling using basename extraction
+      // This tests that file types are correctly detected even when
+      // entity.path has different prefix than documentsDirectory
+
+      test('correctly detects .kvx handwritten files', () async {
+        const dirPath = '/test_file_type_kvx';
+        final file = File('$rootDir$dirPath/note1.kvx');
+        await file.create(recursive: true);
+
+        final children = await FileManager.getChildrenOfDirectory(dirPath);
+        expect(children, isNotNull);
+        expect(children!.files, contains('note1'));
+        expect(
+          children.isFileType('note1', KivixaFileType.handwritten),
+          isTrue,
+        );
+
+        await Directory('$rootDir$dirPath').delete(recursive: true);
+      });
+
+      test('correctly detects .md markdown files', () async {
+        const dirPath = '/test_file_type_md';
+        final file = File('$rootDir$dirPath/doc.md');
+        await file.create(recursive: true);
+
+        final children = await FileManager.getChildrenOfDirectory(dirPath);
+        expect(children, isNotNull);
+        expect(children!.files, contains('doc'));
+        expect(children.isFileType('doc', KivixaFileType.markdown), isTrue);
+
+        await Directory('$rootDir$dirPath').delete(recursive: true);
+      });
+
+      test('correctly detects .kvtx text files', () async {
+        const dirPath = '/test_file_type_kvtx';
+        final file = File('$rootDir$dirPath/text.kvtx');
+        await file.create(recursive: true);
+
+        final children = await FileManager.getChildrenOfDirectory(dirPath);
+        expect(children, isNotNull);
+        expect(children!.files, contains('text'));
+        expect(children.isFileType('text', KivixaFileType.text), isTrue);
+
+        await Directory('$rootDir$dirPath').delete(recursive: true);
+      });
+
+      test('handles mixed file types in same directory', () async {
+        const dirPath = '/test_mixed_types';
+        await File('$rootDir$dirPath/handwritten.kvx').create(recursive: true);
+        await File('$rootDir$dirPath/markdown.md').create(recursive: true);
+        await File('$rootDir$dirPath/textfile.kvtx').create(recursive: true);
+
+        final children = await FileManager.getChildrenOfDirectory(dirPath);
+        expect(children, isNotNull);
+        expect(children!.files.length, 3);
+
+        expect(
+          children.isFileType('handwritten', KivixaFileType.handwritten),
+          isTrue,
+        );
+        expect(
+          children.isFileType('markdown', KivixaFileType.markdown),
+          isTrue,
+        );
+        expect(children.isFileType('textfile', KivixaFileType.text), isTrue);
+
+        await Directory('$rootDir$dirPath').delete(recursive: true);
+      });
+
+      test('handles files with spaces in names', () async {
+        const dirPath = '/test_spaces';
+        await File('$rootDir$dirPath/my note.kvx').create(recursive: true);
+        await File('$rootDir$dirPath/my document.md').create(recursive: true);
+
+        final children = await FileManager.getChildrenOfDirectory(dirPath);
+        expect(children, isNotNull);
+        expect(children!.files, contains('my note'));
+        expect(children.files, contains('my document'));
+
+        await Directory('$rootDir$dirPath').delete(recursive: true);
+      });
+    });
+
     test('isDirectory and doesFileExist', () async {
       const dirPath = '/test_isDirectory';
       const filePath = '/test_doesFileExist.kvx';
