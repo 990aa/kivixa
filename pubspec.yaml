@@ -114,7 +114,7 @@ dev_dependencies:
   icons_launcher: ^3.0.0
   simplytranslate: ^2.0.1
   yaml: ^3.1.2
-  golden_screenshot: ^9.1.2
+  golden_screenshot: ^10.0.0
   path_provider_platform_interface: ^2.0.0
   plugin_platform_interface: ^2.0.0
   objectbox_generator: ^5.0.3
