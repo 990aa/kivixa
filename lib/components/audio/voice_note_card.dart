@@ -208,7 +208,7 @@ class _VoiceNoteCardState extends State<VoiceNoteCard>
 
   StreamSubscription<Duration>? _positionSub;
   StreamSubscription<SpeechRecognitionResult>? _transcriptionSub;
-  StreamSubscription<PlaybackState>? _playbackStateSub;
+  VoidCallback? _playbackListener;
 
   @override
   void initState() {
@@ -225,7 +225,8 @@ class _VoiceNoteCardState extends State<VoiceNoteCard>
 
     _positionSub = _playback.positionStream.listen(_onPositionChanged);
     _transcriptionSub = _engine.transcriptionStream.listen(_onTranscription);
-    _playbackStateSub = _playback.stateStream.listen(_onPlaybackStateChanged);
+    _playbackListener = () => _onPlaybackStateChanged(_playback.state.value);
+    _playback.state.addListener(_playbackListener!);
   }
 
   @override
@@ -233,7 +234,9 @@ class _VoiceNoteCardState extends State<VoiceNoteCard>
     _playheadController.dispose();
     _positionSub?.cancel();
     _transcriptionSub?.cancel();
-    _playbackStateSub?.cancel();
+    if (_playbackListener != null) {
+      _playback.state.removeListener(_playbackListener!);
+    }
     super.dispose();
   }
 
@@ -358,6 +361,8 @@ class _VoiceNoteCardState extends State<VoiceNoteCard>
     setState(() => _playbackPosition = time);
   }
 
+  // Seek to a specific segment's start time
+  // ignore: unused_element
   void _seekToSegment(int index) {
     if (_data == null || index < 0 || index >= _data!.segments.length) return;
     _seekTo(_data!.segments[index].startTime);
