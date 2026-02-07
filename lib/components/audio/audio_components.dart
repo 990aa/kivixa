@@ -8,10 +8,10 @@ export 'audio_settings_page.dart';
 export 'audio_waveform.dart';
 // Dictation and input
 export 'neural_dictation_bar.dart';
-export 'neural_input_bar.dart';
+export 'neural_input_bar.dart' hide DictationMode;
 // Read aloud / TTS
 export 'read_aloud.dart';
-export 'read_aloud_player.dart';
+export 'read_aloud_player.dart' hide ReadAloudController, ReadAloudMiniPlayer;
 // Quick notes
 export 'thought_catcher.dart';
 // Voice notes
