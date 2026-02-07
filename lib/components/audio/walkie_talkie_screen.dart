@@ -97,13 +97,12 @@ class _WalkieTalkieScreenState extends State<WalkieTalkieScreen>
   var _currentUserText = '';
   var _currentAiText = '';
   var _userAmplitude = 0.0;
-  final _aiAmplitude = 0.0;
 
   // Subscriptions
   StreamSubscription<SpeechRecognitionResult>? _transcriptionSub;
   StreamSubscription<bool>? _vadSub;
   StreamSubscription<AudioVisualizerData>? _visualizerSub;
-  StreamSubscription<PlaybackState>? _playbackSub;
+  VoidCallback? _playbackListener;
 
   @override
   void initState() {
@@ -149,14 +148,16 @@ class _WalkieTalkieScreenState extends State<WalkieTalkieScreen>
       }
     });
 
-    _playbackSub = _playback.stateStream.listen((state) {
-      if (state == PlaybackState.completed) {
+    _playbackListener = () {
+      final state = _playback.state.value;
+      if (state == PlaybackState.stopped) {
         // AI finished speaking, auto-listen if enabled
         if (widget.autoListen && _phase == WalkieTalkiePhase.aiSpeaking) {
           _startListening();
         }
       }
-    });
+    };
+    _playback.state.addListener(_playbackListener!);
   }
 
   @override
@@ -168,7 +169,9 @@ class _WalkieTalkieScreenState extends State<WalkieTalkieScreen>
     _transcriptionSub?.cancel();
     _vadSub?.cancel();
     _visualizerSub?.cancel();
-    _playbackSub?.cancel();
+    if (_playbackListener != null) {
+      _playback.state.removeListener(_playbackListener!);
+    }
     _stopListening();
     super.dispose();
   }
