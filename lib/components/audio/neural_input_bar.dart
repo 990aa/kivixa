@@ -111,7 +111,7 @@ class _NeuralInputBarState extends State<NeuralInputBar>
   DictationMode _mode = DictationMode.text;
   var _ghostState = const GhostTextState();
   var _isListening = false;
-  final _isPaused = false;
+  // Paused state managed externally if needed
   List<double> _waveformAmplitudes = List.filled(64, 0.0);
 
   // Subscriptions
@@ -439,7 +439,7 @@ class _NeuralInputBarState extends State<NeuralInputBar>
                       ),
                     ],
                   )
-                : null,
+                : const BoxDecoration(),
             child: Transform.scale(
               scale: _isListening ? scale : 1.0,
               child: IconButton.filled(
@@ -590,8 +590,8 @@ class _BezierWaveformPainter extends CustomPainter {
       // Add subtle animation wave
       final waveOffset = (time * 2 * 3.14159 + i * 0.2).remainder(6.28);
       final animatedAmp1 = amplitudes[i] + (0.05 * (1 + (waveOffset).abs()));
-      final animatedAmp2 = amplitudes[i + 1] +
-          (0.05 * (1 + (waveOffset + 0.2).abs()));
+      final animatedAmp2 =
+          amplitudes[i + 1] + (0.05 * (1 + (waveOffset + 0.2).abs()));
 
       final y1 = centerY - (animatedAmp1 * size.height * 0.4);
       final y2 = centerY - (animatedAmp2 * size.height * 0.4);
@@ -627,8 +627,8 @@ class _BezierWaveformPainter extends CustomPainter {
 
       final waveOffset = (time * 2 * 3.14159 + i * 0.2).remainder(6.28);
       final animatedAmp1 = amplitudes[i] + (0.05 * (1 + (waveOffset).abs()));
-      final animatedAmp2 = amplitudes[i + 1] +
-          (0.05 * (1 + (waveOffset + 0.2).abs()));
+      final animatedAmp2 =
+          amplitudes[i + 1] + (0.05 * (1 + (waveOffset + 0.2).abs()));
 
       final y1 = centerY + (animatedAmp1 * size.height * 0.3);
       final y2 = centerY + (animatedAmp2 * size.height * 0.3);
@@ -641,8 +641,7 @@ class _BezierWaveformPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_BezierWaveformPainter oldDelegate) =>
-      true; // Always repaint for animation
+  bool shouldRepaint(_BezierWaveformPainter oldDelegate) => true; // Always repaint for animation
 }
 
 /// Bottom sheet for showing alternative interpretations
