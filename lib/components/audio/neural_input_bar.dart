@@ -110,9 +110,9 @@ class _NeuralInputBarState extends State<NeuralInputBar>
 
   // State
   DictationMode _mode = DictationMode.text;
-  GhostTextState _ghostState = const GhostTextState();
+  var _ghostState = const GhostTextState();
   var _isListening = false;
-  var _isPaused = false;
+  final _isPaused = false;
   List<double> _waveformAmplitudes = List.filled(64, 0.0);
 
   // Subscriptions
@@ -165,7 +165,7 @@ class _NeuralInputBarState extends State<NeuralInputBar>
 
       setState(() {
         _ghostState = _ghostState.copyWith(
-          finalizedText: _ghostState.finalizedText + result.text + ' ',
+          finalizedText: '${_ghostState.finalizedText}${result.text} ',
           ghostText: '',
           confidence: result.confidence,
         );
@@ -176,7 +176,7 @@ class _NeuralInputBarState extends State<NeuralInputBar>
       } else {
         // Insert into controller
         if (widget.controller != null) {
-          _insertTextAtCursor(result.text + ' ');
+          _insertTextAtCursor('${result.text} ');
         }
         widget.onTextFinalized?.call(result.text);
       }
@@ -323,7 +323,7 @@ class _NeuralInputBarState extends State<NeuralInputBar>
         onSelect: (text) {
           setState(() {
             _ghostState = _ghostState.copyWith(
-              finalizedText: _ghostState.finalizedText + text + ' ',
+              finalizedText: '${_ghostState.finalizedText}$text ',
               ghostText: '',
             );
           });
@@ -344,7 +344,7 @@ class _NeuralInputBarState extends State<NeuralInputBar>
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    Widget content = _buildContent(theme, colorScheme);
+    final Widget content = _buildContent(theme, colorScheme);
 
     if (widget.floatingMode) {
       return Positioned(
@@ -428,7 +428,7 @@ class _NeuralInputBarState extends State<NeuralInputBar>
           final scale = 1.0 + (_micPulseController.value * 0.15);
           final glowOpacity = _micPulseController.value * 0.5;
 
-          return Container(
+          return DecoratedBox(
             decoration: _isListening
                 ? BoxDecoration(
                     shape: BoxShape.circle,

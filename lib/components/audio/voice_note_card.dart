@@ -406,7 +406,7 @@ class _VoiceNoteCardState extends State<VoiceNoteCard>
               size: const Size.fromHeight(80),
             )
           else
-            Container(
+            ColoredBox(
               color: colorScheme.surfaceContainerHighest,
               child: Center(
                 child: _isRecording
@@ -575,7 +575,7 @@ class _VoiceNoteCardState extends State<VoiceNoteCard>
                       );
 
               return TextSpan(
-                text: segment.text + ' ',
+                text: '${segment.text} ',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   backgroundColor: isHighlighted
                       ? speakerColor.withValues(alpha: 0.3)

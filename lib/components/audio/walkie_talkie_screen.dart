@@ -98,7 +98,7 @@ class _WalkieTalkieScreenState extends State<WalkieTalkieScreen>
   var _currentUserText = '';
   var _currentAiText = '';
   var _userAmplitude = 0.0;
-  var _aiAmplitude = 0.0;
+  final _aiAmplitude = 0.0;
 
   // Subscriptions
   StreamSubscription<SpeechRecognitionResult>? _transcriptionSub;
@@ -417,7 +417,7 @@ class _WalkieTalkieScreenState extends State<WalkieTalkieScreen>
   }
 
   Widget _buildUserOrb(ColorScheme colorScheme) {
-    final baseSize = 100.0;
+    const baseSize = 100.0;
     final isActive = _phase == WalkieTalkiePhase.userSpeaking;
 
     return AnimatedBuilder(
@@ -463,7 +463,7 @@ class _WalkieTalkieScreenState extends State<WalkieTalkieScreen>
   }
 
   Widget _buildAiOrb(ColorScheme colorScheme) {
-    final baseSize = 180.0;
+    const baseSize = 180.0;
     final isThinking = _phase == WalkieTalkiePhase.thinking;
     final isSpeaking = _phase == WalkieTalkiePhase.aiSpeaking;
 
@@ -535,7 +535,7 @@ class _WalkieTalkieScreenState extends State<WalkieTalkieScreen>
               onPressed: _showHistory,
               child: Text(
                 '${_messages.length} messages in conversation',
-                style: TextStyle(color: Colors.white70),
+                style: const TextStyle(color: Colors.white70),
               ),
             ),
         ],
@@ -607,7 +607,7 @@ class _BackgroundPainter extends CustomPainter {
         math.cos(progress * 2 * math.pi) * 0.3,
       ),
       radius: 1.5,
-      colors: [
+      colors: const [
         Color(0xFF1a1a2e),
         Color(0xFF16213e),
         Color(0xFF0f3460),
@@ -728,7 +728,7 @@ class _ConversationHistorySheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Conversation History',
             style: TextStyle(
               color: Colors.white,
@@ -757,7 +757,7 @@ class _ConversationHistorySheet extends StatelessWidget {
                       Expanded(
                         child: Text(
                           message.text,
-                          style: TextStyle(color: Colors.white70),
+                          style: const TextStyle(color: Colors.white70),
                         ),
                       ),
                     ],
