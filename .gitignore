@@ -44,8 +44,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-
-md_files/
+APP PLANS
 
 *target/
 build_windows_installer/
