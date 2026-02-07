@@ -385,7 +385,7 @@ mod tests {
 
         // Process multiple times to complete calibration
         for _ in 0..25 {
-            let result = vad.process(&silence[..640]);
+            let _ = vad.process(&silence[..640]);
         }
 
         let result = vad.process(&silence[..640]);
