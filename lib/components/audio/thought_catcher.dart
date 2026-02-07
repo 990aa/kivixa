@@ -192,7 +192,7 @@ class ThoughtCatcherState extends State<ThoughtCatcher>
     });
 
     // Stop recording
-    final filePath = await _recorder.stopRecording();
+    final recordingData = await _recorder.stopRecording();
     await _engine.stopListening();
 
     // Wait a moment for final transcription
@@ -204,7 +204,7 @@ class ThoughtCatcherState extends State<ThoughtCatcher>
       final note = QuickNote(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         text: finalText,
-        audioPath: filePath,
+        audioPath: recordingData != null ? 'audio_${DateTime.now().millisecondsSinceEpoch}' : null,
         duration: _recordingDuration,
         timestamp: DateTime.now(),
         tags: _extractTags(finalText),
