@@ -24,7 +24,7 @@ This document provides comprehensive manual testing procedures for the Audio Int
 
 - [ ] Microphone access enabled (system permissions)
 - [ ] Speaker/headphone output working
-- [ ] Device running Android 8+ / iOS 14+ / Windows 10+
+- [ ] Device running Android 8+ / Windows 10+
 - [ ] At least 500MB free storage for models
 - [ ] Stable internet connection (for initial model download)
 
