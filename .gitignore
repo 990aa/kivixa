@@ -49,6 +49,7 @@ md_files/
 
 *target/
 build_windows_installer/
+rust_builder/windows/kivixa_audio.dll
 
 *.cargo/
 *.so
