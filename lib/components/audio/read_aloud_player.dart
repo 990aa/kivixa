@@ -96,7 +96,7 @@ class ReadAloudController extends ChangeNotifier {
   ReadAloudInfo? get info => _info;
 
   StreamSubscription<Duration>? _positionSub;
-  StreamSubscription<PlaybackState>? _stateSub;
+  VoidCallback? _stateListener;
 
   var _isInitialized = false;
   var _speed = 1.0;
@@ -124,7 +124,8 @@ class ReadAloudController extends ChangeNotifier {
 
     // Subscribe to playback events
     _positionSub = _playback.positionStream.listen(_onPosition);
-    _stateSub = _playback.stateStream.listen(_onState);
+    _stateListener = () => _onState(_playback.state.value);
+    _playback.state.addListener(_stateListener!);
 
     await _playback.speak(text);
   }
@@ -135,7 +136,6 @@ class ReadAloudController extends ChangeNotifier {
     final sentenceRegex = RegExp(r'[^.!?]+[.!?]+\s*|[^.!?]+$');
     final matches = sentenceRegex.allMatches(text);
 
-    var index = 0;
     var timeOffset = Duration.zero;
 
     for (final match in matches) {
@@ -157,7 +157,6 @@ class ReadAloudController extends ChangeNotifier {
       ));
 
       timeOffset += estimatedDuration;
-      index++;
     }
 
     return sentences;
@@ -189,7 +188,7 @@ class ReadAloudController extends ChangeNotifier {
     );
     notifyListeners();
 
-    if (state == PlaybackState.completed) {
+    if (state == PlaybackState.stopped) {
       stop();
     }
   }
@@ -225,7 +224,9 @@ class ReadAloudController extends ChangeNotifier {
   void stop() {
     _playback.stop();
     _positionSub?.cancel();
-    _stateSub?.cancel();
+    if (_stateListener != null) {
+      _playback.state.removeListener(_stateListener!);
+    }
     _info = null;
     notifyListeners();
   }
@@ -235,7 +236,7 @@ class ReadAloudController extends ChangeNotifier {
     if (_info == null || index >= _info!.sentences.length) return;
 
     final sentence = _info!.sentences[index];
-    _playback.seekTo(sentence.startTime);
+    _playback.seek(sentence.startTime);
     _info = _info!.copyWith(currentSentence: index);
     notifyListeners();
   }
@@ -245,7 +246,7 @@ class ReadAloudController extends ChangeNotifier {
     if (_info == null) return;
 
     final newPosition = _info!.position + amount;
-    _playback.seekTo(newPosition);
+    _playback.seek(newPosition);
   }
 
   /// Set playback speed
