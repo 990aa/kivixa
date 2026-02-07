@@ -7,7 +7,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-
 /// Model information for display
 class AudioModelInfo {
   /// Model ID
@@ -319,10 +318,7 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -496,15 +492,17 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
   }
 
   Widget _buildStorageInfo(ColorScheme colorScheme) {
-    final downloadedSize = _sttModels
+    final downloadedSize =
+        _sttModels
             .where((m) => m.isDownloaded)
-            .fold(0, (sum, m) => sum + m.sizeBytes) +
+            .fold<int>(0, (sum, m) => sum + m.sizeBytes) +
         _ttsModels
             .where((m) => m.isDownloaded)
-            .fold(0, (sum, m) => sum + m.sizeBytes);
+            .fold<int>(0, (sum, m) => sum + m.sizeBytes);
 
-    final totalAvailable = _sttModels.fold(0, (sum, m) => sum + m.sizeBytes) +
-        _ttsModels.fold(0, (sum, m) => sum + m.sizeBytes);
+    final totalAvailable =
+        _sttModels.fold<int>(0, (sum, m) => sum + m.sizeBytes) +
+        _ttsModels.fold<int>(0, (sum, m) => sum + m.sizeBytes);
 
     return Card(
       child: Padding(
@@ -600,8 +598,7 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color:
-                        voice.gender == 'female' ? Colors.pink : Colors.blue,
+                    color: voice.gender == 'female' ? Colors.pink : Colors.blue,
                   ),
                 ),
               ),
@@ -870,14 +867,16 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
   }
 
   void _notifySettingsChanged() {
-    widget.onSettingsChanged?.call(AudioSettings(
-      sttModelId: _selectedSttModel,
-      ttsModelId: _selectedTtsModel,
-      voiceId: _selectedVoice,
-      vadEnabled: _vadEnabled,
-      silenceSensitivity: _silenceDetectionSensitivity,
-      autoDownload: _autoDownload,
-    ));
+    widget.onSettingsChanged?.call(
+      AudioSettings(
+        sttModelId: _selectedSttModel,
+        ttsModelId: _selectedTtsModel,
+        voiceId: _selectedVoice,
+        vadEnabled: _vadEnabled,
+        silenceSensitivity: _silenceDetectionSensitivity,
+        autoDownload: _autoDownload,
+      ),
+    );
   }
 }
 
