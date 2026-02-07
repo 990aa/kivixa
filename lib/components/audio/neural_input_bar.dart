@@ -11,7 +11,6 @@ import 'package:flutter/services.dart';
 
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
 import 'package:kivixa/services/audio/audio_recording_service.dart';
-import 'package:kivixa/src/rust_audio/api.dart' as audio_api;
 
 /// Dictation mode
 enum DictationMode {

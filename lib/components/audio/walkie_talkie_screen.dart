@@ -5,7 +5,6 @@
 
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -482,7 +481,7 @@ class _WalkieTalkieScreenState extends State<WalkieTalkieScreen>
             primaryColor: colorScheme.tertiary,
             secondaryColor: colorScheme.secondary,
           ),
-          size: Size(baseSize, baseSize),
+          size: const Size(baseSize, baseSize),
         );
       },
     );

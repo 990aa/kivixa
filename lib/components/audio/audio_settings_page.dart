@@ -7,7 +7,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'package:kivixa/services/audio/audio_neural_engine.dart';
 
 /// Model information for display
 class AudioModelInfo {
@@ -136,8 +135,8 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
   late TabController _tabController;
 
   // Sample models (in production, fetch from backend)
-  final List<AudioModelInfo> _sttModels = [
-    AudioModelInfo(
+  final _sttModels = <AudioModelInfo>[
+    const AudioModelInfo(
       id: 'whisper-tiny',
       name: 'Whisper Tiny',
       description: 'Fastest, lowest accuracy. Good for quick notes.',
@@ -146,7 +145,7 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
       quality: ModelQuality.tiny,
       isDownloaded: true,
     ),
-    AudioModelInfo(
+    const AudioModelInfo(
       id: 'whisper-base',
       name: 'Whisper Base',
       description: 'Balanced speed and accuracy.',
@@ -155,7 +154,7 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
       quality: ModelQuality.small,
       isDownloaded: false,
     ),
-    AudioModelInfo(
+    const AudioModelInfo(
       id: 'whisper-small',
       name: 'Whisper Small',
       description: 'Better accuracy, moderate speed.',
@@ -164,7 +163,7 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
       quality: ModelQuality.medium,
       isDownloaded: false,
     ),
-    AudioModelInfo(
+    const AudioModelInfo(
       id: 'whisper-medium',
       name: 'Whisper Medium',
       description: 'High accuracy for detailed transcription.',
@@ -173,7 +172,7 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
       quality: ModelQuality.large,
       isDownloaded: false,
     ),
-    AudioModelInfo(
+    const AudioModelInfo(
       id: 'whisper-turbo',
       name: 'Whisper Turbo',
       description: 'Near-realtime with excellent accuracy.',
@@ -184,8 +183,8 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
     ),
   ];
 
-  final List<AudioModelInfo> _ttsModels = [
-    AudioModelInfo(
+  final _ttsModels = <AudioModelInfo>[
+    const AudioModelInfo(
       id: 'kokoro-v1',
       name: 'Kokoro TTS',
       description: 'Natural-sounding neural text-to-speech.',
@@ -196,8 +195,8 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
     ),
   ];
 
-  final List<VoiceInfo> _voices = [
-    VoiceInfo(
+  final _voices = <VoiceInfo>[
+    const VoiceInfo(
       id: 'af_heart',
       name: 'Heart',
       description: 'Warm and friendly female voice.',
@@ -205,35 +204,35 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
       gender: 'female',
       isSelected: true,
     ),
-    VoiceInfo(
+    const VoiceInfo(
       id: 'af_sky',
       name: 'Sky',
       description: 'Clear and professional female voice.',
       language: 'en-US',
       gender: 'female',
     ),
-    VoiceInfo(
+    const VoiceInfo(
       id: 'am_adam',
       name: 'Adam',
       description: 'Calm and authoritative male voice.',
       language: 'en-US',
       gender: 'male',
     ),
-    VoiceInfo(
+    const VoiceInfo(
       id: 'am_michael',
       name: 'Michael',
       description: 'Energetic and engaging male voice.',
       language: 'en-US',
       gender: 'male',
     ),
-    VoiceInfo(
+    const VoiceInfo(
       id: 'bf_emma',
       name: 'Emma',
       description: 'Sophisticated British female voice.',
       language: 'en-GB',
       gender: 'female',
     ),
-    VoiceInfo(
+    const VoiceInfo(
       id: 'bm_george',
       name: 'George',
       description: 'Elegant British male voice.',
@@ -242,9 +241,9 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
     ),
   ];
 
-  String _selectedSttModel = 'whisper-tiny';
-  String _selectedTtsModel = 'kokoro-v1';
-  String _selectedVoice = 'af_heart';
+  var _selectedSttModel = 'whisper-tiny';
+  var _selectedTtsModel = 'kokoro-v1';
+  var _selectedVoice = 'af_heart';
   var _autoDownload = false;
   var _silenceDetectionSensitivity = 0.5;
   var _vadEnabled = true;

@@ -299,10 +299,10 @@ class ThoughtCatcherState extends State<ThoughtCatcher>
 
         // Processing indicator
         if (_isProcessing)
-          Positioned.fill(
-            child: Container(
+          const Positioned.fill(
+            child: ColoredBox(
               color: Colors.black26,
-              child: const Center(
+              child: Center(
                 child: CircularProgressIndicator(),
               ),
             ),
@@ -400,7 +400,7 @@ class ThoughtCatcherState extends State<ThoughtCatcher>
                 Container(
                   width: 12,
                   height: 12,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.red,
                   ),
@@ -673,14 +673,14 @@ class _QuickNoteCard extends StatelessWidget {
               // Confidence indicator
               if (note.confidence < 0.9) ...[
                 const SizedBox(height: 8),
-                Row(
+                const Row(
                   children: [
                     Icon(
                       Icons.warning_amber,
                       size: 14,
                       color: Colors.orange,
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       'Low confidence - tap to review',
                       style: TextStyle(
