@@ -58,4 +58,4 @@ app.*.map.json
 APP PLANS
 build_windows_installer/
 rust_builder/windows/kivixa_audio.dll
-
+analyze*
