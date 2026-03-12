@@ -477,7 +477,7 @@ A fully-featured web browser built into Kivixa for seamless research and referen
 ### Prerequisites
 
 - [Flutter](https://flutter.dev/docs/get-started/install) 3.38.6 or higher
-- [Dart](https://dart.dev/get-dart) 3.10.7 or higher
+- [Dart](https://dart.dev/get-dart) 3.11.1 or higher
 - [Rust](https://rustup.rs/) (for building native code)
 - Platform-specific requirements:
   - **Windows**: Visual Studio 2026 with C++ desktop development, Vulkan SDK

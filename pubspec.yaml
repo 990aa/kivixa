@@ -6,7 +6,7 @@ version: 0.2.0+2000
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
-  flutter: ">=3.35.0"
+  flutter: ">=3.41.4"
 
 dependencies:
   flutter:
@@ -36,7 +36,7 @@ dependencies:
   regexed_validator: ^2.0.0+1
   flex_color_picker: ^3.4.1
   flutter_colorpicker: ^1.0.3
-  font_awesome_flutter: ^10.11.0
+  font_awesome_flutter: ^11.0.0
   flutter_svg: ^2.0.0+1
   defer_pointer: ^0.0.2
   permission_handler: ^12.0.0+1
