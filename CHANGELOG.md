@@ -370,6 +370,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.2] - 2026-03-28
 
 ### Changed
-- Version bump to 0.3.2
+- Implement ChatInferenceGateway and ChatModelGateway interfaces with corresponding gateway classes
+- Streamline position calculation in _ModelSwitcherChipState
 
 ---
