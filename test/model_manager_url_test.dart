@@ -135,6 +135,51 @@ void main() {
   });
 
   group('Categories and recommendations', () {
+    test('Strongest category contains Qwen Claude-distilled trio and Phi reasoning', () {
+      final strongest = ModelManager.getModelsForCategory(ModelCategory.strongest);
+
+      expect(strongest.any((m) => m.id == 'qwen35-4b-claude46-distilled-v2-q4km'), true);
+      expect(strongest.any((m) => m.id == 'qwen35-2b-claude46-distilled-q5km'), true);
+      expect(strongest.any((m) => m.id == 'qwen35-08b-claude46-distilled-q5km'), true);
+      expect(strongest.any((m) => m.id == 'phi4-mini-reasoning-q4km'), true);
+    });
+
+    test('requested reasoning models are flagged as reasoning-capable', () {
+      final qwen4b = ModelManager.getModelById(
+        'qwen35-4b-claude46-distilled-v2-q4km',
+      )!;
+      final qwen2b = ModelManager.getModelById(
+        'qwen35-2b-claude46-distilled-q5km',
+      )!;
+      final qwen08b = ModelManager.getModelById(
+        'qwen35-08b-claude46-distilled-q5km',
+      )!;
+      final phiReasoning = ModelManager.getModelById(
+        'phi4-mini-reasoning-q4km',
+      )!;
+
+      expect(qwen4b.isReasoningModel, true);
+      expect(qwen2b.isReasoningModel, true);
+      expect(qwen08b.isReasoningModel, true);
+      expect(phiReasoning.isReasoningModel, true);
+    });
+
+    test('Qwen model names include Claude 4.6 Opus Reasoning Distilled branding', () {
+      final qwen4b = ModelManager.getModelById(
+        'qwen35-4b-claude46-distilled-v2-q4km',
+      )!;
+      final qwen2b = ModelManager.getModelById(
+        'qwen35-2b-claude46-distilled-q5km',
+      )!;
+      final qwen08b = ModelManager.getModelById(
+        'qwen35-08b-claude46-distilled-q5km',
+      )!;
+
+      expect(qwen4b.name, contains('Claude 4.6 Opus Reasoning Distilled'));
+      expect(qwen2b.name, contains('Claude 4.6 Opus Reasoning Distilled'));
+      expect(qwen08b.name, contains('Claude 4.6 Opus Reasoning Distilled'));
+    });
+
     test('Qwen3.5 4B supports general, writing, code, and math', () {
       final model = ModelManager.getModelById(
         'qwen35-4b-claude46-distilled-v2-q4km',
