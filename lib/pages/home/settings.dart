@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kivixa/components/dialogs/legal_documents_viewer.dart';
 import 'package:kivixa/components/navbar/responsive_navbar.dart';
@@ -130,7 +129,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final requiresManualUpdates = FlavorConfig.appStore.isEmpty;
 
     final IconData materialIcon = switch (defaultTargetPlatform) {
-      TargetPlatform.windows => FontAwesomeIcons.windows,
+      TargetPlatform.windows => Icons.desktop_windows,
       _ => Icons.android,
     };
 
@@ -243,7 +242,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ToggleButtonsOption(
                       TargetPlatform.windows.index,
                       const Icon(
-                        FontAwesomeIcons.windows,
+                        Icons.desktop_windows,
                         semanticLabel: 'Windows',
                       ),
                     ),
@@ -323,7 +322,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSwitch(
                   title: t.settings.prefLabels.disableEraserAfterUse,
                   subtitle: t.settings.prefDescriptions.disableEraserAfterUse,
-                  icon: FontAwesomeIcons.eraser,
+                  icon: Icons.backspace,
                   pref: stows.disableEraserAfterUse,
                 ),
                 SettingsSwitch(
@@ -469,7 +468,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSelection(
                   title: t.settings.prefLabels.shapeRecognitionDelay,
                   subtitle: t.settings.prefDescriptions.shapeRecognitionDelay,
-                  icon: FontAwesomeIcons.shapes,
+                  icon: Icons.category,
                   pref: stows.shapeRecognitionDelay,
                   options: [
                     const ToggleButtonsOption(500, Text('0.5s')),

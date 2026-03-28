@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kivixa/components/settings/settings_dropdown.dart';
 import 'package:kivixa/components/theming/adaptive_toggle_buttons.dart';
 import 'package:kivixa/pages/home/settings.dart';
@@ -106,7 +105,7 @@ class _SettingsSelectionState<T extends num>
       contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       leading: AnimatedSwitcher(
         duration: const Duration(milliseconds: 100),
-        child: FaIcon(icon, key: ValueKey(icon)),
+        child: Icon(icon, key: ValueKey(icon)),
       ),
       title: Text(
         widget.title,

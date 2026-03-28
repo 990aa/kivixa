@@ -10,7 +10,7 @@ use llama_cpp_2::context::params::LlamaContextParams;
 use llama_cpp_2::llama_backend::LlamaBackend;
 use llama_cpp_2::llama_batch::LlamaBatch;
 use llama_cpp_2::model::params::LlamaModelParams;
-use llama_cpp_2::model::{AddBos, LlamaModel, Special};
+use llama_cpp_2::model::{AddBos, LlamaChatMessage, LlamaModel, Special};
 use llama_cpp_2::token::data_array::LlamaTokenDataArray;
 use parking_lot::Mutex;
 use std::num::NonZeroU32;
@@ -66,6 +66,7 @@ struct ModelState {
     backend: LlamaBackend,
     model: LlamaModel,
     config: InferenceConfig,
+    model_hint: String,
 }
 
 /// Global AI state (singleton pattern)
@@ -74,7 +75,10 @@ static AI_STATE: Mutex<Option<Arc<ModelState>>> = Mutex::new(None);
 /// Detect model type from the model filename
 fn detect_model_type(model_path: &str) -> ModelType {
     let lower_path = model_path.to_lowercase();
-    if lower_path.contains("qwen") {
+    if lower_path.contains("qwen")
+        || lower_path.contains("deepseek-r1-distill-qwen")
+        || lower_path.contains("smollm2")
+    {
         ModelType::Qwen
     } else if lower_path.contains("functionary") || lower_path.contains("function-gemma") {
         ModelType::Functionary
@@ -126,6 +130,7 @@ pub fn init_model(model_path: String, config: Option<InferenceConfig>) -> Result
         backend,
         model,
         config,
+        model_hint: model_path.to_lowercase(),
     }));
 
     Ok(())
@@ -349,10 +354,43 @@ pub fn chat_completion(messages: Vec<(String, String)>, max_tokens: Option<u32>)
     let guard = AI_STATE.lock();
     let state = guard.as_ref().ok_or_else(|| anyhow!("Model not loaded"))?;
     let model_type = state.config.model_type;
-    drop(guard); // Release lock before generation
+    let model_hint = state.model_hint.as_str();
 
-    let prompt = format_chat_prompt(&messages, model_type);
+    // Prefer the model's own chat template (llama.cpp apply_chat_template path).
+    // This gives much better compatibility for newer reasoning families and
+    // template-specific token conventions.
+    let prompt = match format_with_model_template(state, &messages) {
+        Ok(prompt) => prompt,
+        Err(error) => {
+            log::warn!(
+                "Falling back to legacy prompt formatter after template failure: {}",
+                error
+            );
+            format_chat_prompt_fallback(&messages, model_type, model_hint)
+        }
+    };
+
+    drop(guard); // Release lock before generation
     generate_text(prompt, max_tokens)
+}
+
+/// Format messages using the GGUF model's baked chat template via llama.cpp.
+fn format_with_model_template(state: &ModelState, messages: &[(String, String)]) -> Result<String> {
+    let template = state
+        .model
+        .chat_template(None)
+        .map_err(|e| anyhow!("Failed to load model chat template: {}", e))?;
+
+    let chat_messages = messages
+        .iter()
+        .map(|(role, content)| LlamaChatMessage::new(role.clone(), content.clone()))
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| anyhow!("Failed to build chat messages for template: {}", e))?;
+
+    state
+        .model
+        .apply_chat_template(&template, &chat_messages, true)
+        .map_err(|e| anyhow!("Failed to apply model chat template: {}", e))
 }
 
 /// Format messages into a chat prompt based on model type
@@ -362,6 +400,26 @@ fn format_chat_prompt(messages: &[(String, String)], model_type: ModelType) -> S
         ModelType::Qwen => format_qwen_prompt(messages),
         ModelType::Functionary => format_functionary_prompt(messages),
     }
+}
+
+/// Legacy formatter fallback that adds model-family heuristics for templates
+/// not handled by the current llama.cpp template engine.
+fn format_chat_prompt_fallback(
+    messages: &[(String, String)],
+    model_type: ModelType,
+    model_hint: &str,
+) -> String {
+    let lower_hint = model_hint.to_lowercase();
+
+    if lower_hint.contains("gemma-3") || lower_hint.contains("gemma3") {
+        return format_gemma3_prompt(messages);
+    }
+
+    if lower_hint.contains("deepseek-r1-distill-qwen") || lower_hint.contains("smollm2") {
+        return format_qwen_prompt(messages);
+    }
+
+    format_chat_prompt(messages, model_type)
 }
 
 /// Format messages using Phi-4 chat template
@@ -409,6 +467,37 @@ fn format_qwen_prompt(messages: &[(String, String)]) -> String {
 
     // Add assistant prompt to generate response
     prompt.push_str("<|im_start|>assistant\n");
+    prompt
+}
+
+/// Format messages using Gemma 3 template style
+/// Uses: <start_of_turn>user/model ... <end_of_turn>
+fn format_gemma3_prompt(messages: &[(String, String)]) -> String {
+    let mut prompt = String::from("<bos>");
+
+    for (role, content) in messages {
+        match role.as_str() {
+            "system" => {
+                // Gemma 3 templates often treat system guidance as part of user turn.
+                prompt.push_str(&format!(
+                    "<start_of_turn>user\nSystem instructions:\n{}<end_of_turn>\n",
+                    content
+                ));
+            }
+            "user" => {
+                prompt.push_str(&format!("<start_of_turn>user\n{}<end_of_turn>\n", content));
+            }
+            "assistant" => {
+                prompt.push_str(&format!("<start_of_turn>model\n{}<end_of_turn>\n", content));
+            }
+            _ => {
+                log::warn!("Unknown role: {}", role);
+            }
+        }
+    }
+
+    // Add model prompt to generate response
+    prompt.push_str("<start_of_turn>model\n");
     prompt
 }
 
@@ -549,6 +638,14 @@ mod tests {
             ModelType::Functionary
         );
         assert_eq!(
+            detect_model_type("/path/to/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf"),
+            ModelType::Qwen
+        );
+        assert_eq!(
+            detect_model_type("/path/to/SmolLM2-1.7B-Instruct-Q4_K_M.gguf"),
+            ModelType::Qwen
+        );
+        assert_eq!(
             detect_model_type("/path/to/some-model.gguf"),
             ModelType::Phi4
         ); // Default
@@ -598,5 +695,34 @@ mod tests {
             .contains("<|from|>system\n<|recipient|>all\n<|content|>You are a helpful assistant."));
         assert!(prompt.contains("<|from|>user\n<|recipient|>all\n<|content|>Hello!"));
         assert!(prompt.ends_with("<|from|>assistant\n<|recipient|>all\n<|content|>"));
+    }
+
+    #[test]
+    fn test_gemma3_prompt_format() {
+        let messages = vec![
+            (
+                "system".to_string(),
+                "You are a helpful assistant.".to_string(),
+            ),
+            ("user".to_string(), "Hello!".to_string()),
+        ];
+        let prompt = format_gemma3_prompt(&messages);
+        assert!(prompt.starts_with("<bos>"));
+        assert!(prompt.contains(
+            "<start_of_turn>user\nSystem instructions:\nYou are a helpful assistant.<end_of_turn>"
+        ));
+        assert!(prompt.contains("<start_of_turn>user\nHello!<end_of_turn>"));
+        assert!(prompt.ends_with("<start_of_turn>model\n"));
+    }
+
+    #[test]
+    fn test_fallback_uses_gemma3_formatter() {
+        let messages = vec![("user".to_string(), "Test".to_string())];
+        let prompt = format_chat_prompt_fallback(
+            &messages,
+            ModelType::Phi4,
+            "google_gemma-3-4b-it-q4_k_m.gguf",
+        );
+        assert!(prompt.contains("<start_of_turn>user\nTest<end_of_turn>"));
     }
 }

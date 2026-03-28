@@ -333,20 +333,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Qwen3.5 4B Distilled v2** with category tagging and download metadata
   - **Qwen3.5 2B Distilled** with category tagging and download metadata
   - **Qwen3.5 0.8B Distilled** with category tagging and download metadata
+  - **Phi-4 Mini Reasoning** (Q4_K_M) with direct GGUF link and recommendations
+  - **Gemma 3 4B IT** (Q4_K_M) with category tagging and download metadata
+  - **DeepSeek R1 Distill Qwen 1.5B** (Q4_K_M) with reasoning-focused metadata
+  - **SmolLM2 1.7B Instruct** (Q4_K_M) with compact-device recommendations
 - **Model Selection Suggestions**: Added per-model recommendation text to help users decide which model to download.
 - **UI Enhancements for Model Catalog**:
   - New reusable `ModelCatalogCard` component
   - Short description display for model cards and setup download widget
   - Suggestion banner shown inside each model card
+- **Reasoning Visibility Controls**:
+  - Added parsing for `<think>` / `<thinking>` blocks in assistant outputs
+  - Added collapsible reasoning panels in both standard chat and MCP chat interfaces
 - **Test Coverage**:
   - Added widget tests for model card rendering and action state transitions
   - Added non-network tests that validate download task construction and model link wiring
+  - Added parser tests for reasoning/thinking extraction behavior
 
 ### Changed
 - Version bump to 0.3.0
 - Updated MCP code-generation model alias recommendation to Qwen3.5 (`qwen3.5-4b`) while preserving existing routing behavior.
-- Updated model router labels/aliases to recognize Qwen3.5 naming and map it to existing Qwen inference path.
-- Updated native inference/mcp docs and tests to reflect Qwen-family detection and routing names.
+- Updated model router labels/aliases to recognize Qwen3.5 plus DeepSeek/SmolLM2/Gemma-3 naming variants.
+- Native inference now prefers model-provided llama.cpp chat templates (`apply_chat_template`) with model-aware legacy fallback formatting.
+- Updated native inference/mcp docs and tests to reflect expanded model-family detection and routing names.
 
 ### Removed
 - Removed **Gemma 7B** from frontend model catalog and backend model metadata.

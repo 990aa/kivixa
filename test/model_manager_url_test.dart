@@ -33,6 +33,16 @@ void main() {
       );
     });
 
+    test('includes the four newly requested compact models', () {
+      expect(ModelManager.getModelById('phi4-mini-reasoning-q4km'), isNotNull);
+      expect(ModelManager.getModelById('gemma-3-4b-it-q4km'), isNotNull);
+      expect(
+        ModelManager.getModelById('deepseek-r1-distill-qwen-15b-q4km'),
+        isNotNull,
+      );
+      expect(ModelManager.getModelById('smollm2-17b-instruct-q4km'), isNotNull);
+    });
+
     test('requested Qwen3.5 links and filenames are exact', () {
       final qwen4b = ModelManager.getModelById(
         'qwen35-4b-claude46-distilled-v2-q4km',
@@ -61,6 +71,41 @@ void main() {
         'https://huggingface.co/Jackrong/Qwen3.5-0.8B-Claude-4.6-Opus-Reasoning-Distilled-GGUF/resolve/main/Qwen3.5-0.8B.Q5_K_M.gguf',
       );
       expect(qwen08b.fileName, 'Qwen3.5-0.8B.Q5_K_M.gguf');
+    });
+
+    test('newly requested model links and filenames are exact', () {
+      final phiReasoning = ModelManager.getModelById(
+        'phi4-mini-reasoning-q4km',
+      )!;
+      final gemma3 = ModelManager.getModelById('gemma-3-4b-it-q4km')!;
+      final deepseek = ModelManager.getModelById(
+        'deepseek-r1-distill-qwen-15b-q4km',
+      )!;
+      final smollm = ModelManager.getModelById('smollm2-17b-instruct-q4km')!;
+
+      expect(
+        phiReasoning.url,
+        'https://huggingface.co/unsloth/Phi-4-mini-reasoning-GGUF/resolve/main/Phi-4-mini-reasoning-Q4_K_M.gguf',
+      );
+      expect(phiReasoning.fileName, 'Phi-4-mini-reasoning-Q4_K_M.gguf');
+
+      expect(
+        gemma3.url,
+        'https://huggingface.co/bartowski/google_gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf',
+      );
+      expect(gemma3.fileName, 'gemma-3-4b-it-Q4_K_M.gguf');
+
+      expect(
+        deepseek.url,
+        'https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF/resolve/main/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf',
+      );
+      expect(deepseek.fileName, 'DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf');
+
+      expect(
+        smollm.url,
+        'https://huggingface.co/bartowski/SmolLM2-1.7B-Instruct-GGUF/resolve/main/SmolLM2-1.7B-Instruct-Q4_K_M.gguf',
+      );
+      expect(smollm.fileName, 'SmolLM2-1.7B-Instruct-Q4_K_M.gguf');
     });
 
     test('all models provide short description and suggestion text', () {

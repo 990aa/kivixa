@@ -28,7 +28,7 @@ class ShapePen extends Pen {
 
   static final log = Logger('ShapePen');
 
-  static const IconData shapePenIcon = FontAwesomeIcons.shapes;
+  static const FaIconData shapePenIcon = FontAwesomeIcons.shapes;
 
   static RecognizedUnistroke? detectedShape;
   void _detectShape() {
@@ -118,6 +118,5 @@ class ShapePen extends Pen {
           penType: rawStroke.penType,
         )..addPoints(polygon);
     }
-    return null;
   }
 }

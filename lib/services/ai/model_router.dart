@@ -181,6 +181,10 @@ Prioritize practical, production-ready code and concise explanations.''';
   AIModelType _mapModelNameToType(String name) {
     switch (name.toLowerCase()) {
       case 'phi4':
+      case 'phi-4':
+      case 'phi4-mini-reasoning':
+      case 'phi4-mini-reasoning-q4km':
+      case 'phi4-mini-reasoning-q4_k_m':
         return AIModelType.phi4;
       case 'qwen':
       case 'qwen3.5':
@@ -188,11 +192,22 @@ Prioritize practical, production-ready code and concise explanations.''';
       case 'qwen35':
       case 'qwen35-4b':
       case 'qwen35-4b-claude46-distilled-v2-q4km':
+      case 'deepseek-r1-distill-qwen-1.5b':
+      case 'deepseek-r1-distill-qwen-15b-q4km':
+      case 'smollm2':
+      case 'smollm2-1.7b':
+      case 'smollm2-1.7b-instruct':
+      case 'smollm2-17b-instruct-q4km':
         return AIModelType.qwen;
       case 'functiongemma':
       case 'function-gemma':
       case 'functionary': // Legacy support
         return AIModelType.functionGemma;
+      case 'gemma-3':
+      case 'gemma3':
+      case 'gemma-3-4b-it':
+      case 'gemma-3-4b-it-q4km':
+        return AIModelType.phi4;
       default:
         return AIModelType.phi4; // Default fallback
     }

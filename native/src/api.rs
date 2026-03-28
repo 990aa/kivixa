@@ -44,7 +44,10 @@ pub fn init_model_with_config(
         _ => {
             // Auto-detect from path
             let lower = model_path.to_lowercase();
-            if lower.contains("qwen") {
+            if lower.contains("qwen")
+                || lower.contains("deepseek-r1-distill-qwen")
+                || lower.contains("smollm2")
+            {
                 ModelType::Qwen
             } else if lower.contains("functionary") || lower.contains("function-gemma") {
                 ModelType::Functionary

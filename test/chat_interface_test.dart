@@ -76,6 +76,36 @@ void main() {
     });
   });
 
+  group('Reasoning parser', () {
+    test('extracts think block and keeps final answer content', () {
+      const raw = '<think>step 1\nstep 2</think>\n\nThe final answer is 42.';
+      final parsed = parseReasoningContent(raw);
+
+      expect(parsed.hasReasoning, true);
+      expect(parsed.reasoningContent, 'step 1\nstep 2');
+      expect(parsed.visibleContent, 'The final answer is 42.');
+    });
+
+    test('extracts thinking block regardless of case', () {
+      const raw =
+          '<THINKING>internal notes</THINKING>\nVisible output for user.';
+      final parsed = parseReasoningContent(raw);
+
+      expect(parsed.hasReasoning, true);
+      expect(parsed.reasoningContent, 'internal notes');
+      expect(parsed.visibleContent, 'Visible output for user.');
+    });
+
+    test('returns original content when no reasoning tags exist', () {
+      const raw = 'Regular assistant message without hidden reasoning.';
+      final parsed = parseReasoningContent(raw);
+
+      expect(parsed.hasReasoning, false);
+      expect(parsed.reasoningContent, isNull);
+      expect(parsed.visibleContent, raw);
+    });
+  });
+
   // Skip AIChatController tests as they require platform plugins
   // (path_provider, background_downloader) that aren't available in test environment
   group('AIChatController', () {

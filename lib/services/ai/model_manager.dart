@@ -212,6 +212,28 @@ class ModelManager {
       isDefault: true,
     ),
 
+    // Phi-4 Mini Reasoning - stronger math-focused Phi variant
+    AIModel(
+      id: 'phi4-mini-reasoning-q4km',
+      name: 'Phi-4 Mini Reasoning',
+      shortDescription:
+          'Reasoning-tuned Phi-4 Mini for step-by-step math and logic tasks.',
+      description:
+          'Microsoft Phi-4 Mini Reasoning (GGUF by Unsloth) - tuned for '
+          'multi-step reasoning and analytical tasks while staying compact.',
+      recommendation:
+          'Use this when you want stronger step-by-step reasoning than baseline Phi-4 Mini.',
+      url:
+          'https://huggingface.co/unsloth/Phi-4-mini-reasoning-GGUF/resolve/main/Phi-4-mini-reasoning-Q4_K_M.gguf',
+      fileName: 'Phi-4-mini-reasoning-Q4_K_M.gguf',
+      sizeBytes: 2670000000, // ~2.49 GB
+      categories: [
+        ModelCategory.general,
+        ModelCategory.math,
+        ModelCategory.code,
+      ],
+    ),
+
     // Qwen2.5-3B - Writing and Code
     AIModel(
       id: 'qwen25-3b-q4km',
@@ -301,6 +323,50 @@ class ModelManager {
       ],
     ),
 
+    // DeepSeek R1 Distill Qwen 1.5B - compact reasoning model
+    AIModel(
+      id: 'deepseek-r1-distill-qwen-15b-q4km',
+      name: 'DeepSeek R1 Distill Qwen 1.5B',
+      shortDescription:
+          'Compact reasoning model with visible think traces and strong math/code ability.',
+      description:
+          'DeepSeek R1 Distill Qwen 1.5B (GGUF) - distilled reasoning model '
+          'with strong logical decomposition for coding and problem solving.',
+      recommendation:
+          'Choose this for lightweight reasoning-heavy tasks and structured problem solving.',
+      url:
+          'https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF/resolve/main/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf',
+      fileName: 'DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf',
+      sizeBytes: 1200000000, // ~1.12 GB
+      categories: [
+        ModelCategory.general,
+        ModelCategory.math,
+        ModelCategory.code,
+      ],
+    ),
+
+    // SmolLM2 1.7B Instruct - fast small instruct model
+    AIModel(
+      id: 'smollm2-17b-instruct-q4km',
+      name: 'SmolLM2 1.7B Instruct',
+      shortDescription:
+          'Fast small instruct model for writing, lightweight coding, and quick replies.',
+      description:
+          'SmolLM2 1.7B Instruct (GGUF) - compact and responsive model for '
+          'day-to-day writing, chat, and lightweight coding workflows.',
+      recommendation:
+          'Great pick for lower-memory devices when you still want solid instruct behavior.',
+      url:
+          'https://huggingface.co/bartowski/SmolLM2-1.7B-Instruct-GGUF/resolve/main/SmolLM2-1.7B-Instruct-Q4_K_M.gguf',
+      fileName: 'SmolLM2-1.7B-Instruct-Q4_K_M.gguf',
+      sizeBytes: 1140000000, // ~1.06 GB
+      categories: [
+        ModelCategory.general,
+        ModelCategory.writing,
+        ModelCategory.code,
+      ],
+    ),
+
     // Function Gemma 270M - Top choice for MCP/Tool calling
     AIModel(
       id: 'function-gemma-270m',
@@ -335,6 +401,28 @@ class ModelManager {
       fileName: 'gemma-2b-Q4_K_M.gguf',
       sizeBytes: 1678770176, // ~1.56 GB
       categories: [ModelCategory.general, ModelCategory.code],
+    ),
+
+    // Gemma 3 4B IT - newer Gemma instruct model
+    AIModel(
+      id: 'gemma-3-4b-it-q4km',
+      name: 'Gemma 3 4B IT',
+      shortDescription:
+          'Newer Gemma instruct model with strong balanced quality for chat and coding.',
+      description:
+          'Google Gemma 3 4B IT (GGUF by bartowski) - modern Gemma-family '
+          'instruction model with strong multi-purpose quality.',
+      recommendation:
+          'Use this when you want a larger Gemma-family model for stronger general output quality.',
+      url:
+          'https://huggingface.co/bartowski/google_gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf',
+      fileName: 'gemma-3-4b-it-Q4_K_M.gguf',
+      sizeBytes: 2670000000, // ~2.49 GB
+      categories: [
+        ModelCategory.general,
+        ModelCategory.writing,
+        ModelCategory.code,
+      ],
     ),
   ];
 

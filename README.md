@@ -41,12 +41,16 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
 
 - **Multi-Model Support**
   - **Phi-4 Mini** - Default model for reasoning, conversation, and general assistance
+  - **Phi-4 Mini Reasoning** - Reasoning-tuned Phi model for math-heavy and logic-heavy tasks
   - **Qwen 2.5 3B** - Specialized for writing, notes, and code generation
   - **Qwen3.5 4B Distilled v2** - Best quality distilled Qwen model for deep reasoning and code
   - **Qwen3.5 2B Distilled** - Balanced speed and quality for daily work
   - **Qwen3.5 0.8B Distilled** - Fast lightweight option for low-memory devices
+  - **DeepSeek R1 Distill Qwen 1.5B** - Compact reasoning model with strong math/code behavior
+  - **SmolLM2 1.7B Instruct** - Fast compact instruct model for writing and lightweight coding
   - **Function Gemma 270M** - Ultra-fast, optimized for MCP tool calling (~180MB)
   - **Gemma 2B** - Google's efficient compact general-purpose model
+  - **Gemma 3 4B IT** - Newer Gemma-family model with stronger balanced output quality
   - Automatic model routing based on task classification
   - Seamless model switching for optimal performance
 
@@ -622,15 +626,17 @@ To report a new issue, use [Bug Report Template](.github/ISSUE_TEMPLATE/bug_repo
 
 Kivixa's on-device AI support is built on top of model work from the following official organizations and distribution contributors:
 
-- **Microsoft** - Official creator of Phi model family used by **Phi-4 Mini**
-- **Alibaba Cloud (Qwen Team)** - Official creator of Qwen model family used by **Qwen2.5 3B** and as the base family for **Qwen3.5 Distilled** variants
-- **Google (Gemma Team)** - Official creator of Gemma model family used by **Gemma 2B** and **Function Gemma** family
+- **Microsoft** - Official creator of Phi model family used by **Phi-4 Mini** and **Phi-4 Mini Reasoning**
+- **Alibaba Cloud (Qwen Team)** - Official creator of Qwen model family used by **Qwen2.5 3B**, **Qwen3.5 Distilled** variants, and DeepSeek distill base architecture
+- **Google (Gemma Team)** - Official creator of Gemma model family used by **Gemma 2B**, **Gemma 3 4B IT**, and **Function Gemma** family
+- **DeepSeek-AI** - Official creator of the **DeepSeek-R1** reasoning family used for distill checkpoints
+- **Hugging Face TB (SmolLM Team)** - Official creator of **SmolLM2** model family
 - **Jackrong** - Distilled GGUF releases for:
   - Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled v2
   - Qwen3.5 2B Claude 4.6 Opus Reasoning Distilled
   - Qwen3.5 0.8B Claude 4.6 Opus Reasoning Distilled
-- **Unsloth (GGUF distribution credit)** - Function Gemma GGUF used in app
-- **bartowski (GGUF distribution credit)** - Phi-4 Mini GGUF used in app
+- **Unsloth (GGUF distribution credit)** - Function Gemma, Phi-4 Mini Reasoning, and selected DeepSeek-R1-Distill GGUF distributions
+- **bartowski (GGUF distribution credit)** - Phi-4 Mini, Gemma 3 4B IT, DeepSeek-R1-Distill-Qwen-1.5B, and SmolLM2-1.7B-Instruct GGUF distributions
 
 We appreciate the upstream model creators and the open model packaging community that make high-quality on-device AI possible.
 

@@ -52,6 +52,31 @@ void main() {
       );
     });
 
+    test('includes newly requested reasoning and compact variants', () {
+      expect(
+        ModelManager.availableModels.any(
+          (m) => m.id == 'phi4-mini-reasoning-q4km',
+        ),
+        true,
+      );
+      expect(
+        ModelManager.availableModels.any((m) => m.id == 'gemma-3-4b-it-q4km'),
+        true,
+      );
+      expect(
+        ModelManager.availableModels.any(
+          (m) => m.id == 'deepseek-r1-distill-qwen-15b-q4km',
+        ),
+        true,
+      );
+      expect(
+        ModelManager.availableModels.any(
+          (m) => m.id == 'smollm2-17b-instruct-q4km',
+        ),
+        true,
+      );
+    });
+
     test('Gemma 7B is not available anymore', () {
       expect(
         ModelManager.availableModels.any((m) => m.id == 'gemma-7b'),
@@ -97,22 +122,36 @@ void main() {
       final models = ModelManager.getModelsForCategory(ModelCategory.math);
 
       expect(models.any((m) => m.id == 'phi4-mini-q4km'), true);
+      expect(models.any((m) => m.id == 'phi4-mini-reasoning-q4km'), true);
       expect(
         models.any((m) => m.id == 'qwen35-4b-claude46-distilled-v2-q4km'),
         true,
       );
-    });
-
-    test('code category includes Qwen family and Gemma 2B', () {
-      final models = ModelManager.getModelsForCategory(ModelCategory.code);
-
-      expect(models.any((m) => m.id == 'qwen25-3b-q4km'), true);
       expect(
-        models.any((m) => m.id == 'qwen35-08b-claude46-distilled-q5km'),
+        models.any((m) => m.id == 'deepseek-r1-distill-qwen-15b-q4km'),
         true,
       );
-      expect(models.any((m) => m.id == 'gemma-2b'), true);
     });
+
+    test(
+      'code category includes Qwen family, Gemma, and compact additions',
+      () {
+        final models = ModelManager.getModelsForCategory(ModelCategory.code);
+
+        expect(models.any((m) => m.id == 'qwen25-3b-q4km'), true);
+        expect(
+          models.any((m) => m.id == 'qwen35-08b-claude46-distilled-q5km'),
+          true,
+        );
+        expect(models.any((m) => m.id == 'gemma-2b'), true);
+        expect(models.any((m) => m.id == 'gemma-3-4b-it-q4km'), true);
+        expect(
+          models.any((m) => m.id == 'deepseek-r1-distill-qwen-15b-q4km'),
+          true,
+        );
+        expect(models.any((m) => m.id == 'smollm2-17b-instruct-q4km'), true);
+      },
+    );
   });
 
   group('Recommendations and lookup', () {
