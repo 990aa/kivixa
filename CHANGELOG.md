@@ -361,3 +361,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed **Gemma 7B** from frontend model catalog and backend model metadata.
 
 ---
+## [0.3.1] - 2026-03-28
+
+### Changed
+- Version bump to 0.3.1
+
+---
