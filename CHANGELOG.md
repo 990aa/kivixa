@@ -367,3 +367,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix model version names for model selection
 
 ---
+## [0.3.2] - 2026-03-28
+
+### Changed
+- Version bump to 0.3.2
+
+---
