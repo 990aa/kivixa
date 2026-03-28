@@ -1055,10 +1055,7 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
     final choice = await showMenu<String>(
       context: context,
       useRootNavigator: true,
-      position: RelativeRect.fromRect(
-        targetRect,
-        Offset.zero & overlay.size,
-      ),
+      position: RelativeRect.fromRect(targetRect, Offset.zero & overlay.size),
       items: [
         PopupMenuItem<String>(
           enabled: false,
