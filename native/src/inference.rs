@@ -22,7 +22,7 @@ use std::sync::Arc;
 pub enum ModelType {
     /// Microsoft Phi-4 Mini - uses <|system|>, <|user|>, <|assistant|>, <|end|> format
     Phi4,
-    /// Qwen 2.5 - uses <|im_start|>, <|im_end|> ChatML format
+    /// Qwen family (Qwen2.5/Qwen3.5) - uses <|im_start|>, <|im_end|> ChatML format
     Qwen,
     /// Functionary models - uses function calling format with <|from|> tags
     Functionary,
@@ -530,6 +530,14 @@ mod tests {
         );
         assert_eq!(
             detect_model_type("/path/to/Qwen2.5-Coder.gguf"),
+            ModelType::Qwen
+        );
+        assert_eq!(
+            detect_model_type("/path/to/Qwen3.5-4B.Q4_K_M.gguf"),
+            ModelType::Qwen
+        );
+        assert_eq!(
+            detect_model_type("/path/to/Qwen3.5-0.8B.Q5_K_M.gguf"),
             ModelType::Qwen
         );
         assert_eq!(

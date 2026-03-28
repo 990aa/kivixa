@@ -3,7 +3,7 @@
 /// Automatically routes tasks to the appropriate AI model based on task type:
 /// - Phi-4: General conversation and reasoning
 /// - Function Gemma: Tool calling and function execution
-/// - Qwen: Code generation and programming tasks
+/// - Qwen (including Qwen3.5 distilled variants): Code and programming tasks
 ///
 /// The router analyzes user messages and selects the best model for the task.
 library;
@@ -23,7 +23,7 @@ enum AIModelType {
       case AIModelType.phi4:
         return 'Phi-4 (Reasoning)';
       case AIModelType.qwen:
-        return 'Qwen 2.5 (Code)';
+        return 'Qwen 3.5 Distilled (Code)';
       case AIModelType.functionGemma:
         return 'Function Gemma (Tools)';
     }
@@ -167,7 +167,8 @@ Only call tools when the user explicitly requests an action. For general questio
         return '''
 You are an expert coding assistant. Provide well-structured, documented code.
 Follow best practices and include comments explaining complex logic.
-When generating Lua scripts, ensure they are compatible with the sandbox environment.''';
+When generating Lua scripts, ensure they are compatible with the sandbox environment.
+Prioritize practical, production-ready code and concise explanations.''';
     }
   }
 
@@ -182,6 +183,11 @@ When generating Lua scripts, ensure they are compatible with the sandbox environ
       case 'phi4':
         return AIModelType.phi4;
       case 'qwen':
+      case 'qwen3.5':
+      case 'qwen3.5-4b':
+      case 'qwen35':
+      case 'qwen35-4b':
+      case 'qwen35-4b-claude46-distilled-v2-q4km':
         return AIModelType.qwen;
       case 'functiongemma':
       case 'function-gemma':

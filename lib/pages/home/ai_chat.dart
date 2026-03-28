@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
 import 'package:kivixa/components/ai/mcp_chat_interface.dart';
+import 'package:kivixa/components/ai/model_catalog_card.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/mcp_service.dart';
@@ -1057,7 +1058,7 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
                                 _modelManager.currentlyLoadedModel?.id ==
                                 model.id;
 
-                            return _ModelCard(
+                            return ModelCatalogCard(
                               model: model,
                               isDownloaded: isDownloaded,
                               isCurrentlyLoaded: isCurrentlyLoaded,
@@ -1070,151 +1071,6 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
                 ),
               ],
             ),
-    );
-  }
-}
-
-/// Card widget for displaying a model
-class _ModelCard extends StatelessWidget {
-  final AIModel model;
-  final bool isDownloaded;
-  final bool isCurrentlyLoaded;
-  final VoidCallback onDownload;
-  final VoidCallback onLoad;
-  final VoidCallback onDelete;
-
-  const _ModelCard({
-    required this.model,
-    required this.isDownloaded,
-    required this.isCurrentlyLoaded,
-    required this.onDownload,
-    required this.onLoad,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.smart_toy,
-                  color: isCurrentlyLoaded
-                      ? colorScheme.primary
-                      : colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            model.name,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          if (model.isDefault) ...[
-                            const SizedBox(width: 8),
-                            Chip(
-                              label: const Text('Default'),
-                              backgroundColor: colorScheme.secondaryContainer,
-                              labelStyle: TextStyle(
-                                color: colorScheme.onSecondaryContainer,
-                                fontSize: 10,
-                              ),
-                              padding: EdgeInsets.zero,
-                              visualDensity: VisualDensity.compact,
-                            ),
-                          ],
-                          if (isCurrentlyLoaded) ...[
-                            const SizedBox(width: 8),
-                            Chip(
-                              label: const Text('Active'),
-                              backgroundColor: colorScheme.primaryContainer,
-                              labelStyle: TextStyle(
-                                color: colorScheme.onPrimaryContainer,
-                                fontSize: 10,
-                              ),
-                              padding: EdgeInsets.zero,
-                              visualDensity: VisualDensity.compact,
-                            ),
-                          ],
-                        ],
-                      ),
-                      Text(
-                        model.sizeText,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(model.description, style: theme.textTheme.bodyMedium),
-            const SizedBox(height: 12),
-            // Category chips
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: model.categories.map((category) {
-                return Chip(
-                  label: Text(category.displayName),
-                  backgroundColor: colorScheme.surfaceContainerHighest,
-                  labelStyle: theme.textTheme.labelSmall,
-                  padding: EdgeInsets.zero,
-                  visualDensity: VisualDensity.compact,
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16),
-            // Action buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                if (isDownloaded && !isCurrentlyLoaded)
-                  TextButton.icon(
-                    onPressed: onDelete,
-                    icon: Icon(Icons.delete_outline, color: colorScheme.error),
-                    label: Text(
-                      'Delete',
-                      style: TextStyle(color: colorScheme.error),
-                    ),
-                  ),
-                const SizedBox(width: 8),
-                if (isDownloaded)
-                  FilledButton.icon(
-                    onPressed: isCurrentlyLoaded ? null : onLoad,
-                    icon: Icon(
-                      isCurrentlyLoaded ? Icons.check : Icons.play_arrow,
-                    ),
-                    label: Text(isCurrentlyLoaded ? 'Loaded' : 'Load'),
-                  )
-                else
-                  FilledButton.icon(
-                    onPressed: onDownload,
-                    icon: const Icon(Icons.download),
-                    label: const Text('Download'),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

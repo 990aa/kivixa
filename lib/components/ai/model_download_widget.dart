@@ -70,7 +70,7 @@ class _ModelDownloadWidgetState extends State<ModelDownloadWidget> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            _model.description,
+                            _model.displayDescription,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
