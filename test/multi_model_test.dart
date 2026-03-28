@@ -5,11 +5,13 @@ void main() {
   group('Model categories', () {
     test('all categories remain available for filtering', () {
       expect(ModelCategory.values.length, 5);
+      expect(ModelCategory.values.length, 6);
       expect(ModelCategory.values, contains(ModelCategory.general));
       expect(ModelCategory.values, contains(ModelCategory.agent));
       expect(ModelCategory.values, contains(ModelCategory.writing));
       expect(ModelCategory.values, contains(ModelCategory.math));
       expect(ModelCategory.values, contains(ModelCategory.code));
+      expect(ModelCategory.values, contains(ModelCategory.strongest));
     });
 
     test('category labels are user-friendly', () {
@@ -18,6 +20,7 @@ void main() {
       expect(ModelCategory.writing.displayName, 'Writing / Notes');
       expect(ModelCategory.math.displayName, 'Math / LaTeX');
       expect(ModelCategory.code.displayName, 'Code Generation');
+      expect(ModelCategory.strongest.displayName, 'Strongest');
     });
   });
 
@@ -172,10 +175,25 @@ void main() {
       final qwen2b = ModelManager.getModelById(
         'qwen35-2b-claude46-distilled-q5km',
       );
-
+      expect(
+        qwen4b!.name,
+        'Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled v2',
+      );
       expect(qwen4b, isNotNull);
-      expect(qwen4b!.name, 'Qwen3.5 4B Distilled v2');
+      expect(
+        qwen2b!.name,
+        'Qwen3.5 2B Claude 4.6 Opus Reasoning Distilled',
+      );
       expect(qwen2b, isNotNull);
+
+    test('Strongest category filter returns all four strongest reasoning models', () {
+      final strongest = ModelManager.getModelsForCategory(ModelCategory.strongest);
+
+      expect(strongest.any((m) => m.id == 'qwen35-4b-claude46-distilled-v2-q4km'), true);
+      expect(strongest.any((m) => m.id == 'qwen35-2b-claude46-distilled-q5km'), true);
+      expect(strongest.any((m) => m.id == 'qwen35-08b-claude46-distilled-q5km'), true);
+      expect(strongest.any((m) => m.id == 'phi4-mini-reasoning-q4km'), true);
+    });
       expect(qwen2b!.name, 'Qwen3.5 2B Distilled');
     });
 
