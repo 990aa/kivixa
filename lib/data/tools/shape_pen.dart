@@ -118,5 +118,6 @@ class ShapePen extends Pen {
           penType: rawStroke.penType,
         )..addPoints(polygon);
     }
+    return null;
   }
 }
