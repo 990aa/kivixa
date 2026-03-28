@@ -609,8 +609,9 @@ class ModelManager {
   Set<String> _buildCandidateFileNames(AIModel model) {
     final candidates = <String>{model.fileName, ...model.alternateFileNames};
 
-    final uriName = Uri.tryParse(model.url)?.pathSegments.isNotEmpty == true
-        ? Uri.decodeComponent(Uri.parse(model.url).pathSegments.last)
+    final parsedUri = Uri.tryParse(model.url);
+    final uriName = parsedUri != null && parsedUri.pathSegments.isNotEmpty
+        ? Uri.decodeComponent(parsedUri.pathSegments.last)
         : null;
     if (uriName != null && uriName.isNotEmpty) {
       candidates.add(uriName);

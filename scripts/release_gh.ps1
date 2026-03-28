@@ -127,6 +127,8 @@ BUILD_NUMBER=$buildNumber
         }
     } else {
         Write-Host "  [DRY RUN] Would update VERSION file" -ForegroundColor Magenta
+        Write-Host "  [DRY RUN] Would update pubspec.yaml version" -ForegroundColor Magenta
+        Write-Host "  [DRY RUN] Would update windows/installer/kivixa-installer.iss terms version" -ForegroundColor Magenta
     }
 } else {
     Write-Host "[2/5] No version bump requested" -ForegroundColor DarkGray
