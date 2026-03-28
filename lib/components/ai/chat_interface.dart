@@ -11,6 +11,84 @@ import 'package:kivixa/pages/home/ai_chat.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/model_manager.dart';
 
+abstract class ChatInferenceGateway {
+  bool get isModelLoaded;
+
+  Future<void> initialize();
+
+  Future<void> loadModel(String modelPath);
+
+  void unloadModel();
+
+  Future<String> chat(List<ChatMessage> messages);
+}
+
+class _InferenceServiceGateway implements ChatInferenceGateway {
+  _InferenceServiceGateway(this._inferenceService);
+
+  final InferenceService _inferenceService;
+
+  @override
+  bool get isModelLoaded => _inferenceService.isModelLoaded;
+
+  @override
+  Future<void> initialize() => _inferenceService.initialize();
+
+  @override
+  Future<void> loadModel(String modelPath) =>
+      _inferenceService.loadModel(modelPath);
+
+  @override
+  void unloadModel() => _inferenceService.unloadModel();
+
+  @override
+  Future<String> chat(List<ChatMessage> messages) =>
+      _inferenceService.chat(messages);
+}
+
+abstract class ChatModelGateway {
+  AIModel? get currentlyLoadedModel;
+
+  Future<void> initialize();
+
+  Future<bool> isModelDownloaded([AIModel? model]);
+
+  Future<String> getModelPath([AIModel? model]);
+
+  Future<List<AIModel>> getDownloadedModels();
+
+  void setCurrentlyLoadedModel(String? modelId);
+}
+
+class _ModelManagerGateway implements ChatModelGateway {
+  _ModelManagerGateway(this._modelManager);
+
+  final ModelManager _modelManager;
+
+  @override
+  AIModel? get currentlyLoadedModel => _modelManager.currentlyLoadedModel;
+
+  @override
+  Future<void> initialize() => _modelManager.initialize();
+
+  @override
+  Future<bool> isModelDownloaded([AIModel? model]) =>
+      _modelManager.isModelDownloaded(model);
+
+  @override
+  Future<String> getModelPath([AIModel? model]) =>
+      _modelManager.getModelPath(model);
+
+  @override
+  Future<List<AIModel>> getDownloadedModels() =>
+      _modelManager.getDownloadedModels();
+
+  @override
+  void setCurrentlyLoadedModel(String? modelId) {
+    _modelManager.setCurrentlyLoadedModel(modelId);
+  }
+}
+
 /// Parsed assistant output with optional hidden reasoning text.
 class ParsedReasoningContent {
   final String visibleContent;
@@ -95,8 +173,8 @@ class AIChatMessage {
 
 /// Controller for managing chat state
 class AIChatController extends ChangeNotifier {
-  final InferenceService _inferenceService;
-  final _modelManager = ModelManager();
+  final ChatInferenceGateway _inferenceGateway;
+  final ChatModelGateway _modelGateway;
   final List<AIChatMessage> _messages = [];
   var _isGenerating = false;
   var _isInitializing = false;
@@ -105,15 +183,27 @@ class AIChatController extends ChangeNotifier {
   String? _loadedModelId;
   AIModel? _loadedModel;
 
-  AIChatController({InferenceService? inferenceService, String? systemPrompt})
-    : _inferenceService = inferenceService ?? InferenceService(),
-      _systemPrompt = systemPrompt {
-    _initializeModel();
+  AIChatController({
+    InferenceService? inferenceService,
+    ModelManager? modelManager,
+    ChatInferenceGateway? inferenceGateway,
+    ChatModelGateway? modelGateway,
+    String? systemPrompt,
+    bool autoInitialize = true,
+  }) : _inferenceGateway =
+           inferenceGateway ??
+           _InferenceServiceGateway(inferenceService ?? InferenceService()),
+       _modelGateway =
+           modelGateway ?? _ModelManagerGateway(modelManager ?? ModelManager()),
+       _systemPrompt = systemPrompt {
+    if (autoInitialize) {
+      unawaited(_initializeModel());
+    }
   }
 
   List<AIChatMessage> get messages => List.unmodifiable(_messages);
   bool get isGenerating => _isGenerating;
-  bool get isModelLoaded => _inferenceService.isModelLoaded;
+  bool get isModelLoaded => _inferenceGateway.isModelLoaded;
   bool get isInitializing => _isInitializing;
   bool get isLoadingModel => _isLoadingModel;
   String? get loadedModelName => _loadedModel?.name;
@@ -127,13 +217,13 @@ class AIChatController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _modelManager.initialize();
-      await _inferenceService.initialize();
+      await _modelGateway.initialize();
+      await _inferenceGateway.initialize();
 
       // Check if model is already loaded in native
-      if (_inferenceService.isModelLoaded) {
+      if (_inferenceGateway.isModelLoaded) {
         // Try to get the currently loaded model from manager
-        final currentModel = _modelManager.currentlyLoadedModel;
+        final currentModel = _modelGateway.currentlyLoadedModel;
         _loadedModel = currentModel ?? ModelManager.defaultModel;
         _loadedModelId = _loadedModel?.id;
         _isInitializing = false;
@@ -142,13 +232,13 @@ class AIChatController extends ChangeNotifier {
       }
 
       // Check if default model is downloaded and auto-load it
-      final isDownloaded = await _modelManager.isModelDownloaded();
+      final isDownloaded = await _modelGateway.isModelDownloaded();
       if (isDownloaded) {
-        final modelPath = await _modelManager.getModelPath();
-        await _inferenceService.loadModel(modelPath);
+        final modelPath = await _modelGateway.getModelPath();
+        await _inferenceGateway.loadModel(modelPath);
         _loadedModel = ModelManager.defaultModel;
         _loadedModelId = _loadedModel?.id;
-        _modelManager.setCurrentlyLoadedModel(_loadedModelId);
+        _modelGateway.setCurrentlyLoadedModel(_loadedModelId);
       }
     } catch (e) {
       debugPrint('Failed to initialize model: $e');
@@ -172,7 +262,7 @@ class AIChatController extends ChangeNotifier {
 
     try {
       // Check if model is downloaded
-      final isDownloaded = await _modelManager.isModelDownloaded(model);
+      final isDownloaded = await _modelGateway.isModelDownloaded(model);
       if (!isDownloaded) {
         _isLoadingModel = false;
         notifyListeners();
@@ -180,17 +270,17 @@ class AIChatController extends ChangeNotifier {
       }
 
       // Unload current model if any
-      if (_inferenceService.isModelLoaded) {
-        _inferenceService.unloadModel();
+      if (_inferenceGateway.isModelLoaded) {
+        _inferenceGateway.unloadModel();
       }
 
       // Load new model
-      final modelPath = await _modelManager.getModelPath(model);
-      await _inferenceService.loadModel(modelPath);
+      final modelPath = await _modelGateway.getModelPath(model);
+      await _inferenceGateway.loadModel(modelPath);
 
       _loadedModel = model;
       _loadedModelId = model.id;
-      _modelManager.setCurrentlyLoadedModel(model.id);
+      _modelGateway.setCurrentlyLoadedModel(model.id);
 
       return true;
     } catch (e) {
@@ -204,7 +294,7 @@ class AIChatController extends ChangeNotifier {
 
   /// Get list of downloaded models that can be switched to
   Future<List<AIModel>> getAvailableModels() async {
-    return await _modelManager.getDownloadedModels();
+    return await _modelGateway.getDownloadedModels();
   }
 
   set systemPrompt(String? value) {
@@ -245,7 +335,7 @@ class AIChatController extends ChangeNotifier {
       }
 
       // Get AI response
-      final response = await _inferenceService.chat(chatMessages);
+      final response = await _inferenceGateway.chat(chatMessages);
 
       // Update the loading message with the response
       final loadingIndex = _messages.lastIndexWhere((m) => m.isLoading);
@@ -944,8 +1034,18 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
 
     final renderBox = _chipKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
-    final offset = renderBox.localToGlobal(Offset.zero);
-    final size = renderBox.size;
+    final overlay =
+        Overlay.of(context, rootOverlay: true).context.findRenderObject()
+            as RenderBox?;
+    if (overlay == null) return;
+
+    final targetRect = Rect.fromPoints(
+      renderBox.localToGlobal(Offset.zero, ancestor: overlay),
+      renderBox.localToGlobal(
+        renderBox.size.bottomRight(Offset.zero),
+        ancestor: overlay,
+      ),
+    );
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -954,11 +1054,10 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
     // Show menu
     final choice = await showMenu<String>(
       context: context,
-      position: RelativeRect.fromLTRB(
-        offset.dx,
-        offset.dy + size.height,
-        offset.dx + size.width,
-        offset.dy + size.height + 300,
+      useRootNavigator: true,
+      position: RelativeRect.fromRect(
+        targetRect,
+        Offset.zero & overlay.size,
       ),
       items: [
         PopupMenuItem<String>(
@@ -1075,7 +1174,7 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
     if (choice != null) {
       if (choice == 'download_more') {
         if (!context.mounted) return;
-        Navigator.of(context)
+        Navigator.of(context, rootNavigator: true)
             .push(
               MaterialPageRoute(
                 builder: (context) => const ModelSelectionPage(),
