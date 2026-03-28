@@ -1208,7 +1208,14 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
       label: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(isCompact ? modelName : '$modelName loaded'),
+          Flexible(
+            child: Text(
+              isCompact ? modelName : '$modelName loaded',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
+            ),
+          ),
           const SizedBox(width: 4),
           Icon(
             Icons.arrow_drop_down,

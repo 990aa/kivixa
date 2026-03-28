@@ -157,6 +157,7 @@ void main() {
       expect(find.text(primaryModel.name), findsAtLeastNWidgets(2));
       expect(find.text(secondaryModel.name), findsOneWidget);
 
+      await tester.pumpWidget(const SizedBox.shrink());
       chatController.dispose();
     },
   );
@@ -213,6 +214,7 @@ void main() {
       );
       expect(chatController.messages.last.content, 'stubbed-response');
 
+      await tester.pumpWidget(const SizedBox.shrink());
       chatController.dispose();
     },
   );
