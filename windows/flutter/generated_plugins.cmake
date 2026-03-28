@@ -3,27 +3,15 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  desktop_webview_window
   dynamic_color
-  file_selector_windows
-  flutter_inappwebview_windows
-  flutter_secure_storage_windows
-  irondash_engine_context
-  media_kit_libs_windows_video
   media_kit_video
   objectbox_flutter_libs
   permission_handler_windows
   printing
-  screen_retriever_windows
-  share_plus
-  super_native_extensions
   url_launcher_windows
-  window_manager
-  window_to_front
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
-  pdfium_flutter
   rust_lib_kivixa
 )
 
