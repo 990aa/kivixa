@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kivixa/components/ai/chat_interface.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
 
 class MCPChatInterface extends StatefulWidget {
@@ -136,6 +137,9 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isUser = message.isUser;
+    final parsedContent = (!isUser && !message.isLoading)
+        ? parseReasoningContent(message.content)
+        : null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -184,15 +188,22 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  else
-                    SelectableText(
-                      message.content,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: isUser
-                            ? colorScheme.onPrimaryContainer
-                            : colorScheme.onSurface,
+                  else ...[
+                    if (parsedContent != null && parsedContent.hasReasoning)
+                      _McpReasoningPanel(
+                        reasoningContent: parsedContent.reasoningContent!,
                       ),
-                    ),
+                    if (parsedContent == null ||
+                        parsedContent.visibleContent.isNotEmpty)
+                      SelectableText(
+                        parsedContent?.visibleContent ?? message.content,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: isUser
+                              ? colorScheme.onPrimaryContainer
+                              : colorScheme.onSurface,
+                        ),
+                      ),
+                  ],
 
                   // Tool result
                   if (message.toolStatus == ToolStatus.completed &&
@@ -313,6 +324,60 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _McpReasoningPanel extends StatelessWidget {
+  final String reasoningContent;
+
+  const _McpReasoningPanel({required this.reasoningContent});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Theme(
+        data: theme.copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 10),
+          childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+          dense: true,
+          visualDensity: VisualDensity.compact,
+          title: Text(
+            'Reasoning',
+            style: theme.textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          subtitle: Text(
+            'Tap to expand',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: SelectableText(
+                reasoningContent,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -76,6 +76,78 @@ void main() {
     });
   });
 
+  group('Reasoning parser', () {
+    test('extracts think block and keeps final answer content', () {
+      const raw = '<think>step 1\nstep 2</think>\n\nThe final answer is 42.';
+      final parsed = parseReasoningContent(raw);
+
+      expect(parsed.hasReasoning, true);
+      expect(parsed.reasoningContent, 'step 1\nstep 2');
+      expect(parsed.visibleContent, 'The final answer is 42.');
+    });
+
+    test('extracts thinking block regardless of case', () {
+      const raw =
+          '<THINKING>internal notes</THINKING>\nVisible output for user.';
+      final parsed = parseReasoningContent(raw);
+
+      expect(parsed.hasReasoning, true);
+      expect(parsed.reasoningContent, 'internal notes');
+      expect(parsed.visibleContent, 'Visible output for user.');
+    });
+
+    test('returns original content when no reasoning tags exist', () {
+      const raw = 'Regular assistant message without hidden reasoning.';
+      final parsed = parseReasoningContent(raw);
+
+      expect(parsed.hasReasoning, false);
+      expect(parsed.reasoningContent, isNull);
+      expect(parsed.visibleContent, raw);
+    });
+
+    test('parses Qwen 3.5 Claude-distilled reasoning tags', () {
+      const raw =
+          '<think>Analyze constraints and choose plan.</think>\nFinal implementation summary.';
+      final parsed = parseReasoningContent(raw);
+
+      expect(parsed.hasReasoning, true);
+      expect(parsed.reasoningContent, 'Analyze constraints and choose plan.');
+      expect(parsed.visibleContent, 'Final implementation summary.');
+    });
+
+    test('parses Phi-4 mini reasoning tags', () {
+      const raw = '<thinking>step A -> step B</thinking>\nAnswer for user.';
+      final parsed = parseReasoningContent(raw);
+
+      expect(parsed.hasReasoning, true);
+      expect(parsed.reasoningContent, 'step A -> step B');
+      expect(parsed.visibleContent, 'Answer for user.');
+    });
+
+    test(
+      'parses reasoning blocks for all requested strongest reasoning models',
+      () {
+        const samples = {
+          'qwen35-4b-claude46-distilled-v2-q4km':
+              '<think>plan for 4b model</think>\nfinal 4b answer',
+          'qwen35-2b-claude46-distilled-q5km':
+              '<think>plan for 2b model</think>\nfinal 2b answer',
+          'qwen35-08b-claude46-distilled-q5km':
+              '<think>plan for 0.8b model</think>\nfinal 0.8b answer',
+          'phi4-mini-reasoning-q4km':
+              '<thinking>plan for phi reasoning</thinking>\nfinal phi answer',
+        };
+
+        for (final entry in samples.entries) {
+          final parsed = parseReasoningContent(entry.value);
+          expect(parsed.hasReasoning, true, reason: entry.key);
+          expect(parsed.reasoningContent, isNotNull, reason: entry.key);
+          expect(parsed.visibleContent, contains('final'), reason: entry.key);
+        }
+      },
+    );
+  });
+
   // Skip AIChatController tests as they require platform plugins
   // (path_provider, background_downloader) that aren't available in test environment
   group('AIChatController', () {

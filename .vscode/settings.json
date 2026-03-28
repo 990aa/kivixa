@@ -31,5 +31,6 @@
     ],
     "java.project.resourceFilters": [
         "rust_builder/cargokit"
-    ]
+    ],
+    "java.jdt.ls.java.home": "C:\\Program Files\\Android\\Android Studio\\jbr"
 }

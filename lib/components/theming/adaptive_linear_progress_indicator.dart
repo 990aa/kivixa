@@ -14,6 +14,5 @@ class AdaptiveLinearProgressIndicator extends LinearProgressIndicator {
     super.stopIndicatorColor,
     super.stopIndicatorRadius,
     super.trackGap,
-    super.year2023 = false,
   });
 }

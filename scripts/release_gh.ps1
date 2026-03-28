@@ -109,8 +109,26 @@ BUILD_NUMBER=$buildNumber
         $pubspecContent = $pubspecContent -replace '^version: .*', "version: $version+$buildNumber"
         $pubspecContent | Set-Content $pubspecFile -NoNewline
         Write-Host "  pubspec.yaml updated" -ForegroundColor Green
+
+        # Also update Windows installer terms version text
+        $installerFile = Join-Path $projectRoot "windows\installer\kivixa-installer.iss"
+        if (Test-Path $installerFile) {
+            $installerContent = Get-Content $installerFile -Raw
+            $installerContent = [regex]::Replace(
+                $installerContent,
+                "'Version:\\s*[^']*'\\s*\\+\\s*#13#10\\s*\\+\\s*#13#10\\s*\\+",
+                "'Version: $version' + #13#10 + #13#10 +",
+                1
+            )
+            $installerContent | Set-Content $installerFile -NoNewline
+            Write-Host "  windows/installer/kivixa-installer.iss updated" -ForegroundColor Green
+        } else {
+            Write-Host "  windows/installer/kivixa-installer.iss not found (skipped)" -ForegroundColor DarkYellow
+        }
     } else {
         Write-Host "  [DRY RUN] Would update VERSION file" -ForegroundColor Magenta
+        Write-Host "  [DRY RUN] Would update pubspec.yaml version" -ForegroundColor Magenta
+        Write-Host "  [DRY RUN] Would update windows/installer/kivixa-installer.iss terms version" -ForegroundColor Magenta
     }
 } else {
     Write-Host "[2/5] No version bump requested" -ForegroundColor DarkGray

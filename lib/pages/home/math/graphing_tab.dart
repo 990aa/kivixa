@@ -40,12 +40,19 @@ class _MathGraphingTabState extends State<MathGraphingTab> {
   Future<void> _computeGraphs() async {
     setState(() => _isComputing = true);
 
-    // Generate x values using Rust
-    final xValues = MathService.instance.generateXRange(
-      _xMin,
-      _xMax,
-      _resolution + 1,
-    );
+    // Prefer Rust-generated ranges when available, but keep graphing usable
+    // in environments where the native backend is not initialized yet.
+    var xValues = <double>[];
+    try {
+      xValues = MathService.instance
+          .generateXRange(_xMin, _xMax, _resolution + 1)
+          .toList();
+    } catch (_) {
+      xValues = List.generate(
+        _resolution + 1,
+        (i) => _xMin + (_xMax - _xMin) * i / _resolution,
+      );
+    }
 
     // Compute graphs using Rust backend for parallel evaluation
     final List<List<Offset>> data = [];
@@ -58,7 +65,7 @@ class _MathGraphingTabState extends State<MathGraphingTab> {
         final result = await MathService.instance.evaluateGraphPoints(
           fn.expression,
           'x',
-          xValues.toList(),
+          xValues,
         );
 
         final points = <Offset>[];

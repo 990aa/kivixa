@@ -13,13 +13,13 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.9.0+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
-[![Version](https://img.shields.io/badge/Version-0.1.8%2B1008--beta-orange)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-0.3.1%2B3001--beta-orange)](CHANGELOG.md)
 
-[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.1.8%2B1008/Kivixa-Setup-0.1.8.exe)
+[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.3.1%2B3001/Kivixa-Setup-0.3.1.exe)
 
-[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.1.8%2B1008/Kivixa-Android-0.1.8-arm64.apk)
-[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.1.8%2B1008/Kivixa-Android-0.1.8-armv7.apk)
-[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.1.8%2B1008/Kivixa-Android-0.1.8-x86_64.apk)
+[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.3.1%2B3001/Kivixa-Android-0.3.1-arm64.apk)
+[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.3.1%2B3001/Kivixa-Android-0.3.1-armv7.apk)
+[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.3.1%2B3001/Kivixa-Android-0.3.1-x86_64.apk)
 
 **F-Droid Repository:**
 
@@ -41,9 +41,16 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
 
 - **Multi-Model Support**
   - **Phi-4 Mini** - Default model for reasoning, conversation, and general assistance
+  - **Phi-4 Mini Reasoning** - Reasoning-tuned Phi model for math-heavy and logic-heavy tasks
   - **Qwen 2.5 3B** - Specialized for writing, notes, and code generation
+  - **Qwen3.5 4B Distilled v2** - Best quality distilled Qwen model for deep reasoning and code
+  - **Qwen3.5 2B Distilled** - Balanced speed and quality for daily work
+  - **Qwen3.5 0.8B Distilled** - Fast lightweight option for low-memory devices
+  - **DeepSeek R1 Distill Qwen 1.5B** - Compact reasoning model with strong math/code behavior
+  - **SmolLM2 1.7B Instruct** - Fast compact instruct model for writing and lightweight coding
   - **Function Gemma 270M** - Ultra-fast, optimized for MCP tool calling (~180MB)
-  - **Gemma 2B / 7B** - Google's efficient general-purpose models
+  - **Gemma 2B** - Google's efficient compact general-purpose model
+  - **Gemma 3 4B IT** - Newer Gemma-family model with stronger balanced output quality
   - Automatic model routing based on task classification
   - Seamless model switching for optimal performance
 
@@ -110,6 +117,48 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
   - No internet required after initial model download
   - No API keys or subscriptions needed
   - Your notes stay private
+
+- **Audio Intelligence**
+  - **Speech-to-Text (STT)** - Whisper-based offline transcription
+    - Multiple model sizes (Tiny to Large) for accuracy/speed tradeoffs
+    - Real-time streaming transcription with word-level timestamps
+    - Semantic audio indexing - search by spoken content
+    - Multi-language support with automatic detection
+  - **Text-to-Speech (TTS)** - Kokoro neural speech synthesis
+    - Natural-sounding voices (Male, Female, Custom)
+    - Adjustable rate and pitch controls
+    - Word boundary tracking for lip-sync
+    - High-quality 24kHz audio output
+  - **Voice Activity Detection (VAD)**
+    - Efficient speech/silence detection
+    - Automatic noise floor calibration
+    - Saves battery by only processing speech
+  - **Neural Dictation Bar** - Smart voice input accessory
+    - Text and Command dictation modes
+    - Live confidence indicator
+    - Seamless keyboard integration
+    - Auto-insert into text fields
+  - **Voice Notes** - Record and transcribe voice memos
+    - Interactive waveform visualization (bars, line, circular, orb)
+    - Karaoke-style transcript highlighting
+    - Search within transcript
+    - Speaker identification support
+  - **Voice Search** - Search notes by voice
+    - Press-and-hold or tap-to-toggle modes
+    - Real-time transcription preview
+    - Confidence-based result filtering
+  - **AI Walkie-Talkie** - Hands-free AI conversations
+    - Full-screen immersive interface
+    - Dual animated orbs (user/AI)
+    - Conversation history
+    - Push-to-talk or auto-listen modes
+  - **Read Aloud** - TTS accessibility features
+    - Mini player with playback controls
+    - Speed adjustment (0.5x - 2.0x)
+    - Sentence-by-sentence navigation
+    - Voice selection
+    - Floating action button integration
+  - **Fully Offline** - All audio processing runs locally
 
 ### **Notes & Documents**
 - **Rich Markdown Editor** - Create beautiful formatted documents with AppFlowy Editor
@@ -435,7 +484,7 @@ A fully-featured web browser built into Kivixa for seamless research and referen
 ### Prerequisites
 
 - [Flutter](https://flutter.dev/docs/get-started/install) 3.38.6 or higher
-- [Dart](https://dart.dev/get-dart) 3.10.7 or higher
+- [Dart](https://dart.dev/get-dart) 3.11.1 or higher
 - [Rust](https://rustup.rs/) (for building native code)
 - Platform-specific requirements:
   - **Windows**: Visual Studio 2026 with C++ desktop development, Vulkan SDK
@@ -570,6 +619,26 @@ Open to contributions from the community! Whether you're fixing bugs, adding fea
 For detailed guidelines, see [CONTRIBUTING](CONTRIBUTING.md).
 
 To report a new issue, use [Bug Report Template](.github/ISSUE_TEMPLATE/bug_report.md).
+
+---
+
+## AI Model Credits
+
+Kivixa's on-device AI support is built on top of model work from the following official organizations and distribution contributors:
+
+- **Microsoft** - Official creator of Phi model family used by **Phi-4 Mini** and **Phi-4 Mini Reasoning**
+- **Alibaba Cloud (Qwen Team)** - Official creator of Qwen model family used by **Qwen2.5 3B**, **Qwen3.5 Distilled** variants, and DeepSeek distill base architecture
+- **Google (Gemma Team)** - Official creator of Gemma model family used by **Gemma 2B**, **Gemma 3 4B IT**, and **Function Gemma** family
+- **DeepSeek-AI** - Official creator of the **DeepSeek-R1** reasoning family used for distill checkpoints
+- **Hugging Face TB (SmolLM Team)** - Official creator of **SmolLM2** model family
+- **Jackrong** - Distilled GGUF releases for:
+  - Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled v2
+  - Qwen3.5 2B Claude 4.6 Opus Reasoning Distilled
+  - Qwen3.5 0.8B Claude 4.6 Opus Reasoning Distilled
+- **Unsloth (GGUF distribution credit)** - Function Gemma, Phi-4 Mini Reasoning, and selected DeepSeek-R1-Distill GGUF distributions
+- **bartowski (GGUF distribution credit)** - Phi-4 Mini, Gemma 3 4B IT, DeepSeek-R1-Distill-Qwen-1.5B, and SmolLM2-1.7B-Instruct GGUF distributions
+
+We appreciate the upstream model creators and the open model packaging community that make high-quality on-device AI possible.
 
 ---
 

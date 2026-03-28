@@ -163,6 +163,20 @@ void main() {
           true,
         );
       });
+
+      test('should recommend expected model aliases for each category', () {
+        final service = MCPService.instance;
+
+        expect(service.getModelForTask(MCPTaskCategory.conversation), 'phi4');
+        expect(
+          service.getModelForTask(MCPTaskCategory.toolUse),
+          'functionGemma',
+        );
+        expect(
+          service.getModelForTask(MCPTaskCategory.codeGeneration),
+          'qwen3.5-4b',
+        );
+      });
     });
   });
 
@@ -177,7 +191,7 @@ void main() {
 
       test('should return correct displayName', () {
         expect(AIModelType.phi4.displayName, 'Phi-4 (Reasoning)');
-        expect(AIModelType.qwen.displayName, 'Qwen 2.5 (Code)');
+        expect(AIModelType.qwen.displayName, 'Qwen 3.5 Distilled (Code)');
         expect(AIModelType.functionGemma.displayName, 'Function Gemma (Tools)');
       });
 

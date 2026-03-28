@@ -3,7 +3,7 @@
 /// Automatically routes tasks to the appropriate AI model based on task type:
 /// - Phi-4: General conversation and reasoning
 /// - Function Gemma: Tool calling and function execution
-/// - Qwen: Code generation and programming tasks
+/// - Qwen (including Qwen3.5 distilled variants): Code and programming tasks
 ///
 /// The router analyzes user messages and selects the best model for the task.
 library;
@@ -23,7 +23,7 @@ enum AIModelType {
       case AIModelType.phi4:
         return 'Phi-4 (Reasoning)';
       case AIModelType.qwen:
-        return 'Qwen 2.5 (Code)';
+        return 'Qwen 3.5 Distilled (Code)';
       case AIModelType.functionGemma:
         return 'Function Gemma (Tools)';
     }
@@ -167,7 +167,8 @@ Only call tools when the user explicitly requests an action. For general questio
         return '''
 You are an expert coding assistant. Provide well-structured, documented code.
 Follow best practices and include comments explaining complex logic.
-When generating Lua scripts, ensure they are compatible with the sandbox environment.''';
+When generating Lua scripts, ensure they are compatible with the sandbox environment.
+Prioritize practical, production-ready code and concise explanations.''';
     }
   }
 
@@ -180,13 +181,39 @@ When generating Lua scripts, ensure they are compatible with the sandbox environ
   AIModelType _mapModelNameToType(String name) {
     switch (name.toLowerCase()) {
       case 'phi4':
+      case 'phi-4':
+      case 'phi4-mini-reasoning':
+      case 'phi4-mini-reasoning-q4km':
+      case 'phi4-mini-reasoning-q4_k_m':
         return AIModelType.phi4;
       case 'qwen':
+      case 'qwen3.5':
+      case 'qwen3.5-4b':
+      case 'qwen35':
+      case 'qwen35-4b':
+      case 'qwen35-4b-claude46-distilled-v2-q4km':
+      case 'qwen35-2b':
+      case 'qwen35-2b-claude46-distilled-q5km':
+      case 'qwen35-08b':
+      case 'qwen35-08b-claude46-distilled-q5km':
+      case 'qwen3.5-2b-claude-4.6-opus-reasoning-distilled':
+      case 'qwen3.5-0.8b-claude-4.6-opus-reasoning-distilled':
+      case 'deepseek-r1-distill-qwen-1.5b':
+      case 'deepseek-r1-distill-qwen-15b-q4km':
+      case 'smollm2':
+      case 'smollm2-1.7b':
+      case 'smollm2-1.7b-instruct':
+      case 'smollm2-17b-instruct-q4km':
         return AIModelType.qwen;
       case 'functiongemma':
       case 'function-gemma':
       case 'functionary': // Legacy support
         return AIModelType.functionGemma;
+      case 'gemma-3':
+      case 'gemma3':
+      case 'gemma-3-4b-it':
+      case 'gemma-3-4b-it-q4km':
+        return AIModelType.phi4;
       default:
         return AIModelType.phi4; // Default fallback
     }

@@ -433,7 +433,7 @@ class MCPService {
       case MCPTaskCategory.toolUse:
         return 'functionGemma';
       case MCPTaskCategory.codeGeneration:
-        return 'qwen';
+        return 'qwen3.5-4b';
     }
   }
 

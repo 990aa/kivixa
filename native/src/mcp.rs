@@ -810,7 +810,7 @@ pub enum TaskCategory {
     Conversation,
     /// Function/tool calling - use Functionary
     ToolUse,
-    /// Code generation - use Qwen
+    /// Code generation - use Qwen family (Qwen2.5/Qwen3.5)
     CodeGeneration,
 }
 
@@ -902,7 +902,7 @@ pub fn get_model_name_for_task(category: TaskCategory) -> &'static str {
     match category {
         TaskCategory::Conversation => "phi4",
         TaskCategory::ToolUse => "functionary",
-        TaskCategory::CodeGeneration => "qwen",
+        TaskCategory::CodeGeneration => "qwen3.5-4b",
     }
 }
 

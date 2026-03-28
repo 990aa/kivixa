@@ -2,11 +2,11 @@ name: kivixa
 description: A cross-platform notes app
 publish_to: 'none' 
 
-version: 0.2.0+2000
+version: 0.3.2+3002
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
-  flutter: ">=3.35.0"
+  flutter: ">=3.41.4"
 
 dependencies:
   flutter:
@@ -36,7 +36,7 @@ dependencies:
   regexed_validator: ^2.0.0+1
   flex_color_picker: ^3.4.1
   flutter_colorpicker: ^1.0.3
-  font_awesome_flutter: ^10.11.0
+  font_awesome_flutter: ^11.0.0
   flutter_svg: ^2.0.0+1
   defer_pointer: ^0.0.2
   permission_handler: ^12.0.0+1
@@ -68,9 +68,9 @@ dependencies:
   flutter_web_auth_2: ^5.0.0
   pdfrx: ^2.1.3
   path: ^1.9.1
-  stow: ^0.5.0
-  stow_plain: ^0.5.0
-  stow_secure: ^0.5.0
+  stow: ^0.6.0
+  stow_plain: ^0.6.0
+  stow_secure: ^0.6.0
   stow_codecs: ^1.4.0
   background_downloader: ^9.2.6
   markdown: ^7.2.2
@@ -80,7 +80,7 @@ dependencies:
   timezone: ^0.10.1
   syncfusion_flutter_calendar: ^32.1.19
   flutter_markdown_plus: ^1.0.5
-  flutter_smooth_markdown: ^0.6.1
+  flutter_smooth_markdown: ^0.7.1
   code_text_field: ^1.1.0
   flutter_highlight: ^0.7.0
   highlight: ^0.7.0
@@ -114,7 +114,7 @@ dev_dependencies:
   icons_launcher: ^3.0.0
   simplytranslate: ^2.0.1
   yaml: ^3.1.2
-  golden_screenshot: ^10.0.0
+  golden_screenshot: ^11.0.1
   path_provider_platform_interface: ^2.0.0
   plugin_platform_interface: ^2.0.0
   objectbox_generator: ^5.0.3

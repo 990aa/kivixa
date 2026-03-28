@@ -13,7 +13,6 @@ class AdaptiveCircularProgressIndicator extends CircularProgressIndicator {
     super.strokeAlign,
     super.constraints,
     super.trackGap,
-    super.year2023 = false,
     super.padding,
   }) : super.adaptive();
 

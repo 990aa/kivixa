@@ -1,0 +1,20 @@
+# Flutter Rust Bridge configuration for kivixa_audio
+# Audio Intelligence module: STT, TTS, VAD, and semantic audio indexing
+
+rust_input: crate::api
+
+dart_output: lib/src/rust_audio
+
+rust_root: native_audio
+
+# C output for FFI
+c_output: native_audio/frb_generated.h
+
+# Use different class name to avoid conflicts with other modules
+dart_entrypoint_class_name: AudioRustLib
+
+# Full dependency mode for better tree-shaking
+full_dep: true
+
+# Default async mode for dart operations
+default_dart_async: true

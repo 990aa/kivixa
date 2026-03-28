@@ -11,6 +11,53 @@ import 'package:kivixa/pages/home/ai_chat.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/model_manager.dart';
 
+/// Parsed assistant output with optional hidden reasoning text.
+class ParsedReasoningContent {
+  final String visibleContent;
+  final String? reasoningContent;
+
+  const ParsedReasoningContent({
+    required this.visibleContent,
+    this.reasoningContent,
+  });
+
+  bool get hasReasoning =>
+      reasoningContent != null && reasoningContent!.trim().isNotEmpty;
+}
+
+/// Extract `<think>...</think>` and `<thinking>...</thinking>` blocks so
+/// reasoning can be shown behind an expandable section.
+ParsedReasoningContent parseReasoningContent(String rawContent) {
+  final tagPattern = RegExp(
+    r'<(think|thinking)>([\s\S]*?)</\1>',
+    caseSensitive: false,
+  );
+
+  final matches = tagPattern.allMatches(rawContent).toList();
+  if (matches.isEmpty) {
+    return ParsedReasoningContent(visibleContent: rawContent.trim());
+  }
+
+  final reasoningParts = <String>[];
+  final withoutReasoning = rawContent.replaceAllMapped(tagPattern, (match) {
+    final reasoningChunk = match.group(2)?.trim() ?? '';
+    if (reasoningChunk.isNotEmpty) {
+      reasoningParts.add(reasoningChunk);
+    }
+    return '';
+  });
+
+  final cleanedVisible = withoutReasoning
+      .replaceAll(RegExp(r'\n{3,}'), '\n\n')
+      .trim();
+  final reasoning = reasoningParts.join('\n\n').trim();
+
+  return ParsedReasoningContent(
+    visibleContent: cleanedVisible,
+    reasoningContent: reasoning.isEmpty ? null : reasoning,
+  );
+}
+
 /// A single message in the chat
 class AIChatMessage {
   final String role;
@@ -633,6 +680,9 @@ class _ChatMessageBubble extends StatelessWidget {
     final iconSize = compact ? 14.0 : 18.0;
     final horizontalPadding = compact ? 10.0 : 16.0;
     final verticalPadding = compact ? 8.0 : 12.0;
+    final parsedContent = (!isUser && !message.isLoading)
+        ? parseReasoningContent(message.content)
+        : null;
 
     return Padding(
       padding: EdgeInsets.only(bottom: compact ? 8 : 12),
@@ -699,16 +749,24 @@ class _ChatMessageBubble extends StatelessWidget {
                         ),
                       ],
                     )
-                  else
-                    SelectableText(
-                      message.content,
-                      style: TextStyle(
-                        color: isUser
-                            ? colorScheme.onPrimaryContainer
-                            : colorScheme.onSurface,
-                        fontSize: compact ? 13 : null,
+                  else ...[
+                    if (parsedContent != null && parsedContent.hasReasoning)
+                      _ReasoningPanel(
+                        reasoningContent: parsedContent.reasoningContent!,
+                        compact: compact,
                       ),
-                    ),
+                    if (parsedContent == null ||
+                        parsedContent.visibleContent.isNotEmpty)
+                      SelectableText(
+                        parsedContent?.visibleContent ?? message.content,
+                        style: TextStyle(
+                          color: isUser
+                              ? colorScheme.onPrimaryContainer
+                              : colorScheme.onSurface,
+                          fontSize: compact ? 13 : null,
+                        ),
+                      ),
+                  ],
                   if (!message.isLoading && !isUser) ...[
                     SizedBox(height: compact ? 4 : 8),
                     Row(
@@ -756,6 +814,69 @@ class _ChatMessageBubble extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _ReasoningPanel extends StatelessWidget {
+  final String reasoningContent;
+  final bool compact;
+
+  const _ReasoningPanel({
+    required this.reasoningContent,
+    required this.compact,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(bottom: compact ? 6 : 8),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Theme(
+        data: theme.copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: EdgeInsets.symmetric(horizontal: compact ? 8 : 10),
+          childrenPadding: EdgeInsets.fromLTRB(
+            compact ? 10 : 12,
+            0,
+            compact ? 10 : 12,
+            compact ? 8 : 10,
+          ),
+          dense: compact,
+          visualDensity: VisualDensity.compact,
+          title: Text(
+            'Reasoning',
+            style: theme.textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          subtitle: Text(
+            'Tap to expand',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: SelectableText(
+                reasoningContent,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -226,7 +226,150 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.2.0] - 2026-01-31
 
+### Added
+- **Audio Intelligence Module** - Complete native Rust audio processing pipeline ("Ear" & "Voice"):
+  - **Speech-to-Text (STT)** - Whisper-based transcription engine
+    - Support for multiple Whisper model sizes (Tiny, Base, Small, Medium, Large)
+    - Real-time streaming transcription with timestamp tracking
+    - Word-level timestamps for semantic audio indexing
+    - Search through transcriptions by text content
+    - Language detection and multi-language support
+  - **Text-to-Speech (TTS)** - Kokoro neural speech synthesis
+    - Multiple voice styles (Default, Female, Male, Custom)
+    - Adjustable speech rate and pitch control
+    - High-quality 24kHz audio output
+    - Word boundary tracking for lip-sync applications
+    - Phoneme-level synthesis control
+  - **Voice Activity Detection (VAD)** - Silero-style voice detection
+    - Energy-based speech detection with adaptive thresholds
+    - Zero-crossing rate analysis for speech quality
+    - State machine for speech segment tracking
+    - Automatic noise floor calibration
+    - Configurable speech/silence duration thresholds
+  - **Audio Ring Buffer** - Streaming audio pipeline
+    - 30-second circular buffer optimized for Whisper
+    - Thread-safe audio capture and processing
+    - Support for raw bytes, i16, and f32 sample formats
+    - Automatic sample rate conversion (rubato)
+  - **Phonemizer** - Text-to-phoneme conversion
+    - English phoneme support (39 phonemes)
+    - Dictionary-based lookup with G2P fallback
+    - Number and abbreviation expansion
+    - Stress markers and syllable boundaries
+- **Native Audio Library** (`native_audio`) - New Rust library for audio processing:
+  - Thread-safe shared engine wrappers for concurrent access
+  - 90 comprehensive unit tests covering all modules
+  - Flutter Rust Bridge integration for Dart interop
+  - Cross-platform support (Windows, Android)
+- **Audio Build Script** - New `scripts/build_audio.ps1` with:
+  - Windows and Android cross-compilation
+  - Release/Debug build modes
+  - Flutter Rust Bridge code generation
+  - Automatic library copying to proper directories
+- **Audio Intelligence Frontend** - Complete Flutter UI components for audio features:
+  - **AudioNeuralEngine** - Central service managing STT, TTS, and VAD
+    - Singleton pattern for app-wide audio state
+    - Real-time transcription streaming with `SpeechRecognitionResult`
+    - Audio visualizer data streaming for waveforms
+    - VAD state tracking (silent, speaking, stopped)
+    - Configurable VAD threshold and voice selection
+  - **AudioRecordingService** - Microphone capture management
+    - Recording state machine (stopped, preparing, recording, paused, stopping)
+    - Configurable audio formats (Whisper 16kHz mono, High Quality 48kHz stereo)
+    - Raw audio data streaming for real-time processing
+    - Duration tracking
+  - **AudioPlaybackService** - Audio playback control
+    - Playback state management (stopped, loading, playing, paused, completed)
+    - Volume and speed control with clamping
+    - Position and duration tracking with streams
+  - **AudioWaveform** - Real-time audio visualizer widget
+    - Four visualization styles: Bars, Line, Circular, Orb
+    - Customizable colors and bar count
+    - Idle animation support
+    - External data stream support
+  - **NeuralDictationBar** - Smart keyboard accessory
+    - Text and Command dictation modes
+    - Live confidence indicator
+    - Auto-insert into TextEditingController
+    - Enable/disable command mode toggle
+  - **VoiceNoteBlock** - Voice memo recording and playback
+    - Karaoke-style transcript highlighting
+    - Search within transcripts
+    - Speaker identification support (via speakerId)
+    - Expandable transcript view
+  - **VoiceSearch** - Voice-powered search
+    - VoiceSearchButton for toolbar integration
+    - VoiceSearchModal with animated listening indicator
+    - Configurable idle/listening icons
+    - Real-time transcription preview
+  - **WalkieTalkieMode** - Hands-free AI conversation
+    - Full-screen immersive interface
+    - Dual animated orbs (user speaking, AI responding)
+    - Conversation turn history
+    - State machine (idle, listening, processing, responding, paused)
+  - **ReadAloud** - TTS accessibility features
+    - ReadAloudController with speed (0.5x-2.0x) and voice selection
+    - Sentence-by-sentence navigation
+    - ReadAloudMiniPlayer with collapsible UI
+    - ReadAloudAction for toolbar integration
+    - FloatingReadAloudButton for quick access
+    - MarkdownToolbarReadAloud integration for markdown editors
+- **Comprehensive Test Suite** - 9 test files with 101 passing tests:
+  - Unit tests for data models and enums
+  - Widget tests for all UI components
+  - Service integration tests
+  - Tests properly skip animations and native dependencies
+
 ### Changed
-- Version bump to 0.2.0
+- Updated README.md with expanded Audio Intelligence documentation
+- All audio components export via `lib/components/audio/audio_components.dart`
+- All audio services export via `lib/services/audio/audio_services.dart`
+
+---
+## [0.3.0] - 2026-03-28
+
+### Added
+- **New AI Models in Model Manager**:
+  - **Qwen3.5 4B Distilled v2** with category tagging and download metadata
+  - **Qwen3.5 2B Distilled** with category tagging and download metadata
+  - **Qwen3.5 0.8B Distilled** with category tagging and download metadata
+  - **Phi-4 Mini Reasoning** (Q4_K_M) with direct GGUF link and recommendations
+  - **Gemma 3 4B IT** (Q4_K_M) with category tagging and download metadata
+  - **DeepSeek R1 Distill Qwen 1.5B** (Q4_K_M) with reasoning-focused metadata
+  - **SmolLM2 1.7B Instruct** (Q4_K_M) with compact-device recommendations
+- **Model Selection Suggestions**: Added per-model recommendation text to help users decide which model to download.
+- **UI Enhancements for Model Catalog**:
+  - New reusable `ModelCatalogCard` component
+  - Short description display for model cards and setup download widget
+  - Suggestion banner shown inside each model card
+- **Reasoning Visibility Controls**:
+  - Added parsing for `<think>` / `<thinking>` blocks in assistant outputs
+  - Added collapsible reasoning panels in both standard chat and MCP chat interfaces
+- **Test Coverage**:
+  - Added widget tests for model card rendering and action state transitions
+  - Added non-network tests that validate download task construction and model link wiring
+  - Added parser tests for reasoning/thinking extraction behavior
+
+### Changed
+- Version bump to 0.3.0
+- Updated MCP code-generation model alias recommendation to Qwen3.5 (`qwen3.5-4b`) while preserving existing routing behavior.
+- Updated model router labels/aliases to recognize Qwen3.5 plus DeepSeek/SmolLM2/Gemma-3 naming variants.
+- Native inference now prefers model-provided llama.cpp chat templates (`apply_chat_template`) with model-aware legacy fallback formatting.
+- Updated native inference/mcp docs and tests to reflect expanded model-family detection and routing names.
+
+### Removed
+- Removed **Gemma 7B** from frontend model catalog and backend model metadata.
+
+---
+## [0.3.1] - 2026-03-28
+
+### Changed
+- Fix model version names for model selection
+
+---
+## [0.3.2] - 2026-03-28
+
+### Changed
+- Version bump to 0.3.2
 
 ---

@@ -44,20 +44,19 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-
-md_files/
-
 *target/
-build_windows_installer/
-
 *.cargo/
 *.so
 *.exe
-run_log.txt
-Run_logs/
 
 # Signing Keys
 *.jks
 *.keystore
 *.pfx
 *_key.txt
+
+APP PLANS
+build_windows_installer/
+rust_builder/windows/kivixa_audio.dll
+analyze*
+{tempDir.path}
