@@ -485,6 +485,38 @@ final kivixaVersion = KivixaVersion.fromNumber(buildNumber);
     return true;
   }
 
+  /// Update Windows installer terms version text
+  Future<bool> updateWindowsInstallerTerms() async {
+    const filePath = 'windows/installer/kivixa-installer.iss';
+    final file = File(filePath);
+
+    if (!await file.exists()) {
+      errors.add('$filePath not found');
+      return false;
+    }
+
+    var content = await file.readAsString();
+    final pattern = RegExp(
+      r"'Version:\s*[^']*'\s*\+\s*#13#10\s*\+\s*#13#10\s*\+",
+    );
+
+    if (!pattern.hasMatch(content)) {
+      errors.add('$filePath: Could not find terms version pattern');
+      return false;
+    }
+
+    content = content.replaceFirst(
+      pattern,
+      "'Version: ${version.versionString}' + #13#10 + #13#10 +",
+    );
+
+    if (!dryRun) {
+      await file.writeAsString(content);
+    }
+    updatedFiles.add(filePath);
+    return true;
+  }
+
   /// Update README.md version badges
   Future<bool> updateReadme() async {
     const filePath = 'README.md';
@@ -607,6 +639,7 @@ final kivixaVersion = KivixaVersion.fromNumber(buildNumber);
     await updateAndroidBuildGradle();
     await updateIOSPlist();
     await updateWindowsRunner();
+    await updateWindowsInstallerTerms();
     // README.md is now updated by publish_release.ps1 instead
     // await updateReadme();
     await updateChangelog();
@@ -667,6 +700,7 @@ Files Updated:
   • ios/Runner/Info.plist           - iOS version
   • macos/Runner/Info.plist         - macOS version
   • windows/runner/Runner.rc        - Windows version
+  • windows/installer/kivixa-installer.iss - Installer terms version
   • README.md                       - Version badges and download links
   • CHANGELOG.md                    - Version changelog entries
 ''');

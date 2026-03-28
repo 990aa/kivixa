@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:background_downloader/background_downloader.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -142,6 +143,7 @@ class AIModel {
   final String recommendation;
   final String url;
   final String fileName;
+  final List<String> alternateFileNames; // Backward/legacy filename support
   final int sizeBytes; // Expected size in bytes
   final String? sha256Hash; // Optional hash for verification
   final List<ModelCategory> categories; // Use cases for this model
@@ -156,6 +158,7 @@ class AIModel {
     this.recommendation = '',
     required this.url,
     required this.fileName,
+    this.alternateFileNames = const [],
     required this.sizeBytes,
     this.sha256Hash,
     this.categories = const [ModelCategory.general],
@@ -277,6 +280,9 @@ class ModelManager {
       url:
           'https://huggingface.co/Jackrong/Qwen3.5-4B-Claude-4.6-Opus-Reasoning-Distilled-v2-GGUF/resolve/main/Qwen3.5-4B.Q4_K_M.gguf',
       fileName: 'Qwen3.5-4B.Q4_K_M.gguf',
+      alternateFileNames: [
+        'Qwen3.5-4B-Claude-4.6-Opus-Reasoning-Distilled-v2.Q4_K_M.gguf',
+      ],
       sizeBytes: 2820000000, // ~2.63 GB
       categories: [
         ModelCategory.general,
@@ -302,6 +308,9 @@ class ModelManager {
       url:
           'https://huggingface.co/Jackrong/Qwen3.5-2B-Claude-4.6-Opus-Reasoning-Distilled-GGUF/resolve/main/Qwen3.5-2B.Q5_K_M.gguf',
       fileName: 'Qwen3.5-2B.Q5_K_M.gguf',
+      alternateFileNames: [
+        'Qwen3.5-2B-Claude-4.6-Opus-Reasoning-Distilled.Q5_K_M.gguf',
+      ],
       sizeBytes: 1620000000, // ~1.51 GB
       categories: [
         ModelCategory.general,
@@ -326,6 +335,9 @@ class ModelManager {
       url:
           'https://huggingface.co/Jackrong/Qwen3.5-0.8B-Claude-4.6-Opus-Reasoning-Distilled-GGUF/resolve/main/Qwen3.5-0.8B.Q5_K_M.gguf',
       fileName: 'Qwen3.5-0.8B.Q5_K_M.gguf',
+      alternateFileNames: [
+        'Qwen3.5-0.8B-Claude-4.6-Opus-Reasoning-Distilled.Q5_K_M.gguf',
+      ],
       sizeBytes: 760000000, // ~725 MB
       categories: [
         ModelCategory.general,
@@ -557,21 +569,12 @@ class ModelManager {
     _isInitialized = true;
   }
 
-  /// Returns the directory where models are stored.
-  /// On Android: /storage/emulated/0/Android/data/com.kivixa.app/files/models
-  /// On Windows/macOS/Linux: Application support directory/models
+  /// Returns the canonical directory where models are stored.
+  ///
+  /// Downloads are written to application support by `DownloadTask`
+  /// (`BaseDirectory.applicationSupport`).
   Future<Directory> getModelsDirectory() async {
-    Directory baseDir;
-    if (Platform.isAndroid) {
-      // Use external storage on Android for easier access
-      final externalDir = await getExternalStorageDirectory();
-      baseDir = externalDir ?? await getApplicationSupportDirectory();
-    } else {
-      // Use application support directory on desktop
-      baseDir = await getApplicationSupportDirectory();
-    }
-    // Note: Don't add 'kivixa' subdirectory - getApplicationSupportDirectory
-    // already includes the app-specific folder
+    final baseDir = await getApplicationSupportDirectory();
     final modelsDir = Directory(
       '${baseDir.path}${Platform.pathSeparator}models',
     );
@@ -582,9 +585,97 @@ class ModelManager {
     return modelsDir;
   }
 
+  Future<List<Directory>> _getModelSearchDirectories() async {
+    final dirs = <Directory>[];
+
+    final appSupportDir = await getApplicationSupportDirectory();
+    dirs.add(Directory('${appSupportDir.path}${Platform.pathSeparator}models'));
+
+    if (Platform.isAndroid) {
+      final externalDir = await getExternalStorageDirectory();
+      if (externalDir != null) {
+        final androidExternal = Directory(
+          '${externalDir.path}${Platform.pathSeparator}models',
+        );
+        if (androidExternal.path != dirs.first.path) {
+          dirs.add(androidExternal);
+        }
+      }
+    }
+
+    return dirs;
+  }
+
+  Set<String> _buildCandidateFileNames(AIModel model) {
+    final candidates = <String>{model.fileName, ...model.alternateFileNames};
+
+    final uriName = Uri.tryParse(model.url)?.pathSegments.isNotEmpty == true
+        ? Uri.decodeComponent(Uri.parse(model.url).pathSegments.last)
+        : null;
+    if (uriName != null && uriName.isNotEmpty) {
+      candidates.add(uriName);
+    }
+
+    return candidates.where((f) => f.trim().isNotEmpty).toSet();
+  }
+
+  @visibleForTesting
+  List<String> candidateFileNames([AIModel? model]) {
+    model ??= defaultModel;
+    return _buildCandidateFileNames(model).toList();
+  }
+
+  Future<String?> _findExistingModelPath(
+    AIModel model, {
+    bool requireSizeThreshold = true,
+  }) async {
+    final dirs = await _getModelSearchDirectories();
+    final candidates = _buildCandidateFileNames(model);
+    final normalizedCandidates = candidates.map((c) => c.toLowerCase()).toSet();
+
+    Future<bool> isValidFile(File file) async {
+      // ignore: avoid_slow_async_io
+      if (!await file.exists()) return false;
+      // ignore: avoid_slow_async_io
+      final stat = await file.stat();
+      if (!requireSizeThreshold) return true;
+      return stat.size >= model.sizeBytes * 0.9;
+    }
+
+    for (final dir in dirs) {
+      // Fast exact-name checks first
+      for (final name in candidates) {
+        final file = File('${dir.path}${Platform.pathSeparator}$name');
+        if (await isValidFile(file)) {
+          return file.path;
+        }
+      }
+
+      // Case-insensitive fallback scan
+      // ignore: avoid_slow_async_io
+      if (!await dir.exists()) {
+        continue;
+      }
+
+      await for (final entity in dir.list(followLinks: false)) {
+        if (entity is! File) continue;
+        final fileName = p.basename(entity.path).toLowerCase();
+        if (!normalizedCandidates.contains(fileName)) continue;
+        if (await isValidFile(entity)) {
+          return entity.path;
+        }
+      }
+    }
+
+    return null;
+  }
+
   /// Returns the full local path for a specific model
   Future<String> getModelPath([AIModel? model]) async {
     model ??= defaultModel;
+    final existingPath = await _findExistingModelPath(model);
+    if (existingPath != null) return existingPath;
+
     final modelsDir = await getModelsDirectory();
     return '${modelsDir.path}${Platform.pathSeparator}${model.fileName}';
   }
@@ -592,26 +683,19 @@ class ModelManager {
   /// Checks if a model exists locally
   Future<bool> isModelDownloaded([AIModel? model]) async {
     model ??= defaultModel;
-    final path = await getModelPath(model);
-    final file = File(path);
-    // ignore: avoid_slow_async_io
-    if (!await file.exists()) return false;
-
-    // Verify file size (at least 90% of expected to account for compression differences)
-    // ignore: avoid_slow_async_io
-    final stat = await file.stat();
-    return stat.size >= model.sizeBytes * 0.9;
+    return await _findExistingModelPath(model) != null;
   }
 
   /// Get the size of a partially downloaded model (for resume info)
   Future<int> getPartialDownloadSize([AIModel? model]) async {
     model ??= defaultModel;
-    final path = await getModelPath(model);
-    final file = File(path);
+    final existingPath = await _findExistingModelPath(
+      model,
+      requireSizeThreshold: false,
+    );
+    if (existingPath == null) return 0;
     // ignore: avoid_slow_async_io
-    if (!await file.exists()) return 0;
-    // ignore: avoid_slow_async_io
-    final stat = await file.stat();
+    final stat = await File(existingPath).stat();
     return stat.size;
   }
 
@@ -712,11 +796,28 @@ class ModelManager {
   /// Deletes a downloaded model
   Future<void> deleteModel([AIModel? model]) async {
     model ??= defaultModel;
-    final path = await getModelPath(model);
-    final file = File(path);
-    // ignore: avoid_slow_async_io
-    if (await file.exists()) {
-      await file.delete();
+    final directories = await _getModelSearchDirectories();
+    final candidates = _buildCandidateFileNames(model);
+    final normalizedCandidates = candidates.map((c) => c.toLowerCase()).toSet();
+
+    for (final dir in directories) {
+      for (final name in candidates) {
+        final file = File('${dir.path}${Platform.pathSeparator}$name');
+        // ignore: avoid_slow_async_io
+        if (await file.exists()) {
+          await file.delete();
+        }
+      }
+
+      // ignore: avoid_slow_async_io
+      if (!await dir.exists()) continue;
+      await for (final entity in dir.list(followLinks: false)) {
+        if (entity is! File) continue;
+        final fileName = p.basename(entity.path).toLowerCase();
+        if (normalizedCandidates.contains(fileName)) {
+          await entity.delete();
+        }
+      }
     }
     _updateProgress(
       const ModelDownloadProgress(state: ModelDownloadState.notDownloaded),
