@@ -104,6 +104,25 @@ void main() {
       expect(parsed.reasoningContent, isNull);
       expect(parsed.visibleContent, raw);
     });
+
+    test('parses Qwen 3.5 Claude-distilled reasoning tags', () {
+      const raw =
+          '<think>Analyze constraints and choose plan.</think>\nFinal implementation summary.';
+      final parsed = parseReasoningContent(raw);
+
+      expect(parsed.hasReasoning, true);
+      expect(parsed.reasoningContent, 'Analyze constraints and choose plan.');
+      expect(parsed.visibleContent, 'Final implementation summary.');
+    });
+
+    test('parses Phi-4 mini reasoning tags', () {
+      const raw = '<thinking>step A -> step B</thinking>\nAnswer for user.';
+      final parsed = parseReasoningContent(raw);
+
+      expect(parsed.hasReasoning, true);
+      expect(parsed.reasoningContent, 'step A -> step B');
+      expect(parsed.visibleContent, 'Answer for user.');
+    });
   });
 
   // Skip AIChatController tests as they require platform plugins
