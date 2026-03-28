@@ -626,6 +626,10 @@ mod tests {
             ModelType::Qwen
         );
         assert_eq!(
+            detect_model_type("/path/to/Qwen3.5-2B.Q5_K_M.gguf"),
+            ModelType::Qwen
+        );
+        assert_eq!(
             detect_model_type("/path/to/Qwen3.5-0.8B.Q5_K_M.gguf"),
             ModelType::Qwen
         );

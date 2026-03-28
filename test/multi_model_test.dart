@@ -135,22 +135,25 @@ void main() {
       );
     });
 
-    test('code category includes Qwen family, Gemma, and compact additions', () {
-      final models = ModelManager.getModelsForCategory(ModelCategory.code);
+    test(
+      'code category includes Qwen family, Gemma, and compact additions',
+      () {
+        final models = ModelManager.getModelsForCategory(ModelCategory.code);
 
-      expect(models.any((m) => m.id == 'qwen25-3b-q4km'), true);
-      expect(
-        models.any((m) => m.id == 'qwen35-08b-claude46-distilled-q5km'),
-        true,
-      );
-      expect(models.any((m) => m.id == 'gemma-2b'), true);
-      expect(models.any((m) => m.id == 'gemma-3-4b-it-q4km'), true);
-      expect(
-        models.any((m) => m.id == 'deepseek-r1-distill-qwen-15b-q4km'),
-        true,
-      );
-      expect(models.any((m) => m.id == 'smollm2-17b-instruct-q4km'), true);
-    });
+        expect(models.any((m) => m.id == 'qwen25-3b-q4km'), true);
+        expect(
+          models.any((m) => m.id == 'qwen35-08b-claude46-distilled-q5km'),
+          true,
+        );
+        expect(models.any((m) => m.id == 'gemma-2b'), true);
+        expect(models.any((m) => m.id == 'gemma-3-4b-it-q4km'), true);
+        expect(
+          models.any((m) => m.id == 'deepseek-r1-distill-qwen-15b-q4km'),
+          true,
+        );
+        expect(models.any((m) => m.id == 'smollm2-17b-instruct-q4km'), true);
+      },
+    );
 
     test('Strongest category contains requested four reasoning models', () {
       final strongest = ModelManager.getModelsForCategory(
@@ -193,15 +196,9 @@ void main() {
       );
 
       expect(qwen4b, isNotNull);
-      expect(
-        qwen4b!.name,
-        'Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled v2',
-      );
+      expect(qwen4b!.name, 'Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled v2');
       expect(qwen2b, isNotNull);
-      expect(
-        qwen2b!.name,
-        'Qwen3.5 2B Claude 4.6 Opus Reasoning Distilled',
-      );
+      expect(qwen2b!.name, 'Qwen3.5 2B Claude 4.6 Opus Reasoning Distilled');
     });
 
     test('all model IDs and filenames are unique', () {
