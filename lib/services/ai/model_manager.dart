@@ -42,7 +42,10 @@ enum ModelCategory {
   math('Math / LaTeX', 'Specialized for mathematical reasoning'),
 
   /// Code generation, especially Lua
-  code('Code Generation', 'Optimized for programming tasks');
+  code('Code Generation', 'Optimized for programming tasks'),
+
+  /// Highest-quality reasoning models for best results
+  strongest('Strongest', 'Top-tier reasoning and output quality models');
 
   final String displayName;
   final String description;
@@ -143,6 +146,7 @@ class AIModel {
   final String? sha256Hash; // Optional hash for verification
   final List<ModelCategory> categories; // Use cases for this model
   final bool isDefault; // Whether this is the default model
+  final bool isReasoningModel; // Whether model frequently emits <think> traces
 
   const AIModel({
     required this.id,
@@ -156,6 +160,7 @@ class AIModel {
     this.sha256Hash,
     this.categories = const [ModelCategory.general],
     this.isDefault = false,
+    this.isReasoningModel = false,
   });
 
   /// Human-readable size string
@@ -231,7 +236,9 @@ class ModelManager {
         ModelCategory.general,
         ModelCategory.math,
         ModelCategory.code,
+        ModelCategory.strongest,
       ],
+      isReasoningModel: true,
     ),
 
     // Qwen2.5-3B - Writing and Code
@@ -259,7 +266,7 @@ class ModelManager {
     // Qwen3.5 4B Distilled v2 - Strongest quality among distilled Qwen options
     AIModel(
       id: 'qwen35-4b-claude46-distilled-v2-q4km',
-      name: 'Qwen3.5 4B Distilled v2',
+      name: 'Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled v2',
       shortDescription:
           'Best quality in the Qwen3.5 distilled set for deep reasoning and code.',
       description:
@@ -276,13 +283,15 @@ class ModelManager {
         ModelCategory.writing,
         ModelCategory.code,
         ModelCategory.math,
+        ModelCategory.strongest,
       ],
+      isReasoningModel: true,
     ),
 
     // Qwen3.5 2B Distilled - Balanced speed and quality
     AIModel(
       id: 'qwen35-2b-claude46-distilled-q5km',
-      name: 'Qwen3.5 2B Distilled',
+      name: 'Qwen3.5 2B Claude 4.6 Opus Reasoning Distilled',
       shortDescription:
           'Balanced Qwen3.5 distilled model for quality and speed on mid-range devices.',
       description:
@@ -298,13 +307,15 @@ class ModelManager {
         ModelCategory.general,
         ModelCategory.writing,
         ModelCategory.code,
+        ModelCategory.strongest,
       ],
+      isReasoningModel: true,
     ),
 
     // Qwen3.5 0.8B Distilled - Smallest Qwen3.5 distilled option
     AIModel(
       id: 'qwen35-08b-claude46-distilled-q5km',
-      name: 'Qwen3.5 0.8B Distilled',
+      name: 'Qwen3.5 0.8B Claude 4.6 Opus Reasoning Distilled',
       shortDescription:
           'Small and fast Qwen3.5 distilled model for constrained devices.',
       description:
@@ -320,7 +331,9 @@ class ModelManager {
         ModelCategory.general,
         ModelCategory.writing,
         ModelCategory.code,
+        ModelCategory.strongest,
       ],
+      isReasoningModel: true,
     ),
 
     // DeepSeek R1 Distill Qwen 1.5B - compact reasoning model

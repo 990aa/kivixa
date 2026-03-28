@@ -192,6 +192,12 @@ Prioritize practical, production-ready code and concise explanations.''';
       case 'qwen35':
       case 'qwen35-4b':
       case 'qwen35-4b-claude46-distilled-v2-q4km':
+      case 'qwen35-2b':
+      case 'qwen35-2b-claude46-distilled-q5km':
+      case 'qwen35-08b':
+      case 'qwen35-08b-claude46-distilled-q5km':
+      case 'qwen3.5-2b-claude-4.6-opus-reasoning-distilled':
+      case 'qwen3.5-0.8b-claude-4.6-opus-reasoning-distilled':
       case 'deepseek-r1-distill-qwen-1.5b':
       case 'deepseek-r1-distill-qwen-15b-q4km':
       case 'smollm2':
