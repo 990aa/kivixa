@@ -1155,11 +1155,15 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
             children: [
               Icon(Icons.download, color: colorScheme.primary, size: 20),
               const SizedBox(width: 12),
-              Text(
-                'Download More Models',
-                style: TextStyle(
-                  color: colorScheme.primary,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  'Download More Models',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
