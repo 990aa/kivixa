@@ -372,5 +372,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Implement ChatInferenceGateway and ChatModelGateway interfaces with corresponding gateway classes
 - Streamline position calculation in _ModelSwitcherChipState
+- Update icon types to IconData and refine test gateway implementation
 
 ---
