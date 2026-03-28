@@ -656,7 +656,7 @@ void main() {
       const hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
       final minute = time.minute.toString().padLeft(2, '0');
       const period = time.period == DayPeriod.am ? 'AM' : 'PM';
-      final formatted = '$hour:$minute $period';
+      const formatted = '$hour:$minute $period';
 
       expect(formatted, '9:30 AM');
     });
@@ -666,7 +666,7 @@ void main() {
       const hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
       final minute = time.minute.toString().padLeft(2, '0');
       const period = time.period == DayPeriod.am ? 'AM' : 'PM';
-      final formatted = '$hour:$minute $period';
+      const formatted = '$hour:$minute $period';
 
       expect(formatted, '3:45 PM');
     });
@@ -676,7 +676,7 @@ void main() {
       const hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
       final minute = time.minute.toString().padLeft(2, '0');
       const period = time.period == DayPeriod.am ? 'AM' : 'PM';
-      final formatted = '$hour:$minute $period';
+      const formatted = '$hour:$minute $period';
 
       expect(formatted, '12:00 AM');
     });
@@ -686,7 +686,7 @@ void main() {
       const hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
       final minute = time.minute.toString().padLeft(2, '0');
       const period = time.period == DayPeriod.am ? 'AM' : 'PM';
-      final formatted = '$hour:$minute $period';
+      const formatted = '$hour:$minute $period';
 
       expect(formatted, '12:00 PM');
     });
