@@ -324,15 +324,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated README.md with expanded Audio Intelligence documentation
 - All audio components export via `lib/components/audio/audio_components.dart`
 - All audio services export via `lib/services/audio/audio_services.dart`
-## [1.0.0] - 2026-03-28
-
-### Changed
-- Version bump to 1.0.0
 
 ---
 ## [0.3.0] - 2026-03-28
 
+### Added
+- **New AI Models in Model Manager**:
+  - **Qwen3.5 4B Distilled v2** with category tagging and download metadata
+  - **Qwen3.5 2B Distilled** with category tagging and download metadata
+  - **Qwen3.5 0.8B Distilled** with category tagging and download metadata
+- **Model Selection Suggestions**: Added per-model recommendation text to help users decide which model to download.
+- **UI Enhancements for Model Catalog**:
+  - New reusable `ModelCatalogCard` component
+  - Short description display for model cards and setup download widget
+  - Suggestion banner shown inside each model card
+- **Test Coverage**:
+  - Added widget tests for model card rendering and action state transitions
+  - Added non-network tests that validate download task construction and model link wiring
+
 ### Changed
 - Version bump to 0.3.0
+- Updated MCP code-generation model alias recommendation to Qwen3.5 (`qwen3.5-4b`) while preserving existing routing behavior.
+- Updated model router labels/aliases to recognize Qwen3.5 naming and map it to existing Qwen inference path.
+- Updated native inference/mcp docs and tests to reflect Qwen-family detection and routing names.
+
+### Removed
+- Removed **Gemma 7B** from frontend model catalog and backend model metadata.
 
 ---
