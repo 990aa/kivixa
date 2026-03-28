@@ -324,4 +324,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated README.md with expanded Audio Intelligence documentation
 - All audio components export via `lib/components/audio/audio_components.dart`
 - All audio services export via `lib/services/audio/audio_services.dart`
+## [1.0.0] - 2026-03-28
 
+### Changed
+- Version bump to 1.0.0
+
+---
+## [0.3.0] - 2026-03-28
+
+### Changed
+- Version bump to 0.3.0
+
+---
