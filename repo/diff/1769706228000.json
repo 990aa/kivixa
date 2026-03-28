@@ -1,13 +1,190 @@
 {
   "repo": {
-    "timestamp": 1769869570000
+    "timestamp": 1774709063000
   },
   "packages": {
     "com.a990aa.kivixa": {
       "metadata": {
-        "lastUpdated": 1769869570000
+        "lastUpdated": 1774709063000
       },
       "versions": {
+        "ac17de7dd4cc54a2142259da18722e595f71ca897737eb24a81972f2ca91c4a6": {
+          "added": 1774709063000,
+          "file": {
+            "name": "/Kivixa-Android-0.3.0-x86_64.apk",
+            "sha256": "ac17de7dd4cc54a2142259da18722e595f71ca897737eb24a81972f2ca91c4a6",
+            "size": 79779796
+          },
+          "manifest": {
+            "nativecode": [
+              "x86_64"
+            ],
+            "versionName": "0.3.0",
+            "versionCode": 30003,
+            "usesSdk": {
+              "minSdkVersion": 24,
+              "targetSdkVersion": 36
+            },
+            "signer": {
+              "sha256": [
+                "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512"
+              ]
+            },
+            "usesPermission": [
+              {
+                "name": "android.permission.INTERNET"
+              },
+              {
+                "name": "android.permission.WRITE_EXTERNAL_STORAGE"
+              },
+              {
+                "name": "android.permission.READ_EXTERNAL_STORAGE"
+              },
+              {
+                "name": "android.permission.REQUEST_INSTALL_PACKAGES"
+              },
+              {
+                "name": "android.permission.POST_NOTIFICATIONS"
+              },
+              {
+                "name": "android.permission.WAKE_LOCK"
+              },
+              {
+                "name": "android.permission.ACCESS_NETWORK_STATE"
+              },
+              {
+                "name": "android.permission.RECEIVE_BOOT_COMPLETED"
+              },
+              {
+                "name": "android.permission.FOREGROUND_SERVICE"
+              },
+              {
+                "name": "android.permission.VIBRATE"
+              },
+              {
+                "name": "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+              }
+            ]
+          }
+        },
+        "366276f96e0b2818aa6725b959bf6cbd544332ec0c1de6661d303357e1b6cec1": {
+          "added": 1774709062000,
+          "file": {
+            "name": "/Kivixa-Android-0.3.0-arm64.apk",
+            "sha256": "366276f96e0b2818aa6725b959bf6cbd544332ec0c1de6661d303357e1b6cec1",
+            "size": 73762064
+          },
+          "manifest": {
+            "nativecode": [
+              "arm64-v8a"
+            ],
+            "versionName": "0.3.0",
+            "versionCode": 30002,
+            "usesSdk": {
+              "minSdkVersion": 24,
+              "targetSdkVersion": 36
+            },
+            "signer": {
+              "sha256": [
+                "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512"
+              ]
+            },
+            "usesPermission": [
+              {
+                "name": "android.permission.INTERNET"
+              },
+              {
+                "name": "android.permission.WRITE_EXTERNAL_STORAGE"
+              },
+              {
+                "name": "android.permission.READ_EXTERNAL_STORAGE"
+              },
+              {
+                "name": "android.permission.REQUEST_INSTALL_PACKAGES"
+              },
+              {
+                "name": "android.permission.POST_NOTIFICATIONS"
+              },
+              {
+                "name": "android.permission.WAKE_LOCK"
+              },
+              {
+                "name": "android.permission.ACCESS_NETWORK_STATE"
+              },
+              {
+                "name": "android.permission.RECEIVE_BOOT_COMPLETED"
+              },
+              {
+                "name": "android.permission.FOREGROUND_SERVICE"
+              },
+              {
+                "name": "android.permission.VIBRATE"
+              },
+              {
+                "name": "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+              }
+            ]
+          }
+        },
+        "3bb2a38a7327f02a69fce8def8621e4e58f1c6ac996a27ec4f52b5c3436bd112": {
+          "added": 1774709063000,
+          "file": {
+            "name": "/Kivixa-Android-0.3.0-armv7.apk",
+            "sha256": "3bb2a38a7327f02a69fce8def8621e4e58f1c6ac996a27ec4f52b5c3436bd112",
+            "size": 68007072
+          },
+          "manifest": {
+            "nativecode": [
+              "armeabi-v7a"
+            ],
+            "versionName": "0.3.0",
+            "versionCode": 30001,
+            "usesSdk": {
+              "minSdkVersion": 24,
+              "targetSdkVersion": 36
+            },
+            "signer": {
+              "sha256": [
+                "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512"
+              ]
+            },
+            "usesPermission": [
+              {
+                "name": "android.permission.INTERNET"
+              },
+              {
+                "name": "android.permission.WRITE_EXTERNAL_STORAGE"
+              },
+              {
+                "name": "android.permission.READ_EXTERNAL_STORAGE"
+              },
+              {
+                "name": "android.permission.REQUEST_INSTALL_PACKAGES"
+              },
+              {
+                "name": "android.permission.POST_NOTIFICATIONS"
+              },
+              {
+                "name": "android.permission.WAKE_LOCK"
+              },
+              {
+                "name": "android.permission.ACCESS_NETWORK_STATE"
+              },
+              {
+                "name": "android.permission.RECEIVE_BOOT_COMPLETED"
+              },
+              {
+                "name": "android.permission.FOREGROUND_SERVICE"
+              },
+              {
+                "name": "android.permission.VIBRATE"
+              },
+              {
+                "name": "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+              }
+            ]
+          }
+        },
         "cdc50db914cbf4137fe400b108ee6f93b7925e28bd6e8b57a5bfa9a87801aa9a": {
           "added": 1769869570000,
           "file": {
