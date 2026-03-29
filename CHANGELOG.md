@@ -399,3 +399,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version bump to 0.3.5
 
 ---
+## [0.3.6] - 2026-03-29
+
+### Changed
+- Version bump to 0.3.6
+
+---
