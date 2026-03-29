@@ -283,7 +283,7 @@ class ModelManager {
       alternateFileNames: [
         'Qwen3.5-4B-Claude-4.6-Opus-Reasoning-Distilled-v2.Q4_K_M.gguf',
       ],
-      sizeBytes: 2820000000, // ~2.63 GB
+      sizeBytes: 2708800320, // ~2.52 GB
       categories: [
         ModelCategory.general,
         ModelCategory.writing,
@@ -311,7 +311,7 @@ class ModelManager {
       alternateFileNames: [
         'Qwen3.5-2B-Claude-4.6-Opus-Reasoning-Distilled.Q5_K_M.gguf',
       ],
-      sizeBytes: 1620000000, // ~1.51 GB
+      sizeBytes: 1424764864, // ~1.33 GB
       categories: [
         ModelCategory.general,
         ModelCategory.writing,
@@ -338,7 +338,7 @@ class ModelManager {
       alternateFileNames: [
         'Qwen3.5-0.8B-Claude-4.6-Opus-Reasoning-Distilled.Q5_K_M.gguf',
       ],
-      sizeBytes: 760000000, // ~725 MB
+      sizeBytes: 584818624, // ~558 MB
       categories: [
         ModelCategory.general,
         ModelCategory.writing,

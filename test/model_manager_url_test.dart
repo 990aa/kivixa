@@ -73,6 +73,46 @@ void main() {
       expect(qwen08b.fileName, 'Qwen3.5-0.8B.Q5_K_M.gguf');
     });
 
+    test(
+      'Qwen3.5 expected sizes match hosted artifacts for download detection',
+      () {
+        final qwen4b = ModelManager.getModelById(
+          'qwen35-4b-claude46-distilled-v2-q4km',
+        )!;
+        final qwen2b = ModelManager.getModelById(
+          'qwen35-2b-claude46-distilled-q5km',
+        )!;
+        final qwen08b = ModelManager.getModelById(
+          'qwen35-08b-claude46-distilled-q5km',
+        )!;
+
+        // Verified from current Hugging Face Content-Length headers.
+        expect(qwen4b.sizeBytes, 2708800320);
+        expect(qwen2b.sizeBytes, 1424764864);
+        expect(qwen08b.sizeBytes, 584818624);
+      },
+    );
+
+    test('Qwen3.5 sizes satisfy the 90% downloaded threshold check', () {
+      final qwen4b = ModelManager.getModelById(
+        'qwen35-4b-claude46-distilled-v2-q4km',
+      )!;
+      final qwen2b = ModelManager.getModelById(
+        'qwen35-2b-claude46-distilled-q5km',
+      )!;
+      final qwen08b = ModelManager.getModelById(
+        'qwen35-08b-claude46-distilled-q5km',
+      )!;
+
+      const qwen4bActualBytes = 2708800320;
+      const qwen2bActualBytes = 1424764864;
+      const qwen08bActualBytes = 584818624;
+
+      expect(qwen4bActualBytes >= (qwen4b.sizeBytes * 0.9).ceil(), isTrue);
+      expect(qwen2bActualBytes >= (qwen2b.sizeBytes * 0.9).ceil(), isTrue);
+      expect(qwen08bActualBytes >= (qwen08b.sizeBytes * 0.9).ceil(), isTrue);
+    });
+
     test('newly requested model links and filenames are exact', () {
       final phiReasoning = ModelManager.getModelById(
         'phi4-mini-reasoning-q4km',
@@ -165,7 +205,9 @@ void main() {
         expect(qwen2bCandidates, contains('Qwen3.5-2B.Q5_K_M.gguf'));
         expect(
           qwen2bCandidates,
-          contains('Qwen3.5-2B-Claude-4.6-Opus-Reasoning-Distilled.Q5_K_M.gguf'),
+          contains(
+            'Qwen3.5-2B-Claude-4.6-Opus-Reasoning-Distilled.Q5_K_M.gguf',
+          ),
         );
 
         expect(qwen08bCandidates, contains('Qwen3.5-0.8B.Q5_K_M.gguf'));
