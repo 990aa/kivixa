@@ -10,19 +10,19 @@
     "--pretty"
   ],
   "disabled": [],
-  "endTimestamp": 1774714826142,
+  "endTimestamp": 1774759767372,
   "failedBuilds": {},
   "fdroiddata": {
-    "commitId": "c99f494ec4f37e998b0879271d31195e8dcdc69c",
+    "commitId": "5596fe51ee4211da3b00e6a09a73a999724dde94",
     "isDirty": false,
     "modifiedFiles": [],
     "untrackedFiles": [
-      "fdroid-apks/Kivixa-Android-0.3.1-arm64.apk",
-      "fdroid-apks/Kivixa-Android-0.3.1-armv7.apk",
-      "fdroid-apks/Kivixa-Android-0.3.1-x86_64.apk",
-      "repo/Kivixa-Android-0.3.1-arm64.apk",
-      "repo/Kivixa-Android-0.3.1-armv7.apk",
-      "repo/Kivixa-Android-0.3.1-x86_64.apk"
+      "fdroid-apks/Kivixa-Android-0.3.3-arm64.apk",
+      "fdroid-apks/Kivixa-Android-0.3.3-armv7.apk",
+      "fdroid-apks/Kivixa-Android-0.3.3-x86_64.apk",
+      "repo/Kivixa-Android-0.3.3-arm64.apk",
+      "repo/Kivixa-Android-0.3.3-armv7.apk",
+      "repo/Kivixa-Android-0.3.3-x86_64.apk"
     ]
   },
   "jarsigner": "/usr/bin/jarsigner",
@@ -37,14 +37,14 @@
     "com.a990aa.kivixa"
   ],
   "stages": {
-    "delete_disabled_builds": 1774714809840,
-    "index.make repo": 1774714822476,
-    "prepare_apps repo": 1774714822475,
-    "process_apks": 1774714809840,
-    "read_added_date_from_all_apks": 1774714822475,
-    "remove_apks": 1774714822473,
-    "scan_repo_files": 1774714822472
+    "delete_disabled_builds": 1774759747816,
+    "index.make repo": 1774759763193,
+    "prepare_apps repo": 1774759763192,
+    "process_apks": 1774759747816,
+    "read_added_date_from_all_apks": 1774759763192,
+    "remove_apks": 1774759763190,
+    "scan_repo_files": 1774759763189
   },
-  "startTimestamp": 1774714801000,
+  "startTimestamp": 1774759737000,
   "subcommand": "update"
 }
