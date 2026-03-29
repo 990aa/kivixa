@@ -23,5 +23,5 @@ class Highlighter extends Pen {
 
   static Pen currentHighlighter = Highlighter();
 
-  static const IconData highlighterIcon = FontAwesomeIcons.highlighter;
+  static const FaIconData highlighterIcon = FontAwesomeIcons.highlighter;
 }
