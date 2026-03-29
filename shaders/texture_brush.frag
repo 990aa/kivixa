@@ -29,3 +29,4 @@ void main() {
   // Output final color
   fragColor = vec4(tintedColor.rgb * uOpacity, finalAlpha);
 }
+

@@ -103,3 +103,4 @@ void main() {
     float opacity = easeInOutQuad(noise) * 0.7;
     fragColor = vec4(uColor * opacity, opacity);
 }
+
