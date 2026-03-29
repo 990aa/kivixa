@@ -1,0 +1,17 @@
+Kivixa is a modern cross-platform notes and productivity application built for speed and privacy.
+
+Features:
+
+- Rich Markdown Editor
+
+- Digital Canvas with pressure sensitivity
+
+- On-Device AI with multi-model MCP support
+
+- Knowledge Graph visualization
+
+- PDF Integration
+
+- Productivity Clock with Pomodoro sessions
+
+- Math Module with high-performance Rust backend
