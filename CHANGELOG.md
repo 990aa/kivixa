@@ -395,7 +395,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.3.5] - 2026-03-29
 
-### Changed
-- Version bump to 0.3.5
+### Fix
+- Model loading for qwen 3.5 distilled models
 
 ---
