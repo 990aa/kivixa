@@ -1028,17 +1028,23 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
   }
 
   void _showModelMenu() async {
+    if (!mounted) return;
+
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final messenger = ScaffoldMessenger.of(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final renderBox = _chipKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    final overlay = Overlay.of(
+      context,
+      rootOverlay: true,
+    ).context.findRenderObject() as RenderBox?;
+    if (overlay == null) return;
+
     await _loadDownloadedModels();
 
     if (!mounted) return;
-    final buildContext = context;
-
-    final renderBox = _chipKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox == null) return;
-    final overlay =
-        Overlay.of(buildContext, rootOverlay: true).context.findRenderObject()
-            as RenderBox?;
-    if (overlay == null) return;
 
     final targetRect = Rect.fromPoints(
       renderBox.localToGlobal(Offset.zero, ancestor: overlay),
@@ -1048,13 +1054,11 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
       ),
     );
 
-    final theme = Theme.of(buildContext);
-    final colorScheme = theme.colorScheme;
     final currentModelId = widget.controller.loadedModelId;
 
     // Show menu
     final choice = await showMenu<String>(
-      context: buildContext,
+      context: navigator.context,
       useRootNavigator: true,
       position: RelativeRect.fromRect(targetRect, Offset.zero & overlay.size),
       items: [
@@ -1176,7 +1180,7 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
     if (choice != null) {
       if (choice == 'download_more') {
         if (!mounted) return;
-        Navigator.of(buildContext, rootNavigator: true)
+        navigator
             .push(
               MaterialPageRoute(
                 builder: (context) => const ModelSelectionPage(),
@@ -1194,7 +1198,7 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
 
         final success = await widget.controller.switchModel(model);
         if (!success && mounted) {
-          ScaffoldMessenger.of(buildContext).showSnackBar(
+          messenger.showSnackBar(
             SnackBar(content: Text('Failed to switch to ${model.name}')),
           );
         }
