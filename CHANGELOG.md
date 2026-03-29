@@ -380,4 +380,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Version bump to 0.3.3
 
+### Fixed
+- Android release build failure caused by `SharedPreferencesPlugin` registration symbol mismatch in generated plugin registrant code.
+- Font Awesome icon type mismatches across pen/highlighter/pencil/shape-pen tools that broke release compilation.
+- Async context usage in AI chat model-switch menu flow (`use_build_context_synchronously`) by switching to state `mounted` checks.
+- Floating model switcher test warning for unused optional parameter in fake inference gateway.
+
 ---
