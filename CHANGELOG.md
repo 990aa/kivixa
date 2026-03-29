@@ -399,3 +399,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Model loading for qwen 3.5 distilled models
 
 ---
+## [0.3.6] - 2026-03-29
+
+### Fix
+- Fix floating hub to display model picker
+
+---
