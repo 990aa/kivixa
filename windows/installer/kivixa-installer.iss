@@ -70,7 +70,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ; Core Application Files
 Source: "{#BuildDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; WebView2 Runtime bootstrapper
-; Source: "Evergreen Bootstrapper\MicrosoftEdgeWebview2Setup.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "Evergreen Bootstrapper\MicrosoftEdgeWebview2Setup.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#MyAppExeName}"
@@ -78,7 +78,7 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 ; Install WebView2 Runtime silently (required for browser functionality)
-; Filename: "{tmp}\MicrosoftEdgeWebview2Setup.exe"; Parameters: "/silent /install"; StatusMsg: "Installing Microsoft WebView2 Runtime..."; Flags: waituntilterminated
+Filename: "{tmp}\MicrosoftEdgeWebview2Setup.exe"; Parameters: "/silent /install"; StatusMsg: "Installing Microsoft WebView2 Runtime..."; Flags: waituntilterminated
 
 ; Launch Application
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
@@ -163,7 +163,7 @@ begin
   Result := 
     'KIVIXA TERMS AND CONDITIONS' + #13#10 + #13#10 +
     'Last Updated: January 2026' + #13#10 +
-    'Version: 0.3.3' + #13#10 + #13#10 +
+    'Version: 0.3.4' + #13#10 + #13#10 +
     'By using Kivixa, you agree to these terms and conditions.' + #13#10 + #13#10 +
     '1. ACCEPTANCE OF TERMS' + #13#10 + #13#10 +
     'By downloading, installing, or using the Kivixa application ("App"), you agree to be bound by these Terms and Conditions ("Terms"). If you do not agree to these Terms, do not use the App.' + #13#10 + #13#10 +
@@ -400,6 +400,25 @@ begin
     Font.Name := 'Segoe UI';
     Font.Color := TextPrimary;
     OnClick := @CheckBoxClick;
+  end;
+end;
+
+// ---------------------------------------------------------
+// Skip Custom Pages During Silent Install
+// ---------------------------------------------------------
+function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  Result := False;
+  // If the installer is running via command line with /SILENT or /VERYSILENT
+  if WizardSilent then
+  begin
+    // Skip all our custom pages that require manual clicks
+    if (PageID = CustomWelcomePage.ID) or 
+       (PageID = TermsPage.ID) or 
+       (PageID = PrivacyPage.ID) then
+    begin
+      Result := True;
+    end;
   end;
 end;
 
