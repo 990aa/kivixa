@@ -1027,15 +1027,16 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
     }
   }
 
-  void _showModelMenu(BuildContext context) async {
+  void _showModelMenu() async {
     await _loadDownloadedModels();
 
-    if (!context.mounted) return;
+    if (!mounted) return;
+    final buildContext = context;
 
     final renderBox = _chipKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
     final overlay =
-        Overlay.of(context, rootOverlay: true).context.findRenderObject()
+        Overlay.of(buildContext, rootOverlay: true).context.findRenderObject()
             as RenderBox?;
     if (overlay == null) return;
 
@@ -1047,13 +1048,13 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
       ),
     );
 
-    final theme = Theme.of(context);
+    final theme = Theme.of(buildContext);
     final colorScheme = theme.colorScheme;
     final currentModelId = widget.controller.loadedModelId;
 
     // Show menu
     final choice = await showMenu<String>(
-      context: context,
+      context: buildContext,
       useRootNavigator: true,
       position: RelativeRect.fromRect(targetRect, Offset.zero & overlay.size),
       items: [
@@ -1174,8 +1175,8 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
 
     if (choice != null) {
       if (choice == 'download_more') {
-        if (!context.mounted) return;
-        Navigator.of(context, rootNavigator: true)
+        if (!mounted) return;
+        Navigator.of(buildContext, rootNavigator: true)
             .push(
               MaterialPageRoute(
                 builder: (context) => const ModelSelectionPage(),
@@ -1192,8 +1193,8 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
         if (model.id == currentModelId) return;
 
         final success = await widget.controller.switchModel(model);
-        if (!success && context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+        if (!success && mounted) {
+          ScaffoldMessenger.of(buildContext).showSnackBar(
             SnackBar(content: Text('Failed to switch to ${model.name}')),
           );
         }
@@ -1239,7 +1240,7 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
         size: isCompact ? 14 : 18,
         color: colorScheme.onPrimaryContainer,
       ),
-      onPressed: () => _showModelMenu(context),
+      onPressed: _showModelMenu,
     );
   }
 }

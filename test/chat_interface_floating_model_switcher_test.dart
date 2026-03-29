@@ -8,9 +8,9 @@ import 'package:kivixa/services/ai/model_manager.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
 
 class _FakeInferenceGateway implements ChatInferenceGateway {
-  _FakeInferenceGateway({this.response = 'stubbed-response'});
+  _FakeInferenceGateway();
 
-  final String response;
+  final String response = 'stubbed-response';
   final loadedModelPaths = <String>[];
   final chatRequests = <List<ChatMessage>>[];
   var _modelLoaded = false;
