@@ -3,3 +3,4 @@
 vendor/* linguist-vendored=false
 docs/* linguist-documentation=true
 *.md linguist-documentation=true
+

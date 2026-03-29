@@ -10,20 +10,25 @@ import 'package:kivixa/services/overlay/overlay_controller.dart';
 /// This window floats above the main app content and can be moved/resized.
 /// It uses the same chat interface as the full AI chat page.
 class AssistantWindow extends StatefulWidget {
-  const AssistantWindow({super.key});
+  const AssistantWindow({super.key, this.chatController});
+
+  final AIChatController? chatController;
 
   @override
   State<AssistantWindow> createState() => _AssistantWindowState();
 }
 
 class _AssistantWindowState extends State<AssistantWindow> {
-  final _chatController = AIChatController();
+  late final AIChatController _chatController;
+  late final bool _ownsChatController;
   MCPChatController? _mcpChatController;
   var _isMcpMode = false;
 
   @override
   void initState() {
     super.initState();
+    _ownsChatController = widget.chatController == null;
+    _chatController = widget.chatController ?? AIChatController();
     OverlayController.instance.addListener(_onOverlayChanged);
     _initializeMcpController();
   }
@@ -55,7 +60,9 @@ class _AssistantWindowState extends State<AssistantWindow> {
   @override
   void dispose() {
     OverlayController.instance.removeListener(_onOverlayChanged);
-    _chatController.dispose();
+    if (_ownsChatController) {
+      _chatController.dispose();
+    }
     _mcpChatController?.dispose();
     super.dispose();
   }

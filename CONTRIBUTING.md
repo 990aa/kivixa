@@ -43,12 +43,12 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 1. **Fork and clone the repository**
    ```bash
-   git clone https://github.com/YOUR-USERNAME/kivixa.git
+   git clone https://github.com/990aa/kivixa.git
    cd kivixa
    ```
 
 2. **Install Flutter**
-   - Make sure you have Flutter SDK installed (^3.9.0)
+   - Make sure you have Flutter SDK installed (^3.41.5)
    - Run `flutter doctor` to verify your installation
 
 3. **Install dependencies**
@@ -60,26 +60,6 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
    ```bash
    flutter run
    ```
-
-## Project Structure
-
-```
-kivixa/
-├── lib/
-│   ├── main.dart              # Application entry point
-│   ├── config/                # Configuration files
-│   ├── controllers/           # State management
-│   ├── database/              # SQLite database repositories
-│   ├── models/                # Data models
-│   ├── painters/              # Custom painters
-│   ├── screens/               # UI screens
-│   ├── services/              # Business logic services
-│   ├── utils/                 # Utility functions
-│   └── widgets/               # Reusable widgets
-├── docs/                      # Documentation
-├── test/                      # Unit and widget tests
-└── android/ios/web/windows/   # Platform-specific code
-```
 
 ## Coding Guidelines
 
@@ -193,4 +173,4 @@ Contributors will be recognized in:
 * Release notes
 * The contributors list
 
-Thank you for contributing to Kivixa! 🎨
+Thank you for contributing to Kivixa!

@@ -742,3 +742,17 @@ jobs:
           git push origin gh-pages
           
           echo "SUCCESS: Repo updated and pushed!"
+
+# =============================================================================
+  # JOB 5: Publish to Winget
+  # =============================================================================
+  winget:
+    runs-on: ubuntu-latest
+    needs: release # Ensures Winget waits for the GitHub Release to finish
+    if: github.event_name != 'workflow_dispatch' # Prevents accidental triggers during manual testing
+    steps:
+      - name: Submit Winget Package Update
+        uses: vedantmgoyal9/winget-releaser@main
+        with:
+          identifier: 990aa.Kivixa
+          token: ${{ secrets.WINGET_TOKEN }}

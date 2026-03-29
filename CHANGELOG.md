@@ -370,6 +370,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.2] - 2026-03-28
 
 ### Changed
-- Version bump to 0.3.2
+- Implement ChatInferenceGateway and ChatModelGateway interfaces with corresponding gateway classes
+- Streamline position calculation in _ModelSwitcherChipState
+- Update icon types to IconData and refine test gateway implementation
+
+---
+## [0.3.3] - 2026-03-29
+
+### Changed
+- Version bump to 0.3.3
+
+### Fixed
+- Android release build failure caused by `SharedPreferencesPlugin` registration symbol mismatch in generated plugin registrant code.
+- Font Awesome icon type mismatches across pen/highlighter/pencil/shape-pen tools that broke release compilation.
+- Async context usage in AI chat model-switch menu flow (`use_build_context_synchronously`) by switching to state `mounted` checks.
+- Floating model switcher test warning for unused optional parameter in fake inference gateway.
+
+---
+## [0.3.4] - 2026-03-29
+
+### Changed
+- Fixed iss installer
+
+---
+## [0.3.5] - 2026-03-29
+
+### Changed
+- Version bump to 0.3.5
 
 ---

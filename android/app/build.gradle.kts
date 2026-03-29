@@ -96,6 +96,36 @@ dependencies {
     implementation("com.google.android.material:material:1.13.0")
 }
 
+val sanitizeGeneratedPluginRegistrant by tasks.registering {
+    doLast {
+        val registrant = file("src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java")
+        if (!registrant.exists()) return@doLast
+
+        var content = registrant.readText()
+        content = content.replace(
+            "flutterEngine.getPlugins().add(new dev.flutter.plugins.integration_test.IntegrationTestPlugin());",
+            "final Class<?> pluginClass = Class.forName(\"dev.flutter.plugins.integration_test.IntegrationTestPlugin\");\n      flutterEngine.getPlugins().add((io.flutter.embedding.engine.plugins.FlutterPlugin) pluginClass.getDeclaredConstructor().newInstance());",
+        )
+        content = content.replace(
+            "flutterEngine.getPlugins().add(new io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin());",
+            "final Class<?> pluginClass = Class.forName(\"io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin\");\n      flutterEngine.getPlugins().add((io.flutter.embedding.engine.plugins.FlutterPlugin) pluginClass.getDeclaredConstructor().newInstance());",
+        )
+        registrant.writeText(content)
+    }
+}
+
+tasks.matching {
+    it.name == "compileDebugJavaWithJavac" || it.name == "compileReleaseJavaWithJavac"
+}.configureEach {
+    dependsOn(sanitizeGeneratedPluginRegistrant)
+}
+
+tasks.matching {
+    it.name == "sanitizeGeneratedPluginRegistrant"
+}.configureEach {
+    mustRunAfter("compileFlutterBuildRelease")
+}
+
 val abiCodes = mapOf("armeabi-v7a" to 1, "arm64-v8a" to 2, "x86_64" to 3)
 android.applicationVariants.configureEach {
     val variant = this
