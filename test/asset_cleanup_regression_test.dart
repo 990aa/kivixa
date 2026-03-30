@@ -25,6 +25,23 @@ void main() {
       expect(recent, isNot(contains('home_page.svg')));
     });
 
+    test(
+      'welcome, no-files, and logs no longer reference missing svg assets',
+      () {
+        final welcome = File(
+          'lib/components/home/welcome.dart',
+        ).readAsStringSync();
+        final noFiles = File(
+          'lib/components/home/no_files.dart',
+        ).readAsStringSync();
+        final logs = File('lib/pages/logs.dart').readAsStringSync();
+
+        expect(welcome, isNot(contains('undraw_learning_sketching_nd4f.svg')));
+        expect(noFiles, isNot(contains('undraw_researching_re_fuod.svg')));
+        expect(logs, isNot(contains('undraw_detailed_analysis_re_tk6j.svg')));
+      },
+    );
+
     test('removed assets are absent and required image assets remain', () {
       expect(File('assets/images/home_page.svg').existsSync(), isFalse);
       expect(File('assets/icon/icon.bmp').existsSync(), isFalse);
@@ -61,6 +78,28 @@ void main() {
 
       expect(pubspec, isNot(contains('Atkinson_Hyperlegible_Next')));
       expect(pubspec, isNot(contains('family: AtkinsonHyperlegibleNext')));
+    });
+
+    test('Neucha font is fully removed and handwriting defaults to Dekko', () {
+      final pubspec = File('pubspec.yaml').readAsStringSync();
+      final main = File('lib/main.dart').readAsStringSync();
+      final fallbacks = File(
+        'lib/components/theming/font_fallbacks.dart',
+      ).readAsStringSync();
+      final innerCanvas = File(
+        'lib/components/canvas/inner_canvas.dart',
+      ).readAsStringSync();
+
+      expect(pubspec, isNot(contains('family: Neucha')));
+      expect(pubspec, isNot(contains('assets/google_fonts/Neucha')));
+      expect(main, isNot(contains('assets/google_fonts/Neucha/OFL.txt')));
+      expect(fallbacks, isNot(contains("'Neucha'")));
+      expect(innerCanvas, contains("fontFamily: 'Dekko'"));
+      expect(
+        File('assets/google_fonts/Neucha/Neucha-Regular.ttf').existsSync(),
+        isFalse,
+      );
+      expect(File('assets/google_fonts/Neucha/OFL.txt').existsSync(), isFalse);
     });
   });
 }

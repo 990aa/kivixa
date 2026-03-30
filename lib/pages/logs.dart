@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kivixa/components/theming/adaptive_icon.dart';
 import 'package:kivixa/components/theming/font_fallbacks.dart';
 import 'package:kivixa/i18n/strings.g.dart';
@@ -117,11 +116,10 @@ class LogsPage extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SvgPicture.asset(
-                          'assets/images/undraw_detailed_analysis_re_tk6j.svg',
-                          width: 300,
-                          height: 300 * 570 / 925.49161,
-                          excludeFromSemantics: true,
+                        Icon(
+                          Icons.receipt_long_outlined,
+                          size: 120,
+                          color: colorScheme.primary,
                         ),
                         const SizedBox(height: 64),
                         Text(

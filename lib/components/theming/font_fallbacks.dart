@@ -21,7 +21,6 @@ const kivixaSansSerifFontFallbacks = [
   '.SF UI Display',
   '.SF UI Text',
   'Segoe UI',
-  'Neucha',
   'Dekko',
 ];
 const kivixaMonoFontFallbacks = [
@@ -35,7 +34,6 @@ const kivixaMonoFontFallbacks = [
   'monospace',
 ];
 const kivixaHandwritingFontFallbacks = [
-  'Neucha',
   'Dekko',
   // Fallback fonts from https://github.com/system-fonts/modern-font-stacks#handwritten
   'Segoe Print',

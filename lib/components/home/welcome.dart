@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 
 class Welcome extends StatelessWidget {
@@ -14,11 +13,10 @@ class Welcome extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(
-              'assets/images/undraw_learning_sketching_nd4f.svg',
-              width: 300,
-              height: 188,
-              excludeFromSemantics: true,
+            Icon(
+              Icons.auto_stories_outlined,
+              size: 120,
+              color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(height: 64),
             Text(t.home.welcome, style: textTheme.headlineMedium),

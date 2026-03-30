@@ -203,7 +203,7 @@ class _InnerCanvasState extends State<InnerCanvas> {
 
     final defaultStyle = TextStyle(
       inherit: false,
-      fontFamily: 'Neucha',
+      fontFamily: 'Dekko',
       fontFamilyFallback: kivixaHandwritingFontFallbacks,
       color: invert ? Colors.white : Colors.black,
     );
