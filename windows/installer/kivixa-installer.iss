@@ -2,7 +2,7 @@
 #define MyAppPublisher "990aa"
 #define MyAppURL "https://github.com/990aa/kivixa"
 #define MyAppExeName "kivixa.exe"
-#define MyAppDesc "A Modern Cross-Platform Notes & Productivity Application"
+#define MyAppDesc "A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance."
 
 ; ------------------------------------------------------------------------------
 ; Paths & Versioning
@@ -310,7 +310,7 @@ begin
   with WelcomeDesc do
   begin
     Parent := CustomWelcomePage.Surface;
-    Caption := 'A Modern Cross-Platform Notes & Productivity App.' + #13#10 + #13#10 +
+    Caption := 'A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.' + #13#10 + #13#10 +
                 'This wizard will install {#MyAppName} on your computer.' + #13#10 +
                 'Click Next to review the Terms and Conditions.';
     Font.Name := 'Segoe UI';

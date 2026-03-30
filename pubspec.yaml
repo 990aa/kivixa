@@ -1,5 +1,5 @@
 name: kivixa
-description: A cross-platform notes app
+description: A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
 publish_to: 'none' 
 
 version: 0.3.9+3009
@@ -130,7 +130,6 @@ flutter:
     - assets/images/
     - assets/google_fonts/Dekko/OFL.txt
     - assets/google_fonts/Fira_Mono/OFL.txt
-    - assets/google_fonts/Neucha/OFL.txt
 
   fonts:
     - family: Dekko
@@ -143,9 +142,6 @@ flutter:
           weight: 500
         - asset: assets/google_fonts/Fira_Mono/FiraMono-Bold.ttf
           weight: 700
-    - family: Neucha
-      fonts:
-        - asset: assets/google_fonts/Neucha/Neucha-Regular.ttf
   shaders:
     - shaders/pencil.frag
 

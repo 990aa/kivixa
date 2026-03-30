@@ -6,9 +6,8 @@
 
 *Pronounced: kee-VEE-ha (/kiˈviːhɑː/)*
 
-### A Modern Cross-Platform Notes & Productivity Application
+### A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
 
-*Seamlessly blend notes, sketches, and creativity across all your devices*
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.9.0+-0175C2?logo=dart)](https://dart.dev)
