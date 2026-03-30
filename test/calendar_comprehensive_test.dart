@@ -653,9 +653,9 @@ void main() {
   group('Time Formatting', () {
     test('Format morning time correctly', () {
       const time = TimeOfDay(hour: 9, minute: 30);
-      final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+      const hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
       final minute = time.minute.toString().padLeft(2, '0');
-      final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+      const period = time.period == DayPeriod.am ? 'AM' : 'PM';
       final formatted = '$hour:$minute $period';
 
       expect(formatted, '9:30 AM');
@@ -663,9 +663,9 @@ void main() {
 
     test('Format afternoon time correctly', () {
       const time = TimeOfDay(hour: 15, minute: 45);
-      final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+      const hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
       final minute = time.minute.toString().padLeft(2, '0');
-      final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+      const period = time.period == DayPeriod.am ? 'AM' : 'PM';
       final formatted = '$hour:$minute $period';
 
       expect(formatted, '3:45 PM');
@@ -673,9 +673,9 @@ void main() {
 
     test('Format midnight correctly', () {
       const time = TimeOfDay(hour: 0, minute: 0);
-      final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+      const hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
       final minute = time.minute.toString().padLeft(2, '0');
-      final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+      const period = time.period == DayPeriod.am ? 'AM' : 'PM';
       final formatted = '$hour:$minute $period';
 
       expect(formatted, '12:00 AM');
@@ -683,9 +683,9 @@ void main() {
 
     test('Format noon correctly', () {
       const time = TimeOfDay(hour: 12, minute: 0);
-      final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+      const hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
       final minute = time.minute.toString().padLeft(2, '0');
-      final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+      const period = time.period == DayPeriod.am ? 'AM' : 'PM';
       final formatted = '$hour:$minute $period';
 
       expect(formatted, '12:00 PM');
