@@ -29,6 +29,12 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "28.2.13676358"
 
+    // IZYY'S FIX: Strip out the Google Play dependency tracker blob
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
@@ -39,7 +45,6 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
-    // Signing configuration
     signingConfigs {
         create("release") {
             val storeFilePath = keystoreProperties["storeFile"] as String?
@@ -54,8 +59,6 @@ android {
 
     defaultConfig {
         applicationId = "com.a990aa.kivixa"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -69,15 +72,14 @@ android {
 
     buildTypes {
         release {
-            // Use release signing config if keystore is configured, otherwise debug key
             val releaseSigningConfig = signingConfigs.findByName("release")
             if (releaseSigningConfig?.storeFile != null) {
                 signingConfig = releaseSigningConfig
             }
             
-            // Enable minification for release builds
-            isMinifyEnabled = false  // Set to true if you want ProGuard/R8
-            isShrinkResources = false
+            // SIZE FIX: Turn on ProGuard/R8 minification and resource shrinking
+            isMinifyEnabled = true  
+            isShrinkResources = true
         }
     }
 
