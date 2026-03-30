@@ -1,1 +1,1 @@
-Modern cross-platform notes & productivity app
+A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
