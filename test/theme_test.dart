@@ -16,24 +16,14 @@ void main() {
       TargetPlatform.android,
       TargetPlatform.windows,
     ])
-      for (final hyperlegible in const [false, true])
-        for (final hasAccent in const [false, true])
-          _testTheme(
-            platform: platform,
-            hyperlegible: hyperlegible,
-            hasAccent: hasAccent,
-          );
+      for (final hasAccent in const [false, true])
+        _testTheme(platform: platform, hasAccent: hasAccent);
   });
 }
 
-void _testTheme({
-  required TargetPlatform platform,
-  required bool hyperlegible,
-  required bool hasAccent,
-}) {
+void _testTheme({required TargetPlatform platform, required bool hasAccent}) {
   final repr =
       '${platform.name}_'
-      '${hyperlegible ? 'hyperlegible' : 'inter'}_'
       '${hasAccent ? 'with-accent' : 'no-accent'}';
   testWidgets(repr, (tester) async {
     final router = GoRouter(
@@ -41,11 +31,9 @@ void _testTheme({
     );
 
     stows.platform.value = platform;
-    stows.hyperlegibleFont.value = hyperlegible;
     stows.accentColor.value = hasAccent ? const Color(0xFF00FF00) : null;
     addTearDown(() {
       stows.platform.value = stows.platform.defaultValue;
-      stows.hyperlegibleFont.value = stows.hyperlegibleFont.defaultValue;
       stows.accentColor.value = stows.accentColor.defaultValue;
     });
 
@@ -66,12 +54,10 @@ void _testTheme({
         );
       }
 
-      final expectedFontFamily = hyperlegible
-          ? 'AtkinsonHyperlegibleNext'
-          : switch (platform) {
-              TargetPlatform.windows => 'Segoe UI',
-              _ => 'Roboto',
-            };
+      final expectedFontFamily = switch (platform) {
+        TargetPlatform.windows => 'Segoe UI',
+        _ => 'Roboto',
+      };
       for (final font in _extractFonts(theme.textTheme)) {
         expect(font, matches(expectedFontFamily));
       }

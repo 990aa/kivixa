@@ -292,15 +292,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   icon: Icons.colorize,
                   pref: stows.accentColor,
                 ),
-                SettingsSwitch(
-                  title: t.settings.prefLabels.hyperlegibleFont,
-                  subtitle: t.settings.prefDescriptions.hyperlegibleFont,
-                  iconBuilder: (b) {
-                    if (b) return Icons.font_download;
-                    return Icons.font_download_off;
-                  },
-                  pref: stows.hyperlegibleFont,
-                ),
                 SettingsSubtitle(subtitle: t.settings.prefCategories.writing),
                 SettingsSwitch(
                   title: t.settings.prefLabels.preferGreyscale,
@@ -1068,7 +1059,6 @@ class _ResetAllSettingsWidget extends StatelessWidget {
     stows.platform.value = stows.platform.defaultValue;
     stows.layoutSize.value = stows.layoutSize.defaultValue;
     stows.accentColor.value = stows.accentColor.defaultValue;
-    stows.hyperlegibleFont.value = stows.hyperlegibleFont.defaultValue;
     stows.editorToolbarAlignment.value =
         stows.editorToolbarAlignment.defaultValue;
     stows.editorToolbarShowInFullscreen.value =

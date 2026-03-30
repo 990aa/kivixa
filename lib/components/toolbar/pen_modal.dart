@@ -57,7 +57,7 @@ class _PenModalState extends State<PenModal> {
             ),
             tooltip: t.editor.pens.fountainPen,
             icon: SvgPicture.asset(
-              'assets/images/scribble_fountain.svg',
+              'assets/images/fountain.svg',
               width: 32,
               height: 32 / 508 * 374,
               theme: SvgTheme(
@@ -85,7 +85,7 @@ class _PenModalState extends State<PenModal> {
             ),
             tooltip: t.editor.pens.ballpointPen,
             icon: SvgPicture.asset(
-              'assets/images/scribble_ballpoint.svg',
+              'assets/images/pen.svg',
               width: 32,
               height: 32 / 508 * 374,
               theme: SvgTheme(

@@ -161,7 +161,6 @@ Future<void> appRunner(List<String> args) async {
 
   LicenseRegistry.addLicense(() async* {
     for (final licenseFile in const [
-      'assets/google_fonts/Atkinson_Hyperlegible_Next/OFL.txt',
       'assets/google_fonts/Dekko/OFL.txt',
       'assets/google_fonts/Fira_Mono/OFL.txt',
       'assets/google_fonts/Neucha/OFL.txt',

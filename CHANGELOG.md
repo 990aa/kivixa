@@ -421,5 +421,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Version bump to 0.3.9
+- Removed decorative browse/recent background image usage and kept a plain background.
+- Removed Atkinson Hyperlegible font setting and related theme toggle implementation.
+- Updated pen modal SVG references to existing assets (`fountain.svg` and `pen.svg`).
+
+### Removed
+- Removed unused assets: `assets/images/home_page.svg` and `assets/icon/icon.bmp`.
+- Removed Atkinson Hyperlegible font assets and pubspec declarations.
 
 ---

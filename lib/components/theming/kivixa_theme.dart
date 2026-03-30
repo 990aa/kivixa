@@ -1,18 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kivixa/components/theming/font_fallbacks.dart';
-import 'package:kivixa/data/prefs.dart';
 
 abstract class KivixaTheme {
-  static TextTheme? createTextTheme(Brightness brightness) {
-    if (stows.hyperlegibleFont.value) {
-      return ThemeData(brightness: brightness).textTheme.withFont(
-        fontFamily: 'AtkinsonHyperlegibleNext',
-        fontFamilyFallback: kivixaSansSerifFontFallbacks,
-      );
-    } else {
-      return null;
-    }
-  }
+  static TextTheme? createTextTheme(Brightness brightness) => null;
 
   static ThemeData createTheme(
     ColorScheme colorScheme,

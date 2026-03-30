@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:collapsible/collapsible.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kivixa/components/home/export_note_button.dart';
 import 'package:kivixa/components/home/grid_folders.dart';
@@ -420,23 +419,6 @@ class _BrowsePageState extends State<BrowsePage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background SVG
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.15,
-              child: Center(
-                child: SizedBox(
-                  width: 400,
-                  height: 400,
-                  child: SvgPicture.asset(
-                    'assets/images/home_page.svg',
-                    fit: BoxFit.contain,
-                    alignment: Alignment.center,
-                  ),
-                ),
-              ),
-            ),
-          ),
           // Main content
           RefreshIndicator(
             onRefresh: () => Future.wait([

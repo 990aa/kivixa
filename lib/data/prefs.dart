@@ -67,11 +67,6 @@ class Stows {
     codec: const ColorCodec(),
     volatile: !_isOnMainIsolate,
   );
-  final hyperlegibleFont = PlainStow(
-    'hyperlegibleFont',
-    false,
-    volatile: !_isOnMainIsolate,
-  );
 
   final editorToolbarAlignment = PlainStow(
     'editorToolbarAlignment',
