@@ -417,3 +417,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Apk size reduced
 
 ---
+## [0.3.9] - 2026-03-30
+
+### Changed
+- Version bump to 0.3.9
+
+---

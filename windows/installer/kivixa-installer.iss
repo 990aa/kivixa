@@ -163,7 +163,7 @@ begin
   Result := 
     'KIVIXA TERMS AND CONDITIONS' + #13#10 + #13#10 +
     'Last Updated: January 2026' + #13#10 +
-    'Version: 0.3.8' + #13#10 + #13#10 +
+    'Version: 0.3.9' + #13#10 + #13#10 +
     'By using Kivixa, you agree to these terms and conditions.' + #13#10 + #13#10 +
     '1. ACCEPTANCE OF TERMS' + #13#10 + #13#10 +
     'By downloading, installing, or using the Kivixa application ("App"), you agree to be bound by these Terms and Conditions ("Terms"). If you do not agree to these Terms, do not use the App.' + #13#10 + #13#10 +
