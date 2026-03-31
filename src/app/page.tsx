@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
+import { useReducedMotion, useScroll, useSpring } from "framer-motion";
 import {
   BookText,
   Bot,
@@ -36,12 +37,45 @@ type FeatureGroup = {
 };
 
 export default function Home() {
+  const shouldReduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll();
+  const scrollProgress = useSpring(scrollYProgress, {
+    stiffness: 120,
+    damping: 28,
+    mass: 0.24,
+  });
+
   const fadeUpSection: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.75, ease: [0.16, 1, 0.3, 1] },
+      transition: {
+        duration: shouldReduceMotion ? 0.01 : 0.72,
+        ease: [0.16, 1, 0.3, 1],
+      },
+    },
+  };
+
+  const staggerContainer: Variants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: shouldReduceMotion ? 0 : 0.08,
+        delayChildren: shouldReduceMotion ? 0 : 0.04,
+      },
+    },
+  };
+
+  const revealCard: Variants = {
+    hidden: { opacity: 0, y: 24 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: shouldReduceMotion ? 0.01 : 0.55,
+        ease: [0.16, 1, 0.3, 1],
+      },
     },
   };
 
@@ -341,6 +375,12 @@ export default function Home() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#070E1A] text-slate-100 selection:bg-teal-400/30">
+      <motion.div
+        aria-hidden="true"
+        className="fixed left-0 top-0 z-[80] h-0.5 w-full origin-left bg-gradient-to-r from-indigo-400 via-teal-300 to-purple-400"
+        style={{ scaleX: scrollProgress }}
+      />
+
       <div className="pointer-events-none absolute inset-0 opacity-60 [background:radial-gradient(circle_at_20%_15%,rgba(99,102,241,0.2),transparent_40%),radial-gradient(circle_at_80%_10%,rgba(45,212,191,0.2),transparent_34%),radial-gradient(circle_at_55%_70%,rgba(168,85,247,0.16),transparent_35%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(148,163,184,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.05)_1px,transparent_1px)] [background-size:46px_46px]" />
 
@@ -365,8 +405,19 @@ export default function Home() {
           className="mx-auto flex w-full max-w-5xl flex-col items-center text-center"
         >
           <motion.div
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+            animate={
+              shouldReduceMotion
+                ? undefined
+                : {
+                    y: [0, -10, 0],
+                    rotate: [0, 0.8, 0],
+                  }
+            }
+            transition={
+              shouldReduceMotion
+                ? undefined
+                : { duration: 5.4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }
+            }
             className="relative mb-10 h-32 w-32 rounded-[2rem] border border-white/15 bg-white/10 p-3 shadow-[0_0_55px_rgba(20,184,166,0.35)] backdrop-blur"
           >
             <Image
@@ -404,31 +455,31 @@ export default function Home() {
           <div className="flex w-full flex-col justify-center gap-4 sm:w-auto sm:flex-row">
             <motion.a
               data-testid="cta-windows"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={shouldReduceMotion ? undefined : { scale: 1.03, y: -2 }}
+              whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
               href="https://github.com/990aa/kivixa/releases/download/v0.3.9%2B3009/Kivixa-Setup-0.3.9.exe"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative inline-flex items-center justify-center gap-2 rounded-full border border-purple-300/40 bg-gradient-to-r from-indigo-600 via-purple-600 to-teal-500 px-8 py-4 text-base font-semibold text-white shadow-[0_0_50px_rgba(99,102,241,0.38)] transition-all hover:shadow-[0_0_70px_rgba(45,212,191,0.5)]"
+              className="group relative inline-flex items-center justify-center gap-2 rounded-full border border-purple-300/40 bg-gradient-to-r from-indigo-600 via-purple-600 to-teal-500 px-8 py-4 text-base font-semibold text-white shadow-[0_0_50px_rgba(99,102,241,0.38)] transition-all duration-300 hover:shadow-[0_0_70px_rgba(45,212,191,0.5)]"
             >
               <Download size={20} />
               <span>Download for Windows</span>
               <motion.span
                 aria-hidden="true"
                 className="absolute -z-10 h-12 w-12 rounded-full bg-purple-400/40 blur-2xl"
-                whileHover={{ scale: 1.25 }}
-                transition={{ duration: 0.2 }}
+                whileHover={shouldReduceMotion ? undefined : { scale: 1.25 }}
+                transition={{ duration: 0.24 }}
               />
             </motion.a>
 
             <motion.a
               data-testid="cta-uptodown"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={shouldReduceMotion ? undefined : { scale: 1.02, y: -1 }}
+              whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
               href="https://kivixa.uptodown.com/android"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-teal-300/40 bg-[#081223]/80 px-8 py-4 text-base font-semibold text-slate-100 transition-all hover:border-teal-300/75 hover:bg-[#10223a]"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-teal-300/40 bg-[#081223]/80 px-8 py-4 text-base font-semibold text-slate-100 transition-all duration-300 hover:border-teal-300/75 hover:bg-[#10223a]"
             >
               <Smartphone size={20} />
               <span>Get it on Uptodown</span>
@@ -437,7 +488,10 @@ export default function Home() {
 
           <div className="mt-10 flex flex-wrap justify-center gap-2 text-xs text-slate-300 sm:text-sm">
             {techStack.map((item) => (
-              <span key={item} className="rounded-full border border-slate-600/70 bg-slate-900/70 px-3 py-1.5">
+              <span
+                key={item}
+                className="rounded-full border border-slate-600/70 bg-slate-900/70 px-3 py-1.5 tracking-wide transition-colors duration-300 hover:border-teal-300/45"
+              >
                 {item}
               </span>
             ))}
@@ -460,17 +514,21 @@ export default function Home() {
             Every major capability in the README is represented here as a structured product narrative, not raw blocks of text.
           </p>
 
-          <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3"
+          >
             {topFeatureCards.map((card, index) => {
               const Icon = featureIcons[index % featureIcons.length];
               return (
                 <motion.article
                   key={card.title}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ delay: index * 0.07, duration: 0.55 }}
-                  className="group rounded-3xl border border-slate-700/80 bg-slate-900/55 p-7 shadow-[0_24px_65px_rgba(2,6,23,0.6)] backdrop-blur transition-all hover:-translate-y-1 hover:border-teal-300/45"
+                  variants={revealCard}
+                  whileHover={shouldReduceMotion ? undefined : { y: -6, scale: 1.012 }}
+                  className="group rounded-3xl border border-slate-700/80 bg-slate-900/55 p-7 shadow-[0_24px_65px_rgba(2,6,23,0.6)] backdrop-blur transition-all duration-300 hover:border-teal-300/45 hover:shadow-[0_26px_75px_rgba(45,212,191,0.15)]"
                 >
                   <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-teal-300/30 bg-gradient-to-br from-teal-500/25 to-indigo-500/20 text-teal-200">
                     <Icon size={23} />
@@ -480,7 +538,7 @@ export default function Home() {
                 </motion.article>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </motion.section>
 
@@ -512,14 +570,18 @@ export default function Home() {
           <div className="relative">
             <div className="hidden h-[620px] overflow-hidden rounded-[2rem] border border-teal-300/30 bg-[#081120]/80 p-4 shadow-[0_30px_90px_rgba(8,14,26,0.85)] lg:block">
               <motion.div
-                animate={{ y: ["0%", "-50%"] }}
-                transition={{ duration: 48, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                animate={shouldReduceMotion ? undefined : { y: ["0%", "-50%"] }}
+                transition={
+                  shouldReduceMotion
+                    ? undefined
+                    : { duration: 48, repeat: Number.POSITIVE_INFINITY, ease: "linear" }
+                }
                 className="flex flex-col gap-4"
               >
                 {[...screenshots, ...screenshots].map((shot, index) => (
                   <figure
                     key={`${shot.src}-${index}`}
-                    className="overflow-hidden rounded-2xl border border-slate-600/60 bg-slate-900/80"
+                    className="overflow-hidden rounded-2xl border border-slate-600/60 bg-slate-900/80 transition-all duration-300 hover:-translate-y-0.5 hover:border-teal-300/45"
                   >
                     <div className="relative h-44 w-full">
                       <Image
@@ -562,18 +624,22 @@ export default function Home() {
             Full coverage of every detailed capability category, presented in structured cards with visual anchors.
           </p>
 
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.16 }}
+            className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2"
+          >
             {featureAtlas.map((group, index) => {
               const Icon = featureIcons[index % featureIcons.length];
               const referenceShot = screenshots[index % screenshots.length];
               return (
                 <motion.article
                   key={group.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.18 }}
-                  transition={{ duration: 0.45 }}
-                  className="overflow-hidden rounded-3xl border border-slate-700/70 bg-slate-900/65 shadow-[0_22px_55px_rgba(2,6,23,0.65)]"
+                  variants={revealCard}
+                  whileHover={shouldReduceMotion ? undefined : { y: -4 }}
+                  className="overflow-hidden rounded-3xl border border-slate-700/70 bg-slate-900/65 shadow-[0_22px_55px_rgba(2,6,23,0.65)] transition-all duration-300 hover:border-teal-300/40 hover:shadow-[0_26px_70px_rgba(56,189,248,0.12)]"
                 >
                   <div className="grid gap-0 sm:grid-cols-[190px_1fr]">
                     <div className="relative h-44 sm:h-52">
@@ -603,7 +669,7 @@ export default function Home() {
                 </motion.article>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
