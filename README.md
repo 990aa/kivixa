@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/icon/icon.png" alt="Kivixa Logo" width="200" height="200">
+<img src="public\assets\icon.png" alt="Kivixa Logo" width="200" height="200">
 
 # Kivixa
 
@@ -9,8 +9,8 @@
 ### A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
 
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.35.0+-02569B?logo=flutter)](https://flutter.dev)
-[![Dart](https://img.shields.io/badge/Dart-3.9.0+-0175C2?logo=dart)](https://dart.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-3.41.6+-02569B?logo=flutter)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.11.4+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
 [![Version](https://img.shields.io/badge/Version-0.3.9%2B3009--beta-orange)](CHANGELOG.md)
 
@@ -482,8 +482,8 @@ A fully-featured web browser built into Kivixa for seamless research and referen
 
 ### Prerequisites
 
-- [Flutter](https://flutter.dev/docs/get-started/install) 3.38.6 or higher
-- [Dart](https://dart.dev/get-dart) 3.11.1 or higher
+- [Flutter](https://flutter.dev/docs/get-started/install) 3.41.6 or higher
+- [Dart](https://dart.dev/get-dart) 3.11.4 or higher
 - [Rust](https://rustup.rs/) (for building native code)
 - Platform-specific requirements:
   - **Windows**: Visual Studio 2026 with C++ desktop development, Vulkan SDK
