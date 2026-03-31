@@ -99,7 +99,7 @@ li {
 }
 
 .kicker {
-  color: color-mix(in oklab, var(--accent-cyan) 82%, white 18%);
+  color: #a2f4ea;
   font-family: var(--font-jetbrains-mono), Consolas, monospace;
   font-size: 0.73rem;
   letter-spacing: 0.2em;
@@ -110,18 +110,16 @@ li {
   font-family: var(--font-sora), "Segoe UI", sans-serif;
   letter-spacing: -0.045em;
   line-height: 0.95;
-  text-wrap: balance;
 }
 
 .section-title {
   font-family: var(--font-sora), "Segoe UI", sans-serif;
   letter-spacing: -0.034em;
   line-height: 1.08;
-  text-wrap: balance;
 }
 
 .lead-copy {
-  color: color-mix(in oklab, var(--text-secondary) 83%, white 17%);
+  color: #b8cade;
   font-size: clamp(1.02rem, 1.1vw + 0.72rem, 1.34rem);
   line-height: 1.66;
 }
@@ -143,6 +141,7 @@ li {
   border: 1px solid var(--border-soft);
   background: linear-gradient(162deg, var(--surface-a), var(--surface-b));
   box-shadow: var(--shadow-deep);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
 
@@ -150,6 +149,7 @@ li {
   border: 1px solid rgba(148, 189, 230, 0.2);
   background: linear-gradient(158deg, rgba(9, 23, 39, 0.58), rgba(11, 22, 35, 0.44));
   box-shadow: var(--shadow-soft);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 

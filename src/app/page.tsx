@@ -40,19 +40,24 @@ export default function Home() {
   const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
   const scrollProgress = useSpring(scrollYProgress, {
-    stiffness: 120,
-    damping: 28,
-    mass: 0.24,
+    stiffness: 110,
+    damping: 30,
+    mass: 0.28,
   });
 
-  const fadeUpSection: Variants = {
-    hidden: { opacity: 0, y: 30 },
+  const sectionReveal: Variants = {
+    hidden: {
+      opacity: 0,
+      y: 36,
+      filter: shouldReduceMotion ? "blur(0px)" : "blur(8px)",
+    },
     visible: {
       opacity: 1,
       y: 0,
+      filter: "blur(0px)",
       transition: {
-        duration: shouldReduceMotion ? 0.01 : 0.72,
-        ease: [0.16, 1, 0.3, 1],
+        duration: shouldReduceMotion ? 0.01 : 0.82,
+        ease: [0.18, 1, 0.3, 1],
       },
     },
   };
@@ -61,19 +66,20 @@ export default function Home() {
     hidden: {},
     visible: {
       transition: {
-        staggerChildren: shouldReduceMotion ? 0 : 0.08,
-        delayChildren: shouldReduceMotion ? 0 : 0.04,
+        staggerChildren: shouldReduceMotion ? 0 : 0.1,
+        delayChildren: shouldReduceMotion ? 0 : 0.08,
       },
     },
   };
 
   const revealCard: Variants = {
-    hidden: { opacity: 0, y: 24 },
+    hidden: { opacity: 0, y: 24, scale: 0.985 },
     visible: {
       opacity: 1,
       y: 0,
+      scale: 1,
       transition: {
-        duration: shouldReduceMotion ? 0.01 : 0.55,
+        duration: shouldReduceMotion ? 0.01 : 0.62,
         ease: [0.16, 1, 0.3, 1],
       },
     },
@@ -373,16 +379,24 @@ export default function Home() {
     "Community GGUF contributors including Jackrong, Unsloth, and bartowski",
   ] as const;
 
+  const fdroidSteps = [
+    "Open the F-Droid app on Android and go to repository add/import options.",
+    "Scan the QR code for https://990aa.github.io/kivixa/repo.",
+    "Confirm adding the repo, refresh indexes, then install Kivixa packages.",
+    "This follows the README flow where scanning auto-adds the repository.",
+  ] as const;
+
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#070E1A] text-slate-100 selection:bg-teal-400/30">
+    <main className="relative min-h-screen overflow-hidden bg-[#07111d] text-slate-100 selection:bg-cyan-300/30">
       <motion.div
         aria-hidden="true"
-        className="fixed left-0 top-0 z-[80] h-0.5 w-full origin-left bg-gradient-to-r from-indigo-400 via-teal-300 to-purple-400"
+        className="fixed left-0 top-0 z-[80] h-0.5 w-full origin-left bg-gradient-to-r from-sky-300 via-cyan-300 to-amber-200"
         style={{ scaleX: scrollProgress }}
       />
 
-      <div className="pointer-events-none absolute inset-0 opacity-60 [background:radial-gradient(circle_at_20%_15%,rgba(99,102,241,0.2),transparent_40%),radial-gradient(circle_at_80%_10%,rgba(45,212,191,0.2),transparent_34%),radial-gradient(circle_at_55%_70%,rgba(168,85,247,0.16),transparent_35%)]" />
-      <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(148,163,184,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.05)_1px,transparent_1px)] [background-size:46px_46px]" />
+      <div className="pointer-events-none absolute inset-0 opacity-75 [background:radial-gradient(circle_at_15%_16%,rgba(82,212,197,0.19),transparent_36%),radial-gradient(circle_at_88%_12%,rgba(120,190,255,0.16),transparent_33%),radial-gradient(circle_at_50%_80%,rgba(244,196,141,0.1),transparent_36%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(148,163,184,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.04)_1px,transparent_1px)] [background-size:58px_58px]" />
+      <div className="pointer-events-none absolute inset-0 opacity-25 [background:conic-gradient(from_110deg_at_70%_30%,rgba(14,165,233,0.18),transparent_35%,rgba(251,191,36,0.12),transparent_60%)]" />
 
       <header className="fixed right-5 top-5 z-50">
         <a
@@ -390,18 +404,22 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Open Kivixa GitHub repository"
-          className="inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-[#0d162a]/85 px-4 py-2 text-sm font-medium text-slate-200 shadow-[0_0_30px_rgba(15,23,42,0.8)] backdrop-blur transition-colors hover:border-teal-300/50 hover:text-white"
+          className="glass-panel-soft inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-slate-100 hover:text-white"
         >
           <GitHubMark className="h-4 w-4" />
           GitHub
         </a>
       </header>
 
-      <section id="hero" data-testid="hero-section" className="relative z-10 flex min-h-screen items-center px-5 py-28">
+      <section
+        id="hero"
+        data-testid="hero-section"
+        className="relative z-10 flex min-h-screen items-center px-5 py-28"
+      >
         <motion.div
           initial="hidden"
           animate="visible"
-          variants={fadeUpSection}
+          variants={sectionReveal}
           className="mx-auto flex w-full max-w-5xl flex-col items-center text-center"
         >
           <motion.div
@@ -409,16 +427,17 @@ export default function Home() {
               shouldReduceMotion
                 ? undefined
                 : {
-                    y: [0, -10, 0],
-                    rotate: [0, 0.8, 0],
+                    y: [0, -9, 0],
+                    rotate: [0, 0.7, 0],
+                    scale: [1, 1.02, 1],
                   }
             }
             transition={
               shouldReduceMotion
                 ? undefined
-                : { duration: 5.4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }
+                : { duration: 6.6, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }
             }
-            className="relative mb-10 h-32 w-32 rounded-[2rem] border border-white/15 bg-white/10 p-3 shadow-[0_0_55px_rgba(20,184,166,0.35)] backdrop-blur"
+            className="glass-panel relative mb-10 h-32 w-32 rounded-[2rem] p-3"
           >
             <Image
               src="/assets/icon.png"
@@ -430,23 +449,23 @@ export default function Home() {
             />
           </motion.div>
 
-          <p className="mb-3 text-xs uppercase tracking-[0.28em] text-teal-200/80 sm:text-sm">
+          <p className="kicker mb-4 sm:text-sm">
             Cross-Platform Local-First Workspace
           </p>
-          <h1 className="mb-6 bg-gradient-to-r from-white via-sky-100 to-teal-300 bg-clip-text text-6xl font-bold tracking-tight text-transparent sm:text-7xl md:text-8xl">
+          <h1 className="display-title mb-7 bg-gradient-to-r from-white via-slate-100 to-cyan-200 bg-clip-text text-6xl font-bold text-transparent sm:text-7xl md:text-8xl">
             Kivixa
           </h1>
-          <p className="mb-5 max-w-4xl text-lg text-slate-200 sm:text-2xl">
+          <p className="lead-copy mb-5 max-w-4xl text-lg text-slate-100 sm:text-2xl">
             A privacy-first cross-platform productivity workspace for notes, sketching, planning,
             and local AI assistance.
           </p>
-          <p className="mb-11 max-w-3xl text-base leading-relaxed text-slate-300 sm:text-lg">
+          <p className="caption-tight mb-11 max-w-3xl text-base sm:text-lg">
             Built with Flutter 3.41.6 and Dart 3.11.4, accelerated by Rust and llama.cpp, and engineered so your data stays on your device.
           </p>
 
-          <ul className="mb-10 flex w-full max-w-4xl flex-col gap-2 text-left text-sm text-slate-300 sm:grid sm:grid-cols-3 sm:text-center">
+          <ul className="mb-11 flex w-full max-w-4xl flex-col gap-2 text-left text-sm sm:grid sm:grid-cols-3 sm:text-center">
             {heroHighlights.map((point) => (
-              <li key={point} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur">
+              <li key={point} className="float-chip px-4 py-3">
                 {point}
               </li>
             ))}
@@ -455,48 +474,65 @@ export default function Home() {
           <div className="flex w-full flex-col justify-center gap-4 sm:w-auto sm:flex-row">
             <motion.a
               data-testid="cta-windows"
-              whileHover={shouldReduceMotion ? undefined : { scale: 1.03, y: -2 }}
+              whileHover={shouldReduceMotion ? undefined : { scale: 1.02, y: -3 }}
               whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
               href="https://github.com/990aa/kivixa/releases/download/v0.3.9%2B3009/Kivixa-Setup-0.3.9.exe"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative inline-flex items-center justify-center gap-2 rounded-full border border-purple-300/40 bg-gradient-to-r from-indigo-600 via-purple-600 to-teal-500 px-8 py-4 text-base font-semibold text-white shadow-[0_0_50px_rgba(99,102,241,0.38)] transition-all duration-300 hover:shadow-[0_0_70px_rgba(45,212,191,0.5)]"
+              className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full border border-cyan-200/45 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-500 px-8 py-4 text-base font-semibold text-white shadow-[0_16px_50px_rgba(2,132,199,0.45)]"
             >
               <Download size={20} />
               <span>Download for Windows</span>
               <motion.span
                 aria-hidden="true"
-                className="absolute -z-10 h-12 w-12 rounded-full bg-purple-400/40 blur-2xl"
-                whileHover={shouldReduceMotion ? undefined : { scale: 1.25 }}
-                transition={{ duration: 0.24 }}
+                className="absolute inset-y-0 left-[-30%] w-1/3 -skew-x-12 bg-white/30 blur-md"
+                animate={
+                  shouldReduceMotion
+                    ? undefined
+                    : {
+                        x: ["0%", "240%"],
+                      }
+                }
+                transition={
+                  shouldReduceMotion
+                    ? undefined
+                    : {
+                        duration: 2.9,
+                        repeat: Number.POSITIVE_INFINITY,
+                        repeatDelay: 1.2,
+                        ease: "easeInOut",
+                      }
+                }
               />
             </motion.a>
 
             <motion.a
               data-testid="cta-uptodown"
-              whileHover={shouldReduceMotion ? undefined : { scale: 1.02, y: -1 }}
+              whileHover={shouldReduceMotion ? undefined : { scale: 1.015, y: -2 }}
               whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
               href="https://kivixa.uptodown.com/android"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-teal-300/40 bg-[#081223]/80 px-8 py-4 text-base font-semibold text-slate-100 transition-all duration-300 hover:border-teal-300/75 hover:bg-[#10223a]"
+              className="glass-panel-soft inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-base font-semibold text-slate-100"
             >
               <Smartphone size={20} />
               <span>Get it on Uptodown</span>
             </motion.a>
           </div>
 
-          <div className="mt-10 flex flex-wrap justify-center gap-2 text-xs text-slate-300 sm:text-sm">
+          <div className="mt-11 flex flex-wrap justify-center gap-2 text-xs sm:text-sm">
             {techStack.map((item) => (
               <span
                 key={item}
-                className="rounded-full border border-slate-600/70 bg-slate-900/70 px-3 py-1.5 tracking-wide transition-colors duration-300 hover:border-teal-300/45"
+                className="float-chip px-3 py-1.5 font-medium tracking-wide"
               >
                 {item}
               </span>
             ))}
           </div>
         </motion.div>
+
+        <div className="section-fade-divider absolute bottom-0 left-0" />
       </section>
 
       <motion.section
@@ -505,12 +541,15 @@ export default function Home() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.15 }}
-        variants={fadeUpSection}
-        className="relative z-10 border-y border-white/10 bg-[#071023]/85 px-5 py-24"
+        variants={sectionReveal}
+        className="relative z-10 px-5 py-24"
       >
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-center text-3xl font-semibold sm:text-4xl">Designed for Deep Work and Local Intelligence</h2>
-          <p className="mx-auto mt-4 max-w-3xl text-center text-slate-300">
+          <p className="kicker mx-auto w-fit">Capability Layers</p>
+          <h2 className="section-title mx-auto mt-4 max-w-3xl text-center text-3xl font-semibold text-white sm:text-4xl">
+            Designed for Deep Work and Local Intelligence
+          </h2>
+          <p className="caption-tight mx-auto mt-4 max-w-3xl text-center">
             Every major capability in the README is represented here as a structured product narrative, not raw blocks of text.
           </p>
 
@@ -523,22 +562,25 @@ export default function Home() {
           >
             {topFeatureCards.map((card, index) => {
               const Icon = featureIcons[index % featureIcons.length];
+              const staggerDepth = index % 3 === 1 ? "md:-translate-y-3" : index % 3 === 2 ? "md:translate-y-2" : "";
               return (
                 <motion.article
                   key={card.title}
                   variants={revealCard}
-                  whileHover={shouldReduceMotion ? undefined : { y: -6, scale: 1.012 }}
-                  className="group rounded-3xl border border-slate-700/80 bg-slate-900/55 p-7 shadow-[0_24px_65px_rgba(2,6,23,0.6)] backdrop-blur transition-all duration-300 hover:border-teal-300/45 hover:shadow-[0_26px_75px_rgba(45,212,191,0.15)]"
+                  whileHover={shouldReduceMotion ? undefined : { y: -8, scale: 1.01 }}
+                  className={`glass-panel group rounded-[1.7rem] p-7 ${staggerDepth}`}
                 >
-                  <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-teal-300/30 bg-gradient-to-br from-teal-500/25 to-indigo-500/20 text-teal-200">
+                  <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-200/45 bg-gradient-to-br from-cyan-500/18 to-sky-400/14 text-cyan-100">
                     <Icon size={23} />
                   </div>
-                  <h3 className="mb-3 text-xl font-semibold text-white">{card.title}</h3>
-                  <p className="leading-relaxed text-slate-300">{card.description}</p>
+                  <h3 className="section-title mb-3 text-xl font-semibold text-white">{card.title}</h3>
+                  <p className="caption-tight leading-relaxed">{card.description}</p>
                 </motion.article>
               );
             })}
           </motion.div>
+
+          <div className="section-fade-divider mt-20" />
         </div>
       </motion.section>
 
@@ -548,40 +590,42 @@ export default function Home() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.08 }}
-        variants={fadeUpSection}
+        variants={sectionReveal}
         className="relative z-10 px-5 py-24"
       >
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-start">
           <div className="space-y-6">
-            <h2 className="text-3xl font-semibold sm:text-4xl">Vertical Product Gallery</h2>
-            <p className="text-slate-300">
+            <p className="kicker">Visual Walkthrough</p>
+            <h2 className="section-title text-3xl font-semibold text-white sm:text-4xl">Vertical Product Gallery</h2>
+            <p className="caption-tight">
               Every screenshot in public/assets/screenshots is included below with proper titles, compact framed presentation, and a vertical sliding window for a premium showcase.
             </p>
-            <div className="grid grid-cols-1 gap-4 text-sm text-slate-300 sm:grid-cols-2">
+
+            <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
               {screenshots.map((shot) => (
-                <article key={`meta-${shot.src}`} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                  <p className="font-semibold text-white">{shot.title}</p>
-                  <p className="mt-1 text-xs text-slate-300">{shot.caption}</p>
+                <article key={`meta-${shot.src}`} className="feature-line py-1">
+                  <p className="font-semibold text-slate-100">{shot.title}</p>
+                  <p className="caption-tight mt-1 text-xs">{shot.caption}</p>
                 </article>
               ))}
             </div>
           </div>
 
           <div className="relative">
-            <div className="hidden h-[620px] overflow-hidden rounded-[2rem] border border-teal-300/30 bg-[#081120]/80 p-4 shadow-[0_30px_90px_rgba(8,14,26,0.85)] lg:block">
+            <div className="glass-panel hidden h-[620px] overflow-hidden rounded-[2rem] p-4 lg:block">
               <motion.div
                 animate={shouldReduceMotion ? undefined : { y: ["0%", "-50%"] }}
                 transition={
                   shouldReduceMotion
                     ? undefined
-                    : { duration: 48, repeat: Number.POSITIVE_INFINITY, ease: "linear" }
+                    : { duration: 44, repeat: Number.POSITIVE_INFINITY, ease: "linear" }
                 }
                 className="flex flex-col gap-4"
               >
                 {[...screenshots, ...screenshots].map((shot, index) => (
                   <figure
                     key={`${shot.src}-${index}`}
-                    className="overflow-hidden rounded-2xl border border-slate-600/60 bg-slate-900/80 transition-all duration-300 hover:-translate-y-0.5 hover:border-teal-300/45"
+                    className="glass-panel-soft overflow-hidden rounded-2xl"
                   >
                     <div className="relative h-44 w-full">
                       <Image
@@ -592,7 +636,7 @@ export default function Home() {
                         className="object-cover"
                       />
                     </div>
-                    <figcaption className="border-t border-slate-700/80 px-3 py-2 text-xs text-slate-200">
+                    <figcaption className="border-t border-cyan-200/15 px-3 py-2 text-xs text-slate-200">
                       {shot.title}
                     </figcaption>
                   </figure>
@@ -602,10 +646,7 @@ export default function Home() {
 
             <div className="grid grid-cols-1 gap-4 lg:hidden">
               {screenshots.map((shot) => (
-                <figure
-                  key={`mobile-${shot.src}`}
-                  className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/80"
-                >
+                <figure key={`mobile-${shot.src}`} className="glass-panel-soft overflow-hidden rounded-2xl">
                   <div className="relative h-44 w-full">
                     <Image src={shot.src} alt={shot.title} fill sizes="100vw" className="object-cover" />
                   </div>
@@ -615,12 +656,17 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        <div className="section-fade-divider mx-auto mt-20 max-w-6xl" />
       </motion.section>
 
-      <section className="relative z-10 border-y border-white/10 bg-[#081121]/85 px-5 py-24">
+      <section className="relative z-10 px-5 py-24">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-center text-3xl font-semibold sm:text-4xl">Feature Atlas from README</h2>
-          <p className="mx-auto mt-4 max-w-3xl text-center text-slate-300">
+          <p className="kicker mx-auto w-fit">Complete Coverage</p>
+          <h2 className="section-title mx-auto mt-4 max-w-3xl text-center text-3xl font-semibold text-white sm:text-4xl">
+            Feature Atlas from README
+          </h2>
+          <p className="caption-tight mx-auto mt-4 max-w-3xl text-center">
             Full coverage of every detailed capability category, presented in structured cards with visual anchors.
           </p>
 
@@ -638,8 +684,8 @@ export default function Home() {
                 <motion.article
                   key={group.title}
                   variants={revealCard}
-                  whileHover={shouldReduceMotion ? undefined : { y: -4 }}
-                  className="overflow-hidden rounded-3xl border border-slate-700/70 bg-slate-900/65 shadow-[0_22px_55px_rgba(2,6,23,0.65)] transition-all duration-300 hover:border-teal-300/40 hover:shadow-[0_26px_70px_rgba(56,189,248,0.12)]"
+                  whileHover={shouldReduceMotion ? undefined : { y: -6 }}
+                  className="glass-panel overflow-hidden rounded-[1.75rem]"
                 >
                   <div className="grid gap-0 sm:grid-cols-[190px_1fr]">
                     <div className="relative h-44 sm:h-52">
@@ -652,14 +698,14 @@ export default function Home() {
                       />
                     </div>
                     <div className="p-6">
-                      <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-500/10 text-teal-200">
+                      <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-200/45 bg-cyan-500/10 text-cyan-100">
                         <Icon size={20} />
                       </div>
-                      <h3 className="text-2xl font-semibold text-white">{group.title}</h3>
-                      <p className="mt-2 text-sm text-slate-300">{group.description}</p>
-                      <ul className="mt-4 space-y-2 text-sm text-slate-300">
+                      <h3 className="section-title text-2xl font-semibold text-white">{group.title}</h3>
+                      <p className="caption-tight mt-2 text-sm">{group.description}</p>
+                      <ul className="bullet-flow mt-4 space-y-2 text-sm">
                         {group.bullets.map((bullet) => (
-                          <li key={bullet} className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
+                          <li key={bullet}>
                             {bullet}
                           </li>
                         ))}
@@ -670,45 +716,44 @@ export default function Home() {
               );
             })}
           </motion.div>
+
+          <div className="section-fade-divider mt-20" />
         </div>
       </section>
 
       <section className="relative z-10 px-5 py-24">
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-3xl border border-slate-700/80 bg-slate-900/70 p-7">
-            <h2 className="text-3xl font-semibold">Android via F-Droid Repository</h2>
-            <p className="mt-4 text-slate-300">
+          <div className="glass-panel rounded-[1.8rem] p-7">
+            <p className="kicker">Android Distribution</p>
+            <h2 className="section-title mt-4 text-3xl font-semibold text-white">Android via F-Droid Repository</h2>
+            <p className="caption-tight mt-4">
               Add the official Kivixa F-Droid repository exactly as documented in the README.
             </p>
             <a
               href="https://990aa.github.io/kivixa/repo/"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 inline-flex rounded-full border border-amber-300/40 bg-amber-400/10 px-4 py-2 text-sm font-medium text-amber-200 hover:bg-amber-300/20"
+              className="mt-5 inline-flex rounded-full border border-amber-200/45 bg-amber-300/12 px-4 py-2 text-sm font-medium text-amber-100 hover:bg-amber-300/20"
             >
               Open F-Droid Repo Link
             </a>
 
-            <ol className="mt-6 space-y-3 text-slate-200">
-              <li className="rounded-xl border border-slate-700 bg-[#0c1426] px-4 py-3">
-                1. Open the F-Droid app on Android and go to repository add/import options.
-              </li>
-              <li className="rounded-xl border border-slate-700 bg-[#0c1426] px-4 py-3">
-                2. Scan the QR code for https://990aa.github.io/kivixa/repo.
-              </li>
-              <li className="rounded-xl border border-slate-700 bg-[#0c1426] px-4 py-3">
-                3. Confirm adding the repo, refresh indexes, then install Kivixa packages.
-              </li>
-              <li className="rounded-xl border border-slate-700 bg-[#0c1426] px-4 py-3">
-                4. This follows the README flow where scanning auto-adds the repository.
-              </li>
+            <ol className="mt-6 space-y-4">
+              {fdroidSteps.map((step, index) => (
+                <li key={step} className="glass-panel-soft relative rounded-2xl px-4 py-3 pl-11 text-slate-200">
+                  <span className="absolute left-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-full bg-cyan-300/20 text-xs font-semibold text-cyan-100">
+                    {index + 1}
+                  </span>
+                  {step}
+                </li>
+              ))}
             </ol>
           </div>
 
-          <div className="rounded-3xl border border-teal-300/30 bg-[#0a1428]/85 p-7 text-center shadow-[0_20px_60px_rgba(5,150,105,0.18)]">
-            <h3 className="text-xl font-semibold">F-Droid Repo QR</h3>
-            <p className="mt-2 text-sm text-slate-300">Scan this code with F-Droid to auto-add the Kivixa repo.</p>
-            <div className="mx-auto mt-6 w-fit rounded-2xl border border-slate-700 bg-white p-3">
+          <div className="glass-panel rounded-[1.8rem] p-7 text-center">
+            <h3 className="section-title text-xl font-semibold text-white">F-Droid Repo QR</h3>
+            <p className="caption-tight mt-2 text-sm">Scan this code with F-Droid to auto-add the Kivixa repo.</p>
+            <div className="mx-auto mt-6 w-fit rounded-2xl border border-cyan-300/25 bg-white p-3">
               <img
                 src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=https://990aa.github.io/kivixa/repo"
                 alt="F-Droid Repo QR Code for Kivixa"
@@ -719,16 +764,21 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        <div className="section-fade-divider mx-auto mt-20 max-w-6xl" />
       </section>
 
-      <section className="relative z-10 border-y border-white/10 bg-[#071024]/85 px-5 py-24">
+      <section className="relative z-10 px-5 py-24">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-center text-3xl font-semibold sm:text-4xl">Getting Started and Build Matrix</h2>
+          <p className="kicker mx-auto w-fit">Build + Platform Matrix</p>
+          <h2 className="section-title mx-auto mt-4 max-w-3xl text-center text-3xl font-semibold text-white sm:text-4xl">
+            Getting Started and Build Matrix
+          </h2>
 
           <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            <article className="rounded-2xl border border-slate-700 bg-slate-900/70 p-6">
-              <h3 className="text-lg font-semibold">Prerequisites</h3>
-              <ul className="mt-4 space-y-2 text-sm text-slate-300">
+            <article className="glass-panel-soft rounded-2xl p-6">
+              <h3 className="section-title text-lg font-semibold text-slate-100">Prerequisites</h3>
+              <ul className="bullet-flow mt-4 space-y-2 text-sm">
                 <li>Flutter 3.41.6 or higher</li>
                 <li>Dart 3.11.4 or higher</li>
                 <li>Rust toolchain for native code and math module</li>
@@ -736,9 +786,9 @@ export default function Home() {
               </ul>
             </article>
 
-            <article className="rounded-2xl border border-slate-700 bg-slate-900/70 p-6">
-              <h3 className="text-lg font-semibold">Install + Run</h3>
-              <ul className="mt-4 space-y-2 text-sm text-slate-300">
+            <article className="glass-panel-soft rounded-2xl p-6">
+              <h3 className="section-title text-lg font-semibold text-slate-100">Install + Run</h3>
+              <ul className="bullet-flow mt-4 space-y-2 text-sm">
                 <li>git clone https://github.com/990aa/kivixa.git</li>
                 <li>flutter pub get</li>
                 <li>flutter run -d windows / android / macos / linux / ios</li>
@@ -746,9 +796,9 @@ export default function Home() {
               </ul>
             </article>
 
-            <article className="rounded-2xl border border-slate-700 bg-slate-900/70 p-6">
-              <h3 className="text-lg font-semibold">Windows Installer</h3>
-              <ul className="mt-4 space-y-2 text-sm text-slate-300">
+            <article className="glass-panel-soft rounded-2xl p-6">
+              <h3 className="section-title text-lg font-semibold text-slate-100">Windows Installer</h3>
+              <ul className="bullet-flow mt-4 space-y-2 text-sm">
                 <li>Inno Setup script: windows/installer/kivixa-installer.iss</li>
                 <li>Build command: iscc windows/installer/kivixa-installer.iss</li>
                 <li>Custom uninstaller can optionally wipe Documents/Kivixa data</li>
@@ -757,22 +807,22 @@ export default function Home() {
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            <article className="rounded-2xl border border-slate-700 bg-slate-900/70 p-6">
-              <h3 className="text-lg font-semibold">Platform Support</h3>
-              <ul className="mt-4 grid gap-2 text-sm text-slate-300 sm:grid-cols-2">
+            <article className="glass-panel-soft rounded-2xl p-6">
+              <h3 className="section-title text-lg font-semibold text-slate-100">Platform Support</h3>
+              <ul className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
                 {platformSupport.map((platform) => (
-                  <li key={platform} className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
+                  <li key={platform} className="feature-line py-1.5">
                     {platform}
                   </li>
                 ))}
               </ul>
             </article>
 
-            <article className="rounded-2xl border border-slate-700 bg-slate-900/70 p-6">
-              <h3 className="text-lg font-semibold">AI Model Credits</h3>
-              <ul className="mt-4 space-y-2 text-sm text-slate-300">
+            <article className="glass-panel-soft rounded-2xl p-6">
+              <h3 className="section-title text-lg font-semibold text-slate-100">AI Model Credits</h3>
+              <ul className="bullet-flow mt-4 space-y-2 text-sm">
                 {modelCredits.map((credit) => (
-                  <li key={credit} className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
+                  <li key={credit}>
                     {credit}
                   </li>
                 ))}
@@ -786,7 +836,7 @@ export default function Home() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: shouldReduceMotion ? 0.01 : 0.62, ease: [0.18, 1, 0.3, 1] }}
         className="relative z-10 border-t border-white/10 px-5 py-10"
       >
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-slate-400 sm:flex-row">
