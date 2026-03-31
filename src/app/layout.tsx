@@ -1,26 +1,34 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Sora, Space_Grotesk } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-});
-
-const sora = Sora({
-  variable: "--font-sora",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 const jetBrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Kivixa | Privacy-First Notes and Local AI Workspace",
+  metadataBase: new URL("https://kivixa.dev"),
+  title: "Kivixa — Privacy-First Productivity Workspace with On-Device AI",
   description:
-    "Kivixa is a privacy-first cross-platform workspace for notes, sketching, planning, and on-device AI assistance.",
+    "A local-first, cross-platform workspace for notes, sketching, planning, and private AI assistance. Your data never leaves your device.",
+  openGraph: {
+    title: "Kivixa — Privacy-First Productivity Workspace",
+    description:
+      "Notes, sketching, planning, and on-device AI — all local, all private, all yours.",
+    images: [{ url: "/assets/icon.png", width: 512, height: 512 }],
+    type: "website",
+  },
+  icons: {
+    icon: "/assets/icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -31,9 +39,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${sora.variable} ${jetBrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetBrainsMono.variable}`}
     >
-      <body className="min-h-full flex flex-col font-[family:var(--font-space-grotesk)]">{children}</body>
+      <body>{children}</body>
     </html>
   );
 }
