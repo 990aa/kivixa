@@ -2,141 +2,308 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Download, Smartphone, BrainCircuit, FileCode2, MonitorSmartphone, Github } from "lucide-react";
+import {
+  BookText,
+  Bot,
+  Download,
+  Network,
+  ShieldCheck,
+  Sigma,
+  Smartphone,
+  Workflow,
+} from "lucide-react";
+
+function GitHubMark(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.3 9.42 7.88 10.95.57.1.78-.25.78-.56 0-.28-.01-1.19-.02-2.16-3.2.7-3.88-1.36-3.88-1.36-.53-1.33-1.28-1.69-1.28-1.69-1.04-.72.08-.71.08-.71 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.67 1.25 3.32.95.1-.74.4-1.25.72-1.54-2.56-.3-5.26-1.28-5.26-5.72 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a10.92 10.92 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.83 1.18 3.09 0 4.45-2.7 5.41-5.28 5.7.41.36.78 1.05.78 2.13 0 1.53-.01 2.76-.01 3.14 0 .31.2.67.79.56A11.52 11.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+    </svg>
+  );
+}
 
 export default function Home() {
-  const fadeUp = {
+  const fadeUpSection = {
     hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: "easeOut" } },
   };
 
-  return (
-    <main className="min-h-screen bg-[#0B1120] selection:bg-purple-500/30">
-      {/* --- HERO SECTION --- */}
-      <section className="relative flex flex-col items-center justify-center min-h-screen px-4 overflow-hidden">
-        {/* Background Glowing Orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-[120px] pointer-events-none" />
+  const featureCards = [
+    {
+      title: "On-Device AI + MCP",
+      description:
+        "Run multi-model local AI with Model Context Protocol for tool-capable assistance, with all executions requiring user confirmation.",
+      icon: Bot,
+      accent: "purple",
+    },
+    {
+      title: "Privacy-First by Design",
+      description:
+        "Runs 100% on-device with no cloud dependency after model download, no API keys, and no subscriptions.",
+      icon: ShieldCheck,
+      accent: "teal",
+    },
+    {
+      title: "Rich Markdown Workspace",
+      description:
+        "Create formatted documents with autosave, note linking, and support for .kvx, .md, .txt, and PDF files.",
+      icon: BookText,
+      accent: "indigo",
+    },
+    {
+      title: "Knowledge Graph",
+      description:
+        "Build interactive mind maps with custom node types, draggable layouts, labeled links, and persistent local storage.",
+      icon: Network,
+      accent: "purple",
+    },
+    {
+      title: "Rust-Powered Math Module",
+      description:
+        "A high-performance Rust backend powers calculus, statistics, algebra, and graphing for fast, accurate computation.",
+      icon: Sigma,
+      accent: "teal",
+    },
+    {
+      title: "Cross-Platform Core",
+      description:
+        "Built with Flutter, Dart, Rust, and llama.cpp to deliver a consistent experience across desktop and mobile.",
+      icon: Workflow,
+      accent: "indigo",
+    },
+  ] as const;
 
-        <motion.div 
-          initial="hidden" 
-          animate="visible" 
-          variants={fadeUp}
-          className="z-10 flex flex-col items-center text-center max-w-3xl"
+  const accentClasses = {
+    purple: "from-purple-500/25 to-purple-500/5 text-purple-300 border-purple-500/30",
+    teal: "from-teal-500/25 to-teal-500/5 text-teal-300 border-teal-500/30",
+    indigo: "from-indigo-500/25 to-indigo-500/5 text-indigo-300 border-indigo-500/30",
+  } as const;
+
+  const screenshots = [
+    {
+      src: "/assets/screenshots/workspace-overview.png",
+      alt: "Kivixa workspace overview",
+      size: "md:col-span-2",
+    },
+    {
+      src: "/assets/screenshots/ai-chat.png",
+      alt: "Kivixa local AI assistant panel",
+      size: "md:col-span-1",
+    },
+    {
+      src: "/assets/screenshots/knowledge-graph.png",
+      alt: "Kivixa knowledge graph feature",
+      size: "md:col-span-1",
+    },
+    {
+      src: "/assets/screenshots/math-module.png",
+      alt: "Kivixa Rust-powered math module",
+      size: "md:col-span-1",
+    },
+    {
+      src: "/assets/screenshots/quick-notes.png",
+      alt: "Kivixa quick notes interface",
+      size: "md:col-span-1",
+    },
+    {
+      src: "/assets/screenshots/productivity-clock.png",
+      alt: "Kivixa productivity clock dashboard",
+      size: "md:col-span-2",
+    },
+  ] as const;
+
+  return (
+    <main className="relative min-h-screen overflow-hidden bg-[#0B1120] text-slate-100 selection:bg-purple-500/30">
+      <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-purple-600/20 blur-[130px]" />
+      <div className="pointer-events-none absolute -right-20 top-1/3 h-80 w-80 rounded-full bg-teal-500/15 blur-[140px]" />
+      <div className="pointer-events-none absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-purple-500/10 blur-[130px]" />
+
+      <section
+        id="hero"
+        data-testid="hero-section"
+        className="relative flex min-h-screen items-center px-5 py-24"
+      >
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeUpSection}
+          className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center text-center"
         >
-          <div className="mb-8 relative w-32 h-32">
-            {/* Make sure your icon.png is in the public/assets folder! */}
-            <Image src="/assets/icon.png" alt="Kivixa Logo" fill className="object-contain drop-shadow-[0_0_30px_rgba(168,85,247,0.4)]" />
-          </div>
-          
-          <h1 className="text-6xl md:text-8xl font-bold tracking-tight mb-6 bg-gradient-to-br from-white via-slate-200 to-slate-500 bg-clip-text text-transparent">
+          <motion.div
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+            className="relative mb-9 h-28 w-28 rounded-[2rem] border border-white/10 bg-white/5 p-3 shadow-[0_0_40px_rgba(147,51,234,0.45)] backdrop-blur"
+          >
+            <Image
+              src="/assets/icon.png"
+              alt="Kivixa app icon"
+              fill
+              priority
+              className="rounded-[1.5rem] object-contain"
+            />
+          </motion.div>
+
+          <p className="mb-3 text-sm uppercase tracking-[0.26em] text-slate-400">
+            Privacy-First Cross-Platform Workspace
+          </p>
+          <h1 className="mb-6 bg-gradient-to-r from-white via-slate-100 to-teal-300 bg-clip-text text-6xl font-bold tracking-tight text-transparent sm:text-7xl md:text-8xl">
             Kivixa
           </h1>
-          <p className="text-xl md:text-2xl text-slate-400 mb-10 max-w-2xl">
-            Intelligent Notes. Absolute Privacy. <br className="hidden md:block"/> Powered entirely by on-device AI.
+          <p className="mb-4 max-w-3xl text-lg text-slate-300 sm:text-xl">
+            A privacy-first cross-platform productivity workspace for notes, sketching,
+            planning, and local AI assistance.
+          </p>
+          <p className="mb-12 max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg">
+            Built with Flutter + Rust, powered by local AI, and designed to keep your ideas
+            on your device, not in the cloud.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            {/* Windows Download Button */}
-            <a href="https://github.com/990aa/kivixa/releases/latest" target="_blank" rel="noreferrer" 
-               className="flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-medium transition-all shadow-[0_0_40px_rgba(147,51,234,0.4)] hover:shadow-[0_0_60px_rgba(147,51,234,0.6)] hover:-translate-y-1">
+          <div className="flex w-full flex-col justify-center gap-4 sm:w-auto sm:flex-row">
+            <motion.a
+              data-testid="cta-windows"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              href="https://github.com/990aa/kivixa/releases/download/v0.3.9%2B3009/Kivixa-Setup-0.3.9.exe"
+              target="_blank"
+              rel="noreferrer"
+              className="group relative inline-flex items-center justify-center gap-2 rounded-full border border-purple-400/40 bg-gradient-to-r from-purple-600 to-teal-500 px-8 py-4 text-base font-semibold text-white shadow-[0_0_35px_rgba(139,92,246,0.45)] transition-all hover:shadow-[0_0_55px_rgba(45,212,191,0.5)]"
+            >
               <Download size={20} />
-              Download for Windows
-            </a>
-            {/* Android Download Button */}
-            <a href="https://kivixa.uptodown.com/android" target="_blank" rel="noreferrer" 
-               className="flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-[#111827] border border-slate-700 hover:border-teal-500/50 hover:bg-[#1F2937] text-slate-200 font-medium transition-all hover:-translate-y-1">
+              <span>Download for Windows</span>
+              <motion.span
+                aria-hidden="true"
+                className="absolute -z-10 h-12 w-12 rounded-full bg-purple-400/40 blur-2xl"
+                whileHover={{ scale: 1.25 }}
+                transition={{ duration: 0.2 }}
+              />
+            </motion.a>
+
+            <motion.a
+              data-testid="cta-uptodown"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              href="https://kivixa.uptodown.com/android"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-teal-400/30 bg-slate-900/70 px-8 py-4 text-base font-semibold text-slate-100 transition-all hover:border-teal-400/60 hover:bg-slate-800"
+            >
               <Smartphone size={20} />
-              Get it on Uptodown
-            </a>
+              <span>Get it on Uptodown</span>
+            </motion.a>
           </div>
         </motion.div>
       </section>
 
-      {/* --- FEATURES SECTION --- */}
-      <section className="py-24 px-4 bg-[#070b14] relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <motion.div 
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-          >
-            {/* Feature 1 */}
-            <div className="p-8 rounded-3xl bg-slate-900/50 border border-slate-800 hover:border-purple-500/30 transition-colors">
-              <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-6 text-purple-400">
-                <BrainCircuit size={28} />
-              </div>
-              <h3 className="text-2xl font-semibold mb-3">On-Device AI</h3>
-              <p className="text-slate-400 leading-relaxed">
-                Interact with your notes using local language models. Zero cloud processing means your data never leaves your device.
-              </p>
-            </div>
+      <motion.section
+        id="features"
+        data-testid="features-section"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        variants={fadeUpSection}
+        className="relative z-10 border-y border-white/5 bg-[#0A1223]/80 px-5 py-24"
+      >
+        <div className="mx-auto max-w-6xl">
+          <h2 className="text-center text-3xl font-semibold sm:text-4xl">Why People Choose Kivixa</h2>
+          <p className="mx-auto mt-4 max-w-3xl text-center text-slate-400">
+            Everything from note creation to AI reasoning works locally, with a stack tuned for
+            speed, reliability, and complete user control.
+          </p>
 
-            {/* Feature 2 */}
-            <div className="p-8 rounded-3xl bg-slate-900/50 border border-slate-800 hover:border-teal-500/30 transition-colors">
-              <div className="w-14 h-14 rounded-2xl bg-teal-500/10 flex items-center justify-center mb-6 text-teal-400">
-                <FileCode2 size={28} />
-              </div>
-              <h3 className="text-2xl font-semibold mb-3">Markdown Native</h3>
-              <p className="text-slate-400 leading-relaxed">
-                Write flawlessly with full markdown support, code highlighting, and beautiful typography designed for focus.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="p-8 rounded-3xl bg-slate-900/50 border border-slate-800 hover:border-blue-500/30 transition-colors">
-              <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-6 text-blue-400">
-                <MonitorSmartphone size={28} />
-              </div>
-              <h3 className="text-2xl font-semibold mb-3">Cross-Platform</h3>
-              <p className="text-slate-400 leading-relaxed">
-                Built from the ground up with Rust and Flutter to run blazingly fast on both Windows and Android.
-              </p>
-            </div>
-          </motion.div>
+          <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
+            {featureCards.map((card, index) => {
+              const Icon = card.icon;
+              return (
+                <motion.article
+                  key={card.title}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{ delay: index * 0.07, duration: 0.55 }}
+                  className="group rounded-3xl border border-slate-800 bg-slate-900/55 p-7 shadow-[0_20px_50px_rgba(0,0,0,0.25)] backdrop-blur transition-all hover:-translate-y-1 hover:border-purple-500/40"
+                >
+                  <div
+                    className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl border bg-gradient-to-br ${accentClasses[card.accent]}`}
+                  >
+                    <motion.div
+                      animate={{ y: [0, -3, 0] }}
+                      transition={{ duration: 3 + index, repeat: Number.POSITIVE_INFINITY }}
+                    >
+                      <Icon size={23} />
+                    </motion.div>
+                  </div>
+                  <h3 className="mb-3 text-xl font-semibold text-white">{card.title}</h3>
+                  <p className="leading-relaxed text-slate-400">{card.description}</p>
+                </motion.article>
+              );
+            })}
+          </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* --- SCREENSHOT SHOWCASE --- */}
-      <section className="py-32 px-4 relative z-10 overflow-hidden">
-        <div className="max-w-7xl mx-auto flex flex-col items-center">
-          <motion.h2 
-            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
-            className="text-4xl md:text-5xl font-bold text-center mb-16"
-          >
-            A workspace that <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-teal-400">gets out of your way.</span>
-          </motion.h2>
+      <motion.section
+        id="showcase"
+        data-testid="showcase-section"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={fadeUpSection}
+        className="relative z-10 px-5 py-24"
+      >
+        <div className="mx-auto max-w-6xl">
+          <h2 className="text-center text-3xl font-semibold sm:text-4xl">
+            A Workspace That Blends Notes, AI, and Flow
+          </h2>
+          <p className="mx-auto mt-4 max-w-3xl text-center text-slate-400">
+            Real screenshots from the app: local AI chat, knowledge graph mapping, quick notes,
+            and productivity tools in one cohesive experience.
+          </p>
 
-          {/* Screenshot Grid. Note: You need to add screenshot1.png, etc to the public/assets folder later! */}
-          <motion.div 
-            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full"
-          >
-             <div className="relative w-full aspect-[9/19] rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 flex items-center justify-center">
-                <span className="text-slate-600 text-sm">Drop screenshot1.png in /assets</span>
-                {/* <Image src="/assets/screenshot1.png" alt="App UI" fill className="object-cover" /> */}
-             </div>
-             <div className="relative w-full aspect-[9/19] rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 md:-translate-y-8 flex items-center justify-center">
-                <span className="text-slate-600 text-sm">Drop screenshot2.png in /assets</span>
-                {/* <Image src="/assets/screenshot2.png" alt="App Editor" fill className="object-cover" /> */}
-             </div>
-             <div className="relative w-full aspect-[9/19] rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 flex items-center justify-center">
-                <span className="text-slate-600 text-sm">Drop screenshot3.png in /assets</span>
-                {/* <Image src="/assets/screenshot3.png" alt="AI Features" fill className="object-cover" /> */}
-             </div>
-          </motion.div>
+          <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
+            {screenshots.map((shot, index) => (
+              <motion.figure
+                key={shot.src}
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.6, delay: index * 0.05 }}
+                className={`${shot.size} ${index % 2 === 1 ? "md:-translate-y-3" : ""} relative overflow-hidden rounded-3xl border border-slate-700/80 bg-slate-900/70 shadow-[0_30px_70px_rgba(2,6,23,0.7)]`}
+              >
+                <div className="relative aspect-[16/10] w-full">
+                  <Image
+                    src={shot.src}
+                    alt={shot.alt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover transition-transform duration-500 hover:scale-[1.02]"
+                  />
+                </div>
+              </motion.figure>
+            ))}
+          </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* --- FOOTER --- */}
-      <footer className="py-12 border-t border-slate-800/50 bg-[#0B1120]">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between opacity-60">
-          <p className="text-sm">© {new Date().getFullYear()} Kivixa. Open Source under MIT License.</p>
-          <a href="https://github.com/990aa/kivixa" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-white transition-colors mt-4 md:mt-0">
-            <Github size={20} />
-            View Source Code
+      <motion.footer
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="border-t border-white/10 px-5 py-10"
+      >
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-slate-400 sm:flex-row">
+          <p className="text-sm">© {new Date().getFullYear()} Kivixa. Privacy-first and open source.</p>
+          <a
+            href="https://github.com/990aa/kivixa"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Kivixa GitHub repository"
+            className="inline-flex items-center gap-2 text-sm transition-colors hover:text-white"
+          >
+            <GitHubMark className="h-[18px] w-[18px]" />
+            <span>GitHub</span>
           </a>
         </div>
-      </footer>
+      </motion.footer>
     </main>
   );
 }
