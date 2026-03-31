@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import type { Variants } from "framer-motion";
 import {
   BookText,
   Bot,
@@ -22,9 +23,13 @@ function GitHubMark(props: React.SVGProps<SVGSVGElement>) {
 }
 
 export default function Home() {
-  const fadeUpSection = {
+  const fadeUpSection: Variants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: "easeOut" } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.75, ease: [0.16, 1, 0.3, 1] },
+    },
   };
 
   const featureCards = [
@@ -164,7 +169,7 @@ export default function Home() {
               whileTap={{ scale: 0.98 }}
               href="https://github.com/990aa/kivixa/releases/download/v0.3.9%2B3009/Kivixa-Setup-0.3.9.exe"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="group relative inline-flex items-center justify-center gap-2 rounded-full border border-purple-400/40 bg-gradient-to-r from-purple-600 to-teal-500 px-8 py-4 text-base font-semibold text-white shadow-[0_0_35px_rgba(139,92,246,0.45)] transition-all hover:shadow-[0_0_55px_rgba(45,212,191,0.5)]"
             >
               <Download size={20} />
@@ -183,7 +188,7 @@ export default function Home() {
               whileTap={{ scale: 0.98 }}
               href="https://kivixa.uptodown.com/android"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-full border border-teal-400/30 bg-slate-900/70 px-8 py-4 text-base font-semibold text-slate-100 transition-all hover:border-teal-400/60 hover:bg-slate-800"
             >
               <Smartphone size={20} />
@@ -295,7 +300,7 @@ export default function Home() {
           <a
             href="https://github.com/990aa/kivixa"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             aria-label="Kivixa GitHub repository"
             className="inline-flex items-center gap-2 text-sm transition-colors hover:text-white"
           >
