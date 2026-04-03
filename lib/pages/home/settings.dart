@@ -344,7 +344,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   afterChange: (_) => setState(() {}),
                 ),
                 const NotificationSettingsWidget(),
-                SettingsSubtitle(subtitle: t.settings.prefCategories.editor),
+                const SettingsSubtitle(subtitle: 'Handwritten Note'),
                 SettingsSelection(
                   title: t.settings.prefLabels.editorToolbarAlignment,
                   subtitle:
@@ -555,35 +555,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       }
                     },
                   ),
-                if (requiresManualUpdates ||
-                    stows.shouldCheckForUpdates.value !=
-                        stows.shouldCheckForUpdates.defaultValue) ...[
-                  SettingsSwitch(
-                    title: t.settings.prefLabels.shouldCheckForUpdates,
-                    icon: Icons.system_update,
-                    pref: stows.shouldCheckForUpdates,
-                    afterChange: (_) => setState(() {}),
-                  ),
-                  Collapsible(
-                    collapsed: !stows.shouldCheckForUpdates.value,
-                    axis: CollapsibleAxis.vertical,
-                    child: SettingsSwitch(
-                      title: t.settings.prefLabels.shouldAlwaysAlertForUpdates,
-                      subtitle: t
-                          .settings
-                          .prefDescriptions
-                          .shouldAlwaysAlertForUpdates,
-                      icon: Icons.system_security_update_warning,
-                      pref: stows.shouldAlwaysAlertForUpdates,
-                    ),
-                  ),
-                ],
-                SettingsButton(
-                  title: t.logs.viewLogs,
-                  subtitle: t.logs.debuggingInfo,
-                  icon: Icons.receipt_long,
-                  onPressed: () => context.push(RoutePaths.logs),
-                ),
                 const SettingsSubtitle(subtitle: 'Extensions'),
                 SettingsButton(
                   title: 'Lua Plugins',
