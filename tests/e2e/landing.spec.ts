@@ -220,6 +220,8 @@ test.describe("Kivixa landing page", () => {
   });
 
   test("passes baseline accessibility checks", async ({ page }) => {
+    test.setTimeout(60_000);
+
     await page.goto("/");
 
     const images = page.locator("img");

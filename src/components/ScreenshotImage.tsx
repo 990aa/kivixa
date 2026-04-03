@@ -16,6 +16,8 @@ export default function ScreenshotImage({
   loading = "lazy",
 }: ScreenshotImageProps) {
   return (
+    // Intentional plain img usage to preserve source screenshot fidelity.
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
       alt={alt}
