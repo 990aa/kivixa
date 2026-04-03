@@ -6,7 +6,9 @@ import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/home/new_note_button.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
+import 'package:kivixa/data/flavor_config.dart';
 import 'package:kivixa/pages/textfile/text_file_editor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Uint8List _buildDocxBytes(String documentXml) {
   final archive = Archive()
@@ -23,6 +25,11 @@ Uint8List _buildDocxBytes(String documentXml) {
 }
 
 void main() {
+  setUpAll(() async {
+    FlavorConfig.setup();
+    SharedPreferences.setMockInitialValues({});
+  });
+
   group('Import note helpers', () {
     late Directory tempRoot;
 
