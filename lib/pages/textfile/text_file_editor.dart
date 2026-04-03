@@ -23,6 +23,56 @@ import 'package:path_provider/path_provider.dart';
 /// Custom embed type for interactive images with metadata
 const kInteractiveImageType = 'interactive-image';
 
+@visibleForTesting
+String? normalizeQuillFontSize(Object? rawValue) {
+  if (rawValue == null) return null;
+
+  final value = rawValue.toString().trim();
+  if (value.isEmpty) return null;
+
+  final pixelMatch = RegExp(
+    r'^([0-9]+(?:\.[0-9]+)?)px$',
+    caseSensitive: false,
+  ).firstMatch(value);
+  if (pixelMatch != null) {
+    return pixelMatch.group(1);
+  }
+
+  if (RegExp(r'^[0-9]+(?:\.[0-9]+)?$').hasMatch(value)) {
+    return value;
+  }
+
+  final normalized = value.toLowerCase();
+  if (normalized == 'small' || normalized == 'large' || normalized == 'huge') {
+    return normalized;
+  }
+
+  return null;
+}
+
+@visibleForTesting
+List<Map<String, dynamic>> sanitizeQuillDocumentOps(List<dynamic> rawOps) {
+  return rawOps.map((rawOp) {
+    final op = Map<String, dynamic>.from(rawOp as Map);
+    final rawAttributes = op['attributes'];
+
+    if (rawAttributes is Map) {
+      final attributes = Map<String, dynamic>.from(rawAttributes);
+      if (attributes.containsKey('size')) {
+        final normalizedSize = normalizeQuillFontSize(attributes['size']);
+        if (normalizedSize == null) {
+          attributes.remove('size');
+        } else {
+          attributes['size'] = normalizedSize;
+        }
+      }
+      op['attributes'] = attributes;
+    }
+
+    return op;
+  }).toList(growable: false);
+}
+
 /// Custom image embed builder for QuillEditor that handles local file images
 /// with persistent metadata (size, rotation, position)
 class _ImageEmbedBuilder extends EmbedBuilder {
@@ -841,11 +891,7 @@ class _TextFileEditorState extends State<TextFileEditor> {
 
             if (data is Map && data.containsKey('document')) {
               final document = Document.fromJson(
-                List<Map<String, dynamic>>.from(
-                  (data['document'] as List).map(
-                    (e) => Map<String, dynamic>.from(e as Map),
-                  ),
-                ),
+                sanitizeQuillDocumentOps(data['document'] as List),
               );
               _controller = QuillController(
                 document: document,
@@ -856,11 +902,7 @@ class _TextFileEditorState extends State<TextFileEditor> {
             } else {
               // Old format - just delta ops
               final document = Document.fromJson(
-                List<Map<String, dynamic>>.from(
-                  (data as List).map(
-                    (e) => Map<String, dynamic>.from(e as Map),
-                  ),
-                ),
+                sanitizeQuillDocumentOps(data as List),
               );
               _controller = QuillController(
                 document: document,
@@ -1092,11 +1134,7 @@ class _TextFileEditorState extends State<TextFileEditor> {
 
       if (data is Map && data.containsKey('document')) {
         final document = Document.fromJson(
-          List<Map<String, dynamic>>.from(
-            (data['document'] as List).map(
-              (e) => Map<String, dynamic>.from(e as Map),
-            ),
-          ),
+          sanitizeQuillDocumentOps(data['document'] as List),
         );
         setState(() {
           _controller = QuillController(
@@ -1117,11 +1155,7 @@ class _TextFileEditorState extends State<TextFileEditor> {
 
       if (data is Map && data.containsKey('document')) {
         final document = Document.fromJson(
-          List<Map<String, dynamic>>.from(
-            (data['document'] as List).map(
-              (e) => Map<String, dynamic>.from(e as Map),
-            ),
-          ),
+          sanitizeQuillDocumentOps(data['document'] as List),
         );
         setState(() {
           _controller = QuillController(
@@ -2021,9 +2055,7 @@ class _FontSizeDropdown extends StatelessWidget {
         }).toList(),
         onChanged: (value) {
           if (value != null) {
-            controller.formatSelection(
-              Attribute.fromKeyValue('size', '${value}px'),
-            );
+            controller.formatSelection(Attribute.fromKeyValue('size', value));
           }
         },
       ),

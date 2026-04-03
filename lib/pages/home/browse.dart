@@ -322,6 +322,7 @@ class _BrowsePageState extends State<BrowsePage> {
         : '$destinationPath/$folderName';
 
     await FileManager.moveDirectory(sourcePath, newPath);
+    await FolderColorService.instance.renameFolder(sourcePath, newPath);
     findChildrenOfPath();
   }
 
@@ -637,9 +638,27 @@ class _BrowsePageState extends State<BrowsePage> {
                   doesFolderExist: (String folderName) {
                     return children?.directories.contains(folderName) ?? false;
                   },
-                  renameFolder: (String oldName, String newName) async {
+                  renameFolder: (
+                    String oldName,
+                    String newName, {
+                    Color? color,
+                    bool colorChanged = false,
+                  }) async {
                     final oldPath = '${path ?? ''}/$oldName';
+                    final newPath = '${path ?? ''}/$newName';
                     await FileManager.renameDirectory(oldPath, newName);
+
+                    // Preserve existing color mapping when renaming folders.
+                    await FolderColorService.instance.renameFolder(
+                      oldPath,
+                      newPath,
+                    );
+
+                    // Apply explicit color changes from the rename dialog.
+                    if (colorChanged) {
+                      await FolderColorService.instance.setColor(newPath, color);
+                    }
+
                     findChildrenOfPath();
                   },
                   isFolderEmpty: (String folderName) async {
@@ -652,6 +671,7 @@ class _BrowsePageState extends State<BrowsePage> {
                   deleteFolder: (String folderName) async {
                     final folderPath = '${path ?? ''}/$folderName';
                     await FileManager.deleteDirectory(folderPath);
+                    await FolderColorService.instance.removeColor(folderPath);
                     findChildrenOfPath();
                   },
                   moveFolder: _moveFolder,
