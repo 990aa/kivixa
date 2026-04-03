@@ -219,7 +219,8 @@ void main() {
                       crossAxisCount: 2,
                       onTap: (v) {},
                       doesFolderExist: (v) => false,
-                      renameFolder: (a, b, {color, colorChanged = false}) async {},
+                      renameFolder:
+                          (a, b, {color, colorChanged = false}) async {},
                       isFolderEmpty: (v) async => true,
                       deleteFolder: (v) async {},
                       folders: const ['Folder1', 'Folder2'],
@@ -387,5 +388,3 @@ String? _validateFolderName(
   }
   return null;
 }
-
-
