@@ -340,9 +340,9 @@ class _NewNoteButtonState extends State<NewNoteButton> {
               }
             } catch (e) {
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Import failed: $e')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Import failed: $e')));
               }
             }
           },
