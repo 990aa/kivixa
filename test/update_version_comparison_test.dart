@@ -143,10 +143,11 @@ void main() => group('Update manager:', () {
         isNotNull,
         reason: 'Could not parse version number from GitHub',
       );
-      // The version should be parsed as 1003 from "v0.1.3+1003"
+      // Build numbers are derived from semantic version components.
+      // For 0.1.3 this yields 1030 (0*100000 + 1*1000 + 3*10).
       expect(
         newestVersion,
-        equals(1003),
+        equals(1030),
         reason: 'Incorrect version number parsed from GitHub',
       );
     });
@@ -160,7 +161,7 @@ void main() => group('Update manager:', () {
         final (buildNum, versionName, releaseBody) =
             await UpdateManager.fetchLatestVersionFromGitHub(fileContents);
 
-        expect(buildNum, equals(1003));
+        expect(buildNum, equals(1030));
         expect(versionName, equals('0.1.3'));
         expect(releaseBody, contains("What's New"));
       },
@@ -177,7 +178,7 @@ void main() => group('Update manager:', () {
       final (buildNum, versionName, _) =
           await UpdateManager.fetchLatestVersionFromGitHub(json);
 
-      expect(buildNum, equals(1002));
+      expect(buildNum, equals(1020));
       expect(versionName, equals('0.1.2'));
     });
 
