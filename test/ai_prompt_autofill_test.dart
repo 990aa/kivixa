@@ -90,20 +90,24 @@ class _FakeModelGateway implements ChatModelGateway {
   }
 }
 
-class _FakeMcpInferenceService extends Fake implements InferenceService {
-  final chatRequests = <List<ChatMessage>>[];
+class _FakeMcpChatController extends Fake implements MCPChatController {
+  @override
+  void addListener(VoidCallback listener) {}
 
   @override
-  bool get isModelLoaded => true;
+  List<MCPChatMessage> get messages => const [];
 
   @override
-  Future<void> initialize() async {}
+  bool get isGenerating => false;
 
   @override
-  Future<String> chat(List<ChatMessage> messages, {int? maxTokens}) async {
-    chatRequests.add(List<ChatMessage>.from(messages));
-    return 'stubbed-mcp-response';
-  }
+  void removeListener(VoidCallback listener) {}
+
+  @override
+  Future<void> sendMessage(String content, {BuildContext? context}) async {}
+
+  @override
+  void dispose() {}
 }
 
 void _emitPrefill(ValueNotifier<String?> notifier, String prompt) {
@@ -223,22 +227,10 @@ void main() {
     testWidgets('MCP tool options auto-fill textbox with tool prompts', (
       tester,
     ) async {
-      final sandboxDir = await Directory.systemTemp.createTemp(
-        'kivixa_mcp_autofill_',
-      );
-
-      final mcpService = MCPService.instance;
-      mcpService.resetForTests();
-      await mcpService.initialize(sandboxDir.path);
-
-      final fakeMcpInference = _FakeMcpInferenceService();
-      final controller = MCPChatController(
-        inferenceService: fakeMcpInference,
-        browseDirectory: sandboxDir.path,
-      );
+      final controller = _FakeMcpChatController();
 
       final promptPrefill = ValueNotifier<String?>(null);
-      final tools = mcpService.getAvailableTools();
+      final tools = MCPService.instance.getAvailableTools();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -269,10 +261,6 @@ void main() {
 
       controller.dispose();
       promptPrefill.dispose();
-      mcpService.resetForTests();
-      if (sandboxDir.existsSync()) {
-        await sandboxDir.delete(recursive: true);
-      }
     });
   });
 

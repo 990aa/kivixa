@@ -460,6 +460,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.13] - 2026-04-03
 
 ### Changed
-- Version bump to 0.3.13
+- Main AI quick actions (Smart Search, Summarize, Discover) are now clickable prompt starters that auto-fill the chat composer.
+- MCP tool options are now clickable prompt starters that auto-fill the MCP chat composer with tool-specific task prompts.
+- Added shared prompt-prefill wiring in both chat interfaces to apply prefilled text and focus the input field.
+
+### Added
+- Added comprehensive prompt-autofill and sandbox workflow coverage in `test/ai_prompt_autofill_test.dart`, including:
+  - prompt-template coverage for all visible main/MCP options,
+  - UI autofill behavior validation for both chat composers,
+  - sandboxed dummy file/folder MCP operations,
+  - qwen 3.5 distilled 0.8B prompt-run flow using fake gateways and cleanup.
+- Added `MCPService.resetForTests()` to support deterministic, isolated MCP sandbox tests.
 
 ---
