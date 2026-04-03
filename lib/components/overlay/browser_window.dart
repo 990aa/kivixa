@@ -548,7 +548,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
         displayZoomControls: false,
         // On Android, use hybrid composition for better touch handling
         // but also set specific gesture options
-        useHybridComposition: true,
+        useHybridComposition: isAndroid,
         allowsInlineMediaPlayback: true,
         mediaPlaybackRequiresUserGesture: false,
         transparentBackground: false,
@@ -627,12 +627,26 @@ class _BrowserWindowState extends State<BrowserWindow> {
       },
       onReceivedError: (controller, request, error) {
         debugPrint('Browser window error: ${error.description}');
-        // Continue loading - some errors are recoverable
+        if (request.isForMainFrame) {
+          setState(() {
+            _isLoading = false;
+            tab.isLoading = false;
+            _stateNotifier.value++;
+          });
+        }
       },
       onReceivedHttpError: (controller, request, response) {
         debugPrint(
           'Browser window HTTP error: ${response.statusCode} for ${request.url}',
         );
+
+        if (request.isForMainFrame) {
+          setState(() {
+            _isLoading = false;
+            tab.isLoading = false;
+            _stateNotifier.value++;
+          });
+        }
       },
     );
   }

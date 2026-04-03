@@ -7,6 +7,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_highlight/themes/github.dart';
 import 'package:flutter_highlight/themes/vs2015.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart'
+    as markdown_plus;
 import 'package:flutter_smooth_markdown/flutter_smooth_markdown.dart';
 import 'package:go_router/go_router.dart';
 import 'package:highlight/languages/markdown.dart';
@@ -68,6 +70,9 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
   String? _timeTravelContent;
 
   final log = Logger('AdvancedMarkdownEditor');
+
+  bool get _useDesktopMarkdownPreviewFallback =>
+      Platform.isWindows || Platform.isMacOS || Platform.isLinux;
 
   // Supported markdown types for toolbar
   static const _toolbarActions = <_ToolbarAction>[
@@ -1308,6 +1313,41 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
   }
 
   Widget _buildMarkdownSection(String content, bool isDark) {
+    if (_useDesktopMarkdownPreviewFallback) {
+      final theme = Theme.of(context);
+      final colorScheme = theme.colorScheme;
+
+      return markdown_plus.MarkdownBody(
+        data: content,
+        styleSheet: markdown_plus.MarkdownStyleSheet.fromTheme(theme).copyWith(
+          p: theme.textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurface,
+            height: 1.6,
+          ),
+          code: theme.textTheme.bodyMedium?.copyWith(
+            fontFamily: 'FiraMono',
+            color: colorScheme.onSurfaceVariant,
+          ),
+          codeblockDecoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          blockquote: theme.textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        onTapLink: (text, href, title) {
+          if (href != null && href.isNotEmpty) {
+            log.info('Link tapped: $href');
+          }
+        },
+        imageBuilder: (uri, title, alt) {
+          final imagePath = uri.toString();
+          return _buildDirectImage(imagePath, alt ?? '');
+        },
+      );
+    }
+
     return SmoothMarkdown(
       data: content,
       styleSheet: isDark

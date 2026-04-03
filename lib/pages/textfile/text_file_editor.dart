@@ -52,25 +52,27 @@ String? normalizeQuillFontSize(Object? rawValue) {
 
 @visibleForTesting
 List<Map<String, dynamic>> sanitizeQuillDocumentOps(List<dynamic> rawOps) {
-  return rawOps.map((rawOp) {
-    final op = Map<String, dynamic>.from(rawOp as Map);
-    final rawAttributes = op['attributes'];
+  return rawOps
+      .map((rawOp) {
+        final op = Map<String, dynamic>.from(rawOp as Map);
+        final rawAttributes = op['attributes'];
 
-    if (rawAttributes is Map) {
-      final attributes = Map<String, dynamic>.from(rawAttributes);
-      if (attributes.containsKey('size')) {
-        final normalizedSize = normalizeQuillFontSize(attributes['size']);
-        if (normalizedSize == null) {
-          attributes.remove('size');
-        } else {
-          attributes['size'] = normalizedSize;
+        if (rawAttributes is Map) {
+          final attributes = Map<String, dynamic>.from(rawAttributes);
+          if (attributes.containsKey('size')) {
+            final normalizedSize = normalizeQuillFontSize(attributes['size']);
+            if (normalizedSize == null) {
+              attributes.remove('size');
+            } else {
+              attributes['size'] = normalizedSize;
+            }
+          }
+          op['attributes'] = attributes;
         }
-      }
-      op['attributes'] = attributes;
-    }
 
-    return op;
-  }).toList(growable: false);
+        return op;
+      })
+      .toList(growable: false);
 }
 
 /// Custom image embed builder for QuillEditor that handles local file images
