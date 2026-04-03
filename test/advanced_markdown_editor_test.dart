@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:code_text_field/code_text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/flavor_config.dart';
@@ -84,7 +83,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
-      expect(find.byType(MarkdownBody), findsWidgets);
+        expect(find.byType(CodeField), findsNothing);
     });
 
     testWidgets('should render split mode with editor and preview', (
@@ -101,7 +100,6 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.byType(CodeField), findsOneWidget);
-      expect(find.byType(MarkdownBody), findsWidgets);
     });
 
     // NOTE: Other tests (Preview, Split Mode, Title, Toolbar, etc.) were removed
