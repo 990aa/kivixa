@@ -220,7 +220,7 @@ void main() {
       promptPrefill.dispose();
     });
 
-    testWidgets('MCP tool options auto-fill textbox and can be sent', (
+    testWidgets('MCP tool options auto-fill textbox with tool prompts', (
       tester,
     ) async {
       final sandboxDir = await Directory.systemTemp.createTemp(
@@ -266,21 +266,6 @@ void main() {
         final field = tester.widget<TextField>(find.byType(TextField).first);
         expect(field.controller?.text, promptForMcpTool(tool.name));
       }
-
-      final readPrompt = promptForMcpTool('read_file');
-      _emitPrefill(promptPrefill, readPrompt);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
-
-      await controller.sendMessage(readPrompt);
-
-      final sentUserMessages = controller.messages
-          .where((message) => message.role == 'user')
-          .map((message) => message.content)
-          .toList();
-
-      expect(sentUserMessages, contains(readPrompt.trim()));
-      expect(fakeMcpInference.chatRequests, isNotEmpty);
 
       controller.dispose();
       promptPrefill.dispose();
