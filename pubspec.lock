@@ -13,10 +13,10 @@ packages:
     dependency: "direct main"
     description:
       name: abstract_sync
-      sha256: f88f85bfecf2171d8756556b8d7992cf8d31d076a6d0ebbfd9f8ee559d8a18bc
+      sha256: "29d969627a2c3f97bca3d26f7c6ccead24b2dc2d183a196621948c7e8ef55a65"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.1"
+    version: "1.3.2"
   analyzer:
     dependency: transitive
     description:
@@ -771,10 +771,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_smooth_markdown
-      sha256: "60d3c50b0279a7f893b76fc44696f873c941b2c486eb1c19546c90e1ae49f6e4"
+      sha256: "7a59bbc06f2670bd920e26161e9fce68b126a0b6279a95c47049dfb0f38165ee"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.1"
+    version: "0.7.2"
   flutter_speed_dial:
     dependency: "direct main"
     description:
@@ -850,10 +850,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: "7974313e217a7771557add6ff2238acb63f635317c35fa590d348fb238f00896"
+      sha256: "48fb2f42ad057476fa4b733cb95e9f9ea7b0b010bb349ea491dca7dbdb18ffc4"
       url: "https://pub.dev"
     source: hosted
-    version: "17.1.0"
+    version: "17.2.0"
   golden_screenshot:
     dependency: "direct dev"
     description:
@@ -1095,10 +1095,10 @@ packages:
     dependency: "direct main"
     description:
       name: material_symbols_icons
-      sha256: "1cbe8f84d56e64c616fc3543e6ce22ae06d8bd27068e8fba2622581691d24080"
+      sha256: "10a74aaa9e566c92f8aa14809d2dd78156fb93743348ebffec0345c38eb35706"
       url: "https://pub.dev"
     source: hosted
-    version: "4.2928.0"
+    version: "4.2928.1"
   media_kit:
     dependency: "direct main"
     description:
@@ -1343,10 +1343,10 @@ packages:
     dependency: transitive
     description:
       name: package_info_plus
-      sha256: f69da0d3189a4b4ceaeb1a3defb0f329b3b352517f52bed4290f83d4f06bc08d
+      sha256: "468c26b4254ab01979fa5e4a98cb343ea3631b9acee6f21028997419a80e1a20"
       url: "https://pub.dev"
     source: hosted
-    version: "9.0.0"
+    version: "9.0.1"
   package_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -1774,10 +1774,10 @@ packages:
     dependency: "direct main"
     description:
       name: saver_gallery
-      sha256: "1d942bd7f4fedc162d9a751e156ebac592e4b81fc2e757af82de9077f3437003"
+      sha256: "3f983d4be63aff52523c3e097a9b00ce9ab8444f9a982c878cde9d0359f4681d"
       url: "https://pub.dev"
     source: hosted
-    version: "4.1.0"
+    version: "4.1.1"
   screen_retriever:
     dependency: transitive
     description:
@@ -1838,10 +1838,10 @@ packages:
     dependency: "direct main"
     description:
       name: share_plus
-      sha256: "14c8860d4de93d3a7e53af51bff479598c4e999605290756bbbe45cf65b37840"
+      sha256: "223873d106614442ea6f20db5a038685cc5b32a2fba81cdecaefbbae0523f7fa"
       url: "https://pub.dev"
     source: hosted
-    version: "12.0.1"
+    version: "12.0.2"
   share_plus_platform_interface:
     dependency: transitive
     description:
@@ -2283,10 +2283,10 @@ packages:
     dependency: transitive
     description:
       name: vector_graphics
-      sha256: "7076216a10d5c390315fbe536a30f1254c341e7543e6c4c8a815e591307772b1"
+      sha256: "81da85e9ca8885ade47f9685b953cb098970d11be4821ac765580a6607ea4373"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.20"
+    version: "1.1.21"
   vector_graphics_codec:
     dependency: transitive
     description:
