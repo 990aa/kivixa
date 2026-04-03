@@ -127,13 +127,51 @@ class QuickNoteCanvasState extends State<QuickNoteCanvas> {
   late QuickNoteHandwritingData _data;
   QuickNoteStroke? _currentStroke;
 
+  QuickNoteHandwritingData _copyData(QuickNoteHandwritingData source) {
+    return QuickNoteHandwritingData(
+      strokes: source.strokes
+          .map(
+            (stroke) => QuickNoteStroke(
+              points: stroke.points
+                  .map(
+                    (point) => QuickNotePoint(
+                      point.x,
+                      point.y,
+                      point.pressure,
+                    ),
+                  )
+                  .toList(),
+              color: stroke.color,
+              strokeWidth: stroke.strokeWidth,
+            ),
+          )
+          .toList(),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-    _data = widget.initialData ?? QuickNoteHandwritingData();
+    _data = _copyData(widget.initialData ?? QuickNoteHandwritingData());
+  }
+
+  @override
+  void didUpdateWidget(covariant QuickNoteCanvas oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialData != null && widget.initialData != oldWidget.initialData) {
+      setData(widget.initialData!);
+    }
   }
 
   QuickNoteHandwritingData get data => _data;
+
+  void setData(QuickNoteHandwritingData data) {
+    setState(() {
+      _data = _copyData(data);
+      _currentStroke = null;
+    });
+    widget.onChanged?.call(_data);
+  }
 
   void clear() {
     setState(() {
