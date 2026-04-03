@@ -449,6 +449,25 @@ class ModelManager {
         ModelCategory.code,
       ],
     ),
+
+    // TranslateGemma 4B IT - translation-focused multilingual model
+    AIModel(
+      id: 'translategemma-4b-it-q4km',
+      name: 'TranslateGemma 4B IT',
+      shortDescription:
+          'Translation-focused Gemma model for multilingual drafting and localization.',
+      description:
+          'TranslateGemma 4B IT (GGUF by mradermacher) - instruction-tuned '
+          'model optimized for translation, bilingual rewriting, and '
+          'cross-language editing workflows.',
+      recommendation:
+          'Choose this for translating notes, refining multilingual text, and localization tasks.',
+      url:
+          'https://huggingface.co/mradermacher/translategemma-4b-it-GGUF/resolve/main/translategemma-4b-it.Q4_K_M.gguf',
+      fileName: 'translategemma-4b-it.Q4_K_M.gguf',
+      sizeBytes: 2489909760, // ~2.32 GB
+      categories: [ModelCategory.writing, ModelCategory.general],
+    ),
   ];
 
   /// Default model to use (Phi-4 Mini)

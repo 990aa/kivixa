@@ -357,6 +357,16 @@ class _InlineQuickNotesState extends State<InlineQuickNotes> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (_isEditing) ...[
+            Text(
+              _isHandwritingMode ? 'Editing handwritten note' : 'Editing note',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
           // Mode toggle
           Row(
             children: [
@@ -375,9 +385,18 @@ class _InlineQuickNotesState extends State<InlineQuickNotes> {
                     ),
                   ],
                   selected: {_isHandwritingMode},
-                  onSelectionChanged: (value) {
-                    setState(() => _isHandwritingMode = value.first);
-                  },
+                  onSelectionChanged: _isEditing
+                      ? null
+                      : (value) {
+                          setState(() {
+                            _isHandwritingMode = value.first;
+                          });
+                          if (_isHandwritingMode) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              _canvasKey.currentState?.clear();
+                            });
+                          }
+                        },
                   style: const ButtonStyle(
                     visualDensity: VisualDensity.compact,
                   ),
@@ -386,7 +405,7 @@ class _InlineQuickNotesState extends State<InlineQuickNotes> {
               const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.close),
-                onPressed: () => setState(() => _isAddingNew = false),
+                onPressed: _closeEditor,
                 tooltip: 'Cancel',
                 visualDensity: VisualDensity.compact,
               ),
@@ -398,6 +417,7 @@ class _InlineQuickNotesState extends State<InlineQuickNotes> {
           if (_isHandwritingMode) ...[
             QuickNoteCanvas(
               key: _canvasKey,
+              initialData: _editingHandwritingData,
               height: 120,
               strokeColor: colorScheme.onSurface,
               strokeWidth: 2.0,
@@ -412,9 +432,9 @@ class _InlineQuickNotesState extends State<InlineQuickNotes> {
                 ),
                 const Spacer(),
                 FilledButton.icon(
-                  onPressed: _addHandwritingNote,
+                  onPressed: _saveHandwritingNote,
                   icon: const Icon(Icons.check, size: 16),
-                  label: const Text('Save'),
+                  label: Text(_isEditing ? 'Update' : 'Save'),
                 ),
               ],
             ),
@@ -425,7 +445,9 @@ class _InlineQuickNotesState extends State<InlineQuickNotes> {
               minLines: 1,
               autofocus: true,
               decoration: InputDecoration(
-                hintText: 'Jot something down...',
+                hintText: _isEditing
+                    ? 'Update your quick note...'
+                    : 'Jot something down...',
                 filled: true,
                 fillColor: colorScheme.surface,
                 border: OutlineInputBorder(
@@ -434,7 +456,8 @@ class _InlineQuickNotesState extends State<InlineQuickNotes> {
                 ),
                 contentPadding: const EdgeInsets.all(12),
               ),
-              onSubmitted: (_) => _addTextNote(),
+              onChanged: (_) => setState(() {}),
+              onSubmitted: (_) => _saveTextNote(),
             ),
             const SizedBox(height: 8),
             Row(
@@ -442,10 +465,10 @@ class _InlineQuickNotesState extends State<InlineQuickNotes> {
               children: [
                 FilledButton.icon(
                   onPressed: _textController.text.trim().isNotEmpty
-                      ? _addTextNote
+                      ? _saveTextNote
                       : null,
                   icon: const Icon(Icons.check, size: 16),
-                  label: const Text('Save'),
+                  label: Text(_isEditing ? 'Update' : 'Save'),
                 ),
               ],
             ),
@@ -458,72 +481,84 @@ class _InlineQuickNotesState extends State<InlineQuickNotes> {
   Widget _buildNoteCard(BuildContext context, QuickNote note) {
     final colorScheme = ColorScheme.of(context);
 
-    return Container(
-      width: 180,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
+    return Material(
+      color: colorScheme.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: () => _startEditingNote(note),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with time and delete
-          Row(
+        child: Container(
+          width: 180,
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: colorScheme.outline.withValues(alpha: 0.2),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                note.isHandwritten ? Icons.draw : Icons.notes,
-                size: 14,
-                color: colorScheme.primary,
-              ),
-              const SizedBox(width: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                decoration: BoxDecoration(
-                  color: colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  _getTimeRemaining(note),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: colorScheme.onSecondaryContainer,
+              // Header with time and delete
+              Row(
+                children: [
+                  Icon(
+                    note.isHandwritten ? Icons.draw : Icons.notes,
+                    size: 14,
+                    color: colorScheme.primary,
                   ),
-                ),
-              ),
-              const Spacer(),
-              InkWell(
-                onTap: () => _deleteNote(note.id),
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(2),
-                  child: Icon(
-                    Icons.close,
-                    size: 16,
-                    color: colorScheme.onSurfaceVariant,
+                  const SizedBox(width: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 1,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colorScheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _getTimeRemaining(note),
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: colorScheme.onSecondaryContainer,
+                      ),
+                    ),
                   ),
-                ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => _deleteNote(note.id),
+                    icon: Icon(
+                      Icons.close,
+                      size: 16,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    tooltip: 'Delete note',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              // Content
+              Expanded(
+                child: note.isHandwritten
+                    ? _buildHandwritingPreview(context, note)
+                    : Text(
+                        note.content,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colorScheme.onSurface,
+                        ),
+                        maxLines: 5,
+                        overflow: TextOverflow.ellipsis,
+                      ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-
-          // Content
-          Expanded(
-            child: note.isHandwritten
-                ? _buildHandwritingPreview(context, note)
-                : Text(
-                    note.content,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurface,
-                    ),
-                    maxLines: 5,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-          ),
-        ],
+        ),
       ),
     );
   }
