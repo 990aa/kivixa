@@ -16,7 +16,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  Future<void> _openRenameDialog(WidgetTester tester, String folderName) async {
+  Future<void> openRenameDialog(WidgetTester tester, String folderName) async {
     await tester.tap(find.byIcon(Icons.more_vert).first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Rename'));
@@ -36,8 +36,8 @@ void main() {
       shouldWatchRootDirectory: false,
     );
 
-    final oldName = 'OldFolder';
-    final newName = 'RenamedFolder';
+    const oldName = 'OldFolder';
+    const newName = 'RenamedFolder';
 
     await FileManager.createFolder('/$oldName');
     await FolderColorService.instance.setColor('/$oldName', Colors.red);
@@ -49,7 +49,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await _openRenameDialog(tester, oldName);
+    await openRenameDialog(tester, oldName);
 
     final dialog = find.byType(AlertDialog).first;
     await tester.enterText(
@@ -77,8 +77,8 @@ void main() {
       shouldWatchRootDirectory: false,
     );
 
-    final oldName = 'ColorFolder';
-    final newName = 'NoColorFolder';
+    const oldName = 'ColorFolder';
+    const newName = 'NoColorFolder';
 
     await FileManager.createFolder('/$oldName');
     await FolderColorService.instance.setColor('/$oldName', Colors.blue);
@@ -90,7 +90,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await _openRenameDialog(tester, oldName);
+    await openRenameDialog(tester, oldName);
 
     final dialog = find.byType(AlertDialog).first;
 
