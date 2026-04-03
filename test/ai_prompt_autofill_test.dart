@@ -90,6 +90,22 @@ class _FakeModelGateway implements ChatModelGateway {
   }
 }
 
+class _FakeMcpInferenceService extends Fake implements InferenceService {
+  final chatRequests = <List<ChatMessage>>[];
+
+  @override
+  bool get isModelLoaded => true;
+
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<String> chat(List<ChatMessage> messages, {int? maxTokens}) async {
+    chatRequests.add(List<ChatMessage>.from(messages));
+    return 'stubbed-mcp-response';
+  }
+}
+
 void _emitPrefill(ValueNotifier<String?> notifier, String prompt) {
   notifier.value = null;
   notifier.value = prompt;
@@ -215,7 +231,11 @@ void main() {
       mcpService.resetForTests();
       await mcpService.initialize(sandboxDir.path);
 
-      final controller = MCPChatController(browseDirectory: sandboxDir.path);
+      final fakeMcpInference = _FakeMcpInferenceService();
+      final controller = MCPChatController(
+        inferenceService: fakeMcpInference,
+        browseDirectory: sandboxDir.path,
+      );
 
       final promptPrefill = ValueNotifier<String?>(null);
       final tools = mcpService.getAvailableTools();
@@ -280,6 +300,7 @@ void main() {
           .toList();
 
       expect(sentUserMessages, contains(readPrompt));
+      expect(fakeMcpInference.chatRequests, isNotEmpty);
 
       controller.dispose();
       promptPrefill.dispose();
@@ -351,7 +372,7 @@ void main() {
           ),
         );
         expect(listResult.success, isTrue);
-        expect(listResult.result, contains('dummy/demo.md'));
+        expect(listResult.result, matches(RegExp(r'dummy[\\/]demo\.md')));
 
         final readResult = await mcpService.executeDirectly(
           const PendingToolCall(
