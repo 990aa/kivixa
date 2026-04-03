@@ -5,7 +5,6 @@
 // Supports MCP (Model Context Protocol) for tool execution.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
 import 'package:kivixa/components/ai/mcp_chat_interface.dart';
@@ -17,7 +16,7 @@ import 'package:kivixa/services/ai/model_manager.dart';
 import 'package:kivixa/services/ai/model_router.dart';
 
 @visibleForTesting
-const Map<String, String> mainAiQuickActionPrompts = {
+const mainAiQuickActionPrompts = <String, String>{
   'Smart Search':
       'Use smart search across my notes and find the most relevant results for this topic: ',
   'Summarize':
@@ -27,7 +26,7 @@ const Map<String, String> mainAiQuickActionPrompts = {
 };
 
 @visibleForTesting
-const Map<String, String> mcpToolPromptTemplates = {
+const mcpToolPromptTemplates = <String, String>{
   'read_file':
       'Use read_file to open sandbox/demo.md and summarize the file content in 3 bullets.',
   'write_file':
@@ -84,10 +83,8 @@ class _AIChatPageState extends State<AIChatPage> {
   late AIChatController _chatController;
   MCPChatController? _mcpChatController;
   late ModelManager _modelManager;
-  final ValueNotifier<String?> _mainPromptPrefill = ValueNotifier<String?>(
-    null,
-  );
-  final ValueNotifier<String?> _mcpPromptPrefill = ValueNotifier<String?>(null);
+  final _mainPromptPrefill = ValueNotifier<String?>(null);
+  final _mcpPromptPrefill = ValueNotifier<String?>(null);
   var _isModelReady = false;
   var _isMcpMode = false;
   String? _modelError;
