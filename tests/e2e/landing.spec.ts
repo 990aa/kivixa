@@ -127,7 +127,10 @@ test.describe("Kivixa landing page", () => {
 
   test("displays release versions that match GitHub when reachable", async ({ page }) => {
     const github = await fetchLatestGitHubVersion();
-    test.skip(!github, "GitHub API unavailable in current test environment");
+    if (!github) {
+      test.skip(true, "GitHub API unavailable in current test environment");
+      return;
+    }
 
     await page.goto("/");
 
@@ -145,7 +148,10 @@ test.describe("Kivixa landing page", () => {
     page,
   }) => {
     const github = await fetchLatestGitHubVersion();
-    test.skip(!github, "GitHub API unavailable in current test environment");
+    if (!github) {
+      test.skip(true, "GitHub API unavailable in current test environment");
+      return;
+    }
 
     await page.goto("/");
 

@@ -114,7 +114,6 @@ export default function AISection() {
                 alt="Kivixa AI chat interface showing on-device conversation with local model"
                 width={1919}
                 height={1006}
-                className="w-full"
                 loading="eager"
               />
             </div>
@@ -127,7 +126,6 @@ export default function AISection() {
                   alt="Kivixa model picker showing available AI models for switching"
                   width={1919}
                   height={1009}
-                  className="w-full"
                 />
               </div>
               <div className="screenshot-frame rounded-xl overflow-hidden">
@@ -136,7 +134,6 @@ export default function AISection() {
                   alt="Kivixa MCP tools panel showing AI tool execution options"
                   width={1919}
                   height={1007}
-                  className="w-full"
                 />
               </div>
             </div>
