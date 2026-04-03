@@ -204,6 +204,9 @@ Prioritize practical, production-ready code and concise explanations.''';
       case 'smollm2-1.7b':
       case 'smollm2-1.7b-instruct':
       case 'smollm2-17b-instruct-q4km':
+      case 'translategemma':
+      case 'translategemma-4b-it':
+      case 'translategemma-4b-it-q4km':
         return AIModelType.qwen;
       case 'functiongemma':
       case 'function-gemma':

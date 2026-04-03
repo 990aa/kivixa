@@ -337,9 +337,9 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
               _isHandwritingMode
                   ? 'Editing handwritten note'
                   : 'Editing quick note',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
           ],
