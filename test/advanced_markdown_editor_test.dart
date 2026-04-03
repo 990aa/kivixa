@@ -83,7 +83,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
-        expect(find.byType(CodeField), findsNothing);
+      expect(find.byType(CodeField), findsNothing);
     });
 
     testWidgets('should render split mode with editor and preview', (
