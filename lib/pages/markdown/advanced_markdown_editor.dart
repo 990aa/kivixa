@@ -332,6 +332,60 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     }
   }
 
+  Future<void> _exportAsMarkdown() async {
+    final controller = _codeController;
+    if (controller == null) return;
+
+    try {
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export as Markdown File',
+        fileName: '$_fileName.md',
+        type: FileType.custom,
+        allowedExtensions: ['md'],
+      );
+
+      if (result != null) {
+        final file = File(result);
+        await file.writeAsString(controller.text);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Exported as .md successfully')),
+          );
+        }
+      }
+    } catch (e) {
+      log.severe('Error exporting as markdown', e);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error exporting: $e')));
+      }
+    }
+  }
+
+  void _showExportMenu() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.description),
+              title: const Text('Export as .md'),
+              subtitle: const Text('Markdown format'),
+              onTap: () {
+                Navigator.pop(context);
+                _exportAsMarkdown();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _commitVersion() async {
     if (_currentFilePath == null) return;
 
@@ -1022,6 +1076,11 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
               icon: const Icon(Icons.commit),
               tooltip: 'Commit Version',
               onPressed: _commitVersion,
+            ),
+            IconButton(
+              icon: const Icon(Icons.file_download),
+              tooltip: 'Export',
+              onPressed: _showExportMenu,
             ),
           ] else ...[
             // Time Travel mode actions
