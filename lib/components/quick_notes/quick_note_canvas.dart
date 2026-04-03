@@ -134,11 +134,7 @@ class QuickNoteCanvasState extends State<QuickNoteCanvas> {
             (stroke) => QuickNoteStroke(
               points: stroke.points
                   .map(
-                    (point) => QuickNotePoint(
-                      point.x,
-                      point.y,
-                      point.pressure,
-                    ),
+                    (point) => QuickNotePoint(point.x, point.y, point.pressure),
                   )
                   .toList(),
               color: stroke.color,
@@ -158,7 +154,8 @@ class QuickNoteCanvasState extends State<QuickNoteCanvas> {
   @override
   void didUpdateWidget(covariant QuickNoteCanvas oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.initialData != null && widget.initialData != oldWidget.initialData) {
+    if (widget.initialData != null &&
+        widget.initialData != oldWidget.initialData) {
       setData(widget.initialData!);
     }
   }
