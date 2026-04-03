@@ -970,7 +970,7 @@ class _BrowserPageState extends State<BrowserPage> {
           ConsoleMessageLevel.ERROR,
         );
 
-        if (request.isForMainFrame == true) {
+        if (request.isForMainFrame ?? true) {
           setState(() {
             _isLoading = false;
           });
@@ -989,7 +989,7 @@ class _BrowserPageState extends State<BrowserPage> {
           'WebView HTTP error: ${response.statusCode} for ${request.url}',
         );
 
-        if (request.isForMainFrame == true) {
+        if (request.isForMainFrame ?? true) {
           setState(() {
             _isLoading = false;
           });

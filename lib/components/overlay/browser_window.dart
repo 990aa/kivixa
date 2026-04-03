@@ -627,7 +627,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
       },
       onReceivedError: (controller, request, error) {
         debugPrint('Browser window error: ${error.description}');
-        if (request.isForMainFrame == true) {
+        if (request.isForMainFrame ?? true) {
           setState(() {
             _isLoading = false;
             tab.isLoading = false;
@@ -640,7 +640,7 @@ class _BrowserWindowState extends State<BrowserWindow> {
           'Browser window HTTP error: ${response.statusCode} for ${request.url}',
         );
 
-        if (request.isForMainFrame == true) {
+        if (request.isForMainFrame ?? true) {
           setState(() {
             _isLoading = false;
             tab.isLoading = false;
