@@ -430,3 +430,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed Atkinson Hyperlegible font assets and pubspec declarations.
 
 ---
+## [0.3.10] - 2026-04-03
+
+### Changed
+- Version bump to 0.3.10
+
+---
