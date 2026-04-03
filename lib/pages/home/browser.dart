@@ -15,6 +15,12 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+@visibleForTesting
+String browserWebViewKeyForTab(String tabId) => 'webview_tab_$tabId';
+
+@visibleForTesting
+bool browserShouldUseHybridComposition({required bool isAndroid}) => isAndroid;
+
 /// Console log entry for developer tools
 class ConsoleLogEntry {
   final String message;
@@ -824,7 +830,7 @@ class _BrowserPageState extends State<BrowserPage> {
 
     // Keep WebView identity stable per tab to avoid reload loops during redirects.
     final currentTabId = BrowserService.instance.currentTab?.id ?? 'default';
-    final webViewKey = ValueKey('webview_tab_$currentTabId');
+    final webViewKey = ValueKey(browserWebViewKeyForTab(currentTabId));
 
     return InAppWebView(
       key: webViewKey,
@@ -835,7 +841,9 @@ class _BrowserPageState extends State<BrowserPage> {
         supportZoom: true,
         builtInZoomControls: !_isDesktop,
         displayZoomControls: false,
-        useHybridComposition: isAndroid,
+        useHybridComposition: browserShouldUseHybridComposition(
+          isAndroid: isAndroid,
+        ),
         allowsInlineMediaPlayback: true,
         mediaPlaybackRequiresUserGesture: false,
         transparentBackground: false,

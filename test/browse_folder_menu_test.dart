@@ -117,6 +117,111 @@ void main() {
       expect(find.text('Rename folder'), findsOneWidget);
     });
 
+    testWidgets('rename dialog includes folder color controls', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomScrollView(
+              slivers: [
+                GridFolders(
+                  isAtRoot: true,
+                  crossAxisCount: 2,
+                  onTap: (v) {},
+                  doesFolderExist: (v) => false,
+                  renameFolder: (
+                    a,
+                    b, {
+                    color,
+                    colorChanged = false,
+                  }) async {},
+                  isFolderEmpty: (v) async => true,
+                  deleteFolder: (v) async {},
+                  moveFolder: (a, b) async {},
+                  currentPath: '/',
+                  folders: const ['TestFolder'],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Rename'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Folder Color:'), findsOneWidget);
+      expect(find.byIcon(Icons.clear), findsNothing);
+    });
+
+    testWidgets('rename callback receives color change metadata', (tester) async {
+      String? oldName;
+      String? newName;
+      Color? selectedColor;
+      bool? didChangeColor;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomScrollView(
+              slivers: [
+                GridFolders(
+                  isAtRoot: true,
+                  crossAxisCount: 2,
+                  onTap: (v) {},
+                  doesFolderExist: (v) => false,
+                  renameFolder: (
+                    a,
+                    b, {
+                    color,
+                    colorChanged = false,
+                  }) async {
+                    oldName = a;
+                    newName = b;
+                    selectedColor = color;
+                    didChangeColor = colorChanged;
+                  },
+                  isFolderEmpty: (v) async => true,
+                  deleteFolder: (v) async {},
+                  moveFolder: (a, b) async {},
+                  currentPath: '/',
+                  folders: const ['TestFolder'],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Rename'));
+      await tester.pumpAndSettle();
+
+      // Open color picker from rename dialog and select the current color.
+      final dialog = find.byType(AlertDialog).first;
+      await tester.tap(
+        find.descendant(of: dialog, matching: find.byIcon(Icons.folder)).first,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Select'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextFormField), 'RenamedFolder');
+      await tester.tap(find.text('Rename'));
+      await tester.pumpAndSettle();
+
+      expect(oldName, 'TestFolder');
+      expect(newName, 'RenamedFolder');
+      expect(didChangeColor, isTrue);
+      expect(selectedColor, isNotNull);
+    });
+
     testWidgets('tapping delete shows delete dialog', (tester) async {
       await tester.pumpWidget(
         MaterialApp(

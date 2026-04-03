@@ -137,4 +137,16 @@ void main() {
       expect(page.initialUrl, initialUrl);
     });
   });
+
+  group('Browser WebView config', () {
+    test('uses deterministic tab-based webview key', () {
+      expect(browserWebViewKeyForTab('tab-1'), 'webview_tab_tab-1');
+      expect(browserWebViewKeyForTab('tab-2'), 'webview_tab_tab-2');
+    });
+
+    test('hybrid composition only enabled for Android', () {
+      expect(browserShouldUseHybridComposition(isAndroid: true), isTrue);
+      expect(browserShouldUseHybridComposition(isAndroid: false), isFalse);
+    });
+  });
 }
