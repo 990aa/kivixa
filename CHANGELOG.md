@@ -452,7 +452,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.3.12] - 2026-04-03
 
-### Fixed
-- 
+### Changed
+- Implemented quick-notes reopen/edit behavior so clicking a saved note opens the same editor type (text or handwriting), allows editing, and saves updates.
+- Added TranslateGemma 4B IT model to backend catalog with full metadata, verified URL, and size.
 
 ---
