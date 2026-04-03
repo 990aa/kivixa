@@ -77,6 +77,12 @@ void main() {
         ),
         true,
       );
+      expect(
+        ModelManager.availableModels.any(
+          (m) => m.id == 'translategemma-4b-it-q4km',
+        ),
+        true,
+      );
     });
 
     test('Gemma 7B is not available anymore', () {
@@ -107,6 +113,12 @@ void main() {
         models.any((m) => m.id == 'qwen35-2b-claude46-distilled-q5km'),
         true,
       );
+      expect(models.any((m) => m.id == 'translategemma-4b-it-q4km'), true);
+    });
+
+    test('writing category includes TranslateGemma for translation workflows', () {
+      final models = ModelManager.getModelsForCategory(ModelCategory.writing);
+      expect(models.any((m) => m.id == 'translategemma-4b-it-q4km'), true);
     });
 
     test('agent category still routes to Function Gemma only', () {
