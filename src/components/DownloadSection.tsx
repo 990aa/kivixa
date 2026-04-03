@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import CodeBlock from "./CodeBlock";
 import type { ReleaseData } from "@/lib/github";
@@ -9,6 +10,19 @@ interface DownloadSectionProps {
 }
 
 export default function DownloadSection({ release }: DownloadSectionProps) {
+  const [copiedWinget, setCopiedWinget] = useState(false);
+  const wingetCommand = "winget install Kivixa";
+
+  const copyWingetCommand = async () => {
+    try {
+      await navigator.clipboard.writeText(wingetCommand);
+      setCopiedWinget(true);
+      window.setTimeout(() => setCopiedWinget(false), 1800);
+    } catch {
+      setCopiedWinget(false);
+    }
+  };
+
   return (
     <section id="download" data-testid="download-section" className="relative py-24 sm:py-32 px-6">
       <div className="absolute inset-0 -z-10">
@@ -41,11 +55,34 @@ export default function DownloadSection({ release }: DownloadSectionProps) {
                 <p data-testid="windows-version" className="text-xs text-text-muted">v{release.version} · 64-bit installer</p>
               </div>
             </div>
-            <p className="text-sm text-text-secondary mb-6 flex-1">Download the Windows installer for the full desktop experience with Vulkan GPU acceleration.</p>
-            <a data-testid="download-windows" href={release.windowsUrl ?? "#"}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-primary px-5 py-3 text-sm font-semibold text-white hover:bg-accent-secondary transition-all shadow-glow-sm hover:shadow-glow-md hover:-translate-y-0.5">
+            <p className="text-sm text-text-secondary mb-4">
+              Fastest setup is via Windows Package Manager. Install from terminal, then use .exe only if you need manual setup.
+            </p>
+
+            <div className="rounded-xl border border-border-subtle bg-surface-800/40 p-4 mb-4">
+              <p className="text-xs font-mono uppercase tracking-[0.15em] text-accent-teal mb-2">Recommended</p>
+              <code data-testid="winget-command" className="block rounded-md bg-surface-900/70 border border-border-subtle px-3 py-2 text-sm text-text-primary font-mono">
+                {wingetCommand}
+              </code>
+            </div>
+
+            <button
+              type="button"
+              data-testid="copy-winget"
+              onClick={copyWingetCommand}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-primary px-5 py-3 text-sm font-semibold text-white hover:bg-accent-secondary transition-all shadow-glow-sm hover:shadow-glow-md hover:-translate-y-0.5"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              {copiedWinget ? "Copied" : "Copy winget command"}
+            </button>
+
+            <a
+              data-testid="download-windows-exe"
+              href={release.windowsUrl ?? "#"}
+              className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl border border-border-default bg-surface-800/40 px-5 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:border-border-hover hover:bg-surface-700/40 transition-all hover:-translate-y-0.5"
+            >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Download .exe
+              Download .exe instead
             </a>
           </motion.div>
 

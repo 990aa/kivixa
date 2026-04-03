@@ -80,6 +80,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 88px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -90,6 +91,7 @@ body {
   color: var(--color-text-primary);
   font-family: var(--font-sans);
   overflow-x: hidden;
+  text-rendering: optimizeLegibility;
 }
 
 /* ── Global link / button transitions ── */
@@ -161,6 +163,19 @@ button:focus-visible {
   overflow: hidden;
   background: var(--color-surface-800);
   box-shadow: var(--shadow-card);
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 280ms ease, border-color 280ms ease;
+}
+
+.screenshot-frame:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.screenshot-image {
+  image-rendering: auto;
+  object-fit: contain;
+  object-position: center;
 }
 
 .screenshot-frame::before {
