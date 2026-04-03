@@ -16,10 +16,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  Future<void> _openRenameDialog(
-    WidgetTester tester,
-    String folderName,
-  ) async {
+  Future<void> _openRenameDialog(WidgetTester tester, String folderName) async {
     await tester.tap(find.byIcon(Icons.more_vert).first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Rename'));
@@ -47,9 +44,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: BrowsePage(
-          overrideChildren: DirectoryChildren([oldName], []),
-        ),
+        home: BrowsePage(overrideChildren: DirectoryChildren([oldName], [])),
       ),
     );
     await tester.pumpAndSettle();
@@ -90,9 +85,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: BrowsePage(
-          overrideChildren: DirectoryChildren([oldName], []),
-        ),
+        home: BrowsePage(overrideChildren: DirectoryChildren([oldName], [])),
       ),
     );
     await tester.pumpAndSettle();
