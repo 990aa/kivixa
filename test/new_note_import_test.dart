@@ -20,6 +20,28 @@ Uint8List _buildDocxBytes(String documentXml) {
       ),
     );
 
+  test(
+    'markdown import creates a copied .md note with preserved content',
+    () async {
+      final source = File('${tempRoot.path}/external/outline.md');
+      await source.parent.create(recursive: true);
+      const sourceContent = '# Outline\n\n- Item A\n- Item B\n';
+      await source.writeAsString(sourceContent);
+
+      final importedBasePath = await FileManager.importFile(
+        source.path,
+        '/imports/',
+        extension: '.md',
+      );
+
+      expect(importedBasePath, isNotNull);
+      final copied = FileManager.getFile('$importedBasePath.md');
+      expect(copied.existsSync(), isTrue);
+      expect(await copied.readAsString(), sourceContent);
+      expect(await source.readAsString(), sourceContent);
+    },
+  );
+
   final encoded = ZipEncoder().encode(archive);
   return Uint8List.fromList(encoded);
 }
