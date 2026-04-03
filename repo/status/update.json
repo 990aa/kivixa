@@ -10,22 +10,19 @@
     "--pretty"
   ],
   "disabled": [],
-  "endTimestamp": 1774883340432,
+  "endTimestamp": 1775199060045,
   "failedBuilds": {},
   "fdroiddata": {
-    "commitId": "cc156ffd09e0fb21718214f52bcf7f2de01c575d",
-    "isDirty": true,
-    "modifiedFiles": [
-      "metadata/com.a990aa.kivixa/en-US/full_description.txt",
-      "metadata/com.a990aa.kivixa/en-US/short_description.txt"
-    ],
+    "commitId": "9578ab641fb8dd448791756ddb6c27d56618b58f",
+    "isDirty": false,
+    "modifiedFiles": [],
     "untrackedFiles": [
-      "fdroid-apks/Kivixa-Android-0.3.9-arm64.apk",
-      "fdroid-apks/Kivixa-Android-0.3.9-armv7.apk",
-      "fdroid-apks/Kivixa-Android-0.3.9-x86_64.apk",
-      "repo/Kivixa-Android-0.3.9-arm64.apk",
-      "repo/Kivixa-Android-0.3.9-armv7.apk",
-      "repo/Kivixa-Android-0.3.9-x86_64.apk"
+      "fdroid-apks/Kivixa-Android-0.3.10-arm64.apk",
+      "fdroid-apks/Kivixa-Android-0.3.10-armv7.apk",
+      "fdroid-apks/Kivixa-Android-0.3.10-x86_64.apk",
+      "repo/Kivixa-Android-0.3.10-arm64.apk",
+      "repo/Kivixa-Android-0.3.10-armv7.apk",
+      "repo/Kivixa-Android-0.3.10-x86_64.apk"
     ]
   },
   "jarsigner": "/usr/bin/jarsigner",
@@ -40,14 +37,14 @@
     "com.a990aa.kivixa"
   ],
   "stages": {
-    "delete_disabled_builds": 1774883310894,
-    "index.make repo": 1774883336839,
-    "prepare_apps repo": 1774883336838,
-    "process_apks": 1774883310894,
-    "read_added_date_from_all_apks": 1774883336838,
-    "remove_apks": 1774883336835,
-    "scan_repo_files": 1774883336834
+    "delete_disabled_builds": 1775199029652,
+    "index.make repo": 1775199056356,
+    "prepare_apps repo": 1775199056355,
+    "process_apks": 1775199029652,
+    "read_added_date_from_all_apks": 1775199056355,
+    "remove_apks": 1775199056351,
+    "scan_repo_files": 1775199056351
   },
-  "startTimestamp": 1774883292000,
+  "startTimestamp": 1775199010000,
   "subcommand": "update"
 }

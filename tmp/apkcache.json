@@ -2536,7 +2536,7 @@
     "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
     "size": 64036090,
     "apkName": "Kivixa-Android-0.3.9-arm64.apk",
-    "added": 1774883335.775439
+    "added": 1774883335.0
   },
   "Kivixa-Android-0.3.9-armv7.apk": {
     "hash": "bec521abdba3336e94b37e85875fc111a318363f8fd7e4aab4d2615443446665",
@@ -2601,7 +2601,7 @@
     "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
     "size": 57658502,
     "apkName": "Kivixa-Android-0.3.9-armv7.apk",
-    "added": 1774883336.290511
+    "added": 1774883336.0
   },
   "Kivixa-Android-0.3.9-x86_64.apk": {
     "hash": "96999adfc400c5b94f807d74560ad61cc0cddc43c30b062fe1ea6aa18c6f4aae",
@@ -2666,6 +2666,201 @@
     "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
     "size": 69988286,
     "apkName": "Kivixa-Android-0.3.9-x86_64.apk",
-    "added": 1774883336.834257
+    "added": 1774883336.0
+  },
+  "Kivixa-Android-0.3.10-arm64.apk": {
+    "hash": "e21c006f68a6b5121d5b8a052fc50a0bf7e26507002b58cf15ae52dfd8b8a9be",
+    "hashType": "sha256",
+    "uses-permission": [
+      [
+        "android.permission.INTERNET",
+        null
+      ],
+      [
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        null
+      ],
+      [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        null
+      ],
+      [
+        "android.permission.POST_NOTIFICATIONS",
+        null
+      ],
+      [
+        "android.permission.WAKE_LOCK",
+        null
+      ],
+      [
+        "android.permission.ACCESS_NETWORK_STATE",
+        null
+      ],
+      [
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        null
+      ],
+      [
+        "android.permission.FOREGROUND_SERVICE",
+        null
+      ],
+      [
+        "android.permission.VIBRATE",
+        null
+      ],
+      [
+        "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+        null
+      ]
+    ],
+    "uses-permission-sdk-23": [],
+    "features": [],
+    "icons_src": {},
+    "icons": {},
+    "antiFeatures": {},
+    "packageName": "com.a990aa.kivixa",
+    "versionCode": 30102,
+    "name": "kivixa",
+    "versionName": "0.3.10",
+    "minSdkVersion": 24,
+    "targetSdkVersion": 36,
+    "nativecode": [
+      "arm64-v8a"
+    ],
+    "sig": "4afe97afa2b0ea3f4a207c205fea0960",
+    "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
+    "size": 64036094,
+    "apkName": "Kivixa-Android-0.3.10-arm64.apk",
+    "added": 1775199042.734401
+  },
+  "Kivixa-Android-0.3.10-armv7.apk": {
+    "hash": "bb2421b9bc05a0f0035a921af9196a6f190a3ac469753f31a5b173259cea1137",
+    "hashType": "sha256",
+    "uses-permission": [
+      [
+        "android.permission.INTERNET",
+        null
+      ],
+      [
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        null
+      ],
+      [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        null
+      ],
+      [
+        "android.permission.POST_NOTIFICATIONS",
+        null
+      ],
+      [
+        "android.permission.WAKE_LOCK",
+        null
+      ],
+      [
+        "android.permission.ACCESS_NETWORK_STATE",
+        null
+      ],
+      [
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        null
+      ],
+      [
+        "android.permission.FOREGROUND_SERVICE",
+        null
+      ],
+      [
+        "android.permission.VIBRATE",
+        null
+      ],
+      [
+        "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+        null
+      ]
+    ],
+    "uses-permission-sdk-23": [],
+    "features": [],
+    "icons_src": {},
+    "icons": {},
+    "antiFeatures": {},
+    "packageName": "com.a990aa.kivixa",
+    "versionCode": 30101,
+    "name": "kivixa",
+    "versionName": "0.3.10",
+    "minSdkVersion": 24,
+    "targetSdkVersion": 36,
+    "nativecode": [
+      "armeabi-v7a"
+    ],
+    "sig": "4afe97afa2b0ea3f4a207c205fea0960",
+    "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
+    "size": 57674894,
+    "apkName": "Kivixa-Android-0.3.10-armv7.apk",
+    "added": 1775199043.25558
+  },
+  "Kivixa-Android-0.3.10-x86_64.apk": {
+    "hash": "2b31da8144ce71a42008b631d81a67415bf2f1245d3c26e4b9c7bcd6b5e2aca0",
+    "hashType": "sha256",
+    "uses-permission": [
+      [
+        "android.permission.INTERNET",
+        null
+      ],
+      [
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        null
+      ],
+      [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        null
+      ],
+      [
+        "android.permission.POST_NOTIFICATIONS",
+        null
+      ],
+      [
+        "android.permission.WAKE_LOCK",
+        null
+      ],
+      [
+        "android.permission.ACCESS_NETWORK_STATE",
+        null
+      ],
+      [
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        null
+      ],
+      [
+        "android.permission.FOREGROUND_SERVICE",
+        null
+      ],
+      [
+        "android.permission.VIBRATE",
+        null
+      ],
+      [
+        "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+        null
+      ]
+    ],
+    "uses-permission-sdk-23": [],
+    "features": [],
+    "icons_src": {},
+    "icons": {},
+    "antiFeatures": {},
+    "packageName": "com.a990aa.kivixa",
+    "versionCode": 30103,
+    "name": "kivixa",
+    "versionName": "0.3.10",
+    "minSdkVersion": 24,
+    "targetSdkVersion": 36,
+    "nativecode": [
+      "x86_64"
+    ],
+    "sig": "4afe97afa2b0ea3f4a207c205fea0960",
+    "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
+    "size": 69988290,
+    "apkName": "Kivixa-Android-0.3.10-x86_64.apk",
+    "added": 1775199043.795466
   }
 }
