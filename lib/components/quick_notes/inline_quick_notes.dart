@@ -15,18 +15,24 @@ class _InlineQuickNotesState extends State<InlineQuickNotes> {
   var _isExpanded = false;
   var _isAddingNew = false;
   var _isHandwritingMode = false;
+  String? _editingNoteId;
+  QuickNoteHandwritingData? _editingHandwritingData;
   final _textController = TextEditingController();
   final _canvasKey = GlobalKey<QuickNoteCanvasState>();
+
+  bool get _isEditing => _editingNoteId != null;
 
   @override
   void initState() {
     super.initState();
     QuickNotesService.instance.addListener(_onNotesChanged);
+    _textController.addListener(_onTextChanged);
   }
 
   @override
   void dispose() {
     QuickNotesService.instance.removeListener(_onNotesChanged);
+    _textController.removeListener(_onTextChanged);
     _textController.dispose();
     super.dispose();
   }
@@ -35,26 +41,104 @@ class _InlineQuickNotesState extends State<InlineQuickNotes> {
     if (mounted) setState(() {});
   }
 
-  void _addTextNote() {
+  void _onTextChanged() {
+    if (!mounted) return;
+    if (_isAddingNew && !_isHandwritingMode) {
+      setState(() {});
+    }
+  }
+
+  void _openNewNoteEditor({required bool handwriting}) {
+    setState(() {
+      _isAddingNew = true;
+      _isHandwritingMode = handwriting;
+      _editingNoteId = null;
+      _editingHandwritingData = null;
+      _textController.clear();
+    });
+
+    if (handwriting) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _canvasKey.currentState?.clear();
+      });
+    }
+  }
+
+  void _startEditingNote(QuickNote note) {
+    QuickNoteHandwritingData? handwritingData;
+
+    if (note.isHandwritten && note.handwrittenData != null) {
+      try {
+        handwritingData = QuickNoteHandwritingData.fromJsonString(
+          note.handwrittenData!,
+        );
+      } catch (_) {
+        handwritingData = QuickNoteHandwritingData();
+      }
+    }
+
+    setState(() {
+      _isAddingNew = true;
+      _isHandwritingMode = note.isHandwritten;
+      _editingNoteId = note.id;
+      _editingHandwritingData = handwritingData;
+      _textController.text = note.isHandwritten ? '' : note.content;
+      _textController.selection = TextSelection.collapsed(
+        offset: _textController.text.length,
+      );
+    });
+
+    if (note.isHandwritten) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _canvasKey.currentState?.setData(
+          _editingHandwritingData ?? QuickNoteHandwritingData(),
+        );
+      });
+    }
+  }
+
+  void _closeEditor() {
+    setState(() {
+      _isAddingNew = false;
+      _editingNoteId = null;
+      _editingHandwritingData = null;
+      _isHandwritingMode = false;
+      _textController.clear();
+    });
+  }
+
+  void _saveTextNote() {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
 
-    QuickNotesService.instance.addNote(content: text);
-    _textController.clear();
-    setState(() => _isAddingNew = false);
+    if (_isEditing) {
+      QuickNotesService.instance.updateNote(_editingNoteId!, content: text);
+    } else {
+      QuickNotesService.instance.addNote(content: text);
+    }
+
+    _closeEditor();
   }
 
-  void _addHandwritingNote() {
+  void _saveHandwritingNote() {
     final canvasState = _canvasKey.currentState;
     if (canvasState == null || canvasState.data.isEmpty) return;
 
-    QuickNotesService.instance.addNote(
-      content: 'Handwritten note',
-      isHandwritten: true,
-      handwrittenData: canvasState.data.toJsonString(),
-    );
+    if (_isEditing) {
+      QuickNotesService.instance.updateNote(
+        _editingNoteId!,
+        content: 'Handwritten note',
+        handwrittenData: canvasState.data.toJsonString(),
+      );
+    } else {
+      QuickNotesService.instance.addNote(
+        content: 'Handwritten note',
+        isHandwritten: true,
+        handwrittenData: canvasState.data.toJsonString(),
+      );
+    }
 
-    setState(() => _isAddingNew = false);
+    _closeEditor();
   }
 
   void _deleteNote(String id) {
@@ -233,11 +317,7 @@ class _InlineQuickNotesState extends State<InlineQuickNotes> {
             children: [
               if (!_isAddingNew)
                 FilledButton.tonalIcon(
-                  onPressed: () => setState(() {
-                    _isAddingNew = true;
-                    _isHandwritingMode = false;
-                    _textController.clear();
-                  }),
+                  onPressed: () => _openNewNoteEditor(handwriting: false),
                   icon: const Icon(Icons.add, size: 18),
                   label: const Text('Add Note'),
                 ),
