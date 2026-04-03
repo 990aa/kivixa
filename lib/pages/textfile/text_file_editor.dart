@@ -1820,43 +1820,44 @@ class _TextFileEditorState extends State<TextFileEditor> {
                           VerticalSpacing.zero,
                           null,
                         ),
-                      h2: DefaultTextBlockStyle(
-                        TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSurface,
+                        h2: DefaultTextBlockStyle(
+                          TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
+                          HorizontalSpacing.zero,
+                          const VerticalSpacing(14, 6),
+                          VerticalSpacing.zero,
+                          null,
                         ),
-                        HorizontalSpacing.zero,
-                        const VerticalSpacing(14, 6),
-                        VerticalSpacing.zero,
-                        null,
-                      ),
-                      h3: DefaultTextBlockStyle(
-                        TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSurface,
+                        h3: DefaultTextBlockStyle(
+                          TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
+                          HorizontalSpacing.zero,
+                          const VerticalSpacing(12, 4),
+                          VerticalSpacing.zero,
+                          null,
                         ),
-                        HorizontalSpacing.zero,
-                        const VerticalSpacing(12, 4),
-                        VerticalSpacing.zero,
-                        null,
-                      ),
-                      code: DefaultTextBlockStyle(
-                        TextStyle(
-                          fontFamily: 'FiraMono',
-                          fontSize: 14,
-                          color: colorScheme.onSurfaceVariant,
-                          backgroundColor: colorScheme.surfaceContainerHighest,
+                        code: DefaultTextBlockStyle(
+                          TextStyle(
+                            fontFamily: 'FiraMono',
+                            fontSize: 14,
+                            color: colorScheme.onSurfaceVariant,
+                            backgroundColor:
+                                colorScheme.surfaceContainerHighest,
+                          ),
+                          HorizontalSpacing.zero,
+                          const VerticalSpacing(8, 8),
+                          VerticalSpacing.zero,
+                          BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                         ),
-                        HorizontalSpacing.zero,
-                        const VerticalSpacing(8, 8),
-                        VerticalSpacing.zero,
-                        BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
                       ),
                     ),
                   ),
