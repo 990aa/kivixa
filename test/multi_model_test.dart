@@ -116,10 +116,13 @@ void main() {
       expect(models.any((m) => m.id == 'translategemma-4b-it-q4km'), true);
     });
 
-    test('writing category includes TranslateGemma for translation workflows', () {
-      final models = ModelManager.getModelsForCategory(ModelCategory.writing);
-      expect(models.any((m) => m.id == 'translategemma-4b-it-q4km'), true);
-    });
+    test(
+      'writing category includes TranslateGemma for translation workflows',
+      () {
+        final models = ModelManager.getModelsForCategory(ModelCategory.writing);
+        expect(models.any((m) => m.id == 'translategemma-4b-it-q4km'), true);
+      },
+    );
 
     test('agent category still routes to Function Gemma only', () {
       final models = ModelManager.getModelsForCategory(ModelCategory.agent);
