@@ -128,12 +128,7 @@ void main() {
                   crossAxisCount: 2,
                   onTap: (v) {},
                   doesFolderExist: (v) => false,
-                  renameFolder: (
-                    a,
-                    b, {
-                    color,
-                    colorChanged = false,
-                  }) async {},
+                  renameFolder: (a, b, {color, colorChanged = false}) async {},
                   isFolderEmpty: (v) async => true,
                   deleteFolder: (v) async {},
                   moveFolder: (a, b) async {},
@@ -157,7 +152,9 @@ void main() {
       expect(find.byIcon(Icons.clear), findsNothing);
     });
 
-    testWidgets('rename callback receives color change metadata', (tester) async {
+    testWidgets('rename callback receives color change metadata', (
+      tester,
+    ) async {
       String? oldName;
       String? newName;
       Color? selectedColor;
@@ -173,12 +170,7 @@ void main() {
                   crossAxisCount: 2,
                   onTap: (v) {},
                   doesFolderExist: (v) => false,
-                  renameFolder: (
-                    a,
-                    b, {
-                    color,
-                    colorChanged = false,
-                  }) async {
+                  renameFolder: (a, b, {color, colorChanged = false}) async {
                     oldName = a;
                     newName = b;
                     selectedColor = color;
@@ -543,4 +535,3 @@ void main() {
     });
   });
 }
-
