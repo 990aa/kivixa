@@ -771,4 +771,53 @@ extension type AudioRustLibWasmModule._(JSObject _) implements JSObject {
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__stt_reset();
 
- 
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__stt_state();
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__tts_available_voices();
+
+  external void wire__crate__api__tts_initialize(NativePortType port_);
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__tts_is_ready();
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__tts_state();
+
+  external void wire__crate__api__tts_synthesize(
+    NativePortType port_,
+    String text,
+  );
+
+  external void wire__crate__api__tts_synthesize_to_bytes(
+    NativePortType port_,
+    String text,
+  );
+
+  external void wire__crate__api__tts_synthesize_to_i16(
+    NativePortType port_,
+    String text,
+  );
+
+  external void wire__crate__api__tts_synthesize_with_voice(
+    NativePortType port_,
+    String text,
+    String voice_id,
+  );
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__vad_current_state();
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__vad_is_speech();
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__vad_process(JSAny samples);
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__vad_reset();
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__vad_set_threshold(double threshold);
+}

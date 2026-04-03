@@ -1468,4 +1468,38 @@ final class wire_cst_list_prim_i_16_strict extends ffi.Struct {
 }
 
 final class wire_cst_dart_synthesized_audio extends ffi.Struct {
-  external ffi.Pointer<wire_cst_lis
+  external ffi.Pointer<wire_cst_list_prim_f_32_strict> samples;
+
+  @ffi.Uint32()
+  external int sample_rate;
+
+  @ffi.Float()
+  external double duration;
+}
+
+final class wire_cst_dart_vad_result extends ffi.Struct {
+  @ffi.Int32()
+  external int state;
+
+  @ffi.Float()
+  external double speech_probability;
+
+  @ffi.Bool()
+  external bool is_speech;
+
+  @ffi.Float()
+  external double state_duration;
+}
+
+final class wire_cst_streaming_result extends ffi.Struct {
+  external wire_cst_dart_vad_result vad;
+
+  @ffi.Bool()
+  external bool transcription_attempted;
+
+  external ffi.Pointer<wire_cst_dart_transcription> transcription;
+}
+
+const double DEFAULT_BUFFER_DURATION_SECS = 30.0;
+
+const int WHISPER_SAMPLE_RATE = 16000;
