@@ -457,3 +457,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added TranslateGemma 4B IT model to backend catalog with full metadata, verified URL, and size.
 
 ---
+## [0.3.13] - 2026-04-03
+
+### Changed
+- Version bump to 0.3.13
+
+---

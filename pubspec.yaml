@@ -2,7 +2,7 @@ name: kivixa
 description: A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
 publish_to: 'none' 
 
-version: 0.3.12+3012
+version: 0.3.13+3013
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
@@ -169,3 +169,4 @@ msix_config:
   publisher: CN=990aa
   version: 0.0.1.0 
   logo_path: windows/runner/resources/app_icon.ico
+  install_certificate: false  
