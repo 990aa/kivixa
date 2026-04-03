@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
 import type { ReleaseData } from "@/lib/github";
+import ScreenshotImage from "./ScreenshotImage";
 
 interface HeroProps {
   release: ReleaseData;
@@ -65,8 +65,8 @@ export default function Hero({ release }: HeroProps) {
           className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
         >
           <a
-            data-testid="cta-windows"
-            href={release.windowsUrl ?? "#download"}
+            data-testid="cta-winget"
+            href="#download"
             className="group inline-flex items-center gap-2.5 rounded-xl bg-accent-primary px-6 py-3 text-sm font-semibold text-white hover:bg-accent-secondary transition-all shadow-glow-sm hover:shadow-glow-md hover:-translate-y-0.5"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -74,7 +74,7 @@ export default function Hero({ release }: HeroProps) {
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
-            Download for Windows
+            Install with winget
           </a>
           <a
             href="https://github.com/990aa/kivixa"
@@ -89,6 +89,21 @@ export default function Hero({ release }: HeroProps) {
           </a>
         </motion.div>
 
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.45 }}
+          className="mb-12 text-xs sm:text-sm text-text-muted font-mono"
+        >
+          Recommended on Windows: <span className="text-accent-teal">winget install Kivixa</span> ·{" "}
+          <a
+            href={release.windowsUrl ?? "#download"}
+            className="text-accent-blue hover:text-accent-secondary underline underline-offset-2 transition-colors"
+          >
+            Download .exe v{release.version}
+          </a>
+        </motion.p>
+
         {/* Hero Screenshot */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -99,28 +114,53 @@ export default function Hero({ release }: HeroProps) {
           {/* Glow behind screenshot */}
           <div className="absolute inset-0 -z-10 scale-95 blur-[60px] opacity-40 bg-gradient-to-br from-accent-primary/30 via-accent-teal/20 to-accent-blue/20 rounded-3xl" />
 
-          {/* Screenshot in styled frame */}
-          <motion.div
-            animate={{ y: [0, -8, 0] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="screenshot-frame rounded-2xl overflow-hidden shadow-2xl border border-border-default [transform:perspective(2000px)_rotateX(2deg)]"
-          >
-            {/* Window chrome */}
-            <div className="flex items-center gap-2 px-4 py-2.5 bg-surface-850 border-b border-border-subtle">
-              <span className="w-2.5 h-2.5 rounded-full bg-accent-rose/60" />
-              <span className="w-2.5 h-2.5 rounded-full bg-accent-amber/60" />
-              <span className="w-2.5 h-2.5 rounded-full bg-accent-teal/60" />
-              <span className="ml-3 text-[10px] text-text-muted font-mono">Kivixa — Workspace</span>
-            </div>
-            <Image
-              src="/assets/screenshots/workspace-notes.png"
-              alt="Kivixa workspace showing notes, files, and productivity tools"
-              width={1920}
-              height={1080}
-              className="w-full h-auto"
-              priority
-            />
-          </motion.div>
+          <div className="space-y-5">
+            {/* Main workspace screenshot */}
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              className="screenshot-frame rounded-2xl overflow-hidden shadow-2xl border border-border-default [transform:perspective(2000px)_rotateX(2deg)]"
+            >
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-surface-850 border-b border-border-subtle">
+                <span className="w-2.5 h-2.5 rounded-full bg-accent-rose/60" />
+                <span className="w-2.5 h-2.5 rounded-full bg-accent-amber/60" />
+                <span className="w-2.5 h-2.5 rounded-full bg-accent-teal/60" />
+                <span className="ml-3 text-[10px] text-text-muted font-mono">Kivixa - Workspace</span>
+              </div>
+              <ScreenshotImage
+                src="/assets/screenshots/workspace-notes.png"
+                alt="Kivixa workspace showing notes, files, and productivity tools"
+                width={1919}
+                height={1002}
+                className="w-full"
+                loading="eager"
+              />
+            </motion.div>
+
+            {/* Dark mode screenshot */}
+            <motion.div
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.75, ease: [0.22, 1, 0.36, 1] }}
+              className="screenshot-frame rounded-xl overflow-hidden border border-border-default max-w-3xl mx-auto"
+            >
+              <div className="flex items-center justify-between gap-2 px-4 py-2.5 bg-surface-850 border-b border-border-subtle">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-accent-rose/60" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-accent-amber/60" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-accent-teal/60" />
+                </div>
+                <span className="text-[10px] text-text-muted font-mono">Dark mode workspace</span>
+              </div>
+              <ScreenshotImage
+                src="/assets/screenshots/workspace-notes-dark-mode.png"
+                alt="Kivixa workspace in dark mode"
+                width={1919}
+                height={1005}
+                className="w-full"
+              />
+            </motion.div>
+          </div>
         </motion.div>
       </div>
     </section>
