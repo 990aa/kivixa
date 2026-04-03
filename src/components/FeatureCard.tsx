@@ -35,8 +35,8 @@ export default function FeatureCard({
       <div className="relative overflow-hidden bg-surface-850 p-3">
         <div className="rounded-xl border border-border-subtle bg-surface-900/70 p-2">
           <ScreenshotImage
-          src={screenshot}
-          alt={alt}
+            src={screenshot}
+            alt={alt}
             width={imageWidth}
             height={imageHeight}
             className="transition-transform duration-500 group-hover:scale-[1.01]"

@@ -132,7 +132,6 @@ export default function Hero({ release }: HeroProps) {
                 alt="Kivixa workspace showing notes, files, and productivity tools"
                 width={1919}
                 height={1002}
-                className="w-full"
                 loading="eager"
               />
             </motion.div>
@@ -157,7 +156,6 @@ export default function Hero({ release }: HeroProps) {
                 alt="Kivixa workspace in dark mode"
                 width={1919}
                 height={1005}
-                className="w-full"
               />
             </motion.div>
           </div>

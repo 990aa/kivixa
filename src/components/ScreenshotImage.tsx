@@ -24,8 +24,7 @@ export default function ScreenshotImage({
       loading={loading}
       decoding="async"
       data-screenshot="true"
-      className={`mx-auto block h-auto w-full object-contain screenshot-image ${className}`}
-      style={{ maxWidth: `${width}px` }}
+      className={`mx-auto block h-auto max-w-full object-contain screenshot-image ${className}`}
     />
   );
 }
