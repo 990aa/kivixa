@@ -82,10 +82,7 @@ String extractPlainTextFromDocxBytes(Uint8List bytes) {
   }
 
   final xmlBytes = documentXml.content;
-  final xml = utf8.decode(
-    xmlBytes is List<int> ? xmlBytes : List<int>.from(xmlBytes as Iterable),
-    allowMalformed: true,
-  );
+  final xml = utf8.decode(xmlBytes as List<int>, allowMalformed: true);
 
   final tokenPattern = RegExp(
     r'<w:t(?:\s[^>]*)?>(.*?)</w:t>|<w:tab\b[^>]*/>|<w:br\b[^>]*/>|</w:p>',

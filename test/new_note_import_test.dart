@@ -21,7 +21,7 @@ Uint8List _buildDocxBytes(String documentXml) {
     );
 
   final encoded = ZipEncoder().encode(archive);
-  return Uint8List.fromList(encoded ?? <int>[]);
+  return Uint8List.fromList(encoded);
 }
 
 void main() {
