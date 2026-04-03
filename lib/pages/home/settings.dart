@@ -21,7 +21,6 @@ import 'package:kivixa/components/settings/update_manager.dart';
 import 'package:kivixa/components/theming/adaptive_alert_dialog.dart';
 import 'package:kivixa/components/theming/adaptive_toggle_buttons.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
-import 'package:kivixa/data/flavor_config.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/data/tools/shape_pen.dart';
@@ -126,8 +125,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final requiresManualUpdates = FlavorConfig.appStore.isEmpty;
-
     final IconData materialIcon = switch (defaultTargetPlatform) {
       TargetPlatform.windows => Icons.desktop_windows,
       _ => Icons.android,
