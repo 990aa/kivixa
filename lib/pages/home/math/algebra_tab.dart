@@ -57,9 +57,7 @@ class _MathAlgebraTabState extends State<MathAlgebraTab>
   }
 }
 
-// ============================================================================
 // MATRIX CALCULATOR - Dynamic matrices with any dimensions
-// ============================================================================
 
 class _MatrixCalculator extends StatefulWidget {
   const _MatrixCalculator();
@@ -1304,9 +1302,7 @@ class _MatrixCalculatorState extends State<_MatrixCalculator> {
   }
 }
 
-// ============================================================================
 // COMPLEX CALCULATOR
-// ============================================================================
 
 class _ComplexCalculator extends StatefulWidget {
   const _ComplexCalculator();
@@ -1782,9 +1778,7 @@ class _ComplexCalculatorState extends State<_ComplexCalculator> {
   }
 }
 
-// ============================================================================
 // EQUATION SOLVER - Solve any equation
-// ============================================================================
 
 class _EquationSolver extends StatefulWidget {
   const _EquationSolver();
@@ -2200,9 +2194,7 @@ class _EquationSolverState extends State<_EquationSolver> {
   }
 }
 
-// ============================================================================
 // SYSTEM OF LINEAR EQUATIONS SOLVER
-// ============================================================================
 
 class _SystemSolver extends StatefulWidget {
   const _SystemSolver();

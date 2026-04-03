@@ -76,9 +76,7 @@ String _formatBigInt(BigInt n) {
   return '${str[0]}.${str.substring(1, math.min(6, str.length))}e$exp';
 }
 
-// ============================================================================
 // PRIME CALCULATOR
-// ============================================================================
 
 class _PrimeCalculator extends StatefulWidget {
   const _PrimeCalculator();
@@ -305,9 +303,7 @@ class _PrimeCalculatorState extends State<_PrimeCalculator> {
   }
 }
 
-// ============================================================================
 // FACTOR CALCULATOR
-// ============================================================================
 
 class _FactorCalculator extends StatefulWidget {
   const _FactorCalculator();
@@ -560,9 +556,7 @@ class _FactorCalculatorState extends State<_FactorCalculator> {
   }
 }
 
-// ============================================================================
 // COMBINATORICS CALCULATOR
-// ============================================================================
 
 class _CombinatoricsCalculator extends StatefulWidget {
   const _CombinatoricsCalculator();
@@ -828,9 +822,7 @@ class _CombinatoricsCalculatorState extends State<_CombinatoricsCalculator> {
   }
 }
 
-// ============================================================================
 // SEQUENCE CALCULATOR
-// ============================================================================
 
 class _SequenceCalculator extends StatefulWidget {
   const _SequenceCalculator();
@@ -1088,9 +1080,7 @@ class _SequenceCalculatorState extends State<_SequenceCalculator> {
   }
 }
 
-// ============================================================================
 // MODULAR ARITHMETIC CALCULATOR
-// ============================================================================
 
 class _ModularArithmeticCalculator extends StatefulWidget {
   const _ModularArithmeticCalculator();

@@ -141,9 +141,9 @@ static SIM_STATE: once_cell::sync::Lazy<Arc<SimulationState>> = once_cell::sync:
     })
 });
 
-// ============================================================================
+
 // Public API (called from api.rs)
-// ============================================================================
+
 
 /// Start streaming graph simulation
 pub fn start_stream() -> Result<()> {
@@ -262,9 +262,9 @@ pub fn get_stats() -> (usize, usize, usize) {
     (node_count, edge_count, visible_count)
 }
 
-// ============================================================================
+
 // Legacy API (for mpsc streaming)
-// ============================================================================
+
 
 /// Start streaming graph simulation with channel
 pub fn start_simulation_stream() -> mpsc::Receiver<GraphFrame> {
@@ -295,9 +295,9 @@ pub fn is_simulation_running() -> bool {
     is_stream_running()
 }
 
-// ============================================================================
+
 // Simulation Loop
-// ============================================================================
+
 
 /// Main simulation loop (runs in separate thread)
 fn run_simulation_loop() {

@@ -1,6 +1,6 @@
-# =============================================================================
+
 # Kivixa Release Workflow
-# =============================================================================
+
 # Triggered by pushing a version tag (e.g., v0.1.7+1007) or manually
 #
 # This workflow:
@@ -12,7 +12,8 @@
 # 6. Updates F-Droid repository (gh-pages)
 #
 # Note: README.md is updated locally by scripts/release.ps1 before tagging
-# =============================================================================
+ 
+
 
 name: Build and Release
 
@@ -41,9 +42,11 @@ env:
   FLUTTER_VERSION: '3.41.6'
 
 jobs:
-  # =============================================================================
+   
+
   # JOB 1: Build Android APKs (with Rust native libs)
-  # =============================================================================
+   
+
   build-android:
     runs-on: ubuntu-latest
     outputs:
@@ -346,9 +349,11 @@ jobs:
           path: artifacts/*.apk
           retention-days: 5
 
-  # =============================================================================
+   
+
   # JOB 2: Build Windows Installer (with Rust native libs)
-  # =============================================================================
+   
+
   build-windows:
     runs-on: windows-latest
     needs: build-android
@@ -593,9 +598,11 @@ jobs:
           path: build_windows_installer/Kivixa-Setup-*.exe
           retention-days: 5
 
-  # =============================================================================
+   
+
   # JOB 3: Create GitHub Release
-  # =============================================================================
+   
+
   release:
     runs-on: ubuntu-latest
     needs: [build-android, build-windows]
@@ -679,9 +686,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # =============================================================================
+   
+
   # JOB 4: Update F-Droid Repository (gh-pages)
-  # =============================================================================
+   
+
   fdroid:
     runs-on: ubuntu-latest
     needs: [build-android, release]
@@ -791,9 +800,11 @@ jobs:
           
           echo "SUCCESS: Repo updated and pushed!"
 
-  # =============================================================================
+   
+
   # JOB 5: Publish to Winget
-  # =============================================================================
+   
+
   winget:
     runs-on: ubuntu-latest
     needs: release # Ensures Winget waits for the GitHub Release to finish
