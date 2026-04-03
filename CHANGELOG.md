@@ -330,7 +330,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **New AI Models in Model Manager**:
-  - **Qwen3.5 4B Distilled v2** with category tagging and download metadata
+  - **Qwen3.5 4B Distilled** with category tagging and download metadata
   - **Qwen3.5 2B Distilled** with category tagging and download metadata
   - **Qwen3.5 0.8B Distilled** with category tagging and download metadata
   - **Phi-4 Mini Reasoning** (Q4_K_M) with direct GGUF link and recommendations

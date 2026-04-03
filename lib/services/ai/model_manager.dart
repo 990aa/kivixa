@@ -266,14 +266,14 @@ class ModelManager {
       ],
     ),
 
-    // Qwen3.5 4B Distilled v2 - Strongest quality among distilled Qwen options
+    // Qwen3.5 4B Distilled - Strongest quality among distilled Qwen options
     AIModel(
       id: 'qwen35-4b-claude46-distilled-v2-q4km',
-      name: 'Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled v2',
+      name: 'Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled',
       shortDescription:
           'Best quality in the Qwen3.5 distilled set for deep reasoning and code.',
       description:
-          'Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled v2 - High quality '
+          'Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled - High quality '
           'reasoning and coding with a larger distilled model footprint.',
       recommendation:
           'Choose this for highest output quality if your device has enough RAM.',

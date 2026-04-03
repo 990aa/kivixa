@@ -196,7 +196,7 @@ void main() {
       );
 
       expect(qwen4b, isNotNull);
-      expect(qwen4b!.name, 'Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled v2');
+      expect(qwen4b!.name, 'Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled');
       expect(qwen2b, isNotNull);
       expect(qwen2b!.name, 'Qwen3.5 2B Claude 4.6 Opus Reasoning Distilled');
     });

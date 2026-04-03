@@ -42,7 +42,7 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
   - **Phi-4 Mini** - Default model for reasoning, conversation, and general assistance
   - **Phi-4 Mini Reasoning** - Reasoning-tuned Phi model for math-heavy and logic-heavy tasks
   - **Qwen 2.5 3B** - Specialized for writing, notes, and code generation
-  - **Qwen3.5 4B Distilled v2** - Best quality distilled Qwen model for deep reasoning and code
+  - **Qwen3.5 4B Distilled** - Best quality distilled Qwen model for deep reasoning and code
   - **Qwen3.5 2B Distilled** - Balanced speed and quality for daily work
   - **Qwen3.5 0.8B Distilled** - Fast lightweight option for low-memory devices
   - **DeepSeek R1 Distill Qwen 1.5B** - Compact reasoning model with strong math/code behavior
@@ -631,7 +631,7 @@ Kivixa's on-device AI support is built on top of model work from the following o
 - **DeepSeek-AI** - Official creator of the **DeepSeek-R1** reasoning family used for distill checkpoints
 - **Hugging Face TB (SmolLM Team)** - Official creator of **SmolLM2** model family
 - **Jackrong** - Distilled GGUF releases for:
-  - Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled v2
+  - Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled
   - Qwen3.5 2B Claude 4.6 Opus Reasoning Distilled
   - Qwen3.5 0.8B Claude 4.6 Opus Reasoning Distilled
 - **Unsloth (GGUF distribution credit)** - Function Gemma, Phi-4 Mini Reasoning, and selected DeepSeek-R1-Distill GGUF distributions
