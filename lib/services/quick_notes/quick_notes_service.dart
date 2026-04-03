@@ -282,6 +282,16 @@ class QuickNotesService extends ChangeNotifier {
     });
   }
 
+  @visibleForTesting
+  void resetForTests() {
+    _saveNotesDebounce?.cancel();
+    _saveSettingsDebounce?.cancel();
+    _cleanupTimer?.cancel();
+    _notes.clear();
+    _initialized = false;
+    _prefs = null;
+  }
+
   @override
   void dispose() {
     _cleanupTimer?.cancel();

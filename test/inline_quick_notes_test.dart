@@ -10,7 +10,11 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    QuickNotesService.instance.clearAllNotes();
+    QuickNotesService.instance.resetForTests();
+  });
+
+  tearDown(() {
+    QuickNotesService.instance.resetForTests();
   });
 
   Future<void> pumpInlineQuickNotes(WidgetTester tester) async {
@@ -51,6 +55,7 @@ void main() {
 
       await tester.tap(find.text('Update'));
       await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 600));
 
       expect(find.text('updated quick note'), findsOneWidget);
       expect(
@@ -100,6 +105,7 @@ void main() {
 
         await tester.tap(find.text('Update'));
         await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 600));
 
         final updatedData =
             QuickNotesService.instance.activeNotes.first.handwrittenData;
