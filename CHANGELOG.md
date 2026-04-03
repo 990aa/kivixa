@@ -436,6 +436,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - msix build for windows
 
 ### Fixed
-
+- Markdown and text grey rendering
+- Windows browser load loop
+- Folder rename colour fixes
 
 ---
