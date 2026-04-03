@@ -143,6 +143,7 @@ class _NewFolderDialogState extends State<NewFolderDialog> {
 /// Color picker dialog for folder colors
 class FolderColorPickerDialog extends StatefulWidget {
   const FolderColorPickerDialog({
+    super.key,
     this.initialColor,
     required this.onColorSelected,
   });
