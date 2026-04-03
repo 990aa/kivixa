@@ -473,3 +473,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `MCPService.resetForTests()` to support deterministic, isolated MCP sandbox tests.
 
 ---
+## [0.3.14] - 2026-04-03
+
+### Fix
+- Fix flutter_rust_bridge_codegen version for rust modules
+
+---
