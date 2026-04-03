@@ -109,7 +109,7 @@ export default function AISection() {
                 <span className="w-2.5 h-2.5 rounded-full bg-accent-teal/60" />
                 <span className="ml-3 text-[10px] text-text-muted font-mono">AI Chat</span>
               </div>
-              <Image
+              <ScreenshotImage
                 src="/assets/screenshots/ai-chat.png"
                 alt="Kivixa AI chat interface showing on-device conversation with local model"
                 width={1919}
