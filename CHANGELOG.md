@@ -443,7 +443,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.3.11] - 2026-04-03
 
-### Changed
-- Version bump to 0.3.11
+### Fixed
+- Folder rename now preserves existing folder color and supports explicit color changes in the rename dialog.
+- Markdown preview/split gray pane issue on desktop resolved via a desktop-safe preview fallback.
+- Text editor gray-after-edit regression fixed by sanitizing legacy/invalid Quill size attributes on load/restore.
+- Windows browser infinite-loading behavior hardened.
 
 ---
