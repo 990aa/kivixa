@@ -7,8 +7,9 @@
 # 1. Builds Rust native libraries for Android and Windows
 # 2. Builds Android APKs (arm64, armv7, x86_64)
 # 3. Builds Windows installer with code signing
-# 4. Creates GitHub Release
-# 5. Updates F-Droid repository (gh-pages)
+# 4. Builds Windows MSIX package with code signing (failsafe)
+# 5. Creates GitHub Release
+# 6. Updates F-Droid repository (gh-pages)
 #
 # Note: README.md is updated locally by scripts/release.ps1 before tagging
 # =============================================================================
@@ -442,6 +443,46 @@ jobs:
       - name: Build Windows
         run: flutter build windows --release
 
+      # =========================================================================
+      # MSIX BUILD STEP (Safe & Isolated)
+      # =========================================================================
+      - name: Build and Sign MSIX
+        id: build_msix
+        continue-on-error: true # <--- PREVENTS WORKFLOW FAILURE IF MSIX FAILS
+        shell: pwsh
+        run: |
+          Write-Host "=== Starting MSIX Build ===" -ForegroundColor Cyan
+          
+          # Translate Version (e.g., 0.1.7+1007 -> 0.1.7.1007)
+          $rawVersion = "${{ needs.build-android.outputs.version }}"
+          $buildNum = "${{ needs.build-android.outputs.build_number }}"
+          if ([string]::IsNullOrWhiteSpace($buildNum)) { $buildNum = "0" }
+          $msixVersion = "$rawVersion.$buildNum"
+          Write-Host "Translated MSIX Version: $msixVersion"
+          
+          $cert = "windows\certificate.pfx"
+          $password = "${{ secrets.WINDOWS_CERT_PASSWORD }}"
+          
+          if (Test-Path $cert) {
+            flutter pub run msix:create -v `
+              --version $msixVersion `
+              --certificate-path $cert `
+              --certificate-password $password
+          } else {
+            Write-Host "Warning: Certificate not found. Building unsigned MSIX for testing."
+            flutter pub run msix:create -v --version $msixVersion
+          }
+          
+          Write-Host "=== MSIX Build Completed ===" -ForegroundColor Green
+
+      - name: Upload MSIX Artifact
+        if: always() && steps.build_msix.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msix
+          path: build\windows\x64\runner\Release\*.msix
+          retention-days: 5
+
       - name: Verify Rust DLLs in build
         shell: pwsh
         run: |
@@ -580,6 +621,13 @@ jobs:
           name: windows-installer
           path: release-artifacts
 
+      - name: Download MSIX artifacts
+        continue-on-error: true # <--- PREVENTS RELEASE FAILURE IF MSIX WAS NOT BUILT
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-msix
+          path: release-artifacts
+
       - name: List artifacts
         run: ls -la release-artifacts/
 
@@ -614,6 +662,7 @@ jobs:
             
             **Windows:**
             - `Kivixa-Setup-${{ needs.build-android.outputs.version }}.exe` - Windows Installer
+            - `.msix` package included (if build successful) - Modern Windows Package
             
             **Android:**
             - `Kivixa-Android-${{ needs.build-android.outputs.version }}-arm64.apk` - ARM64 (most modern devices)
@@ -742,7 +791,7 @@ jobs:
           
           echo "SUCCESS: Repo updated and pushed!"
 
-# =============================================================================
+  # =============================================================================
   # JOB 5: Publish to Winget
   # =============================================================================
   winget:

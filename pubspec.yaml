@@ -160,3 +160,11 @@ icons_launcher:
       enable: true
     linux:
       enable: true
+
+msix_config:
+  display_name: Kivixa
+  publisher_display_name: 990aa
+  identity_name: 990aa.Kivixa
+  publisher: CN=990aa
+  version: 0.0.1.0 
+  logo_path: windows/runner/resources/app_icon.ico
