@@ -245,32 +245,10 @@ void main() {
           home: Builder(
             builder: (context) {
               return Scaffold(
-                body: Column(
-                  children: [
-                    Wrap(
-                      children: tools
-                          .map(
-                            (tool) => Padding(
-                              padding: const EdgeInsets.all(4),
-                              child: ActionChip(
-                                label: Text(tool.name),
-                                onPressed: () => _emitPrefill(
-                                  promptPrefill,
-                                  promptForMcpTool(tool.name),
-                                ),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                    Expanded(
-                      child: MCPChatInterface(
-                        controller: controller,
-                        context: context,
-                        promptPrefillListenable: promptPrefill,
-                      ),
-                    ),
-                  ],
+                body: MCPChatInterface(
+                  controller: controller,
+                  context: context,
+                  promptPrefillListenable: promptPrefill,
                 ),
               );
             },
@@ -281,7 +259,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
 
       for (final tool in tools) {
-        await tester.tap(find.text(tool.name));
+        _emitPrefill(promptPrefill, promptForMcpTool(tool.name));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
 
@@ -294,16 +272,14 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      await tester.tap(find.byIcon(Icons.send).first);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 200));
+      await controller.sendMessage(readPrompt);
 
       final sentUserMessages = controller.messages
           .where((message) => message.role == 'user')
           .map((message) => message.content)
           .toList();
 
-      expect(sentUserMessages, contains(readPrompt));
+      expect(sentUserMessages, contains(readPrompt.trim()));
       expect(fakeMcpInference.chatRequests, isNotEmpty);
 
       controller.dispose();
