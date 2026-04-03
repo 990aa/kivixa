@@ -638,29 +638,33 @@ class _BrowsePageState extends State<BrowsePage> {
                   doesFolderExist: (String folderName) {
                     return children?.directories.contains(folderName) ?? false;
                   },
-                  renameFolder: (
-                    String oldName,
-                    String newName, {
-                    Color? color,
-                    bool colorChanged = false,
-                  }) async {
-                    final oldPath = '${path ?? ''}/$oldName';
-                    final newPath = '${path ?? ''}/$newName';
-                    await FileManager.renameDirectory(oldPath, newName);
+                  renameFolder:
+                      (
+                        String oldName,
+                        String newName, {
+                        Color? color,
+                        bool colorChanged = false,
+                      }) async {
+                        final oldPath = '${path ?? ''}/$oldName';
+                        final newPath = '${path ?? ''}/$newName';
+                        await FileManager.renameDirectory(oldPath, newName);
 
-                    // Preserve existing color mapping when renaming folders.
-                    await FolderColorService.instance.renameFolder(
-                      oldPath,
-                      newPath,
-                    );
+                        // Preserve existing color mapping when renaming folders.
+                        await FolderColorService.instance.renameFolder(
+                          oldPath,
+                          newPath,
+                        );
 
-                    // Apply explicit color changes from the rename dialog.
-                    if (colorChanged) {
-                      await FolderColorService.instance.setColor(newPath, color);
-                    }
+                        // Apply explicit color changes from the rename dialog.
+                        if (colorChanged) {
+                          await FolderColorService.instance.setColor(
+                            newPath,
+                            color,
+                          );
+                        }
 
-                    findChildrenOfPath();
-                  },
+                        findChildrenOfPath();
+                      },
                   isFolderEmpty: (String folderName) async {
                     final folderPath = '${path ?? ''}/$folderName';
                     final children = await FileManager.getChildrenOfDirectory(

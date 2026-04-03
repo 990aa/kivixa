@@ -483,18 +483,19 @@ class _GridFolderState extends State<_GridFolder> {
           folderName: widget.folderName!,
           initialColor: FolderColorService.instance.getColor(folderPath),
           doesFolderExist: widget.doesFolderExist,
-          renameFolder: (
-            String newName, {
-            Color? color,
-            bool colorChanged = false,
-          }) async {
-            await widget.renameFolder(
-              widget.folderName!,
-              newName,
-              color: color,
-              colorChanged: colorChanged,
-            );
-          },
+          renameFolder:
+              (
+                String newName, {
+                Color? color,
+                bool colorChanged = false,
+              }) async {
+                await widget.renameFolder(
+                  widget.folderName!,
+                  newName,
+                  color: color,
+                  colorChanged: colorChanged,
+                );
+              },
         );
       },
     );
@@ -524,11 +525,7 @@ class _RenameFolderDialog extends StatefulWidget {
   final String folderName;
   final Color? initialColor;
   final bool Function(String) doesFolderExist;
-  final Future<void> Function(
-    String newName, {
-    Color? color,
-    bool colorChanged,
-  })
+  final Future<void> Function(String newName, {Color? color, bool colorChanged})
   renameFolder;
 
   @override
