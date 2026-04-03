@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:code_text_field/code_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/flavor_config.dart';
@@ -23,7 +24,7 @@ void main() {
     FileManager.shouldUseRawFilePath = true;
 
     // Create dummy file
-    final fullPath = '{tempDir.path}/test.md'.replaceAll('\\', '/');
+    final fullPath = '${tempDir.path}/test.md'.replaceAll('\\', '/');
     final file = File(fullPath);
     if (!file.parent.existsSync()) {
       await file.parent.create(recursive: true);
@@ -39,7 +40,7 @@ void main() {
         await tempDir.delete(recursive: true);
       }
     } catch (e) {
-      debugPrint('Warning: Failed to cleanup temp dir: ');
+      debugPrint('Warning: Failed to cleanup temp dir: $e');
     }
   });
 
@@ -68,6 +69,39 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
 
       expect(find.byType(CodeField), findsOneWidget);
+    });
+
+    testWidgets('should render preview without throwing', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(home: AdvancedMarkdownEditor(filePath: testFilePath)),
+      );
+
+      await tester.pump(const Duration(seconds: 1));
+
+      await tester.tap(find.text('Preview'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(MarkdownBody), findsWidgets);
+    });
+
+    testWidgets('should render split mode with editor and preview', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(home: AdvancedMarkdownEditor(filePath: testFilePath)),
+      );
+
+      await tester.pump(const Duration(seconds: 1));
+
+      await tester.tap(find.text('Split'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(CodeField), findsOneWidget);
+      expect(find.byType(MarkdownBody), findsWidgets);
     });
 
     // NOTE: Other tests (Preview, Split Mode, Title, Toolbar, etc.) were removed
