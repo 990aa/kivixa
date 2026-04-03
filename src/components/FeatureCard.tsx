@@ -1,17 +1,27 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
+import ScreenshotImage from "./ScreenshotImage";
 
 interface FeatureCardProps {
   title: string;
   description: string;
   screenshot: string;
   alt: string;
+  imageWidth: number;
+  imageHeight: number;
   colSpan?: string;
 }
 
-export default function FeatureCard({ title, description, screenshot, alt, colSpan = "" }: FeatureCardProps) {
+export default function FeatureCard({
+  title,
+  description,
+  screenshot,
+  alt,
+  imageWidth,
+  imageHeight,
+  colSpan = "",
+}: FeatureCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -22,14 +32,16 @@ export default function FeatureCard({ title, description, screenshot, alt, colSp
       className={`group relative rounded-2xl border border-border-subtle bg-glass-bg backdrop-blur-md overflow-hidden transition-all duration-300 hover:border-border-hover hover:shadow-card-hover ${colSpan}`}
     >
       {/* Screenshot */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-surface-850">
-        <Image
+      <div className="relative overflow-hidden bg-surface-850 p-3">
+        <div className="rounded-xl border border-border-subtle bg-surface-900/70 p-2">
+          <ScreenshotImage
           src={screenshot}
           alt={alt}
-          fill
-          className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+            width={imageWidth}
+            height={imageHeight}
+            className="transition-transform duration-500 group-hover:scale-[1.01]"
+          />
+        </div>
         <div className="absolute inset-0 bg-gradient-to-t from-surface-900/80 via-transparent to-transparent" />
       </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
+import ScreenshotImage from "./ScreenshotImage";
 
 const modelFamilies = [
   { name: "Phi-4", org: "Microsoft" },
@@ -112,30 +112,31 @@ export default function AISection() {
               <Image
                 src="/assets/screenshots/ai-chat.png"
                 alt="Kivixa AI chat interface showing on-device conversation with local model"
-                width={800}
-                height={600}
-                className="w-full h-auto"
+                width={1919}
+                height={1006}
+                className="w-full"
+                loading="eager"
               />
             </div>
 
             {/* Overlapping smaller screenshots */}
             <div className="grid grid-cols-2 gap-4">
               <div className="screenshot-frame rounded-xl overflow-hidden">
-                <Image
+                <ScreenshotImage
                   src="/assets/screenshots/ai-model-picker.png"
                   alt="Kivixa model picker showing available AI models for switching"
-                  width={400}
-                  height={300}
-                  className="w-full h-auto"
+                  width={1919}
+                  height={1009}
+                  className="w-full"
                 />
               </div>
               <div className="screenshot-frame rounded-xl overflow-hidden">
-                <Image
+                <ScreenshotImage
                   src="/assets/screenshots/mcp-tools.png"
                   alt="Kivixa MCP tools panel showing AI tool execution options"
-                  width={400}
-                  height={300}
-                  className="w-full h-auto"
+                  width={1919}
+                  height={1007}
+                  className="w-full"
                 />
               </div>
             </div>

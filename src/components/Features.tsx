@@ -10,6 +10,8 @@ const features = [
       "Create beautiful formatted documents with real-time autosave, text formatting, checklists, code blocks, and hyperlinks.",
     screenshot: "/assets/screenshots/markdown-editor.png",
     alt: "Kivixa markdown editor with formatting toolbar and live preview",
+    imageWidth: 1919,
+    imageHeight: 1006,
     colSpan: "md:col-span-2",
   },
   {
@@ -18,6 +20,8 @@ const features = [
       "Build interactive mind maps with multiple node types, customizable links, and pan-zoom navigation to visualize your ideas.",
     screenshot: "/assets/screenshots/knowledge-graph.png",
     alt: "Kivixa knowledge graph showing connected nodes and relationships",
+    imageWidth: 1919,
+    imageHeight: 1006,
     colSpan: "",
   },
   {
@@ -26,6 +30,8 @@ const features = [
       "Pomodoro timers, chained routines, multi-timer orchestration, and deep work presets with full session analytics.",
     screenshot: "/assets/screenshots/productivity-clock.png",
     alt: "Kivixa productivity clock with circular timer and session stats",
+    imageWidth: 1917,
+    imageHeight: 1006,
     colSpan: "",
   },
   {
@@ -34,6 +40,8 @@ const features = [
       "Time-travel through your notes with auto-snapshots, SHA-256 content-addressable storage, and per-file commit history.",
     screenshot: "/assets/screenshots/file-version-control.png",
     alt: "Kivixa version control showing commit history and version slider",
+    imageWidth: 1919,
+    imageHeight: 1006,
     colSpan: "md:col-span-2",
   },
   {
@@ -42,6 +50,8 @@ const features = [
       "A full mathematics suite: calculus, algebra, statistics, graphing, and number theory — all powered by a Rust backend.",
     screenshot: "/assets/screenshots/math-module.png",
     alt: "Kivixa math module showing calculator and equation solver",
+    imageWidth: 1919,
+    imageHeight: 1002,
     colSpan: "",
   },
   {
@@ -50,6 +60,68 @@ const features = [
       "Quick access to notes, quick-notes, browser, clock, and AI from a floating overlay — always one tap away.",
     screenshot: "/assets/screenshots/floating-hub.png",
     alt: "Kivixa floating hub overlay with productivity shortcuts",
+    imageWidth: 1919,
+    imageHeight: 1009,
+    colSpan: "",
+  },
+  {
+    title: "Version History Timeline",
+    description:
+      "Inspect every revision on a clean visual timeline and restore exact snapshots without losing later work.",
+    screenshot: "/assets/screenshots/version-history.png",
+    alt: "Kivixa version history timeline with restore controls",
+    imageWidth: 1919,
+    imageHeight: 1006,
+    colSpan: "md:col-span-2",
+  },
+  {
+    title: "Commented Commits",
+    description:
+      "Commit any file version with your own descriptive comment so context stays attached to every saved state.",
+    screenshot: "/assets/screenshots/committing-comment.png",
+    alt: "Kivixa commit dialog with user-written comment for a selected version",
+    imageWidth: 1911,
+    imageHeight: 949,
+    colSpan: "",
+  },
+  {
+    title: "New Files And Folders",
+    description:
+      "Create a fresh folder or new note instantly, including markdown, plain text, and handwritten formats.",
+    screenshot: "/assets/screenshots/new-(folder,md,txt,handwritten).png",
+    alt: "Kivixa create menu showing new folder, markdown, text, and handwritten note options",
+    imageWidth: 493,
+    imageHeight: 668,
+    colSpan: "",
+  },
+  {
+    title: "Quick Notes",
+    description:
+      "Capture fast notes in text or handwriting mode from one compact panel designed for rapid context switching.",
+    screenshot: "/assets/screenshots/quick-notes.png",
+    alt: "Kivixa quick notes panel showing both typed and handwritten note modes",
+    imageWidth: 1785,
+    imageHeight: 400,
+    colSpan: "md:col-span-3",
+  },
+  {
+    title: "Productivity Calendar",
+    description:
+      "Plan deep-work blocks and routines with a calendar view that coordinates task timing with your timer sessions.",
+    screenshot: "/assets/screenshots/productivity-calendar.png",
+    alt: "Kivixa productivity calendar view with scheduled focus blocks",
+    imageWidth: 1919,
+    imageHeight: 1005,
+    colSpan: "",
+  },
+  {
+    title: "Math Graph Visualizer",
+    description:
+      "Render equations, graphs, and transformations together so symbolic math and visual understanding stay in sync.",
+    screenshot: "/assets/screenshots/math-module-graph.png",
+    alt: "Kivixa math graph visualizer plotting equations and coordinate curves",
+    imageWidth: 1909,
+    imageHeight: 1006,
     colSpan: "",
   },
 ];
@@ -102,6 +174,8 @@ export default function Features() {
               description={feature.description}
               screenshot={feature.screenshot}
               alt={feature.alt}
+              imageWidth={feature.imageWidth}
+              imageHeight={feature.imageHeight}
               colSpan={feature.colSpan}
             />
           ))}
