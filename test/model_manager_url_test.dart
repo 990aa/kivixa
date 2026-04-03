@@ -279,6 +279,17 @@ void main() {
       expect(model.isReasoningModel, false);
     });
 
+    test('TranslateGemma can be set as currently loaded for usage', () {
+      final manager = ModelManager();
+
+      manager.setCurrentlyLoadedModel('translategemma-4b-it-q4km');
+      expect(manager.currentlyLoadedModel, isNotNull);
+      expect(manager.currentlyLoadedModel!.id, 'translategemma-4b-it-q4km');
+
+      manager.setCurrentlyLoadedModel(null);
+      expect(manager.currentlyLoadedModel, isNull);
+    });
+
     test('agent recommendation remains Function Gemma', () {
       final recommended = ModelManager.getRecommendedModel(ModelCategory.agent);
       expect(recommended.id, 'function-gemma-270m');
