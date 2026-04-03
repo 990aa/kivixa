@@ -277,11 +277,13 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
 
       for (final tool in tools) {
         await tester.tap(find.text(tool.name));
-        await tester.pumpAndSettle();
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
 
         final field = tester.widget<TextField>(find.byType(TextField).first);
         expect(field.controller?.text, promptForMcpTool(tool.name));
@@ -289,10 +291,12 @@ void main() {
 
       final readPrompt = promptForMcpTool('read_file');
       _emitPrefill(promptPrefill, readPrompt);
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
 
       await tester.tap(find.byIcon(Icons.send).first);
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
 
       final sentUserMessages = controller.messages
           .where((message) => message.role == 'user')
@@ -396,7 +400,7 @@ void main() {
         final prompts = <String>[
           ...mainAiQuickActionPrompts.values,
           ...mcpToolPromptTemplates.values,
-        ];
+        ].map((prompt) => prompt.trim()).toList();
 
         for (final prompt in prompts) {
           await aiController.sendMessage(prompt);
