@@ -475,7 +475,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.3.14] - 2026-04-03
 
-### Fix
-- Fix flutter_rust_bridge_codegen version for rust modules
+### Changed
+- Settings page: renamed the "Editor" preference category label to "Handwritten Note".
+- Settings page Advanced section: removed "Check for kivixa updates", "Faster updates", and "View logs" entries while keeping the top Settings update status behavior unchanged.
+- Browse import flow: added support for importing `.md`, `.txt`, and `.docx` notes from the plus-menu Import Note action.
+- Browse import flow: imported notes now create in-app copies with preserved base names so edits in Kivixa do not modify the original external file.
+- README: updated model list and AI model credits to include TranslateGemma 4B IT and its GGUF distribution attribution.
+
+### Added
+- Text editor: triple-tap now selects the full current line.
+- Markdown editor: added top-right export action (same export icon position as text editor) with markdown export menu support.
+
+### Fixed
+- Text/document import robustness: `.txt` and `.docx` imports now open directly in the text editor with content converted into Kivixa's editable text-note format.
+- Flutter Rust Bridge codegen version alignment for Rust modules.
 
 ---

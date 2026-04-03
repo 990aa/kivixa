@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/pages/textfile/text_file_editor.dart';
 
@@ -76,5 +77,35 @@ void main() {
         );
       },
     );
+  });
+
+  group('TextFileEditor line selection', () {
+    test('lineSelectionForOffset selects the active line range', () {
+      const text = 'first line\nsecond line\nthird';
+
+      final firstLine = lineSelectionForOffset(text, 2);
+      expect(firstLine.baseOffset, 0);
+      expect(firstLine.extentOffset, 10);
+
+      final secondLine = lineSelectionForOffset(text, 15);
+      expect(secondLine.baseOffset, 11);
+      expect(secondLine.extentOffset, 22);
+
+      final thirdLine = lineSelectionForOffset(text, text.length);
+      expect(thirdLine.baseOffset, 23);
+      expect(thirdLine.extentOffset, text.length);
+    });
+
+    test('lineSelectionForOffset handles empty and out-of-range offsets', () {
+      expect(
+        lineSelectionForOffset('', 10),
+        const TextSelection.collapsed(offset: 0),
+      );
+
+      const text = 'only line';
+      final selection = lineSelectionForOffset(text, -5);
+      expect(selection.baseOffset, 0);
+      expect(selection.extentOffset, text.length);
+    });
   });
 }

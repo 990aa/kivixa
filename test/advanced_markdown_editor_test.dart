@@ -70,6 +70,23 @@ void main() {
       expect(find.byType(CodeField), findsOneWidget);
     });
 
+    testWidgets('shows export action and markdown export option', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(home: AdvancedMarkdownEditor(filePath: testFilePath)),
+      );
+
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(find.byIcon(Icons.file_download), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.file_download));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Export as .md'), findsOneWidget);
+    });
+
     testWidgets('should render preview without throwing', (
       WidgetTester tester,
     ) async {

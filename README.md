@@ -50,6 +50,7 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
   - **Function Gemma 270M** - Ultra-fast, optimized for MCP tool calling (~180MB)
   - **Gemma 2B** - Google's efficient compact general-purpose model
   - **Gemma 3 4B IT** - Newer Gemma-family model with stronger balanced output quality
+  - **TranslateGemma 4B IT** - Fast multilingual translation and rewriting model for notes
   - Automatic model routing based on task classification
   - Seamless model switching for optimal performance
 
@@ -627,7 +628,7 @@ Kivixa's on-device AI support is built on top of model work from the following o
 
 - **Microsoft** - Official creator of Phi model family used by **Phi-4 Mini** and **Phi-4 Mini Reasoning**
 - **Alibaba Cloud (Qwen Team)** - Official creator of Qwen model family used by **Qwen2.5 3B**, **Qwen3.5 Distilled** variants, and DeepSeek distill base architecture
-- **Google (Gemma Team)** - Official creator of Gemma model family used by **Gemma 2B**, **Gemma 3 4B IT**, and **Function Gemma** family
+- **Google (Gemma Team)** - Official creator of Gemma model family used by **Gemma 2B**, **Gemma 3 4B IT**, **TranslateGemma 4B IT**, and **Function Gemma** family
 - **DeepSeek-AI** - Official creator of the **DeepSeek-R1** reasoning family used for distill checkpoints
 - **Hugging Face TB (SmolLM Team)** - Official creator of **SmolLM2** model family
 - **Jackrong** - Distilled GGUF releases for:
@@ -636,6 +637,7 @@ Kivixa's on-device AI support is built on top of model work from the following o
   - Qwen3.5 0.8B Claude 4.6 Opus Reasoning Distilled
 - **Unsloth (GGUF distribution credit)** - Function Gemma, Phi-4 Mini Reasoning, and selected DeepSeek-R1-Distill GGUF distributions
 - **bartowski (GGUF distribution credit)** - Phi-4 Mini, Gemma 3 4B IT, DeepSeek-R1-Distill-Qwen-1.5B, and SmolLM2-1.7B-Instruct GGUF distributions
+- **mradermacher (GGUF distribution credit)** - TranslateGemma 4B IT GGUF distribution
 
 We appreciate the upstream model creators and the open model packaging community that make high-quality on-device AI possible.
 
