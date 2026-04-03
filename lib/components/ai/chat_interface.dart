@@ -413,6 +413,7 @@ class AIChatInterface extends StatefulWidget {
   final VoidCallback? onClear;
   final bool compact;
   final List<Widget>? headerActions;
+  final ValueListenable<String?>? promptPrefillListenable;
 
   const AIChatInterface({
     super.key,
@@ -424,6 +425,7 @@ class AIChatInterface extends StatefulWidget {
     this.onClear,
     this.compact = false,
     this.headerActions,
+    this.promptPrefillListenable,
   });
 
   @override
@@ -435,10 +437,21 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
 
+  void _onPromptPrefillChanged() {
+    final prompt = widget.promptPrefillListenable?.value;
+    if (prompt == null || prompt.trim().isEmpty) return;
+
+    _textController
+      ..text = prompt
+      ..selection = TextSelection.collapsed(offset: prompt.length);
+    _focusNode.requestFocus();
+  }
+
   @override
   void initState() {
     super.initState();
     widget.controller.addListener(_onControllerUpdate);
+    widget.promptPrefillListenable?.addListener(_onPromptPrefillChanged);
   }
 
   @override
@@ -448,11 +461,19 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
       oldWidget.controller.removeListener(_onControllerUpdate);
       widget.controller.addListener(_onControllerUpdate);
     }
+
+    if (oldWidget.promptPrefillListenable != widget.promptPrefillListenable) {
+      oldWidget.promptPrefillListenable?.removeListener(
+        _onPromptPrefillChanged,
+      );
+      widget.promptPrefillListenable?.addListener(_onPromptPrefillChanged);
+    }
   }
 
   @override
   void dispose() {
     widget.controller.removeListener(_onControllerUpdate);
+    widget.promptPrefillListenable?.removeListener(_onPromptPrefillChanged);
     _textController.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
@@ -1036,10 +1057,9 @@ class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
     final colorScheme = theme.colorScheme;
     final renderBox = _chipKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
-    final overlay = Overlay.of(
-      context,
-      rootOverlay: true,
-    ).context.findRenderObject() as RenderBox?;
+    final overlay =
+        Overlay.of(context, rootOverlay: true).context.findRenderObject()
+            as RenderBox?;
     if (overlay == null) return;
 
     await _loadDownloadedModels();

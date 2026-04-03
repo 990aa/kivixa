@@ -6,12 +6,14 @@ class MCPChatInterface extends StatefulWidget {
   final MCPChatController controller;
   final BuildContext context;
   final Widget? emptyState;
+  final ValueListenable<String?>? promptPrefillListenable;
 
   const MCPChatInterface({
     super.key,
     required this.controller,
     required this.context,
     this.emptyState,
+    this.promptPrefillListenable,
   });
 
   @override
@@ -23,15 +25,39 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
 
+  void _onPromptPrefillChanged() {
+    final prompt = widget.promptPrefillListenable?.value;
+    if (prompt == null || prompt.trim().isEmpty) return;
+
+    _textController
+      ..text = prompt
+      ..selection = TextSelection.collapsed(offset: prompt.length);
+    _focusNode.requestFocus();
+  }
+
   @override
   void initState() {
     super.initState();
     widget.controller.addListener(_onControllerChanged);
+    widget.promptPrefillListenable?.addListener(_onPromptPrefillChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant MCPChatInterface oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.promptPrefillListenable != widget.promptPrefillListenable) {
+      oldWidget.promptPrefillListenable?.removeListener(
+        _onPromptPrefillChanged,
+      );
+      widget.promptPrefillListenable?.addListener(_onPromptPrefillChanged);
+    }
   }
 
   @override
   void dispose() {
     widget.controller.removeListener(_onControllerChanged);
+    widget.promptPrefillListenable?.removeListener(_onPromptPrefillChanged);
     _textController.dispose();
     _scrollController.dispose();
     _focusNode.dispose();

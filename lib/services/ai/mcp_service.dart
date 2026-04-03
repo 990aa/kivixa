@@ -377,6 +377,17 @@ class MCPService {
     _pluginExecutor = executor;
   }
 
+  @visibleForTesting
+  void resetForTests() {
+    _initialized = false;
+    _browseDir = null;
+    _maxFileSize = 10 * 1024 * 1024;
+    _allowedExtensions
+      ..clear()
+      ..addAll({'md', 'txt', 'json', 'yaml', 'yml', 'toml', 'csv'});
+    _pluginExecutor = null;
+  }
+
   /// Get all available tools
   List<MCPToolInfo> getAvailableTools() => _tools;
 
