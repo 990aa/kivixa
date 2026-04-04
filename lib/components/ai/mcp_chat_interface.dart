@@ -345,7 +345,8 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
                     _buildToolResultIndicator(message),
                   ],
 
-                  if (!message.isLoading && (onCopy != null || onRetry != null)) ...[
+                  if (!message.isLoading &&
+                      (onCopy != null || onRetry != null)) ...[
                     const SizedBox(height: 8),
                     Row(
                       mainAxisSize: MainAxisSize.min,

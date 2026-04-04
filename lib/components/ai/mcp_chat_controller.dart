@@ -95,7 +95,7 @@ class MCPChatController extends ChangeNotifier {
     InferenceService? inferenceService,
     MCPService? mcpService,
     ModelRouterService? modelRouter,
-     ChatContextGateway? contextGateway,
+    ChatContextGateway? contextGateway,
     String? systemPrompt,
     String? browseDirectory,
   }) : _inferenceService = inferenceService ?? InferenceService(),
@@ -447,10 +447,7 @@ class MCPChatController extends ChangeNotifier {
   }
 
   String exportConversationAsJson({String sessionType = 'mcp-chat'}) {
-    return buildChatConversationExportJson(
-      _messages,
-      sessionType: sessionType,
-    );
+    return buildChatConversationExportJson(_messages, sessionType: sessionType);
   }
 
   /// Remove the last message

@@ -38,16 +38,26 @@ class NotesActivityContextGateway implements ChatContextGateway {
       }
 
       final sortedNotes = List<String>.from(noteFiles)
-        ..sort((a, b) => FileManager.lastModified(b).compareTo(FileManager.lastModified(a)));
+        ..sort(
+          (a, b) => FileManager.lastModified(
+            b,
+          ).compareTo(FileManager.lastModified(a)),
+        );
 
       final selectedNotes = sortedNotes.take(maxNotes).toList(growable: false);
-      final folders = _collectFolders(noteFiles).take(maxFolders).toList(growable: false);
+      final folders = _collectFolders(
+        noteFiles,
+      ).take(maxFolders).toList(growable: false);
       final recent = await FileManager.getRecentlyAccessed();
 
       final buffer = StringBuffer();
       buffer.writeln('## User Workspace Context');
-      buffer.writeln('Use this context to answer note and activity questions directly.');
-      buffer.writeln('Skip handwritten note assumptions unless explicitly provided.');
+      buffer.writeln(
+        'Use this context to answer note and activity questions directly.',
+      );
+      buffer.writeln(
+        'Skip handwritten note assumptions unless explicitly provided.',
+      );
 
       if (folders.isNotEmpty) {
         buffer.writeln();
@@ -115,7 +125,10 @@ class NotesActivityContextGateway implements ChatContextGateway {
       return '';
     }
 
-    final raw = utf8.decode(bytes, allowMalformed: true).replaceAll('\r\n', '\n').trim();
+    final raw = utf8
+        .decode(bytes, allowMalformed: true)
+        .replaceAll('\r\n', '\n')
+        .trim();
     if (raw.isEmpty) {
       return '';
     }
@@ -175,10 +188,13 @@ class NotesActivityContextGateway implements ChatContextGateway {
   }
 
   Iterable<String> _collectFolders(List<String> notePaths) sync* {
-    final folders = <String>{'/' };
+    final folders = <String>{'/'};
 
     for (final notePath in notePaths) {
-      final parts = notePath.split('/').where((part) => part.isNotEmpty).toList();
+      final parts = notePath
+          .split('/')
+          .where((part) => part.isNotEmpty)
+          .toList();
       if (parts.length <= 1) {
         continue;
       }

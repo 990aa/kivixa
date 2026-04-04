@@ -820,6 +820,14 @@ pub fn classify_task(message: &str) -> TaskCategory {
 
     // Tool use indicators (actions on files, calendar, timers)
     let tool_keywords = [
+        "read_file",
+        "write_file",
+        "delete_file",
+        "create_folder",
+        "list_files",
+        "calendar_lua",
+        "timer_lua",
+        "export_markdown",
         "create file",
         "create a file",
         "write file",
@@ -846,6 +854,14 @@ pub fn classify_task(message: &str) -> TaskCategory {
         "file called",
         "folder called",
         "note called",
+        "use read_file",
+        "use write_file",
+        "use delete_file",
+        "use create_folder",
+        "use list_files",
+        "use calendar_lua",
+        "use timer_lua",
+        "use export_markdown",
     ];
 
     // Code generation indicators
