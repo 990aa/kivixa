@@ -491,7 +491,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Flutter Rust Bridge codegen version alignment for Rust modules.
 
 ---
-## [0.3.15] - 2026-04-04
+## [0.4.0] - 2026-04-04
 
 ### Changed
 - AI and MCP chat composers now support prompt history recall with keyboard arrows:
@@ -512,11 +512,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - MCP composer attachment add/remove/send behavior and prompt-history keyboard navigation.
   - Floating assistant integration path (AI and MCP) for attachment-capable composer availability.
   - Attachment serialization/unit behavior and model payload injection.
-
----
-## [0.4.0] - 2026-04-04
-
-### Changed
-- Version bump to 0.4.0
 
 ---
