@@ -627,7 +627,10 @@ class MCPService {
       case 'export_markdown':
         final path = _extractPathFromMessage(
           normalized,
-          patterns: [RegExp(r'''(?:into|to)\s+["']?([^"'\s:]+)''')],
+          patterns: [
+            RegExp(r'''into\s+["']?([^"'\s:]+)'''),
+            RegExp(r'''(?:to|at)\s+["']?((?:[^"'\s:]*[/\\][^"'\s:]+))'''),
+          ],
         );
         final content = _extractContentFromMessage(
           normalized,

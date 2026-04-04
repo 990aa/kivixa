@@ -359,6 +359,18 @@ void main() {
           ...mcpToolPromptTemplates.values,
         ].map((prompt) => prompt.trim()).toList();
 
+        final seededSandboxFile = await mcpService.executeDirectly(
+          const PendingToolCall(
+            tool: 'write_file',
+            parameters: {
+              'path': 'sandbox/demo.md',
+              'content': '# Seed\nPrepared for MCP prompt template tests.',
+            },
+            description: 'seed sandbox file for prompt templates',
+          ),
+        );
+        expect(seededSandboxFile.success, isTrue);
+
         for (final entry in mcpToolPromptTemplates.entries) {
           final parsed = mcpService.parseUserDirectedToolCall(entry.value);
           expect(parsed, isNotNull, reason: 'Failed to parse ${entry.key}');
