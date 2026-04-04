@@ -1168,10 +1168,7 @@ class ChatMarkdownView extends StatelessWidget {
     final styleSheet = MarkdownStyleSheet.fromTheme(theme).copyWith(
       p: baseTextStyle?.copyWith(color: textColor),
       listBullet: baseTextStyle?.copyWith(color: textColor),
-      code: baseTextStyle?.copyWith(
-        color: textColor,
-        fontFamily: 'FiraMono',
-      ),
+      code: baseTextStyle?.copyWith(color: textColor, fontFamily: 'FiraMono'),
       codeblockPadding: const EdgeInsets.all(8),
       codeblockDecoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh,
@@ -1183,11 +1180,7 @@ class ChatMarkdownView extends StatelessWidget {
       ),
     );
 
-    return MarkdownBody(
-      data: data,
-      selectable: true,
-      styleSheet: styleSheet,
-    );
+    return MarkdownBody(data: data, selectable: true, styleSheet: styleSheet);
   }
 }
 
