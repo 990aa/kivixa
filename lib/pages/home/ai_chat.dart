@@ -1003,7 +1003,8 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
       return;
     }
 
-    if (progress.modelId != null && progress.modelId != _activeDownloadModelId) {
+    if (progress.modelId != null &&
+        progress.modelId != _activeDownloadModelId) {
       return;
     }
 
