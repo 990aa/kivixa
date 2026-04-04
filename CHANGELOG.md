@@ -361,7 +361,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.9] - 2026-03-30
 
 ### Changed
-- Version bump to 0.3.9
 - Removed decorative browse/recent background image usage and kept a plain background.
 - Removed Atkinson Hyperlegible font setting and related theme toggle implementation.
 - Updated pen modal SVG references to existing assets (`fountain.svg` and `pen.svg`).
@@ -442,5 +441,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - MCP composer attachment add/remove/send behavior and prompt-history keyboard navigation.
   - Floating assistant integration path (AI and MCP) for attachment-capable composer availability.
   - Attachment serialization/unit behavior and model payload injection.
+
+---
+## [0.5.0] - 2026-04-04
+
+### Changed
+- Version bump to 0.5.0
 
 ---
