@@ -648,11 +648,11 @@ class ModelManager {
   ModelDownloadProgress get currentProgress => _currentProgress;
 
   /// Active download tasks for the current model download session.
-  final Map<String, DownloadTask> _activeTasks = <String, DownloadTask>{};
-  final Map<String, int> _taskSizes = <String, int>{};
-  final Map<String, double> _taskProgress = <String, double>{};
-  final Set<String> _taskPaused = <String>{};
-  final Set<String> _taskCompleted = <String>{};
+  final _activeTasks = <String, DownloadTask>{};
+  final _taskSizes = <String, int>{};
+  final _taskProgress = <String, double>{};
+  final _taskPaused = <String>{};
+  final _taskCompleted = <String>{};
   AIModel? _activeDownloadModel;
   double? _latestNetworkSpeed;
 

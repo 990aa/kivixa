@@ -47,6 +47,8 @@ pub fn init_model_with_config(
             if lower.contains("qwen")
                 || lower.contains("deepseek-r1-distill-qwen")
                 || lower.contains("smollm2")
+                || lower.contains("smollm3")
+                || lower.contains("smolvlm")
             {
                 ModelType::Qwen
             } else if lower.contains("functionary") || lower.contains("function-gemma") {

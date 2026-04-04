@@ -22,7 +22,7 @@ anyhow = "1.0"
 
 # Llama.cpp bindings for Phi-4 inference
 # Default: CPU mode (no GPU features) - safe for all platforms
-llama-cpp-2 = { version = "0.1.79", default-features = false }
+llama-cpp-2 = { version = "0.1.130", default-features = false, features = ["mtmd"] }
 
 # Force-directed graph simulation for knowledge graph
 fdg-sim = "0.9"
@@ -56,15 +56,15 @@ tokio = { version = "1", features = ["rt-multi-thread", "sync"] }
 # Windows/Linux: CPU mode only (AVX2 auto-detected, no SDK required)
 # llama.cpp is highly optimized for CPUs - 10-15 tokens/sec on modern CPUs
 [target.'cfg(any(target_os = "windows", target_os = "linux"))'.dependencies]
-llama-cpp-sys-2 = { version = "0.1.79", default-features = false }
+llama-cpp-sys-2 = { version = "0.1.130", default-features = false, features = ["mtmd"] }
 
 # Android: Vulkan for GPU acceleration (NDK includes Vulkan headers)
 [target.'cfg(target_os = "android")'.dependencies]
-llama-cpp-sys-2 = { version = "0.1.130" }
+llama-cpp-sys-2 = { version = "0.1.130", features = ["mtmd"] }
 
 # macOS/iOS: Metal for Apple Silicon GPU acceleration
 [target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
-llama-cpp-sys-2 = { version = "0.1.79", features = ["metal"] }
+llama-cpp-sys-2 = { version = "0.1.130", features = ["metal", "mtmd"] }
 
 [build-dependencies]
 cc = "1.0"

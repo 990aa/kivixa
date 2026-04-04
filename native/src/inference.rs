@@ -13,9 +13,13 @@ use llama_cpp_2::model::params::LlamaModelParams;
 use llama_cpp_2::model::{AddBos, LlamaChatMessage, LlamaModel, Special};
 use llama_cpp_2::token::data_array::LlamaTokenDataArray;
 use parking_lot::Mutex;
+use std::fs;
 use std::num::NonZeroU32;
 use std::path::Path;
 use std::sync::Arc;
+
+#[cfg(feature = "mtmd")]
+use llama_cpp_2::mtmd::{mtmd_default_marker, MtmdBitmap, MtmdContext, MtmdInputText};
 
 /// Supported model types with different chat templates
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -67,6 +71,8 @@ struct ModelState {
     model: LlamaModel,
     config: InferenceConfig,
     model_hint: String,
+    vision_capable: bool,
+    mmproj_path: Option<String>,
 }
 
 /// Global AI state (singleton pattern)
@@ -78,6 +84,8 @@ fn detect_model_type(model_path: &str) -> ModelType {
     if lower_path.contains("qwen")
         || lower_path.contains("deepseek-r1-distill-qwen")
         || lower_path.contains("smollm2")
+        || lower_path.contains("smollm3")
+        || lower_path.contains("smolvlm")
     {
         ModelType::Qwen
     } else if lower_path.contains("functionary") || lower_path.contains("function-gemma") {
@@ -86,6 +94,60 @@ fn detect_model_type(model_path: &str) -> ModelType {
         // Default to Phi-4 format
         ModelType::Phi4
     }
+}
+
+fn is_vision_model_hint(model_path: &str) -> bool {
+    let lower = model_path.to_lowercase();
+    lower.contains("smolvlm")
+        || lower.contains("llava")
+        || lower.contains("qwen2vl")
+        || lower.contains("qwen25vl")
+        || lower.contains("vision")
+}
+
+fn detect_mmproj_path(model_path: &str) -> Option<String> {
+    let model_file = Path::new(model_path);
+    let parent = model_file.parent()?;
+    let file_name = model_file
+        .file_name()
+        .map(|name| name.to_string_lossy().to_string())?;
+    let stem = model_file
+        .file_stem()
+        .map(|stem| stem.to_string_lossy().to_string())?;
+
+    let mut candidates = vec![
+        format!("mmproj-{}", file_name),
+        format!("mmproj-{}.gguf", stem),
+        "mmproj-SmolVLM2-500M-Video-Instruct-Q8_0.gguf".to_string(),
+        "mmproj-SmolVLM2-500M-Video-Instruct-f16.gguf".to_string(),
+    ];
+
+    candidates.dedup();
+
+    for candidate in candidates {
+        let candidate_path = parent.join(candidate);
+        if candidate_path.exists() {
+            return Some(candidate_path.to_string_lossy().to_string());
+        }
+    }
+
+    let entries = fs::read_dir(parent).ok()?;
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if !path.is_file() {
+            continue;
+        }
+
+        let lower_name = path
+            .file_name()
+            .map(|name| name.to_string_lossy().to_lowercase())
+            .unwrap_or_default();
+        if lower_name.contains("mmproj") && lower_name.ends_with(".gguf") {
+            return Some(path.to_string_lossy().to_string());
+        }
+    }
+
+    None
 }
 
 /// Initialize the AI model from the given path (model-agnostic)
@@ -125,12 +187,32 @@ pub fn init_model(model_path: String, config: Option<InferenceConfig>) -> Result
         model.n_vocab()
     );
 
+    let vision_capable = is_vision_model_hint(&model_path);
+    let mmproj_path = if vision_capable {
+        detect_mmproj_path(&model_path)
+    } else {
+        None
+    };
+
+    if vision_capable {
+        if let Some(mmproj) = &mmproj_path {
+            log::info!("Detected mmproj companion file: {}", mmproj);
+        } else {
+            log::warn!(
+                "Model appears vision-capable but no mmproj companion was found near {}",
+                model_path
+            );
+        }
+    }
+
     // Store state globally
     *AI_STATE.lock() = Some(Arc::new(ModelState {
         backend,
         model,
         config,
         model_hint: model_path.to_lowercase(),
+        vision_capable,
+        mmproj_path,
     }));
 
     Ok(())
@@ -355,6 +437,34 @@ pub fn chat_completion(messages: Vec<(String, String)>, max_tokens: Option<u32>)
     let state = guard.as_ref().ok_or_else(|| anyhow!("Model not loaded"))?;
     let model_type = state.config.model_type;
     let model_hint = state.model_hint.as_str();
+    let max_tokens = max_tokens.unwrap_or(state.config.max_tokens);
+
+    if state.vision_capable {
+        if let Some(image_path) = find_image_attachment_path(&messages) {
+            if let Some(mmproj_path) = state.mmproj_path.as_deref() {
+                match chat_completion_with_vision(
+                    state,
+                    &messages,
+                    &image_path,
+                    mmproj_path,
+                    max_tokens,
+                ) {
+                    Ok(response) => return Ok(response),
+                    Err(error) => {
+                        log::warn!(
+                            "Vision inference failed for image '{}'; falling back to text-only path: {}",
+                            image_path,
+                            error
+                        );
+                    }
+                }
+            } else {
+                log::warn!(
+                    "Image attachment detected but mmproj companion is missing; using text fallback"
+                );
+            }
+        }
+    }
 
     // Prefer the model's own chat template (llama.cpp apply_chat_template path).
     // This gives much better compatibility for newer reasoning families and
@@ -371,7 +481,189 @@ pub fn chat_completion(messages: Vec<(String, String)>, max_tokens: Option<u32>)
     };
 
     drop(guard); // Release lock before generation
-    generate_text(prompt, max_tokens)
+    generate_text(prompt, Some(max_tokens))
+}
+
+fn find_image_attachment_path(messages: &[(String, String)]) -> Option<String> {
+    for (role, content) in messages.iter().rev() {
+        if role != "user" {
+            continue;
+        }
+
+        let mut current_path: Option<String> = None;
+        for line in content.lines() {
+            let trimmed = line.trim();
+            if let Some(path) = trimmed.strip_prefix("- Path: ") {
+                current_path = Some(path.trim().to_string());
+                continue;
+            }
+
+            if let Some(media_type) = trimmed.strip_prefix("- Media type: ") {
+                let is_image = media_type.trim().to_lowercase().starts_with("image/");
+                if is_image {
+                    if let Some(path) = current_path.clone() {
+                        if Path::new(&path).exists() {
+                            return Some(path);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    None
+}
+
+fn vision_media_marker() -> &'static str {
+    #[cfg(feature = "mtmd")]
+    {
+        mtmd_default_marker()
+    }
+    #[cfg(not(feature = "mtmd"))]
+    {
+        "<__media__>"
+    }
+}
+
+fn inject_vision_marker(messages: &[(String, String)]) -> Vec<(String, String)> {
+    let marker = vision_media_marker();
+    let mut updated_messages = messages.to_vec();
+
+    for (role, content) in updated_messages.iter_mut().rev() {
+        if role != "user" {
+            continue;
+        }
+
+        if !content.contains(marker) {
+            content.push_str(&format!("\n\nAttached image:\n{}", marker));
+        }
+        break;
+    }
+
+    updated_messages
+}
+
+fn chat_completion_with_vision(
+    state: &ModelState,
+    messages: &[(String, String)],
+    image_path: &str,
+    mmproj_path: &str,
+    max_tokens: u32,
+) -> Result<String> {
+    #[cfg(not(feature = "mtmd"))]
+    {
+        let _ = (state, messages, image_path, mmproj_path, max_tokens);
+        return Err(anyhow!(
+            "This binary was built without mtmd support for vision inference"
+        ));
+    }
+
+    #[cfg(feature = "mtmd")]
+    {
+        let messages_with_marker = inject_vision_marker(messages);
+        let model_type = state.config.model_type;
+        let model_hint = state.model_hint.as_str();
+
+        let prompt = match format_with_model_template(state, &messages_with_marker) {
+            Ok(prompt) => prompt,
+            Err(error) => {
+                log::warn!(
+                    "Falling back to legacy prompt formatter for vision path after template failure: {}",
+                    error
+                );
+                format_chat_prompt_fallback(&messages_with_marker, model_type, model_hint)
+            }
+        };
+
+        let ctx_params = LlamaContextParams::default()
+            .with_n_ctx(NonZeroU32::new(state.config.n_ctx))
+            .with_n_threads(state.config.n_threads)
+            .with_n_threads_batch(state.config.n_threads);
+
+        let mut ctx = state
+            .model
+            .new_context(&state.backend, ctx_params)
+            .map_err(|e| anyhow!("Failed to create context for vision inference: {:?}", e))?;
+
+        let mtmd_ctx = MtmdContext::init_from_file(mmproj_path, &state.model, &Default::default())
+            .map_err(|e| anyhow!("Failed to initialize mtmd context: {}", e))?;
+
+        if !mtmd_ctx.support_vision() {
+            return Err(anyhow!("Loaded mtmd context does not support vision"));
+        }
+
+        let bitmap = MtmdBitmap::from_file(&mtmd_ctx, image_path)
+            .map_err(|e| anyhow!("Failed to load image bitmap '{}': {}", image_path, e))?;
+
+        let input_text = MtmdInputText {
+            text: prompt,
+            add_special: true,
+            parse_special: true,
+        };
+
+        let chunks = mtmd_ctx
+            .tokenize(input_text, &[&bitmap])
+            .map_err(|e| anyhow!("Failed to tokenize multimodal prompt: {}", e))?;
+
+        let n_past = chunks
+            .eval_chunks(
+                &mtmd_ctx,
+                &ctx,
+                0,
+                0,
+                state.config.n_ctx as i32,
+                true,
+            )
+            .map_err(|e| anyhow!("Failed to evaluate multimodal chunks: {}", e))?;
+
+        generate_from_context(state, &mut ctx, max_tokens, n_past.max(0) as usize)
+    }
+}
+
+fn generate_from_context(
+    state: &ModelState,
+    ctx: &mut llama_cpp_2::context::LlamaContext<'_>,
+    max_tokens: u32,
+    mut n_cur: usize,
+) -> Result<String> {
+    let mut output_tokens = Vec::new();
+    let mut batch = LlamaBatch::new(state.config.n_ctx as usize, 1);
+
+    // Use a simple random seed for sampling
+    let mut rng_seed: u32 = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs() as u32;
+
+    for _ in 0..max_tokens {
+        let candidates = ctx.candidates();
+        let mut candidates_array = LlamaTokenDataArray::from_iter(candidates, false);
+
+        rng_seed = rng_seed.wrapping_mul(1103515245).wrapping_add(12345);
+        let new_token = candidates_array.sample_token(rng_seed);
+
+        if state.model.is_eog_token(new_token) {
+            break;
+        }
+
+        output_tokens.push(new_token);
+
+        batch.clear();
+        batch.add(new_token, n_cur as i32, &[0], true)?;
+        n_cur += 1;
+
+        ctx.decode(&mut batch)
+            .map_err(|e| anyhow!("Failed to decode generated vision token: {:?}", e))?;
+    }
+
+    let output = output_tokens
+        .iter()
+        .map(|t| state.model.token_to_str(*t, Special::Tokenize))
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| anyhow!("Failed to detokenize vision response: {:?}", e))?
+        .join("");
+
+    Ok(output)
 }
 
 /// Format messages using the GGUF model's baked chat template via llama.cpp.
@@ -650,9 +942,63 @@ mod tests {
             ModelType::Qwen
         );
         assert_eq!(
+            detect_model_type("/path/to/SmolLM3-Q4_K_M.gguf"),
+            ModelType::Qwen
+        );
+        assert_eq!(
+            detect_model_type("/path/to/SmolVLM2-500M-Video-Instruct-Q8_0.gguf"),
+            ModelType::Qwen
+        );
+        assert_eq!(
             detect_model_type("/path/to/some-model.gguf"),
             ModelType::Phi4
         ); // Default
+    }
+
+    #[test]
+    fn test_find_image_attachment_path() {
+        let messages = vec![
+            ("system".to_string(), "You are helpful".to_string()),
+            (
+                "user".to_string(),
+                "Question\n\n[Attached files]\nAttachment 1: image.png\n- Path: C:/tmp/image.png\n- Media type: image/png\n- Size: 123 bytes"
+                    .to_string(),
+            ),
+        ];
+
+        // File existence is required; use a stable non-existent path and assert none.
+        assert!(find_image_attachment_path(&messages).is_none());
+
+        let cwd = std::env::current_dir().unwrap();
+        let existing = cwd.join("Cargo.toml");
+        let content = format!(
+            "[Attached files]\nAttachment 1: test\n- Path: {}\n- Media type: image/png",
+            existing.to_string_lossy()
+        );
+        let messages_existing = vec![("user".to_string(), content)];
+
+        let detected = find_image_attachment_path(&messages_existing);
+        assert_eq!(
+            detected,
+            Some(existing.to_string_lossy().to_string()),
+            "should return the existing image attachment path"
+        );
+    }
+
+    #[test]
+    fn test_inject_vision_marker_on_latest_user_message() {
+        let messages = vec![
+            ("system".to_string(), "System".to_string()),
+            ("user".to_string(), "First user message".to_string()),
+            ("assistant".to_string(), "Assistant reply".to_string()),
+            ("user".to_string(), "Last user message".to_string()),
+        ];
+
+        let updated = inject_vision_marker(&messages);
+        let marker = vision_media_marker();
+
+        assert!(updated[1].1 == "First user message");
+        assert!(updated[3].1.contains(marker));
     }
 
     #[test]

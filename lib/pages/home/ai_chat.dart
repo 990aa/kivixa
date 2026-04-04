@@ -464,7 +464,7 @@ class _AIChatPageState extends State<AIChatPage> {
               icon: const Icon(Icons.delete_outline),
               tooltip: 'Clear chat',
               onPressed: () {
-                mcpController?.clearMessages();
+                mcpController.clearMessages();
               },
             ),
 

@@ -225,9 +225,9 @@ checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
 
 [[package]]
 name = "cc"
-version = "1.2.48"
+version = "1.2.59"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c481bdbf0ed3b892f6f806287d72acd515b352a4ec27a208489b8c1bc839633a"
+checksum = "b7a4d3ec6524d28a329fc53654bbadc9bdd7b0431f5d65f1a56ffb28a1ee5283"
 dependencies = [
  "find-msvc-tools",
  "jobserver",
@@ -371,6 +371,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719"
 
 [[package]]
+name = "encoding_rs"
+version = "0.8.35"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75030f3c4f45dafd7586dd6780965a8c7e8e285a5ecb86713e63a79c5b2766f3"
+dependencies = [
+ "cfg-if",
+]
+
+[[package]]
 name = "enumflags2"
 version = "0.7.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -433,9 +442,9 @@ dependencies = [
 
 [[package]]
 name = "find-msvc-tools"
-version = "0.1.5"
+version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a3076410a55c90011c298b04d0cfa770b00fa04e1e3c97d3f6c9de105a03844"
+checksum = "5baebc0774151f905a1a2cc41989300b1e6fbb29aff0ceffa1064fdd3088d582"
 
 [[package]]
 name = "find_cuda_helper"
@@ -778,7 +787,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0f0a0e9f770b65bac9aad00f97a67ab5c5319effed07f6da385da3c2115e47ba"
 dependencies = [
  "num-traits",
- "thiserror",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -842,7 +851,7 @@ dependencies = [
  "num-traits",
  "rand",
  "sprs",
- "thiserror",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -861,7 +870,7 @@ dependencies = [
  "num-traits",
  "rand_xoshiro",
  "space",
- "thiserror",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -872,7 +881,7 @@ checksum = "56e7562b41c8876d3367897067013bb2884cc78e6893f092ecd26b305176ac82"
 dependencies = [
  "ndarray",
  "num-traits",
- "thiserror",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -888,27 +897,28 @@ dependencies = [
  "noisy_float",
  "num-traits",
  "order-stat",
- "thiserror",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
 name = "llama-cpp-2"
-version = "0.1.128"
+version = "0.1.141"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69c4c0faf7e1585af7a04eed504307e54100efd36f9f4e3e171175c8c287d2c2"
+checksum = "1e168663718200aaa86617d352a264ce0226bc7727139e9601e9aae926a06fb1"
 dependencies = [
+ "encoding_rs",
  "enumflags2",
  "llama-cpp-sys-2",
- "thiserror",
+ "thiserror 2.0.18",
  "tracing",
  "tracing-core",
 ]
 
 [[package]]
 name = "llama-cpp-sys-2"
-version = "0.1.130"
+version = "0.1.141"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "041940ef51a1ec7ca1267958ff90efaa18ddd31cf07e937e0fd7521ad56acfea"
+checksum = "ec26e2c8669ac39957505d725f1e06afc79f6f813b67b2b52c2736d65309dc1e"
 dependencies = [
  "bindgen",
  "cc",
@@ -1474,7 +1484,16 @@ version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b6aaf5339b578ea85b50e080feb250a3e8ae8cfcdff9a461c9ec2904bc923f52"
 dependencies = [
- "thiserror-impl",
+ "thiserror-impl 1.0.69",
+]
+
+[[package]]
+name = "thiserror"
+version = "2.0.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4288b5bcbc7920c07a1149a35cf9590a2aa808e0bc1eafaade0b80947865fbc4"
+dependencies = [
+ "thiserror-impl 2.0.18",
 ]
 
 [[package]]
@@ -1482,6 +1501,17 @@ name = "thiserror-impl"
 version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "thiserror-impl"
+version = "2.0.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ebc4ee7f67670e9b64d05fa4253e753e016c6c95ff35b89b7941d6b856dec1d5"
 dependencies = [
  "proc-macro2",
  "quote",

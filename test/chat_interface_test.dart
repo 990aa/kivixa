@@ -119,7 +119,12 @@ void main() {
             ),
           ],
         ),
-        AIChatMessage(role: 'assistant', content: 'Here is the summary.'),
+        AIChatMessage(
+          role: 'assistant',
+          content: 'Here is the summary.',
+          modelName: 'Phi-4 Mini',
+          modelId: 'phi4-mini-q4km',
+        ),
         AIChatMessage(role: 'assistant', content: '', isLoading: true),
       ];
 
@@ -152,6 +157,14 @@ void main() {
       expect(
         (exportedMessages[1] as Map<String, dynamic>)['content'],
         'Here is the summary.',
+      );
+      expect(
+        (exportedMessages[1] as Map<String, dynamic>)['modelName'],
+        'Phi-4 Mini',
+      );
+      expect(
+        (exportedMessages[1] as Map<String, dynamic>)['modelId'],
+        'phi4-mini-q4km',
       );
     });
   });
