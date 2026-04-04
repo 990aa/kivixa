@@ -402,7 +402,9 @@ void main() {
           await aiController.sendMessage(prompt);
         }
 
-        final attachmentFile = File('${sandboxDir.path}/sandbox/attachment.txt');
+        final attachmentFile = File(
+          '${sandboxDir.path}/sandbox/attachment.txt',
+        );
         await attachmentFile.parent.create(recursive: true);
         await attachmentFile.writeAsString(
           'ATTACHMENT_MARKER_QWEN_08B: this text must be used in response.',
