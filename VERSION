@@ -3,6 +3,6 @@
 # Run `dart run scripts/bump_version.dart` to update all version references.
 
 MAJOR=0
-MINOR=3
-PATCH=15
-BUILD_NUMBER=3015
+MINOR=4
+PATCH=0
+BUILD_NUMBER=4000

@@ -514,3 +514,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Attachment serialization/unit behavior and model payload injection.
 
 ---
+## [0.4.0] - 2026-04-04
+
+### Changed
+- Version bump to 0.4.0
+
+---
