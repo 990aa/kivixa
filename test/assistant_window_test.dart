@@ -75,9 +75,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: AssistantWindow(chatController: chatController),
-        ),
+        home: Scaffold(body: AssistantWindow(chatController: chatController)),
       ),
     );
     await tester.pumpAndSettle();
