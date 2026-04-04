@@ -60,6 +60,7 @@ class ModelDownloadProgress {
   final double progress; // 0.0 to 1.0
   final int downloadedBytes;
   final int totalBytes;
+  final String? modelId;
   final String? errorMessage;
   final double? networkSpeed; // bytes per second
 
@@ -68,6 +69,7 @@ class ModelDownloadProgress {
     this.progress = 0.0,
     this.downloadedBytes = 0,
     this.totalBytes = 0,
+    this.modelId,
     this.errorMessage,
     this.networkSpeed,
   });
@@ -120,6 +122,7 @@ class ModelDownloadProgress {
     double? progress,
     int? downloadedBytes,
     int? totalBytes,
+    String? modelId,
     String? errorMessage,
     double? networkSpeed,
   }) {
@@ -128,10 +131,28 @@ class ModelDownloadProgress {
       progress: progress ?? this.progress,
       downloadedBytes: downloadedBytes ?? this.downloadedBytes,
       totalBytes: totalBytes ?? this.totalBytes,
+      modelId: modelId ?? this.modelId,
       errorMessage: errorMessage ?? this.errorMessage,
       networkSpeed: networkSpeed ?? this.networkSpeed,
     );
   }
+}
+
+/// A downloadable file asset for a model card.
+class AIModelAsset {
+  final String id;
+  final String url;
+  final String fileName;
+  final int sizeBytes;
+  final List<String> alternateFileNames;
+
+  const AIModelAsset({
+    required this.id,
+    required this.url,
+    required this.fileName,
+    required this.sizeBytes,
+    this.alternateFileNames = const [],
+  });
 }
 
 /// Information about a downloadable AI model
@@ -145,10 +166,12 @@ class AIModel {
   final String fileName;
   final List<String> alternateFileNames; // Backward/legacy filename support
   final int sizeBytes; // Expected size in bytes
+  final List<AIModelAsset> assets; // Optional multi-file model package
   final String? sha256Hash; // Optional hash for verification
   final List<ModelCategory> categories; // Use cases for this model
   final bool isDefault; // Whether this is the default model
   final bool isReasoningModel; // Whether model frequently emits <think> traces
+  final bool supportsVision; // Whether this model supports image understanding
 
   const AIModel({
     required this.id,
@@ -160,20 +183,46 @@ class AIModel {
     required this.fileName,
     this.alternateFileNames = const [],
     required this.sizeBytes,
+    this.assets = const [],
     this.sha256Hash,
     this.categories = const [ModelCategory.general],
     this.isDefault = false,
     this.isReasoningModel = false,
+    this.supportsVision = false,
   });
+
+  List<AIModelAsset> get downloadAssets {
+    if (assets.isNotEmpty) {
+      return assets;
+    }
+
+    return <AIModelAsset>[
+      AIModelAsset(
+        id: 'model',
+        url: url,
+        fileName: fileName,
+        sizeBytes: sizeBytes,
+        alternateFileNames: alternateFileNames,
+      ),
+    ];
+  }
+
+  AIModelAsset get primaryAsset => downloadAssets.first;
+
+  int get totalSizeBytes =>
+      downloadAssets.fold<int>(0, (sum, asset) => sum + asset.sizeBytes);
+
+  bool get hasCompanionAssets => downloadAssets.length > 1;
 
   /// Human-readable size string
   String get sizeText {
-    if (sizeBytes < 1024 * 1024) {
-      return '${(sizeBytes / 1024).toStringAsFixed(1)} KB';
-    } else if (sizeBytes < 1024 * 1024 * 1024) {
-      return '${(sizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    final bytes = totalSizeBytes;
+    if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    } else if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     } else {
-      return '${(sizeBytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
+      return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
     }
   }
 
