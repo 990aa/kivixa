@@ -889,9 +889,12 @@ class ModelManager {
     // Check if already downloaded
     if (await isModelDownloaded(model)) {
       _updateProgress(
-        const ModelDownloadProgress(
+        ModelDownloadProgress(
           state: ModelDownloadState.completed,
           progress: 1.0,
+          downloadedBytes: model.totalSizeBytes,
+          totalBytes: model.totalSizeBytes,
+          modelId: model.id,
         ),
       );
       return;
@@ -904,31 +907,182 @@ class ModelManager {
       debugPrint('Failed to enable wakelock: $e');
     }
 
+    _resetActiveDownloadTracking(model);
+
     _updateProgress(
-      const ModelDownloadProgress(state: ModelDownloadState.queued),
+      ModelDownloadProgress(
+        state: ModelDownloadState.queued,
+        modelId: model.id,
+        totalBytes: model.totalSizeBytes,
+      ),
     );
 
-    // Create download task with resume support
-    _activeTask = createDownloadTask(model);
+    var startedTaskCount = 0;
+    for (final asset in model.downloadAssets) {
+      final assetPath = await _findExistingAssetPath(asset);
+      if (assetPath != null) {
+        _taskCompleted.add(asset.id);
+        _taskProgress[asset.id] = 1.0;
+        continue;
+      }
 
-    // Enqueue the download (handles resume automatically)
-    final result = await FileDownloader().enqueue(_activeTask!);
-    if (!result) {
+      final task = createDownloadTaskForAsset(model, asset);
+      _activeTasks[task.taskId] = task;
+
+      final result = await FileDownloader().enqueue(task);
+      if (result) {
+        startedTaskCount++;
+      } else {
+        _activeTasks.remove(task.taskId);
+        _updateProgress(
+          _buildAggregateProgress(
+            ModelDownloadState.failed,
+            errorMessage: 'Failed to start download for ${asset.fileName}',
+          ),
+        );
+        await _disableWakelock();
+        return;
+      }
+    }
+
+    if (startedTaskCount == 0 &&
+        _taskCompleted.length == model.downloadAssets.length) {
       _updateProgress(
-        const ModelDownloadProgress(
-          state: ModelDownloadState.failed,
-          errorMessage: 'Failed to start download',
+        ModelDownloadProgress(
+          state: ModelDownloadState.completed,
+          progress: 1.0,
+          downloadedBytes: model.totalSizeBytes,
+          totalBytes: model.totalSizeBytes,
+          modelId: model.id,
         ),
       );
       await _disableWakelock();
+      _clearActiveDownloadTracking();
     }
+  }
+
+  void _resetActiveDownloadTracking(AIModel model) {
+    _activeDownloadModel = model;
+    _activeTasks.clear();
+    _taskSizes
+      ..clear()
+      ..addEntries(
+        model.downloadAssets.map((asset) => MapEntry(asset.id, asset.sizeBytes)),
+      );
+    _taskProgress
+      ..clear()
+      ..addEntries(model.downloadAssets.map((asset) => MapEntry(asset.id, 0.0)));
+    _taskPaused.clear();
+    _taskCompleted.clear();
+    _latestNetworkSpeed = null;
+  }
+
+  void _clearActiveDownloadTracking() {
+    _activeDownloadModel = null;
+    _activeTasks.clear();
+    _taskSizes.clear();
+    _taskProgress.clear();
+    _taskPaused.clear();
+    _taskCompleted.clear();
+    _latestNetworkSpeed = null;
+  }
+
+  String _buildTaskMetadata(String modelId, String assetId) {
+    return '$modelId::$assetId';
+  }
+
+  String? _extractModelId(String? metadata) {
+    if (metadata == null || metadata.isEmpty) return null;
+    final separator = metadata.indexOf('::');
+    if (separator == -1) {
+      return metadata;
+    }
+    return metadata.substring(0, separator);
+  }
+
+  String? _extractAssetId(String? metadata) {
+    if (metadata == null || metadata.isEmpty) return null;
+    final separator = metadata.indexOf('::');
+    if (separator == -1) {
+      return null;
+    }
+    return metadata.substring(separator + 2);
+  }
+
+  int _calculateDownloadedBytes() {
+    var downloaded = 0;
+    for (final entry in _taskSizes.entries) {
+      final progress = _taskProgress[entry.key] ?? 0.0;
+      downloaded += (entry.value * progress).round();
+    }
+    return downloaded;
+  }
+
+  int _currentTotalBytes() {
+    return _activeDownloadModel?.totalSizeBytes ?? 0;
+  }
+
+  ModelDownloadProgress _buildAggregateProgress(
+    ModelDownloadState state, {
+    String? errorMessage,
+  }) {
+    final totalBytes = _currentTotalBytes();
+    final downloadedBytes = _calculateDownloadedBytes();
+    final progress = totalBytes <= 0
+        ? 0.0
+        : downloadedBytes / totalBytes;
+
+    return ModelDownloadProgress(
+      state: state,
+      progress: progress.clamp(0.0, 1.0),
+      downloadedBytes: downloadedBytes,
+      totalBytes: totalBytes,
+      modelId: _activeDownloadModel?.id,
+      errorMessage: errorMessage,
+      networkSpeed: _latestNetworkSpeed,
+    );
+  }
+
+  void _emitAggregateState() {
+    final model = _activeDownloadModel;
+    if (model == null) {
+      return;
+    }
+
+    if (_taskCompleted.length >= model.downloadAssets.length) {
+      _updateProgress(
+        ModelDownloadProgress(
+          state: ModelDownloadState.completed,
+          progress: 1.0,
+          downloadedBytes: model.totalSizeBytes,
+          totalBytes: model.totalSizeBytes,
+          modelId: model.id,
+        ),
+      );
+      unawaited(_disableWakelock());
+      _clearActiveDownloadTracking();
+      return;
+    }
+
+    if (_activeTasks.isNotEmpty && _taskPaused.length == _activeTasks.length) {
+      _updateProgress(_buildAggregateProgress(ModelDownloadState.paused));
+      return;
+    }
+
+    if (_activeTasks.isNotEmpty) {
+      _updateProgress(_buildAggregateProgress(ModelDownloadState.downloading));
+      return;
+    }
+
+    _updateProgress(_buildAggregateProgress(ModelDownloadState.queued));
   }
 
   @visibleForTesting
   DownloadTask createDownloadTask(AIModel model) {
+    final asset = model.primaryAsset;
     return DownloadTask(
-      url: model.url,
-      filename: model.fileName,
+      url: asset.url,
+      filename: asset.fileName,
       directory: 'models',
       baseDirectory: BaseDirectory.applicationSupport,
       updates: Updates.statusAndProgress,
@@ -938,41 +1092,70 @@ class ModelManager {
     );
   }
 
+  DownloadTask createDownloadTaskForAsset(AIModel model, AIModelAsset asset) {
+    return DownloadTask(
+      url: asset.url,
+      filename: asset.fileName,
+      directory: 'models',
+      baseDirectory: BaseDirectory.applicationSupport,
+      updates: Updates.statusAndProgress,
+      allowPause: true,
+      retries: 3,
+      metaData: _buildTaskMetadata(model.id, asset.id),
+    );
+  }
+
   /// Pauses the current download
   Future<void> pauseDownload() async {
-    if (_activeTask != null) {
-      await FileDownloader().pause(_activeTask!);
-      _updateProgress(
-        _currentProgress.copyWith(state: ModelDownloadState.paused),
-      );
+    if (_activeTasks.isEmpty) {
+      return;
     }
+
+    for (final task in _activeTasks.values) {
+      await FileDownloader().pause(task);
+    }
+
+    _updateProgress(_buildAggregateProgress(ModelDownloadState.paused));
   }
 
   /// Resumes a paused download
   Future<void> resumeDownload() async {
-    if (_activeTask != null) {
-      final resumed = await FileDownloader().resume(_activeTask!);
-      if (resumed) {
-        _updateProgress(
-          _currentProgress.copyWith(state: ModelDownloadState.downloading),
-        );
+    if (_activeTasks.isNotEmpty) {
+      var resumedAny = false;
+      for (final task in _activeTasks.values) {
+        final resumed = await FileDownloader().resume(task);
+        resumedAny = resumedAny || resumed;
+      }
+
+      if (resumedAny) {
+        _updateProgress(_buildAggregateProgress(ModelDownloadState.downloading));
       }
     } else {
       // If no active task, start a new download
-      await startDownload();
+      await startDownload(_activeDownloadModel);
     }
   }
 
   /// Cancels the current download
   Future<void> cancelDownload() async {
-    if (_activeTask != null) {
-      await FileDownloader().cancelTaskWithId(_activeTask!.taskId);
-      _activeTask = null;
-      _updateProgress(
-        const ModelDownloadProgress(state: ModelDownloadState.notDownloaded),
-      );
-      await _disableWakelock();
+    if (_activeTasks.isEmpty) {
+      return;
     }
+
+    final taskIds = _activeTasks.keys.toList(growable: false);
+    for (final taskId in taskIds) {
+      await FileDownloader().cancelTaskWithId(taskId);
+    }
+
+    final modelId = _activeDownloadModel?.id;
+    _clearActiveDownloadTracking();
+    _updateProgress(
+      ModelDownloadProgress(
+        state: ModelDownloadState.notDownloaded,
+        modelId: modelId,
+      ),
+    );
+    await _disableWakelock();
   }
 
   /// Deletes a downloaded model
@@ -1021,55 +1204,57 @@ class ModelManager {
   }
 
   void _handleStatusUpdate(TaskStatusUpdate update) {
+    final modelId = _extractModelId(update.task.metaData);
+    final activeModel = _activeDownloadModel;
+    if (activeModel == null || modelId != activeModel.id) {
+      return;
+    }
+
+    final assetId = _extractAssetId(update.task.metaData);
+    if (assetId == null || !_taskSizes.containsKey(assetId)) {
+      return;
+    }
+
     switch (update.status) {
       case TaskStatus.enqueued:
-        _updateProgress(
-          _currentProgress.copyWith(state: ModelDownloadState.queued),
-        );
+        _taskPaused.remove(update.task.taskId);
+        _updateProgress(_buildAggregateProgress(ModelDownloadState.queued));
       case TaskStatus.running:
-        _updateProgress(
-          _currentProgress.copyWith(state: ModelDownloadState.downloading),
-        );
+        _taskPaused.remove(update.task.taskId);
+        _updateProgress(_buildAggregateProgress(ModelDownloadState.downloading));
       case TaskStatus.paused:
-        _updateProgress(
-          _currentProgress.copyWith(state: ModelDownloadState.paused),
-        );
+        _taskPaused.add(update.task.taskId);
+        _emitAggregateState();
       case TaskStatus.complete:
-        _updateProgress(
-          const ModelDownloadProgress(
-            state: ModelDownloadState.completed,
-            progress: 1.0,
-          ),
-        );
-        _activeTask = null;
-        _disableWakelock();
+        _taskPaused.remove(update.task.taskId);
+        _taskProgress[assetId] = 1.0;
+        _taskCompleted.add(assetId);
+        _activeTasks.remove(update.task.taskId);
+        _emitAggregateState();
       case TaskStatus.failed:
         _updateProgress(
-          ModelDownloadProgress(
-            state: ModelDownloadState.failed,
+          _buildAggregateProgress(
+            ModelDownloadState.failed,
             errorMessage: update.exception?.description ?? 'Download failed',
           ),
         );
-        _activeTask = null;
+        _activeTasks.remove(update.task.taskId);
         _disableWakelock();
       case TaskStatus.canceled:
-        _updateProgress(
-          const ModelDownloadProgress(state: ModelDownloadState.notDownloaded),
-        );
-        _activeTask = null;
-        _disableWakelock();
+        _taskPaused.remove(update.task.taskId);
+        _activeTasks.remove(update.task.taskId);
+        _emitAggregateState();
       case TaskStatus.notFound:
         _updateProgress(
-          const ModelDownloadProgress(
-            state: ModelDownloadState.failed,
+          _buildAggregateProgress(
+            ModelDownloadState.failed,
             errorMessage: 'Model file not found on server',
           ),
         );
-        _activeTask = null;
+        _activeTasks.remove(update.task.taskId);
         _disableWakelock();
       case TaskStatus.waitingToRetry:
-        // Keep downloading state, will retry automatically
-        break;
+        _updateProgress(_buildAggregateProgress(ModelDownloadState.downloading));
     }
   }
 
@@ -1077,24 +1262,21 @@ class ModelManager {
     final progress = update.progress;
     if (progress < 0) return; // Invalid progress
 
-    // Calculate bytes from progress and expected size
-    final model = availableModels.firstWhere(
-      (m) => m.id == update.task.metaData,
-      orElse: () => defaultModel,
-    );
+    final modelId = _extractModelId(update.task.metaData);
+    final activeModel = _activeDownloadModel;
+    if (activeModel == null || modelId != activeModel.id) {
+      return;
+    }
 
-    final downloadedBytes = (progress * model.sizeBytes).round();
-    final networkSpeed = update.networkSpeed; // bytes per second
+    final assetId = _extractAssetId(update.task.metaData);
+    if (assetId == null || !_taskSizes.containsKey(assetId)) {
+      return;
+    }
 
-    _updateProgress(
-      ModelDownloadProgress(
-        state: ModelDownloadState.downloading,
-        progress: progress,
-        downloadedBytes: downloadedBytes,
-        totalBytes: model.sizeBytes,
-        networkSpeed: networkSpeed,
-      ),
-    );
+    _taskProgress[assetId] = progress;
+    _latestNetworkSpeed = update.networkSpeed;
+
+    _updateProgress(_buildAggregateProgress(ModelDownloadState.downloading));
   }
 
   void _updateProgress(ModelDownloadProgress progress) {
