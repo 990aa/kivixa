@@ -669,7 +669,7 @@ jobs:
             
             **Windows:**
             - `Kivixa-Setup-${{ needs.build-android.outputs.version }}.exe` - Windows Installer
-            - `.msix` package included (if build successful) - Modern Windows Package
+            - `kivixa.msix` - Modern Windows Package
             
             **Android:**
             - `Kivixa-Android-${{ needs.build-android.outputs.version }}-arm64.apk` - ARM64 (most modern devices)
