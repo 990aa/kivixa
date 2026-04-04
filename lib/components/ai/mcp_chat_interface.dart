@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
 
@@ -8,6 +12,8 @@ class MCPChatInterface extends StatefulWidget {
   final BuildContext context;
   final Widget? emptyState;
   final ValueListenable<String?>? promptPrefillListenable;
+  final VoidCallback? onClear;
+  final Future<void> Function(String jsonPayload)? onExportChat;
 
   const MCPChatInterface({
     super.key,
@@ -15,6 +21,8 @@ class MCPChatInterface extends StatefulWidget {
     required this.context,
     this.emptyState,
     this.promptPrefillListenable,
+    this.onClear,
+    this.onExportChat,
   });
 
   @override
@@ -91,6 +99,51 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
     _focusNode.requestFocus();
   }
 
+  Future<void> _handleExportChat() async {
+    final jsonPayload = widget.controller.exportConversationAsJson();
+
+    if (widget.onExportChat != null) {
+      await widget.onExportChat!(jsonPayload);
+      return;
+    }
+
+    try {
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export MCP Chat as JSON',
+        fileName:
+            'kivixa_mcp_chat_${DateTime.now().millisecondsSinceEpoch}.json',
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null) {
+        return;
+      }
+
+      await File(result).writeAsString(jsonPayload);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('MCP chat exported as JSON')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to export chat: $e')));
+    }
+  }
+
+  void _copyMessage(String content) {
+    Clipboard.setData(ClipboardData(text: content));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Copied to clipboard'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -99,6 +152,43 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
 
     return Column(
       children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest,
+            border: Border(
+              bottom: BorderSide(color: colorScheme.outlineVariant),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.smart_toy, color: colorScheme.primary, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Kivixa MCP Assistant',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              if (messages.isNotEmpty)
+                IconButton(
+                  icon: const Icon(Icons.file_download_outlined),
+                  tooltip: 'Export chat as JSON',
+                  onPressed: _handleExportChat,
+                ),
+              if (messages.isNotEmpty)
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: 'Clear chat',
+                  onPressed: () {
+                    widget.controller.clearMessages();
+                    widget.onClear?.call();
+                  },
+                ),
+            ],
+          ),
+        ),
         // Messages list
         Expanded(
           child: messages.isEmpty && widget.emptyState != null
@@ -109,7 +199,19 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index];
-                    return _buildMessageBubble(message);
+                    final canRetry =
+                        index == messages.length - 1 &&
+                        message.isAssistant &&
+                        !widget.controller.isGenerating;
+                    return _buildMessageBubble(
+                      message,
+                      onCopy: () => _copyMessage(message.content),
+                      onRetry: canRetry
+                          ? () => widget.controller.retryLastMessage(
+                              context: widget.context,
+                            )
+                          : null,
+                    );
                   },
                 ),
         ),
@@ -160,7 +262,11 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
     );
   }
 
-  Widget _buildMessageBubble(MCPChatMessage message) {
+  Widget _buildMessageBubble(
+    MCPChatMessage message, {
+    VoidCallback? onCopy,
+    VoidCallback? onRetry,
+  }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isUser = message.isUser;
@@ -237,6 +343,37 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
                       message.toolResult != null) ...[
                     const SizedBox(height: 8),
                     _buildToolResultIndicator(message),
+                  ],
+
+                  if (!message.isLoading && (onCopy != null || onRetry != null)) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (onCopy != null)
+                          IconButton(
+                            icon: const Icon(Icons.copy, size: 16),
+                            onPressed: onCopy,
+                            tooltip: 'Copy',
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(
+                              minWidth: 32,
+                              minHeight: 32,
+                            ),
+                          ),
+                        if (!isUser && onRetry != null)
+                          IconButton(
+                            icon: const Icon(Icons.refresh, size: 16),
+                            onPressed: onRetry,
+                            tooltip: 'Retry',
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(
+                              minWidth: 32,
+                              minHeight: 32,
+                            ),
+                          ),
+                      ],
+                    ),
                   ],
                 ],
               ),
