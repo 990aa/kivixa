@@ -845,10 +845,14 @@ class ModelManager {
   /// Returns the local path to the model's mmproj companion file, if it exists.
   Future<String?> getModelMmprojPath([AIModel? model]) async {
     model ??= defaultModel;
-    final mmprojAsset = model.downloadAssets.where((asset) {
-      return asset.id.toLowerCase().contains('mmproj') ||
-          asset.fileName.toLowerCase().contains('mmproj');
-    }).firstOrNull;
+    AIModelAsset? mmprojAsset;
+    for (final asset in model.downloadAssets) {
+      if (asset.id.toLowerCase().contains('mmproj') ||
+          asset.fileName.toLowerCase().contains('mmproj')) {
+        mmprojAsset = asset;
+        break;
+      }
+    }
 
     if (mmprojAsset == null) {
       return null;
@@ -967,11 +971,15 @@ class ModelManager {
     _taskSizes
       ..clear()
       ..addEntries(
-        model.downloadAssets.map((asset) => MapEntry(asset.id, asset.sizeBytes)),
+        model.downloadAssets.map(
+          (asset) => MapEntry(asset.id, asset.sizeBytes),
+        ),
       );
     _taskProgress
       ..clear()
-      ..addEntries(model.downloadAssets.map((asset) => MapEntry(asset.id, 0.0)));
+      ..addEntries(
+        model.downloadAssets.map((asset) => MapEntry(asset.id, 0.0)),
+      );
     _taskPaused.clear();
     _taskCompleted.clear();
     _latestNetworkSpeed = null;
@@ -1028,9 +1036,7 @@ class ModelManager {
   }) {
     final totalBytes = _currentTotalBytes();
     final downloadedBytes = _calculateDownloadedBytes();
-    final progress = totalBytes <= 0
-        ? 0.0
-        : downloadedBytes / totalBytes;
+    final progress = totalBytes <= 0 ? 0.0 : downloadedBytes / totalBytes;
 
     return ModelDownloadProgress(
       state: state,
@@ -1128,7 +1134,9 @@ class ModelManager {
       }
 
       if (resumedAny) {
-        _updateProgress(_buildAggregateProgress(ModelDownloadState.downloading));
+        _updateProgress(
+          _buildAggregateProgress(ModelDownloadState.downloading),
+        );
       }
     } else {
       // If no active task, start a new download
@@ -1221,7 +1229,9 @@ class ModelManager {
         _updateProgress(_buildAggregateProgress(ModelDownloadState.queued));
       case TaskStatus.running:
         _taskPaused.remove(update.task.taskId);
-        _updateProgress(_buildAggregateProgress(ModelDownloadState.downloading));
+        _updateProgress(
+          _buildAggregateProgress(ModelDownloadState.downloading),
+        );
       case TaskStatus.paused:
         _taskPaused.add(update.task.taskId);
         _emitAggregateState();
@@ -1254,7 +1264,9 @@ class ModelManager {
         _activeTasks.remove(update.task.taskId);
         _disableWakelock();
       case TaskStatus.waitingToRetry:
-        _updateProgress(_buildAggregateProgress(ModelDownloadState.downloading));
+        _updateProgress(
+          _buildAggregateProgress(ModelDownloadState.downloading),
+        );
     }
   }
 
