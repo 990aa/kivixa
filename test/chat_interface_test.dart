@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
 
@@ -73,6 +75,43 @@ void main() {
 
       expect(chatMessage.role, 'user');
       expect(chatMessage.content, 'Test');
+    });
+  });
+
+  group('Chat export JSON', () {
+    test('exports only user and assistant messages in order', () {
+      final messages = [
+        AIChatMessage(role: 'system', content: 'system prompt'),
+        AIChatMessage(role: 'user', content: 'What changed?'),
+        AIChatMessage(role: 'assistant', content: 'Here is the summary.'),
+        AIChatMessage(role: 'assistant', content: '', isLoading: true),
+      ];
+
+      final jsonPayload = buildChatConversationExportJson(
+        messages,
+        sessionType: 'ai-chat',
+      );
+
+      final decoded = jsonDecode(jsonPayload) as Map<String, dynamic>;
+      expect(decoded['sessionType'], 'ai-chat');
+      expect(decoded['schemaVersion'], 1);
+      expect(decoded['messageCount'], 2);
+
+      final exportedMessages = decoded['messages'] as List<dynamic>;
+      expect(exportedMessages.length, 2);
+      expect((exportedMessages[0] as Map<String, dynamic>)['role'], 'user');
+      expect(
+        (exportedMessages[0] as Map<String, dynamic>)['content'],
+        'What changed?',
+      );
+      expect(
+        (exportedMessages[1] as Map<String, dynamic>)['role'],
+        'assistant',
+      );
+      expect(
+        (exportedMessages[1] as Map<String, dynamic>)['content'],
+        'Here is the summary.',
+      );
     });
   });
 
