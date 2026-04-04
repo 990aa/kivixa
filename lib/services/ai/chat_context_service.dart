@@ -199,10 +199,10 @@ class NotesActivityContextGateway implements ChatContextGateway {
         continue;
       }
 
-      var current = '';
+      final current = StringBuffer();
       for (var i = 0; i < parts.length - 1; i++) {
-        current += '/${parts[i]}';
-        folders.add('$current/');
+        current.write('/${parts[i]}');
+        folders.add('${current.toString()}/');
       }
     }
 

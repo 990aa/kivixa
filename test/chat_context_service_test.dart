@@ -51,7 +51,7 @@ void main() {
         }),
       );
 
-      final gateway = const NotesActivityContextGateway(
+      const gateway = NotesActivityContextGateway(
         maxNotes: 5,
         maxCharsPerNote: 500,
         maxTotalChars: 5000,
@@ -69,7 +69,7 @@ void main() {
     });
 
     test('returns empty string when no markdown or kvtx notes exist', () async {
-      final gateway = const NotesActivityContextGateway();
+      const gateway = NotesActivityContextGateway();
       final context = await gateway.buildContextSnapshot();
       expect(context, isEmpty);
     });

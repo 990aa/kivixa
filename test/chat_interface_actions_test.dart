@@ -52,7 +52,7 @@ class _FakeModelGateway implements ChatModelGateway {
   Future<String> getModelPath([AIModel? model]) async => '/tmp/model.gguf';
 
   @override
-  Future<List<AIModel>> getDownloadedModels() async => [this.model];
+  Future<List<AIModel>> getDownloadedModels() async => [model];
 
   @override
   void setCurrentlyLoadedModel(String? modelId) {}
