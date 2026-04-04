@@ -42,7 +42,8 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
   var _draftBeforeHistory = '';
   var _isApplyingHistoryEntry = false;
 
-  get _userPromptHistory => widget.controller.messages
+  // ignore: omit_obvious_property_types
+  List<String> get _userPromptHistory => widget.controller.messages
       .where((message) => message.isUser)
       .map((message) => message.content)
       .where((content) => content.trim().isNotEmpty)
