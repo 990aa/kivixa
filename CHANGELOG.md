@@ -97,13 +97,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Calendar Events**: Creating/deleting events now updates UI immediately
 
 ---
-## [0.1.4] - 2026-01-11
-
-### Changed
-- Minor UI updates and improvements across Browse and Editor sections
-- Enhanced settings page with improved layout
-
----
 ## [0.1.5] - 2026-01-18
 
 ### Added
@@ -201,13 +194,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Library Loading**: Native libraries now copied to all required directories for Flutter to detect them.
 
 ---
-## [0.1.7] - 2026-01-28
-
-### Fixed
-- Displaying handwritten notes in Android application
-- Copy AI Engine's .so files to proper destinations
-
----
 ## [0.1.8] - 2026-01-31
 
 ### Fixed
@@ -216,12 +202,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Android**: Fixed file browsing on Android 13+ devices using native file picker.
 - **Android**: Fixed system status bar color inconsistencies.
 - **Settings**: Fixed "Update available" message appearing even when the application is up to date.
-
----
-## [0.1.9] - 2026-01-31
-
-### Changed
-- Minor UI fixes
 
 ---
 ## [0.2.0] - 2026-01-31
@@ -330,7 +310,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **New AI Models in Model Manager**:
-  - **Qwen3.5 4B Distilled v2** with category tagging and download metadata
+  - **Qwen3.5 4B Distilled** with category tagging and download metadata
   - **Qwen3.5 2B Distilled** with category tagging and download metadata
   - **Qwen3.5 0.8B Distilled** with category tagging and download metadata
   - **Phi-4 Mini Reasoning** (Q4_K_M) with direct GGUF link and recommendations
@@ -361,12 +341,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed **Gemma 7B** from frontend model catalog and backend model metadata.
 
 ---
-## [0.3.1] - 2026-03-28
-
-### Changed
-- Fix model version names for model selection
-
----
 ## [0.3.2] - 2026-03-28
 
 ### Changed
@@ -377,9 +351,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.3.3] - 2026-03-29
 
-### Changed
-- Version bump to 0.3.3
-
 ### Fixed
 - Android release build failure caused by `SharedPreferencesPlugin` registration symbol mismatch in generated plugin registrant code.
 - Font Awesome icon type mismatches across pen/highlighter/pencil/shape-pen tools that broke release compilation.
@@ -387,40 +358,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Floating model switcher test warning for unused optional parameter in fake inference gateway.
 
 ---
-## [0.3.4] - 2026-03-29
-
-### Changed
-- Fixed iss installer
-
----
-## [0.3.5] - 2026-03-29
-
-### Changed
-- Version bump to 0.3.5
-
----
-## [0.3.6] - 2026-03-29
-
-### Changed
-- Version bump to 0.3.6
-
----
-## [0.3.7] - 2026-03-29
-
-### Changed
-- Version bump to 0.3.7
-
----
-## [0.3.8] - 2026-03-30
-
-### Changed
-- Apk size reduced
-
----
 ## [0.3.9] - 2026-03-30
 
 ### Changed
-- Version bump to 0.3.9
 - Removed decorative browse/recent background image usage and kept a plain background.
 - Removed Atkinson Hyperlegible font setting and related theme toggle implementation.
 - Updated pen modal SVG references to existing assets (`fountain.svg` and `pen.svg`).
@@ -428,5 +368,84 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed unused assets: `assets/images/home_page.svg` and `assets/icon/icon.bmp`.
 - Removed Atkinson Hyperlegible font assets and pubspec declarations.
+
+---
+## [0.3.11] - 2026-04-03
+
+### Fixed
+- Folder rename now preserves existing folder color and supports explicit color changes in the rename dialog.
+- Markdown preview/split gray pane issue on desktop resolved via a desktop-safe preview fallback.
+- Text editor gray-after-edit regression fixed by sanitizing legacy/invalid Quill size attributes on load/restore.
+- Windows browser infinite-loading behavior hardened.
+
+---
+## [0.3.12] - 2026-04-03
+
+### Changed
+- Implemented quick-notes reopen/edit behavior so clicking a saved note opens the same editor type (text or handwriting), allows editing, and saves updates.
+- Added TranslateGemma 4B IT model to backend catalog with full metadata, verified URL, and size.
+
+---
+## [0.3.13] - 2026-04-03
+
+### Changed
+- Main AI quick actions (Smart Search, Summarize, Discover) are now clickable prompt starters that auto-fill the chat composer.
+- MCP tool options are now clickable prompt starters that auto-fill the MCP chat composer with tool-specific task prompts.
+- Added shared prompt-prefill wiring in both chat interfaces to apply prefilled text and focus the input field.
+
+### Added
+- Added comprehensive prompt-autofill and sandbox workflow coverage in `test/ai_prompt_autofill_test.dart`, including:
+  - prompt-template coverage for all visible main/MCP options,
+  - UI autofill behavior validation for both chat composers,
+  - sandboxed dummy file/folder MCP operations,
+  - qwen 3.5 distilled 0.8B prompt-run flow using fake gateways and cleanup.
+- Added `MCPService.resetForTests()` to support deterministic, isolated MCP sandbox tests.
+
+---
+## [0.3.14] - 2026-04-03
+
+### Changed
+- Settings page: renamed the "Editor" preference category label to "Handwritten Note".
+- Settings page Advanced section: removed "Check for kivixa updates", "Faster updates", and "View logs" entries while keeping the top Settings update status behavior unchanged.
+- Browse import flow: added support for importing `.md`, `.txt`, and `.docx` notes from the plus-menu Import Note action.
+- Browse import flow: imported notes now create in-app copies with preserved base names so edits in Kivixa do not modify the original external file.
+- README: updated model list and AI model credits to include TranslateGemma 4B IT and its GGUF distribution attribution.
+
+### Added
+- Text editor: triple-tap now selects the full current line.
+- Markdown editor: added top-right export action (same export icon position as text editor) with markdown export menu support.
+
+### Fixed
+- Text/document import robustness: `.txt` and `.docx` imports now open directly in the text editor with content converted into Kivixa's editable text-note format.
+- Flutter Rust Bridge codegen version alignment for Rust modules.
+
+---
+## [0.4.0] - 2026-04-04
+
+### Changed
+- AI and MCP chat composers now support prompt history recall with keyboard arrows:
+  - `Arrow Up` walks backward through previously sent user prompts.
+  - `Arrow Down` walks forward through prompt history and restores draft text at the end.
+  - Applies to both main chat pages and floating assistant chat/MCP windows.
+- AI and MCP chat composers now include a left-side `+` attachment action:
+  - Supports multi-file selection with all file types.
+  - Shows attachment preview chips above the composer before sending.
+  - Each attachment chip now has a remove (`x`) action.
+- Attachment context is now injected into model-bound user messages across AI and MCP controllers, including extracted text (when available) and binary metadata previews.
+- Chat export payloads now include attachment metadata for user prompts.
+
+### Added
+- Added shared attachment processing service (`ChatAttachmentService`) to normalize file metadata and build model-ready attachment context.
+- Added detailed regression coverage for:
+  - AI composer attachment add/remove/send behavior and prompt-history keyboard navigation.
+  - MCP composer attachment add/remove/send behavior and prompt-history keyboard navigation.
+  - Floating assistant integration path (AI and MCP) for attachment-capable composer availability.
+  - Attachment serialization/unit behavior and model payload injection.
+
+---
+## [0.5.0] - 2026-04-04
+
+### Changed
+- Version bump to 0.5.0
 
 ---

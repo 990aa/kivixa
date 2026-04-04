@@ -33,7 +33,7 @@ void main() {
       );
     });
 
-    test('includes the four newly requested compact models', () {
+    test('includes the five newly requested compact models', () {
       expect(ModelManager.getModelById('phi4-mini-reasoning-q4km'), isNotNull);
       expect(ModelManager.getModelById('gemma-3-4b-it-q4km'), isNotNull);
       expect(
@@ -41,6 +41,7 @@ void main() {
         isNotNull,
       );
       expect(ModelManager.getModelById('smollm2-17b-instruct-q4km'), isNotNull);
+      expect(ModelManager.getModelById('translategemma-4b-it-q4km'), isNotNull);
     });
 
     test('requested Qwen3.5 links and filenames are exact', () {
@@ -82,6 +83,9 @@ void main() {
         'deepseek-r1-distill-qwen-15b-q4km',
       )!;
       final smollm = ModelManager.getModelById('smollm2-17b-instruct-q4km')!;
+      final translateGemma = ModelManager.getModelById(
+        'translategemma-4b-it-q4km',
+      )!;
 
       expect(
         phiReasoning.url,
@@ -106,6 +110,12 @@ void main() {
         'https://huggingface.co/bartowski/SmolLM2-1.7B-Instruct-GGUF/resolve/main/SmolLM2-1.7B-Instruct-Q4_K_M.gguf',
       );
       expect(smollm.fileName, 'SmolLM2-1.7B-Instruct-Q4_K_M.gguf');
+
+      expect(
+        translateGemma.url,
+        'https://huggingface.co/mradermacher/translategemma-4b-it-GGUF/resolve/main/translategemma-4b-it.Q4_K_M.gguf',
+      );
+      expect(translateGemma.fileName, 'translategemma-4b-it.Q4_K_M.gguf');
     });
 
     test('all models provide short description and suggestion text', () {
@@ -165,7 +175,9 @@ void main() {
         expect(qwen2bCandidates, contains('Qwen3.5-2B.Q5_K_M.gguf'));
         expect(
           qwen2bCandidates,
-          contains('Qwen3.5-2B-Claude-4.6-Opus-Reasoning-Distilled.Q5_K_M.gguf'),
+          contains(
+            'Qwen3.5-2B-Claude-4.6-Opus-Reasoning-Distilled.Q5_K_M.gguf',
+          ),
         );
 
         expect(qwen08bCandidates, contains('Qwen3.5-0.8B.Q5_K_M.gguf'));
@@ -259,6 +271,25 @@ void main() {
       );
     });
 
+    test('TranslateGemma is placed in writing and general categories', () {
+      final model = ModelManager.getModelById('translategemma-4b-it-q4km')!;
+
+      expect(model.supportsCategory(ModelCategory.writing), true);
+      expect(model.supportsCategory(ModelCategory.general), true);
+      expect(model.isReasoningModel, false);
+    });
+
+    test('TranslateGemma can be set as currently loaded for usage', () {
+      final manager = ModelManager();
+
+      manager.setCurrentlyLoadedModel('translategemma-4b-it-q4km');
+      expect(manager.currentlyLoadedModel, isNotNull);
+      expect(manager.currentlyLoadedModel!.id, 'translategemma-4b-it-q4km');
+
+      manager.setCurrentlyLoadedModel(null);
+      expect(manager.currentlyLoadedModel, isNull);
+    });
+
     test('agent recommendation remains Function Gemma', () {
       final recommended = ModelManager.getRecommendedModel(ModelCategory.agent);
       expect(recommended.id, 'function-gemma-270m');
@@ -298,6 +329,20 @@ void main() {
         expect(task.metaData, model.id);
         expect(task.url, contains('/resolve/main/'));
       }
+    });
+
+    test('TranslateGemma task uses the exact download URL and metadata', () {
+      final manager = ModelManager();
+      final model = ModelManager.getModelById('translategemma-4b-it-q4km')!;
+
+      final task = manager.createDownloadTask(model);
+
+      expect(
+        task.url,
+        'https://huggingface.co/mradermacher/translategemma-4b-it-GGUF/resolve/main/translategemma-4b-it.Q4_K_M.gguf',
+      );
+      expect(task.filename, 'translategemma-4b-it.Q4_K_M.gguf');
+      expect(task.metaData, 'translategemma-4b-it-q4km');
     });
   });
 }

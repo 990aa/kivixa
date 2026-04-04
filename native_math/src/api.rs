@@ -15,9 +15,9 @@ use crate::statistics::{
 use crate::units::{self, UnitResult};
 use flutter_rust_bridge::frb;
 
-// ============================================================================
+
 // Basic & Scientific Calculator
-// ============================================================================
+
 
 /// Evaluate a mathematical expression string
 /// Supports: +, -, *, /, ^, sqrt, sin, cos, tan, log, ln, abs, etc.
@@ -50,9 +50,9 @@ pub fn get_constant(name: String) -> f64 {
     basic::get_constant(&name)
 }
 
-// ============================================================================
+
 // Complex Numbers
-// ============================================================================
+
 
 /// Perform complex number operations
 #[frb(sync)]
@@ -72,9 +72,9 @@ pub fn complex_convert(real: f64, imag: f64, to_polar: bool) -> ComplexResult {
     complex::convert_form(real, imag, to_polar)
 }
 
-// ============================================================================
+
 // Matrix Operations (Linear Algebra)
-// ============================================================================
+
 
 /// Perform matrix operations (add, multiply, transpose, inverse, etc.)
 /// Matrix data is passed as a flat array with dimensions
@@ -128,9 +128,9 @@ pub async fn matrix_rref(data: Vec<f64>, rows: usize, cols: usize) -> MatrixResu
         .unwrap_or_else(|_| MatrixResult::error("Task panicked"))
 }
 
-// ============================================================================
+
 // Calculus
-// ============================================================================
+
 
 /// Compute numerical derivative at a point
 pub async fn differentiate(
@@ -364,9 +364,9 @@ pub async fn line_integral(
     .unwrap_or_else(|_| CalculusResult::error("Task panicked"))
 }
 
-// ============================================================================
+
 // Statistics & Probability
-// ============================================================================
+
 
 /// Compute descriptive statistics from a dataset
 pub async fn compute_statistics(data: Vec<f64>) -> StatisticsResult {
@@ -512,9 +512,9 @@ pub async fn confidence_interval_variance(
     .unwrap_or_else(|_| statistics::ConfidenceIntervalResult::error("Task panicked"))
 }
 
-// ============================================================================
+
 // Discrete Mathematics
-// ============================================================================
+
 
 /// Check primality using Miller-Rabin
 #[frb(sync)]
@@ -631,9 +631,9 @@ pub fn is_perfect(n: u64) -> DiscreteResult {
     discrete::is_perfect(n)
 }
 
-// ============================================================================
+
 // Unit Conversion
-// ============================================================================
+
 
 /// Convert between units
 #[frb(sync)]
@@ -659,9 +659,9 @@ pub fn convert_to_all_units(value: f64, from_unit: String) -> Vec<UnitResult> {
     units::convert_to_all_in_category(value, &from_unit)
 }
 
-// ============================================================================
+
 // Graphing (Parallel Function Evaluation)
-// ============================================================================
+
 
 /// Evaluate a function over a range for graphing
 /// Uses rayon for parallel evaluation - extremely fast
@@ -740,9 +740,9 @@ pub async fn integral_graph(
     .unwrap_or_else(|_| GraphResult::error("Task panicked"))
 }
 
-// ============================================================================
+
 // Custom Formula Manager
-// ============================================================================
+
 
 /// Parse a custom formula and extract variables
 #[frb(sync)]
@@ -760,9 +760,9 @@ pub fn evaluate_formula(
     basic::evaluate_formula(&formula, &variables, &values)
 }
 
-// ============================================================================
+
 // Initialization
-// ============================================================================
+
 
 /// Initialize the math library (called once on app start)
 #[frb(init)]

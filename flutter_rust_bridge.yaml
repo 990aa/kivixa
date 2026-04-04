@@ -1,5 +1,4 @@
 # Flutter Rust Bridge Configuration
-# Run: flutter_rust_bridge_codegen generate
 
 rust_root: native/
 rust_input: crate::api

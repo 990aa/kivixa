@@ -23,7 +23,7 @@ void main() {
     FileManager.shouldUseRawFilePath = true;
 
     // Create dummy file
-    final fullPath = '{tempDir.path}/test.md'.replaceAll('\\', '/');
+    final fullPath = '${tempDir.path}/test.md'.replaceAll('\\', '/');
     final file = File(fullPath);
     if (!file.parent.existsSync()) {
       await file.parent.create(recursive: true);
@@ -39,7 +39,7 @@ void main() {
         await tempDir.delete(recursive: true);
       }
     } catch (e) {
-      debugPrint('Warning: Failed to cleanup temp dir: ');
+      debugPrint('Warning: Failed to cleanup temp dir: $e');
     }
   });
 
@@ -67,6 +67,55 @@ void main() {
 
       await tester.pump(const Duration(seconds: 1));
 
+      expect(find.byType(CodeField), findsOneWidget);
+    });
+
+    testWidgets('shows export action and markdown export option', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(home: AdvancedMarkdownEditor(filePath: testFilePath)),
+      );
+
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(find.byIcon(Icons.file_download), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.file_download));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Export as .md'), findsOneWidget);
+    });
+
+    testWidgets('should render preview without throwing', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(home: AdvancedMarkdownEditor(filePath: testFilePath)),
+      );
+
+      await tester.pump(const Duration(seconds: 1));
+
+      await tester.tap(find.text('Preview'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(CodeField), findsNothing);
+    });
+
+    testWidgets('should render split mode with editor and preview', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(home: AdvancedMarkdownEditor(filePath: testFilePath)),
+      );
+
+      await tester.pump(const Duration(seconds: 1));
+
+      await tester.tap(find.text('Split'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
       expect(find.byType(CodeField), findsOneWidget);
     });
 

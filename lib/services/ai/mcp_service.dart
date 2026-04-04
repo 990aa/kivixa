@@ -288,6 +288,14 @@ class MCPService {
 
   // Keywords for task classification
   static const _toolKeywords = <String>[
+    'read_file',
+    'write_file',
+    'delete_file',
+    'create_folder',
+    'list_files',
+    'calendar_lua',
+    'timer_lua',
+    'export_markdown',
     'create a file',
     'file called',
     'new file',
@@ -377,6 +385,17 @@ class MCPService {
     _pluginExecutor = executor;
   }
 
+  @visibleForTesting
+  void resetForTests() {
+    _initialized = false;
+    _browseDir = null;
+    _maxFileSize = 10 * 1024 * 1024;
+    _allowedExtensions
+      ..clear()
+      ..addAll({'md', 'txt', 'json', 'yaml', 'yml', 'toml', 'csv'});
+    _pluginExecutor = null;
+  }
+
   /// Get all available tools
   List<MCPToolInfo> getAvailableTools() => _tools;
 
@@ -460,6 +479,276 @@ class MCPService {
       debugPrint('Failed to parse tool call: $e');
       return null;
     }
+  }
+
+  /// Parse a tool call from free-form model output.
+  ///
+  /// Supports plain JSON, fenced JSON blocks, and embedded JSON snippets.
+  PendingToolCall? parseToolCallFromText(String responseText) {
+    final trimmed = responseText.trim();
+    if (trimmed.isEmpty) return null;
+
+    final direct = parseToolCall(trimmed);
+    if (direct != null) {
+      return direct;
+    }
+
+    final fencedJsonMatches = RegExp(
+      r'```(?:json)?\s*([\s\S]*?)```',
+      caseSensitive: false,
+    ).allMatches(trimmed);
+
+    for (final match in fencedJsonMatches) {
+      final candidate = match.group(1)?.trim();
+      if (candidate == null || candidate.isEmpty) continue;
+      final parsed = parseToolCall(candidate);
+      if (parsed != null) {
+        return parsed;
+      }
+    }
+
+    for (final candidate in _extractJsonCandidates(trimmed)) {
+      final parsed = parseToolCall(candidate);
+      if (parsed != null) {
+        return parsed;
+      }
+    }
+
+    return null;
+  }
+
+  /// Parse explicit user instructions like:
+  /// "Use create_folder to create sandbox/tmp_folder."
+  PendingToolCall? parseUserDirectedToolCall(String message) {
+    final normalized = message.trim();
+    if (normalized.isEmpty) return null;
+
+    final lower = normalized.toLowerCase();
+    String? tool;
+
+    final explicitMatch = RegExp(
+      r'\b(?:use|run|execute)\s+([a-z_]+)\b',
+      caseSensitive: false,
+    ).firstMatch(normalized);
+
+    if (explicitMatch != null) {
+      final candidate = explicitMatch.group(1)?.toLowerCase();
+      if (candidate != null && _tools.any((info) => info.name == candidate)) {
+        tool = candidate;
+      }
+    }
+
+    tool ??= _tools
+        .map((info) => info.name)
+        .firstWhere((name) => lower.contains(name), orElse: () => '');
+
+    if (tool.isEmpty) {
+      return null;
+    }
+
+    switch (tool) {
+      case 'read_file':
+        final path = _extractPathFromMessage(
+          normalized,
+          patterns: [
+            RegExp(r'''(?:open|read|from)\s+["']?([^"'\s:]+)'''),
+            RegExp(r'''\b(read_file)\b.*?(["']?[^"'\s:]+)'''),
+          ],
+        );
+        if (path == null) return null;
+        return PendingToolCall(
+          tool: tool,
+          parameters: {'path': path},
+          description: 'Read file $path',
+        );
+
+      case 'write_file':
+        final path = _extractPathFromMessage(
+          normalized,
+          patterns: [
+            RegExp(r'''(?:create|write|save)\s+["']?([^"'\s:]+)'''),
+            RegExp(r'''into\s+["']?([^"'\s:]+)'''),
+          ],
+        );
+        final content = _extractContentFromMessage(
+          normalized,
+          markers: const ['with this content:', 'content:', ':'],
+        );
+        if (path == null || content.isEmpty) return null;
+        return PendingToolCall(
+          tool: tool,
+          parameters: {'path': path, 'content': content, 'append': false},
+          description: 'Write file $path',
+        );
+
+      case 'delete_file':
+        final path = _extractPathFromMessage(
+          normalized,
+          patterns: [RegExp(r'''(?:remove|delete)\s+["']?([^"'\s:]+)''')],
+        );
+        if (path == null) return null;
+        return PendingToolCall(
+          tool: tool,
+          parameters: {'path': path},
+          description: 'Delete file $path',
+        );
+
+      case 'create_folder':
+        final path = _extractPathFromMessage(
+          normalized,
+          patterns: [
+            RegExp(r'''(?:create|make)\s+["']?([^"'\s:]+)'''),
+            RegExp(r'''folder\s+["']?([^"'\s:]+)'''),
+          ],
+        );
+        if (path == null) return null;
+        return PendingToolCall(
+          tool: tool,
+          parameters: {'path': path},
+          description: 'Create folder $path',
+        );
+
+      case 'list_files':
+        final path = _extractPathFromMessage(
+          normalized,
+          patterns: [RegExp(r'''(?:under|in|inside)\s+["']?([^"'\s:]+)''')],
+        );
+        final recursive =
+            lower.contains('recursive') || lower.contains('recursively');
+        return PendingToolCall(
+          tool: tool,
+          parameters: {
+            if (path != null && path.isNotEmpty) 'path': path,
+            'recursive': recursive,
+          },
+          description: path == null ? 'List files' : 'List files in $path',
+        );
+
+      case 'export_markdown':
+        final path = _extractPathFromMessage(
+          normalized,
+          patterns: [
+            RegExp(r'''into\s+["']?([^"'\s:]+)'''),
+            RegExp(r'''(?:to|at)\s+["']?((?:[^"'\s:]*[/\\][^"'\s:]+))'''),
+          ],
+        );
+        final content = _extractContentFromMessage(
+          normalized,
+          markers: const ['with this markdown:', 'markdown:', ':'],
+        );
+        if (path == null || content.isEmpty) return null;
+        return PendingToolCall(
+          tool: tool,
+          parameters: {'path': path, 'content': content, 'append': false},
+          description: 'Export markdown to $path',
+        );
+
+      case 'calendar_lua':
+        return PendingToolCall(
+          tool: tool,
+          parameters: {
+            'script': 'return "Calendar request: ${_escapeForLua(normalized)}"',
+            'description': normalized,
+          },
+          description: normalized,
+        );
+
+      case 'timer_lua':
+        return PendingToolCall(
+          tool: tool,
+          parameters: {
+            'script': 'return "Timer request: ${_escapeForLua(normalized)}"',
+            'description': normalized,
+          },
+          description: normalized,
+        );
+
+      default:
+        return null;
+    }
+  }
+
+  Iterable<String> _extractJsonCandidates(String text) sync* {
+    var depth = 0;
+    var start = -1;
+
+    for (var i = 0; i < text.length; i++) {
+      final char = text[i];
+      if (char == '{') {
+        if (depth == 0) {
+          start = i;
+        }
+        depth++;
+      } else if (char == '}') {
+        if (depth == 0) {
+          continue;
+        }
+        depth--;
+        if (depth == 0 && start >= 0) {
+          final candidate = text.substring(start, i + 1);
+          if (candidate.contains('"tool"')) {
+            yield candidate;
+          }
+          start = -1;
+        }
+      }
+    }
+  }
+
+  String? _extractPathFromMessage(
+    String message, {
+    required List<RegExp> patterns,
+  }) {
+    for (final pattern in patterns) {
+      final match = pattern.firstMatch(message);
+      if (match == null) continue;
+      for (var i = 1; i <= match.groupCount; i++) {
+        final candidate = _sanitizePathToken(match.group(i));
+        if (candidate != null) {
+          return candidate;
+        }
+      }
+    }
+    return null;
+  }
+
+  String _extractContentFromMessage(
+    String message, {
+    required List<String> markers,
+  }) {
+    final lower = message.toLowerCase();
+
+    for (final marker in markers) {
+      final markerIndex = lower.indexOf(marker);
+      if (markerIndex == -1) continue;
+
+      final contentStart = markerIndex + marker.length;
+      if (contentStart >= message.length) continue;
+
+      final content = message.substring(contentStart).trim();
+      if (content.isNotEmpty) {
+        return content;
+      }
+    }
+
+    return '';
+  }
+
+  String? _sanitizePathToken(String? rawToken) {
+    if (rawToken == null) return null;
+
+    final cleaned = rawToken
+        .trim()
+        .replaceAll(RegExp(r'''^[`"']+|[`"']+$'''), '')
+        .replaceAll(RegExp(r'^[\(\[]+|[\)\]]+$'), '')
+        .replaceAll(RegExp(r'[\.,;:]+$'), '');
+
+    if (cleaned.isEmpty) return null;
+    return cleaned;
+  }
+
+  String _escapeForLua(String value) {
+    return value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
   }
 
   /// Validate a path (ensure it's within the sandbox)
@@ -573,7 +862,7 @@ class MCPService {
 
         case 'calendar_lua':
         case 'timer_lua':
-          return _executeLuaScript(toolCall);
+          return await _executeLuaScript(toolCall);
 
         default:
           return MCPExecutionResult(
@@ -591,7 +880,7 @@ class MCPService {
     }
   }
 
-  MCPExecutionResult _executeLuaScript(PendingToolCall toolCall) {
+  Future<MCPExecutionResult> _executeLuaScript(PendingToolCall toolCall) async {
     if (_pluginExecutor == null) {
       return MCPExecutionResult(
         success: false,
@@ -600,11 +889,30 @@ class MCPService {
       );
     }
 
-    // Note: Actual Lua execution would be async, but for now return a placeholder
-    // In a real implementation, this would call _pluginExecutor!.executeScript()
+    final script =
+        toolCall.luaScript ?? toolCall.parameters['script'] as String?;
+    if (script == null || script.trim().isEmpty) {
+      return MCPExecutionResult(
+        success: false,
+        result: 'Lua script is required for ${toolCall.tool}',
+        toolName: toolCall.tool,
+      );
+    }
+
+    final executionResult = await _pluginExecutor!.executeScript(script);
+    if (executionResult.success) {
+      return MCPExecutionResult(
+        success: true,
+        result:
+            executionResult.output ??
+            'Lua script executed successfully: ${toolCall.description}',
+        toolName: toolCall.tool,
+      );
+    }
+
     return MCPExecutionResult(
-      success: true,
-      result: 'Lua script queued for execution: ${toolCall.description}',
+      success: false,
+      result: executionResult.error ?? 'Lua execution failed',
       toolName: toolCall.tool,
     );
   }

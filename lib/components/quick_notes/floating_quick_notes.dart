@@ -22,6 +22,10 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
   final _canvasKey = GlobalKey<QuickNoteCanvasState>();
 
   var _isHandwritingMode = false;
+  String? _editingNoteId;
+  QuickNoteHandwritingData? _editingHandwritingData;
+
+  bool get _isEditing => _editingNoteId != null;
 
   @override
   void initState() {
@@ -29,39 +33,60 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
     _tabController = TabController(length: 2, vsync: this);
     _service.addListener(_onServiceChanged);
     _service.initialize();
+    _textController.addListener(_onTextChanged);
   }
 
   void _onServiceChanged() {
     if (mounted) setState(() {});
   }
 
+  void _onTextChanged() {
+    if (!mounted) return;
+    if (!_isHandwritingMode) {
+      setState(() {});
+    }
+  }
+
   @override
   void dispose() {
     _service.removeListener(_onServiceChanged);
+    _textController.removeListener(_onTextChanged);
     _textController.dispose();
     _focusNode.dispose();
     _tabController.dispose();
     super.dispose();
   }
 
-  void _addNote() {
+  void _saveNote() {
     if (_isHandwritingMode) {
       final canvasState = _canvasKey.currentState;
       if (canvasState == null || canvasState.data.isEmpty) return;
 
-      _service.addNote(
-        content: 'Handwritten note',
-        isHandwritten: true,
-        handwrittenData: canvasState.data.toJsonString(),
-      );
-      canvasState.clear();
+      if (_isEditing) {
+        _service.updateNote(
+          _editingNoteId!,
+          content: 'Handwritten note',
+          handwrittenData: canvasState.data.toJsonString(),
+        );
+      } else {
+        _service.addNote(
+          content: 'Handwritten note',
+          isHandwritten: true,
+          handwrittenData: canvasState.data.toJsonString(),
+        );
+      }
     } else {
       final content = _textController.text.trim();
       if (content.isEmpty) return;
 
-      _service.addNote(content: content);
-      _textController.clear();
+      if (_isEditing) {
+        _service.updateNote(_editingNoteId!, content: content);
+      } else {
+        _service.addNote(content: content);
+      }
     }
+
+    _closeEditor(switchToNotesTab: true);
   }
 
   bool _canAddNote() {
@@ -70,6 +95,56 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
       return canvasState != null && canvasState.data.isNotEmpty;
     }
     return _textController.text.trim().isNotEmpty;
+  }
+
+  void _startEditingNote(QuickNote note) {
+    QuickNoteHandwritingData? handwritingData;
+    if (note.isHandwritten && note.handwrittenData != null) {
+      try {
+        handwritingData = QuickNoteHandwritingData.fromJsonString(
+          note.handwrittenData!,
+        );
+      } catch (_) {
+        handwritingData = QuickNoteHandwritingData();
+      }
+    }
+
+    setState(() {
+      _editingNoteId = note.id;
+      _editingHandwritingData = handwritingData;
+      _isHandwritingMode = note.isHandwritten;
+      _textController.text = note.isHandwritten ? '' : note.content;
+      _textController.selection = TextSelection.collapsed(
+        offset: _textController.text.length,
+      );
+    });
+
+    _tabController.animateTo(1);
+
+    if (note.isHandwritten) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _canvasKey.currentState?.setData(
+          _editingHandwritingData ?? QuickNoteHandwritingData(),
+        );
+      });
+    }
+  }
+
+  void _closeEditor({bool switchToNotesTab = false}) {
+    setState(() {
+      _editingNoteId = null;
+      _editingHandwritingData = null;
+      _isHandwritingMode = false;
+      _textController.clear();
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _canvasKey.currentState?.clear();
+    });
+
+    if (switchToNotesTab) {
+      _tabController.animateTo(0);
+    }
   }
 
   void _clearAll() {
@@ -244,6 +319,7 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
           note: note,
           autoDeleteDuration: _service.autoDeleteDuration,
           autoDeleteEnabled: _service.autoDeleteEnabled,
+          onTap: () => _startEditingNote(note),
           onDelete: () => _service.deleteNote(note.id),
         );
       },
@@ -256,6 +332,18 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (_isEditing) ...[
+            Text(
+              _isHandwritingMode
+                  ? 'Editing handwritten note'
+                  : 'Editing quick note',
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 12),
+          ],
+
           // Mode toggle
           SegmentedButton<bool>(
             segments: const [
@@ -271,9 +359,16 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
               ),
             ],
             selected: {_isHandwritingMode},
-            onSelectionChanged: (value) {
-              setState(() => _isHandwritingMode = value.first);
-            },
+            onSelectionChanged: _isEditing
+                ? null
+                : (value) {
+                    setState(() => _isHandwritingMode = value.first);
+                    if (_isHandwritingMode) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _canvasKey.currentState?.clear();
+                      });
+                    }
+                  },
           ),
 
           const SizedBox(height: 16),
@@ -288,10 +383,21 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
           const SizedBox(height: 16),
 
           // Add button
-          FilledButton.icon(
-            onPressed: _canAddNote() ? _addNote : null,
-            icon: const Icon(Icons.add),
-            label: const Text('Add Quick Note'),
+          Row(
+            children: [
+              if (_isEditing)
+                TextButton.icon(
+                  onPressed: () => _closeEditor(switchToNotesTab: true),
+                  icon: const Icon(Icons.close),
+                  label: const Text('Cancel Edit'),
+                ),
+              const Spacer(),
+              FilledButton.icon(
+                onPressed: _canAddNote() ? _saveNote : null,
+                icon: Icon(_isEditing ? Icons.save : Icons.add),
+                label: Text(_isEditing ? 'Save Changes' : 'Add Quick Note'),
+              ),
+            ],
           ),
         ],
       ),
@@ -314,7 +420,7 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
         fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
       ),
       onChanged: (_) => setState(() {}),
-      onSubmitted: (_) => _addNote(),
+      onSubmitted: (_) => _saveNote(),
     );
   }
 
@@ -326,6 +432,7 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
         Expanded(
           child: QuickNoteCanvas(
             key: _canvasKey,
+            initialData: _editingHandwritingData,
             strokeColor: colorScheme.onSurface,
             strokeWidth: 2.0,
             onChanged: (_) => setState(() {}),
@@ -352,12 +459,14 @@ class _QuickNoteCard extends StatelessWidget {
     required this.note,
     required this.autoDeleteDuration,
     required this.autoDeleteEnabled,
+    required this.onTap,
     required this.onDelete,
   });
 
   final QuickNote note;
   final Duration autoDeleteDuration;
   final bool autoDeleteEnabled;
+  final VoidCallback onTap;
   final VoidCallback onDelete;
 
   @override
@@ -368,62 +477,66 @@ class _QuickNoteCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  note.isHandwritten ? Icons.draw : Icons.text_snippet,
-                  size: 16,
-                  color: colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  _formatTime(note.createdAt),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    note.isHandwritten ? Icons.draw : Icons.text_snippet,
+                    size: 16,
+                    color: colorScheme.primary,
                   ),
-                ),
-                const Spacer(),
-                if (autoDeleteEnabled)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
+                  const SizedBox(width: 8),
+                  Text(
+                    _formatTime(note.createdAt),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
                     ),
-                    decoration: BoxDecoration(
-                      color: _getExpirationColor(remaining, colorScheme),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      _formatRemaining(remaining),
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: Colors.white,
+                  ),
+                  const Spacer(),
+                  if (autoDeleteEnabled)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _getExpirationColor(remaining, colorScheme),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        _formatRemaining(remaining),
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 18),
+                    onPressed: onDelete,
+                    tooltip: 'Delete note',
+                    visualDensity: VisualDensity.compact,
                   ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 18),
-                  onPressed: onDelete,
-                  tooltip: 'Delete note',
-                  visualDensity: VisualDensity.compact,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            if (note.isHandwritten && note.handwrittenData != null)
-              _buildHandwritingPreview(note.handwrittenData!)
-            else
-              Text(
-                note.content,
-                style: theme.textTheme.bodyMedium,
-                maxLines: 5,
-                overflow: TextOverflow.ellipsis,
+                ],
               ),
-          ],
+              const SizedBox(height: 8),
+              if (note.isHandwritten && note.handwrittenData != null)
+                _buildHandwritingPreview(note.handwrittenData!)
+              else
+                Text(
+                  note.content,
+                  style: theme.textTheme.bodyMedium,
+                  maxLines: 5,
+                  overflow: TextOverflow.ellipsis,
+                ),
+            ],
+          ),
         ),
       ),
     );

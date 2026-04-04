@@ -11,9 +11,7 @@ class MathToolsTab extends StatelessWidget {
   }
 }
 
-// ============================================================================
 // UNIT CONVERTER
-// ============================================================================
 
 class _UnitConverter extends StatefulWidget {
   const _UnitConverter();

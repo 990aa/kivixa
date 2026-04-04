@@ -15,6 +15,12 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+@visibleForTesting
+String browserWebViewKeyForTab(String tabId) => 'webview_tab_$tabId';
+
+@visibleForTesting
+bool browserShouldUseHybridComposition({required bool isAndroid}) => isAndroid;
+
 /// Console log entry for developer tools
 class ConsoleLogEntry {
   final String message;
@@ -820,8 +826,11 @@ class _BrowserPageState extends State<BrowserPage> {
       return _buildNewTabPage();
     }
 
-    // Use a key based on URL to help WebView lifecycle on Windows
-    final webViewKey = ValueKey('webview_${_currentUrl.hashCode}');
+    final isAndroid = !kIsWeb && Platform.isAndroid;
+
+    // Keep WebView identity stable per tab to avoid reload loops during redirects.
+    final currentTabId = BrowserService.instance.currentTab?.id ?? 'default';
+    final webViewKey = ValueKey(browserWebViewKeyForTab(currentTabId));
 
     return InAppWebView(
       key: webViewKey,
@@ -832,7 +841,9 @@ class _BrowserPageState extends State<BrowserPage> {
         supportZoom: true,
         builtInZoomControls: !_isDesktop,
         displayZoomControls: false,
-        useHybridComposition: true,
+        useHybridComposition: browserShouldUseHybridComposition(
+          isAndroid: isAndroid,
+        ),
         allowsInlineMediaPlayback: true,
         mediaPlaybackRequiresUserGesture: false,
         transparentBackground: false,
@@ -958,6 +969,39 @@ class _BrowserPageState extends State<BrowserPage> {
           'Error: ${error.description}',
           ConsoleMessageLevel.ERROR,
         );
+
+        if (request.isForMainFrame ?? true) {
+          setState(() {
+            _isLoading = false;
+          });
+
+          final currentTab = BrowserService.instance.currentTab;
+          if (currentTab != null) {
+            BrowserService.instance.updateTabLoading(
+              currentTab.id,
+              isLoading: false,
+            );
+          }
+        }
+      },
+      onReceivedHttpError: (controller, request, response) {
+        debugPrint(
+          'WebView HTTP error: ${response.statusCode} for ${request.url}',
+        );
+
+        if (request.isForMainFrame ?? true) {
+          setState(() {
+            _isLoading = false;
+          });
+
+          final currentTab = BrowserService.instance.currentTab;
+          if (currentTab != null) {
+            BrowserService.instance.updateTabLoading(
+              currentTab.id,
+              isLoading: false,
+            );
+          }
+        }
       },
       // Console message logging
       onConsoleMessage: (controller, consoleMessage) {

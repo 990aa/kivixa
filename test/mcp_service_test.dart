@@ -1,7 +1,15 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/services/ai/mcp_service.dart';
 import 'package:kivixa/services/ai/model_router.dart';
+
+class _FakePluginExecutor implements PluginScriptExecutor {
+  @override
+  Future<PluginScriptResult> executeScript(String script) async {
+    return PluginScriptResult(success: true, output: 'executed:$script');
+  }
+}
 
 void main() {
   group('MCP Service Tests', () {
@@ -396,6 +404,80 @@ void main() {
               'Message "$msg" should not contain tool use or code gen keywords',
         );
       }
+    });
+  });
+
+  group('Enhanced MCP parsing and execution', () {
+    late Directory sandboxDir;
+    late MCPService service;
+
+    setUp(() async {
+      sandboxDir = await Directory.systemTemp.createTemp('kivixa_mcp_parse_');
+      service = MCPService.instance;
+      service.resetForTests();
+      await service.initialize(sandboxDir.path);
+    });
+
+    tearDown(() async {
+      service.resetForTests();
+      if (sandboxDir.existsSync()) {
+        await sandboxDir.delete(recursive: true);
+      }
+    });
+
+    test('parses fenced JSON tool call responses', () {
+      const response = '''
+Sure, I can do that.
+```json
+{"tool":"create_folder","parameters":{"path":"sandbox/tmp_folder"},"description":"Create sandbox folder"}
+```
+''';
+
+      final parsed = service.parseToolCallFromText(response);
+
+      expect(parsed, isNotNull);
+      expect(parsed!.tool, 'create_folder');
+      expect(parsed.parameters['path'], 'sandbox/tmp_folder');
+    });
+
+    test('parses direct user instruction for create_folder template', () {
+      const prompt = 'Use create_folder to create sandbox/tmp_folder.';
+      final parsed = service.parseUserDirectedToolCall(prompt);
+
+      expect(parsed, isNotNull);
+      expect(parsed!.tool, 'create_folder');
+      expect(parsed.parameters['path'], 'sandbox/tmp_folder');
+    });
+
+    test('parses export_markdown instruction with markdown body', () {
+      const prompt =
+          'Use export_markdown to save this markdown into sandbox/export_demo.md:\n'
+          '# Export Demo\n- Alpha\n- Beta';
+
+      final parsed = service.parseUserDirectedToolCall(prompt);
+
+      expect(parsed, isNotNull);
+      expect(parsed!.tool, 'export_markdown');
+      expect(parsed.parameters['path'], 'sandbox/export_demo.md');
+      expect(
+        (parsed.parameters['content'] as String),
+        contains('# Export Demo'),
+      );
+    });
+
+    test('executes calendar_lua when plugin executor is configured', () async {
+      service.setPluginExecutor(_FakePluginExecutor());
+
+      final result = await service.executeDirectly(
+        const PendingToolCall(
+          tool: 'calendar_lua',
+          parameters: {'script': 'return "ok"', 'description': 'calendar test'},
+          description: 'calendar test',
+        ),
+      );
+
+      expect(result.success, isTrue);
+      expect(result.result, contains('executed:return "ok"'));
     });
   });
 }

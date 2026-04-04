@@ -160,9 +160,7 @@ String _formatNumber(double n) {
       .replaceAll(RegExp(r'\.$'), '');
 }
 
-// ============================================================================
 // DERIVATIVE CALCULATOR
-// ============================================================================
 
 class _DerivativeCalculator extends StatefulWidget {
   const _DerivativeCalculator();
@@ -328,9 +326,7 @@ class _DerivativeCalculatorState extends State<_DerivativeCalculator> {
   }
 }
 
-// ============================================================================
 // PARTIAL DERIVATIVE CALCULATOR
-// ============================================================================
 
 class _PartialDerivativeCalculator extends StatefulWidget {
   const _PartialDerivativeCalculator();
@@ -577,9 +573,7 @@ class _PartialDerivativeCalculatorState
   }
 }
 
-// ============================================================================
 // INTEGRAL CALCULATOR
-// ============================================================================
 
 class _IntegralCalculator extends StatefulWidget {
   const _IntegralCalculator();
@@ -744,9 +738,7 @@ class _IntegralCalculatorState extends State<_IntegralCalculator> {
   }
 }
 
-// ============================================================================
 // MULTIPLE INTEGRAL CALCULATOR
-// ============================================================================
 
 class _MultipleIntegralCalculator extends StatefulWidget {
   const _MultipleIntegralCalculator();
@@ -1075,9 +1067,7 @@ class _MultipleIntegralCalculatorState
   }
 }
 
-// ============================================================================
 // LIMIT CALCULATOR
-// ============================================================================
 
 class _LimitCalculator extends StatefulWidget {
   const _LimitCalculator();
@@ -1256,9 +1246,7 @@ class _LimitCalculatorState extends State<_LimitCalculator> {
   }
 }
 
-// ============================================================================
 // SERIES CALCULATOR (Taylor/Maclaurin)
-// ============================================================================
 
 class _SeriesCalculator extends StatefulWidget {
   const _SeriesCalculator();

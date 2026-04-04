@@ -46,7 +46,7 @@ class _NewFolderDialogState extends State<NewFolderDialog> {
   void _showColorPicker() {
     showDialog(
       context: context,
-      builder: (context) => _FolderColorPickerDialog(
+      builder: (context) => FolderColorPickerDialog(
         initialColor: _selectedColor,
         onColorSelected: (color) {
           setState(() => _selectedColor = color);
@@ -141,8 +141,9 @@ class _NewFolderDialogState extends State<NewFolderDialog> {
 }
 
 /// Color picker dialog for folder colors
-class _FolderColorPickerDialog extends StatefulWidget {
-  const _FolderColorPickerDialog({
+class FolderColorPickerDialog extends StatefulWidget {
+  const FolderColorPickerDialog({
+    super.key,
     this.initialColor,
     required this.onColorSelected,
   });
@@ -151,11 +152,11 @@ class _FolderColorPickerDialog extends StatefulWidget {
   final void Function(Color?) onColorSelected;
 
   @override
-  State<_FolderColorPickerDialog> createState() =>
+  State<FolderColorPickerDialog> createState() =>
       _FolderColorPickerDialogState();
 }
 
-class _FolderColorPickerDialogState extends State<_FolderColorPickerDialog> {
+class _FolderColorPickerDialogState extends State<FolderColorPickerDialog> {
   late double _hue;
   late double _saturation;
   late double _lightness;

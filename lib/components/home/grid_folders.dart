@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:kivixa/components/home/delete_folder_button.dart';
 import 'package:kivixa/components/home/folder_picker_dialog.dart';
+import 'package:kivixa/components/home/new_folder_dialog.dart';
 import 'package:kivixa/components/home/rename_folder_button.dart';
 
 import 'package:kivixa/data/extensions/list_extensions.dart';
@@ -32,7 +33,13 @@ class GridFolders extends StatelessWidget {
   final int crossAxisCount;
 
   final bool Function(String) doesFolderExist;
-  final Future<void> Function(String oldName, String newName) renameFolder;
+  final Future<void> Function(
+    String oldName,
+    String newName, {
+    Color? color,
+    bool colorChanged,
+  })
+  renameFolder;
   final Future<bool> Function(String) isFolderEmpty;
   final Future<void> Function(String) deleteFolder;
   final Future<void> Function(String folderName, String destinationPath)?
@@ -110,7 +117,13 @@ class _GridFolder extends StatefulWidget {
   final _FolderCardType cardType;
   final String? folderName;
   final bool Function(String) doesFolderExist;
-  final Future<void> Function(String oldName, String newName) renameFolder;
+  final Future<void> Function(
+    String oldName,
+    String newName, {
+    Color? color,
+    bool colorChanged,
+  })
+  renameFolder;
   final Future<bool> Function(String) isFolderEmpty;
   final Future<void> Function(String) deleteFolder;
   final Future<void> Function(String folderName, String destinationPath)?
@@ -459,15 +472,30 @@ class _GridFolderState extends State<_GridFolder> {
   }
 
   void _showRenameDialog(BuildContext context) {
+    final folderPath = widget.currentPath?.isEmpty ?? true
+        ? '/${widget.folderName!}'
+        : '${widget.currentPath}/${widget.folderName!}';
+
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
         return _RenameFolderDialog(
           folderName: widget.folderName!,
+          initialColor: FolderColorService.instance.getColor(folderPath),
           doesFolderExist: widget.doesFolderExist,
-          renameFolder: (String newName) async {
-            await widget.renameFolder(widget.folderName!, newName);
-          },
+          renameFolder:
+              (
+                String newName, {
+                Color? color,
+                bool colorChanged = false,
+              }) async {
+                await widget.renameFolder(
+                  widget.folderName!,
+                  newName,
+                  color: color,
+                  colorChanged: colorChanged,
+                );
+              },
         );
       },
     );
@@ -489,13 +517,16 @@ class _GridFolderState extends State<_GridFolder> {
 class _RenameFolderDialog extends StatefulWidget {
   const _RenameFolderDialog({
     required this.folderName,
+    required this.initialColor,
     required this.doesFolderExist,
     required this.renameFolder,
   });
 
   final String folderName;
+  final Color? initialColor;
   final bool Function(String) doesFolderExist;
-  final Future<void> Function(String newName) renameFolder;
+  final Future<void> Function(String newName, {Color? color, bool colorChanged})
+  renameFolder;
 
   @override
   State<_RenameFolderDialog> createState() => _RenameFolderDialogState();
@@ -504,24 +535,45 @@ class _RenameFolderDialog extends StatefulWidget {
 class _RenameFolderDialogState extends State<_RenameFolderDialog> {
   final _formKey = GlobalKey<FormState>();
   final _controller = TextEditingController();
+  Color? _selectedColor;
+  var _didChangeColor = false;
 
   String? validateFolderName(String? folderName) {
-    if (folderName == null || folderName.isEmpty) {
+    final normalizedName = folderName?.trim() ?? '';
+
+    if (normalizedName.isEmpty) {
       return t.home.renameFolder.folderNameEmpty;
     }
-    if (folderName.contains('/') || folderName.contains('\\')) {
+    if (normalizedName.contains('/') || normalizedName.contains('\\')) {
       return t.home.renameFolder.folderNameContainsSlash;
     }
-    if (folderName != widget.folderName && widget.doesFolderExist(folderName)) {
+    if (normalizedName != widget.folderName &&
+        widget.doesFolderExist(normalizedName)) {
       return t.home.renameFolder.folderNameExists;
     }
     return null;
+  }
+
+  void _showColorPicker() {
+    showDialog(
+      context: context,
+      builder: (context) => FolderColorPickerDialog(
+        initialColor: _selectedColor,
+        onColorSelected: (color) {
+          setState(() {
+            _selectedColor = color;
+            _didChangeColor = true;
+          });
+        },
+      ),
+    );
   }
 
   @override
   void initState() {
     super.initState();
     _controller.text = widget.folderName;
+    _selectedColor = widget.initialColor;
   }
 
   @override
@@ -532,20 +584,69 @@ class _RenameFolderDialogState extends State<_RenameFolderDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+
     return AlertDialog(
       title: Text(t.home.renameFolder.renameFolder),
       content: Form(
         key: _formKey,
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        child: TextFormField(
-          controller: _controller,
-          autofocus: true,
-          decoration: InputDecoration(
-            labelText: t.home.renameFolder.folderName,
-            border: const OutlineInputBorder(),
-          ),
-          validator: validateFolderName,
-          onFieldSubmitted: (_) => _submit(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              controller: _controller,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: t.home.renameFolder.folderName,
+                border: const OutlineInputBorder(),
+              ),
+              validator: validateFolderName,
+              onFieldSubmitted: (_) => _submit(),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Text(
+                  'Folder Color:',
+                  style: TextStyle(color: colorScheme.onSurface),
+                ),
+                const SizedBox(width: 12),
+                InkWell(
+                  onTap: _showColorPicker,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: _selectedColor ?? Colors.black,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: colorScheme.outline, width: 2),
+                    ),
+                    child: _selectedColor == null
+                        ? const Icon(
+                            Icons.folder,
+                            color: Colors.white,
+                            size: 20,
+                          )
+                        : null,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                if (_selectedColor != null)
+                  IconButton(
+                    icon: const Icon(Icons.clear, size: 18),
+                    onPressed: () {
+                      setState(() {
+                        _selectedColor = null;
+                        _didChangeColor = true;
+                      });
+                    },
+                    tooltip: 'Reset to default',
+                  ),
+              ],
+            ),
+          ],
         ),
       ),
       actions: [
@@ -560,7 +661,11 @@ class _RenameFolderDialogState extends State<_RenameFolderDialog> {
 
   Future<void> _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      await widget.renameFolder(_controller.text);
+      await widget.renameFolder(
+        _controller.text.trim(),
+        color: _selectedColor,
+        colorChanged: _didChangeColor,
+      );
       if (mounted) Navigator.of(context).pop();
     }
   }

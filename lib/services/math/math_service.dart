@@ -89,9 +89,7 @@ class MathService {
     }
   }
 
-  // ============================================================================
   // Basic Operations
-  // ============================================================================
 
   /// Evaluate a mathematical expression
   ExpressionResult evaluateExpression(String expression) {
@@ -115,9 +113,7 @@ class MathService {
     );
   }
 
-  // ============================================================================
   // Discrete Mathematics / Modular Arithmetic
-  // ============================================================================
 
   /// Check if a number is prime
   bool isPrime(int n) {
@@ -227,9 +223,7 @@ class MathService {
     return math_api.catalan(n: BigInt.from(n));
   }
 
-  // ============================================================================
   // Statistics
-  // ============================================================================
 
   /// Compute comprehensive statistics
   Future<StatisticsResult> computeStatistics(List<double> data) async {
@@ -408,9 +402,7 @@ class MathService {
     );
   }
 
-  // ============================================================================
   // Matrix Operations
-  // ============================================================================
 
   /// Perform matrix operation
   Future<MatrixResult> matrixOperation({
@@ -450,9 +442,7 @@ class MathService {
     );
   }
 
-  // ============================================================================
   // Calculus
-  // ============================================================================
 
   /// Differentiate an expression at a point
   Future<CalculusResult> differentiate(
@@ -665,9 +655,7 @@ class MathService {
     );
   }
 
-  // ============================================================================
   // Graphing
-  // ============================================================================
 
   /// Evaluate graph points
   Future<GraphResult> evaluateGraphPoints(
@@ -759,9 +747,7 @@ class MathService {
     );
   }
 
-  // ============================================================================
   // Complex Numbers
-  // ============================================================================
 
   /// Complex number operation
   ComplexResult complexOperation({
@@ -781,9 +767,7 @@ class MathService {
     );
   }
 
-  // ============================================================================
   // Unit Conversion
-  // ============================================================================
 
   /// Convert units
   UnitResult convertUnit(double value, String fromUnit, String toUnit) {
@@ -807,9 +791,7 @@ class MathService {
     return math_api.getUnitsForCategory(category: category);
   }
 
-  // ============================================================================
   // Formulas
-  // ============================================================================
 
   /// Parse formula to extract variables
   List<String> parseFormula(String formula) {

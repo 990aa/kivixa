@@ -2,7 +2,7 @@ name: kivixa
 description: A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
 publish_to: 'none' 
 
-version: 0.3.9+3009
+version: 0.5.0+5000
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
@@ -88,7 +88,7 @@ dependencies:
   lua_dardo: ^0.0.5
   objectbox: ^5.0.3
   objectbox_flutter_libs: ^5.0.3
-  flutter_rust_bridge: ^2.10.0
+  flutter_rust_bridge: ^2.12.0
   flutter_inappwebview: ^6.1.5
   percent_indicator: ^4.2.3
   # Video players - platform specific
@@ -111,10 +111,11 @@ dev_dependencies:
   integration_test:
     sdk: flutter
 
+  msix: ^3.16.7        
+
   icons_launcher: ^3.0.0
   simplytranslate: ^2.0.1
   yaml: ^3.1.2
-  golden_screenshot: ^11.0.1
   path_provider_platform_interface: ^2.0.0
   plugin_platform_interface: ^2.0.0
   objectbox_generator: ^5.0.3
@@ -160,3 +161,12 @@ icons_launcher:
       enable: true
     linux:
       enable: true
+
+msix_config:
+  display_name: Kivixa
+  publisher_display_name: 990aa
+  identity_name: 990aa.Kivixa
+  publisher: CN=990aa
+  version: 0.0.1.0 
+  logo_path: windows/runner/resources/app_icon.ico
+  install_certificate: false  

@@ -21,7 +21,6 @@ import 'package:kivixa/components/settings/update_manager.dart';
 import 'package:kivixa/components/theming/adaptive_alert_dialog.dart';
 import 'package:kivixa/components/theming/adaptive_toggle_buttons.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
-import 'package:kivixa/data/flavor_config.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/data/tools/shape_pen.dart';
@@ -126,8 +125,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final requiresManualUpdates = FlavorConfig.appStore.isEmpty;
-
     final IconData materialIcon = switch (defaultTargetPlatform) {
       TargetPlatform.windows => Icons.desktop_windows,
       _ => Icons.android,
@@ -344,7 +341,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   afterChange: (_) => setState(() {}),
                 ),
                 const NotificationSettingsWidget(),
-                SettingsSubtitle(subtitle: t.settings.prefCategories.editor),
+                const SettingsSubtitle(subtitle: 'Handwritten Note'),
                 SettingsSelection(
                   title: t.settings.prefLabels.editorToolbarAlignment,
                   subtitle:
@@ -555,35 +552,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       }
                     },
                   ),
-                if (requiresManualUpdates ||
-                    stows.shouldCheckForUpdates.value !=
-                        stows.shouldCheckForUpdates.defaultValue) ...[
-                  SettingsSwitch(
-                    title: t.settings.prefLabels.shouldCheckForUpdates,
-                    icon: Icons.system_update,
-                    pref: stows.shouldCheckForUpdates,
-                    afterChange: (_) => setState(() {}),
-                  ),
-                  Collapsible(
-                    collapsed: !stows.shouldCheckForUpdates.value,
-                    axis: CollapsibleAxis.vertical,
-                    child: SettingsSwitch(
-                      title: t.settings.prefLabels.shouldAlwaysAlertForUpdates,
-                      subtitle: t
-                          .settings
-                          .prefDescriptions
-                          .shouldAlwaysAlertForUpdates,
-                      icon: Icons.system_security_update_warning,
-                      pref: stows.shouldAlwaysAlertForUpdates,
-                    ),
-                  ),
-                ],
-                SettingsButton(
-                  title: t.logs.viewLogs,
-                  subtitle: t.logs.debuggingInfo,
-                  icon: Icons.receipt_long,
-                  onPressed: () => context.push(RoutePaths.logs),
-                ),
                 const SettingsSubtitle(subtitle: 'Extensions'),
                 SettingsButton(
                   title: 'Lua Plugins',

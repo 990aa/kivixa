@@ -1,17 +1,19 @@
-# =============================================================================
+
 # Kivixa Release Workflow
-# =============================================================================
+
 # Triggered by pushing a version tag (e.g., v0.1.7+1007) or manually
 #
 # This workflow:
 # 1. Builds Rust native libraries for Android and Windows
 # 2. Builds Android APKs (arm64, armv7, x86_64)
 # 3. Builds Windows installer with code signing
-# 4. Creates GitHub Release
-# 5. Updates F-Droid repository (gh-pages)
+# 4. Builds Windows MSIX package with code signing (failsafe)
+# 5. Creates GitHub Release
+# 6. Updates F-Droid repository (gh-pages)
 #
 # Note: README.md is updated locally by scripts/release.ps1 before tagging
-# =============================================================================
+ 
+
 
 name: Build and Release
 
@@ -40,9 +42,11 @@ env:
   FLUTTER_VERSION: '3.41.6'
 
 jobs:
-  # =============================================================================
+   
+
   # JOB 1: Build Android APKs (with Rust native libs)
-  # =============================================================================
+   
+
   build-android:
     runs-on: ubuntu-latest
     outputs:
@@ -345,9 +349,11 @@ jobs:
           path: artifacts/*.apk
           retention-days: 5
 
-  # =============================================================================
+   
+
   # JOB 2: Build Windows Installer (with Rust native libs)
-  # =============================================================================
+   
+
   build-windows:
     runs-on: windows-latest
     needs: build-android
@@ -441,6 +447,46 @@ jobs:
 
       - name: Build Windows
         run: flutter build windows --release
+
+      # =========================================================================
+      # MSIX BUILD STEP (Safe & Isolated)
+      # =========================================================================
+      - name: Build and Sign MSIX
+        id: build_msix
+        continue-on-error: true # <--- PREVENTS WORKFLOW FAILURE IF MSIX FAILS
+        shell: pwsh
+        run: |
+          Write-Host "=== Starting MSIX Build ===" -ForegroundColor Cyan
+          
+          # Translate Version (e.g., 0.1.7+1007 -> 0.1.7.1007)
+          $rawVersion = "${{ needs.build-android.outputs.version }}"
+          $buildNum = "${{ needs.build-android.outputs.build_number }}"
+          if ([string]::IsNullOrWhiteSpace($buildNum)) { $buildNum = "0" }
+          $msixVersion = "$rawVersion.$buildNum"
+          Write-Host "Translated MSIX Version: $msixVersion"
+          
+          $cert = "windows\certificate.pfx"
+          $password = "${{ secrets.WINDOWS_CERT_PASSWORD }}"
+          
+          if (Test-Path $cert) {
+            flutter pub run msix:create -v `
+              --version $msixVersion `
+              --certificate-path $cert `
+              --certificate-password $password
+          } else {
+            Write-Host "Warning: Certificate not found. Building unsigned MSIX for testing."
+            flutter pub run msix:create -v --version $msixVersion
+          }
+          
+          Write-Host "=== MSIX Build Completed ===" -ForegroundColor Green
+
+      - name: Upload MSIX Artifact
+        if: always() && steps.build_msix.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msix
+          path: build\windows\x64\runner\Release\*.msix
+          retention-days: 5
 
       - name: Verify Rust DLLs in build
         shell: pwsh
@@ -552,9 +598,11 @@ jobs:
           path: build_windows_installer/Kivixa-Setup-*.exe
           retention-days: 5
 
-  # =============================================================================
+   
+
   # JOB 3: Create GitHub Release
-  # =============================================================================
+   
+
   release:
     runs-on: ubuntu-latest
     needs: [build-android, build-windows]
@@ -578,6 +626,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: windows-installer
+          path: release-artifacts
+
+      - name: Download MSIX artifacts
+        continue-on-error: true # <--- PREVENTS RELEASE FAILURE IF MSIX WAS NOT BUILT
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-msix
           path: release-artifacts
 
       - name: List artifacts
@@ -614,6 +669,7 @@ jobs:
             
             **Windows:**
             - `Kivixa-Setup-${{ needs.build-android.outputs.version }}.exe` - Windows Installer
+            - `kivixa.msix` - Modern Windows Package
             
             **Android:**
             - `Kivixa-Android-${{ needs.build-android.outputs.version }}-arm64.apk` - ARM64 (most modern devices)
@@ -630,9 +686,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # =============================================================================
+   
+
   # JOB 4: Update F-Droid Repository (gh-pages)
-  # =============================================================================
+   
+
   fdroid:
     runs-on: ubuntu-latest
     needs: [build-android, release]
@@ -742,9 +800,11 @@ jobs:
           
           echo "SUCCESS: Repo updated and pushed!"
 
-# =============================================================================
+   
+
   # JOB 5: Publish to Winget
-  # =============================================================================
+   
+
   winget:
     runs-on: ubuntu-latest
     needs: release # Ensures Winget waits for the GitHub Release to finish

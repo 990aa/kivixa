@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 
 import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
@@ -22,6 +23,88 @@ import 'package:path_provider/path_provider.dart';
 
 /// Custom embed type for interactive images with metadata
 const kInteractiveImageType = 'interactive-image';
+
+@visibleForTesting
+String? normalizeQuillFontSize(Object? rawValue) {
+  if (rawValue == null) return null;
+
+  final value = rawValue.toString().trim();
+  if (value.isEmpty) return null;
+
+  final pixelMatch = RegExp(
+    r'^([0-9]+(?:\.[0-9]+)?)px$',
+    caseSensitive: false,
+  ).firstMatch(value);
+  if (pixelMatch != null) {
+    return pixelMatch.group(1);
+  }
+
+  if (RegExp(r'^[0-9]+(?:\.[0-9]+)?$').hasMatch(value)) {
+    return value;
+  }
+
+  final normalized = value.toLowerCase();
+  if (normalized == 'small' || normalized == 'large' || normalized == 'huge') {
+    return normalized;
+  }
+
+  return null;
+}
+
+@visibleForTesting
+List<Map<String, dynamic>> sanitizeQuillDocumentOps(List<dynamic> rawOps) {
+  return rawOps
+      .map((rawOp) {
+        final op = Map<String, dynamic>.from(rawOp as Map);
+        final rawAttributes = op['attributes'];
+
+        if (rawAttributes is Map) {
+          final attributes = Map<String, dynamic>.from(rawAttributes);
+          if (attributes.containsKey('size')) {
+            final normalizedSize = normalizeQuillFontSize(attributes['size']);
+            if (normalizedSize == null) {
+              attributes.remove('size');
+            } else {
+              attributes['size'] = normalizedSize;
+            }
+          }
+          op['attributes'] = attributes;
+        }
+
+        return op;
+      })
+      .toList(growable: false);
+}
+
+@visibleForTesting
+TextSelection lineSelectionForOffset(String text, int offset) {
+  if (text.isEmpty) {
+    return const TextSelection.collapsed(offset: 0);
+  }
+
+  var safeOffset = offset;
+  if (safeOffset < 0) safeOffset = 0;
+  if (safeOffset > text.length) safeOffset = text.length;
+  if (safeOffset == text.length && safeOffset > 0) {
+    safeOffset -= 1;
+  }
+
+  if (safeOffset < text.length - 1 && text[safeOffset] == '\n') {
+    safeOffset += 1;
+  }
+
+  var start = safeOffset;
+  while (start > 0 && text[start - 1] != '\n') {
+    start--;
+  }
+
+  var end = safeOffset;
+  while (end < text.length && text[end] != '\n') {
+    end++;
+  }
+
+  return TextSelection(baseOffset: start, extentOffset: end);
+}
 
 /// Custom image embed builder for QuillEditor that handles local file images
 /// with persistent metadata (size, rotation, position)
@@ -812,6 +895,10 @@ class _TextFileEditorState extends State<TextFileEditor> {
   Timer? _renameTimer;
   // ignore: unused_field
   var _isEditingFileName = false;
+  DateTime? _lastEditorTapAt;
+  var _editorTapCount = 0;
+
+  static const _tripleTapWindow = Duration(milliseconds: 450);
 
   // Time Travel state
   var _isTimeTraveling = false;
@@ -841,11 +928,7 @@ class _TextFileEditorState extends State<TextFileEditor> {
 
             if (data is Map && data.containsKey('document')) {
               final document = Document.fromJson(
-                List<Map<String, dynamic>>.from(
-                  (data['document'] as List).map(
-                    (e) => Map<String, dynamic>.from(e as Map),
-                  ),
-                ),
+                sanitizeQuillDocumentOps(data['document'] as List),
               );
               _controller = QuillController(
                 document: document,
@@ -856,11 +939,7 @@ class _TextFileEditorState extends State<TextFileEditor> {
             } else {
               // Old format - just delta ops
               final document = Document.fromJson(
-                List<Map<String, dynamic>>.from(
-                  (data as List).map(
-                    (e) => Map<String, dynamic>.from(e as Map),
-                  ),
-                ),
+                sanitizeQuillDocumentOps(data as List),
               );
               _controller = QuillController(
                 document: document,
@@ -918,6 +997,30 @@ class _TextFileEditorState extends State<TextFileEditor> {
     _autosaveTimer = Timer(const Duration(seconds: 2), () {
       _saveFile();
     });
+  }
+
+  void _handleEditorPointerDown(PointerDownEvent event) {
+    if (event.buttons != kPrimaryMouseButton) return;
+
+    final now = DateTime.now();
+    if (_lastEditorTapAt != null &&
+        now.difference(_lastEditorTapAt!) <= _tripleTapWindow) {
+      _editorTapCount += 1;
+    } else {
+      _editorTapCount = 1;
+    }
+    _lastEditorTapAt = now;
+
+    if (_editorTapCount == 3) {
+      _editorTapCount = 0;
+      _selectCurrentLine();
+    }
+  }
+
+  void _selectCurrentLine() {
+    final text = _controller.document.toPlainText();
+    final selection = lineSelectionForOffset(text, _controller.selection.start);
+    _controller.updateSelection(selection, ChangeSource.local);
   }
 
   /// Update a media embed in the document with new metadata
@@ -1092,11 +1195,7 @@ class _TextFileEditorState extends State<TextFileEditor> {
 
       if (data is Map && data.containsKey('document')) {
         final document = Document.fromJson(
-          List<Map<String, dynamic>>.from(
-            (data['document'] as List).map(
-              (e) => Map<String, dynamic>.from(e as Map),
-            ),
-          ),
+          sanitizeQuillDocumentOps(data['document'] as List),
         );
         setState(() {
           _controller = QuillController(
@@ -1117,11 +1216,7 @@ class _TextFileEditorState extends State<TextFileEditor> {
 
       if (data is Map && data.containsKey('document')) {
         final document = Document.fromJson(
-          List<Map<String, dynamic>>.from(
-            (data['document'] as List).map(
-              (e) => Map<String, dynamic>.from(e as Map),
-            ),
-          ),
+          sanitizeQuillDocumentOps(data['document'] as List),
         );
         setState(() {
           _controller = QuillController(
@@ -1684,79 +1779,84 @@ class _TextFileEditorState extends State<TextFileEditor> {
               child: Container(
                 color: colorScheme.surface,
                 padding: const EdgeInsets.all(16),
-                child: QuillEditor(
-                  controller: _controller,
-                  focusNode: _editorFocusNode,
-                  scrollController: _scrollController,
-                  config: QuillEditorConfig(
-                    placeholder: 'Start typing...',
-                    padding: const EdgeInsets.all(16),
-                    autoFocus: false,
-                    expands: true,
-                    embedBuilders: [
-                      _ImageEmbedBuilder(onMediaChanged: _updateMediaEmbed),
-                      _LegacyImageEmbedBuilder(
-                        onMediaChanged: _updateMediaEmbed,
-                      ),
-                    ],
-                    customStyles: DefaultStyles(
-                      paragraph: DefaultTextBlockStyle(
-                        TextStyle(
-                          fontSize: 16,
-                          color: colorScheme.onSurface,
-                          height: 1.5,
+                child: Listener(
+                  behavior: HitTestBehavior.translucent,
+                  onPointerDown: _handleEditorPointerDown,
+                  child: QuillEditor(
+                    controller: _controller,
+                    focusNode: _editorFocusNode,
+                    scrollController: _scrollController,
+                    config: QuillEditorConfig(
+                      placeholder: 'Start typing...',
+                      padding: const EdgeInsets.all(16),
+                      autoFocus: false,
+                      expands: true,
+                      embedBuilders: [
+                        _ImageEmbedBuilder(onMediaChanged: _updateMediaEmbed),
+                        _LegacyImageEmbedBuilder(
+                          onMediaChanged: _updateMediaEmbed,
                         ),
-                        HorizontalSpacing.zero,
-                        const VerticalSpacing(8, 8),
-                        VerticalSpacing.zero,
-                        null,
-                      ),
-                      h1: DefaultTextBlockStyle(
-                        TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSurface,
+                      ],
+                      customStyles: DefaultStyles(
+                        paragraph: DefaultTextBlockStyle(
+                          TextStyle(
+                            fontSize: 16,
+                            color: colorScheme.onSurface,
+                            height: 1.5,
+                          ),
+                          HorizontalSpacing.zero,
+                          const VerticalSpacing(8, 8),
+                          VerticalSpacing.zero,
+                          null,
                         ),
-                        HorizontalSpacing.zero,
-                        const VerticalSpacing(16, 8),
-                        VerticalSpacing.zero,
-                        null,
-                      ),
-                      h2: DefaultTextBlockStyle(
-                        TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSurface,
+                        h1: DefaultTextBlockStyle(
+                          TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
+                          HorizontalSpacing.zero,
+                          const VerticalSpacing(16, 8),
+                          VerticalSpacing.zero,
+                          null,
                         ),
-                        HorizontalSpacing.zero,
-                        const VerticalSpacing(14, 6),
-                        VerticalSpacing.zero,
-                        null,
-                      ),
-                      h3: DefaultTextBlockStyle(
-                        TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSurface,
+                        h2: DefaultTextBlockStyle(
+                          TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
+                          HorizontalSpacing.zero,
+                          const VerticalSpacing(14, 6),
+                          VerticalSpacing.zero,
+                          null,
                         ),
-                        HorizontalSpacing.zero,
-                        const VerticalSpacing(12, 4),
-                        VerticalSpacing.zero,
-                        null,
-                      ),
-                      code: DefaultTextBlockStyle(
-                        TextStyle(
-                          fontFamily: 'FiraMono',
-                          fontSize: 14,
-                          color: colorScheme.onSurfaceVariant,
-                          backgroundColor: colorScheme.surfaceContainerHighest,
+                        h3: DefaultTextBlockStyle(
+                          TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
+                          HorizontalSpacing.zero,
+                          const VerticalSpacing(12, 4),
+                          VerticalSpacing.zero,
+                          null,
                         ),
-                        HorizontalSpacing.zero,
-                        const VerticalSpacing(8, 8),
-                        VerticalSpacing.zero,
-                        BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(4),
+                        code: DefaultTextBlockStyle(
+                          TextStyle(
+                            fontFamily: 'FiraMono',
+                            fontSize: 14,
+                            color: colorScheme.onSurfaceVariant,
+                            backgroundColor:
+                                colorScheme.surfaceContainerHighest,
+                          ),
+                          HorizontalSpacing.zero,
+                          const VerticalSpacing(8, 8),
+                          VerticalSpacing.zero,
+                          BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                         ),
                       ),
                     ),
@@ -2021,9 +2121,7 @@ class _FontSizeDropdown extends StatelessWidget {
         }).toList(),
         onChanged: (value) {
           if (value != null) {
-            controller.formatSelection(
-              Attribute.fromKeyValue('size', '${value}px'),
-            );
+            controller.formatSelection(Attribute.fromKeyValue('size', value));
           }
         },
       ),

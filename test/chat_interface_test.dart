@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
+import 'package:kivixa/services/ai/chat_attachment_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -73,6 +76,83 @@ void main() {
 
       expect(chatMessage.role, 'user');
       expect(chatMessage.content, 'Test');
+    });
+
+    test('toChatMessage should append attachment context for user prompts', () {
+      const attachment = ChatAttachment(
+        id: 'att-1',
+        filePath: '/tmp/ref.txt',
+        fileName: 'ref.txt',
+        sizeBytes: 32,
+        mediaType: 'text/plain',
+        extractedText: 'Reference content',
+      );
+
+      final aiMessage = AIChatMessage(
+        role: 'user',
+        content: 'Use attached reference.',
+        attachments: const [attachment],
+      );
+      final chatMessage = aiMessage.toChatMessage();
+
+      expect(chatMessage.content, contains('Use attached reference.'));
+      expect(chatMessage.content, contains('[Attached files]'));
+      expect(chatMessage.content, contains('Reference content'));
+    });
+  });
+
+  group('Chat export JSON', () {
+    test('exports only user and assistant messages in order', () {
+      final messages = [
+        AIChatMessage(role: 'system', content: 'system prompt'),
+        AIChatMessage(
+          role: 'user',
+          content: 'What changed?',
+          attachments: const [
+            ChatAttachment(
+              id: 'att-2',
+              filePath: '/tmp/changes.md',
+              fileName: 'changes.md',
+              sizeBytes: 64,
+              mediaType: 'text/plain',
+              extractedText: '# Changes',
+            ),
+          ],
+        ),
+        AIChatMessage(role: 'assistant', content: 'Here is the summary.'),
+        AIChatMessage(role: 'assistant', content: '', isLoading: true),
+      ];
+
+      final jsonPayload = buildChatConversationExportJson(
+        messages,
+        sessionType: 'ai-chat',
+      );
+
+      final decoded = jsonDecode(jsonPayload) as Map<String, dynamic>;
+      expect(decoded['sessionType'], 'ai-chat');
+      expect(decoded['schemaVersion'], 1);
+      expect(decoded['messageCount'], 2);
+
+      final exportedMessages = decoded['messages'] as List<dynamic>;
+      expect(exportedMessages.length, 2);
+      expect((exportedMessages[0] as Map<String, dynamic>)['role'], 'user');
+      expect(
+        (exportedMessages[0] as Map<String, dynamic>)['content'],
+        'What changed?',
+      );
+      expect(
+        ((exportedMessages[0] as Map<String, dynamic>)['attachments'] as List)
+            .length,
+        1,
+      );
+      expect(
+        (exportedMessages[1] as Map<String, dynamic>)['role'],
+        'assistant',
+      );
+      expect(
+        (exportedMessages[1] as Map<String, dynamic>)['content'],
+        'Here is the summary.',
+      );
     });
   });
 

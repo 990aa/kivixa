@@ -60,9 +60,7 @@ class _MathStatisticsTabState extends State<MathStatisticsTab>
   }
 }
 
-// ============================================================================
 // DESCRIPTIVE STATISTICS
-// ============================================================================
 
 class _DescriptiveStats extends StatefulWidget {
   const _DescriptiveStats();
@@ -314,9 +312,7 @@ SUMMARY
   }
 }
 
-// ============================================================================
 // CORRELATION & COVARIANCE CALCULATOR
-// ============================================================================
 
 class _CorrelationCalculator extends StatefulWidget {
   const _CorrelationCalculator();
@@ -599,9 +595,7 @@ class _CorrelationCalculatorState extends State<_CorrelationCalculator> {
   }
 }
 
-// ============================================================================
 // DISTRIBUTION CALCULATOR - 13+ Distributions
-// ============================================================================
 
 class _DistributionCalculator extends StatefulWidget {
   const _DistributionCalculator();
@@ -1277,9 +1271,7 @@ class _DistributionCalculatorState extends State<_DistributionCalculator> {
   }
 }
 
-// ============================================================================
 // REGRESSION CALCULATOR
-// ============================================================================
 
 class _RegressionCalculator extends StatefulWidget {
   const _RegressionCalculator();
@@ -1654,9 +1646,7 @@ class _LinearResult {
   });
 }
 
-// ============================================================================
 // HYPOTHESIS TESTING - Z-test, T-test, Chi-Square, ANOVA
-// ============================================================================
 
 class _HypothesisCalculator extends StatefulWidget {
   const _HypothesisCalculator();

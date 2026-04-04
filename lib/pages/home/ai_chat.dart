@@ -15,6 +15,39 @@ import 'package:kivixa/services/ai/mcp_service.dart';
 import 'package:kivixa/services/ai/model_manager.dart';
 import 'package:kivixa/services/ai/model_router.dart';
 
+@visibleForTesting
+const mainAiQuickActionPrompts = <String, String>{
+  'Smart Search':
+      'Use smart search across my notes and find the most relevant results for this topic: ',
+  'Summarize':
+      'Summarize my recent notes into key points, decisions, and action items.',
+  'Discover':
+      'Discover non-obvious connections between my recent notes and suggest follow-up ideas.',
+};
+
+@visibleForTesting
+const mcpToolPromptTemplates = <String, String>{
+  'read_file':
+      'Use read_file to open sandbox/demo.md and summarize the file content in 3 bullets.',
+  'write_file':
+      'Use write_file to create sandbox/demo.md with this content:\n# Sandbox Demo\n- Item 1\n- Item 2',
+  'delete_file': 'Use delete_file to remove sandbox/demo.md.',
+  'create_folder': 'Use create_folder to create sandbox/tmp_folder.',
+  'list_files':
+      'Use list_files to list files under sandbox/ recursively and report the results.',
+  'calendar_lua':
+      'Use calendar_lua to create a demo event called "Sandbox Planning" for tomorrow at 10:00 AM.',
+  'timer_lua': 'Use timer_lua to start a 5-minute timer named "Sandbox Focus".',
+  'export_markdown':
+      'Use export_markdown to save this markdown into sandbox/export_demo.md:\n# Export Demo\n- Alpha\n- Beta',
+};
+
+@visibleForTesting
+String promptForMcpTool(String toolName) {
+  return mcpToolPromptTemplates[toolName] ??
+      'Use $toolName for this task and describe what you will do before executing it.';
+}
+
 /// AI Chat Page
 ///
 /// Provides a chat interface for users to interact with the AI.
@@ -50,9 +83,16 @@ class _AIChatPageState extends State<AIChatPage> {
   late AIChatController _chatController;
   MCPChatController? _mcpChatController;
   late ModelManager _modelManager;
+  final _mainPromptPrefill = ValueNotifier<String?>(null);
+  final _mcpPromptPrefill = ValueNotifier<String?>(null);
   var _isModelReady = false;
   var _isMcpMode = false;
   String? _modelError;
+
+  void _emitPrefillPrompt(ValueNotifier<String?> target, String prompt) {
+    target.value = null;
+    target.value = prompt;
+  }
 
   @override
   void initState() {
@@ -213,6 +253,8 @@ class _AIChatPageState extends State<AIChatPage> {
   void dispose() {
     _chatController.dispose();
     _mcpChatController?.dispose();
+    _mainPromptPrefill.dispose();
+    _mcpPromptPrefill.dispose();
     super.dispose();
   }
 
@@ -231,6 +273,7 @@ class _AIChatPageState extends State<AIChatPage> {
                 ? _buildMcpChatInterface()
                 : AIChatInterface(
                     controller: _chatController,
+                    promptPrefillListenable: _mainPromptPrefill,
                     title: 'Kivixa AI',
                     placeholder: 'Ask me about your notes...',
                     emptyState: _buildWelcomeWidget(),
@@ -259,6 +302,7 @@ class _AIChatPageState extends State<AIChatPage> {
           child: MCPChatInterface(
             controller: _mcpChatController!,
             context: context,
+            promptPrefillListenable: _mcpPromptPrefill,
             emptyState: _buildMcpWelcomeWidget(),
           ),
         ),
@@ -434,35 +478,45 @@ class _AIChatPageState extends State<AIChatPage> {
                   icon = Icons.extension;
               }
 
-              return Container(
-                width: 160,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest,
+              return Material(
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colorScheme.outlineVariant),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(icon, size: 24, color: colorScheme.primary),
-                    const SizedBox(height: 8),
-                    Text(
-                      tool.name.replaceAll('_', ' '),
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  onTap: () => _emitPrefillPrompt(
+                    _mcpPromptPrefill,
+                    promptForMcpTool(tool.name),
+                  ),
+                  child: Container(
+                    width: 160,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: colorScheme.outlineVariant),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      tool.description,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(icon, size: 24, color: colorScheme.primary),
+                        const SizedBox(height: 8),
+                        Text(
+                          tool.name.replaceAll('_', ' '),
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          tool.description,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               );
             }).toList(),
@@ -546,22 +600,34 @@ class _AIChatPageState extends State<AIChatPage> {
             ),
           ),
           const SizedBox(height: 32),
-          const _FeatureCard(
+          _FeatureCard(
             icon: Icons.search,
             title: 'Smart Search',
             description: 'Find related notes and ideas',
+            onTap: () => _emitPrefillPrompt(
+              _mainPromptPrefill,
+              mainAiQuickActionPrompts['Smart Search']!,
+            ),
           ),
           const SizedBox(height: 12),
-          const _FeatureCard(
+          _FeatureCard(
             icon: Icons.summarize,
             title: 'Summarize',
             description: 'Get quick summaries of your notes',
+            onTap: () => _emitPrefillPrompt(
+              _mainPromptPrefill,
+              mainAiQuickActionPrompts['Summarize']!,
+            ),
           ),
           const SizedBox(height: 12),
-          const _FeatureCard(
+          _FeatureCard(
             icon: Icons.lightbulb_outline,
             title: 'Discover',
             description: 'Explore connections between topics',
+            onTap: () => _emitPrefillPrompt(
+              _mainPromptPrefill,
+              mainAiQuickActionPrompts['Discover']!,
+            ),
           ),
         ],
       ),
@@ -755,11 +821,13 @@ class _FeatureCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String description;
+  final VoidCallback? onTap;
 
   const _FeatureCard({
     required this.icon,
     required this.title,
     required this.description,
+    this.onTap,
   });
 
   @override
@@ -767,36 +835,40 @@ class _FeatureCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
+    return Material(
+      color: colorScheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: colorScheme.primary),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(icon, color: colorScheme.primary),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      description,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  description,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

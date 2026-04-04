@@ -1,17 +1,31 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
+import 'package:kivixa/services/ai/chat_attachment_service.dart';
 
 class MCPChatInterface extends StatefulWidget {
   final MCPChatController controller;
   final BuildContext context;
   final Widget? emptyState;
+  final ValueListenable<String?>? promptPrefillListenable;
+  final VoidCallback? onClear;
+  final Future<void> Function(String jsonPayload)? onExportChat;
+  final Future<List<ChatAttachment>> Function()? onPickAttachments;
 
   const MCPChatInterface({
     super.key,
     required this.controller,
     required this.context,
     this.emptyState,
+    this.promptPrefillListenable,
+    this.onClear,
+    this.onExportChat,
+    this.onPickAttachments,
   });
 
   @override
@@ -22,16 +36,135 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
+  final _pendingAttachments = <ChatAttachment>[];
+
+  int? _historyCursor;
+  var _draftBeforeHistory = '';
+  var _isApplyingHistoryEntry = false;
+
+  // ignore: omit_obvious_property_types
+  List<String> get _userPromptHistory => widget.controller.messages
+      .where((message) => message.isUser)
+      .map((message) => message.content)
+      .where((content) => content.trim().isNotEmpty)
+      .toList(growable: false);
+
+  void _onComposerTextChanged() {
+    if (_isApplyingHistoryEntry) {
+      return;
+    }
+
+    _historyCursor = null;
+    _draftBeforeHistory = '';
+  }
+
+  KeyEventResult _handleComposerKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent) {
+      return KeyEventResult.ignored;
+    }
+
+    final logicalKey = event.logicalKey;
+    final pressedKeys = HardwareKeyboard.instance.logicalKeysPressed;
+    final hasModifier =
+        pressedKeys.contains(LogicalKeyboardKey.altLeft) ||
+        pressedKeys.contains(LogicalKeyboardKey.altRight) ||
+        pressedKeys.contains(LogicalKeyboardKey.controlLeft) ||
+        pressedKeys.contains(LogicalKeyboardKey.controlRight) ||
+        pressedKeys.contains(LogicalKeyboardKey.metaLeft) ||
+        pressedKeys.contains(LogicalKeyboardKey.metaRight);
+
+    if (hasModifier) {
+      return KeyEventResult.ignored;
+    }
+
+    if (logicalKey == LogicalKeyboardKey.arrowUp) {
+      _navigatePromptHistory(moveUp: true);
+      return KeyEventResult.handled;
+    }
+
+    if (logicalKey == LogicalKeyboardKey.arrowDown && _historyCursor != null) {
+      _navigatePromptHistory(moveUp: false);
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
+  }
+
+  void _navigatePromptHistory({required bool moveUp}) {
+    final history = _userPromptHistory;
+    if (history.isEmpty) {
+      return;
+    }
+
+    if (moveUp) {
+      if (_historyCursor == null) {
+        _draftBeforeHistory = _textController.text;
+        _historyCursor = history.length - 1;
+      } else if (_historyCursor! > 0) {
+        _historyCursor = _historyCursor! - 1;
+      }
+
+      _applyHistoryEntry(history[_historyCursor!]);
+      return;
+    }
+
+    if (_historyCursor == null) {
+      return;
+    }
+
+    if (_historyCursor! < history.length - 1) {
+      _historyCursor = _historyCursor! + 1;
+      _applyHistoryEntry(history[_historyCursor!]);
+      return;
+    }
+
+    _historyCursor = null;
+    _applyHistoryEntry(_draftBeforeHistory);
+  }
+
+  void _applyHistoryEntry(String value) {
+    _isApplyingHistoryEntry = true;
+    _textController
+      ..text = value
+      ..selection = TextSelection.collapsed(offset: value.length);
+    _isApplyingHistoryEntry = false;
+  }
+
+  void _onPromptPrefillChanged() {
+    final prompt = widget.promptPrefillListenable?.value;
+    if (prompt == null || prompt.trim().isEmpty) return;
+
+    _textController
+      ..text = prompt
+      ..selection = TextSelection.collapsed(offset: prompt.length);
+    _focusNode.requestFocus();
+  }
 
   @override
   void initState() {
     super.initState();
     widget.controller.addListener(_onControllerChanged);
+    widget.promptPrefillListenable?.addListener(_onPromptPrefillChanged);
+    _textController.addListener(_onComposerTextChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant MCPChatInterface oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.promptPrefillListenable != widget.promptPrefillListenable) {
+      oldWidget.promptPrefillListenable?.removeListener(
+        _onPromptPrefillChanged,
+      );
+      widget.promptPrefillListenable?.addListener(_onPromptPrefillChanged);
+    }
   }
 
   @override
   void dispose() {
     widget.controller.removeListener(_onControllerChanged);
+    widget.promptPrefillListenable?.removeListener(_onPromptPrefillChanged);
+    _textController.removeListener(_onComposerTextChanged);
     _textController.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
@@ -59,9 +192,122 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
 
+    final attachments = List<ChatAttachment>.from(_pendingAttachments);
+
     _textController.clear();
-    await widget.controller.sendMessage(text, context: widget.context);
+    _historyCursor = null;
+    _draftBeforeHistory = '';
+    setState(() {
+      _pendingAttachments.clear();
+    });
+
+    await widget.controller.sendMessage(
+      text,
+      context: widget.context,
+      attachments: attachments,
+    );
     _focusNode.requestFocus();
+  }
+
+  Future<void> _pickAttachments() async {
+    try {
+      final pickedAttachments = widget.onPickAttachments != null
+          ? await widget.onPickAttachments!()
+          : await _pickAttachmentsFromFileSystem();
+
+      if (!mounted || pickedAttachments.isEmpty) {
+        return;
+      }
+
+      setState(() {
+        _pendingAttachments.addAll(pickedAttachments);
+      });
+      _focusNode.requestFocus();
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to add attachments: $e')));
+    }
+  }
+
+  Future<List<ChatAttachment>> _pickAttachmentsFromFileSystem() async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.any,
+      withData: false,
+    );
+
+    if (result == null || result.files.isEmpty) {
+      return const <ChatAttachment>[];
+    }
+
+    final paths = result.files
+        .map((platformFile) => platformFile.path)
+        .whereType<String>()
+        .toList(growable: false);
+
+    if (paths.isEmpty) {
+      return const <ChatAttachment>[];
+    }
+
+    return ChatAttachmentService.fromFilePaths(paths);
+  }
+
+  void _removePendingAttachment(String attachmentId) {
+    setState(() {
+      _pendingAttachments.removeWhere(
+        (attachment) => attachment.id == attachmentId,
+      );
+    });
+  }
+
+  Future<void> _handleExportChat() async {
+    final jsonPayload = widget.controller.exportConversationAsJson();
+
+    if (widget.onExportChat != null) {
+      await widget.onExportChat!(jsonPayload);
+      return;
+    }
+
+    try {
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export MCP Chat as JSON',
+        fileName:
+            'kivixa_mcp_chat_${DateTime.now().millisecondsSinceEpoch}.json',
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null) {
+        return;
+      }
+
+      await File(result).writeAsString(jsonPayload);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('MCP chat exported as JSON')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to export chat: $e')));
+    }
+  }
+
+  void _copyMessage(String content) {
+    Clipboard.setData(ClipboardData(text: content));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Copied to clipboard'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -72,6 +318,43 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
 
     return Column(
       children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest,
+            border: Border(
+              bottom: BorderSide(color: colorScheme.outlineVariant),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.smart_toy, color: colorScheme.primary, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Kivixa MCP Assistant',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              if (messages.isNotEmpty)
+                IconButton(
+                  icon: const Icon(Icons.file_download_outlined),
+                  tooltip: 'Export chat as JSON',
+                  onPressed: _handleExportChat,
+                ),
+              if (messages.isNotEmpty)
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: 'Clear chat',
+                  onPressed: () {
+                    widget.controller.clearMessages();
+                    widget.onClear?.call();
+                  },
+                ),
+            ],
+          ),
+        ),
         // Messages list
         Expanded(
           child: messages.isEmpty && widget.emptyState != null
@@ -82,7 +365,19 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index];
-                    return _buildMessageBubble(message);
+                    final canRetry =
+                        index == messages.length - 1 &&
+                        message.isAssistant &&
+                        !widget.controller.isGenerating;
+                    return _buildMessageBubble(
+                      message,
+                      onCopy: () => _copyMessage(message.content),
+                      onRetry: canRetry
+                          ? () => widget.controller.retryLastMessage(
+                              context: widget.context,
+                            )
+                          : null,
+                    );
                   },
                 ),
         ),
@@ -94,37 +389,77 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
             color: colorScheme.surface,
             border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
           ),
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: TextField(
-                  controller: _textController,
-                  focusNode: _focusNode,
-                  decoration: InputDecoration(
-                    hintText: 'Ask Kivixa AI (MCP enabled)...',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+              if (_pendingAttachments.isNotEmpty) ...[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _pendingAttachments
+                        .map(
+                          (attachment) => _McpPendingAttachmentChip(
+                            key: ValueKey<String>(
+                              'mcp-attachment-${attachment.id}',
+                            ),
+                            attachment: attachment,
+                            onRemove: () =>
+                                _removePendingAttachment(attachment.id),
+                          ),
+                        )
+                        .toList(growable: false),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    tooltip: 'Add attachments',
+                    onPressed: widget.controller.isGenerating
+                        ? null
+                        : _pickAttachments,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Focus(
+                      onKeyEvent: _handleComposerKeyEvent,
+                      child: TextField(
+                        controller: _textController,
+                        focusNode: _focusNode,
+                        decoration: InputDecoration(
+                          hintText: 'Ask Kivixa AI (MCP enabled)...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
+                        maxLines: null,
+                        textInputAction: TextInputAction.send,
+                        onSubmitted: (_) => _sendMessage(),
+                      ),
                     ),
                   ),
-                  maxLines: null,
-                  textInputAction: TextInputAction.send,
-                  onSubmitted: (_) => _sendMessage(),
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton.filled(
-                icon: widget.controller.isGenerating
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.send),
-                onPressed: widget.controller.isGenerating ? null : _sendMessage,
+                  const SizedBox(width: 8),
+                  IconButton.filled(
+                    icon: widget.controller.isGenerating
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.send),
+                    onPressed: widget.controller.isGenerating
+                        ? null
+                        : _sendMessage,
+                  ),
+                ],
               ),
             ],
           ),
@@ -133,7 +468,11 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
     );
   }
 
-  Widget _buildMessageBubble(MCPChatMessage message) {
+  Widget _buildMessageBubble(
+    MCPChatMessage message, {
+    VoidCallback? onCopy,
+    VoidCallback? onRetry,
+  }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isUser = message.isUser;
@@ -210,6 +549,38 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
                       message.toolResult != null) ...[
                     const SizedBox(height: 8),
                     _buildToolResultIndicator(message),
+                  ],
+
+                  if (!message.isLoading &&
+                      (onCopy != null || onRetry != null)) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (onCopy != null)
+                          IconButton(
+                            icon: const Icon(Icons.copy, size: 16),
+                            onPressed: onCopy,
+                            tooltip: 'Copy',
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(
+                              minWidth: 32,
+                              minHeight: 32,
+                            ),
+                          ),
+                        if (!isUser && onRetry != null)
+                          IconButton(
+                            icon: const Icon(Icons.refresh, size: 16),
+                            onPressed: onRetry,
+                            tooltip: 'Retry',
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(
+                              minWidth: 32,
+                              minHeight: 32,
+                            ),
+                          ),
+                      ],
+                    ),
                   ],
                 ],
               ),
@@ -321,6 +692,78 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
             'Tool executed successfully',
             style: theme.textTheme.labelSmall?.copyWith(
               color: colorScheme.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _McpPendingAttachmentChip extends StatelessWidget {
+  const _McpPendingAttachmentChip({
+    super.key,
+    required this.attachment,
+    required this.onRemove,
+  });
+
+  final ChatAttachment attachment;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      width: 240,
+      padding: const EdgeInsets.fromLTRB(10, 10, 28, 8),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.attach_file, size: 16, color: colorScheme.primary),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      attachment.fileName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      ChatAttachmentService.formatSize(attachment.sizeBytes),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Positioned(
+            top: -6,
+            right: -6,
+            child: IconButton(
+              onPressed: onRemove,
+              icon: const Icon(Icons.close, size: 14),
+              tooltip: 'Remove attachment',
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+              visualDensity: VisualDensity.compact,
             ),
           ),
         ],

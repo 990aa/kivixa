@@ -1,3 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -8,6 +13,143 @@ import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
+import 'package:kivixa/pages/textfile/text_file_editor.dart';
+
+enum ImportedNoteType { handwritten, pdf, markdown, text, docx, unsupported }
+
+ImportedNoteType classifyImportedNoteType(String filePath) {
+  final normalized = filePath.trim().toLowerCase();
+
+  if (normalized.endsWith('.kvx') || normalized.endsWith('.kvx1')) {
+    return ImportedNoteType.handwritten;
+  }
+  if (normalized.endsWith('.pdf')) {
+    return ImportedNoteType.pdf;
+  }
+  if (normalized.endsWith('.md')) {
+    return ImportedNoteType.markdown;
+  }
+  if (normalized.endsWith('.txt')) {
+    return ImportedNoteType.text;
+  }
+  if (normalized.endsWith('.docx')) {
+    return ImportedNoteType.docx;
+  }
+  return ImportedNoteType.unsupported;
+}
+
+String importedNoteBaseName(String filePath) {
+  final fileName = filePath.split(RegExp(r'[\\/]')).last;
+  final lastDot = fileName.lastIndexOf('.');
+  if (lastDot <= 0) return fileName;
+  return fileName.substring(0, lastDot);
+}
+
+Map<String, dynamic> buildTextNotePayload({
+  required String fileName,
+  required String content,
+  DateTime? createdAt,
+}) {
+  final normalizedContent = content.endsWith('\n') ? content : '$content\n';
+  return {
+    'document': [
+      {'insert': normalizedContent},
+    ],
+    'fileName': fileName,
+    'version': 1,
+    'createdAt': (createdAt ?? DateTime.now()).toIso8601String(),
+  };
+}
+
+String _decodeDocxXmlEntities(String value) {
+  return value
+      .replaceAll('&#xD;', '')
+      .replaceAll('&#13;', '')
+      .replaceAll('&#xA;', '\n')
+      .replaceAll('&#10;', '\n')
+      .replaceAll('&lt;', '<')
+      .replaceAll('&gt;', '>')
+      .replaceAll('&quot;', '"')
+      .replaceAll('&apos;', "'")
+      .replaceAll('&amp;', '&');
+}
+
+String extractPlainTextFromDocxBytes(Uint8List bytes) {
+  final archive = ZipDecoder().decodeBytes(bytes, verify: false);
+  final documentXml = archive.findFile('word/document.xml');
+  if (documentXml == null || !documentXml.isFile) {
+    throw const FormatException('Invalid DOCX: missing word/document.xml');
+  }
+
+  final xmlBytes = documentXml.content;
+  final xml = utf8.decode(xmlBytes as List<int>, allowMalformed: true);
+
+  final tokenPattern = RegExp(
+    r'<w:t(?:\s[^>]*)?>(.*?)</w:t>|<w:tab\b[^>]*/>|<w:br\b[^>]*/>|</w:p>',
+    dotAll: true,
+  );
+
+  final buffer = StringBuffer();
+  for (final match in tokenPattern.allMatches(xml)) {
+    final textContent = match.group(1);
+    if (textContent != null) {
+      buffer.write(_decodeDocxXmlEntities(textContent));
+      continue;
+    }
+
+    final token = match.group(0)!;
+    if (token.startsWith('<w:tab')) {
+      buffer.write('\t');
+    } else {
+      buffer.write('\n');
+    }
+  }
+
+  return buffer.toString().replaceAll(RegExp(r'\n{3,}'), '\n\n').trimRight();
+}
+
+Future<String> importTextLikeNoteAsCopy({
+  required String sourcePath,
+  required String destinationDir,
+}) async {
+  var safeDestinationDir = destinationDir;
+  if (!safeDestinationDir.startsWith('/')) {
+    safeDestinationDir = '/$safeDestinationDir';
+  }
+  if (!safeDestinationDir.endsWith('/')) {
+    safeDestinationDir = '$safeDestinationDir/';
+  }
+
+  final baseName = importedNoteBaseName(sourcePath);
+  final uniqueBasePath = await FileManager.suffixFilePathToMakeItUnique(
+    '$safeDestinationDir$baseName',
+  );
+
+  final sourceBytes = await File(sourcePath).readAsBytes();
+  final importedType = classifyImportedNoteType(sourcePath);
+
+  final content = switch (importedType) {
+    ImportedNoteType.docx => extractPlainTextFromDocxBytes(sourceBytes),
+    _ => () {
+      try {
+        return utf8.decode(sourceBytes);
+      } catch (_) {
+        return latin1.decode(sourceBytes);
+      }
+    }(),
+  };
+
+  final payload = buildTextNotePayload(fileName: baseName, content: content);
+  final encoded = utf8.encode(json.encode(payload));
+
+  await FileManager.writeFile(
+    '$uniqueBasePath${TextFileEditor.internalExtension}',
+    encoded,
+    awaitWrite: true,
+  );
+
+  return uniqueBasePath;
+}
 
 class NewNoteButton extends StatefulWidget {
   const NewNoteButton({
@@ -132,39 +274,73 @@ class _NewNoteButtonState extends State<NewNoteButton> {
             final fileName = result.files.single.name;
             if (filePath == null) return;
 
-            if (filePath.toLowerCase().endsWith('.kvx') ||
-                filePath.toLowerCase().endsWith('.kvx') ||
-                filePath.toLowerCase().endsWith('.kvx ')) {
-              final path = await FileManager.importFile(
-                filePath,
-                '${widget.path ?? ''}/',
-              );
-              if (path == null) return;
-              if (!context.mounted) return;
+            final importedType = classifyImportedNoteType(filePath);
+            final destinationDir = '${widget.path ?? ''}/';
 
-              context.push(RoutePaths.editFilePath(path));
-            } else if (filePath.toLowerCase().endsWith('.pdf')) {
-              if (!Editor.canRasterPdf) return;
-              if (!mounted) return;
-
-              final fileNameWithoutExtension = fileName.substring(
-                0,
-                fileName.length - '.pdf'.length,
-              );
-              final kvxFilePath =
-                  await FileManager.suffixFilePathToMakeItUnique(
-                    '${widget.path ?? ''}/$fileNameWithoutExtension',
+            try {
+              switch (importedType) {
+                case ImportedNoteType.handwritten:
+                  final importedPath = await FileManager.importFile(
+                    filePath,
+                    destinationDir,
                   );
-              if (!context.mounted) return;
+                  if (importedPath == null || !context.mounted) return;
 
-              context.push(RoutePaths.editImportPdf(kvxFilePath, filePath));
-            } else {
+                  context.push(RoutePaths.editFilePath(importedPath));
+                  return;
+
+                case ImportedNoteType.pdf:
+                  if (!Editor.canRasterPdf || !mounted) return;
+
+                  final fileNameWithoutExtension = fileName.substring(
+                    0,
+                    fileName.length - '.pdf'.length,
+                  );
+                  final kvxFilePath =
+                      await FileManager.suffixFilePathToMakeItUnique(
+                        '$destinationDir$fileNameWithoutExtension',
+                      );
+                  if (!context.mounted) return;
+
+                  context.push(RoutePaths.editImportPdf(kvxFilePath, filePath));
+                  return;
+
+                case ImportedNoteType.markdown:
+                  final importedPath = await FileManager.importFile(
+                    filePath,
+                    destinationDir,
+                    extension: '.md',
+                  );
+                  if (importedPath == null || !context.mounted) return;
+
+                  context.push(RoutePaths.markdownFilePath(importedPath));
+                  return;
+
+                case ImportedNoteType.text:
+                case ImportedNoteType.docx:
+                  final importedPath = await importTextLikeNoteAsCopy(
+                    sourcePath: filePath,
+                    destinationDir: destinationDir,
+                  );
+                  if (!context.mounted) return;
+
+                  context.push(RoutePaths.textFilePath(importedPath));
+                  return;
+
+                case ImportedNoteType.unsupported:
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(t.home.invalidFormat)),
+                    );
+                  }
+                  return;
+              }
+            } catch (e) {
               if (context.mounted) {
                 ScaffoldMessenger.of(
                   context,
-                ).showSnackBar(SnackBar(content: Text(t.home.invalidFormat)));
+                ).showSnackBar(SnackBar(content: Text('Import failed: $e')));
               }
-              throw 'Invalid file type';
             }
           },
         ),

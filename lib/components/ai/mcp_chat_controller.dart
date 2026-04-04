@@ -3,13 +3,14 @@
 // Extends the base AIChatController to add MCP tool execution capabilities
 // with automatic model switching based on task classification.
 
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
+import 'package:kivixa/services/ai/chat_attachment_service.dart';
+import 'package:kivixa/services/ai/chat_context_service.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/mcp_service.dart';
 import 'package:kivixa/services/ai/model_router.dart';
+import 'package:kivixa/services/plugins/plugin_service.dart';
 
 /// Tool execution status for messages
 enum ToolStatus {
@@ -44,6 +45,7 @@ class MCPChatMessage extends AIChatMessage {
   MCPChatMessage({
     required super.role,
     required super.content,
+    super.attachments,
     super.timestamp,
     super.isLoading,
     this.toolStatus = ToolStatus.none,
@@ -55,6 +57,7 @@ class MCPChatMessage extends AIChatMessage {
   MCPChatMessage copyWith({
     String? role,
     String? content,
+    List<ChatAttachment>? attachments,
     DateTime? timestamp,
     bool? isLoading,
     ToolStatus? toolStatus,
@@ -64,6 +67,7 @@ class MCPChatMessage extends AIChatMessage {
     return MCPChatMessage(
       role: role ?? this.role,
       content: content ?? this.content,
+      attachments: attachments ?? this.attachments,
       timestamp: timestamp ?? this.timestamp,
       isLoading: isLoading ?? this.isLoading,
       toolStatus: toolStatus ?? this.toolStatus,
@@ -78,6 +82,7 @@ class MCPChatController extends ChangeNotifier {
   final InferenceService _inferenceService;
   final MCPService _mcpService;
   final ModelRouterService _modelRouter;
+  final ChatContextGateway _contextGateway;
   final List<MCPChatMessage> _messages = [];
 
   var _isGenerating = false;
@@ -94,11 +99,13 @@ class MCPChatController extends ChangeNotifier {
     InferenceService? inferenceService,
     MCPService? mcpService,
     ModelRouterService? modelRouter,
+    ChatContextGateway? contextGateway,
     String? systemPrompt,
     String? browseDirectory,
   }) : _inferenceService = inferenceService ?? InferenceService(),
        _mcpService = mcpService ?? MCPService.instance,
        _modelRouter = modelRouter ?? ModelRouterService.instance,
+       _contextGateway = contextGateway ?? const NotesActivityContextGateway(),
        _systemPrompt = systemPrompt,
        _browseDirectory = browseDirectory {
     _initialize();
@@ -135,6 +142,8 @@ class MCPChatController extends ChangeNotifier {
 
     try {
       await _inferenceService.initialize();
+
+      _mcpService.setPluginExecutor(const _PluginScriptExecutorBridge());
 
       // Initialize MCP if browse directory is set
       if (_browseDirectory != null && _browseDirectory!.isNotEmpty) {
@@ -231,7 +240,11 @@ class MCPChatController extends ChangeNotifier {
   }
 
   /// Send a message and get AI response with MCP tool support
-  Future<void> sendMessage(String content, {BuildContext? context}) async {
+  Future<void> sendMessage(
+    String content, {
+    BuildContext? context,
+    List<ChatAttachment> attachments = const [],
+  }) async {
     if (content.trim().isEmpty) return;
     if (_isGenerating) return;
 
@@ -239,7 +252,13 @@ class MCPChatController extends ChangeNotifier {
     await _analyzeAndPrepareModel(content);
 
     // Add user message
-    _messages.add(MCPChatMessage(role: 'user', content: content.trim()));
+    _messages.add(
+      MCPChatMessage(
+        role: 'user',
+        content: content.trim(),
+        attachments: attachments,
+      ),
+    );
     notifyListeners();
 
     // Add loading assistant message
@@ -255,6 +274,15 @@ class MCPChatController extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final directToolCall = _isMcpEnabled
+          ? _mcpService.parseUserDirectedToolCall(content)
+          : null;
+      if (directToolCall != null) {
+        // ignore: use_build_context_synchronously
+        await _executeToolCallFlow(directToolCall, context: context);
+        return;
+      }
+
       // Build conversation history
       final chatMessages = <ChatMessage>[];
 
@@ -262,6 +290,11 @@ class MCPChatController extends ChangeNotifier {
       final systemPrompt = _buildMcpSystemPrompt();
       if (systemPrompt.isNotEmpty) {
         chatMessages.add(ChatMessage.system(systemPrompt));
+      }
+
+      final activityContext = await _contextGateway.buildContextSnapshot();
+      if (activityContext.trim().isNotEmpty) {
+        chatMessages.add(ChatMessage.system(activityContext));
       }
 
       // Add conversation history (excluding loading message)
@@ -277,55 +310,9 @@ class MCPChatController extends ChangeNotifier {
       // Check if response contains a tool call
       final toolCall = _tryParseToolCall(response);
 
-      if (toolCall != null && context != null && _isMcpEnabled) {
-        // Update message to show pending tool execution
-        _updateLastMessage(
-          MCPChatMessage(
-            role: 'assistant',
-            content: 'I\'d like to ${toolCall.displayDescription}',
-            toolStatus: ToolStatus.pendingConfirmation,
-            toolCall: toolCall,
-          ),
-        );
-
-        // Execute tool with confirmation
-        final result = await _mcpService.executeWithConfirmation(
-          // ignore: use_build_context_synchronously
-          context,
-          toolCall,
-        );
-
-        if (result.success) {
-          _updateLastMessage(
-            MCPChatMessage(
-              role: 'assistant',
-              content: _formatToolResult(toolCall, result),
-              toolStatus: ToolStatus.completed,
-              toolCall: toolCall,
-              toolResult: result,
-            ),
-          );
-        } else if (result.userCancelled) {
-          _updateLastMessage(
-            MCPChatMessage(
-              role: 'assistant',
-              content: 'Tool execution was cancelled.',
-              toolStatus: ToolStatus.cancelled,
-              toolCall: toolCall,
-              toolResult: result,
-            ),
-          );
-        } else {
-          _updateLastMessage(
-            MCPChatMessage(
-              role: 'assistant',
-              content: 'Tool execution failed: ${result.result}',
-              toolStatus: ToolStatus.failed,
-              toolCall: toolCall,
-              toolResult: result,
-            ),
-          );
-        }
+      if (toolCall != null && _isMcpEnabled) {
+        // ignore: use_build_context_synchronously
+        await _executeToolCallFlow(toolCall, context: context);
       } else {
         // Normal response without tool
         _updateLastMessage(
@@ -353,32 +340,68 @@ class MCPChatController extends ChangeNotifier {
   /// Try to parse a tool call from AI response
   PendingToolCall? _tryParseToolCall(String response) {
     if (!_isMcpEnabled || !_mcpService.isInitialized) return null;
+    return _mcpService.parseToolCallFromText(response);
+  }
 
-    try {
-      // Look for JSON in response
-      final jsonPattern = RegExp(r'\{[^{}]*"tool"[^{}]*\}', multiLine: true);
-      final match = jsonPattern.firstMatch(response);
+  Future<void> _executeToolCallFlow(
+    PendingToolCall toolCall, {
+    BuildContext? context,
+  }) async {
+    _updateLastMessage(
+      MCPChatMessage(
+        role: 'assistant',
+        content: 'I\'d like to ${toolCall.displayDescription}',
+        toolStatus: ToolStatus.pendingConfirmation,
+        toolCall: toolCall,
+      ),
+    );
 
-      if (match != null) {
-        final jsonStr = match.group(0)!;
-        final parsed = jsonDecode(jsonStr) as Map<String, dynamic>;
-
-        if (parsed.containsKey('tool')) {
-          final tool = parsed['tool'] as String;
-          final params = (parsed['parameters'] as Map<String, dynamic>?) ?? {};
-
-          return PendingToolCall(
-            tool: tool,
-            parameters: params,
-            description: 'Execute $tool',
-          );
-        }
-      }
-    } catch (e) {
-      debugPrint('Failed to parse tool call: $e');
+    late final MCPExecutionResult result;
+    if (context != null) {
+      final pendingResult = _mcpService.executeWithConfirmation(
+        context,
+        toolCall,
+      );
+      result = await pendingResult;
+    } else {
+      result = await _mcpService.executeDirectly(toolCall);
     }
 
-    return null;
+    if (result.success) {
+      _updateLastMessage(
+        MCPChatMessage(
+          role: 'assistant',
+          content: _formatToolResult(toolCall, result),
+          toolStatus: ToolStatus.completed,
+          toolCall: toolCall,
+          toolResult: result,
+        ),
+      );
+      return;
+    }
+
+    if (result.userCancelled) {
+      _updateLastMessage(
+        MCPChatMessage(
+          role: 'assistant',
+          content: 'Tool execution was cancelled.',
+          toolStatus: ToolStatus.cancelled,
+          toolCall: toolCall,
+          toolResult: result,
+        ),
+      );
+      return;
+    }
+
+    _updateLastMessage(
+      MCPChatMessage(
+        role: 'assistant',
+        content: 'Tool execution failed: ${result.result}',
+        toolStatus: ToolStatus.failed,
+        toolCall: toolCall,
+        toolResult: result,
+      ),
+    );
   }
 
   /// Format tool execution result for display
@@ -446,6 +469,10 @@ class MCPChatController extends ChangeNotifier {
     notifyListeners();
   }
 
+  String exportConversationAsJson({String sessionType = 'mcp-chat'}) {
+    return buildChatConversationExportJson(_messages, sessionType: sessionType);
+  }
+
   /// Remove the last message
   void removeLastMessage() {
     if (_messages.isNotEmpty) {
@@ -458,13 +485,13 @@ class MCPChatController extends ChangeNotifier {
   Future<void> retryLastMessage({BuildContext? context}) async {
     if (_messages.isEmpty) return;
 
-    String? lastUserMessage;
+    MCPChatMessage? lastUserMessage;
     int removeCount = 0;
 
     for (int i = _messages.length - 1; i >= 0; i--) {
       removeCount++;
       if (_messages[i].isUser) {
-        lastUserMessage = _messages[i].content;
+        lastUserMessage = _messages[i];
         break;
       }
     }
@@ -475,7 +502,11 @@ class MCPChatController extends ChangeNotifier {
       }
       notifyListeners();
 
-      await sendMessage(lastUserMessage, context: context);
+      await sendMessage(
+        lastUserMessage.content,
+        context: context,
+        attachments: lastUserMessage.attachments,
+      );
     }
   }
 
@@ -498,6 +529,24 @@ class MCPChatController extends ChangeNotifier {
   void dispose() {
     _messages.clear();
     super.dispose();
+  }
+}
+
+class _PluginScriptExecutorBridge implements PluginScriptExecutor {
+  const _PluginScriptExecutorBridge();
+
+  @override
+  Future<PluginScriptResult> executeScript(String script) async {
+    final result = await PluginService.instance.runScript(
+      script,
+      name: 'MCP Tool Script',
+    );
+
+    return PluginScriptResult(
+      success: result.success,
+      output: result.success ? result.message : null,
+      error: result.success ? null : result.message,
+    );
   }
 }
 

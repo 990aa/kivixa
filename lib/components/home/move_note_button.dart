@@ -5,6 +5,7 @@ import 'package:kivixa/components/theming/adaptive_alert_dialog.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
+import 'package:kivixa/services/folder_color_service.dart';
 
 class MoveNoteButton extends StatelessWidget {
   const MoveNoteButton({
@@ -199,11 +200,30 @@ class _MoveNoteDialogState extends State<_MoveNoteDialog> {
                           ) ??
                           false;
                     },
-                    renameFolder: (String oldName, String newName) async {
-                      final oldPath = '$currentFolder$oldName';
-                      await FileManager.renameDirectory(oldPath, newName);
-                      findChildrenOfCurrentFolder();
-                    },
+                    renameFolder:
+                        (
+                          String oldName,
+                          String newName, {
+                          Color? color,
+                          bool colorChanged = false,
+                        }) async {
+                          final oldPath = '$currentFolder$oldName';
+                          final newPath = '$currentFolder$newName';
+                          await FileManager.renameDirectory(oldPath, newName);
+
+                          await FolderColorService.instance.renameFolder(
+                            oldPath,
+                            newPath,
+                          );
+                          if (colorChanged) {
+                            await FolderColorService.instance.setColor(
+                              newPath,
+                              color,
+                            );
+                          }
+
+                          findChildrenOfCurrentFolder();
+                        },
                     isFolderEmpty: (String folderName) async {
                       final folderPath = '$currentFolder$folderName';
                       final children = await FileManager.getChildrenOfDirectory(

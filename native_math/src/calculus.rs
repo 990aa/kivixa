@@ -417,9 +417,9 @@ pub fn taylor_coefficients(
     coeffs
 }
 
-// ============================================================================
+
 // Partial Differentiation
-// ============================================================================
+
 
 /// Evaluate expression with multiple variables
 fn eval_with_vars(expr: &str, vars: &BTreeMap<String, f64>) -> Result<f64, String> {
@@ -608,9 +608,9 @@ pub fn gradient(expression: &str, variables: &[&str], point: Vec<(&str, f64)>) -
         .collect()
 }
 
-// ============================================================================
+
 // Multiple Integration
-// ============================================================================
+
 
 /// Double integral using iterated Simpson's rule
 /// ∫∫ f(x,y) dx dy over [x_min, x_max] × [y_min, y_max]
