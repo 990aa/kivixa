@@ -26,6 +26,7 @@
 <details>
 <summary>Scan QR Code to add F-Droid repo</summary>
 <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://990aa.github.io/kivixa/repo" alt="F-Droid Repo QR Code" width="200">
+
 *Scan with F-Droid app to auto-add the repository*
 </details>
 
