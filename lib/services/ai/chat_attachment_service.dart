@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
@@ -45,7 +46,7 @@ class ChatAttachment {
 }
 
 class ChatAttachmentService {
-  static const int _maxBytesToRead = 256 * 1024;
+  static const _maxBytesToRead = 256 * 1024;
   static const _maxTextChars = 6000;
   static const _maxBinaryPreviewBytes = 1024;
 
@@ -124,12 +125,12 @@ class ChatAttachmentService {
 
   static Future<ChatAttachment?> fromFilePath(String filePath) async {
     final file = File(filePath);
-    if (!await file.exists()) {
+    if (!file.existsSync()) {
       return null;
     }
 
     final fileName = path.basename(filePath);
-    final sizeBytes = await file.length();
+    final sizeBytes = file.lengthSync();
     final mediaType = _inferMediaType(fileName);
     final extension = path
         .extension(fileName)
