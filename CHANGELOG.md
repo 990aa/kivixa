@@ -97,13 +97,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Calendar Events**: Creating/deleting events now updates UI immediately
 
 ---
-## [0.1.4] - 2026-01-11
-
-### Changed
-- Minor UI updates and improvements across Browse and Editor sections
-- Enhanced settings page with improved layout
-
----
 ## [0.1.5] - 2026-01-18
 
 ### Added
@@ -201,13 +194,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Library Loading**: Native libraries now copied to all required directories for Flutter to detect them.
 
 ---
-## [0.1.7] - 2026-01-28
-
-### Fixed
-- Displaying handwritten notes in Android application
-- Copy AI Engine's .so files to proper destinations
-
----
 ## [0.1.8] - 2026-01-31
 
 ### Fixed
@@ -216,12 +202,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Android**: Fixed file browsing on Android 13+ devices using native file picker.
 - **Android**: Fixed system status bar color inconsistencies.
 - **Settings**: Fixed "Update available" message appearing even when the application is up to date.
-
----
-## [0.1.9] - 2026-01-31
-
-### Changed
-- Minor UI fixes
 
 ---
 ## [0.2.0] - 2026-01-31
@@ -361,12 +341,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed **Gemma 7B** from frontend model catalog and backend model metadata.
 
 ---
-## [0.3.1] - 2026-03-28
-
-### Changed
-- Fix model version names for model selection
-
----
 ## [0.3.2] - 2026-03-28
 
 ### Changed
@@ -377,44 +351,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.3.3] - 2026-03-29
 
-### Changed
-- Version bump to 0.3.3
-
 ### Fixed
 - Android release build failure caused by `SharedPreferencesPlugin` registration symbol mismatch in generated plugin registrant code.
 - Font Awesome icon type mismatches across pen/highlighter/pencil/shape-pen tools that broke release compilation.
 - Async context usage in AI chat model-switch menu flow (`use_build_context_synchronously`) by switching to state `mounted` checks.
 - Floating model switcher test warning for unused optional parameter in fake inference gateway.
-
----
-## [0.3.4] - 2026-03-29
-
-### Changed
-- Fixed iss installer
-
----
-## [0.3.5] - 2026-03-29
-
-### Changed
-- Version bump to 0.3.5
-
----
-## [0.3.6] - 2026-03-29
-
-### Changed
-- Version bump to 0.3.6
-
----
-## [0.3.7] - 2026-03-29
-
-### Changed
-- Version bump to 0.3.7
-
----
-## [0.3.8] - 2026-03-30
-
-### Changed
-- Apk size reduced
 
 ---
 ## [0.3.9] - 2026-03-30
@@ -428,17 +369,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed unused assets: `assets/images/home_page.svg` and `assets/icon/icon.bmp`.
 - Removed Atkinson Hyperlegible font assets and pubspec declarations.
-
----
-## [0.3.10] - 2026-04-03
-
-### Added
-- msix build for windows
-
-### Fixed
-- Markdown and text grey rendering
-- Windows browser load loop
-- Folder rename colour fixes
 
 ---
 ## [0.3.11] - 2026-04-03
