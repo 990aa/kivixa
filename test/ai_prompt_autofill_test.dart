@@ -110,6 +110,13 @@ class _FakeMcpChatController extends Fake implements MCPChatController {
   void dispose() {}
 }
 
+class _FakePluginExecutor implements PluginScriptExecutor {
+  @override
+  Future<PluginScriptResult> executeScript(String script) async {
+    return PluginScriptResult(success: true, output: 'sandbox-lua:$script');
+  }
+}
+
 void _emitPrefill(ValueNotifier<String?> notifier, String prompt) {
   notifier.value = null;
   notifier.value = prompt;
@@ -295,6 +302,7 @@ void main() {
         final mcpService = MCPService.instance;
         mcpService.resetForTests();
         await mcpService.initialize(sandboxDir.path);
+        mcpService.setPluginExecutor(_FakePluginExecutor());
 
         final createResult = await mcpService.executeDirectly(
           const PendingToolCall(
@@ -350,6 +358,14 @@ void main() {
           ...mainAiQuickActionPrompts.values,
           ...mcpToolPromptTemplates.values,
         ].map((prompt) => prompt.trim()).toList();
+
+        for (final entry in mcpToolPromptTemplates.entries) {
+          final parsed = mcpService.parseUserDirectedToolCall(entry.value);
+          expect(parsed, isNotNull, reason: 'Failed to parse ${entry.key}');
+
+          final execution = await mcpService.executeDirectly(parsed!);
+          expect(execution.success, isTrue, reason: 'Failed tool ${entry.key}');
+        }
 
         for (final prompt in prompts) {
           await aiController.sendMessage(prompt);

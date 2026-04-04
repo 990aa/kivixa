@@ -46,46 +46,50 @@ class _FakeMcpChatController extends Fake implements MCPChatController {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('MCP chat shows copy for user and assistant, plus retry for assistant', (
-    tester,
-  ) async {
-    final controller = _FakeMcpChatController([
-      MCPChatMessage(role: 'user', content: 'Use create_folder to create sandbox/tmp_folder.'),
-      MCPChatMessage(role: 'assistant', content: 'Done.'),
-    ]);
+  testWidgets(
+    'MCP chat shows copy for user and assistant, plus retry for assistant',
+    (tester) async {
+      final controller = _FakeMcpChatController([
+        MCPChatMessage(
+          role: 'user',
+          content: 'Use create_folder to create sandbox/tmp_folder.',
+        ),
+        MCPChatMessage(role: 'assistant', content: 'Done.'),
+      ]);
 
-    String? exportedPayload;
+      String? exportedPayload;
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Builder(
-          builder: (context) => Scaffold(
-            body: MCPChatInterface(
-              controller: controller,
-              context: context,
-              onExportChat: (payload) async {
-                exportedPayload = payload;
-              },
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: MCPChatInterface(
+                controller: controller,
+                context: context,
+                onExportChat: (payload) async {
+                  exportedPayload = payload;
+                },
+              ),
             ),
           ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    expect(find.byTooltip('Copy'), findsNWidgets(2));
-    expect(find.byTooltip('Retry'), findsOneWidget);
+      expect(find.byTooltip('Copy'), findsNWidgets(2));
+      expect(find.byTooltip('Retry'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Retry'));
-    await tester.pumpAndSettle();
-    expect(controller.retryCalled, isTrue);
+      await tester.tap(find.byTooltip('Retry'));
+      await tester.pumpAndSettle();
+      expect(controller.retryCalled, isTrue);
 
-    await tester.tap(find.byTooltip('Export chat as JSON'));
-    await tester.pumpAndSettle();
-    expect(exportedPayload, contains('mcp-chat'));
+      await tester.tap(find.byTooltip('Export chat as JSON'));
+      await tester.pumpAndSettle();
+      expect(exportedPayload, contains('mcp-chat'));
 
-    await tester.tap(find.byTooltip('Clear chat'));
-    await tester.pumpAndSettle();
-    expect(controller.clearCalled, isTrue);
-  });
+      await tester.tap(find.byTooltip('Clear chat'));
+      await tester.pumpAndSettle();
+      expect(controller.clearCalled, isTrue);
+    },
+  );
 }

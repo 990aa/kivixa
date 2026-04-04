@@ -85,7 +85,9 @@ void main() {
     expect(inference.chatRequests, isNotEmpty);
     final request = inference.chatRequests.last;
     expect(
-      request.any((msg) => msg.role == 'system' && msg.content.contains('CTX:')),
+      request.any(
+        (msg) => msg.role == 'system' && msg.content.contains('CTX:'),
+      ),
       isTrue,
     );
 

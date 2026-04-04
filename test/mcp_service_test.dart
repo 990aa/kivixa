@@ -459,7 +459,10 @@ Sure, I can do that.
       expect(parsed, isNotNull);
       expect(parsed!.tool, 'export_markdown');
       expect(parsed.parameters['path'], 'sandbox/export_demo.md');
-      expect((parsed.parameters['content'] as String), contains('# Export Demo'));
+      expect(
+        (parsed.parameters['content'] as String),
+        contains('# Export Demo'),
+      );
     });
 
     test('executes calendar_lua when plugin executor is configured', () async {
@@ -468,10 +471,7 @@ Sure, I can do that.
       final result = await service.executeDirectly(
         const PendingToolCall(
           tool: 'calendar_lua',
-          parameters: {
-            'script': 'return "ok"',
-            'description': 'calendar test',
-          },
+          parameters: {'script': 'return "ok"', 'description': 'calendar test'},
           description: 'calendar test',
         ),
       );
