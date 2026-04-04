@@ -529,7 +529,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
   var _draftBeforeHistory = '';
   var _isApplyingHistoryEntry = false;
 
-  List<String> get _userPromptHistory => widget.controller.messages
+  get _userPromptHistory => widget.controller.messages
       .where((message) => message.isUser)
       .map((message) => message.content)
       .where((content) => content.trim().isNotEmpty)
