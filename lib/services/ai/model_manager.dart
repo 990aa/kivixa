@@ -740,9 +740,27 @@ class ModelManager {
   }
 
   Set<String> _buildCandidateFileNames(AIModel model) {
-    final candidates = <String>{model.fileName, ...model.alternateFileNames};
+    final primaryAsset = model.primaryAsset;
+    final candidates = <String>{
+      primaryAsset.fileName,
+      ...primaryAsset.alternateFileNames,
+    };
 
-    final parsedUri = Uri.tryParse(model.url);
+    final parsedUri = Uri.tryParse(primaryAsset.url);
+    final uriName = parsedUri != null && parsedUri.pathSegments.isNotEmpty
+        ? Uri.decodeComponent(parsedUri.pathSegments.last)
+        : null;
+    if (uriName != null && uriName.isNotEmpty) {
+      candidates.add(uriName);
+    }
+
+    return candidates.where((f) => f.trim().isNotEmpty).toSet();
+  }
+
+  Set<String> _buildCandidateFileNamesForAsset(AIModelAsset asset) {
+    final candidates = <String>{asset.fileName, ...asset.alternateFileNames};
+
+    final parsedUri = Uri.tryParse(asset.url);
     final uriName = parsedUri != null && parsedUri.pathSegments.isNotEmpty
         ? Uri.decodeComponent(parsedUri.pathSegments.last)
         : null;
@@ -763,8 +781,18 @@ class ModelManager {
     AIModel model, {
     bool requireSizeThreshold = true,
   }) async {
+    return _findExistingAssetPath(
+      model.primaryAsset,
+      requireSizeThreshold: requireSizeThreshold,
+    );
+  }
+
+  Future<String?> _findExistingAssetPath(
+    AIModelAsset asset, {
+    bool requireSizeThreshold = true,
+  }) async {
     final dirs = await _getModelSearchDirectories();
-    final candidates = _buildCandidateFileNames(model);
+    final candidates = _buildCandidateFileNamesForAsset(asset);
     final normalizedCandidates = candidates.map((c) => c.toLowerCase()).toSet();
 
     Future<bool> isValidFile(File file) async {
@@ -773,7 +801,7 @@ class ModelManager {
       // ignore: avoid_slow_async_io
       final stat = await file.stat();
       if (!requireSizeThreshold) return true;
-      return stat.size >= model.sizeBytes * 0.9;
+      return stat.size >= asset.sizeBytes * 0.9;
     }
 
     for (final dir in dirs) {
@@ -811,7 +839,22 @@ class ModelManager {
     if (existingPath != null) return existingPath;
 
     final modelsDir = await getModelsDirectory();
-    return '${modelsDir.path}${Platform.pathSeparator}${model.fileName}';
+    return '${modelsDir.path}${Platform.pathSeparator}${model.primaryAsset.fileName}';
+  }
+
+  /// Returns the local path to the model's mmproj companion file, if it exists.
+  Future<String?> getModelMmprojPath([AIModel? model]) async {
+    model ??= defaultModel;
+    final mmprojAsset = model.downloadAssets.where((asset) {
+      return asset.id.toLowerCase().contains('mmproj') ||
+          asset.fileName.toLowerCase().contains('mmproj');
+    }).firstOrNull;
+
+    if (mmprojAsset == null) {
+      return null;
+    }
+
+    return _findExistingAssetPath(mmprojAsset);
   }
 
   /// Checks if a model exists locally
