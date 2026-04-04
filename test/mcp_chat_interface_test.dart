@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
 import 'package:kivixa/components/ai/mcp_chat_interface.dart';
+import 'package:kivixa/services/ai/chat_attachment_service.dart';
 
 class _FakeMcpChatController extends Fake implements MCPChatController {
   _FakeMcpChatController(List<MCPChatMessage> initialMessages)
@@ -10,6 +12,8 @@ class _FakeMcpChatController extends Fake implements MCPChatController {
   final List<MCPChatMessage> _messages;
   var clearCalled = false;
   var retryCalled = false;
+  String? lastSentContent;
+  List<ChatAttachment> lastSentAttachments = const <ChatAttachment>[];
 
   @override
   List<MCPChatMessage> get messages => List.unmodifiable(_messages);
@@ -24,7 +28,14 @@ class _FakeMcpChatController extends Fake implements MCPChatController {
   void removeListener(VoidCallback listener) {}
 
   @override
-  Future<void> sendMessage(String content, {BuildContext? context}) async {}
+  Future<void> sendMessage(
+    String content, {
+    BuildContext? context,
+    List<ChatAttachment> attachments = const <ChatAttachment>[],
+  }) async {
+    lastSentContent = content;
+    lastSentAttachments = List<ChatAttachment>.from(attachments);
+  }
 
   @override
   void clearMessages() {
@@ -92,4 +103,99 @@ void main() {
       expect(controller.clearCalled, isTrue);
     },
   );
+
+  testWidgets('MCP composer supports attachment add/remove and send payload', (
+    tester,
+  ) async {
+    final controller = _FakeMcpChatController(const []);
+
+    const attachment = ChatAttachment(
+      id: 'mcp-1',
+      filePath: '/tmp/notes.txt',
+      fileName: 'notes.txt',
+      sizeBytes: 96,
+      mediaType: 'text/plain',
+      extractedText: 'Attachment payload for MCP',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: MCPChatInterface(
+              controller: controller,
+              context: context,
+              onPickAttachments: () async => const [attachment],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Add attachments'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('notes.txt'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Remove attachment'));
+    await tester.pumpAndSettle();
+    expect(find.text('notes.txt'), findsNothing);
+
+    await tester.tap(find.byTooltip('Add attachments'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).first, 'Check attachment');
+    await tester.tap(find.byIcon(Icons.send).first);
+    await tester.pumpAndSettle();
+
+    expect(controller.lastSentContent, 'Check attachment');
+    expect(controller.lastSentAttachments.length, 1);
+    expect(controller.lastSentAttachments.first.fileName, 'notes.txt');
+  });
+
+  testWidgets('MCP composer navigates prompt history with arrow keys', (
+    tester,
+  ) async {
+    final controller = _FakeMcpChatController([
+      MCPChatMessage(role: 'user', content: 'prompt one'),
+      MCPChatMessage(role: 'assistant', content: 'answer one'),
+      MCPChatMessage(role: 'user', content: 'prompt two'),
+    ]);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: MCPChatInterface(controller: controller, context: context),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(TextField).first);
+    await tester.enterText(find.byType(TextField).first, 'draft prompt');
+
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowUp);
+    await tester.pump();
+
+    var field = tester.widget<TextField>(find.byType(TextField).first);
+    expect(field.controller?.text, 'prompt two');
+
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowUp);
+    await tester.pump();
+    field = tester.widget<TextField>(find.byType(TextField).first);
+    expect(field.controller?.text, 'prompt one');
+
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowDown);
+    await tester.pump();
+    field = tester.widget<TextField>(find.byType(TextField).first);
+    expect(field.controller?.text, 'prompt two');
+
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowDown);
+    await tester.pump();
+    field = tester.widget<TextField>(find.byType(TextField).first);
+    expect(field.controller?.text, 'draft prompt');
+  });
 }

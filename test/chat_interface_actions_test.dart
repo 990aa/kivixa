@@ -1,14 +1,17 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
+import 'package:kivixa/services/ai/chat_attachment_service.dart';
 import 'package:kivixa/services/ai/chat_context_service.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/model_manager.dart';
 
 class _FakeInferenceGateway implements ChatInferenceGateway {
   final chatRequests = <List<ChatMessage>>[];
+  String Function(List<ChatMessage>)? responseBuilder;
   var _isModelLoaded = false;
 
   @override
@@ -30,7 +33,7 @@ class _FakeInferenceGateway implements ChatInferenceGateway {
   @override
   Future<String> chat(List<ChatMessage> messages) async {
     chatRequests.add(List<ChatMessage>.from(messages));
-    return 'Assistant response';
+    return responseBuilder?.call(messages) ?? 'Assistant response';
   }
 }
 
@@ -93,6 +96,44 @@ void main() {
 
     controller.dispose();
   });
+
+  test(
+    'AIChatController injects attachment context into chat request',
+    () async {
+      final model = ModelManager.getModelById('phi4-mini-q4km')!;
+      final inference = _FakeInferenceGateway();
+      final controller = AIChatController(
+        inferenceGateway: inference,
+        modelGateway: _FakeModelGateway(model),
+        contextGateway: const _FakeContextGateway(''),
+        autoInitialize: false,
+      );
+      await controller.switchModel(model);
+
+      const attachment = ChatAttachment(
+        id: 'a1',
+        filePath: '/tmp/plan.txt',
+        fileName: 'plan.txt',
+        sizeBytes: 20,
+        mediaType: 'text/plain',
+        extractedText: 'Attachment context marker',
+      );
+
+      await controller.sendMessage(
+        'Use the attachment',
+        attachments: const [attachment],
+      );
+
+      expect(inference.chatRequests, isNotEmpty);
+      final userMessage = inference.chatRequests.last.lastWhere(
+        (message) => message.role == 'user',
+      );
+      expect(userMessage.content, contains('[Attached files]'));
+      expect(userMessage.content, contains('Attachment context marker'));
+
+      controller.dispose();
+    },
+  );
 
   group('AI chat interface actions', () {
     testWidgets('shows copy controls for user and assistant messages', (
@@ -159,6 +200,119 @@ void main() {
       final decoded = jsonDecode(exportedPayload!) as Map<String, dynamic>;
       expect(decoded['sessionType'], 'ai-chat');
       expect(decoded['messageCount'], 2);
+
+      controller.dispose();
+    });
+
+    testWidgets('supports composer attachment add/remove and send wiring', (
+      tester,
+    ) async {
+      final model = ModelManager.getModelById('phi4-mini-q4km')!;
+      final inference = _FakeInferenceGateway();
+      final controller = AIChatController(
+        inferenceGateway: inference,
+        modelGateway: _FakeModelGateway(model),
+        contextGateway: const _FakeContextGateway(''),
+        autoInitialize: false,
+      );
+      await controller.switchModel(model);
+
+      const attachment = ChatAttachment(
+        id: 'att-1',
+        filePath: '/tmp/spec.md',
+        fileName: 'spec.md',
+        sizeBytes: 128,
+        mediaType: 'text/plain',
+        extractedText: 'Attachment body',
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: AIChatInterface(
+              controller: controller,
+              showHeader: false,
+              onPickAttachments: () async => const [attachment],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Add attachments'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('spec.md'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Remove attachment'));
+      await tester.pumpAndSettle();
+      expect(find.text('spec.md'), findsNothing);
+
+      await tester.tap(find.byTooltip('Add attachments'));
+      await tester.pumpAndSettle();
+      expect(find.text('spec.md'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField).first, 'Use this file');
+      await tester.tap(find.byIcon(Icons.send).first);
+      await tester.pumpAndSettle();
+
+      expect(inference.chatRequests, isNotEmpty);
+      final sentUserMessage = inference.chatRequests.last.lastWhere(
+        (message) => message.role == 'user',
+      );
+      expect(sentUserMessage.content, contains('spec.md'));
+      expect(sentUserMessage.content, contains('Attachment body'));
+
+      expect(find.text('spec.md'), findsNothing);
+
+      controller.dispose();
+    });
+
+    testWidgets('navigates user prompt history with up and down arrows', (
+      tester,
+    ) async {
+      final model = ModelManager.getModelById('phi4-mini-q4km')!;
+      final controller = AIChatController(
+        inferenceGateway: _FakeInferenceGateway(),
+        modelGateway: _FakeModelGateway(model),
+        contextGateway: const _FakeContextGateway(''),
+        autoInitialize: false,
+      );
+      await controller.switchModel(model);
+      await controller.sendMessage('first prompt');
+      await controller.sendMessage('second prompt');
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: AIChatInterface(controller: controller, showHeader: false),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(TextField).first);
+      await tester.enterText(find.byType(TextField).first, 'draft text');
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pump();
+
+      var field = tester.widget<TextField>(find.byType(TextField).first);
+      expect(field.controller?.text, 'second prompt');
+
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pump();
+      field = tester.widget<TextField>(find.byType(TextField).first);
+      expect(field.controller?.text, 'first prompt');
+
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      field = tester.widget<TextField>(find.byType(TextField).first);
+      expect(field.controller?.text, 'second prompt');
+
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      field = tester.widget<TextField>(find.byType(TextField).first);
+      expect(field.controller?.text, 'draft text');
 
       controller.dispose();
     });
