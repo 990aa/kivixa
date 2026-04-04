@@ -606,14 +606,7 @@ fn chat_completion_with_vision(
             .map_err(|e| anyhow!("Failed to tokenize multimodal prompt: {}", e))?;
 
         let n_past = chunks
-            .eval_chunks(
-                &mtmd_ctx,
-                &ctx,
-                0,
-                0,
-                state.config.n_ctx as i32,
-                true,
-            )
+            .eval_chunks(&mtmd_ctx, &ctx, 0, 0, state.config.n_ctx as i32, true)
             .map_err(|e| anyhow!("Failed to evaluate multimodal chunks: {}", e))?;
 
         generate_from_context(state, &mut ctx, max_tokens, n_past.max(0) as usize)

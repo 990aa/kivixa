@@ -446,7 +446,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.5.0] - 2026-04-04
 
+### Added
+- **New On-Device Models**:
+  - Added **SmolLM3 3B** model option.
+  - Added **SmolVLM2 500M Video Instruct** as a merged multimodal card with GGUF + mmproj companion assets.
+- **Multimodal Native Inference Path**:
+  - Added image-attachment detection and multimodal prompt tokenization/evaluation via llama.cpp `mtmd` in native Rust inference.
+  - Added fallback to standard text generation when vision inference prerequisites are unavailable.
+- **Bundled Download Support**:
+  - Added aggregate progress/download state handling for multi-asset model cards (e.g., model + mmproj).
+- **Coverage Improvements**:
+  - Added/updated tests for markdown chat rendering, model metadata export assertions, MCP header behavior, and native vision parsing paths.
+
 ### Changed
-- Version bump to 0.5.0
+- **AI/MCP Chat UI**:
+  - Assistant and user messages now render markdown content in both standard AI chat and MCP chat.
+  - Reasoning panels now render markdown consistently.
+  - MCP mode now uses a unified top bar row for status/actions; duplicate header rendering removed.
+- **Chat Export Payloads**:
+  - Exported JSON now includes per-assistant-response model metadata (`modelName`, `modelId`).
+- **Model Download UX**:
+  - Download dialog can be dismissed while downloads continue in background.
+  - Added completion/failure notification wiring for background model downloads.
+- **Native Build Configuration**:
+  - Enabled `mtmd` support in Rust llama bindings and added missing vendored CMake entries for mtmd tool compilation.
+
+### Fixed
+- **Rust Test Stability**:
+  - Serialized MCP file-operation tests to avoid global-state races under parallel test execution.
+- **Rust Lint/Cleanliness**:
+  - Addressed strict clippy findings and conditional-feature warnings in native API/inference paths.
 
 ---

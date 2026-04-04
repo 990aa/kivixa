@@ -48,6 +48,8 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
   - **Qwen3.5 0.8B Distilled** - Fast lightweight option for low-memory devices
   - **DeepSeek R1 Distill Qwen 1.5B** - Compact reasoning model with strong math/code behavior
   - **SmolLM2 1.7B Instruct** - Fast compact instruct model for writing and lightweight coding
+  - **SmolLM3 3B** - Newer compact SmolLM generation with stronger general assistant quality
+  - **SmolVLM2 500M Video Instruct** - Compact vision-language model for image-aware prompting (GGUF + mmproj)
   - **Function Gemma 270M** - Ultra-fast, optimized for MCP tool calling (~180MB)
   - **Gemma 2B** - Google's efficient compact general-purpose model
   - **Gemma 3 4B IT** - Newer Gemma-family model with stronger balanced output quality
@@ -67,6 +69,7 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
 - **Smart Model Manager**
   - Automatic download with resume support for AI models
   - Background downloading - continues even when app is minimized
+  - Bundled asset downloads for multimodal models (model + mmproj companion files)
   - Progress tracking with speed and ETA display
   - GPU acceleration via Vulkan (Android/Windows/Linux) and Metal (macOS)
 
@@ -80,6 +83,8 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
   - **Prompt History Navigation** - Use Up/Down arrows in AI and MCP composers to cycle through your previous prompts (main chat and floating assistant)
   - **Attachment-Aware Composer** - Add multiple attachments with the `+` button, preview them above the composer, and remove any attachment before sending
   - **Attachment-Aware Responses** - On-device models receive attachment context (text extraction + binary metadata) for grounded responses
+  - **Markdown-Aware Chat Rendering** - AI and MCP messages render markdown in chat while preserving raw markdown for model input
+  - **Per-Response Model Metadata Export** - Exported chat JSON includes the model name/id that produced each assistant reply
 
 - **Knowledge Graph Visualization**
   - **Interactive Mind Mapping** - Create visual knowledge networks
@@ -634,11 +639,12 @@ Kivixa's on-device AI support is built on top of model work from the following o
 - **Alibaba Cloud (Qwen Team)** - Official creator of Qwen model family used by **Qwen2.5 3B**, **Qwen3.5 Distilled** variants, and DeepSeek distill base architecture
 - **Google (Gemma Team)** - Official creator of Gemma model family used by **Gemma 2B**, **Gemma 3 4B IT**, **TranslateGemma 4B IT**, and **Function Gemma** family
 - **DeepSeek-AI** - Official creator of the **DeepSeek-R1** reasoning family used for distill checkpoints
-- **Hugging Face TB (SmolLM Team)** - Official creator of **SmolLM2** model family
+- **Hugging Face TB (SmolLM Team)** - Official creator of **SmolLM2**, **SmolLM3**, and **SmolVLM2** model families
 - **Jackrong** - Distilled GGUF releases for:
   - Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled
   - Qwen3.5 2B Claude 4.6 Opus Reasoning Distilled
   - Qwen3.5 0.8B Claude 4.6 Opus Reasoning Distilled
+- **ggml-org (GGUF distribution credit)** - SmolLM3 3B and SmolVLM2 500M Video Instruct GGUF/mmproj distributions
 - **Unsloth (GGUF distribution credit)** - Function Gemma, Phi-4 Mini Reasoning, and selected DeepSeek-R1-Distill GGUF distributions
 - **bartowski (GGUF distribution credit)** - Phi-4 Mini, Gemma 3 4B IT, DeepSeek-R1-Distill-Qwen-1.5B, and SmolLM2-1.7B-Instruct GGUF distributions
 - **mradermacher (GGUF distribution credit)** - TranslateGemma 4B IT GGUF distribution

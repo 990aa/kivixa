@@ -14,9 +14,7 @@ use crate::inference::{self, InferenceConfig, ModelType};
 use crate::mcp;
 use crate::streaming::{self, NodePosition, ViewportUpdate};
 
-
 // Initialization
-
 
 /// Initialize an AI model from the given path (auto-detects model type)
 #[frb(sync)]
@@ -101,9 +99,7 @@ pub fn get_embedding_dimension() -> Result<usize> {
     inference::get_embedding_dimension()
 }
 
-
 // Text Generation
-
 
 /// Generate text completion from a prompt
 #[frb]
@@ -126,9 +122,7 @@ pub fn extract_topics(text: String, num_topics: Option<u32>) -> Result<Vec<Strin
     inference::extract_topics(text, num_topics)
 }
 
-
 // Embeddings
-
 
 /// Get embedding for text
 #[frb]
@@ -186,9 +180,7 @@ pub fn cosine_similarity(a: Vec<f32>, b: Vec<f32>) -> f32 {
     embeddings::cosine_similarity(&a, &b)
 }
 
-
 // Knowledge Graph
-
 
 /// Initialize the knowledge graph
 #[frb(sync)]
@@ -282,9 +274,7 @@ pub fn get_or_create_topic_hub(topic: String) -> Result<String> {
     graph::get_or_create_topic_hub(topic)
 }
 
-
 // Utility
-
 
 /// Simple health check
 #[frb(sync)]
@@ -298,9 +288,7 @@ pub fn get_version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
 
-
 // Streaming Graph (60fps viewport-culled simulation)
-
 
 /// Start the graph streaming simulation
 /// This runs physics simulation at 60fps and streams visible nodes
@@ -403,9 +391,7 @@ pub struct StreamGraphStats {
     pub visible_count: usize,
 }
 
-
 // AI Clustering & Semantic Edges
-
 
 pub use crate::clustering::{
     ClusterAssignment, ClusterInfo, ClusteringResult, SemanticEdge, SemanticEdgeResult,
@@ -478,9 +464,7 @@ pub struct KnowledgeGraphAnalysis {
     pub semantic_edges: SemanticEdgeResult,
 }
 
-
 // MCP (Model Context Protocol) - AI Tool Execution
-
 
 pub use crate::mcp::{
     MCPConfig, MCPParamType, MCPParameter, MCPTool, MCPToolCall, MCPToolResult, TaskCategory,
