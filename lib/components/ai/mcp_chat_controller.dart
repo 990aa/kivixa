@@ -342,10 +342,16 @@ class MCPChatController extends ChangeNotifier {
       ),
     );
 
-    // ignore: use_build_context_synchronously
-    final result = context != null
-        ? await _mcpService.executeWithConfirmation(context, toolCall)
-        : await _mcpService.executeDirectly(toolCall);
+    late final MCPExecutionResult result;
+    if (context != null) {
+      final pendingResult = _mcpService.executeWithConfirmation(
+        context,
+        toolCall,
+      );
+      result = await pendingResult;
+    } else {
+      result = await _mcpService.executeDirectly(toolCall);
+    }
 
     if (result.success) {
       _updateLastMessage(
