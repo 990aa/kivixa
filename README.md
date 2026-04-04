@@ -12,13 +12,13 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.9.0+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
-[![Version](https://img.shields.io/badge/Version-0.4.0%2B4000--beta-orange)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-0.4.1%2B4001--beta-orange)](CHANGELOG.md)
 
-[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.4.0%2B4000/Kivixa-Setup-0.4.0.exe)
+[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.4.1%2B4001/Kivixa-Setup-0.4.1.exe)
 
-[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.4.0%2B4000/Kivixa-Android-0.4.0-arm64.apk)
-[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.4.0%2B4000/Kivixa-Android-0.4.0-armv7.apk)
-[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.4.0%2B4000/Kivixa-Android-0.4.0-x86_64.apk)
+[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.4.1%2B4001/Kivixa-Android-0.4.1-arm64.apk)
+[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.4.1%2B4001/Kivixa-Android-0.4.1-armv7.apk)
+[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.4.1%2B4001/Kivixa-Android-0.4.1-x86_64.apk)
 
 **F-Droid Repository:**
 
