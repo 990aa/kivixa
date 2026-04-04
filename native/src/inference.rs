@@ -865,7 +865,7 @@ pub fn extract_topics(text: String, num_topics: Option<u32>) -> Result<Vec<Strin
     let response = chat_completion(messages, Some(100))?;
 
     // Parse JSON response
-    let topics: Vec<String> = serde_json::from_str(&response.trim()).map_err(|e| {
+    let topics: Vec<String> = serde_json::from_str(response.trim()).map_err(|e| {
         anyhow!(
             "Failed to parse topics JSON: {}. Response was: {}",
             e,

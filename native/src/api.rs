@@ -27,6 +27,7 @@ pub fn init_model(model_path: String) -> Result<()> {
 /// Initialize the model with custom configuration
 /// model_type: 0 = Phi4, 1 = Qwen, 2 = Functionary (auto-detected if not in range)
 #[frb]
+#[allow(clippy::too_many_arguments)]
 pub fn init_model_with_config(
     model_path: String,
     n_gpu_layers: u32,
