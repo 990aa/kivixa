@@ -860,14 +860,19 @@ class ModelManager {
   /// Checks if a model exists locally
   Future<bool> isModelDownloaded([AIModel? model]) async {
     model ??= defaultModel;
-    return await _findExistingModelPath(model) != null;
+    for (final asset in model.downloadAssets) {
+      if (await _findExistingAssetPath(asset) == null) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /// Get the size of a partially downloaded model (for resume info)
   Future<int> getPartialDownloadSize([AIModel? model]) async {
     model ??= defaultModel;
-    final existingPath = await _findExistingModelPath(
-      model,
+    final existingPath = await _findExistingAssetPath(
+      model.primaryAsset,
       requireSizeThreshold: false,
     );
     if (existingPath == null) return 0;
@@ -974,11 +979,16 @@ class ModelManager {
   Future<void> deleteModel([AIModel? model]) async {
     model ??= defaultModel;
     final directories = await _getModelSearchDirectories();
-    final candidates = _buildCandidateFileNames(model);
-    final normalizedCandidates = candidates.map((c) => c.toLowerCase()).toSet();
+    final allCandidates = <String>{};
+    for (final asset in model.downloadAssets) {
+      allCandidates.addAll(_buildCandidateFileNamesForAsset(asset));
+    }
+    final normalizedCandidates = allCandidates
+        .map((candidate) => candidate.toLowerCase())
+        .toSet();
 
     for (final dir in directories) {
-      for (final name in candidates) {
+      for (final name in allCandidates) {
         final file = File('${dir.path}${Platform.pathSeparator}$name');
         // ignore: avoid_slow_async_io
         if (await file.exists()) {
