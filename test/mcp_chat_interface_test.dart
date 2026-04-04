@@ -13,7 +13,7 @@ class _FakeMcpChatController extends Fake implements MCPChatController {
   var clearCalled = false;
   var retryCalled = false;
   String? lastSentContent;
-  List<ChatAttachment> lastSentAttachments = const <ChatAttachment>[];
+  var lastSentAttachments = const <ChatAttachment>[];
 
   @override
   List<MCPChatMessage> get messages => List.unmodifiable(_messages);

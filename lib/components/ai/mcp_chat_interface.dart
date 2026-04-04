@@ -36,7 +36,7 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
-  final List<ChatAttachment> _pendingAttachments = <ChatAttachment>[];
+  final _pendingAttachments = <ChatAttachment>[];
 
   int? _historyCursor;
   var _draftBeforeHistory = '';

@@ -523,7 +523,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
   final _textController = TextEditingController();
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
-  final List<ChatAttachment> _pendingAttachments = <ChatAttachment>[];
+  final _pendingAttachments = <ChatAttachment>[];
 
   int? _historyCursor;
   var _draftBeforeHistory = '';
@@ -1076,7 +1076,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                       const prompt = 'Summarize my recent notes';
                       _textController
                         ..text = prompt
-                        ..selection = TextSelection.collapsed(
+                        ..selection = const TextSelection.collapsed(
                           offset: prompt.length,
                         );
                       _focusNode.requestFocus();
@@ -1088,7 +1088,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                       const prompt = 'What topics are related to ';
                       _textController
                         ..text = prompt
-                        ..selection = TextSelection.collapsed(
+                        ..selection = const TextSelection.collapsed(
                           offset: prompt.length,
                         );
                       _focusNode.requestFocus();
@@ -1100,7 +1100,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                       const prompt = 'Help me write about ';
                       _textController
                         ..text = prompt
-                        ..selection = TextSelection.collapsed(
+                        ..selection = const TextSelection.collapsed(
                           offset: prompt.length,
                         );
                       _focusNode.requestFocus();

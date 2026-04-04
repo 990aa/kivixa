@@ -46,10 +46,10 @@ class ChatAttachment {
 
 class ChatAttachmentService {
   static const int _maxBytesToRead = 256 * 1024;
-  static const int _maxTextChars = 6000;
-  static const int _maxBinaryPreviewBytes = 1024;
+  static const _maxTextChars = 6000;
+  static const _maxBinaryPreviewBytes = 1024;
 
-  static const Set<String> _textExtensions = <String>{
+  static const _textExtensions = <String>{
     'txt',
     'md',
     'markdown',
