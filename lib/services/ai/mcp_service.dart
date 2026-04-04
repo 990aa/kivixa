@@ -540,10 +540,7 @@ class MCPService {
 
     tool ??= _tools
         .map((info) => info.name)
-        .firstWhere(
-          (name) => lower.contains(name),
-          orElse: () => '',
-        );
+        .firstWhere((name) => lower.contains(name), orElse: () => '');
 
     if (tool.isEmpty) {
       return null;
@@ -554,8 +551,8 @@ class MCPService {
         final path = _extractPathFromMessage(
           normalized,
           patterns: [
-            RegExp(r'(?:open|read|from)\s+["\']?([^"\'\s:]+)'),
-            RegExp(r'\b(read_file)\b.*?(["\']?[^"\'\s:]+)'),
+            RegExp(r'''(?:open|read|from)\s+["']?([^"'\s:]+)'''),
+            RegExp(r'''\b(read_file)\b.*?(["']?[^"'\s:]+)'''),
           ],
         );
         if (path == null) return null;
@@ -569,8 +566,8 @@ class MCPService {
         final path = _extractPathFromMessage(
           normalized,
           patterns: [
-            RegExp(r'(?:create|write|save)\s+["\']?([^"\'\s:]+)'),
-            RegExp(r'into\s+["\']?([^"\'\s:]+)'),
+            RegExp(r'''(?:create|write|save)\s+["']?([^"'\s:]+)'''),
+            RegExp(r'''into\s+["']?([^"'\s:]+)'''),
           ],
         );
         final content = _extractContentFromMessage(
@@ -587,9 +584,7 @@ class MCPService {
       case 'delete_file':
         final path = _extractPathFromMessage(
           normalized,
-          patterns: [
-            RegExp(r'(?:remove|delete)\s+["\']?([^"\'\s:]+)'),
-          ],
+          patterns: [RegExp(r'''(?:remove|delete)\s+["']?([^"'\s:]+)''')],
         );
         if (path == null) return null;
         return PendingToolCall(
@@ -602,8 +597,8 @@ class MCPService {
         final path = _extractPathFromMessage(
           normalized,
           patterns: [
-            RegExp(r'(?:create|make)\s+["\']?([^"\'\s:]+)'),
-            RegExp(r'folder\s+["\']?([^"\'\s:]+)'),
+            RegExp(r'''(?:create|make)\s+["']?([^"'\s:]+)'''),
+            RegExp(r'''folder\s+["']?([^"'\s:]+)'''),
           ],
         );
         if (path == null) return null;
@@ -616,9 +611,7 @@ class MCPService {
       case 'list_files':
         final path = _extractPathFromMessage(
           normalized,
-          patterns: [
-            RegExp(r'(?:under|in|inside)\s+["\']?([^"\'\s:]+)'),
-          ],
+          patterns: [RegExp(r'''(?:under|in|inside)\s+["']?([^"'\s:]+)''')],
         );
         final recursive =
             lower.contains('recursive') || lower.contains('recursively');
@@ -635,8 +628,8 @@ class MCPService {
         final path = _extractPathFromMessage(
           normalized,
           patterns: [
-            RegExp(r'(?:into|to)\s+["\']?([^"\'\s:]+)'),
-            RegExp(r'(?:export|save)\s+["\']?([^"\'\s:]+)'),
+            RegExp(r'''(?:into|to)\s+["']?([^"'\s:]+)'''),
+            RegExp(r'''(?:export|save)\s+["']?([^"'\s:]+)'''),
           ],
         );
         final content = _extractContentFromMessage(
@@ -654,8 +647,7 @@ class MCPService {
         return PendingToolCall(
           tool: tool,
           parameters: {
-            'script':
-                'return "Calendar request: ${_escapeForLua(normalized)}"',
+            'script': 'return "Calendar request: ${_escapeForLua(normalized)}"',
             'description': normalized,
           },
           description: normalized,
@@ -747,7 +739,7 @@ class MCPService {
 
     final cleaned = rawToken
         .trim()
-        .replaceAll(RegExp(r'^[`"\']+|[`"\']+$'), '')
+        .replaceAll(RegExp(r'''^[`"']+|[`"']+$'''), '')
         .replaceAll(RegExp(r'^[\(\[]+|[\)\]]+$'), '')
         .replaceAll(RegExp(r'[\.,;:]+$'), '');
 
@@ -897,7 +889,8 @@ class MCPService {
       );
     }
 
-    final script = toolCall.luaScript ?? toolCall.parameters['script'] as String?;
+    final script =
+        toolCall.luaScript ?? toolCall.parameters['script'] as String?;
     if (script == null || script.trim().isEmpty) {
       return MCPExecutionResult(
         success: false,
