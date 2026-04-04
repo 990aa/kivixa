@@ -441,6 +441,67 @@ class ModelManager {
       ],
     ),
 
+    // SmolLM3 3B - newer compact general model
+    AIModel(
+      id: 'smollm3-3b-q4km',
+      name: 'SmolLM3 3B',
+      shortDescription:
+          'New-generation compact model for strong general chat, writing, and code.',
+      description:
+          'SmolLM3 3B (GGUF by ggml-org) - updated SmolLM family model with '
+          'improved multilingual quality and robust day-to-day assistant behavior.',
+      recommendation:
+          'Choose this for a newer compact all-round model when you want better quality than older small LLMs.',
+      url:
+          'https://huggingface.co/ggml-org/SmolLM3-3B-GGUF/resolve/main/SmolLM3-Q4_K_M.gguf',
+      fileName: 'SmolLM3-Q4_K_M.gguf',
+      sizeBytes: 1915305312, // ~1.78 GB
+      categories: [
+        ModelCategory.general,
+        ModelCategory.writing,
+        ModelCategory.code,
+      ],
+      isReasoningModel: true,
+    ),
+
+    // SmolVLM2 500M - merged card (text model + mmproj)
+    AIModel(
+      id: 'smolvlm2-500m-video-instruct-q8',
+      name: 'SmolVLM2 500M Video Instruct',
+      shortDescription:
+          'Compact vision-language model for image-aware chat and multimodal notes.',
+      description:
+          'SmolVLM2 500M Video Instruct (GGUF + mmproj) delivered as a merged '
+          'model card so both required files download together for vision inference.',
+      recommendation:
+          'Pick this when you want local image understanding directly inside AI and MCP chats.',
+      url:
+          'https://huggingface.co/ggml-org/SmolVLM2-500M-Video-Instruct-GGUF/resolve/main/SmolVLM2-500M-Video-Instruct-Q8_0.gguf',
+      fileName: 'SmolVLM2-500M-Video-Instruct-Q8_0.gguf',
+      sizeBytes: 436808704, // primary model size; total shown via assets
+      assets: [
+        AIModelAsset(
+          id: 'model',
+          url:
+              'https://huggingface.co/ggml-org/SmolVLM2-500M-Video-Instruct-GGUF/resolve/main/SmolVLM2-500M-Video-Instruct-Q8_0.gguf',
+          fileName: 'SmolVLM2-500M-Video-Instruct-Q8_0.gguf',
+          sizeBytes: 436808704,
+        ),
+        AIModelAsset(
+          id: 'mmproj',
+          url:
+              'https://huggingface.co/ggml-org/SmolVLM2-500M-Video-Instruct-GGUF/resolve/main/mmproj-SmolVLM2-500M-Video-Instruct-Q8_0.gguf',
+          fileName: 'mmproj-SmolVLM2-500M-Video-Instruct-Q8_0.gguf',
+          sizeBytes: 108785184,
+        ),
+      ],
+      categories: [
+        ModelCategory.general,
+        ModelCategory.writing,
+      ],
+      supportsVision: true,
+    ),
+
     // Function Gemma 270M - Top choice for MCP/Tool calling
     AIModel(
       id: 'function-gemma-270m',
