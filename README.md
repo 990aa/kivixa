@@ -76,6 +76,9 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
   - **Question Answering** - Ask questions about your note content
   - **Title Suggestions** - AI-generated title recommendations
   - **MCP Chat Mode** - Toggle tool-enabled AI for file operations
+  - **Prompt History Navigation** - Use Up/Down arrows in AI and MCP composers to cycle through your previous prompts (main chat and floating assistant)
+  - **Attachment-Aware Composer** - Add multiple attachments with the `+` button, preview them above the composer, and remove any attachment before sending
+  - **Attachment-Aware Responses** - On-device models receive attachment context (text extraction + binary metadata) for grounded responses
 
 - **Knowledge Graph Visualization**
   - **Interactive Mind Mapping** - Create visual knowledge networks

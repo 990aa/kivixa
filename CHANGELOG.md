@@ -494,6 +494,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.15] - 2026-04-04
 
 ### Changed
-- Version bump to 0.3.15
+- AI and MCP chat composers now support prompt history recall with keyboard arrows:
+  - `Arrow Up` walks backward through previously sent user prompts.
+  - `Arrow Down` walks forward through prompt history and restores draft text at the end.
+  - Applies to both main chat pages and floating assistant chat/MCP windows.
+- AI and MCP chat composers now include a left-side `+` attachment action:
+  - Supports multi-file selection with all file types.
+  - Shows attachment preview chips above the composer before sending.
+  - Each attachment chip now has a remove (`x`) action.
+- Attachment context is now injected into model-bound user messages across AI and MCP controllers, including extracted text (when available) and binary metadata previews.
+- Chat export payloads now include attachment metadata for user prompts.
+
+### Added
+- Added shared attachment processing service (`ChatAttachmentService`) to normalize file metadata and build model-ready attachment context.
+- Added detailed regression coverage for:
+  - AI composer attachment add/remove/send behavior and prompt-history keyboard navigation.
+  - MCP composer attachment add/remove/send behavior and prompt-history keyboard navigation.
+  - Floating assistant integration path (AI and MCP) for attachment-capable composer availability.
+  - Attachment serialization/unit behavior and model payload injection.
 
 ---
