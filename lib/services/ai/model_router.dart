@@ -204,6 +204,11 @@ Prioritize practical, production-ready code and concise explanations.''';
       case 'smollm2-1.7b':
       case 'smollm2-1.7b-instruct':
       case 'smollm2-17b-instruct-q4km':
+      case 'smollm3':
+      case 'smollm3-3b':
+      case 'smollm3-3b-q4km':
+      case 'smolvlm2':
+      case 'smolvlm2-500m-video-instruct-q8':
       case 'translategemma':
       case 'translategemma-4b-it':
       case 'translategemma-4b-it-q4km':
