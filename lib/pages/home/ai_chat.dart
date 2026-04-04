@@ -350,7 +350,7 @@ class _AIChatPageState extends State<AIChatPage> {
   Widget _buildMcpChatInterface() {
     return Column(
       children: [
-        // MCP Status Bar
+        // Unified MCP top bar (status + actions)
         _buildMcpStatusBar(),
 
         // Chat Interface
@@ -358,6 +358,7 @@ class _AIChatPageState extends State<AIChatPage> {
           child: MCPChatInterface(
             controller: _mcpChatController!,
             context: context,
+            showHeader: false,
             promptPrefillListenable: _mcpPromptPrefill,
             emptyState: _buildMcpWelcomeWidget(),
           ),
@@ -372,6 +373,8 @@ class _AIChatPageState extends State<AIChatPage> {
     final colorScheme = theme.colorScheme;
     final mcpService = MCPService.instance;
     final modelRouter = ModelRouterService.instance;
+    final mcpController = _mcpChatController;
+    final hasMessages = mcpController != null && mcpController.messages.isNotEmpty;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -381,7 +384,18 @@ class _AIChatPageState extends State<AIChatPage> {
       ),
       child: Row(
         children: [
-          // MCP Mode indicator
+          Icon(Icons.smart_toy, color: colorScheme.primary, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            'Kivixa MCP Assistant',
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          // MCP mode indicator
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
@@ -393,7 +407,7 @@ class _AIChatPageState extends State<AIChatPage> {
               children: [
                 Icon(
                   Icons.build,
-                  size: 16,
+                  size: 14,
                   color: colorScheme.onPrimaryContainer,
                 ),
                 const SizedBox(width: 4),
@@ -437,6 +451,21 @@ class _AIChatPageState extends State<AIChatPage> {
           ),
 
           const Spacer(),
+
+          if (hasMessages)
+            IconButton(
+              icon: const Icon(Icons.file_download_outlined),
+              tooltip: 'Export chat as JSON',
+              onPressed: _exportMcpConversation,
+            ),
+          if (hasMessages)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              tooltip: 'Clear chat',
+              onPressed: () {
+                mcpController?.clearMessages();
+              },
+            ),
 
           // Disable MCP button
           IconButton(
