@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kivixa/pages/home/ai_chat.dart';
+import 'package:kivixa/services/ai/chat_attachment_service.dart';
 import 'package:kivixa/services/ai/chat_context_service.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/model_manager.dart';
@@ -145,31 +146,53 @@ ParsedReasoningContent parseReasoningContent(String rawContent) {
 class AIChatMessage {
   final String role;
   final String content;
+  final List<ChatAttachment> attachments;
   final DateTime timestamp;
   final bool isLoading;
 
   AIChatMessage({
     required this.role,
     required this.content,
+    List<ChatAttachment> attachments = const [],
     DateTime? timestamp,
     this.isLoading = false,
-  }) : timestamp = timestamp ?? DateTime.now();
+  }) : attachments = List.unmodifiable(attachments),
+       timestamp = timestamp ?? DateTime.now();
 
   bool get isUser => role == 'user';
   bool get isAssistant => role == 'assistant';
   bool get isSystem => role == 'system';
 
-  ChatMessage toChatMessage() => ChatMessage(role: role, content: content);
+  ChatMessage toChatMessage() =>
+      ChatMessage(role: role, content: _buildModelContent());
+
+  String _buildModelContent() {
+    if (!isUser || attachments.isEmpty) {
+      return content;
+    }
+
+    final attachmentContext = ChatAttachmentService.buildPromptContext(
+      attachments,
+    );
+
+    if (attachmentContext.isEmpty) {
+      return content;
+    }
+
+    return '$content\n\n$attachmentContext';
+  }
 
   AIChatMessage copyWith({
     String? role,
     String? content,
+    List<ChatAttachment>? attachments,
     DateTime? timestamp,
     bool? isLoading,
   }) {
     return AIChatMessage(
       role: role ?? this.role,
       content: content ?? this.content,
+      attachments: attachments ?? this.attachments,
       timestamp: timestamp ?? this.timestamp,
       isLoading: isLoading ?? this.isLoading,
     );
@@ -179,6 +202,10 @@ class AIChatMessage {
     'role': role,
     'content': content,
     'timestamp': timestamp.toIso8601String(),
+    if (attachments.isNotEmpty)
+      'attachments': attachments.map((attachment) => attachment.toJson()).toList(
+        growable: false,
+      ),
   };
 }
 
@@ -338,12 +365,21 @@ class AIChatController extends ChangeNotifier {
   }
 
   /// Add a user message and get AI response
-  Future<void> sendMessage(String content) async {
+  Future<void> sendMessage(
+    String content, {
+    List<ChatAttachment> attachments = const [],
+  }) async {
     if (content.trim().isEmpty) return;
     if (_isGenerating) return;
 
     // Add user message
-    _messages.add(AIChatMessage(role: 'user', content: content.trim()));
+    _messages.add(
+      AIChatMessage(
+        role: 'user',
+        content: content.trim(),
+        attachments: attachments,
+      ),
+    );
     notifyListeners();
 
     // Add loading assistant message
@@ -419,13 +455,13 @@ class AIChatController extends ChangeNotifier {
     if (_messages.isEmpty) return;
 
     // Find last user message
-    String? lastUserMessage;
+    AIChatMessage? lastUserMessage;
     int removeCount = 0;
 
     for (int i = _messages.length - 1; i >= 0; i--) {
       removeCount++;
       if (_messages[i].isUser) {
-        lastUserMessage = _messages[i].content;
+        lastUserMessage = _messages[i];
         break;
       }
     }
@@ -438,7 +474,10 @@ class AIChatController extends ChangeNotifier {
       notifyListeners();
 
       // Resend
-      await sendMessage(lastUserMessage);
+      await sendMessage(
+        lastUserMessage.content,
+        attachments: lastUserMessage.attachments,
+      );
     }
   }
 
@@ -459,6 +498,7 @@ class AIChatInterface extends StatefulWidget {
   final List<Widget>? headerActions;
   final ValueListenable<String?>? promptPrefillListenable;
   final Future<void> Function(String jsonPayload)? onExportChat;
+  final Future<List<ChatAttachment>> Function()? onPickAttachments;
 
   const AIChatInterface({
     super.key,
@@ -472,6 +512,7 @@ class AIChatInterface extends StatefulWidget {
     this.headerActions,
     this.promptPrefillListenable,
     this.onExportChat,
+    this.onPickAttachments,
   });
 
   @override
@@ -482,6 +523,98 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
   final _textController = TextEditingController();
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
+  final List<ChatAttachment> _pendingAttachments = <ChatAttachment>[];
+
+  int? _historyCursor;
+  var _draftBeforeHistory = '';
+  var _isApplyingHistoryEntry = false;
+
+  List<String> get _userPromptHistory => widget.controller.messages
+      .where((message) => message.isUser)
+      .map((message) => message.content)
+      .where((content) => content.trim().isNotEmpty)
+      .toList(growable: false);
+
+  void _onComposerTextChanged() {
+    if (_isApplyingHistoryEntry) {
+      return;
+    }
+
+    _historyCursor = null;
+    _draftBeforeHistory = '';
+  }
+
+  KeyEventResult _handleComposerKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent) {
+      return KeyEventResult.ignored;
+    }
+
+    final logicalKey = event.logicalKey;
+    final pressedKeys = HardwareKeyboard.instance.logicalKeysPressed;
+    final hasModifier =
+        pressedKeys.contains(LogicalKeyboardKey.altLeft) ||
+        pressedKeys.contains(LogicalKeyboardKey.altRight) ||
+        pressedKeys.contains(LogicalKeyboardKey.controlLeft) ||
+        pressedKeys.contains(LogicalKeyboardKey.controlRight) ||
+        pressedKeys.contains(LogicalKeyboardKey.metaLeft) ||
+        pressedKeys.contains(LogicalKeyboardKey.metaRight);
+
+    if (hasModifier) {
+      return KeyEventResult.ignored;
+    }
+
+    if (logicalKey == LogicalKeyboardKey.arrowUp) {
+      _navigatePromptHistory(moveUp: true);
+      return KeyEventResult.handled;
+    }
+
+    if (logicalKey == LogicalKeyboardKey.arrowDown && _historyCursor != null) {
+      _navigatePromptHistory(moveUp: false);
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
+  }
+
+  void _navigatePromptHistory({required bool moveUp}) {
+    final history = _userPromptHistory;
+    if (history.isEmpty) {
+      return;
+    }
+
+    if (moveUp) {
+      if (_historyCursor == null) {
+        _draftBeforeHistory = _textController.text;
+        _historyCursor = history.length - 1;
+      } else if (_historyCursor! > 0) {
+        _historyCursor = _historyCursor! - 1;
+      }
+
+      _applyHistoryEntry(history[_historyCursor!]);
+      return;
+    }
+
+    if (_historyCursor == null) {
+      return;
+    }
+
+    if (_historyCursor! < history.length - 1) {
+      _historyCursor = _historyCursor! + 1;
+      _applyHistoryEntry(history[_historyCursor!]);
+      return;
+    }
+
+    _historyCursor = null;
+    _applyHistoryEntry(_draftBeforeHistory);
+  }
+
+  void _applyHistoryEntry(String value) {
+    _isApplyingHistoryEntry = true;
+    _textController
+      ..text = value
+      ..selection = TextSelection.collapsed(offset: value.length);
+    _isApplyingHistoryEntry = false;
+  }
 
   void _onPromptPrefillChanged() {
     final prompt = widget.promptPrefillListenable?.value;
@@ -498,6 +631,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
     super.initState();
     widget.controller.addListener(_onControllerUpdate);
     widget.promptPrefillListenable?.addListener(_onPromptPrefillChanged);
+    _textController.addListener(_onComposerTextChanged);
   }
 
   @override
@@ -520,6 +654,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
   void dispose() {
     widget.controller.removeListener(_onControllerUpdate);
     widget.promptPrefillListenable?.removeListener(_onPromptPrefillChanged);
+    _textController.removeListener(_onComposerTextChanged);
     _textController.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
@@ -544,9 +679,73 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
     final text = _textController.text;
     if (text.trim().isEmpty) return;
 
+    final attachments = List<ChatAttachment>.from(_pendingAttachments);
+
     _textController.clear();
-    await widget.controller.sendMessage(text);
+    _historyCursor = null;
+    _draftBeforeHistory = '';
+    setState(() {
+      _pendingAttachments.clear();
+    });
+
+    await widget.controller.sendMessage(text, attachments: attachments);
     _focusNode.requestFocus();
+  }
+
+  Future<void> _pickAttachments() async {
+    try {
+      final pickedAttachments = widget.onPickAttachments != null
+          ? await widget.onPickAttachments!()
+          : await _pickAttachmentsFromFileSystem();
+
+      if (!mounted || pickedAttachments.isEmpty) {
+        return;
+      }
+
+      setState(() {
+        _pendingAttachments.addAll(pickedAttachments);
+      });
+      _focusNode.requestFocus();
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add attachments: $e')),
+      );
+    }
+  }
+
+  Future<List<ChatAttachment>> _pickAttachmentsFromFileSystem() async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.any,
+      withData: false,
+    );
+
+    if (result == null || result.files.isEmpty) {
+      return const <ChatAttachment>[];
+    }
+
+    final paths = result.files
+        .map((platformFile) => platformFile.path)
+        .whereType<String>()
+        .toList(growable: false);
+
+    if (paths.isEmpty) {
+      return const <ChatAttachment>[];
+    }
+
+    return ChatAttachmentService.fromFilePaths(paths);
+  }
+
+  void _removePendingAttachment(String attachmentId) {
+    setState(() {
+      _pendingAttachments.removeWhere(
+        (attachment) => attachment.id == attachmentId,
+      );
+    });
   }
 
   Future<void> _handleExportChat() async {
@@ -732,53 +931,95 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
             color: colorScheme.surface,
             border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: TextField(
-                  controller: _textController,
-                  focusNode: _focusNode,
-                  maxLines: isCompact ? 3 : 5,
-                  minLines: 1,
-                  style: isCompact ? theme.textTheme.bodySmall : null,
-                  textInputAction: TextInputAction.send,
-                  onSubmitted: (_) => _handleSubmit(),
-                  decoration: InputDecoration(
-                    hintText:
-                        widget.placeholder ??
-                        (isCompact ? 'Ask...' : 'Ask me anything...'),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(isCompact ? 16 : 24),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: isCompact ? 12 : 16,
-                      vertical: isCompact ? 8 : 12,
-                    ),
-                    isDense: isCompact,
-                  ),
-                ),
-              ),
-              SizedBox(width: isCompact ? 4 : 8),
-              SizedBox(
-                width: isCompact ? 36 : 56,
-                height: isCompact ? 36 : 56,
-                child: FloatingActionButton(
-                  onPressed: widget.controller.isGenerating
-                      ? null
-                      : _handleSubmit,
-                  elevation: 0,
-                  mini: isCompact,
-                  child: widget.controller.isGenerating
-                      ? SizedBox(
-                          width: isCompact ? 16 : 24,
-                          height: isCompact ? 16 : 24,
-                          child: const CircularProgressIndicator(
-                            strokeWidth: 2,
+              if (_pendingAttachments.isNotEmpty) ...[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    spacing: isCompact ? 6 : 8,
+                    runSpacing: isCompact ? 6 : 8,
+                    children: _pendingAttachments
+                        .map(
+                          (attachment) => _PendingAttachmentChip(
+                            key: ValueKey<String>(
+                              'ai-attachment-${attachment.id}',
+                            ),
+                            attachment: attachment,
+                            compact: isCompact,
+                            onRemove: () =>
+                                _removePendingAttachment(attachment.id),
                           ),
                         )
-                      : Icon(Icons.send, size: isCompact ? 18 : 24),
+                        .toList(growable: false),
+                  ),
                 ),
+                SizedBox(height: isCompact ? 6 : 10),
+              ],
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  IconButton(
+                    iconSize: isCompact ? 18 : 22,
+                    tooltip: 'Add attachments',
+                    onPressed: widget.controller.isGenerating
+                        ? null
+                        : _pickAttachments,
+                    icon: const Icon(Icons.add),
+                  ),
+                  SizedBox(width: isCompact ? 2 : 4),
+                  Expanded(
+                    child: Focus(
+                      onKeyEvent: _handleComposerKeyEvent,
+                      child: TextField(
+                        controller: _textController,
+                        focusNode: _focusNode,
+                        maxLines: isCompact ? 3 : 5,
+                        minLines: 1,
+                        style: isCompact ? theme.textTheme.bodySmall : null,
+                        textInputAction: TextInputAction.send,
+                        onSubmitted: (_) => _handleSubmit(),
+                        decoration: InputDecoration(
+                          hintText:
+                              widget.placeholder ??
+                              (isCompact ? 'Ask...' : 'Ask me anything...'),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              isCompact ? 16 : 24,
+                            ),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: isCompact ? 12 : 16,
+                            vertical: isCompact ? 8 : 12,
+                          ),
+                          isDense: isCompact,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: isCompact ? 4 : 8),
+                  SizedBox(
+                    width: isCompact ? 36 : 56,
+                    height: isCompact ? 36 : 56,
+                    child: FloatingActionButton(
+                      onPressed: widget.controller.isGenerating
+                          ? null
+                          : _handleSubmit,
+                      elevation: 0,
+                      mini: isCompact,
+                      child: widget.controller.isGenerating
+                          ? SizedBox(
+                              width: isCompact ? 16 : 24,
+                              height: isCompact ? 16 : 24,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Icon(Icons.send, size: isCompact ? 18 : 24),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -831,17 +1072,39 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                 children: [
                   _SuggestionChip(
                     label: 'Summarize my notes',
-                    onTap: () =>
-                        _textController.text = 'Summarize my recent notes',
+                    onTap: () {
+                      const prompt = 'Summarize my recent notes';
+                      _textController
+                        ..text = prompt
+                        ..selection = TextSelection.collapsed(
+                          offset: prompt.length,
+                        );
+                      _focusNode.requestFocus();
+                    },
                   ),
                   _SuggestionChip(
                     label: 'Find related topics',
-                    onTap: () =>
-                        _textController.text = 'What topics are related to ',
+                    onTap: () {
+                      const prompt = 'What topics are related to ';
+                      _textController
+                        ..text = prompt
+                        ..selection = TextSelection.collapsed(
+                          offset: prompt.length,
+                        );
+                      _focusNode.requestFocus();
+                    },
                   ),
                   _SuggestionChip(
                     label: 'Help me write',
-                    onTap: () => _textController.text = 'Help me write about ',
+                    onTap: () {
+                      const prompt = 'Help me write about ';
+                      _textController
+                        ..text = prompt
+                        ..selection = TextSelection.collapsed(
+                          offset: prompt.length,
+                        );
+                      _focusNode.requestFocus();
+                    },
                   ),
                 ],
               ),
@@ -858,6 +1121,85 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
       const SnackBar(
         content: Text('Copied to clipboard'),
         duration: Duration(seconds: 2),
+      ),
+    );
+  }
+}
+
+class _PendingAttachmentChip extends StatelessWidget {
+  const _PendingAttachmentChip({
+    super.key,
+    required this.attachment,
+    required this.onRemove,
+    required this.compact,
+  });
+
+  final ChatAttachment attachment;
+  final VoidCallback onRemove;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      width: compact ? 190 : 240,
+      padding: EdgeInsets.fromLTRB(compact ? 8 : 10, compact ? 8 : 10, 28, 8),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(compact ? 10 : 12),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.attach_file,
+                size: compact ? 14 : 16,
+                color: colorScheme.primary,
+              ),
+              SizedBox(width: compact ? 4 : 6),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      attachment.fileName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: (compact
+                              ? theme.textTheme.bodySmall
+                              : theme.textTheme.bodyMedium)
+                          ?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      ChatAttachmentService.formatSize(attachment.sizeBytes),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Positioned(
+            top: -6,
+            right: -6,
+            child: IconButton(
+              onPressed: onRemove,
+              icon: const Icon(Icons.close, size: 14),
+              tooltip: 'Remove attachment',
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+        ],
       ),
     );
   }

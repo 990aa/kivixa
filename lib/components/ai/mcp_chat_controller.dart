@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
+import 'package:kivixa/services/ai/chat_attachment_service.dart';
 import 'package:kivixa/services/ai/chat_context_service.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/mcp_service.dart';
@@ -44,6 +45,7 @@ class MCPChatMessage extends AIChatMessage {
   MCPChatMessage({
     required super.role,
     required super.content,
+    super.attachments,
     super.timestamp,
     super.isLoading,
     this.toolStatus = ToolStatus.none,
@@ -55,6 +57,7 @@ class MCPChatMessage extends AIChatMessage {
   MCPChatMessage copyWith({
     String? role,
     String? content,
+    List<ChatAttachment>? attachments,
     DateTime? timestamp,
     bool? isLoading,
     ToolStatus? toolStatus,
@@ -64,6 +67,7 @@ class MCPChatMessage extends AIChatMessage {
     return MCPChatMessage(
       role: role ?? this.role,
       content: content ?? this.content,
+      attachments: attachments ?? this.attachments,
       timestamp: timestamp ?? this.timestamp,
       isLoading: isLoading ?? this.isLoading,
       toolStatus: toolStatus ?? this.toolStatus,
@@ -236,7 +240,11 @@ class MCPChatController extends ChangeNotifier {
   }
 
   /// Send a message and get AI response with MCP tool support
-  Future<void> sendMessage(String content, {BuildContext? context}) async {
+  Future<void> sendMessage(
+    String content, {
+    BuildContext? context,
+    List<ChatAttachment> attachments = const [],
+  }) async {
     if (content.trim().isEmpty) return;
     if (_isGenerating) return;
 
@@ -244,7 +252,13 @@ class MCPChatController extends ChangeNotifier {
     await _analyzeAndPrepareModel(content);
 
     // Add user message
-    _messages.add(MCPChatMessage(role: 'user', content: content.trim()));
+    _messages.add(
+      MCPChatMessage(
+        role: 'user',
+        content: content.trim(),
+        attachments: attachments,
+      ),
+    );
     notifyListeners();
 
     // Add loading assistant message
@@ -471,13 +485,13 @@ class MCPChatController extends ChangeNotifier {
   Future<void> retryLastMessage({BuildContext? context}) async {
     if (_messages.isEmpty) return;
 
-    String? lastUserMessage;
+    MCPChatMessage? lastUserMessage;
     int removeCount = 0;
 
     for (int i = _messages.length - 1; i >= 0; i--) {
       removeCount++;
       if (_messages[i].isUser) {
-        lastUserMessage = _messages[i].content;
+        lastUserMessage = _messages[i];
         break;
       }
     }
@@ -488,7 +502,11 @@ class MCPChatController extends ChangeNotifier {
       }
       notifyListeners();
 
-      await sendMessage(lastUserMessage, context: context);
+      await sendMessage(
+        lastUserMessage.content,
+        context: context,
+        attachments: lastUserMessage.attachments,
+      );
     }
   }
 
