@@ -1,11 +1,11 @@
 {
   "repo": {
-    "timestamp": 1775272745000
+    "timestamp": 1775287232000
   },
   "packages": {
     "com.a990aa.kivixa": {
       "metadata": {
-        "lastUpdated": 1775272745000,
+        "lastUpdated": 1775287232000,
         "summary": {
           "en-US": "A privacy-first cross-platform productivity workspace for notes, sketching, plan"
         },
@@ -14,6 +14,174 @@
         }
       },
       "versions": {
+        "22523ea1fc5bf77fbe201d60fe6237806b1552b64d92fcda808c537a5292e0b0": {
+          "added": 1775287232000,
+          "file": {
+            "name": "/Kivixa-Android-0.4.1-x86_64.apk",
+            "sha256": "22523ea1fc5bf77fbe201d60fe6237806b1552b64d92fcda808c537a5292e0b0",
+            "size": 70119594
+          },
+          "manifest": {
+            "nativecode": [
+              "x86_64"
+            ],
+            "versionName": "0.4.1",
+            "versionCode": 40013,
+            "usesSdk": {
+              "minSdkVersion": 24,
+              "targetSdkVersion": 36
+            },
+            "signer": {
+              "sha256": [
+                "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512"
+              ]
+            },
+            "usesPermission": [
+              {
+                "name": "android.permission.INTERNET"
+              },
+              {
+                "name": "android.permission.WRITE_EXTERNAL_STORAGE"
+              },
+              {
+                "name": "android.permission.READ_EXTERNAL_STORAGE"
+              },
+              {
+                "name": "android.permission.POST_NOTIFICATIONS"
+              },
+              {
+                "name": "android.permission.WAKE_LOCK"
+              },
+              {
+                "name": "android.permission.ACCESS_NETWORK_STATE"
+              },
+              {
+                "name": "android.permission.RECEIVE_BOOT_COMPLETED"
+              },
+              {
+                "name": "android.permission.FOREGROUND_SERVICE"
+              },
+              {
+                "name": "android.permission.VIBRATE"
+              },
+              {
+                "name": "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+              }
+            ]
+          }
+        },
+        "2ef1729243d27c2d3b7cb721f214d61b377cf5b3f2c986fe09339a1033849896": {
+          "added": 1775287230000,
+          "file": {
+            "name": "/Kivixa-Android-0.4.1-arm64.apk",
+            "sha256": "2ef1729243d27c2d3b7cb721f214d61b377cf5b3f2c986fe09339a1033849896",
+            "size": 64101862
+          },
+          "manifest": {
+            "nativecode": [
+              "arm64-v8a"
+            ],
+            "versionName": "0.4.1",
+            "versionCode": 40012,
+            "usesSdk": {
+              "minSdkVersion": 24,
+              "targetSdkVersion": 36
+            },
+            "signer": {
+              "sha256": [
+                "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512"
+              ]
+            },
+            "usesPermission": [
+              {
+                "name": "android.permission.INTERNET"
+              },
+              {
+                "name": "android.permission.WRITE_EXTERNAL_STORAGE"
+              },
+              {
+                "name": "android.permission.READ_EXTERNAL_STORAGE"
+              },
+              {
+                "name": "android.permission.POST_NOTIFICATIONS"
+              },
+              {
+                "name": "android.permission.WAKE_LOCK"
+              },
+              {
+                "name": "android.permission.ACCESS_NETWORK_STATE"
+              },
+              {
+                "name": "android.permission.RECEIVE_BOOT_COMPLETED"
+              },
+              {
+                "name": "android.permission.FOREGROUND_SERVICE"
+              },
+              {
+                "name": "android.permission.VIBRATE"
+              },
+              {
+                "name": "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+              }
+            ]
+          }
+        },
+        "52270cc3c1a2f1bbfce0037cb03b4557354e41aeb0785d29fb67cf2c150d34f6": {
+          "added": 1775287231000,
+          "file": {
+            "name": "/Kivixa-Android-0.4.1-armv7.apk",
+            "sha256": "52270cc3c1a2f1bbfce0037cb03b4557354e41aeb0785d29fb67cf2c150d34f6",
+            "size": 57773430
+          },
+          "manifest": {
+            "nativecode": [
+              "armeabi-v7a"
+            ],
+            "versionName": "0.4.1",
+            "versionCode": 40011,
+            "usesSdk": {
+              "minSdkVersion": 24,
+              "targetSdkVersion": 36
+            },
+            "signer": {
+              "sha256": [
+                "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512"
+              ]
+            },
+            "usesPermission": [
+              {
+                "name": "android.permission.INTERNET"
+              },
+              {
+                "name": "android.permission.WRITE_EXTERNAL_STORAGE"
+              },
+              {
+                "name": "android.permission.READ_EXTERNAL_STORAGE"
+              },
+              {
+                "name": "android.permission.POST_NOTIFICATIONS"
+              },
+              {
+                "name": "android.permission.WAKE_LOCK"
+              },
+              {
+                "name": "android.permission.ACCESS_NETWORK_STATE"
+              },
+              {
+                "name": "android.permission.RECEIVE_BOOT_COMPLETED"
+              },
+              {
+                "name": "android.permission.FOREGROUND_SERVICE"
+              },
+              {
+                "name": "android.permission.VIBRATE"
+              },
+              {
+                "name": "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+              }
+            ]
+          }
+        },
         "6583debcd0d0830b11aefc25f04985eeaeae518247c94fcc61f76ff24d4f0394": {
           "added": 1775272745000,
           "file": {
