@@ -374,7 +374,8 @@ class _AIChatPageState extends State<AIChatPage> {
     final mcpService = MCPService.instance;
     final modelRouter = ModelRouterService.instance;
     final mcpController = _mcpChatController;
-    final hasMessages = mcpController != null && mcpController.messages.isNotEmpty;
+    final hasMessages =
+        mcpController != null && mcpController.messages.isNotEmpty;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -971,6 +972,9 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
   final _modelManager = ModelManager();
   List<AIModel> _availableModels = [];
   Set<String> _downloadedModelIds = {};
+  StreamSubscription<ModelDownloadProgress>? _downloadProgressSubscription;
+  String? _activeDownloadModelId;
+  var _didNotifyForActiveDownload = false;
   var _isLoading = false;
   String? _error;
   ModelCategory? _selectedCategory;
@@ -978,7 +982,64 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
   @override
   void initState() {
     super.initState();
+    _downloadProgressSubscription = _modelManager.progressStream.listen(
+      _onDownloadProgress,
+    );
     _loadAvailableModels();
+  }
+
+  @override
+  void dispose() {
+    _downloadProgressSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _onDownloadProgress(ModelDownloadProgress progress) {
+    if (!mounted) {
+      return;
+    }
+
+    if (_activeDownloadModelId == null) {
+      return;
+    }
+
+    if (progress.modelId != null && progress.modelId != _activeDownloadModelId) {
+      return;
+    }
+
+    if (_didNotifyForActiveDownload) {
+      return;
+    }
+
+    final activeModel = ModelManager.getModelById(_activeDownloadModelId!);
+    final modelName = activeModel?.name ?? 'Model';
+
+    if (progress.state == ModelDownloadState.completed) {
+      _didNotifyForActiveDownload = true;
+      _activeDownloadModelId = null;
+      unawaited(_loadAvailableModels());
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$modelName download completed'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
+    if (progress.state == ModelDownloadState.failed) {
+      _didNotifyForActiveDownload = true;
+      _activeDownloadModelId = null;
+
+      final errorText = progress.errorMessage ?? 'Download failed';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$modelName download failed: $errorText'),
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
   }
 
   Future<void> _loadAvailableModels() async {
@@ -1021,11 +1082,12 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
   }
 
   Future<void> _downloadModel(AIModel model) async {
+    _activeDownloadModelId = model.id;
+    _didNotifyForActiveDownload = false;
+
     await _modelManager.startDownload(model);
     if (mounted) {
       await _showDownloadProgressDialog(model);
-      // Refresh downloaded status
-      await _loadAvailableModels();
     }
   }
 
@@ -1087,7 +1149,7 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
   Future<void> _showDownloadProgressDialog(AIModel model) async {
     await showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (context) =>
           _DownloadProgressDialog(modelManager: _modelManager, model: model),
     );
@@ -1308,11 +1370,15 @@ class _DownloadProgressDialogState extends State<_DownloadProgressDialog> {
                 child: const Text('Retry'),
               ),
             TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Hide'),
+            ),
+            TextButton(
               onPressed: () {
                 widget.modelManager.cancelDownload();
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: const Text('Cancel Download'),
             ),
             if (progress.state == ModelDownloadState.completed)
               FilledButton(
