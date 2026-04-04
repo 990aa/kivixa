@@ -11,6 +11,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:kivixa/pages/home/ai_chat.dart';
 import 'package:kivixa/services/ai/chat_attachment_service.dart';
 import 'package:kivixa/services/ai/chat_context_service.dart';
@@ -147,6 +148,8 @@ class AIChatMessage {
   final String role;
   final String content;
   final List<ChatAttachment> attachments;
+  final String? modelName;
+  final String? modelId;
   final DateTime timestamp;
   final bool isLoading;
 
@@ -154,6 +157,8 @@ class AIChatMessage {
     required this.role,
     required this.content,
     List<ChatAttachment> attachments = const [],
+    this.modelName,
+    this.modelId,
     DateTime? timestamp,
     this.isLoading = false,
   }) : attachments = List.unmodifiable(attachments),
@@ -186,6 +191,8 @@ class AIChatMessage {
     String? role,
     String? content,
     List<ChatAttachment>? attachments,
+    String? modelName,
+    String? modelId,
     DateTime? timestamp,
     bool? isLoading,
   }) {
@@ -193,6 +200,8 @@ class AIChatMessage {
       role: role ?? this.role,
       content: content ?? this.content,
       attachments: attachments ?? this.attachments,
+      modelName: modelName ?? this.modelName,
+      modelId: modelId ?? this.modelId,
       timestamp: timestamp ?? this.timestamp,
       isLoading: isLoading ?? this.isLoading,
     );
@@ -201,6 +210,8 @@ class AIChatMessage {
   Map<String, dynamic> toExportJson() => {
     'role': role,
     'content': content,
+    if (modelName != null && modelName!.isNotEmpty) 'modelName': modelName,
+    if (modelId != null && modelId!.isNotEmpty) 'modelId': modelId,
     'timestamp': timestamp.toIso8601String(),
     if (attachments.isNotEmpty)
       'attachments': attachments
@@ -390,6 +401,9 @@ class AIChatController extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final currentModelName = _loadedModel?.name ?? 'Unknown model';
+      final currentModelId = _loadedModel?.id;
+
       // Build conversation history
       final chatMessages = <ChatMessage>[];
 
@@ -419,6 +433,8 @@ class AIChatController extends ChangeNotifier {
         _messages[loadingIndex] = AIChatMessage(
           role: 'assistant',
           content: response,
+          modelName: currentModelName,
+          modelId: currentModelId,
         );
       }
     } catch (e) {
@@ -428,6 +444,8 @@ class AIChatController extends ChangeNotifier {
         _messages[loadingIndex] = AIChatMessage(
           role: 'assistant',
           content: 'Error: ${e.toString()}',
+          modelName: _loadedModel?.name ?? 'Unknown model',
+          modelId: _loadedModel?.id,
         );
       }
     } finally {
@@ -1127,6 +1145,52 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
   }
 }
 
+/// Reusable markdown renderer for chat bubbles.
+class ChatMarkdownView extends StatelessWidget {
+  const ChatMarkdownView({
+    super.key,
+    required this.data,
+    required this.textColor,
+    this.compact = false,
+  });
+
+  final String data;
+  final Color textColor;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final baseTextStyle = compact
+        ? theme.textTheme.bodySmall
+        : theme.textTheme.bodyMedium;
+
+    final styleSheet = MarkdownStyleSheet.fromTheme(theme).copyWith(
+      p: baseTextStyle?.copyWith(color: textColor),
+      listBullet: baseTextStyle?.copyWith(color: textColor),
+      code: baseTextStyle?.copyWith(
+        color: textColor,
+        fontFamily: 'FiraMono',
+      ),
+      codeblockPadding: const EdgeInsets.all(8),
+      codeblockDecoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      a: baseTextStyle?.copyWith(
+        color: theme.colorScheme.primary,
+        decoration: TextDecoration.underline,
+      ),
+    );
+
+    return MarkdownBody(
+      data: data,
+      selectable: true,
+      styleSheet: styleSheet,
+    );
+  }
+}
+
 class _PendingAttachmentChip extends StatelessWidget {
   const _PendingAttachmentChip({
     super.key,
@@ -1307,14 +1371,12 @@ class _ChatMessageBubble extends StatelessWidget {
                       ),
                     if (parsedContent == null ||
                         parsedContent.visibleContent.isNotEmpty)
-                      SelectableText(
-                        parsedContent?.visibleContent ?? message.content,
-                        style: TextStyle(
-                          color: isUser
-                              ? colorScheme.onPrimaryContainer
-                              : colorScheme.onSurface,
-                          fontSize: compact ? 13 : null,
-                        ),
+                      ChatMarkdownView(
+                        data: parsedContent?.visibleContent ?? message.content,
+                        textColor: isUser
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onSurface,
+                        compact: compact,
                       ),
                   ],
                   if (!message.isLoading &&
@@ -1423,11 +1485,10 @@ class _ReasoningPanel extends StatelessWidget {
           children: [
             Align(
               alignment: Alignment.centerLeft,
-              child: SelectableText(
-                reasoningContent,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurface,
-                ),
+              child: ChatMarkdownView(
+                data: reasoningContent,
+                textColor: colorScheme.onSurface,
+                compact: compact,
               ),
             ),
           ],
