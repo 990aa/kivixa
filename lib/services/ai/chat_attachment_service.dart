@@ -27,7 +27,8 @@ class ChatAttachment {
   final String? binaryPreviewBase64;
   final bool isTruncated;
 
-  bool get hasExtractedText => extractedText != null && extractedText!.isNotEmpty;
+  bool get hasExtractedText =>
+      extractedText != null && extractedText!.isNotEmpty;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
     'id': id,
@@ -130,9 +131,12 @@ class ChatAttachmentService {
     final fileName = path.basename(filePath);
     final sizeBytes = await file.length();
     final mediaType = _inferMediaType(fileName);
-    final extension = path.extension(fileName).toLowerCase().replaceFirst('.', '');
-    final likelyText = _textExtensions.contains(extension) ||
-        mediaType.startsWith('text/');
+    final extension = path
+        .extension(fileName)
+        .toLowerCase()
+        .replaceFirst('.', '');
+    final likelyText =
+        _textExtensions.contains(extension) || mediaType.startsWith('text/');
 
     final bytesToRead = math.min(sizeBytes, _maxBytesToRead);
     final headBytes = await _readFileHead(file, bytesToRead);

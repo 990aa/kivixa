@@ -227,9 +227,9 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add attachments: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to add attachments: $e')));
     }
   }
 
@@ -454,8 +454,9 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.send),
-                    onPressed:
-                        widget.controller.isGenerating ? null : _sendMessage,
+                    onPressed: widget.controller.isGenerating
+                        ? null
+                        : _sendMessage,
                   ),
                 ],
               ),

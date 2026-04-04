@@ -203,9 +203,9 @@ class AIChatMessage {
     'content': content,
     'timestamp': timestamp.toIso8601String(),
     if (attachments.isNotEmpty)
-      'attachments': attachments.map((attachment) => attachment.toJson()).toList(
-        growable: false,
-      ),
+      'attachments': attachments
+          .map((attachment) => attachment.toJson())
+          .toList(growable: false),
   };
 }
 
@@ -711,9 +711,9 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add attachments: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to add attachments: $e')));
     }
   }
 
@@ -1170,10 +1170,11 @@ class _PendingAttachmentChip extends StatelessWidget {
                       attachment.fileName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: (compact
-                              ? theme.textTheme.bodySmall
-                              : theme.textTheme.bodyMedium)
-                          ?.copyWith(fontWeight: FontWeight.w600),
+                      style:
+                          (compact
+                                  ? theme.textTheme.bodySmall
+                                  : theme.textTheme.bodyMedium)
+                              ?.copyWith(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 2),
                     Text(
