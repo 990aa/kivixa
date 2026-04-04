@@ -688,9 +688,10 @@ class ModelManager {
     final isDownloaded = await isModelDownloaded();
     if (isDownloaded) {
       _updateProgress(
-        const ModelDownloadProgress(
+        ModelDownloadProgress(
           state: ModelDownloadState.completed,
           progress: 1.0,
+          modelId: defaultModel.id,
         ),
       );
     }
