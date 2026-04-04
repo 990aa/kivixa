@@ -491,3 +491,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Flutter Rust Bridge codegen version alignment for Rust modules.
 
 ---
+## [0.3.15] - 2026-04-04
+
+### Changed
+- Version bump to 0.3.15
+
+---
