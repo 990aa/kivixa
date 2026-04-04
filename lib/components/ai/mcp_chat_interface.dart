@@ -12,6 +12,8 @@ class MCPChatInterface extends StatefulWidget {
   final MCPChatController controller;
   final BuildContext context;
   final Widget? emptyState;
+  final bool showHeader;
+  final String title;
   final ValueListenable<String?>? promptPrefillListenable;
   final VoidCallback? onClear;
   final Future<void> Function(String jsonPayload)? onExportChat;
@@ -22,6 +24,8 @@ class MCPChatInterface extends StatefulWidget {
     required this.controller,
     required this.context,
     this.emptyState,
+    this.showHeader = true,
+    this.title = 'Kivixa MCP Assistant',
     this.promptPrefillListenable,
     this.onClear,
     this.onExportChat,
@@ -318,43 +322,44 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
 
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest,
-            border: Border(
-              bottom: BorderSide(color: colorScheme.outlineVariant),
+        if (widget.showHeader)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest,
+              border: Border(
+                bottom: BorderSide(color: colorScheme.outlineVariant),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.smart_toy, color: colorScheme.primary, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  widget.title,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                if (messages.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.file_download_outlined),
+                    tooltip: 'Export chat as JSON',
+                    onPressed: _handleExportChat,
+                  ),
+                if (messages.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline),
+                    tooltip: 'Clear chat',
+                    onPressed: () {
+                      widget.controller.clearMessages();
+                      widget.onClear?.call();
+                    },
+                  ),
+              ],
             ),
           ),
-          child: Row(
-            children: [
-              Icon(Icons.smart_toy, color: colorScheme.primary, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                'Kivixa MCP Assistant',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              if (messages.isNotEmpty)
-                IconButton(
-                  icon: const Icon(Icons.file_download_outlined),
-                  tooltip: 'Export chat as JSON',
-                  onPressed: _handleExportChat,
-                ),
-              if (messages.isNotEmpty)
-                IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  tooltip: 'Clear chat',
-                  onPressed: () {
-                    widget.controller.clearMessages();
-                    widget.onClear?.call();
-                  },
-                ),
-            ],
-          ),
-        ),
         // Messages list
         Expanded(
           child: messages.isEmpty && widget.emptyState != null
@@ -534,13 +539,11 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
                       ),
                     if (parsedContent == null ||
                         parsedContent.visibleContent.isNotEmpty)
-                      SelectableText(
-                        parsedContent?.visibleContent ?? message.content,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: isUser
-                              ? colorScheme.onPrimaryContainer
-                              : colorScheme.onSurface,
-                        ),
+                      ChatMarkdownView(
+                        data: parsedContent?.visibleContent ?? message.content,
+                        textColor: isUser
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onSurface,
                       ),
                   ],
 
@@ -812,11 +815,10 @@ class _McpReasoningPanel extends StatelessWidget {
           children: [
             Align(
               alignment: Alignment.centerLeft,
-              child: SelectableText(
-                reasoningContent,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurface,
-                ),
+              child: ChatMarkdownView(
+                data: reasoningContent,
+                textColor: colorScheme.onSurface,
+                compact: true,
               ),
             ),
           ],
