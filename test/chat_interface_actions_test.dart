@@ -293,23 +293,23 @@ void main() {
 
       await tester.tap(find.byType(TextField).first);
       await tester.enterText(find.byType(TextField).first, 'draft text');
-      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowUp);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
       await tester.pump();
 
       var field = tester.widget<TextField>(find.byType(TextField).first);
       expect(field.controller?.text, 'second prompt');
 
-      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowUp);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
       await tester.pump();
       field = tester.widget<TextField>(find.byType(TextField).first);
       expect(field.controller?.text, 'first prompt');
 
-      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.pump();
       field = tester.widget<TextField>(find.byType(TextField).first);
       expect(field.controller?.text, 'second prompt');
 
-      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.pump();
       field = tester.widget<TextField>(find.byType(TextField).first);
       expect(field.controller?.text, 'draft text');
