@@ -264,6 +264,7 @@ class MCPChatController extends ChangeNotifier {
           ? _mcpService.parseUserDirectedToolCall(content)
           : null;
       if (directToolCall != null) {
+        // ignore: use_build_context_synchronously
         await _executeToolCallFlow(directToolCall, context: context);
         return;
       }
@@ -296,6 +297,7 @@ class MCPChatController extends ChangeNotifier {
       final toolCall = _tryParseToolCall(response);
 
       if (toolCall != null && _isMcpEnabled) {
+        // ignore: use_build_context_synchronously
         await _executeToolCallFlow(toolCall, context: context);
       } else {
         // Normal response without tool
@@ -340,6 +342,7 @@ class MCPChatController extends ChangeNotifier {
       ),
     );
 
+    // ignore: use_build_context_synchronously
     final result = context != null
         ? await _mcpService.executeWithConfirmation(context, toolCall)
         : await _mcpService.executeDirectly(toolCall);
