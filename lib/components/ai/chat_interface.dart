@@ -4,11 +4,15 @@
 // Supports conversation history, markdown rendering, and streaming responses.
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:kivixa/pages/home/ai_chat.dart';
+import 'package:kivixa/services/ai/chat_context_service.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/model_manager.dart';
 
@@ -170,12 +174,40 @@ class AIChatMessage {
       isLoading: isLoading ?? this.isLoading,
     );
   }
+
+  Map<String, dynamic> toExportJson() => {
+    'role': role,
+    'content': content,
+    'timestamp': timestamp.toIso8601String(),
+  };
+}
+
+String buildChatConversationExportJson(
+  List<AIChatMessage> messages, {
+  required String sessionType,
+}) {
+  final exportMessages = messages
+      .where((message) => !message.isLoading)
+      .where((message) => message.role == 'user' || message.role == 'assistant')
+      .map((message) => message.toExportJson())
+      .toList(growable: false);
+
+  final payload = <String, dynamic>{
+    'schemaVersion': 1,
+    'sessionType': sessionType,
+    'exportedAt': DateTime.now().toIso8601String(),
+    'messageCount': exportMessages.length,
+    'messages': exportMessages,
+  };
+
+  return const JsonEncoder.withIndent('  ').convert(payload);
 }
 
 /// Controller for managing chat state
 class AIChatController extends ChangeNotifier {
   final ChatInferenceGateway _inferenceGateway;
   final ChatModelGateway _modelGateway;
+  final ChatContextGateway _contextGateway;
   final List<AIChatMessage> _messages = [];
   var _isGenerating = false;
   var _isInitializing = false;
@@ -189,6 +221,7 @@ class AIChatController extends ChangeNotifier {
     ModelManager? modelManager,
     ChatInferenceGateway? inferenceGateway,
     ChatModelGateway? modelGateway,
+    ChatContextGateway? contextGateway,
     String? systemPrompt,
     bool autoInitialize = true,
   }) : _inferenceGateway =
@@ -196,6 +229,7 @@ class AIChatController extends ChangeNotifier {
            _InferenceServiceGateway(inferenceService ?? InferenceService()),
        _modelGateway =
            modelGateway ?? _ModelManagerGateway(modelManager ?? ModelManager()),
+       _contextGateway = contextGateway ?? const NotesActivityContextGateway(),
        _systemPrompt = systemPrompt {
     if (autoInitialize) {
       unawaited(_initializeModel());
@@ -328,6 +362,11 @@ class AIChatController extends ChangeNotifier {
         chatMessages.add(ChatMessage.system(_systemPrompt!));
       }
 
+      final activityContext = await _contextGateway.buildContextSnapshot();
+      if (activityContext.trim().isNotEmpty) {
+        chatMessages.add(ChatMessage.system(activityContext));
+      }
+
       // Add conversation history
       for (final msg in _messages) {
         if (!msg.isLoading) {
@@ -402,6 +441,10 @@ class AIChatController extends ChangeNotifier {
       await sendMessage(lastUserMessage);
     }
   }
+
+  String exportConversationAsJson({String sessionType = 'ai-chat'}) {
+    return buildChatConversationExportJson(_messages, sessionType: sessionType);
+  }
 }
 
 /// The main chat interface widget
@@ -415,6 +458,7 @@ class AIChatInterface extends StatefulWidget {
   final bool compact;
   final List<Widget>? headerActions;
   final ValueListenable<String?>? promptPrefillListenable;
+  final Future<void> Function(String jsonPayload)? onExportChat;
 
   const AIChatInterface({
     super.key,
@@ -427,6 +471,7 @@ class AIChatInterface extends StatefulWidget {
     this.compact = false,
     this.headerActions,
     this.promptPrefillListenable,
+    this.onExportChat,
   });
 
   @override
@@ -502,6 +547,48 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
     _textController.clear();
     await widget.controller.sendMessage(text);
     _focusNode.requestFocus();
+  }
+
+  Future<void> _handleExportChat() async {
+    final jsonPayload = widget.controller.exportConversationAsJson();
+
+    if (widget.onExportChat != null) {
+      await widget.onExportChat!(jsonPayload);
+      return;
+    }
+
+    try {
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export Chat as JSON',
+        fileName:
+            'kivixa_ai_chat_${DateTime.now().millisecondsSinceEpoch}.json',
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null) {
+        return;
+      }
+
+      final outputFile = File(result);
+      await outputFile.writeAsString(jsonPayload);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Chat exported as JSON'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to export chat: $e'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   @override
@@ -591,6 +678,13 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                   ),
                 // Custom header actions
                 if (widget.headerActions != null) ...widget.headerActions!,
+                if (widget.controller.messages.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.file_download_outlined),
+                    iconSize: isCompact ? 18 : 24,
+                    onPressed: _handleExportChat,
+                    tooltip: 'Export chat as JSON',
+                  ),
                 if (widget.controller.messages.isNotEmpty)
                   IconButton(
                     icon: const Icon(Icons.delete_outline),
@@ -879,7 +973,8 @@ class _ChatMessageBubble extends StatelessWidget {
                         ),
                       ),
                   ],
-                  if (!message.isLoading && !isUser) ...[
+                  if (!message.isLoading &&
+                      (onCopy != null || onRetry != null)) ...[
                     SizedBox(height: compact ? 4 : 8),
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -896,16 +991,20 @@ class _ChatMessageBubble extends StatelessWidget {
                             ),
                           ),
                         if (onRetry != null)
-                          IconButton(
-                            icon: Icon(Icons.refresh, size: compact ? 12 : 16),
-                            onPressed: onRetry,
-                            tooltip: 'Retry',
-                            padding: EdgeInsets.zero,
-                            constraints: BoxConstraints(
-                              minWidth: compact ? 24 : 32,
-                              minHeight: compact ? 24 : 32,
+                          if (!isUser)
+                            IconButton(
+                              icon: Icon(
+                                Icons.refresh,
+                                size: compact ? 12 : 16,
+                              ),
+                              onPressed: onRetry,
+                              tooltip: 'Retry',
+                              padding: EdgeInsets.zero,
+                              constraints: BoxConstraints(
+                                minWidth: compact ? 24 : 32,
+                                minHeight: compact ? 24 : 32,
+                              ),
                             ),
-                          ),
                       ],
                     ),
                   ],
