@@ -647,8 +647,14 @@ class ModelManager {
 
   ModelDownloadProgress get currentProgress => _currentProgress;
 
-  /// Active download task (if any)
-  DownloadTask? _activeTask;
+  /// Active download tasks for the current model download session.
+  final Map<String, DownloadTask> _activeTasks = <String, DownloadTask>{};
+  final Map<String, int> _taskSizes = <String, int>{};
+  final Map<String, double> _taskProgress = <String, double>{};
+  final Set<String> _taskPaused = <String>{};
+  final Set<String> _taskCompleted = <String>{};
+  AIModel? _activeDownloadModel;
+  double? _latestNetworkSpeed;
 
   /// Flag to track if manager is initialized
   var _isInitialized = false;
