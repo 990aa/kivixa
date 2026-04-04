@@ -1,6 +1,6 @@
 {
   "repo": {
-    "timestamp": 1775287232000,
+    "timestamp": 1775295322000,
     "version": 20002,
     "name": "My First F-Droid Repo Demo",
     "icon": "icon.png",
@@ -21,7 +21,7 @@
       "name": "kivixa",
       "added": 1769565174000,
       "packageName": "com.a990aa.kivixa",
-      "lastUpdated": 1775287232000,
+      "lastUpdated": 1775295322000,
       "localized": {
         "en-US": {
           "description": "Kivixa is a privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance..\n\nFeatures:\n- Rich markdown and text editing for fast note-taking\n- Digital canvas for handwriting, drawing, and mixed media notes\n- On-device AI with multi-model MCP workflows (no cloud required)\n- Knowledge graph view to connect ideas and topics visually\n- PDF reading and annotation inside the same workspace\n- Focus tools including Pomodoro and custom productivity timers\n- High-performance math tools powered by a Rust backend\n",
@@ -32,6 +32,183 @@
   ],
   "packages": {
     "com.a990aa.kivixa": [
+      {
+        "added": 1775295322000,
+        "apkName": "Kivixa-Android-0.5.0-x86_64.apk",
+        "hash": "e93c40431ba655a8c928e1fc8de557f72b16aad42bd968b5f7ffa0e2536c1647",
+        "hashType": "sha256",
+        "minSdkVersion": 24,
+        "nativecode": [
+          "x86_64"
+        ],
+        "packageName": "com.a990aa.kivixa",
+        "sig": "4afe97afa2b0ea3f4a207c205fea0960",
+        "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
+        "size": 70774958,
+        "targetSdkVersion": 36,
+        "uses-permission": [
+          [
+            "android.permission.INTERNET",
+            null
+          ],
+          [
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            null
+          ],
+          [
+            "android.permission.READ_EXTERNAL_STORAGE",
+            null
+          ],
+          [
+            "android.permission.POST_NOTIFICATIONS",
+            null
+          ],
+          [
+            "android.permission.WAKE_LOCK",
+            null
+          ],
+          [
+            "android.permission.ACCESS_NETWORK_STATE",
+            null
+          ],
+          [
+            "android.permission.RECEIVE_BOOT_COMPLETED",
+            null
+          ],
+          [
+            "android.permission.FOREGROUND_SERVICE",
+            null
+          ],
+          [
+            "android.permission.VIBRATE",
+            null
+          ],
+          [
+            "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+            null
+          ]
+        ],
+        "versionCode": 50003,
+        "versionName": "0.5.0"
+      },
+      {
+        "added": 1775295321000,
+        "apkName": "Kivixa-Android-0.5.0-arm64.apk",
+        "hash": "ae00d87b404f74cacb1bec9bc5c621edadf8b5dd67482ee232029db53fac52e8",
+        "hashType": "sha256",
+        "minSdkVersion": 24,
+        "nativecode": [
+          "arm64-v8a"
+        ],
+        "packageName": "com.a990aa.kivixa",
+        "sig": "4afe97afa2b0ea3f4a207c205fea0960",
+        "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
+        "size": 64626154,
+        "targetSdkVersion": 36,
+        "uses-permission": [
+          [
+            "android.permission.INTERNET",
+            null
+          ],
+          [
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            null
+          ],
+          [
+            "android.permission.READ_EXTERNAL_STORAGE",
+            null
+          ],
+          [
+            "android.permission.POST_NOTIFICATIONS",
+            null
+          ],
+          [
+            "android.permission.WAKE_LOCK",
+            null
+          ],
+          [
+            "android.permission.ACCESS_NETWORK_STATE",
+            null
+          ],
+          [
+            "android.permission.RECEIVE_BOOT_COMPLETED",
+            null
+          ],
+          [
+            "android.permission.FOREGROUND_SERVICE",
+            null
+          ],
+          [
+            "android.permission.VIBRATE",
+            null
+          ],
+          [
+            "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+            null
+          ]
+        ],
+        "versionCode": 50002,
+        "versionName": "0.5.0"
+      },
+      {
+        "added": 1775295322000,
+        "apkName": "Kivixa-Android-0.5.0-armv7.apk",
+        "hash": "a54214c63b58a7d164fca3d0613717e4577f5b42eda5294ae9c06d58959e3cb9",
+        "hashType": "sha256",
+        "minSdkVersion": 24,
+        "nativecode": [
+          "armeabi-v7a"
+        ],
+        "packageName": "com.a990aa.kivixa",
+        "sig": "4afe97afa2b0ea3f4a207c205fea0960",
+        "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
+        "size": 58183034,
+        "targetSdkVersion": 36,
+        "uses-permission": [
+          [
+            "android.permission.INTERNET",
+            null
+          ],
+          [
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            null
+          ],
+          [
+            "android.permission.READ_EXTERNAL_STORAGE",
+            null
+          ],
+          [
+            "android.permission.POST_NOTIFICATIONS",
+            null
+          ],
+          [
+            "android.permission.WAKE_LOCK",
+            null
+          ],
+          [
+            "android.permission.ACCESS_NETWORK_STATE",
+            null
+          ],
+          [
+            "android.permission.RECEIVE_BOOT_COMPLETED",
+            null
+          ],
+          [
+            "android.permission.FOREGROUND_SERVICE",
+            null
+          ],
+          [
+            "android.permission.VIBRATE",
+            null
+          ],
+          [
+            "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+            null
+          ]
+        ],
+        "versionCode": 50001,
+        "versionName": "0.5.0"
+      },
       {
         "added": 1775287232000,
         "apkName": "Kivixa-Android-0.4.1-x86_64.apk",
