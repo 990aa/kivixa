@@ -6,6 +6,7 @@ import 'package:kivixa/components/ai/chat_interface.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
 import 'package:kivixa/components/ai/mcp_chat_interface.dart';
 import 'package:kivixa/pages/home/ai_chat.dart';
+import 'package:kivixa/services/ai/chat_attachment_service.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/mcp_service.dart';
 import 'package:kivixa/services/ai/model_manager.dart';
@@ -14,6 +15,7 @@ class _FakeInferenceGateway implements ChatInferenceGateway {
   final response = 'stubbed-response';
   final loadedModelPaths = <String>[];
   final chatRequests = <List<ChatMessage>>[];
+  String Function(List<ChatMessage>)? responseBuilder;
   var _modelLoaded = false;
 
   @override
@@ -36,7 +38,7 @@ class _FakeInferenceGateway implements ChatInferenceGateway {
   @override
   Future<String> chat(List<ChatMessage> messages) async {
     chatRequests.add(List<ChatMessage>.from(messages));
-    return response;
+    return responseBuilder?.call(messages) ?? response;
   }
 }
 
@@ -104,7 +106,11 @@ class _FakeMcpChatController extends Fake implements MCPChatController {
   void removeListener(VoidCallback listener) {}
 
   @override
-  Future<void> sendMessage(String content, {BuildContext? context}) async {}
+  Future<void> sendMessage(
+    String content, {
+    BuildContext? context,
+    List<ChatAttachment> attachments = const <ChatAttachment>[],
+  }) async {}
 
   @override
   void dispose() {}
@@ -281,6 +287,19 @@ void main() {
         expect(qwenModel, isNotNull);
 
         final fakeInference = _FakeInferenceGateway();
+        fakeInference.responseBuilder = (messages) {
+          final latestUser = messages.lastWhere(
+            (message) => message.role == 'user',
+            orElse: () => const ChatMessage(role: 'user', content: ''),
+          );
+
+          if (latestUser.content.contains('ATTACHMENT_MARKER_QWEN_08B')) {
+            return 'Attachment acknowledged: ATTACHMENT_MARKER_QWEN_08B';
+          }
+
+          return fakeInference.response;
+        };
+
         final fakeModelGateway = _FakeModelGateway(
           models: [qwenModel!],
           modelPaths: {qwenModel.id: '/sandbox/models/qwen35-0.8b.gguf'},
@@ -382,6 +401,40 @@ void main() {
         for (final prompt in prompts) {
           await aiController.sendMessage(prompt);
         }
+
+        final attachmentFile = File('${sandboxDir.path}/sandbox/attachment.txt');
+        await attachmentFile.parent.create(recursive: true);
+        await attachmentFile.writeAsString(
+          'ATTACHMENT_MARKER_QWEN_08B: this text must be used in response.',
+        );
+
+        final attachment = await ChatAttachmentService.fromFilePath(
+          attachmentFile.path,
+        );
+        expect(attachment, isNotNull);
+
+        await aiController.sendMessage(
+          'Please answer using the attached file.',
+          attachments: [attachment!],
+        );
+
+        final lastAssistantMessage = aiController.messages.lastWhere(
+          (message) => message.role == 'assistant',
+        );
+        expect(
+          lastAssistantMessage.content,
+          contains('ATTACHMENT_MARKER_QWEN_08B'),
+        );
+
+        final attachmentRequest = fakeInference.chatRequests.last;
+        final attachmentUserMessage = attachmentRequest.lastWhere(
+          (message) => message.role == 'user',
+        );
+        expect(attachmentUserMessage.content, contains('[Attached files]'));
+        expect(
+          attachmentUserMessage.content,
+          contains('ATTACHMENT_MARKER_QWEN_08B'),
+        );
 
         final sentUserMessages = aiController.messages
             .where((message) => message.role == 'user')
