@@ -4,6 +4,10 @@
 // Provides a full chat interface with context from the user's notes.
 // Supports MCP (Model Context Protocol) for tool execution.
 
+import 'dart:async';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
@@ -82,6 +86,7 @@ class AIChatPage extends StatefulWidget {
 class _AIChatPageState extends State<AIChatPage> {
   late AIChatController _chatController;
   MCPChatController? _mcpChatController;
+  VoidCallback? _mcpControllerListener;
   late ModelManager _modelManager;
   final _mainPromptPrefill = ValueNotifier<String?>(null);
   final _mcpPromptPrefill = ValueNotifier<String?>(null);
@@ -151,10 +156,14 @@ class _AIChatPageState extends State<AIChatPage> {
       // Get the browse directory (notes folder)
       final browseDir = FileManager.documentsDirectory;
 
+      _mcpChatController?.removeListener(_handleMcpControllerChanged);
+
       _mcpChatController = MCPChatController(
         systemPrompt: _buildMcpSystemPrompt(),
         browseDirectory: browseDir,
       );
+      _mcpControllerListener = _handleMcpControllerChanged;
+      _mcpChatController!.addListener(_mcpControllerListener!);
 
       // Set up model switch callback
       _mcpChatController!.onModelSwitchRequired = () {
@@ -252,10 +261,57 @@ class _AIChatPageState extends State<AIChatPage> {
   @override
   void dispose() {
     _chatController.dispose();
+    if (_mcpControllerListener != null) {
+      _mcpChatController?.removeListener(_mcpControllerListener!);
+    }
     _mcpChatController?.dispose();
     _mainPromptPrefill.dispose();
     _mcpPromptPrefill.dispose();
     super.dispose();
+  }
+
+  void _handleMcpControllerChanged() {
+    if (!mounted) return;
+    setState(() {});
+  }
+
+  Future<void> _exportMcpConversation() async {
+    final controller = _mcpChatController;
+    if (controller == null) return;
+
+    final jsonPayload = controller.exportConversationAsJson();
+
+    try {
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export MCP Chat as JSON',
+        fileName:
+            'kivixa_mcp_chat_${DateTime.now().millisecondsSinceEpoch}.json',
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null || !mounted) {
+        return;
+      }
+
+      await File(result).writeAsString(jsonPayload);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('MCP chat exported as JSON'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to export chat: $e'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   /// Toggle MCP mode on/off
