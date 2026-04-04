@@ -495,10 +495,7 @@ class ModelManager {
           sizeBytes: 108785184,
         ),
       ],
-      categories: [
-        ModelCategory.general,
-        ModelCategory.writing,
-      ],
+      categories: [ModelCategory.general, ModelCategory.writing],
       supportsVision: true,
     ),
 
