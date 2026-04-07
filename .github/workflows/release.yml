@@ -120,9 +120,7 @@ jobs:
           channel: 'stable'
           cache: true
 
-      # =========================================================================
       # RUST SETUP FOR ANDROID
-      # =========================================================================
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -274,9 +272,7 @@ jobs:
           ls -la android/app/src/main/jniLibs/armeabi-v7a/
           ls -la android/app/src/main/jniLibs/x86_64/
 
-      # =========================================================================
       # ANDROID BUILD
-      # =========================================================================
       - name: Decode Android Keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
@@ -391,9 +387,7 @@ jobs:
           $certBytes = [Convert]::FromBase64String("${{ secrets.WINDOWS_CERT_BASE64 }}")
           [IO.File]::WriteAllBytes("windows/certificate.pfx", $certBytes)
 
-      # =========================================================================
       # RUST SETUP FOR WINDOWS
-      # =========================================================================
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -439,18 +433,14 @@ jobs:
           Write-Host "kivixa_math.dll copied to all Windows locations"
           Get-ChildItem "build/windows/x64/runner/Release/*.dll"
 
-      # =========================================================================
       # WINDOWS BUILD
-      # =========================================================================
       - name: Get dependencies
         run: flutter pub get
 
       - name: Build Windows
         run: flutter build windows --release
 
-      # =========================================================================
       # MSIX BUILD STEP (Safe & Isolated)
-      # =========================================================================
       - name: Build and Sign MSIX
         id: build_msix
         continue-on-error: true # <--- PREVENTS WORKFLOW FAILURE IF MSIX FAILS
