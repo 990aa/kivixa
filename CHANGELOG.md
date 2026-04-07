@@ -331,7 +331,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added parser tests for reasoning/thinking extraction behavior
 
 ### Changed
-- Version bump to 0.3.0
 - Updated MCP code-generation model alias recommendation to Qwen3.5 (`qwen3.5-4b`) while preserving existing routing behavior.
 - Updated model router labels/aliases to recognize Qwen3.5 plus DeepSeek/SmolLM2/Gemma-3 naming variants.
 - Native inference now prefers model-provided llama.cpp chat templates (`apply_chat_template`) with model-aware legacy fallback formatting.
@@ -356,18 +355,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Font Awesome icon type mismatches across pen/highlighter/pencil/shape-pen tools that broke release compilation.
 - Async context usage in AI chat model-switch menu flow (`use_build_context_synchronously`) by switching to state `mounted` checks.
 - Floating model switcher test warning for unused optional parameter in fake inference gateway.
-
----
-## [0.3.9] - 2026-03-30
-
-### Changed
-- Removed decorative browse/recent background image usage and kept a plain background.
-- Removed Atkinson Hyperlegible font setting and related theme toggle implementation.
-- Updated pen modal SVG references to existing assets (`fountain.svg` and `pen.svg`).
-
-### Removed
-- Removed unused assets: `assets/images/home_page.svg` and `assets/icon/icon.bmp`.
-- Removed Atkinson Hyperlegible font assets and pubspec declarations.
 
 ---
 ## [0.3.11] - 2026-04-03
@@ -422,7 +409,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.4.1] - 2026-04-04
 
-
 ### Changed
 - AI and MCP chat composers now support prompt history recall with keyboard arrows:
   - `Arrow Up` walks backward through previously sent user prompts.
@@ -476,12 +462,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Serialized MCP file-operation tests to avoid global-state races under parallel test execution.
 - **Rust Lint/Cleanliness**:
   - Addressed strict clippy findings and conditional-feature warnings in native API/inference paths.
-
----
-## [0.5.1] - 2026-04-04
-
-### Changed
-- Version bump to 0.5.1
 
 ---
 ## [0.6.0] - 2026-04-07
