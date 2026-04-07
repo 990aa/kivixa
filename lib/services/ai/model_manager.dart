@@ -327,11 +327,8 @@ class ModelManager {
       recommendation:
           'Choose this for highest output quality if your device has enough RAM.',
       url:
-          'https://huggingface.co/Jackrong/Qwen3.5-4B-Claude-4.6-Opus-Reasoning-Distilled-v2-GGUF/resolve/main/Qwen3.5-4B.Q4_K_M.gguf',
+          'https://huggingface.co/Jackrong/Qwopus3.5-4B-v3-GGUF/resolve/main/Qwen3.5-4B.Q4_K_M.gguf',
       fileName: 'Qwen3.5-4B.Q4_K_M.gguf',
-      alternateFileNames: [
-        'Qwen3.5-4B-Claude-4.6-Opus-Reasoning-Distilled-v2.Q4_K_M.gguf',
-      ],
       sizeBytes: 2820000000, // ~2.63 GB
       categories: [
         ModelCategory.general,
@@ -392,7 +389,6 @@ class ModelManager {
         ModelCategory.general,
         ModelCategory.writing,
         ModelCategory.code,
-        ModelCategory.strongest,
       ],
       isReasoningModel: true,
     ),
@@ -554,6 +550,29 @@ class ModelManager {
         ModelCategory.general,
         ModelCategory.writing,
         ModelCategory.code,
+      ],
+    ),
+
+    // Gemma 4 E2B IT - stronger Gemma-family instruct model
+    AIModel(
+      id: 'gemma-4-e2b-it-q4km',
+      name: 'Gemma 4 E2B IT',
+      shortDescription:
+          'High-quality Gemma-family instruct model for stronger reasoning and coding output.',
+      description:
+          'Gemma 4 E2B IT (GGUF by Unsloth) - larger Gemma-family instruction model '
+          'optimized for high-quality responses across writing, coding, and general assistant tasks.',
+      recommendation:
+          'Choose this in Strongest when you want top-tier Gemma-family quality.',
+      url:
+          'https://huggingface.co/unsloth/gemma-4-E2B-it-GGUF/resolve/main/gemma-4-E2B-it-Q4_K_M.gguf',
+      fileName: 'gemma-4-E2B-it-Q4_K_M.gguf',
+      sizeBytes: 3000000000, // ~2.79 GB
+      categories: [
+        ModelCategory.general,
+        ModelCategory.writing,
+        ModelCategory.code,
+        ModelCategory.strongest,
       ],
     ),
 

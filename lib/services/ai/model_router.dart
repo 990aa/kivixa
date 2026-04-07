@@ -192,6 +192,7 @@ Prioritize practical, production-ready code and concise explanations.''';
       case 'qwen35':
       case 'qwen35-4b':
       case 'qwen35-4b-claude46-distilled-v2-q4km':
+      case 'qwopus3.5-4b-v3':
       case 'qwen35-2b':
       case 'qwen35-2b-claude46-distilled-q5km':
       case 'qwen35-08b':
@@ -221,6 +222,10 @@ Prioritize practical, production-ready code and concise explanations.''';
       case 'gemma3':
       case 'gemma-3-4b-it':
       case 'gemma-3-4b-it-q4km':
+      case 'gemma-4':
+      case 'gemma4':
+      case 'gemma-4-e2b-it':
+      case 'gemma-4-e2b-it-q4km':
         return AIModelType.phi4;
       default:
         return AIModelType.phi4; // Default fallback
