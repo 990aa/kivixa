@@ -1,4 +1,4 @@
-Kivixa is a privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance..
+Kivixa is a privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
 
 Features:
 - Rich markdown and text editing for fast note-taking
