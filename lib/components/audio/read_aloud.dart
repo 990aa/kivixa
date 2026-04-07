@@ -38,19 +38,21 @@ String? selectPreferredVoiceId(
   bool isMaleVoice(VoiceStyle voice) {
     final id = voice.id.toLowerCase();
     final name = voice.name.toLowerCase();
+    final malePattern = RegExp(r'(^|[^a-z])male([^a-z]|$)');
     return id.startsWith('am_') ||
         id.startsWith('bm_') ||
-        id.contains('male') ||
-        name.contains('male');
+      malePattern.hasMatch(id) ||
+      malePattern.hasMatch(name);
   }
 
   bool isFemaleVoice(VoiceStyle voice) {
     final id = voice.id.toLowerCase();
     final name = voice.name.toLowerCase();
+    final femalePattern = RegExp(r'(^|[^a-z])female([^a-z]|$)');
     return id.startsWith('af_') ||
         id.startsWith('bf_') ||
-        id.contains('female') ||
-        name.contains('female');
+      femalePattern.hasMatch(id) ||
+      femalePattern.hasMatch(name);
   }
 
   final preferred = switch (profile) {
