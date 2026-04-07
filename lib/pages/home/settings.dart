@@ -27,8 +27,8 @@ import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/data/tools/shape_pen.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/lock_screen.dart';
-import 'package:kivixa/services/audio/audio_neural_engine.dart';
 import 'package:kivixa/services/app_lock_service.dart';
+import 'package:kivixa/services/audio/audio_neural_engine.dart';
 import 'package:kivixa/services/browser_service.dart';
 import 'package:kivixa/services/life_git/life_git_service.dart';
 import 'package:kivixa/services/productivity/chained_routine_service.dart';
@@ -110,7 +110,7 @@ abstract class _SettingsStows {
 
 class _SettingsPageState extends State<SettingsPage> {
   final _audioEngine = AudioNeuralEngine();
-  List<VoiceStyle> _availableVoices = const <VoiceStyle>[];
+  var _availableVoices = const <VoiceStyle>[];
 
   @override
   void initState() {
