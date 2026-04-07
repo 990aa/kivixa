@@ -507,6 +507,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.1] - 2026-04-07
 
 ### Changed
+- Hardened the GitHub release F-Droid publishing step to update `config.yml` through structured Python YAML processing instead of indentation-sensitive heredoc replacement.
+- Updated F-Droid publish automation to preserve existing signing fields while enforcing Kivixa repo branding (`repo_name`, `repo_description`, archive metadata, and `icon.png`).
+- Narrowed F-Droid git staging to expected publication assets (`README.md`, `config.yml`, metadata, repo/archive outputs, and `.nojekyll`) to avoid accidental commits.
+
+### Fixed
+- Fixed release workflow failures in F-Droid publishing caused by malformed generated YAML (`ScannerError: could not find expected ':'`).
+- Fixed stale/default F-Droid repository presentation by normalizing app/repo metadata and branding to Kivixa.
+- Fixed legacy artifact accumulation in F-Droid outputs by removing temporary artifact caches and pruning APKs older than `0.4.0` from both `repo/` and `archive/`.
 
 
 ---
