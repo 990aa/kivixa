@@ -434,25 +434,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **New On-Device Models**:
-- Added microphone dictation controls to AI and MCP chat composers (including floating assistant via shared chat widgets).
-- Added per-response "Read response aloud" actions to AI and MCP assistant messages.
-- Added document-level read-aloud controls and floating read-aloud FAB integration to both text and markdown editors.
-- Added editor dictation controls for text and markdown editing flows.
-- Expanded read-aloud mini-player with persisted speed, sentence navigation, and voice selection controls.
-- Added new Audio Intelligence preferences in settings:
-  - master enable/disable toggle,
-  - voice profile (female/male/custom),
-  - custom voice selection,
-  - speech speed,
-  - VAD sensitivity,
-  - auto-play assistant responses,
-  - read-aloud FAB toggle.
-- Added "Advanced Audio Models" shortcut in settings to open the dedicated audio models/voices page.
-- Updated release workflow to build/package `kivixa_audio` for Android and Windows, including native artifact verification checks.
-
-### Added
-- Dart tests for read-aloud voice selection/profile resolution and audio UI control availability in chat/editor surfaces.
-- Rust tests for `synthesize_with_voice` success and unknown-voice failure handling.
   - Added **SmolLM3 3B** model option.
   - Added **SmolVLM2 500M Video Instruct** as a merged multimodal card with GGUF + mmproj companion assets.
 - **Multimodal Native Inference Path**:
@@ -502,5 +483,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.0] - 2026-04-07
 
 ### Changed
+- Added microphone dictation controls to AI and MCP chat composers (including floating assistant via shared chat widgets).
+- Added per-response "Read response aloud" actions to AI and MCP assistant messages.
+- Added document-level read-aloud controls and floating read-aloud FAB integration to both text and markdown editors.
+- Added editor dictation controls for text and markdown editing flows.
+- Expanded read-aloud mini-player with persisted speed, sentence navigation, and voice selection controls.
+- Added new Audio Intelligence preferences in settings:
+  - master enable/disable toggle,
+  - voice profile (female/male/custom),
+  - custom voice selection,
+  - speech speed,
+  - VAD sensitivity,
+  - auto-play assistant responses,
+  - read-aloud FAB toggle.
+- Added "Advanced Audio Models" shortcut in settings to open the dedicated audio models/voices page.
+- Updated release workflow to build/package `kivixa_audio` for Android and Windows, including native artifact verification checks.
+
+### Added
+- Dart tests for read-aloud voice selection/profile resolution and audio UI control availability in chat/editor surfaces.
+- Rust tests for `synthesize_with_voice` success and unknown-voice failure handling.
 
 ---
