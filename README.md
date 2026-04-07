@@ -53,7 +53,7 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
   - **Function Gemma 270M** - Ultra-fast, optimized for MCP tool calling (~180MB)
   - **Gemma 2B** - Google's efficient compact general-purpose model
   - **Gemma 3 4B IT** - Newer Gemma-family model with stronger balanced output quality
-  - **Gemma 4 E2B IT** - Stronger Gemma-family instruct model (Q4_K_M GGUF) for high-quality general, writing, and coding output
+  - **Gemma 4 E2B IT** - Stronger Gemma-family instruct model for high-quality general, writing, and coding output
   - **TranslateGemma 4B IT** - Fast multilingual translation and rewriting model for notes
   - Automatic model routing based on task classification
   - Seamless model switching for optimal performance

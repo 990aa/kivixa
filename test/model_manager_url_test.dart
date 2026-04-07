@@ -154,44 +154,43 @@ void main() {
 
   group('Categories and recommendations', () {
     test('Qwen Claude-distilled models expose canonical filenames', () {
-        final manager = ModelManager();
+      final manager = ModelManager();
 
-        final qwen4b = ModelManager.getModelById(
-          'qwen35-4b-claude46-distilled-v2-q4km',
-        )!;
-        final qwen2b = ModelManager.getModelById(
-          'qwen35-2b-claude46-distilled-q5km',
-        )!;
-        final qwen08b = ModelManager.getModelById(
-          'qwen35-08b-claude46-distilled-q5km',
-        )!;
+      final qwen4b = ModelManager.getModelById(
+        'qwen35-4b-claude46-distilled-v2-q4km',
+      )!;
+      final qwen2b = ModelManager.getModelById(
+        'qwen35-2b-claude46-distilled-q5km',
+      )!;
+      final qwen08b = ModelManager.getModelById(
+        'qwen35-08b-claude46-distilled-q5km',
+      )!;
 
-        final qwen4bCandidates = manager.candidateFileNames(qwen4b);
-        final qwen2bCandidates = manager.candidateFileNames(qwen2b);
-        final qwen08bCandidates = manager.candidateFileNames(qwen08b);
+      final qwen4bCandidates = manager.candidateFileNames(qwen4b);
+      final qwen2bCandidates = manager.candidateFileNames(qwen2b);
+      final qwen08bCandidates = manager.candidateFileNames(qwen08b);
 
-        expect(qwen4bCandidates, contains('Qwen3.5-4B.Q4_K_M.gguf'));
-        expect(qwen4bCandidates.length, 1);
+      expect(qwen4bCandidates, contains('Qwen3.5-4B.Q4_K_M.gguf'));
+      expect(qwen4bCandidates.length, 1);
 
-        expect(qwen2bCandidates, contains('Qwen3.5-2B.Q5_K_M.gguf'));
-        expect(
-          qwen2bCandidates,
-          contains(
-            'Qwen3.5-2B-Claude-4.6-Opus-Reasoning-Distilled.Q5_K_M.gguf',
-          ),
-        );
+      expect(qwen2bCandidates, contains('Qwen3.5-2B.Q5_K_M.gguf'));
+      expect(
+        qwen2bCandidates,
+        contains('Qwen3.5-2B-Claude-4.6-Opus-Reasoning-Distilled.Q5_K_M.gguf'),
+      );
 
-        expect(qwen08bCandidates, contains('Qwen3.5-0.8B.Q5_K_M.gguf'));
-        expect(
-          qwen08bCandidates,
-          contains(
-            'Qwen3.5-0.8B-Claude-4.6-Opus-Reasoning-Distilled.Q5_K_M.gguf',
-          ),
-        );
-      },
-    );
+      expect(qwen08bCandidates, contains('Qwen3.5-0.8B.Q5_K_M.gguf'));
+      expect(
+        qwen08bCandidates,
+        contains(
+          'Qwen3.5-0.8B-Claude-4.6-Opus-Reasoning-Distilled.Q5_K_M.gguf',
+        ),
+      );
+    });
 
-    test('Strongest category contains Qwen 4B/2B, Gemma 4, and Phi reasoning', () {
+    test(
+      'Strongest category contains Qwen 4B/2B, Gemma 4, and Phi reasoning',
+      () {
         final strongest = ModelManager.getModelsForCategory(
           ModelCategory.strongest,
         );
@@ -204,16 +203,15 @@ void main() {
           strongest.any((m) => m.id == 'qwen35-2b-claude46-distilled-q5km'),
           true,
         );
-        expect(
-          strongest.any((m) => m.id == 'gemma-4-e2b-it-q4km'),
-          true,
-        );
+        expect(strongest.any((m) => m.id == 'gemma-4-e2b-it-q4km'), true);
         expect(strongest.any((m) => m.id == 'phi4-mini-reasoning-q4km'), true);
       },
     );
 
     test('Qwen3.5 0.8B remains available but is not in strongest', () {
-      final model = ModelManager.getModelById('qwen35-08b-claude46-distilled-q5km')!;
+      final model = ModelManager.getModelById(
+        'qwen35-08b-claude46-distilled-q5km',
+      )!;
       expect(model.supportsCategory(ModelCategory.code), true);
       expect(model.supportsCategory(ModelCategory.strongest), false);
     });
