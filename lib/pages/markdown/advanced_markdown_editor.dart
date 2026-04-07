@@ -1236,7 +1236,7 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
       ),
       floatingActionButton:
           !_isTimeTraveling &&
-            _readAudioPref(() => stows.audioShowReadAloudFab.value, true)
+              _readAudioPref(() => stows.audioShowReadAloudFab.value, true)
           ? FloatingActionButton.small(
               onPressed: _readDocumentAloud,
               tooltip: 'Read document aloud',

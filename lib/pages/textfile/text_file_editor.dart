@@ -1892,7 +1892,7 @@ class _TextFileEditorState extends State<TextFileEditor> {
       ),
       floatingActionButton:
           !_isTimeTraveling &&
-            _readAudioPref(() => stows.audioShowReadAloudFab.value, true)
+              _readAudioPref(() => stows.audioShowReadAloudFab.value, true)
           ? FloatingActionButton.small(
               onPressed: _readDocumentAloud,
               tooltip: 'Read document aloud',
