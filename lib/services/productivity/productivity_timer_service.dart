@@ -226,6 +226,11 @@ class ProductivityTimerService extends ChangeNotifier {
   TimerTemplate? _activeTemplate;
   QuickPreset? _activePreset;
 
+  final List<QuickPreset> _defaultQuickPresets = List<QuickPreset>.from(
+    QuickPreset.defaultPresets,
+  );
+  final List<QuickPreset> _customQuickPresets = [];
+
   // Context tags
   TimerContextTag? _currentContextTag;
   final List<TimerContextTag> _customTags = [];
@@ -255,6 +260,8 @@ class ProductivityTimerService extends ChangeNotifier {
   static const _settingsKey = 'productivity_settings';
   static const _tagsKey = 'productivity_tags';
   static const _tagMinutesKey = 'productivity_tag_minutes';
+  static const _defaultQuickPresetsKey = 'productivity_default_quick_presets';
+  static const _customQuickPresetsKey = 'productivity_custom_quick_presets';
   var _initialized = false;
 
   // Callbacks for UI updates
@@ -292,7 +299,15 @@ class ProductivityTimerService extends ChangeNotifier {
   ];
 
   /// Get all available quick presets (default + custom)
-  List<QuickPreset> get allQuickPresets => QuickPreset.defaultPresets;
+  List<QuickPreset> get allQuickPresets => [
+    ..._defaultQuickPresets,
+    ..._customQuickPresets,
+  ];
+
+  List<QuickPreset> get defaultQuickPresets =>
+      List.unmodifiable(_defaultQuickPresets);
+  List<QuickPreset> get customQuickPresets =>
+      List.unmodifiable(_customQuickPresets);
 
   /// Get tag minutes statistics
   Map<String, int> get tagMinutes => Map.unmodifiable(_tagMinutes);
@@ -322,6 +337,7 @@ class ProductivityTimerService extends ChangeNotifier {
 
     await _loadStats();
     await _loadSettings();
+    await _loadQuickPresets();
     await _loadTags();
     await _loadTagMinutes();
     await _initializeNotifications();
@@ -789,6 +805,68 @@ class ProductivityTimerService extends ChangeNotifier {
   // Quick Presets
   // ============================================================
 
+  void saveQuickPreset(QuickPreset preset) {
+    final defaultIndex = _defaultQuickPresets.indexWhere(
+      (p) => p.id == preset.id,
+    );
+    if (defaultIndex != -1) {
+      _defaultQuickPresets[defaultIndex] = preset.copyWith(isDefault: true);
+      _saveDefaultQuickPresets();
+      notifyListeners();
+      return;
+    }
+
+    final customIndex = _customQuickPresets.indexWhere((p) => p.id == preset.id);
+    if (customIndex != -1) {
+      _customQuickPresets[customIndex] = preset.copyWith(isDefault: false);
+    } else {
+      _customQuickPresets.add(preset.copyWith(isDefault: false));
+    }
+
+    _saveCustomQuickPresets();
+    notifyListeners();
+  }
+
+  void deleteQuickPreset(String id) {
+    final defaultBefore = _defaultQuickPresets.length;
+    _defaultQuickPresets.removeWhere((p) => p.id == id);
+    if (_defaultQuickPresets.length != defaultBefore) {
+      _saveDefaultQuickPresets();
+      notifyListeners();
+      return;
+    }
+
+    final customBefore = _customQuickPresets.length;
+    _customQuickPresets.removeWhere((p) => p.id == id);
+    if (_customQuickPresets.length != customBefore) {
+      _saveCustomQuickPresets();
+      notifyListeners();
+    }
+  }
+
+  void deleteAllCustomQuickPresets() {
+    if (_customQuickPresets.isEmpty) {
+      return;
+    }
+    _customQuickPresets.clear();
+    _saveCustomQuickPresets();
+    notifyListeners();
+  }
+
+  void restoreDefaultPresets({bool preserveCustom = true}) {
+    _defaultQuickPresets
+      ..clear()
+      ..addAll(QuickPreset.defaultPresets);
+    _saveDefaultQuickPresets();
+
+    if (!preserveCustom) {
+      _customQuickPresets.clear();
+      _saveCustomQuickPresets();
+    }
+
+    notifyListeners();
+  }
+
   /// Start a session with a quick preset
   void startWithPreset(QuickPreset preset, {TimerContextTag? contextTag}) {
     startSession(preset: preset, contextTag: contextTag);
@@ -895,6 +973,58 @@ class ProductivityTimerService extends ChangeNotifier {
       await prefs.setString(_goalKey, jsonEncode(_goal.toJson()));
     } catch (e) {
       debugPrint('Failed to save goal: $e');
+    }
+  }
+
+  Future<void> _loadQuickPresets() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      final defaultJson = prefs.getString(_defaultQuickPresetsKey);
+      if (defaultJson != null) {
+        final decoded = jsonDecode(defaultJson) as List<dynamic>;
+        _defaultQuickPresets
+          ..clear()
+          ..addAll(
+            decoded
+                .map((item) => QuickPreset.fromJson(item as Map<String, dynamic>))
+                .map((preset) => preset.copyWith(isDefault: true)),
+          );
+      }
+
+      final customJson = prefs.getString(_customQuickPresetsKey);
+      if (customJson != null) {
+        final decoded = jsonDecode(customJson) as List<dynamic>;
+        _customQuickPresets
+          ..clear()
+          ..addAll(
+            decoded
+                .map((item) => QuickPreset.fromJson(item as Map<String, dynamic>))
+                .map((preset) => preset.copyWith(isDefault: false)),
+          );
+      }
+    } catch (e) {
+      debugPrint('Failed to load quick presets: $e');
+    }
+  }
+
+  Future<void> _saveDefaultQuickPresets() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final payload = _defaultQuickPresets.map((preset) => preset.toJson()).toList();
+      await prefs.setString(_defaultQuickPresetsKey, jsonEncode(payload));
+    } catch (e) {
+      debugPrint('Failed to save default quick presets: $e');
+    }
+  }
+
+  Future<void> _saveCustomQuickPresets() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final payload = _customQuickPresets.map((preset) => preset.toJson()).toList();
+      await prefs.setString(_customQuickPresetsKey, jsonEncode(payload));
+    } catch (e) {
+      debugPrint('Failed to save custom quick presets: $e');
     }
   }
 
