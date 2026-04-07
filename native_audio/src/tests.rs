@@ -345,6 +345,28 @@ fn test_tts_synthesize() {
 }
 
 #[test]
+fn test_tts_synthesize_with_specific_voice() {
+    let mut engine = TtsEngine::new();
+    engine.initialize().unwrap();
+
+    let result = engine.synthesize_with_voice("hello world", "female");
+    assert!(result.is_ok());
+
+    let audio = result.unwrap();
+    assert!(audio.sample_rate > 0);
+    assert!(audio.duration >= 0.0);
+}
+
+#[test]
+fn test_tts_synthesize_with_unknown_voice_fails() {
+    let mut engine = TtsEngine::new();
+    engine.initialize().unwrap();
+
+    let result = engine.synthesize_with_voice("hello world", "unknown_voice");
+    assert!(result.is_err());
+}
+
+#[test]
 fn test_voice_style_properties() {
     let neutral = VoiceStyle::default_neutral();
     let female = VoiceStyle::female();

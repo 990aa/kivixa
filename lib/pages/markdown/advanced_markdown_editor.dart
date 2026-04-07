@@ -12,10 +12,14 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart'
 import 'package:flutter_smooth_markdown/flutter_smooth_markdown.dart';
 import 'package:go_router/go_router.dart';
 import 'package:highlight/languages/markdown.dart';
+import 'package:kivixa/components/audio/read_aloud.dart';
 import 'package:kivixa/components/life_git/time_travel_slider.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
+import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
+import 'package:kivixa/services/audio/audio_neural_engine.dart';
+import 'package:kivixa/services/audio/audio_recording_service.dart';
 import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:kivixa/services/media_service.dart';
 import 'package:logging/logging.dart';
@@ -63,6 +67,13 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
   var _wordCount = 0;
   var _charCount = 0;
   var _lastThemeIsDark = false;
+
+  final _audioEngine = AudioNeuralEngine();
+  final _audioRecorder = AudioRecordingService();
+  final _readAloudController = ReadAloudController();
+  StreamSubscription<SpeechRecognitionResult>? _dictationSub;
+  var _isDictating = false;
+  var _showReadAloudPlayer = false;
 
   // Time Travel state
   var _isTimeTraveling = false;
@@ -174,6 +185,8 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     _fileNameController = TextEditingController();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_onTabChanged);
+    _readAloudController.addListener(_onReadAloudControllerChanged);
+    _dictationSub = _audioEngine.transcriptionStream.listen(_onDictationResult);
 
     _loadFile();
   }
@@ -997,10 +1010,121 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     );
   }
 
+  void _onReadAloudControllerChanged() {
+    final shouldShow =
+        _readAloudController.isPlaying ||
+        _readAloudController.currentSentence.isNotEmpty;
+    if (shouldShow != _showReadAloudPlayer && mounted) {
+      setState(() {
+        _showReadAloudPlayer = shouldShow;
+      });
+    }
+  }
+
+  void _onDictationResult(SpeechRecognitionResult result) {
+    if (!_isDictating || !result.isFinal || result.text.trim().isEmpty) {
+      return;
+    }
+    _insertDictationText('${result.text.trim()} ');
+  }
+
+  void _insertDictationText(String text) {
+    final controller = _codeController;
+    if (controller == null) return;
+
+    final selection = controller.selection;
+    final currentText = controller.text;
+    final start = selection.isValid ? selection.start : currentText.length;
+    final end = selection.isValid ? selection.end : currentText.length;
+    final updatedText =
+        currentText.substring(0, start) + text + currentText.substring(end);
+
+    controller.text = updatedText;
+    controller.selection = TextSelection.collapsed(offset: start + text.length);
+  }
+
+  T _readAudioPref<T>(T Function() reader, T fallback) {
+    try {
+      return reader();
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  Future<void> _toggleDictation() async {
+    if (!_readAudioPref(() => stows.audioIntelligenceEnabled.value, true)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Audio Intelligence is disabled')),
+      );
+      return;
+    }
+
+    try {
+      if (_isDictating) {
+        await _audioRecorder.stopRecording();
+        final result = await _audioEngine.stopListening();
+        if (result != null && result.text.trim().isNotEmpty) {
+          _insertDictationText('${result.text.trim()} ');
+        }
+        if (mounted) {
+          setState(() {
+            _isDictating = false;
+          });
+        }
+        return;
+      }
+
+      final initialized = await _audioEngine.initialize();
+      if (!initialized) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to initialize audio engine')),
+        );
+        return;
+      }
+
+      _audioEngine.setVadThreshold(
+        _readAudioPref(() => stows.audioVadThreshold.value, 0.5),
+      );
+      await _audioEngine.startListening();
+      await _audioRecorder.startRecording();
+      if (mounted) {
+        setState(() {
+          _isDictating = true;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Dictation failed: $e')));
+    }
+  }
+
+  Future<void> _readDocumentAloud() async {
+    final text = _codeController?.text.trim() ?? '';
+    if (text.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Document is empty')));
+      return;
+    }
+    await _readAloudController.startReading(text);
+  }
+
   @override
   void dispose() {
     _autosaveTimer?.cancel();
     _renameTimer?.cancel();
+    _dictationSub?.cancel();
+    _readAloudController.removeListener(_onReadAloudControllerChanged);
+    if (_isDictating) {
+      unawaited(_audioRecorder.stopRecording());
+      unawaited(_audioEngine.stopListening());
+    }
+    _readAloudController.dispose();
     _codeController?.dispose();
     _fileNameController.dispose();
     _tabController.dispose();
@@ -1055,6 +1179,19 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
                 const PopupMenuItem(value: 6, child: Text('Heading 6')),
               ],
             ),
+            IconButton(
+              icon: Icon(_isDictating ? Icons.stop_circle : Icons.mic),
+              tooltip: _isDictating
+                  ? 'Stop dictation'
+                  : 'Dictate into markdown',
+              color: _isDictating ? colorScheme.error : null,
+              onPressed: _toggleDictation,
+            ),
+            IconButton(
+              icon: const Icon(Icons.volume_up),
+              tooltip: 'Read document aloud',
+              onPressed: _readDocumentAloud,
+            ),
             // Time Travel button
             IconButton(
               icon: const Icon(Icons.history),
@@ -1097,6 +1234,15 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
           ],
         ],
       ),
+      floatingActionButton:
+          !_isTimeTraveling &&
+              _readAudioPref(() => stows.audioShowReadAloudFab.value, true)
+          ? FloatingActionButton.small(
+              onPressed: _readDocumentAloud,
+              tooltip: 'Read document aloud',
+              child: const Icon(Icons.volume_up),
+            )
+          : null,
       body: Column(
         children: [
           // Time Travel slider when in time travel mode
@@ -1117,6 +1263,18 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
 
           // Editor content
           Expanded(child: _buildContent(isDark)),
+
+          if (_showReadAloudPlayer)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: ReadAloudMiniPlayer(
+                controller: _readAloudController,
+                expanded: true,
+                onClose: () {
+                  _readAloudController.stop();
+                },
+              ),
+            ),
 
           // Status bar
           _buildStatusBar(colorScheme),

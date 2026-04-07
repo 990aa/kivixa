@@ -331,7 +331,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added parser tests for reasoning/thinking extraction behavior
 
 ### Changed
-- Version bump to 0.3.0
 - Updated MCP code-generation model alias recommendation to Qwen3.5 (`qwen3.5-4b`) while preserving existing routing behavior.
 - Updated model router labels/aliases to recognize Qwen3.5 plus DeepSeek/SmolLM2/Gemma-3 naming variants.
 - Native inference now prefers model-provided llama.cpp chat templates (`apply_chat_template`) with model-aware legacy fallback formatting.
@@ -356,18 +355,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Font Awesome icon type mismatches across pen/highlighter/pencil/shape-pen tools that broke release compilation.
 - Async context usage in AI chat model-switch menu flow (`use_build_context_synchronously`) by switching to state `mounted` checks.
 - Floating model switcher test warning for unused optional parameter in fake inference gateway.
-
----
-## [0.3.9] - 2026-03-30
-
-### Changed
-- Removed decorative browse/recent background image usage and kept a plain background.
-- Removed Atkinson Hyperlegible font setting and related theme toggle implementation.
-- Updated pen modal SVG references to existing assets (`fountain.svg` and `pen.svg`).
-
-### Removed
-- Removed unused assets: `assets/images/home_page.svg` and `assets/icon/icon.bmp`.
-- Removed Atkinson Hyperlegible font assets and pubspec declarations.
 
 ---
 ## [0.3.11] - 2026-04-03
@@ -422,7 +409,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.4.1] - 2026-04-04
 
-
 ### Changed
 - AI and MCP chat composers now support prompt history recall with keyboard arrows:
   - `Arrow Up` walks backward through previously sent user prompts.
@@ -442,5 +428,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - MCP composer attachment add/remove/send behavior and prompt-history keyboard navigation.
   - Floating assistant integration path (AI and MCP) for attachment-capable composer availability.
   - Attachment serialization/unit behavior and model payload injection.
+
+---
+## [0.5.0] - 2026-04-04
+
+### Added
+- **New On-Device Models**:
+  - Added **SmolLM3 3B** model option.
+  - Added **SmolVLM2 500M Video Instruct** as a merged multimodal card with GGUF + mmproj companion assets.
+- **Multimodal Native Inference Path**:
+  - Added image-attachment detection and multimodal prompt tokenization/evaluation via llama.cpp `mtmd` in native Rust inference.
+  - Added fallback to standard text generation when vision inference prerequisites are unavailable.
+- **Bundled Download Support**:
+  - Added aggregate progress/download state handling for multi-asset model cards (e.g., model + mmproj).
+- **Coverage Improvements**:
+  - Added/updated tests for markdown chat rendering, model metadata export assertions, MCP header behavior, and native vision parsing paths.
+
+### Changed
+- **AI/MCP Chat UI**:
+  - Assistant and user messages now render markdown content in both standard AI chat and MCP chat.
+  - Reasoning panels now render markdown consistently.
+  - MCP mode now uses a unified top bar row for status/actions; duplicate header rendering removed.
+- **Chat Export Payloads**:
+  - Exported JSON now includes per-assistant-response model metadata (`modelName`, `modelId`).
+- **Model Download UX**:
+  - Download dialog can be dismissed while downloads continue in background.
+  - Added completion/failure notification wiring for background model downloads.
+- **Native Build Configuration**:
+  - Enabled `mtmd` support in Rust llama bindings and added missing vendored CMake entries for mtmd tool compilation.
+
+### Fixed
+- **Rust Test Stability**:
+  - Serialized MCP file-operation tests to avoid global-state races under parallel test execution.
+- **Rust Lint/Cleanliness**:
+  - Addressed strict clippy findings and conditional-feature warnings in native API/inference paths.
+
+---
+## [0.6.0] - 2026-04-07
+
+### Changed
+- Updated the Qwen3.5 4B Claude 4.6 Opus reasoning-distilled model source to the Qwopus v3 GGUF link across model metadata, routing, and validation tests.
+- Added Gemma 4 E2B IT (Q4_K_M) to the model catalog and strongest recommendations.
+- Expanded model alias routing and native inference detection/fallback handling for Qwopus and Gemma 4 identifiers.
+- Productivity Clock now includes a dedicated Custom Chains tab with full routine creation, editing, and deletion workflows.
+- Presets and routines tabs now allow editing and deleting both built-in and custom entries.
+- Added timer settings actions to restore default presets/routines and delete all custom routines.
+
+### Added
+- Added advanced routine-chain editing UI that supports block-level insert, edit, and delete operations before saving.
+- Added focused productivity service tests for quick preset CRUD/reset flows and chained routine CRUD/block operations.
+- Added native Rust inference tests covering Qwopus model-type detection and Gemma 4 fallback prompt formatting.
+
+---
+## [0.7.0] - 2026-04-07
+
+### Changed
+- Added microphone dictation controls to AI and MCP chat composers (including floating assistant via shared chat widgets).
+- Added per-response "Read response aloud" actions to AI and MCP assistant messages.
+- Added document-level read-aloud controls and floating read-aloud FAB integration to both text and markdown editors.
+- Added editor dictation controls for text and markdown editing flows.
+- Expanded read-aloud mini-player with persisted speed, sentence navigation, and voice selection controls.
+- Added new Audio Intelligence preferences in settings:
+  - master enable/disable toggle,
+  - voice profile (female/male/custom),
+  - custom voice selection,
+  - speech speed,
+  - VAD sensitivity,
+  - auto-play assistant responses,
+  - read-aloud FAB toggle.
+- Added "Advanced Audio Models" shortcut in settings to open the dedicated audio models/voices page.
+- Updated release workflow to build/package `kivixa_audio` for Android and Windows, including native artifact verification checks.
+
+### Added
+- Dart tests for read-aloud voice selection/profile resolution and audio UI control availability in chat/editor surfaces.
+- Rust tests for `synthesize_with_voice` success and unknown-voice failure handling.
 
 ---

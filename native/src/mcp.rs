@@ -12,9 +12,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-
 // Tool Definitions
-
 
 /// Available MCP tools
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -223,9 +221,7 @@ pub struct MCPParameter {
     pub required: bool,
 }
 
-
 // Tool Calls
-
 
 /// A tool call request from the AI
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -258,9 +254,7 @@ pub struct MCPToolResult {
     pub tool: String,
 }
 
-
 // Path Validation (Security)
-
 
 /// MCP Configuration
 #[derive(Debug, Clone)]
@@ -413,9 +407,7 @@ pub fn validate_extension(path: &Path) -> Result<()> {
     }
 }
 
-
 // File Operations
-
 
 /// Read a file from the browse directory
 pub fn read_file(relative_path: &str) -> Result<String> {
@@ -639,9 +631,7 @@ fn collect_files(
     Ok(())
 }
 
-
 // Tool Schema Generation (for AI prompts)
-
 
 /// Generate JSON schema for all available tools
 pub fn get_tool_schemas() -> String {
@@ -798,9 +788,7 @@ pub fn execute_tool_call(call: &MCPToolCall) -> MCPToolResult {
     }
 }
 
-
 // Model Routing
-
 
 /// Task categories for model routing
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -922,36 +910,41 @@ pub fn get_model_name_for_task(category: TaskCategory) -> &'static str {
     }
 }
 
-
 // Tests
-
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::{
+        atomic::{AtomicUsize, Ordering},
+        Mutex, MutexGuard,
+    };
     use tempfile::tempdir;
 
     // Counter to ensure unique temp directories
     static TEST_COUNTER: AtomicUsize = AtomicUsize::new(0);
+    static TEST_MUTEX: Mutex<()> = Mutex::new(());
 
-    fn setup_mcp() -> tempfile::TempDir {
+    fn setup_mcp() -> (tempfile::TempDir, MutexGuard<'static, ()>) {
+        // MCP keeps global mutable state; tests must run serially to avoid
+        // different temp workspaces clobbering each other.
+        let guard = TEST_MUTEX.lock().unwrap();
         let temp = tempdir().unwrap();
         let _ = TEST_COUNTER.fetch_add(1, Ordering::SeqCst);
         init_mcp(temp.path().to_path_buf(), None, None).unwrap();
-        temp
+        (temp, guard)
     }
 
     #[test]
     fn test_mcp_initialization() {
-        let temp = setup_mcp();
+        let (temp, _guard) = setup_mcp();
         assert!(is_mcp_initialized());
         drop(temp);
     }
 
     #[test]
     fn test_path_validation() {
-        let temp = setup_mcp();
+        let (temp, _guard) = setup_mcp();
 
         // Valid paths
         assert!(validate_path("test.md").is_ok());
@@ -968,7 +961,7 @@ mod tests {
 
     #[test]
     fn test_file_operations() {
-        let temp = setup_mcp();
+        let (temp, _guard) = setup_mcp();
 
         // Unique file name to avoid test interference
         let file_name = format!("test_file_ops_{}.md", TEST_COUNTER.load(Ordering::SeqCst));
@@ -998,7 +991,7 @@ mod tests {
 
     #[test]
     fn test_folder_operations() {
-        let temp = setup_mcp();
+        let (temp, _guard) = setup_mcp();
 
         // Create folder
         assert!(create_folder("new_folder").is_ok());
@@ -1018,7 +1011,7 @@ mod tests {
 
     #[test]
     fn test_extension_validation() {
-        let temp = setup_mcp();
+        let (temp, _guard) = setup_mcp();
 
         // Valid extensions
         assert!(write_file("ext_test.md", "content").is_ok());

@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kivixa/components/audio/audio_settings_page.dart';
 import 'package:kivixa/components/dialogs/legal_documents_viewer.dart';
 import 'package:kivixa/components/navbar/responsive_navbar.dart';
 import 'package:kivixa/components/settings/clear_app_data_widget.dart';
@@ -27,8 +28,10 @@ import 'package:kivixa/data/tools/shape_pen.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/lock_screen.dart';
 import 'package:kivixa/services/app_lock_service.dart';
+import 'package:kivixa/services/audio/audio_neural_engine.dart';
 import 'package:kivixa/services/browser_service.dart';
 import 'package:kivixa/services/life_git/life_git_service.dart';
+import 'package:kivixa/services/productivity/chained_routine_service.dart';
 import 'package:kivixa/services/productivity/productivity_timer_service.dart';
 import 'package:kivixa/services/quick_notes/quick_notes_service.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -106,9 +109,15 @@ abstract class _SettingsStows {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final _audioEngine = AudioNeuralEngine();
+  var _availableVoices = const <VoiceStyle>[];
+
   @override
   void initState() {
     UpdateManager.status.addListener(onChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadAvailableVoices();
+    });
     super.initState();
   }
 
@@ -123,9 +132,110 @@ class _SettingsPageState extends State<SettingsPage> {
     Icons.west,
   ];
 
+  String _voiceProfileLabel() {
+    return switch (stows.audioVoiceProfile.value) {
+      1 => 'Male',
+      2 => 'Custom',
+      _ => 'Female',
+    };
+  }
+
+  String _selectedVoiceLabel() {
+    final selectedId = stows.audioCustomVoiceId.value;
+    if (selectedId == null || selectedId.isEmpty) {
+      return 'Auto (${_voiceProfileLabel()})';
+    }
+
+    for (final voice in _availableVoices) {
+      if (voice.id == selectedId) {
+        return '${voice.name} (${voice.id})';
+      }
+    }
+
+    return selectedId;
+  }
+
+  Future<void> _loadAvailableVoices() async {
+    final initialized = await _audioEngine.initialize();
+    if (!initialized || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _availableVoices = _audioEngine.getAvailableVoices();
+    });
+  }
+
+  Future<void> _showVoiceSelectionDialog() async {
+    if (_availableVoices.isEmpty) {
+      await _loadAvailableVoices();
+    }
+
+    if (!mounted) return;
+    if (_availableVoices.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No voices available yet')));
+      return;
+    }
+
+    var selectedVoiceId = stows.audioCustomVoiceId.value;
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Select Custom Voice'),
+          content: SizedBox(
+            width: 420,
+            child: DropdownButtonFormField<String>(
+              initialValue: _availableVoices.any((v) => v.id == selectedVoiceId)
+                  ? selectedVoiceId
+                  : _availableVoices.first.id,
+              isExpanded: true,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+              items: _availableVoices
+                  .map(
+                    (voice) => DropdownMenuItem<String>(
+                      value: voice.id,
+                      child: Text('${voice.name} (${voice.id})'),
+                    ),
+                  )
+                  .toList(growable: false),
+              onChanged: (value) {
+                setDialogState(() {
+                  selectedVoiceId = value;
+                });
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                if (selectedVoiceId != null && selectedVoiceId!.isNotEmpty) {
+                  stows.audioCustomVoiceId.value = selectedVoiceId;
+                  stows.audioVoiceProfile.value = 2;
+                }
+                Navigator.pop(context);
+                if (mounted) {
+                  setState(() {});
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final IconData materialIcon = switch (defaultTargetPlatform) {
+    final materialIcon = switch (defaultTargetPlatform) {
       TargetPlatform.windows => Icons.desktop_windows,
       _ => Icons.android,
     };
@@ -521,6 +631,83 @@ class _SettingsPageState extends State<SettingsPage> {
                     ToggleButtonsOption(1, Icon(Icons.blur_on)),
                     ToggleButtonsOption(2, Icon(Icons.blur_off)),
                   ],
+                ),
+                const SettingsSubtitle(subtitle: 'Audio Intelligence'),
+                SettingsSwitch(
+                  title: 'Enable Audio Intelligence',
+                  subtitle:
+                      'Turn on speech-to-text and text-to-speech features',
+                  icon: Icons.hearing,
+                  pref: stows.audioIntelligenceEnabled,
+                ),
+                SettingsSelection(
+                  title: 'Voice Profile',
+                  subtitle: _voiceProfileLabel(),
+                  icon: Icons.record_voice_over,
+                  pref: stows.audioVoiceProfile,
+                  afterChange: (_) => setState(() {}),
+                  options: const [
+                    ToggleButtonsOption(0, Text('F')),
+                    ToggleButtonsOption(1, Text('M')),
+                    ToggleButtonsOption(2, Text('C')),
+                  ],
+                ),
+                SettingsButton(
+                  title: 'Custom Voice',
+                  subtitle: _selectedVoiceLabel(),
+                  icon: Icons.settings_voice,
+                  onPressed: _showVoiceSelectionDialog,
+                ),
+                SettingsSelection(
+                  title: 'Speech Speed',
+                  subtitle: '${stows.audioTtsSpeed.value.toStringAsFixed(2)}x',
+                  icon: Icons.speed,
+                  pref: stows.audioTtsSpeed,
+                  afterChange: (_) => setState(() {}),
+                  optionsWidth: 60,
+                  options: const [
+                    ToggleButtonsOption(0.5, Text('0.5x')),
+                    ToggleButtonsOption(1.0, Text('1x')),
+                    ToggleButtonsOption(1.5, Text('1.5x')),
+                    ToggleButtonsOption(2.0, Text('2x')),
+                  ],
+                ),
+                SettingsSelection(
+                  title: 'Speech Detection Sensitivity',
+                  subtitle: stows.audioVadThreshold.value.toStringAsFixed(1),
+                  icon: Icons.graphic_eq,
+                  pref: stows.audioVadThreshold,
+                  afterChange: (_) => setState(() {}),
+                  optionsWidth: 68,
+                  options: const [
+                    ToggleButtonsOption(0.3, Text('Low')),
+                    ToggleButtonsOption(0.5, Text('Med')),
+                    ToggleButtonsOption(0.7, Text('High')),
+                  ],
+                ),
+                SettingsSwitch(
+                  title: 'Auto-play AI responses',
+                  subtitle: 'Read out new assistant responses automatically',
+                  icon: Icons.play_circle_outline,
+                  pref: stows.audioAutoPlayResponses,
+                ),
+                SettingsSwitch(
+                  title: 'Show Read-Aloud FAB',
+                  subtitle: 'Display floating read-aloud button in editors',
+                  icon: Icons.speaker,
+                  pref: stows.audioShowReadAloudFab,
+                ),
+                SettingsButton(
+                  title: 'Advanced Audio Models',
+                  subtitle: 'Manage STT/TTS models and inspect all voices',
+                  icon: Icons.tune,
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const AudioSettingsPage(),
+                      ),
+                    );
+                  },
                 ),
                 const SettingsSubtitle(subtitle: 'Productivity Timer'),
                 const _ProductivityTimerSettingsSection(),
@@ -1475,12 +1662,15 @@ class _ProductivityTimerSettingsSection extends StatefulWidget {
 class _ProductivityTimerSettingsSectionState
     extends State<_ProductivityTimerSettingsSection> {
   final _timerService = ProductivityTimerService.instance;
+  final _routineService = ChainedRoutineService.instance;
 
   @override
   void initState() {
     super.initState();
     _timerService.addListener(_onUpdate);
+    _routineService.addListener(_onUpdate);
     _timerService.initialize();
+    _routineService.initialize();
   }
 
   void _onUpdate() {
@@ -1490,6 +1680,7 @@ class _ProductivityTimerSettingsSectionState
   @override
   void dispose() {
     _timerService.removeListener(_onUpdate);
+    _routineService.removeListener(_onUpdate);
     super.dispose();
   }
 
@@ -1621,6 +1812,43 @@ class _ProductivityTimerSettingsSectionState
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Card(
+            child: ListTile(
+              leading: const Icon(Icons.settings_backup_restore),
+              title: const Text('Restore Timer Defaults'),
+              subtitle: const Text(
+                'Restore built-in presets and routines (keeps your custom entries)',
+              ),
+              onTap: () => _showRestoreDefaultsConfirmation(context),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Card(
+            color: colorScheme.errorContainer,
+            child: ListTile(
+              leading: Icon(Icons.delete_sweep, color: colorScheme.error),
+              title: const Text('Delete All Custom Routines'),
+              subtitle: Text(
+                _routineService.customRoutines.isEmpty
+                    ? 'No custom routines to delete'
+                    : 'Delete ${_routineService.customRoutines.length} custom routine(s)',
+              ),
+              onTap: _routineService.customRoutines.isEmpty
+                  ? null
+                  : () => _showDeleteCustomRoutinesConfirmation(context),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: colorScheme.error,
+              ),
+            ),
+          ),
+        ),
         // Reset statistics
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -1640,6 +1868,68 @@ class _ProductivityTimerSettingsSectionState
           ),
         ),
       ],
+    );
+  }
+
+  void _showRestoreDefaultsConfirmation(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Restore timer defaults?'),
+        content: const Text(
+          'This restores built-in quick presets and routines to their default values. Your custom presets and routines will be kept.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              _timerService.restoreDefaultPresets();
+              _routineService.restoreDefaultRoutines();
+              Navigator.pop(dialogContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Default presets and routines restored.'),
+                ),
+              );
+            },
+            child: const Text('Restore'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteCustomRoutinesConfirmation(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete all custom routines?'),
+        content: const Text(
+          'This removes all custom chained routines permanently. Built-in routines will stay available.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              _routineService.deleteAllCustomRoutines();
+              Navigator.pop(dialogContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Custom routines deleted.')),
+              );
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
     );
   }
 

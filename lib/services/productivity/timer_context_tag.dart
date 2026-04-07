@@ -293,6 +293,37 @@ class QuickPreset {
     );
   }
 
+  QuickPreset copyWith({
+    String? id,
+    String? name,
+    IconData? icon,
+    int? workMinutes,
+    int? breakMinutes,
+    int? longBreakMinutes,
+    int? cyclesBeforeLongBreak,
+    int? totalCycles,
+    bool? autoStartBreak,
+    bool? autoStartNextSession,
+    String? description,
+    bool? isDefault,
+  }) {
+    return QuickPreset(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      icon: icon ?? this.icon,
+      workMinutes: workMinutes ?? this.workMinutes,
+      breakMinutes: breakMinutes ?? this.breakMinutes,
+      longBreakMinutes: longBreakMinutes ?? this.longBreakMinutes,
+      cyclesBeforeLongBreak:
+          cyclesBeforeLongBreak ?? this.cyclesBeforeLongBreak,
+      totalCycles: totalCycles ?? this.totalCycles,
+      autoStartBreak: autoStartBreak ?? this.autoStartBreak,
+      autoStartNextSession: autoStartNextSession ?? this.autoStartNextSession,
+      description: description ?? this.description,
+      isDefault: isDefault ?? this.isDefault,
+    );
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

@@ -409,6 +409,167 @@ void main() {
       );
     });
 
+    test('startRoutine ignores routines with no blocks', () {
+      final service = ChainedRoutineService.instance;
+      service.stop();
+
+      const emptyRoutine = ChainedRoutine(
+        id: 'test_empty_routine',
+        name: 'Empty Routine',
+        blocks: [],
+      );
+
+      service.startRoutine(emptyRoutine);
+
+      expect(service.isIdle, true);
+      expect(service.currentRoutine, isNull);
+      expect(service.currentBlock, isNull);
+    });
+
+    test('saveRoutine adds and updates a custom routine', () {
+      final service = ChainedRoutineService.instance;
+      service.restoreDefaultRoutines(preserveCustom: false);
+
+      const routine = ChainedRoutine(
+        id: 'test_custom_routine_save',
+        name: 'Custom Save Routine',
+        blocks: [RoutineBlock(name: 'Focus', durationMinutes: 25)],
+      );
+
+      service.saveRoutine(routine);
+      expect(service.customRoutines.any((r) => r.id == routine.id), true);
+
+      final metadataUpdated = service.updateRoutineMetadata(
+        routine.id,
+        name: 'Updated Custom Save Routine',
+        description: 'Updated description',
+      );
+      expect(metadataUpdated, true);
+
+      final updated = service.getRoutineById(routine.id);
+      expect(updated, isNotNull);
+      expect(updated!.name, 'Updated Custom Save Routine');
+      expect(updated.description, 'Updated description');
+
+      service.deleteRoutine(routine.id);
+    });
+
+    test('insert, update, and delete block operations work', () {
+      final service = ChainedRoutineService.instance;
+      service.restoreDefaultRoutines(preserveCustom: false);
+
+      const routineId = 'test_custom_block_ops';
+      service.saveRoutine(
+        const ChainedRoutine(
+          id: routineId,
+          name: 'Block Ops Routine',
+          blocks: [
+            RoutineBlock(name: 'Block A', durationMinutes: 10),
+            RoutineBlock(name: 'Block C', durationMinutes: 20),
+          ],
+        ),
+      );
+
+      final inserted = service.insertBlockInRoutine(
+        routineId,
+        1,
+        const RoutineBlock(name: 'Block B', durationMinutes: 15),
+      );
+      expect(inserted, true);
+
+      final afterInsert = service.getRoutineById(routineId)!;
+      expect(afterInsert.blocks.length, 3);
+      expect(afterInsert.blocks[1].name, 'Block B');
+
+      final updated = service.updateBlockInRoutine(
+        routineId,
+        1,
+        const RoutineBlock(name: 'Block B Updated', durationMinutes: 12),
+      );
+      expect(updated, true);
+
+      final afterUpdate = service.getRoutineById(routineId)!;
+      expect(afterUpdate.blocks[1].name, 'Block B Updated');
+      expect(afterUpdate.blocks[1].durationMinutes, 12);
+
+      final deleted = service.deleteBlockFromRoutine(routineId, 1);
+      expect(deleted, true);
+
+      final afterDelete = service.getRoutineById(routineId)!;
+      expect(afterDelete.blocks.length, 2);
+      expect(afterDelete.blocks[0].name, 'Block A');
+      expect(afterDelete.blocks[1].name, 'Block C');
+
+      service.deleteRoutine(routineId);
+    });
+
+    test(
+      'restoreDefaultRoutines resets defaults while keeping custom by default',
+      () {
+        final service = ChainedRoutineService.instance;
+        service.restoreDefaultRoutines(preserveCustom: false);
+
+        final originalMorning = service.getRoutineById(
+          ChainedRoutine.morningRoutine.id,
+        );
+        expect(originalMorning, isNotNull);
+
+        service.saveRoutine(
+          originalMorning!.copyWith(name: 'Temp Morning Name'),
+        );
+        service.saveRoutine(
+          const ChainedRoutine(
+            id: 'test_custom_routine_keep',
+            name: 'Keep Custom',
+            blocks: [RoutineBlock(name: 'Single Block', durationMinutes: 5)],
+          ),
+        );
+
+        service.restoreDefaultRoutines();
+
+        final restoredMorning = service.getRoutineById(
+          ChainedRoutine.morningRoutine.id,
+        );
+        expect(restoredMorning, isNotNull);
+        expect(restoredMorning!.name, ChainedRoutine.morningRoutine.name);
+        expect(
+          service.customRoutines.any((r) => r.id == 'test_custom_routine_keep'),
+          true,
+        );
+
+        service.restoreDefaultRoutines(preserveCustom: false);
+      },
+    );
+
+    test('deleteAllCustomRoutines clears only custom routines', () {
+      final service = ChainedRoutineService.instance;
+      service.restoreDefaultRoutines(preserveCustom: false);
+
+      service.saveRoutine(
+        const ChainedRoutine(
+          id: 'test_custom_routine_one',
+          name: 'Custom One',
+          blocks: [RoutineBlock(name: 'One', durationMinutes: 5)],
+        ),
+      );
+      service.saveRoutine(
+        const ChainedRoutine(
+          id: 'test_custom_routine_two',
+          name: 'Custom Two',
+          blocks: [RoutineBlock(name: 'Two', durationMinutes: 8)],
+        ),
+      );
+      expect(service.customRoutines.length, 2);
+
+      service.deleteAllCustomRoutines();
+
+      expect(service.customRoutines, isEmpty);
+      expect(
+        service.defaultRoutines.length,
+        ChainedRoutine.defaultRoutines.length,
+      );
+    });
+
     test('soundEnabled defaults to true', () {
       final service = ChainedRoutineService.instance;
       // Note: May not always be true if persisted settings changed it

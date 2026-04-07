@@ -4,6 +4,10 @@
 // Provides a full chat interface with context from the user's notes.
 // Supports MCP (Model Context Protocol) for tool execution.
 
+import 'dart:async';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
@@ -82,6 +86,7 @@ class AIChatPage extends StatefulWidget {
 class _AIChatPageState extends State<AIChatPage> {
   late AIChatController _chatController;
   MCPChatController? _mcpChatController;
+  VoidCallback? _mcpControllerListener;
   late ModelManager _modelManager;
   final _mainPromptPrefill = ValueNotifier<String?>(null);
   final _mcpPromptPrefill = ValueNotifier<String?>(null);
@@ -151,10 +156,14 @@ class _AIChatPageState extends State<AIChatPage> {
       // Get the browse directory (notes folder)
       final browseDir = FileManager.documentsDirectory;
 
+      _mcpChatController?.removeListener(_handleMcpControllerChanged);
+
       _mcpChatController = MCPChatController(
         systemPrompt: _buildMcpSystemPrompt(),
         browseDirectory: browseDir,
       );
+      _mcpControllerListener = _handleMcpControllerChanged;
+      _mcpChatController!.addListener(_mcpControllerListener!);
 
       // Set up model switch callback
       _mcpChatController!.onModelSwitchRequired = () {
@@ -252,10 +261,57 @@ class _AIChatPageState extends State<AIChatPage> {
   @override
   void dispose() {
     _chatController.dispose();
+    if (_mcpControllerListener != null) {
+      _mcpChatController?.removeListener(_mcpControllerListener!);
+    }
     _mcpChatController?.dispose();
     _mainPromptPrefill.dispose();
     _mcpPromptPrefill.dispose();
     super.dispose();
+  }
+
+  void _handleMcpControllerChanged() {
+    if (!mounted) return;
+    setState(() {});
+  }
+
+  Future<void> _exportMcpConversation() async {
+    final controller = _mcpChatController;
+    if (controller == null) return;
+
+    final jsonPayload = controller.exportConversationAsJson();
+
+    try {
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export MCP Chat as JSON',
+        fileName:
+            'kivixa_mcp_chat_${DateTime.now().millisecondsSinceEpoch}.json',
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null || !mounted) {
+        return;
+      }
+
+      await File(result).writeAsString(jsonPayload);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('MCP chat exported as JSON'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to export chat: $e'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   /// Toggle MCP mode on/off
@@ -294,7 +350,7 @@ class _AIChatPageState extends State<AIChatPage> {
   Widget _buildMcpChatInterface() {
     return Column(
       children: [
-        // MCP Status Bar
+        // Unified MCP top bar (status + actions)
         _buildMcpStatusBar(),
 
         // Chat Interface
@@ -302,6 +358,7 @@ class _AIChatPageState extends State<AIChatPage> {
           child: MCPChatInterface(
             controller: _mcpChatController!,
             context: context,
+            showHeader: false,
             promptPrefillListenable: _mcpPromptPrefill,
             emptyState: _buildMcpWelcomeWidget(),
           ),
@@ -316,6 +373,9 @@ class _AIChatPageState extends State<AIChatPage> {
     final colorScheme = theme.colorScheme;
     final mcpService = MCPService.instance;
     final modelRouter = ModelRouterService.instance;
+    final mcpController = _mcpChatController;
+    final hasMessages =
+        mcpController != null && mcpController.messages.isNotEmpty;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -325,7 +385,18 @@ class _AIChatPageState extends State<AIChatPage> {
       ),
       child: Row(
         children: [
-          // MCP Mode indicator
+          Icon(Icons.smart_toy, color: colorScheme.primary, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            'Kivixa MCP Assistant',
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          // MCP mode indicator
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
@@ -337,7 +408,7 @@ class _AIChatPageState extends State<AIChatPage> {
               children: [
                 Icon(
                   Icons.build,
-                  size: 16,
+                  size: 14,
                   color: colorScheme.onPrimaryContainer,
                 ),
                 const SizedBox(width: 4),
@@ -381,6 +452,21 @@ class _AIChatPageState extends State<AIChatPage> {
           ),
 
           const Spacer(),
+
+          if (hasMessages)
+            IconButton(
+              icon: const Icon(Icons.file_download_outlined),
+              tooltip: 'Export chat as JSON',
+              onPressed: _exportMcpConversation,
+            ),
+          if (hasMessages)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              tooltip: 'Clear chat',
+              onPressed: () {
+                mcpController.clearMessages();
+              },
+            ),
 
           // Disable MCP button
           IconButton(
@@ -886,6 +972,9 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
   final _modelManager = ModelManager();
   List<AIModel> _availableModels = [];
   Set<String> _downloadedModelIds = {};
+  StreamSubscription<ModelDownloadProgress>? _downloadProgressSubscription;
+  String? _activeDownloadModelId;
+  var _didNotifyForActiveDownload = false;
   var _isLoading = false;
   String? _error;
   ModelCategory? _selectedCategory;
@@ -893,7 +982,65 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
   @override
   void initState() {
     super.initState();
+    _downloadProgressSubscription = _modelManager.progressStream.listen(
+      _onDownloadProgress,
+    );
     _loadAvailableModels();
+  }
+
+  @override
+  void dispose() {
+    _downloadProgressSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _onDownloadProgress(ModelDownloadProgress progress) {
+    if (!mounted) {
+      return;
+    }
+
+    if (_activeDownloadModelId == null) {
+      return;
+    }
+
+    if (progress.modelId != null &&
+        progress.modelId != _activeDownloadModelId) {
+      return;
+    }
+
+    if (_didNotifyForActiveDownload) {
+      return;
+    }
+
+    final activeModel = ModelManager.getModelById(_activeDownloadModelId!);
+    final modelName = activeModel?.name ?? 'Model';
+
+    if (progress.state == ModelDownloadState.completed) {
+      _didNotifyForActiveDownload = true;
+      _activeDownloadModelId = null;
+      unawaited(_loadAvailableModels());
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$modelName download completed'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
+    if (progress.state == ModelDownloadState.failed) {
+      _didNotifyForActiveDownload = true;
+      _activeDownloadModelId = null;
+
+      final errorText = progress.errorMessage ?? 'Download failed';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$modelName download failed: $errorText'),
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
   }
 
   Future<void> _loadAvailableModels() async {
@@ -936,11 +1083,12 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
   }
 
   Future<void> _downloadModel(AIModel model) async {
+    _activeDownloadModelId = model.id;
+    _didNotifyForActiveDownload = false;
+
     await _modelManager.startDownload(model);
     if (mounted) {
       await _showDownloadProgressDialog(model);
-      // Refresh downloaded status
-      await _loadAvailableModels();
     }
   }
 
@@ -1002,7 +1150,7 @@ class _ModelSelectionPageState extends State<ModelSelectionPage> {
   Future<void> _showDownloadProgressDialog(AIModel model) async {
     await showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (context) =>
           _DownloadProgressDialog(modelManager: _modelManager, model: model),
     );
@@ -1223,11 +1371,15 @@ class _DownloadProgressDialogState extends State<_DownloadProgressDialog> {
                 child: const Text('Retry'),
               ),
             TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Hide'),
+            ),
+            TextButton(
               onPressed: () {
                 widget.modelManager.cancelDownload();
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: const Text('Cancel Download'),
             ),
             if (progress.state == ModelDownloadState.completed)
               FilledButton(

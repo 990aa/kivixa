@@ -366,6 +366,55 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  // Audio Intelligence settings
+  final audioIntelligenceEnabled = PlainStow(
+    'audioIntelligenceEnabled',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
+  // Voice profile: 0 = female, 1 = male, 2 = custom
+  final audioVoiceProfile = PlainStow(
+    'audioVoiceProfile',
+    0,
+    volatile: !_isOnMainIsolate,
+  );
+
+  // Explicit custom voice id (used when audioVoiceProfile == 2)
+  final audioCustomVoiceId = PlainStow<String?>(
+    'audioCustomVoiceId',
+    null,
+    volatile: !_isOnMainIsolate,
+  );
+
+  // Global TTS playback speed (0.5x - 2.0x)
+  final audioTtsSpeed = PlainStow<double>(
+    'audioTtsSpeed',
+    1.0,
+    volatile: !_isOnMainIsolate,
+  );
+
+  // Voice activity detection threshold (0.0 - 1.0)
+  final audioVadThreshold = PlainStow<double>(
+    'audioVadThreshold',
+    0.5,
+    volatile: !_isOnMainIsolate,
+  );
+
+  // Automatically read out new assistant responses
+  final audioAutoPlayResponses = PlainStow(
+    'audioAutoPlayResponses',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
+  // Show floating read-aloud action in supported editors
+  final audioShowReadAloudFab = PlainStow(
+    'audioShowReadAloudFab',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
   // Media settings
   // Web image mode: 0 = download locally, 1 = fetch on demand
   final webImageMode = PlainStow(

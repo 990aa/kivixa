@@ -66,7 +66,7 @@ jobs:
           docker-images: true
           swap-storage: true
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
           fetch-depth: 0
@@ -120,9 +120,7 @@ jobs:
           channel: 'stable'
           cache: true
 
-      # =========================================================================
       # RUST SETUP FOR ANDROID
-      # =========================================================================
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -274,9 +272,57 @@ jobs:
           ls -la android/app/src/main/jniLibs/armeabi-v7a/
           ls -la android/app/src/main/jniLibs/x86_64/
 
-      # =========================================================================
+      - name: Build Rust audio library for Android
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          # Build kivixa_audio for Android
+          echo "=== Building kivixa_audio for Android ==="
+          cd native_audio
+          
+          NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          API_LEVEL=23
+          
+          # arm64-v8a
+          echo "Building aarch64-linux-android..."
+          export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
+          export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
+          export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
+          cargo build --release --target aarch64-linux-android
+          
+          # armv7-linux-androideabi
+          echo "Building armv7-linux-androideabi..."
+          export CC_armv7_linux_androideabi="${NDK_BIN}/armv7a-linux-androideabi${API_LEVEL}-clang"
+          export AR_armv7_linux_androideabi="${NDK_BIN}/llvm-ar"
+          export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="${NDK_BIN}/armv7a-linux-androideabi${API_LEVEL}-clang"
+          cargo build --release --target armv7-linux-androideabi
+          
+          # x86_64-linux-android
+          echo "Building x86_64-linux-android..."
+          export CC_x86_64_linux_android="${NDK_BIN}/x86_64-linux-android${API_LEVEL}-clang"
+          export AR_x86_64_linux_android="${NDK_BIN}/llvm-ar"
+          export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="${NDK_BIN}/x86_64-linux-android${API_LEVEL}-clang"
+          cargo build --release --target x86_64-linux-android
+          
+          cd ..
+          
+          # Copy to jniLibs (main app)
+          cp native_audio/target/aarch64-linux-android/release/libkivixa_audio.so android/app/src/main/jniLibs/arm64-v8a/
+          cp native_audio/target/armv7-linux-androideabi/release/libkivixa_audio.so android/app/src/main/jniLibs/armeabi-v7a/
+          cp native_audio/target/x86_64-linux-android/release/libkivixa_audio.so android/app/src/main/jniLibs/x86_64/
+          
+          # Copy to rust_builder jniLibs (for Flutter plugin detection)
+          cp native_audio/target/aarch64-linux-android/release/libkivixa_audio.so rust_builder/android/src/main/jniLibs/arm64-v8a/
+          cp native_audio/target/armv7-linux-androideabi/release/libkivixa_audio.so rust_builder/android/src/main/jniLibs/armeabi-v7a/
+          cp native_audio/target/x86_64-linux-android/release/libkivixa_audio.so rust_builder/android/src/main/jniLibs/x86_64/
+          
+          echo "kivixa_audio libraries copied to all jniLibs locations"
+          ls -la android/app/src/main/jniLibs/arm64-v8a/
+          ls -la android/app/src/main/jniLibs/armeabi-v7a/
+          ls -la android/app/src/main/jniLibs/x86_64/
+
       # ANDROID BUILD
-      # =========================================================================
       - name: Decode Android Keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
@@ -321,7 +367,7 @@ jobs:
           unzip -l artifacts/Kivixa-Android-*-arm64.apk | grep -E "\.so$" || true
           
           # Verify required libraries exist
-          REQUIRED_LIBS="libkivixa_native.so libkivixa_math.so"
+          REQUIRED_LIBS="libkivixa_native.so libkivixa_math.so libkivixa_audio.so"
           for LIB in $REQUIRED_LIBS; do
             if unzip -l artifacts/Kivixa-Android-*-arm64.apk | grep -q "$LIB"; then
               echo "[OK] $LIB found in APK"
@@ -343,7 +389,7 @@ jobs:
           rm -rf /tmp/apk_check
 
       - name: Upload Android artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: android-apks
           path: artifacts/*.apk
@@ -360,7 +406,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -391,9 +437,7 @@ jobs:
           $certBytes = [Convert]::FromBase64String("${{ secrets.WINDOWS_CERT_BASE64 }}")
           [IO.File]::WriteAllBytes("windows/certificate.pfx", $certBytes)
 
-      # =========================================================================
       # RUST SETUP FOR WINDOWS
-      # =========================================================================
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -439,18 +483,32 @@ jobs:
           Write-Host "kivixa_math.dll copied to all Windows locations"
           Get-ChildItem "build/windows/x64/runner/Release/*.dll"
 
-      # =========================================================================
+      - name: Build Rust audio library for Windows
+        shell: pwsh
+        run: |
+          Write-Host "=== Building kivixa_audio for Windows ===" -ForegroundColor Cyan
+          Set-Location native_audio
+          cargo build --release --target x86_64-pc-windows-msvc
+          Set-Location ..
+          
+          # Copy DLL to all locations
+          $dllSource = "native_audio/target/x86_64-pc-windows-msvc/release/kivixa_audio.dll"
+          Copy-Item $dllSource "build/windows/x64/runner/Debug/" -Force
+          Copy-Item $dllSource "build/windows/x64/runner/Release/" -Force
+          Copy-Item $dllSource "build/windows/x64/runner/Profile/" -Force
+          Copy-Item $dllSource "rust_builder/target/x86_64-pc-windows-msvc/release/" -Force
+          
+          Write-Host "kivixa_audio.dll copied to all Windows locations"
+          Get-ChildItem "build/windows/x64/runner/Release/*.dll"
+
       # WINDOWS BUILD
-      # =========================================================================
       - name: Get dependencies
         run: flutter pub get
 
       - name: Build Windows
         run: flutter build windows --release
 
-      # =========================================================================
       # MSIX BUILD STEP (Safe & Isolated)
-      # =========================================================================
       - name: Build and Sign MSIX
         id: build_msix
         continue-on-error: true # <--- PREVENTS WORKFLOW FAILURE IF MSIX FAILS
@@ -482,7 +540,7 @@ jobs:
 
       - name: Upload MSIX Artifact
         if: always() && steps.build_msix.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-msix
           path: build\windows\x64\runner\Release\*.msix
@@ -494,7 +552,7 @@ jobs:
           Write-Host "=== Verifying Rust DLLs ===" -ForegroundColor Cyan
           $releaseDir = "build/windows/x64/runner/Release"
           
-          $requiredDlls = @("kivixa_native.dll", "kivixa_math.dll")
+          $requiredDlls = @("kivixa_native.dll", "kivixa_math.dll", "kivixa_audio.dll")
           foreach ($dll in $requiredDlls) {
             $dllPath = Join-Path $releaseDir $dll
             if (Test-Path $dllPath) {
@@ -592,7 +650,7 @@ jobs:
           }
 
       - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-installer
           path: build_windows_installer/Kivixa-Setup-*.exe
@@ -614,7 +672,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download Android artifacts
         uses: actions/download-artifact@v4
@@ -700,7 +758,7 @@ jobs:
     
     steps:
       - name: Checkout gh-pages branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: gh-pages
           fetch-depth: 0
@@ -728,15 +786,34 @@ jobs:
           
           # --- 1. PREPARE DIRECTORIES ---
           mkdir -p repo
+          mkdir -p archive
+          mkdir -p repo/icons
+          mkdir -p archive/icons
           mkdir -p metadata/com.a990aa.kivixa/en-US
           
           # --- 2. COPY APKs ---
           cp fdroid-apks/*.apk repo/
+          cp -f icon.png repo/icons/icon.png
+          cp -f icon.png archive/icons/icon.png
+
+          # Keep the published repo clean by dropping temporary artifact cache.
+          rm -rf fdroid-apks tmp
+
+          # Remove legacy APKs older than 0.4.0 from both repo and archive.
+          for dir in repo archive; do
+            find "$dir" -maxdepth 1 -type f -name 'Kivixa-Android-*.apk' | while IFS= read -r apk; do
+              base_name=$(basename "$apk")
+              version=$(echo "$base_name" | sed -E 's/^Kivixa-Android-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+              if [ -n "$version" ] && [ "$(printf '%s\n0.4.0\n' "$version" | sort -V | head -n1)" != "0.4.0" ]; then
+                rm -f "$apk"
+              fi
+            done
+          done
           
-          # --- 3. CREATE METADATA ---
+          # --- 3. CREATE METADATA (Flush to left to avoid weird spaces) ---
           cat > metadata/com.a990aa.kivixa/en-US/full_description.txt << 'DESCEOF'
-          Kivixa is a privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance..
-          
+          Kivixa is a privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
+
           Features:
           - Rich markdown and text editing for fast note-taking
           - Digital canvas for handwriting, drawing, and mixed media notes
@@ -750,28 +827,53 @@ jobs:
           cat > metadata/com.a990aa.kivixa/en-US/short_description.txt << 'DESCEOF'
           A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
           DESCEOF
+
+          cat > metadata/com.a990aa.kivixa/en-US/title.txt << 'DESCEOF'
+          Kivixa
+          DESCEOF
+
+          cat > metadata/com.a990aa.kivixa.yml << 'METAEOF'
+          Categories:
+            - Productivity
+          Name: Kivixa
+          Summary: A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
+          METAEOF
           
           # --- 4. HANDLE KEYSTORE (CRITICAL) ---
-          # If we don't have the key, delete old config to force fresh init
           if [ ! -f keystore.p12 ]; then
-            echo "Keystore missing. Cleaning up to force re-initialization..."
+            echo "Keystore missing. Initializing fresh keys..."
             rm -f config.yml
-            
-            echo "Initializing F-Droid Repository keys..."
             fdroid init --verbose
           fi
           
-          # --- 5. CREATE CONFIG ---
-          if [ ! -f config.yml ]; then
-            cat > config.yml << 'CFGEOF'
-          repo_url: https://990aa.github.io/kivixa/repo
-          repo_name: Kivixa F-Droid Repo
-          repo_icon: icon.png
-          repo_description: |
-            Official F-Droid repository for Kivixa app releases.
-          archive_older: 3
-          CFGEOF
-          fi
+          # --- 5. UPDATE CONFIG WITHOUT DROPPING EXISTING SIGNING FIELDS ---
+          python - << 'PYCFG'
+          from pathlib import Path
+          from ruamel.yaml import YAML
+
+          path = Path("config.yml")
+          yaml = YAML()
+          yaml.default_flow_style = False
+
+          data = {}
+          if path.exists():
+              loaded = yaml.load(path.read_text(encoding="utf-8"))
+              if isinstance(loaded, dict):
+                  data = loaded
+
+          data["repo_url"] = "https://990aa.github.io/kivixa/repo"
+          data["repo_name"] = "Kivixa"
+          data["repo_icon"] = "icon.png"
+          data["repo_description"] = "Official F-Droid repository for the Kivixa productivity workspace."
+          data["archive_name"] = "Kivixa Archive"
+          data["archive_description"] = "Older versions of Kivixa kept for compatibility and rollback."
+          data["archive_icon"] = "icon.png"
+          data["archive_older"] = 3
+
+          with path.open("w", encoding="utf-8") as fp:
+              yaml.dump(data, fp)
+          PYCFG
+
           
           # --- 6. UPDATE REPO (GENERATE INDEX) ---
           echo "Running F-Droid Update..."
@@ -787,8 +889,8 @@ jobs:
           # Add .nojekyll to ensure links work
           touch .nojekyll
           
-          # Add ALL files (including the new keystore so we don't regenerate it next time)
-          git add -A
+          # Stage only expected F-Droid publishing assets.
+          git add .nojekyll README.md index.html config.yml icon.png keystore.p12 metadata repo archive
           
           # Debug: Show what we are about to commit
           echo "Files staged for commit:"

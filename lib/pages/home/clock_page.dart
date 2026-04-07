@@ -4,6 +4,35 @@ import 'package:kivixa/services/productivity/multi_timer_service.dart';
 import 'package:kivixa/services/productivity/productivity_timer_service.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
+class _BlockStyle {
+  const _BlockStyle({
+    required this.label,
+    required this.icon,
+    required this.color,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color color;
+}
+
+const _blockStyles = <_BlockStyle>[
+  _BlockStyle(label: 'Focus', icon: Icons.psychology, color: Color(0xFF4CAF50)),
+  _BlockStyle(label: 'Break', icon: Icons.coffee, color: Color(0xFF795548)),
+  _BlockStyle(label: 'Study', icon: Icons.school, color: Color(0xFF2196F3)),
+  _BlockStyle(
+    label: 'Exercise',
+    icon: Icons.fitness_center,
+    color: Color(0xFFF44336),
+  ),
+  _BlockStyle(
+    label: 'Planning',
+    icon: Icons.event_note,
+    color: Color(0xFF9C27B0),
+  ),
+  _BlockStyle(label: 'Custom', icon: Icons.tune, color: Color(0xFF607D8B)),
+];
+
 /// Full-page Clock/Productivity Timer interface
 class ClockPage extends StatefulWidget {
   const ClockPage({super.key});
@@ -23,7 +52,7 @@ class _ClockPageState extends State<ClockPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _initializeServices();
     _timerService.addListener(_onUpdate);
     _multiTimerService.addListener(_onUpdate);
@@ -76,6 +105,7 @@ class _ClockPageState extends State<ClockPage>
             Tab(icon: Icon(Icons.timer), text: 'Focus'),
             Tab(icon: Icon(Icons.flash_on), text: 'Presets'),
             Tab(icon: Icon(Icons.playlist_play), text: 'Routines'),
+            Tab(icon: Icon(Icons.account_tree_outlined), text: 'Chains'),
             Tab(icon: Icon(Icons.bar_chart), text: 'Stats'),
           ],
         ),
@@ -86,6 +116,7 @@ class _ClockPageState extends State<ClockPage>
           _buildFocusTab(context),
           _buildPresetsTab(context),
           _buildRoutinesTab(context),
+          _buildCustomChainsTab(context),
           _buildStatsTab(context),
         ],
       ),
@@ -665,25 +696,48 @@ class _ClockPageState extends State<ClockPage>
   Widget _buildPresetsTab(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final presets = _timerService.allQuickPresets;
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text(
-          'Quick-Switch Presets',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Quick-Switch Presets',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            IconButton.filledTonal(
+              onPressed: () => _showPresetEditorDialog(context),
+              icon: const Icon(Icons.add),
+              tooltip: 'Create preset',
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         Text(
-          'Tap a preset to start immediately with optimized settings',
+          'Tap any preset to launch instantly. Edit or delete built-in and custom presets anytime.',
           style: theme.textTheme.bodyMedium?.copyWith(
             color: colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 16),
-        ...QuickPreset.defaultPresets.map((preset) {
+        if (presets.isEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'No presets available yet. Create one using the + button.',
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+          ),
+        ...presets.map((preset) {
+          final presetType = preset.isDefault ? 'Default' : 'Custom';
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             child: InkWell(
@@ -709,11 +763,23 @@ class _ClockPageState extends State<ClockPage>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            preset.name,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Text(
+                                preset.name,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Chip(
+                                label: Text(presetType),
+                                visualDensity: VisualDensity.compact,
+                                padding: EdgeInsets.zero,
+                              ),
+                            ],
                           ),
                           if (preset.description != null)
                             Text(
@@ -743,10 +809,37 @@ class _ClockPageState extends State<ClockPage>
                         ],
                       ),
                     ),
-                    Icon(
-                      Icons.play_circle,
-                      size: 40,
-                      color: colorScheme.primary,
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 132),
+                      child: Wrap(
+                        spacing: 2,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.play_circle),
+                            iconSize: 32,
+                            color: colorScheme.primary,
+                            tooltip: 'Start preset',
+                            onPressed: () {
+                              _timerService.startWithPreset(preset);
+                              _tabController.animateTo(0);
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.edit_outlined),
+                            tooltip: 'Edit preset',
+                            onPressed: () => _showPresetEditorDialog(
+                              context,
+                              preset: preset,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            tooltip: 'Delete preset',
+                            onPressed: () =>
+                                _confirmDeletePreset(context, preset),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -794,77 +887,186 @@ class _ClockPageState extends State<ClockPage>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text(
-          'Chained Routines',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Chained Routines',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            IconButton.filledTonal(
+              onPressed: () => _showRoutineEditorDialog(context),
+              icon: const Icon(Icons.add),
+              tooltip: 'Create routine',
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         Text(
-          'Run a sequence of timed blocks automatically',
+          'Run a sequence of timer blocks automatically. Edit and delete any routine from here.',
           style: theme.textTheme.bodyMedium?.copyWith(
             color: colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 16),
+        if (_routineService.allRoutines.isEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'No routines found. Create a new routine with the + button.',
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+          ),
         ..._routineService.allRoutines.map((routine) {
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: InkWell(
-              onTap: () => _showRoutineDetails(context, routine),
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
+          return _buildRoutineCard(context, routine);
+        }),
+      ],
+    );
+  }
+
+  Widget _buildCustomChainsTab(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final customRoutines = _routineService.customRoutines;
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Custom Chains',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            IconButton.filled(
+              onPressed: () => _showRoutineEditorDialog(context),
+              icon: const Icon(Icons.add),
+              tooltip: 'Create custom chain',
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Create fully custom timer chains and manage every block in your sequence.',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 16),
+        if (customRoutines.isEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'No custom chains yet. Tap + to build your first routine.',
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+          ),
+        ...customRoutines.map((routine) => _buildRoutineCard(context, routine)),
+      ],
+    );
+  }
+
+  Widget _buildRoutineCard(BuildContext context, ChainedRoutine routine) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final routineType = routine.isDefault ? 'Default' : 'Custom';
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        onTap: () => _showRoutineDetails(context, routine),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: routine.color.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(routine.icon, color: routine.color),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: routine.color.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(routine.icon, color: routine.color),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            routine.name,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          routine.name,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
-                          if (routine.description != null)
-                            Text(
-                              routine.description!,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${routine.blocks.length} blocks • ${routine.totalMinutes} min total',
-                            style: theme.textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
+                        ),
+                        Chip(
+                          label: Text(routineType),
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.play_circle),
-                      iconSize: 40,
-                      color: colorScheme.primary,
-                      onPressed: () => _routineService.startRoutine(routine),
+                    if (routine.description != null)
+                      Text(
+                        routine.description!,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${routine.blocks.length} blocks - ${routine.totalMinutes} min total',
+                      style: theme.textTheme.bodySmall,
                     ),
                   ],
                 ),
               ),
-            ),
-          );
-        }),
-      ],
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 132),
+                child: Wrap(
+                  spacing: 2,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.play_circle),
+                      iconSize: 32,
+                      color: colorScheme.primary,
+                      tooltip: 'Start routine',
+                      onPressed: () => _routineService.startRoutine(routine),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined),
+                      tooltip: 'Edit routine',
+                      onPressed: () =>
+                          _showRoutineEditorDialog(context, routine: routine),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      tooltip: 'Delete routine',
+                      onPressed: () => _confirmDeleteRoutine(context, routine),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -1001,7 +1203,7 @@ class _ClockPageState extends State<ClockPage>
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Routine Complete! 🎉',
+                      'Routine Complete!',
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.green,
@@ -1068,9 +1270,9 @@ class _ClockPageState extends State<ClockPage>
     );
   }
 
-  void _showRoutineDetails(BuildContext context, ChainedRoutine routine) {
+  void _showRoutineDetails(BuildContext pageContext, ChainedRoutine routine) {
     showModalBottomSheet<void>(
-      context: context,
+      context: pageContext,
       isScrollControlled: true,
       builder: (context) {
         final theme = Theme.of(context);
@@ -1156,6 +1358,35 @@ class _ClockPageState extends State<ClockPage>
                   );
                 }),
                 const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _showRoutineEditorDialog(
+                            pageContext,
+                            routine: routine,
+                          );
+                        },
+                        icon: const Icon(Icons.edit_outlined),
+                        label: const Text('Edit'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _confirmDeleteRoutine(pageContext, routine);
+                        },
+                        icon: const Icon(Icons.delete_outline),
+                        label: const Text('Delete'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
                 FilledButton.icon(
                   onPressed: () {
                     Navigator.pop(context);
@@ -1170,6 +1401,590 @@ class _ClockPageState extends State<ClockPage>
               ],
             );
           },
+        );
+      },
+    );
+  }
+
+  void _showPresetEditorDialog(BuildContext context, {QuickPreset? preset}) {
+    final nameController = TextEditingController(text: preset?.name ?? '');
+    final workMinutesController = TextEditingController(
+      text: '${preset?.workMinutes ?? 25}',
+    );
+    final breakMinutesController = TextEditingController(
+      text: '${preset?.breakMinutes ?? 5}',
+    );
+    final cyclesController = TextEditingController(
+      text: '${preset?.totalCycles ?? 4}',
+    );
+    final descriptionController = TextEditingController(
+      text: preset?.description ?? '',
+    );
+    var autoStartBreak = preset?.autoStartBreak ?? true;
+    var autoStartNextSession = preset?.autoStartNextSession ?? false;
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(preset == null ? 'Create Preset' : 'Edit Preset'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Name',
+                        hintText: 'Deep Work',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: workMinutesController,
+                      decoration: const InputDecoration(
+                        labelText: 'Work Minutes',
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: breakMinutesController,
+                      decoration: const InputDecoration(
+                        labelText: 'Break Minutes',
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: cyclesController,
+                      decoration: const InputDecoration(labelText: 'Cycles'),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description (optional)',
+                      ),
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 8),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Auto-start break'),
+                      value: autoStartBreak,
+                      onChanged: (value) {
+                        setDialogState(() {
+                          autoStartBreak = value;
+                        });
+                      },
+                    ),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Auto-start next session'),
+                      value: autoStartNextSession,
+                      onChanged: (value) {
+                        setDialogState(() {
+                          autoStartNextSession = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    final name = nameController.text.trim();
+                    final workMinutes = int.tryParse(
+                      workMinutesController.text.trim(),
+                    );
+                    final breakMinutes = int.tryParse(
+                      breakMinutesController.text.trim(),
+                    );
+                    final cycles = int.tryParse(cyclesController.text.trim());
+
+                    if (name.isEmpty ||
+                        workMinutes == null ||
+                        breakMinutes == null ||
+                        cycles == null ||
+                        workMinutes <= 0 ||
+                        breakMinutes <= 0 ||
+                        cycles <= 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter valid preset values.'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    final normalizedName = name
+                        .toLowerCase()
+                        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+                        .replaceAll(RegExp(r'^_+|_+$'), '');
+                    final presetId =
+                        preset?.id ??
+                        'custom_preset_${normalizedName.isEmpty ? 'preset' : normalizedName}_${DateTime.now().millisecondsSinceEpoch}';
+
+                    final updatedPreset = QuickPreset(
+                      id: presetId,
+                      name: name,
+                      icon: preset?.icon ?? Icons.tune,
+                      workMinutes: workMinutes,
+                      breakMinutes: breakMinutes,
+                      longBreakMinutes: preset?.longBreakMinutes,
+                      cyclesBeforeLongBreak: preset?.cyclesBeforeLongBreak,
+                      totalCycles: cycles,
+                      autoStartBreak: autoStartBreak,
+                      autoStartNextSession: autoStartNextSession,
+                      description: descriptionController.text.trim().isEmpty
+                          ? null
+                          : descriptionController.text.trim(),
+                      isDefault: preset?.isDefault ?? false,
+                    );
+
+                    _timerService.saveQuickPreset(updatedPreset);
+                    Navigator.pop(dialogContext);
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _confirmDeletePreset(BuildContext context, QuickPreset preset) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Delete preset?'),
+          content: Text('Delete "${preset.name}" permanently?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                _timerService.deleteQuickPreset(preset.id);
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showRoutineEditorDialog(
+    BuildContext context, {
+    ChainedRoutine? routine,
+  }) {
+    final nameController = TextEditingController(text: routine?.name ?? '');
+    final descriptionController = TextEditingController(
+      text: routine?.description ?? '',
+    );
+    final draftBlocks = List<RoutineBlock>.from(routine?.blocks ?? const []);
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            Future<void> addBlock({int? insertIndex}) async {
+              final newBlock = await _showBlockEditorDialog(context);
+              if (newBlock == null) {
+                return;
+              }
+
+              setSheetState(() {
+                final targetIndex = insertIndex ?? draftBlocks.length;
+                draftBlocks.insert(
+                  targetIndex.clamp(0, draftBlocks.length),
+                  newBlock,
+                );
+              });
+            }
+
+            Future<void> editBlock(int index) async {
+              final existing = draftBlocks[index];
+              final updated = await _showBlockEditorDialog(
+                context,
+                existing: existing,
+              );
+              if (updated == null) {
+                return;
+              }
+
+              setSheetState(() {
+                draftBlocks[index] = updated;
+              });
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            routine == null ? 'Create Chain' : 'Edit Chain',
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(sheetContext),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(labelText: 'Name'),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description (optional)',
+                      ),
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Blocks',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    if (draftBlocks.isEmpty)
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Text(
+                            'No blocks yet. Add your first block to continue.',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                      ),
+                    ...draftBlocks.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final block = entry.value;
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: block.color.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      block.icon,
+                                      color: block.color,
+                                      size: 18,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          block.name,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleSmall
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                        Text(
+                                          '${block.durationMinutes} min',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.edit_outlined),
+                                    onPressed: () => editBlock(index),
+                                    tooltip: 'Edit block',
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_outline),
+                                    onPressed: () {
+                                      setSheetState(() {
+                                        draftBlocks.removeAt(index);
+                                      });
+                                    },
+                                    tooltip: 'Delete block',
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  TextButton.icon(
+                                    onPressed: () =>
+                                        addBlock(insertIndex: index),
+                                    icon: const Icon(Icons.add),
+                                    label: const Text('Insert Before'),
+                                  ),
+                                  TextButton.icon(
+                                    onPressed: () =>
+                                        addBlock(insertIndex: index + 1),
+                                    icon: const Icon(Icons.add),
+                                    label: const Text('Insert After'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+                    OutlinedButton.icon(
+                      onPressed: () => addBlock(),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add Block'),
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton.icon(
+                      onPressed: () {
+                        final name = nameController.text.trim();
+                        if (name.isEmpty || draftBlocks.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Enter a routine name and at least one block.',
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+
+                        final normalizedName = name
+                            .toLowerCase()
+                            .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+                            .replaceAll(RegExp(r'^_+|_+$'), '');
+                        final routineId =
+                            routine?.id ??
+                            'custom_routine_${normalizedName.isEmpty ? 'routine' : normalizedName}_${DateTime.now().millisecondsSinceEpoch}';
+
+                        final updatedRoutine = ChainedRoutine(
+                          id: routineId,
+                          name: name,
+                          blocks: List<RoutineBlock>.from(draftBlocks),
+                          icon: routine?.icon ?? Icons.account_tree_outlined,
+                          color:
+                              routine?.color ??
+                              Theme.of(context).colorScheme.primary,
+                          description: descriptionController.text.trim().isEmpty
+                              ? null
+                              : descriptionController.text.trim(),
+                          isDefault: routine?.isDefault ?? false,
+                        );
+
+                        _routineService.saveRoutine(updatedRoutine);
+                        Navigator.pop(sheetContext);
+                      },
+                      icon: const Icon(Icons.save_outlined),
+                      label: const Text('Save Chain'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<RoutineBlock?> _showBlockEditorDialog(
+    BuildContext context, {
+    RoutineBlock? existing,
+  }) {
+    final nameController = TextEditingController(text: existing?.name ?? '');
+    final durationController = TextEditingController(
+      text: '${existing?.durationMinutes ?? 25}',
+    );
+    final descriptionController = TextEditingController(
+      text: existing?.description ?? '',
+    );
+
+    final initialStyle = _blockStyles.indexWhere(
+      (style) =>
+          style.icon.codePoint ==
+          (existing?.icon.codePoint ?? Icons.timer.codePoint),
+    );
+    var selectedStyleIndex = initialStyle == -1 ? 0 : initialStyle;
+
+    return showDialog<RoutineBlock>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(existing == null ? 'Add Block' : 'Edit Block'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Block name',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: durationController,
+                      decoration: const InputDecoration(
+                        labelText: 'Duration (minutes)',
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<int>(
+                      initialValue: selectedStyleIndex,
+                      decoration: const InputDecoration(labelText: 'Style'),
+                      items: _blockStyles.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final style = entry.value;
+                        return DropdownMenuItem<int>(
+                          value: index,
+                          child: Row(
+                            children: [
+                              Icon(style.icon, color: style.color, size: 18),
+                              const SizedBox(width: 8),
+                              Text(style.label),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value == null) {
+                          return;
+                        }
+                        setDialogState(() {
+                          selectedStyleIndex = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description (optional)',
+                      ),
+                      maxLines: 2,
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    final name = nameController.text.trim();
+                    final durationMinutes = int.tryParse(
+                      durationController.text.trim(),
+                    );
+                    if (name.isEmpty ||
+                        durationMinutes == null ||
+                        durationMinutes <= 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Please enter a valid block name and duration.',
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+
+                    final style = _blockStyles[selectedStyleIndex];
+                    Navigator.pop(
+                      dialogContext,
+                      RoutineBlock(
+                        name: name,
+                        durationMinutes: durationMinutes,
+                        icon: style.icon,
+                        color: style.color,
+                        description: descriptionController.text.trim().isEmpty
+                            ? null
+                            : descriptionController.text.trim(),
+                      ),
+                    );
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _confirmDeleteRoutine(BuildContext context, ChainedRoutine routine) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Delete routine?'),
+          content: Text('Delete "${routine.name}" permanently?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                _routineService.deleteRoutine(routine.id);
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('Delete'),
+            ),
+          ],
         );
       },
     );

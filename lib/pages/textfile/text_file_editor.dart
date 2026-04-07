@@ -10,11 +10,15 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kivixa/components/audio/read_aloud.dart';
 import 'package:kivixa/components/life_git/time_travel_slider.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/models/media_element.dart';
+import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
+import 'package:kivixa/services/audio/audio_neural_engine.dart';
+import 'package:kivixa/services/audio/audio_recording_service.dart';
 import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:logging/logging.dart';
 import 'package:media_kit/media_kit.dart';
@@ -898,6 +902,13 @@ class _TextFileEditorState extends State<TextFileEditor> {
   DateTime? _lastEditorTapAt;
   var _editorTapCount = 0;
 
+  final _audioEngine = AudioNeuralEngine();
+  final _audioRecorder = AudioRecordingService();
+  final _readAloudController = ReadAloudController();
+  StreamSubscription<SpeechRecognitionResult>? _dictationSub;
+  var _isDictating = false;
+  var _showReadAloudPlayer = false;
+
   static const _tripleTapWindow = Duration(milliseconds: 450);
 
   // Time Travel state
@@ -911,6 +922,8 @@ class _TextFileEditorState extends State<TextFileEditor> {
     super.initState();
     _controller = QuillController.basic();
     _fileNameController = TextEditingController();
+    _readAloudController.addListener(_onReadAloudControllerChanged);
+    _dictationSub = _audioEngine.transcriptionStream.listen(_onDictationResult);
     _loadFile();
   }
 
@@ -1021,6 +1034,106 @@ class _TextFileEditorState extends State<TextFileEditor> {
     final text = _controller.document.toPlainText();
     final selection = lineSelectionForOffset(text, _controller.selection.start);
     _controller.updateSelection(selection, ChangeSource.local);
+  }
+
+  void _onReadAloudControllerChanged() {
+    final shouldShow =
+        _readAloudController.isPlaying ||
+        _readAloudController.currentSentence.isNotEmpty;
+    if (shouldShow != _showReadAloudPlayer && mounted) {
+      setState(() {
+        _showReadAloudPlayer = shouldShow;
+      });
+    }
+  }
+
+  void _onDictationResult(SpeechRecognitionResult result) {
+    if (!_isDictating || !result.isFinal || result.text.trim().isEmpty) {
+      return;
+    }
+    _insertDictationText('${result.text.trim()} ');
+  }
+
+  void _insertDictationText(String text) {
+    var index = _controller.selection.baseOffset;
+    if (index < 0) index = _controller.document.length - 1;
+
+    _controller.document.insert(index, text);
+    _controller.updateSelection(
+      TextSelection.collapsed(offset: index + text.length),
+      ChangeSource.local,
+    );
+  }
+
+  T _readAudioPref<T>(T Function() reader, T fallback) {
+    try {
+      return reader();
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  Future<void> _toggleDictation() async {
+    if (!_readAudioPref(() => stows.audioIntelligenceEnabled.value, true)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Audio Intelligence is disabled')),
+      );
+      return;
+    }
+
+    try {
+      if (_isDictating) {
+        await _audioRecorder.stopRecording();
+        final result = await _audioEngine.stopListening();
+        if (result != null && result.text.trim().isNotEmpty) {
+          _insertDictationText('${result.text.trim()} ');
+        }
+        if (mounted) {
+          setState(() {
+            _isDictating = false;
+          });
+        }
+        return;
+      }
+
+      final initialized = await _audioEngine.initialize();
+      if (!initialized) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to initialize audio engine')),
+        );
+        return;
+      }
+
+      _audioEngine.setVadThreshold(
+        _readAudioPref(() => stows.audioVadThreshold.value, 0.5),
+      );
+      await _audioEngine.startListening();
+      await _audioRecorder.startRecording();
+      if (mounted) {
+        setState(() {
+          _isDictating = true;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Dictation failed: $e')));
+    }
+  }
+
+  Future<void> _readDocumentAloud() async {
+    final text = _controller.document.toPlainText().trim();
+    if (text.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Document is empty')));
+      return;
+    }
+    await _readAloudController.startReading(text);
   }
 
   /// Update a media embed in the document with new metadata
@@ -1648,6 +1761,13 @@ class _TextFileEditorState extends State<TextFileEditor> {
   void dispose() {
     _autosaveTimer?.cancel();
     _renameTimer?.cancel();
+    _dictationSub?.cancel();
+    _readAloudController.removeListener(_onReadAloudControllerChanged);
+    if (_isDictating) {
+      unawaited(_audioRecorder.stopRecording());
+      unawaited(_audioEngine.stopListening());
+    }
+    _readAloudController.dispose();
     _controller.dispose();
     _fileNameController.dispose();
     _editorFocusNode.dispose();
@@ -1715,6 +1835,19 @@ class _TextFileEditorState extends State<TextFileEditor> {
               tooltip: 'Insert Table',
               onPressed: _insertTable,
             ),
+            IconButton(
+              icon: Icon(_isDictating ? Icons.stop_circle : Icons.mic),
+              tooltip: _isDictating
+                  ? 'Stop dictation'
+                  : 'Dictate into document',
+              color: _isDictating ? colorScheme.error : null,
+              onPressed: _toggleDictation,
+            ),
+            IconButton(
+              icon: const Icon(Icons.volume_up),
+              tooltip: 'Read document aloud',
+              onPressed: _readDocumentAloud,
+            ),
             // Time Travel button
             IconButton(
               icon: const Icon(Icons.history),
@@ -1757,6 +1890,15 @@ class _TextFileEditorState extends State<TextFileEditor> {
           ],
         ],
       ),
+      floatingActionButton:
+          !_isTimeTraveling &&
+              _readAudioPref(() => stows.audioShowReadAloudFab.value, true)
+          ? FloatingActionButton.small(
+              onPressed: _readDocumentAloud,
+              tooltip: 'Read document aloud',
+              child: const Icon(Icons.volume_up),
+            )
+          : null,
       body: SafeArea(
         child: Column(
           children: [
@@ -1864,6 +2006,17 @@ class _TextFileEditorState extends State<TextFileEditor> {
                 ),
               ),
             ),
+            if (_showReadAloudPlayer)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: ReadAloudMiniPlayer(
+                  controller: _readAloudController,
+                  expanded: true,
+                  onClose: () {
+                    _readAloudController.stop();
+                  },
+                ),
+              ),
           ],
         ),
       ),

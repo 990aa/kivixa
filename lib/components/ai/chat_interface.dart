@@ -11,11 +11,16 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:kivixa/components/audio/read_aloud.dart';
+import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/pages/home/ai_chat.dart';
 import 'package:kivixa/services/ai/chat_attachment_service.dart';
 import 'package:kivixa/services/ai/chat_context_service.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/model_manager.dart';
+import 'package:kivixa/services/audio/audio_neural_engine.dart';
+import 'package:kivixa/services/audio/audio_recording_service.dart';
 
 abstract class ChatInferenceGateway {
   bool get isModelLoaded;
@@ -147,6 +152,8 @@ class AIChatMessage {
   final String role;
   final String content;
   final List<ChatAttachment> attachments;
+  final String? modelName;
+  final String? modelId;
   final DateTime timestamp;
   final bool isLoading;
 
@@ -154,6 +161,8 @@ class AIChatMessage {
     required this.role,
     required this.content,
     List<ChatAttachment> attachments = const [],
+    this.modelName,
+    this.modelId,
     DateTime? timestamp,
     this.isLoading = false,
   }) : attachments = List.unmodifiable(attachments),
@@ -186,6 +195,8 @@ class AIChatMessage {
     String? role,
     String? content,
     List<ChatAttachment>? attachments,
+    String? modelName,
+    String? modelId,
     DateTime? timestamp,
     bool? isLoading,
   }) {
@@ -193,6 +204,8 @@ class AIChatMessage {
       role: role ?? this.role,
       content: content ?? this.content,
       attachments: attachments ?? this.attachments,
+      modelName: modelName ?? this.modelName,
+      modelId: modelId ?? this.modelId,
       timestamp: timestamp ?? this.timestamp,
       isLoading: isLoading ?? this.isLoading,
     );
@@ -201,6 +214,8 @@ class AIChatMessage {
   Map<String, dynamic> toExportJson() => {
     'role': role,
     'content': content,
+    if (modelName != null && modelName!.isNotEmpty) 'modelName': modelName,
+    if (modelId != null && modelId!.isNotEmpty) 'modelId': modelId,
     'timestamp': timestamp.toIso8601String(),
     if (attachments.isNotEmpty)
       'attachments': attachments
@@ -390,6 +405,9 @@ class AIChatController extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final currentModelName = _loadedModel?.name ?? 'Unknown model';
+      final currentModelId = _loadedModel?.id;
+
       // Build conversation history
       final chatMessages = <ChatMessage>[];
 
@@ -419,6 +437,8 @@ class AIChatController extends ChangeNotifier {
         _messages[loadingIndex] = AIChatMessage(
           role: 'assistant',
           content: response,
+          modelName: currentModelName,
+          modelId: currentModelId,
         );
       }
     } catch (e) {
@@ -428,6 +448,8 @@ class AIChatController extends ChangeNotifier {
         _messages[loadingIndex] = AIChatMessage(
           role: 'assistant',
           content: 'Error: ${e.toString()}',
+          modelName: _loadedModel?.name ?? 'Unknown model',
+          modelId: _loadedModel?.id,
         );
       }
     } finally {
@@ -524,6 +546,14 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
   final _pendingAttachments = <ChatAttachment>[];
+  final _audioEngine = AudioNeuralEngine();
+  final _audioRecorder = AudioRecordingService();
+  final _readAloudController = ReadAloudController();
+
+  StreamSubscription<SpeechRecognitionResult>? _transcriptionSub;
+  var _isListening = false;
+  var _showReadAloudPlayer = false;
+  DateTime? _lastAutoPlayedAssistantMessage;
 
   int? _historyCursor;
   var _draftBeforeHistory = '';
@@ -633,6 +663,10 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
     widget.controller.addListener(_onControllerUpdate);
     widget.promptPrefillListenable?.addListener(_onPromptPrefillChanged);
     _textController.addListener(_onComposerTextChanged);
+    _readAloudController.addListener(_onReadAloudUpdate);
+    _transcriptionSub = _audioEngine.transcriptionStream.listen(
+      _onTranscription,
+    );
   }
 
   @override
@@ -656,14 +690,159 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
     widget.controller.removeListener(_onControllerUpdate);
     widget.promptPrefillListenable?.removeListener(_onPromptPrefillChanged);
     _textController.removeListener(_onComposerTextChanged);
+    _transcriptionSub?.cancel();
+    _readAloudController.removeListener(_onReadAloudUpdate);
+    if (_isListening) {
+      unawaited(_audioRecorder.stopRecording());
+      unawaited(_audioEngine.stopListening());
+    }
+    _readAloudController.dispose();
     _textController.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
+  void _onReadAloudUpdate() {
+    final shouldShow =
+        _readAloudController.isPlaying ||
+        _readAloudController.currentSentence.isNotEmpty;
+    if (shouldShow != _showReadAloudPlayer && mounted) {
+      setState(() {
+        _showReadAloudPlayer = shouldShow;
+      });
+    }
+  }
+
+  void _onTranscription(SpeechRecognitionResult result) {
+    if (!_isListening || !result.isFinal || result.text.trim().isEmpty) {
+      return;
+    }
+    _insertComposerText('${result.text.trim()} ');
+  }
+
+  void _insertComposerText(String text) {
+    final selection = _textController.selection;
+    final currentText = _textController.text;
+
+    if (!selection.isValid) {
+      _textController
+        ..text = currentText + text
+        ..selection = TextSelection.collapsed(
+          offset: (currentText + text).length,
+        );
+      return;
+    }
+
+    final start = selection.start;
+    final end = selection.end;
+    final updatedText =
+        currentText.substring(0, start) + text + currentText.substring(end);
+    final cursor = start + text.length;
+
+    _textController.value = TextEditingValue(
+      text: updatedText,
+      selection: TextSelection.collapsed(offset: cursor),
+    );
+    _focusNode.requestFocus();
+  }
+
+  T _readAudioPref<T>(T Function() reader, T fallback) {
+    try {
+      return reader();
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  Future<void> _toggleVoiceInput() async {
+    if (!_readAudioPref(() => stows.audioIntelligenceEnabled.value, true)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Audio Intelligence is disabled')),
+      );
+      return;
+    }
+
+    try {
+      if (_isListening) {
+        await _audioRecorder.stopRecording();
+        final finalResult = await _audioEngine.stopListening();
+        if (finalResult != null && finalResult.text.trim().isNotEmpty) {
+          _insertComposerText('${finalResult.text.trim()} ');
+        }
+        if (mounted) {
+          setState(() {
+            _isListening = false;
+          });
+        }
+        return;
+      }
+
+      final initialized = await _audioEngine.initialize();
+      if (!initialized) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to initialize audio engine')),
+        );
+        return;
+      }
+
+      _audioEngine.setVadThreshold(
+        _readAudioPref(() => stows.audioVadThreshold.value, 0.5),
+      );
+      await _audioEngine.startListening();
+      await _audioRecorder.startRecording();
+      if (mounted) {
+        setState(() {
+          _isListening = true;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Voice input failed: $e')));
+    }
+  }
+
+  Future<void> _readAssistantMessage(String text) async {
+    if (text.trim().isEmpty) return;
+    await _readAloudController.startReading(text.trim());
+  }
+
+  void _maybeAutoPlayLatestAssistantMessage() {
+    if (!_readAudioPref(() => stows.audioAutoPlayResponses.value, false) ||
+        widget.controller.messages.isEmpty) {
+      return;
+    }
+
+    AIChatMessage? latestAssistant;
+    for (int i = widget.controller.messages.length - 1; i >= 0; i--) {
+      final message = widget.controller.messages[i];
+      if (message.isAssistant &&
+          !message.isLoading &&
+          message.content.isNotEmpty) {
+        latestAssistant = message;
+        break;
+      }
+    }
+
+    if (latestAssistant == null) return;
+    if (_lastAutoPlayedAssistantMessage != null &&
+        latestAssistant.timestamp.isAtSameMomentAs(
+          _lastAutoPlayedAssistantMessage!,
+        )) {
+      return;
+    }
+
+    _lastAutoPlayedAssistantMessage = latestAssistant.timestamp;
+    unawaited(_readAssistantMessage(latestAssistant.content));
+  }
+
   void _onControllerUpdate() {
     setState(() {});
+    _maybeAutoPlayLatestAssistantMessage();
     // Scroll to bottom when new messages arrive
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -920,6 +1099,13 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                       onCopy: () => _copyMessage(
                         widget.controller.messages[index].content,
                       ),
+                      onSpeak:
+                          widget.controller.messages[index].isAssistant &&
+                              !widget.controller.messages[index].isLoading
+                          ? () => _readAssistantMessage(
+                              widget.controller.messages[index].content,
+                            )
+                          : null,
                     );
                   },
                 ),
@@ -968,6 +1154,17 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                         ? null
                         : _pickAttachments,
                     icon: const Icon(Icons.add),
+                  ),
+                  IconButton(
+                    iconSize: isCompact ? 18 : 22,
+                    tooltip: _isListening
+                        ? 'Stop dictation'
+                        : 'Voice dictation',
+                    onPressed: widget.controller.isGenerating
+                        ? null
+                        : _toggleVoiceInput,
+                    icon: Icon(_isListening ? Icons.stop_circle : Icons.mic),
+                    color: _isListening ? colorScheme.error : null,
                   ),
                   SizedBox(width: isCompact ? 2 : 4),
                   Expanded(
@@ -1025,6 +1222,17 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
             ],
           ),
         ),
+        if (_showReadAloudPlayer)
+          Padding(
+            padding: EdgeInsets.fromLTRB(padding, 0, padding, padding),
+            child: ReadAloudMiniPlayer(
+              controller: _readAloudController,
+              expanded: true,
+              onClose: () {
+                _readAloudController.stop();
+              },
+            ),
+          ),
       ],
     );
   }
@@ -1127,6 +1335,45 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
   }
 }
 
+/// Reusable markdown renderer for chat bubbles.
+class ChatMarkdownView extends StatelessWidget {
+  const ChatMarkdownView({
+    super.key,
+    required this.data,
+    required this.textColor,
+    this.compact = false,
+  });
+
+  final String data;
+  final Color textColor;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final baseTextStyle = compact
+        ? theme.textTheme.bodySmall
+        : theme.textTheme.bodyMedium;
+
+    final styleSheet = MarkdownStyleSheet.fromTheme(theme).copyWith(
+      p: baseTextStyle?.copyWith(color: textColor),
+      listBullet: baseTextStyle?.copyWith(color: textColor),
+      code: baseTextStyle?.copyWith(color: textColor, fontFamily: 'FiraMono'),
+      codeblockPadding: const EdgeInsets.all(8),
+      codeblockDecoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      a: baseTextStyle?.copyWith(
+        color: theme.colorScheme.primary,
+        decoration: TextDecoration.underline,
+      ),
+    );
+
+    return MarkdownBody(data: data, selectable: true, styleSheet: styleSheet);
+  }
+}
+
 class _PendingAttachmentChip extends StatelessWidget {
   const _PendingAttachmentChip({
     super.key,
@@ -1212,12 +1459,14 @@ class _ChatMessageBubble extends StatelessWidget {
   final AIChatMessage message;
   final VoidCallback? onRetry;
   final VoidCallback? onCopy;
+  final VoidCallback? onSpeak;
   final bool compact;
 
   const _ChatMessageBubble({
     required this.message,
     this.onRetry,
     this.onCopy,
+    this.onSpeak,
     this.compact = false,
   });
 
@@ -1307,22 +1556,36 @@ class _ChatMessageBubble extends StatelessWidget {
                       ),
                     if (parsedContent == null ||
                         parsedContent.visibleContent.isNotEmpty)
-                      SelectableText(
-                        parsedContent?.visibleContent ?? message.content,
-                        style: TextStyle(
-                          color: isUser
-                              ? colorScheme.onPrimaryContainer
-                              : colorScheme.onSurface,
-                          fontSize: compact ? 13 : null,
-                        ),
+                      ChatMarkdownView(
+                        data: parsedContent?.visibleContent ?? message.content,
+                        textColor: isUser
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onSurface,
+                        compact: compact,
                       ),
                   ],
                   if (!message.isLoading &&
-                      (onCopy != null || onRetry != null)) ...[
+                      (onCopy != null ||
+                          onRetry != null ||
+                          onSpeak != null)) ...[
                     SizedBox(height: compact ? 4 : 8),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if (onSpeak != null)
+                          IconButton(
+                            icon: Icon(
+                              Icons.volume_up,
+                              size: compact ? 12 : 16,
+                            ),
+                            onPressed: onSpeak,
+                            tooltip: 'Read response aloud',
+                            padding: EdgeInsets.zero,
+                            constraints: BoxConstraints(
+                              minWidth: compact ? 24 : 32,
+                              minHeight: compact ? 24 : 32,
+                            ),
+                          ),
                         if (onCopy != null)
                           IconButton(
                             icon: Icon(Icons.copy, size: compact ? 12 : 16),
@@ -1423,11 +1686,10 @@ class _ReasoningPanel extends StatelessWidget {
           children: [
             Align(
               alignment: Alignment.centerLeft,
-              child: SelectableText(
-                reasoningContent,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurface,
-                ),
+              child: ChatMarkdownView(
+                data: reasoningContent,
+                textColor: colorScheme.onSurface,
+                compact: compact,
               ),
             ),
           ],

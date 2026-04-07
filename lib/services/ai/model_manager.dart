@@ -60,6 +60,7 @@ class ModelDownloadProgress {
   final double progress; // 0.0 to 1.0
   final int downloadedBytes;
   final int totalBytes;
+  final String? modelId;
   final String? errorMessage;
   final double? networkSpeed; // bytes per second
 
@@ -68,6 +69,7 @@ class ModelDownloadProgress {
     this.progress = 0.0,
     this.downloadedBytes = 0,
     this.totalBytes = 0,
+    this.modelId,
     this.errorMessage,
     this.networkSpeed,
   });
@@ -120,6 +122,7 @@ class ModelDownloadProgress {
     double? progress,
     int? downloadedBytes,
     int? totalBytes,
+    String? modelId,
     String? errorMessage,
     double? networkSpeed,
   }) {
@@ -128,10 +131,28 @@ class ModelDownloadProgress {
       progress: progress ?? this.progress,
       downloadedBytes: downloadedBytes ?? this.downloadedBytes,
       totalBytes: totalBytes ?? this.totalBytes,
+      modelId: modelId ?? this.modelId,
       errorMessage: errorMessage ?? this.errorMessage,
       networkSpeed: networkSpeed ?? this.networkSpeed,
     );
   }
+}
+
+/// A downloadable file asset for a model card.
+class AIModelAsset {
+  final String id;
+  final String url;
+  final String fileName;
+  final int sizeBytes;
+  final List<String> alternateFileNames;
+
+  const AIModelAsset({
+    required this.id,
+    required this.url,
+    required this.fileName,
+    required this.sizeBytes,
+    this.alternateFileNames = const [],
+  });
 }
 
 /// Information about a downloadable AI model
@@ -145,10 +166,12 @@ class AIModel {
   final String fileName;
   final List<String> alternateFileNames; // Backward/legacy filename support
   final int sizeBytes; // Expected size in bytes
+  final List<AIModelAsset> assets; // Optional multi-file model package
   final String? sha256Hash; // Optional hash for verification
   final List<ModelCategory> categories; // Use cases for this model
   final bool isDefault; // Whether this is the default model
   final bool isReasoningModel; // Whether model frequently emits <think> traces
+  final bool supportsVision; // Whether this model supports image understanding
 
   const AIModel({
     required this.id,
@@ -160,20 +183,46 @@ class AIModel {
     required this.fileName,
     this.alternateFileNames = const [],
     required this.sizeBytes,
+    this.assets = const [],
     this.sha256Hash,
     this.categories = const [ModelCategory.general],
     this.isDefault = false,
     this.isReasoningModel = false,
+    this.supportsVision = false,
   });
+
+  List<AIModelAsset> get downloadAssets {
+    if (assets.isNotEmpty) {
+      return assets;
+    }
+
+    return <AIModelAsset>[
+      AIModelAsset(
+        id: 'model',
+        url: url,
+        fileName: fileName,
+        sizeBytes: sizeBytes,
+        alternateFileNames: alternateFileNames,
+      ),
+    ];
+  }
+
+  AIModelAsset get primaryAsset => downloadAssets.first;
+
+  int get totalSizeBytes =>
+      downloadAssets.fold<int>(0, (sum, asset) => sum + asset.sizeBytes);
+
+  bool get hasCompanionAssets => downloadAssets.length > 1;
 
   /// Human-readable size string
   String get sizeText {
-    if (sizeBytes < 1024 * 1024) {
-      return '${(sizeBytes / 1024).toStringAsFixed(1)} KB';
-    } else if (sizeBytes < 1024 * 1024 * 1024) {
-      return '${(sizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    final bytes = totalSizeBytes;
+    if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    } else if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     } else {
-      return '${(sizeBytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
+      return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
     }
   }
 
@@ -278,11 +327,8 @@ class ModelManager {
       recommendation:
           'Choose this for highest output quality if your device has enough RAM.',
       url:
-          'https://huggingface.co/Jackrong/Qwen3.5-4B-Claude-4.6-Opus-Reasoning-Distilled-v2-GGUF/resolve/main/Qwen3.5-4B.Q4_K_M.gguf',
+          'https://huggingface.co/Jackrong/Qwopus3.5-4B-v3-GGUF/resolve/main/Qwen3.5-4B.Q4_K_M.gguf',
       fileName: 'Qwen3.5-4B.Q4_K_M.gguf',
-      alternateFileNames: [
-        'Qwen3.5-4B-Claude-4.6-Opus-Reasoning-Distilled-v2.Q4_K_M.gguf',
-      ],
       sizeBytes: 2820000000, // ~2.63 GB
       categories: [
         ModelCategory.general,
@@ -343,7 +389,6 @@ class ModelManager {
         ModelCategory.general,
         ModelCategory.writing,
         ModelCategory.code,
-        ModelCategory.strongest,
       ],
       isReasoningModel: true,
     ),
@@ -390,6 +435,64 @@ class ModelManager {
         ModelCategory.writing,
         ModelCategory.code,
       ],
+    ),
+
+    // SmolLM3 3B - newer compact general model
+    AIModel(
+      id: 'smollm3-3b-q4km',
+      name: 'SmolLM3 3B',
+      shortDescription:
+          'New-generation compact model for strong general chat, writing, and code.',
+      description:
+          'SmolLM3 3B (GGUF by ggml-org) - updated SmolLM family model with '
+          'improved multilingual quality and robust day-to-day assistant behavior.',
+      recommendation:
+          'Choose this for a newer compact all-round model when you want better quality than older small LLMs.',
+      url:
+          'https://huggingface.co/ggml-org/SmolLM3-3B-GGUF/resolve/main/SmolLM3-Q4_K_M.gguf',
+      fileName: 'SmolLM3-Q4_K_M.gguf',
+      sizeBytes: 1915305312, // ~1.78 GB
+      categories: [
+        ModelCategory.general,
+        ModelCategory.writing,
+        ModelCategory.code,
+      ],
+      isReasoningModel: true,
+    ),
+
+    // SmolVLM2 500M - merged card (text model + mmproj)
+    AIModel(
+      id: 'smolvlm2-500m-video-instruct-q8',
+      name: 'SmolVLM2 500M Video Instruct',
+      shortDescription:
+          'Compact vision-language model for image-aware chat and multimodal notes.',
+      description:
+          'SmolVLM2 500M Video Instruct (GGUF + mmproj) delivered as a merged '
+          'model card so both required files download together for vision inference.',
+      recommendation:
+          'Pick this when you want local image understanding directly inside AI and MCP chats.',
+      url:
+          'https://huggingface.co/ggml-org/SmolVLM2-500M-Video-Instruct-GGUF/resolve/main/SmolVLM2-500M-Video-Instruct-Q8_0.gguf',
+      fileName: 'SmolVLM2-500M-Video-Instruct-Q8_0.gguf',
+      sizeBytes: 436808704, // primary model size; total shown via assets
+      assets: [
+        AIModelAsset(
+          id: 'model',
+          url:
+              'https://huggingface.co/ggml-org/SmolVLM2-500M-Video-Instruct-GGUF/resolve/main/SmolVLM2-500M-Video-Instruct-Q8_0.gguf',
+          fileName: 'SmolVLM2-500M-Video-Instruct-Q8_0.gguf',
+          sizeBytes: 436808704,
+        ),
+        AIModelAsset(
+          id: 'mmproj',
+          url:
+              'https://huggingface.co/ggml-org/SmolVLM2-500M-Video-Instruct-GGUF/resolve/main/mmproj-SmolVLM2-500M-Video-Instruct-Q8_0.gguf',
+          fileName: 'mmproj-SmolVLM2-500M-Video-Instruct-Q8_0.gguf',
+          sizeBytes: 108785184,
+        ),
+      ],
+      categories: [ModelCategory.general, ModelCategory.writing],
+      supportsVision: true,
     ),
 
     // Function Gemma 270M - Top choice for MCP/Tool calling
@@ -447,6 +550,29 @@ class ModelManager {
         ModelCategory.general,
         ModelCategory.writing,
         ModelCategory.code,
+      ],
+    ),
+
+    // Gemma 4 E2B IT - stronger Gemma-family instruct model
+    AIModel(
+      id: 'gemma-4-e2b-it-q4km',
+      name: 'Gemma 4 E2B IT',
+      shortDescription:
+          'High-quality Gemma-family instruct model for stronger reasoning and coding output.',
+      description:
+          'Gemma 4 E2B IT (GGUF by Unsloth) - larger Gemma-family instruction model '
+          'optimized for high-quality responses across writing, coding, and general assistant tasks.',
+      recommendation:
+          'Choose this in Strongest when you want top-tier Gemma-family quality.',
+      url:
+          'https://huggingface.co/unsloth/gemma-4-E2B-it-GGUF/resolve/main/gemma-4-E2B-it-Q4_K_M.gguf',
+      fileName: 'gemma-4-E2B-it-Q4_K_M.gguf',
+      sizeBytes: 3000000000, // ~2.79 GB
+      categories: [
+        ModelCategory.general,
+        ModelCategory.writing,
+        ModelCategory.code,
+        ModelCategory.strongest,
       ],
     ),
 
@@ -540,8 +666,14 @@ class ModelManager {
 
   ModelDownloadProgress get currentProgress => _currentProgress;
 
-  /// Active download task (if any)
-  DownloadTask? _activeTask;
+  /// Active download tasks for the current model download session.
+  final _activeTasks = <String, DownloadTask>{};
+  final _taskSizes = <String, int>{};
+  final _taskProgress = <String, double>{};
+  final _taskPaused = <String>{};
+  final _taskCompleted = <String>{};
+  AIModel? _activeDownloadModel;
+  double? _latestNetworkSpeed;
 
   /// Flag to track if manager is initialized
   var _isInitialized = false;
@@ -575,9 +707,10 @@ class ModelManager {
     final isDownloaded = await isModelDownloaded();
     if (isDownloaded) {
       _updateProgress(
-        const ModelDownloadProgress(
+        ModelDownloadProgress(
           state: ModelDownloadState.completed,
           progress: 1.0,
+          modelId: defaultModel.id,
         ),
       );
     }
@@ -626,9 +759,27 @@ class ModelManager {
   }
 
   Set<String> _buildCandidateFileNames(AIModel model) {
-    final candidates = <String>{model.fileName, ...model.alternateFileNames};
+    final primaryAsset = model.primaryAsset;
+    final candidates = <String>{
+      primaryAsset.fileName,
+      ...primaryAsset.alternateFileNames,
+    };
 
-    final parsedUri = Uri.tryParse(model.url);
+    final parsedUri = Uri.tryParse(primaryAsset.url);
+    final uriName = parsedUri != null && parsedUri.pathSegments.isNotEmpty
+        ? Uri.decodeComponent(parsedUri.pathSegments.last)
+        : null;
+    if (uriName != null && uriName.isNotEmpty) {
+      candidates.add(uriName);
+    }
+
+    return candidates.where((f) => f.trim().isNotEmpty).toSet();
+  }
+
+  Set<String> _buildCandidateFileNamesForAsset(AIModelAsset asset) {
+    final candidates = <String>{asset.fileName, ...asset.alternateFileNames};
+
+    final parsedUri = Uri.tryParse(asset.url);
     final uriName = parsedUri != null && parsedUri.pathSegments.isNotEmpty
         ? Uri.decodeComponent(parsedUri.pathSegments.last)
         : null;
@@ -649,8 +800,18 @@ class ModelManager {
     AIModel model, {
     bool requireSizeThreshold = true,
   }) async {
+    return _findExistingAssetPath(
+      model.primaryAsset,
+      requireSizeThreshold: requireSizeThreshold,
+    );
+  }
+
+  Future<String?> _findExistingAssetPath(
+    AIModelAsset asset, {
+    bool requireSizeThreshold = true,
+  }) async {
     final dirs = await _getModelSearchDirectories();
-    final candidates = _buildCandidateFileNames(model);
+    final candidates = _buildCandidateFileNamesForAsset(asset);
     final normalizedCandidates = candidates.map((c) => c.toLowerCase()).toSet();
 
     Future<bool> isValidFile(File file) async {
@@ -659,7 +820,7 @@ class ModelManager {
       // ignore: avoid_slow_async_io
       final stat = await file.stat();
       if (!requireSizeThreshold) return true;
-      return stat.size >= model.sizeBytes * 0.9;
+      return stat.size >= asset.sizeBytes * 0.9;
     }
 
     for (final dir in dirs) {
@@ -697,20 +858,44 @@ class ModelManager {
     if (existingPath != null) return existingPath;
 
     final modelsDir = await getModelsDirectory();
-    return '${modelsDir.path}${Platform.pathSeparator}${model.fileName}';
+    return '${modelsDir.path}${Platform.pathSeparator}${model.primaryAsset.fileName}';
+  }
+
+  /// Returns the local path to the model's mmproj companion file, if it exists.
+  Future<String?> getModelMmprojPath([AIModel? model]) async {
+    model ??= defaultModel;
+    AIModelAsset? mmprojAsset;
+    for (final asset in model.downloadAssets) {
+      if (asset.id.toLowerCase().contains('mmproj') ||
+          asset.fileName.toLowerCase().contains('mmproj')) {
+        mmprojAsset = asset;
+        break;
+      }
+    }
+
+    if (mmprojAsset == null) {
+      return null;
+    }
+
+    return _findExistingAssetPath(mmprojAsset);
   }
 
   /// Checks if a model exists locally
   Future<bool> isModelDownloaded([AIModel? model]) async {
     model ??= defaultModel;
-    return await _findExistingModelPath(model) != null;
+    for (final asset in model.downloadAssets) {
+      if (await _findExistingAssetPath(asset) == null) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /// Get the size of a partially downloaded model (for resume info)
   Future<int> getPartialDownloadSize([AIModel? model]) async {
     model ??= defaultModel;
-    final existingPath = await _findExistingModelPath(
-      model,
+    final existingPath = await _findExistingAssetPath(
+      model.primaryAsset,
       requireSizeThreshold: false,
     );
     if (existingPath == null) return 0;
@@ -727,9 +912,12 @@ class ModelManager {
     // Check if already downloaded
     if (await isModelDownloaded(model)) {
       _updateProgress(
-        const ModelDownloadProgress(
+        ModelDownloadProgress(
           state: ModelDownloadState.completed,
           progress: 1.0,
+          downloadedBytes: model.totalSizeBytes,
+          totalBytes: model.totalSizeBytes,
+          modelId: model.id,
         ),
       );
       return;
@@ -742,31 +930,184 @@ class ModelManager {
       debugPrint('Failed to enable wakelock: $e');
     }
 
+    _resetActiveDownloadTracking(model);
+
     _updateProgress(
-      const ModelDownloadProgress(state: ModelDownloadState.queued),
+      ModelDownloadProgress(
+        state: ModelDownloadState.queued,
+        modelId: model.id,
+        totalBytes: model.totalSizeBytes,
+      ),
     );
 
-    // Create download task with resume support
-    _activeTask = createDownloadTask(model);
+    var startedTaskCount = 0;
+    for (final asset in model.downloadAssets) {
+      final assetPath = await _findExistingAssetPath(asset);
+      if (assetPath != null) {
+        _taskCompleted.add(asset.id);
+        _taskProgress[asset.id] = 1.0;
+        continue;
+      }
 
-    // Enqueue the download (handles resume automatically)
-    final result = await FileDownloader().enqueue(_activeTask!);
-    if (!result) {
+      final task = createDownloadTaskForAsset(model, asset);
+      _activeTasks[task.taskId] = task;
+
+      final result = await FileDownloader().enqueue(task);
+      if (result) {
+        startedTaskCount++;
+      } else {
+        _activeTasks.remove(task.taskId);
+        _updateProgress(
+          _buildAggregateProgress(
+            ModelDownloadState.failed,
+            errorMessage: 'Failed to start download for ${asset.fileName}',
+          ),
+        );
+        await _disableWakelock();
+        return;
+      }
+    }
+
+    if (startedTaskCount == 0 &&
+        _taskCompleted.length == model.downloadAssets.length) {
       _updateProgress(
-        const ModelDownloadProgress(
-          state: ModelDownloadState.failed,
-          errorMessage: 'Failed to start download',
+        ModelDownloadProgress(
+          state: ModelDownloadState.completed,
+          progress: 1.0,
+          downloadedBytes: model.totalSizeBytes,
+          totalBytes: model.totalSizeBytes,
+          modelId: model.id,
         ),
       );
       await _disableWakelock();
+      _clearActiveDownloadTracking();
     }
+  }
+
+  void _resetActiveDownloadTracking(AIModel model) {
+    _activeDownloadModel = model;
+    _activeTasks.clear();
+    _taskSizes
+      ..clear()
+      ..addEntries(
+        model.downloadAssets.map(
+          (asset) => MapEntry(asset.id, asset.sizeBytes),
+        ),
+      );
+    _taskProgress
+      ..clear()
+      ..addEntries(
+        model.downloadAssets.map((asset) => MapEntry(asset.id, 0.0)),
+      );
+    _taskPaused.clear();
+    _taskCompleted.clear();
+    _latestNetworkSpeed = null;
+  }
+
+  void _clearActiveDownloadTracking() {
+    _activeDownloadModel = null;
+    _activeTasks.clear();
+    _taskSizes.clear();
+    _taskProgress.clear();
+    _taskPaused.clear();
+    _taskCompleted.clear();
+    _latestNetworkSpeed = null;
+  }
+
+  String _buildTaskMetadata(String modelId, String assetId) {
+    return '$modelId::$assetId';
+  }
+
+  String? _extractModelId(String? metadata) {
+    if (metadata == null || metadata.isEmpty) return null;
+    final separator = metadata.indexOf('::');
+    if (separator == -1) {
+      return metadata;
+    }
+    return metadata.substring(0, separator);
+  }
+
+  String? _extractAssetId(String? metadata) {
+    if (metadata == null || metadata.isEmpty) return null;
+    final separator = metadata.indexOf('::');
+    if (separator == -1) {
+      return null;
+    }
+    return metadata.substring(separator + 2);
+  }
+
+  int _calculateDownloadedBytes() {
+    var downloaded = 0;
+    for (final entry in _taskSizes.entries) {
+      final progress = _taskProgress[entry.key] ?? 0.0;
+      downloaded += (entry.value * progress).round();
+    }
+    return downloaded;
+  }
+
+  int _currentTotalBytes() {
+    return _activeDownloadModel?.totalSizeBytes ?? 0;
+  }
+
+  ModelDownloadProgress _buildAggregateProgress(
+    ModelDownloadState state, {
+    String? errorMessage,
+  }) {
+    final totalBytes = _currentTotalBytes();
+    final downloadedBytes = _calculateDownloadedBytes();
+    final progress = totalBytes <= 0 ? 0.0 : downloadedBytes / totalBytes;
+
+    return ModelDownloadProgress(
+      state: state,
+      progress: progress.clamp(0.0, 1.0),
+      downloadedBytes: downloadedBytes,
+      totalBytes: totalBytes,
+      modelId: _activeDownloadModel?.id,
+      errorMessage: errorMessage,
+      networkSpeed: _latestNetworkSpeed,
+    );
+  }
+
+  void _emitAggregateState() {
+    final model = _activeDownloadModel;
+    if (model == null) {
+      return;
+    }
+
+    if (_taskCompleted.length >= model.downloadAssets.length) {
+      _updateProgress(
+        ModelDownloadProgress(
+          state: ModelDownloadState.completed,
+          progress: 1.0,
+          downloadedBytes: model.totalSizeBytes,
+          totalBytes: model.totalSizeBytes,
+          modelId: model.id,
+        ),
+      );
+      unawaited(_disableWakelock());
+      _clearActiveDownloadTracking();
+      return;
+    }
+
+    if (_activeTasks.isNotEmpty && _taskPaused.length == _activeTasks.length) {
+      _updateProgress(_buildAggregateProgress(ModelDownloadState.paused));
+      return;
+    }
+
+    if (_activeTasks.isNotEmpty) {
+      _updateProgress(_buildAggregateProgress(ModelDownloadState.downloading));
+      return;
+    }
+
+    _updateProgress(_buildAggregateProgress(ModelDownloadState.queued));
   }
 
   @visibleForTesting
   DownloadTask createDownloadTask(AIModel model) {
+    final asset = model.primaryAsset;
     return DownloadTask(
-      url: model.url,
-      filename: model.fileName,
+      url: asset.url,
+      filename: asset.fileName,
       directory: 'models',
       baseDirectory: BaseDirectory.applicationSupport,
       updates: Updates.statusAndProgress,
@@ -776,52 +1117,88 @@ class ModelManager {
     );
   }
 
+  DownloadTask createDownloadTaskForAsset(AIModel model, AIModelAsset asset) {
+    return DownloadTask(
+      url: asset.url,
+      filename: asset.fileName,
+      directory: 'models',
+      baseDirectory: BaseDirectory.applicationSupport,
+      updates: Updates.statusAndProgress,
+      allowPause: true,
+      retries: 3,
+      metaData: _buildTaskMetadata(model.id, asset.id),
+    );
+  }
+
   /// Pauses the current download
   Future<void> pauseDownload() async {
-    if (_activeTask != null) {
-      await FileDownloader().pause(_activeTask!);
-      _updateProgress(
-        _currentProgress.copyWith(state: ModelDownloadState.paused),
-      );
+    if (_activeTasks.isEmpty) {
+      return;
     }
+
+    for (final task in _activeTasks.values) {
+      await FileDownloader().pause(task);
+    }
+
+    _updateProgress(_buildAggregateProgress(ModelDownloadState.paused));
   }
 
   /// Resumes a paused download
   Future<void> resumeDownload() async {
-    if (_activeTask != null) {
-      final resumed = await FileDownloader().resume(_activeTask!);
-      if (resumed) {
+    if (_activeTasks.isNotEmpty) {
+      var resumedAny = false;
+      for (final task in _activeTasks.values) {
+        final resumed = await FileDownloader().resume(task);
+        resumedAny = resumedAny || resumed;
+      }
+
+      if (resumedAny) {
         _updateProgress(
-          _currentProgress.copyWith(state: ModelDownloadState.downloading),
+          _buildAggregateProgress(ModelDownloadState.downloading),
         );
       }
     } else {
       // If no active task, start a new download
-      await startDownload();
+      await startDownload(_activeDownloadModel);
     }
   }
 
   /// Cancels the current download
   Future<void> cancelDownload() async {
-    if (_activeTask != null) {
-      await FileDownloader().cancelTaskWithId(_activeTask!.taskId);
-      _activeTask = null;
-      _updateProgress(
-        const ModelDownloadProgress(state: ModelDownloadState.notDownloaded),
-      );
-      await _disableWakelock();
+    if (_activeTasks.isEmpty) {
+      return;
     }
+
+    final taskIds = _activeTasks.keys.toList(growable: false);
+    for (final taskId in taskIds) {
+      await FileDownloader().cancelTaskWithId(taskId);
+    }
+
+    final modelId = _activeDownloadModel?.id;
+    _clearActiveDownloadTracking();
+    _updateProgress(
+      ModelDownloadProgress(
+        state: ModelDownloadState.notDownloaded,
+        modelId: modelId,
+      ),
+    );
+    await _disableWakelock();
   }
 
   /// Deletes a downloaded model
   Future<void> deleteModel([AIModel? model]) async {
     model ??= defaultModel;
     final directories = await _getModelSearchDirectories();
-    final candidates = _buildCandidateFileNames(model);
-    final normalizedCandidates = candidates.map((c) => c.toLowerCase()).toSet();
+    final allCandidates = <String>{};
+    for (final asset in model.downloadAssets) {
+      allCandidates.addAll(_buildCandidateFileNamesForAsset(asset));
+    }
+    final normalizedCandidates = allCandidates
+        .map((candidate) => candidate.toLowerCase())
+        .toSet();
 
     for (final dir in directories) {
-      for (final name in candidates) {
+      for (final name in allCandidates) {
         final file = File('${dir.path}${Platform.pathSeparator}$name');
         // ignore: avoid_slow_async_io
         if (await file.exists()) {
@@ -854,55 +1231,61 @@ class ModelManager {
   }
 
   void _handleStatusUpdate(TaskStatusUpdate update) {
+    final modelId = _extractModelId(update.task.metaData);
+    final activeModel = _activeDownloadModel;
+    if (activeModel == null || modelId != activeModel.id) {
+      return;
+    }
+
+    final assetId = _extractAssetId(update.task.metaData);
+    if (assetId == null || !_taskSizes.containsKey(assetId)) {
+      return;
+    }
+
     switch (update.status) {
       case TaskStatus.enqueued:
-        _updateProgress(
-          _currentProgress.copyWith(state: ModelDownloadState.queued),
-        );
+        _taskPaused.remove(update.task.taskId);
+        _updateProgress(_buildAggregateProgress(ModelDownloadState.queued));
       case TaskStatus.running:
+        _taskPaused.remove(update.task.taskId);
         _updateProgress(
-          _currentProgress.copyWith(state: ModelDownloadState.downloading),
+          _buildAggregateProgress(ModelDownloadState.downloading),
         );
       case TaskStatus.paused:
-        _updateProgress(
-          _currentProgress.copyWith(state: ModelDownloadState.paused),
-        );
+        _taskPaused.add(update.task.taskId);
+        _emitAggregateState();
       case TaskStatus.complete:
-        _updateProgress(
-          const ModelDownloadProgress(
-            state: ModelDownloadState.completed,
-            progress: 1.0,
-          ),
-        );
-        _activeTask = null;
-        _disableWakelock();
+        _taskPaused.remove(update.task.taskId);
+        _taskProgress[assetId] = 1.0;
+        _taskCompleted.add(assetId);
+        _activeTasks.remove(update.task.taskId);
+        _emitAggregateState();
       case TaskStatus.failed:
         _updateProgress(
-          ModelDownloadProgress(
-            state: ModelDownloadState.failed,
+          _buildAggregateProgress(
+            ModelDownloadState.failed,
             errorMessage: update.exception?.description ?? 'Download failed',
           ),
         );
-        _activeTask = null;
+        _activeTasks.remove(update.task.taskId);
         _disableWakelock();
       case TaskStatus.canceled:
-        _updateProgress(
-          const ModelDownloadProgress(state: ModelDownloadState.notDownloaded),
-        );
-        _activeTask = null;
-        _disableWakelock();
+        _taskPaused.remove(update.task.taskId);
+        _activeTasks.remove(update.task.taskId);
+        _emitAggregateState();
       case TaskStatus.notFound:
         _updateProgress(
-          const ModelDownloadProgress(
-            state: ModelDownloadState.failed,
+          _buildAggregateProgress(
+            ModelDownloadState.failed,
             errorMessage: 'Model file not found on server',
           ),
         );
-        _activeTask = null;
+        _activeTasks.remove(update.task.taskId);
         _disableWakelock();
       case TaskStatus.waitingToRetry:
-        // Keep downloading state, will retry automatically
-        break;
+        _updateProgress(
+          _buildAggregateProgress(ModelDownloadState.downloading),
+        );
     }
   }
 
@@ -910,24 +1293,21 @@ class ModelManager {
     final progress = update.progress;
     if (progress < 0) return; // Invalid progress
 
-    // Calculate bytes from progress and expected size
-    final model = availableModels.firstWhere(
-      (m) => m.id == update.task.metaData,
-      orElse: () => defaultModel,
-    );
+    final modelId = _extractModelId(update.task.metaData);
+    final activeModel = _activeDownloadModel;
+    if (activeModel == null || modelId != activeModel.id) {
+      return;
+    }
 
-    final downloadedBytes = (progress * model.sizeBytes).round();
-    final networkSpeed = update.networkSpeed; // bytes per second
+    final assetId = _extractAssetId(update.task.metaData);
+    if (assetId == null || !_taskSizes.containsKey(assetId)) {
+      return;
+    }
 
-    _updateProgress(
-      ModelDownloadProgress(
-        state: ModelDownloadState.downloading,
-        progress: progress,
-        downloadedBytes: downloadedBytes,
-        totalBytes: model.sizeBytes,
-        networkSpeed: networkSpeed,
-      ),
-    );
+    _taskProgress[assetId] = progress;
+    _latestNetworkSpeed = update.networkSpeed;
+
+    _updateProgress(_buildAggregateProgress(ModelDownloadState.downloading));
   }
 
   void _updateProgress(ModelDownloadProgress progress) {

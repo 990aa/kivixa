@@ -46,6 +46,8 @@ class MCPChatMessage extends AIChatMessage {
     required super.role,
     required super.content,
     super.attachments,
+    super.modelName,
+    super.modelId,
     super.timestamp,
     super.isLoading,
     this.toolStatus = ToolStatus.none,
@@ -58,6 +60,8 @@ class MCPChatMessage extends AIChatMessage {
     String? role,
     String? content,
     List<ChatAttachment>? attachments,
+    String? modelName,
+    String? modelId,
     DateTime? timestamp,
     bool? isLoading,
     ToolStatus? toolStatus,
@@ -68,6 +72,8 @@ class MCPChatMessage extends AIChatMessage {
       role: role ?? this.role,
       content: content ?? this.content,
       attachments: attachments ?? this.attachments,
+      modelName: modelName ?? this.modelName,
+      modelId: modelId ?? this.modelId,
       timestamp: timestamp ?? this.timestamp,
       isLoading: isLoading ?? this.isLoading,
       toolStatus: toolStatus ?? this.toolStatus,
@@ -320,6 +326,8 @@ class MCPChatController extends ChangeNotifier {
             role: 'assistant',
             content: response,
             toolStatus: ToolStatus.none,
+            modelName: _currentAssistantModelName(),
+            modelId: _currentAssistantModelId(),
           ),
         );
       }
@@ -329,6 +337,8 @@ class MCPChatController extends ChangeNotifier {
           role: 'assistant',
           content: 'Error: ${e.toString()}',
           toolStatus: ToolStatus.failed,
+          modelName: _currentAssistantModelName(),
+          modelId: _currentAssistantModelId(),
         ),
       );
     } finally {
@@ -353,6 +363,8 @@ class MCPChatController extends ChangeNotifier {
         content: 'I\'d like to ${toolCall.displayDescription}',
         toolStatus: ToolStatus.pendingConfirmation,
         toolCall: toolCall,
+        modelName: _currentAssistantModelName(),
+        modelId: _currentAssistantModelId(),
       ),
     );
 
@@ -375,6 +387,8 @@ class MCPChatController extends ChangeNotifier {
           toolStatus: ToolStatus.completed,
           toolCall: toolCall,
           toolResult: result,
+          modelName: _currentAssistantModelName(),
+          modelId: _currentAssistantModelId(),
         ),
       );
       return;
@@ -388,6 +402,8 @@ class MCPChatController extends ChangeNotifier {
           toolStatus: ToolStatus.cancelled,
           toolCall: toolCall,
           toolResult: result,
+          modelName: _currentAssistantModelName(),
+          modelId: _currentAssistantModelId(),
         ),
       );
       return;
@@ -400,8 +416,18 @@ class MCPChatController extends ChangeNotifier {
         toolStatus: ToolStatus.failed,
         toolCall: toolCall,
         toolResult: result,
+        modelName: _currentAssistantModelName(),
+        modelId: _currentAssistantModelId(),
       ),
     );
+  }
+
+  String _currentAssistantModelName() {
+    return _modelRouter.currentModel?.displayName ?? 'Auto-routed model';
+  }
+
+  String? _currentAssistantModelId() {
+    return _modelRouter.currentModel?.name;
   }
 
   /// Format tool execution result for display

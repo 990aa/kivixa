@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
 import 'package:kivixa/services/ai/chat_attachment_service.dart';
@@ -93,6 +94,8 @@ void main() {
       ),
       isTrue,
     );
+    expect(controller.messages.last.modelName, model.name);
+    expect(controller.messages.last.modelId, model.id);
 
     controller.dispose();
   });
@@ -140,8 +143,10 @@ void main() {
       tester,
     ) async {
       final model = ModelManager.getModelById('phi4-mini-q4km')!;
+      final inference = _FakeInferenceGateway()
+        ..responseBuilder = (_) => '# Assistant Markdown\n\n- item';
       final controller = AIChatController(
-        inferenceGateway: _FakeInferenceGateway(),
+        inferenceGateway: inference,
         modelGateway: _FakeModelGateway(model),
         contextGateway: const _FakeContextGateway(''),
         autoInitialize: false,
@@ -160,6 +165,7 @@ void main() {
 
       expect(find.byTooltip('Copy'), findsNWidgets(2));
       expect(find.byTooltip('Retry'), findsOneWidget);
+      expect(find.byType(MarkdownBody), findsWidgets);
 
       controller.dispose();
     });

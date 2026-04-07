@@ -385,6 +385,137 @@ void main() {
       expect(presets, contains(QuickPreset.reading));
     });
 
+    test('saveQuickPreset adds custom preset', () {
+      final service = ProductivityTimerService.instance;
+      service.restoreDefaultPresets(preserveCustom: false);
+
+      const customPreset = QuickPreset(
+        id: 'test_custom_preset_add',
+        name: 'Test Custom Preset',
+        icon: Icons.tune,
+        workMinutes: 33,
+        breakMinutes: 7,
+        totalCycles: 3,
+        description: 'Created in test',
+      );
+
+      service.saveQuickPreset(customPreset);
+
+      expect(
+        service.customQuickPresets.any((p) => p.id == customPreset.id),
+        true,
+      );
+      expect(service.allQuickPresets.any((p) => p.id == customPreset.id), true);
+
+      service.deleteQuickPreset(customPreset.id);
+    });
+
+    test('saveQuickPreset updates existing default preset by id', () {
+      final service = ProductivityTimerService.instance;
+      service.restoreDefaultPresets(preserveCustom: false);
+
+      final codePreset = service.defaultQuickPresets.firstWhere(
+        (preset) => preset.id == QuickPreset.code.id,
+      );
+      final updatedPreset = codePreset.copyWith(
+        name: 'Code Updated',
+        workMinutes: 55,
+      );
+
+      service.saveQuickPreset(updatedPreset);
+
+      final restored = service.defaultQuickPresets.firstWhere(
+        (preset) => preset.id == QuickPreset.code.id,
+      );
+      expect(restored.name, 'Code Updated');
+      expect(restored.workMinutes, 55);
+      expect(restored.isDefault, true);
+
+      service.restoreDefaultPresets(preserveCustom: false);
+    });
+
+    test('deleteAllCustomQuickPresets clears all custom presets', () {
+      final service = ProductivityTimerService.instance;
+      service.restoreDefaultPresets(preserveCustom: false);
+
+      service.saveQuickPreset(
+        const QuickPreset(
+          id: 'test_custom_preset_one',
+          name: 'Custom One',
+          icon: Icons.tune,
+          workMinutes: 20,
+          breakMinutes: 5,
+        ),
+      );
+      service.saveQuickPreset(
+        const QuickPreset(
+          id: 'test_custom_preset_two',
+          name: 'Custom Two',
+          icon: Icons.tune,
+          workMinutes: 40,
+          breakMinutes: 10,
+        ),
+      );
+
+      expect(service.customQuickPresets.length, 2);
+      service.deleteAllCustomQuickPresets();
+      expect(service.customQuickPresets, isEmpty);
+    });
+
+    test('restoreDefaultPresets keeps custom entries by default', () {
+      final service = ProductivityTimerService.instance;
+      service.restoreDefaultPresets(preserveCustom: false);
+
+      service.saveQuickPreset(
+        const QuickPreset(
+          id: 'test_custom_preset_keep',
+          name: 'Keep Me',
+          icon: Icons.tune,
+          workMinutes: 28,
+          breakMinutes: 4,
+        ),
+      );
+
+      final updatedDefault = service.defaultQuickPresets
+          .firstWhere((preset) => preset.id == QuickPreset.code.id)
+          .copyWith(name: 'Temp Modified Name');
+      service.saveQuickPreset(updatedDefault);
+
+      service.restoreDefaultPresets();
+
+      final defaultCode = service.defaultQuickPresets.firstWhere(
+        (preset) => preset.id == QuickPreset.code.id,
+      );
+      expect(defaultCode.name, QuickPreset.code.name);
+      expect(
+        service.customQuickPresets.any(
+          (p) => p.id == 'test_custom_preset_keep',
+        ),
+        true,
+      );
+
+      service.restoreDefaultPresets(preserveCustom: false);
+    });
+
+    test('restoreDefaultPresets can clear custom entries', () {
+      final service = ProductivityTimerService.instance;
+      service.restoreDefaultPresets(preserveCustom: false);
+
+      service.saveQuickPreset(
+        const QuickPreset(
+          id: 'test_custom_preset_clear',
+          name: 'Clear Me',
+          icon: Icons.tune,
+          workMinutes: 22,
+          breakMinutes: 6,
+        ),
+      );
+      expect(service.customQuickPresets, isNotEmpty);
+
+      service.restoreDefaultPresets(preserveCustom: false);
+      expect(service.customQuickPresets, isEmpty);
+    });
+
     test('setContextTag changes current tag', () {
       final service = ProductivityTimerService.instance;
 

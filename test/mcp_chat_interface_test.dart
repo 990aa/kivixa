@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
 import 'package:kivixa/components/ai/mcp_chat_interface.dart';
@@ -63,9 +64,9 @@ void main() {
       final controller = _FakeMcpChatController([
         MCPChatMessage(
           role: 'user',
-          content: 'Use create_folder to create sandbox/tmp_folder.',
+          content: 'Use `create_folder` to create **sandbox/tmp_folder**.',
         ),
-        MCPChatMessage(role: 'assistant', content: 'Done.'),
+        MCPChatMessage(role: 'assistant', content: '- Done\n- Confirmed'),
       ]);
 
       String? exportedPayload;
@@ -89,6 +90,7 @@ void main() {
 
       expect(find.byTooltip('Copy'), findsNWidgets(2));
       expect(find.byTooltip('Retry'), findsOneWidget);
+      expect(find.byType(MarkdownBody), findsWidgets);
 
       await tester.tap(find.byTooltip('Retry'));
       await tester.pumpAndSettle();
@@ -197,5 +199,28 @@ void main() {
     await tester.pump();
     field = tester.widget<TextField>(find.byType(TextField).first);
     expect(field.controller?.text, 'draft prompt');
+  });
+
+  testWidgets('MCP header can be hidden for merged top bar layouts', (
+    tester,
+  ) async {
+    final controller = _FakeMcpChatController(const []);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: MCPChatInterface(
+              controller: controller,
+              context: context,
+              showHeader: false,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Kivixa MCP Assistant'), findsNothing);
   });
 }

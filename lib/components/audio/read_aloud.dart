@@ -7,8 +7,82 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
 import 'package:kivixa/services/audio/audio_playback_service.dart';
+
+enum AudioVoiceProfile { female, male, custom }
+
+AudioVoiceProfile audioVoiceProfileFromPref(int value) {
+  if (value <= 0) return AudioVoiceProfile.female;
+  if (value == 1) return AudioVoiceProfile.male;
+  return AudioVoiceProfile.custom;
+}
+
+T _readAudioPref<T>(T Function() reader, T fallback) {
+  try {
+    return reader();
+  } catch (_) {
+    return fallback;
+  }
+}
+
+void _writeAudioPref(void Function() writer) {
+  try {
+    writer();
+  } catch (_) {
+    // Ignore when prefs are not initialized (for example in isolated tests).
+  }
+}
+
+String? selectPreferredVoiceId(
+  List<VoiceStyle> voices,
+  AudioVoiceProfile profile, {
+  String? customVoiceId,
+}) {
+  if (voices.isEmpty) return null;
+
+  if (profile == AudioVoiceProfile.custom &&
+      customVoiceId != null &&
+      customVoiceId.isNotEmpty) {
+    final customMatch = voices.where((voice) => voice.id == customVoiceId);
+    if (customMatch.isNotEmpty) {
+      return customMatch.first.id;
+    }
+  }
+
+  bool isMaleVoice(VoiceStyle voice) {
+    final id = voice.id.toLowerCase();
+    final name = voice.name.toLowerCase();
+    final malePattern = RegExp(r'(^|[^a-z])male([^a-z]|$)');
+    return id.startsWith('am_') ||
+        id.startsWith('bm_') ||
+        malePattern.hasMatch(id) ||
+        malePattern.hasMatch(name);
+  }
+
+  bool isFemaleVoice(VoiceStyle voice) {
+    final id = voice.id.toLowerCase();
+    final name = voice.name.toLowerCase();
+    final femalePattern = RegExp(r'(^|[^a-z])female([^a-z]|$)');
+    return id.startsWith('af_') ||
+        id.startsWith('bf_') ||
+        femalePattern.hasMatch(id) ||
+        femalePattern.hasMatch(name);
+  }
+
+  final preferred = switch (profile) {
+    AudioVoiceProfile.male => voices.where(isMaleVoice),
+    AudioVoiceProfile.female => voices.where(isFemaleVoice),
+    AudioVoiceProfile.custom => const Iterable<VoiceStyle>.empty(),
+  };
+
+  if (preferred.isNotEmpty) {
+    return preferred.first.id;
+  }
+
+  return voices.first.id;
+}
 
 /// Read aloud controller for managing TTS playback
 class ReadAloudController extends ChangeNotifier {
@@ -20,10 +94,20 @@ class ReadAloudController extends ChangeNotifier {
   var _currentSentence = '';
   var _currentSentenceIndex = 0;
   var _sentences = <String>[];
+  var _availableVoices = <VoiceStyle>[];
 
   // Settings
   var _speed = 1.0;
   String? _voiceId;
+
+  ReadAloudController() {
+    _speed = _readAudioPref(
+      () => stows.audioTtsSpeed.value,
+      1.0,
+    ).clamp(0.5, 2.0);
+    _voiceId = _readAudioPref(() => stows.audioCustomVoiceId.value, null);
+    _playback.setSpeed(_speed);
+  }
 
   /// Whether TTS is currently playing
   bool get isPlaying => _isPlaying;
@@ -45,6 +129,7 @@ class ReadAloudController extends ChangeNotifier {
   set speed(double value) {
     _speed = value.clamp(0.5, 2.0);
     _playback.setSpeed(_speed);
+    _writeAudioPref(() => stows.audioTtsSpeed.value = _speed);
     notifyListeners();
   }
 
@@ -52,12 +137,30 @@ class ReadAloudController extends ChangeNotifier {
   String? get voiceId => _voiceId;
   set voiceId(String? value) {
     _voiceId = value;
+    _writeAudioPref(() => stows.audioCustomVoiceId.value = value);
+    if (value != null && value.isNotEmpty) {
+      _writeAudioPref(
+        () => stows.audioVoiceProfile.value = AudioVoiceProfile.custom.index,
+      );
+    }
     notifyListeners();
   }
 
+  /// Available voices detected from the TTS backend.
+  List<VoiceStyle> get availableVoices => List.unmodifiable(_availableVoices);
+
   /// Start reading text aloud
   Future<void> startReading(String text) async {
-    if (text.isEmpty) return;
+    if (text.isEmpty ||
+        !_readAudioPref(() => stows.audioIntelligenceEnabled.value, true)) {
+      return;
+    }
+
+    _speed = _readAudioPref(
+      () => stows.audioTtsSpeed.value,
+      1.0,
+    ).clamp(0.5, 2.0);
+    _playback.setSpeed(_speed);
 
     _sentences = _splitIntoSentences(text);
     _currentSentenceIndex = 0;
@@ -65,7 +168,25 @@ class ReadAloudController extends ChangeNotifier {
     notifyListeners();
 
     await _engine.initialize();
+    await _refreshVoices();
+    _applyPreferredVoice();
     await _playCurrentSentence();
+  }
+
+  Future<void> _refreshVoices() async {
+    final voices = _engine.getAvailableVoices();
+    _availableVoices = voices;
+  }
+
+  void _applyPreferredVoice() {
+    final preferred = selectPreferredVoiceId(
+      _availableVoices,
+      audioVoiceProfileFromPref(
+        _readAudioPref(() => stows.audioVoiceProfile.value, 0),
+      ),
+      customVoiceId: _readAudioPref(() => stows.audioCustomVoiceId.value, null),
+    );
+    _voiceId = preferred;
   }
 
   /// Pause playback
@@ -129,7 +250,10 @@ class ReadAloudController extends ChangeNotifier {
     _progress = _currentSentenceIndex / _sentences.length;
     notifyListeners();
 
-    final result = await _engine.synthesize(_currentSentence);
+    final result = await _engine.synthesize(
+      _currentSentence,
+      voiceId: _voiceId,
+    );
     if (result != null) {
       await _playback.playSynthesis(result);
 
@@ -178,11 +302,15 @@ class ReadAloudMiniPlayer extends StatefulWidget {
   /// Whether to show expanded controls
   final bool expanded;
 
+  /// Whether to show voice selector in expanded mode.
+  final bool showVoiceSelector;
+
   const ReadAloudMiniPlayer({
     super.key,
     required this.controller,
     this.onClose,
     this.expanded = false,
+    this.showVoiceSelector = true,
   });
 
   @override
@@ -311,6 +439,49 @@ class _ReadAloudMiniPlayerState extends State<ReadAloudMiniPlayer> {
                   ),
                 ],
               ),
+              if (widget.showVoiceSelector &&
+                  widget.controller.availableVoices.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Text('Voice:', style: theme.textTheme.bodySmall),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        initialValue:
+                            widget.controller.availableVoices.any(
+                              (voice) => voice.id == widget.controller.voiceId,
+                            )
+                            ? widget.controller.voiceId
+                            : widget.controller.availableVoices.first.id,
+                        isDense: true,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 8,
+                          ),
+                        ),
+                        items: widget.controller.availableVoices
+                            .map(
+                              (voice) => DropdownMenuItem<String>(
+                                value: voice.id,
+                                child: Text(
+                                  voice.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            )
+                            .toList(growable: false),
+                        onChanged: (value) {
+                          widget.controller.voiceId = value;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ],
         ),
@@ -415,6 +586,7 @@ class _FloatingReadAloudButtonState extends State<FloatingReadAloudButton> {
         right: 16,
         child: ReadAloudMiniPlayer(
           controller: _controller,
+          expanded: true,
           onClose: () => setState(() => _showMiniPlayer = false),
         ),
       );
