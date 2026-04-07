@@ -436,7 +436,8 @@ class ChainedRoutineService extends ChangeNotifier {
     ..._customRoutines,
   ];
 
-  List<ChainedRoutine> get defaultRoutines => List.unmodifiable(_defaultRoutines);
+  List<ChainedRoutine> get defaultRoutines =>
+      List.unmodifiable(_defaultRoutines);
   List<ChainedRoutine> get customRoutines => List.unmodifiable(_customRoutines);
 
   /// Initialize the service
@@ -804,9 +805,9 @@ class ChainedRoutineService extends ChangeNotifier {
         _defaultRoutines.clear();
         for (final item in list) {
           _defaultRoutines.add(
-            ChainedRoutine.fromJson(item as Map<String, dynamic>).copyWith(
-              isDefault: true,
-            ),
+            ChainedRoutine.fromJson(
+              item as Map<String, dynamic>,
+            ).copyWith(isDefault: true),
           );
         }
       }
@@ -818,9 +819,9 @@ class ChainedRoutineService extends ChangeNotifier {
         _customRoutines.clear();
         for (final item in list) {
           _customRoutines.add(
-            ChainedRoutine.fromJson(item as Map<String, dynamic>).copyWith(
-              isDefault: false,
-            ),
+            ChainedRoutine.fromJson(
+              item as Map<String, dynamic>,
+            ).copyWith(isDefault: false),
           );
         }
       }
