@@ -294,8 +294,7 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
         });
       }
     } catch (e) {
-          if (!_readAudioPref(() => stows.audioAutoPlayResponses.value, false) ||
-              widget.controller.messages.isEmpty) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Voice input failed: $e')));
@@ -308,7 +307,7 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
   }
 
   void _maybeAutoPlayLatestAssistantMessage() {
-    if (!stows.audioAutoPlayResponses.value ||
+    if (!_readAudioPref(() => stows.audioAutoPlayResponses.value, false) ||
         widget.controller.messages.isEmpty) {
       return;
     }
