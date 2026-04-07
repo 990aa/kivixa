@@ -26,7 +26,7 @@ class _FakeInferenceGateway implements ChatInferenceGateway {
   }
 
   @override
-  Future<String> chat(List<ChatMessage> messages) async =>
+  Future<String> chat(List messages) async =>
       'Assistant response for audio test.';
 }
 

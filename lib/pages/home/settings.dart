@@ -27,13 +27,13 @@ import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/data/tools/shape_pen.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/lock_screen.dart';
+import 'package:kivixa/services/audio/audio_neural_engine.dart';
 import 'package:kivixa/services/app_lock_service.dart';
 import 'package:kivixa/services/browser_service.dart';
 import 'package:kivixa/services/life_git/life_git_service.dart';
 import 'package:kivixa/services/productivity/chained_routine_service.dart';
 import 'package:kivixa/services/productivity/productivity_timer_service.dart';
 import 'package:kivixa/services/quick_notes/quick_notes_service.dart';
-import 'package:kivixa/services/audio/audio_neural_engine.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:stow/stow.dart';
 
@@ -189,7 +189,7 @@ class _SettingsPageState extends State<SettingsPage> {
           content: SizedBox(
             width: 420,
             child: DropdownButtonFormField<String>(
-              value: _availableVoices.any((v) => v.id == selectedVoiceId)
+              initialValue: _availableVoices.any((v) => v.id == selectedVoiceId)
                   ? selectedVoiceId
                   : _availableVoices.first.id,
               isExpanded: true,
@@ -235,7 +235,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final IconData materialIcon = switch (defaultTargetPlatform) {
+    final materialIcon = switch (defaultTargetPlatform) {
       TargetPlatform.windows => Icons.desktop_windows,
       _ => Icons.android,
     };
