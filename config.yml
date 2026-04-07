@@ -69,9 +69,8 @@ repo_url: https://990aa.github.io/kivixa/repo
 #   https://gitlab.com/fdroid.
 repo_name: Kivixa
 repo_description: >-
-  A privacy-first cross-platform productivity workspace for notes, 
+  A privacy-first cross-platform productivity workspace for notes,
   sketching, planning, and local AI assistance.
-  
 
 # As above, but for the archive repo.
 #
@@ -83,7 +82,6 @@ repo_description: >-
 archive_name: Kivixa Archive
 archive_description: >-
   The repository of older versions of Kivixa.
-  
 
 # archive_older sets the number of versions kept in the main repo, with all
 # older ones going to the archive. Set it to 0, and there will be no archive
@@ -99,6 +97,7 @@ archive_description: >-
 #
 # repo_icon: myicon.png
 # archive_icon: myicon.png
+repo_icon: icon.png
 archive_icon: icon.png
 
 
