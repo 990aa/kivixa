@@ -29,6 +29,7 @@ import 'package:kivixa/pages/lock_screen.dart';
 import 'package:kivixa/services/app_lock_service.dart';
 import 'package:kivixa/services/browser_service.dart';
 import 'package:kivixa/services/life_git/life_git_service.dart';
+import 'package:kivixa/services/productivity/chained_routine_service.dart';
 import 'package:kivixa/services/productivity/productivity_timer_service.dart';
 import 'package:kivixa/services/quick_notes/quick_notes_service.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -1475,12 +1476,15 @@ class _ProductivityTimerSettingsSection extends StatefulWidget {
 class _ProductivityTimerSettingsSectionState
     extends State<_ProductivityTimerSettingsSection> {
   final _timerService = ProductivityTimerService.instance;
+  final _routineService = ChainedRoutineService.instance;
 
   @override
   void initState() {
     super.initState();
     _timerService.addListener(_onUpdate);
+    _routineService.addListener(_onUpdate);
     _timerService.initialize();
+    _routineService.initialize();
   }
 
   void _onUpdate() {
@@ -1490,6 +1494,7 @@ class _ProductivityTimerSettingsSectionState
   @override
   void dispose() {
     _timerService.removeListener(_onUpdate);
+    _routineService.removeListener(_onUpdate);
     super.dispose();
   }
 
@@ -1621,6 +1626,43 @@ class _ProductivityTimerSettingsSectionState
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Card(
+            child: ListTile(
+              leading: const Icon(Icons.settings_backup_restore),
+              title: const Text('Restore Timer Defaults'),
+              subtitle: const Text(
+                'Restore built-in presets and routines (keeps your custom entries)',
+              ),
+              onTap: () => _showRestoreDefaultsConfirmation(context),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Card(
+            color: colorScheme.errorContainer,
+            child: ListTile(
+              leading: Icon(Icons.delete_sweep, color: colorScheme.error),
+              title: const Text('Delete All Custom Routines'),
+              subtitle: Text(
+                _routineService.customRoutines.isEmpty
+                    ? 'No custom routines to delete'
+                    : 'Delete ${_routineService.customRoutines.length} custom routine(s)',
+              ),
+              onTap: _routineService.customRoutines.isEmpty
+                  ? null
+                  : () => _showDeleteCustomRoutinesConfirmation(context),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: colorScheme.error,
+              ),
+            ),
+          ),
+        ),
         // Reset statistics
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -1640,6 +1682,68 @@ class _ProductivityTimerSettingsSectionState
           ),
         ),
       ],
+    );
+  }
+
+  void _showRestoreDefaultsConfirmation(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Restore timer defaults?'),
+        content: const Text(
+          'This restores built-in quick presets and routines to their default values. Your custom presets and routines will be kept.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              _timerService.restoreDefaultPresets();
+              _routineService.restoreDefaultRoutines();
+              Navigator.pop(dialogContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Default presets and routines restored.'),
+                ),
+              );
+            },
+            child: const Text('Restore'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteCustomRoutinesConfirmation(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete all custom routines?'),
+        content: const Text(
+          'This removes all custom chained routines permanently. Built-in routines will stay available.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              _routineService.deleteAllCustomRoutines();
+              Navigator.pop(dialogContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Custom routines deleted.')),
+              );
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
     );
   }
 
