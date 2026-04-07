@@ -130,6 +130,9 @@ class ReadAloudController extends ChangeNotifier {
   Future<void> startReading(String text) async {
     if (text.isEmpty || !stows.audioIntelligenceEnabled.value) return;
 
+    _speed = stows.audioTtsSpeed.value.clamp(0.5, 2.0);
+    _playback.setSpeed(_speed);
+
     _sentences = _splitIntoSentences(text);
     _currentSentenceIndex = 0;
     _isPlaying = true;

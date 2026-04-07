@@ -272,6 +272,56 @@ jobs:
           ls -la android/app/src/main/jniLibs/armeabi-v7a/
           ls -la android/app/src/main/jniLibs/x86_64/
 
+      - name: Build Rust audio library for Android
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          # Build kivixa_audio for Android
+          echo "=== Building kivixa_audio for Android ==="
+          cd native_audio
+          
+          NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          API_LEVEL=23
+          
+          # arm64-v8a
+          echo "Building aarch64-linux-android..."
+          export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
+          export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
+          export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
+          cargo build --release --target aarch64-linux-android
+          
+          # armv7-linux-androideabi
+          echo "Building armv7-linux-androideabi..."
+          export CC_armv7_linux_androideabi="${NDK_BIN}/armv7a-linux-androideabi${API_LEVEL}-clang"
+          export AR_armv7_linux_androideabi="${NDK_BIN}/llvm-ar"
+          export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="${NDK_BIN}/armv7a-linux-androideabi${API_LEVEL}-clang"
+          cargo build --release --target armv7-linux-androideabi
+          
+          # x86_64-linux-android
+          echo "Building x86_64-linux-android..."
+          export CC_x86_64_linux_android="${NDK_BIN}/x86_64-linux-android${API_LEVEL}-clang"
+          export AR_x86_64_linux_android="${NDK_BIN}/llvm-ar"
+          export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="${NDK_BIN}/x86_64-linux-android${API_LEVEL}-clang"
+          cargo build --release --target x86_64-linux-android
+          
+          cd ..
+          
+          # Copy to jniLibs (main app)
+          cp native_audio/target/aarch64-linux-android/release/libkivixa_audio.so android/app/src/main/jniLibs/arm64-v8a/
+          cp native_audio/target/armv7-linux-androideabi/release/libkivixa_audio.so android/app/src/main/jniLibs/armeabi-v7a/
+          cp native_audio/target/x86_64-linux-android/release/libkivixa_audio.so android/app/src/main/jniLibs/x86_64/
+          
+          # Copy to rust_builder jniLibs (for Flutter plugin detection)
+          cp native_audio/target/aarch64-linux-android/release/libkivixa_audio.so rust_builder/android/src/main/jniLibs/arm64-v8a/
+          cp native_audio/target/armv7-linux-androideabi/release/libkivixa_audio.so rust_builder/android/src/main/jniLibs/armeabi-v7a/
+          cp native_audio/target/x86_64-linux-android/release/libkivixa_audio.so rust_builder/android/src/main/jniLibs/x86_64/
+          
+          echo "kivixa_audio libraries copied to all jniLibs locations"
+          ls -la android/app/src/main/jniLibs/arm64-v8a/
+          ls -la android/app/src/main/jniLibs/armeabi-v7a/
+          ls -la android/app/src/main/jniLibs/x86_64/
+
       # ANDROID BUILD
       - name: Decode Android Keystore
         run: |
@@ -317,7 +367,7 @@ jobs:
           unzip -l artifacts/Kivixa-Android-*-arm64.apk | grep -E "\.so$" || true
           
           # Verify required libraries exist
-          REQUIRED_LIBS="libkivixa_native.so libkivixa_math.so"
+          REQUIRED_LIBS="libkivixa_native.so libkivixa_math.so libkivixa_audio.so"
           for LIB in $REQUIRED_LIBS; do
             if unzip -l artifacts/Kivixa-Android-*-arm64.apk | grep -q "$LIB"; then
               echo "[OK] $LIB found in APK"
@@ -433,6 +483,24 @@ jobs:
           Write-Host "kivixa_math.dll copied to all Windows locations"
           Get-ChildItem "build/windows/x64/runner/Release/*.dll"
 
+      - name: Build Rust audio library for Windows
+        shell: pwsh
+        run: |
+          Write-Host "=== Building kivixa_audio for Windows ===" -ForegroundColor Cyan
+          Set-Location native_audio
+          cargo build --release --target x86_64-pc-windows-msvc
+          Set-Location ..
+          
+          # Copy DLL to all locations
+          $dllSource = "native_audio/target/x86_64-pc-windows-msvc/release/kivixa_audio.dll"
+          Copy-Item $dllSource "build/windows/x64/runner/Debug/" -Force
+          Copy-Item $dllSource "build/windows/x64/runner/Release/" -Force
+          Copy-Item $dllSource "build/windows/x64/runner/Profile/" -Force
+          Copy-Item $dllSource "rust_builder/target/x86_64-pc-windows-msvc/release/" -Force
+          
+          Write-Host "kivixa_audio.dll copied to all Windows locations"
+          Get-ChildItem "build/windows/x64/runner/Release/*.dll"
+
       # WINDOWS BUILD
       - name: Get dependencies
         run: flutter pub get
@@ -484,7 +552,7 @@ jobs:
           Write-Host "=== Verifying Rust DLLs ===" -ForegroundColor Cyan
           $releaseDir = "build/windows/x64/runner/Release"
           
-          $requiredDlls = @("kivixa_native.dll", "kivixa_math.dll")
+          $requiredDlls = @("kivixa_native.dll", "kivixa_math.dll", "kivixa_audio.dll")
           foreach ($dll in $requiredDlls) {
             $dllPath = Join-Path $releaseDir $dll
             if (Test-Path $dllPath) {
