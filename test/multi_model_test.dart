@@ -66,9 +66,7 @@ void main() {
         true,
       );
       expect(
-        ModelManager.availableModels.any(
-          (m) => m.id == 'gemma-4-e2b-it-q4km',
-        ),
+        ModelManager.availableModels.any((m) => m.id == 'gemma-4-e2b-it-q4km'),
         true,
       );
       expect(
@@ -190,15 +188,14 @@ void main() {
         strongest.any((m) => m.id == 'qwen35-2b-claude46-distilled-q5km'),
         true,
       );
-      expect(
-        strongest.any((m) => m.id == 'gemma-4-e2b-it-q4km'),
-        true,
-      );
+      expect(strongest.any((m) => m.id == 'gemma-4-e2b-it-q4km'), true);
       expect(strongest.any((m) => m.id == 'phi4-mini-reasoning-q4km'), true);
     });
 
     test('Qwen3.5 0.8B remains available but not strongest', () {
-      final model = ModelManager.getModelById('qwen35-08b-claude46-distilled-q5km')!;
+      final model = ModelManager.getModelById(
+        'qwen35-08b-claude46-distilled-q5km',
+      )!;
       expect(model.supportsCategory(ModelCategory.code), true);
       expect(model.supportsCategory(ModelCategory.strongest), false);
     });

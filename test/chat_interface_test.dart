@@ -218,25 +218,24 @@ void main() {
     });
 
     test('parses reasoning blocks for requested top-tier model IDs', () {
-        const samples = {
-          'qwen35-4b-claude46-distilled-v2-q4km':
-              '<think>plan for 4b model</think>\nfinal 4b answer',
-          'qwen35-2b-claude46-distilled-q5km':
-              '<think>plan for 2b model</think>\nfinal 2b answer',
+      const samples = {
+        'qwen35-4b-claude46-distilled-v2-q4km':
+            '<think>plan for 4b model</think>\nfinal 4b answer',
+        'qwen35-2b-claude46-distilled-q5km':
+            '<think>plan for 2b model</think>\nfinal 2b answer',
         'gemma-4-e2b-it-q4km':
-          '<think>plan for gemma4 model</think>\nfinal gemma4 answer',
-          'phi4-mini-reasoning-q4km':
-              '<thinking>plan for phi reasoning</thinking>\nfinal phi answer',
-        };
+            '<think>plan for gemma4 model</think>\nfinal gemma4 answer',
+        'phi4-mini-reasoning-q4km':
+            '<thinking>plan for phi reasoning</thinking>\nfinal phi answer',
+      };
 
-        for (final entry in samples.entries) {
-          final parsed = parseReasoningContent(entry.value);
-          expect(parsed.hasReasoning, true, reason: entry.key);
-          expect(parsed.reasoningContent, isNotNull, reason: entry.key);
-          expect(parsed.visibleContent, contains('final'), reason: entry.key);
-        }
-      },
-    );
+      for (final entry in samples.entries) {
+        final parsed = parseReasoningContent(entry.value);
+        expect(parsed.hasReasoning, true, reason: entry.key);
+        expect(parsed.reasoningContent, isNotNull, reason: entry.key);
+        expect(parsed.visibleContent, contains('final'), reason: entry.key);
+      }
+    });
   });
 
   // Skip AIChatController tests as they require platform plugins
