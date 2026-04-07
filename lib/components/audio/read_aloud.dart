@@ -419,7 +419,7 @@ class _ReadAloudMiniPlayerState extends State<ReadAloudMiniPlayer> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                          initialValue:
+                        initialValue:
                             widget.controller.availableVoices.any(
                               (voice) => voice.id == widget.controller.voiceId,
                             )
