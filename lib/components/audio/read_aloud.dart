@@ -41,8 +41,8 @@ String? selectPreferredVoiceId(
     final malePattern = RegExp(r'(^|[^a-z])male([^a-z]|$)');
     return id.startsWith('am_') ||
         id.startsWith('bm_') ||
-      malePattern.hasMatch(id) ||
-      malePattern.hasMatch(name);
+        malePattern.hasMatch(id) ||
+        malePattern.hasMatch(name);
   }
 
   bool isFemaleVoice(VoiceStyle voice) {
@@ -51,8 +51,8 @@ String? selectPreferredVoiceId(
     final femalePattern = RegExp(r'(^|[^a-z])female([^a-z]|$)');
     return id.startsWith('af_') ||
         id.startsWith('bf_') ||
-      femalePattern.hasMatch(id) ||
-      femalePattern.hasMatch(name);
+        femalePattern.hasMatch(id) ||
+        femalePattern.hasMatch(name);
   }
 
   final preferred = switch (profile) {
