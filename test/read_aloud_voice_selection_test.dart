@@ -4,11 +4,7 @@ import 'package:kivixa/services/audio/audio_neural_engine.dart';
 
 void main() {
   VoiceStyle voice(String id, String name) {
-    return VoiceStyle(
-      id: id,
-      name: name,
-      description: 'voice $name',
-    );
+    return VoiceStyle(id: id, name: name, description: 'voice $name');
   }
 
   group('selectPreferredVoiceId', () {

@@ -173,9 +173,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (!mounted) return;
     if (_availableVoices.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No voices available yet')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No voices available yet')));
       return;
     }
 
@@ -635,7 +635,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 const SettingsSubtitle(subtitle: 'Audio Intelligence'),
                 SettingsSwitch(
                   title: 'Enable Audio Intelligence',
-                  subtitle: 'Turn on speech-to-text and text-to-speech features',
+                  subtitle:
+                      'Turn on speech-to-text and text-to-speech features',
                   icon: Icons.hearing,
                   pref: stows.audioIntelligenceEnabled,
                 ),

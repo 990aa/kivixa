@@ -1096,9 +1096,9 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     final text = _codeController?.text.trim() ?? '';
     if (text.isEmpty) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Document is empty')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Document is empty')));
       return;
     }
     await _readAloudController.startReading(text);
