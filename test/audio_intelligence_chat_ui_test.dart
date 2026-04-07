@@ -102,10 +102,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: AIChatInterface(
-            controller: controller,
-            showHeader: false,
-          ),
+          body: AIChatInterface(controller: controller, showHeader: false),
         ),
       ),
     );
