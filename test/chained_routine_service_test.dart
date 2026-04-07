@@ -503,40 +503,43 @@ void main() {
       service.deleteRoutine(routineId);
     });
 
-    test('restoreDefaultRoutines resets defaults while keeping custom by default', () {
-      final service = ChainedRoutineService.instance;
-      service.restoreDefaultRoutines(preserveCustom: false);
+    test(
+      'restoreDefaultRoutines resets defaults while keeping custom by default',
+      () {
+        final service = ChainedRoutineService.instance;
+        service.restoreDefaultRoutines(preserveCustom: false);
 
-      final originalMorning = service.getRoutineById(
-        ChainedRoutine.morningRoutine.id,
-      );
-      expect(originalMorning, isNotNull);
+        final originalMorning = service.getRoutineById(
+          ChainedRoutine.morningRoutine.id,
+        );
+        expect(originalMorning, isNotNull);
 
-      service.saveRoutine(
-        originalMorning!.copyWith(name: 'Temp Morning Name'),
-      );
-      service.saveRoutine(
-        const ChainedRoutine(
-          id: 'test_custom_routine_keep',
-          name: 'Keep Custom',
-          blocks: [RoutineBlock(name: 'Single Block', durationMinutes: 5)],
-        ),
-      );
+        service.saveRoutine(
+          originalMorning!.copyWith(name: 'Temp Morning Name'),
+        );
+        service.saveRoutine(
+          const ChainedRoutine(
+            id: 'test_custom_routine_keep',
+            name: 'Keep Custom',
+            blocks: [RoutineBlock(name: 'Single Block', durationMinutes: 5)],
+          ),
+        );
 
-      service.restoreDefaultRoutines();
+        service.restoreDefaultRoutines();
 
-      final restoredMorning = service.getRoutineById(
-        ChainedRoutine.morningRoutine.id,
-      );
-      expect(restoredMorning, isNotNull);
-      expect(restoredMorning!.name, ChainedRoutine.morningRoutine.name);
-      expect(
-        service.customRoutines.any((r) => r.id == 'test_custom_routine_keep'),
-        true,
-      );
+        final restoredMorning = service.getRoutineById(
+          ChainedRoutine.morningRoutine.id,
+        );
+        expect(restoredMorning, isNotNull);
+        expect(restoredMorning!.name, ChainedRoutine.morningRoutine.name);
+        expect(
+          service.customRoutines.any((r) => r.id == 'test_custom_routine_keep'),
+          true,
+        );
 
-      service.restoreDefaultRoutines(preserveCustom: false);
-    });
+        service.restoreDefaultRoutines(preserveCustom: false);
+      },
+    );
 
     test('deleteAllCustomRoutines clears only custom routines', () {
       final service = ChainedRoutineService.instance;
