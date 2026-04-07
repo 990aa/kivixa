@@ -810,7 +810,9 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
     AIChatMessage? latestAssistant;
     for (int i = widget.controller.messages.length - 1; i >= 0; i--) {
       final message = widget.controller.messages[i];
-      if (message.isAssistant && !message.isLoading && message.content.isNotEmpty) {
+      if (message.isAssistant &&
+          !message.isLoading &&
+          message.content.isNotEmpty) {
         latestAssistant = message;
         break;
       }
@@ -1145,7 +1147,9 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                   ),
                   IconButton(
                     iconSize: isCompact ? 18 : 22,
-                    tooltip: _isListening ? 'Stop dictation' : 'Voice dictation',
+                    tooltip: _isListening
+                        ? 'Stop dictation'
+                        : 'Voice dictation',
                     onPressed: widget.controller.isGenerating
                         ? null
                         : _toggleVoiceInput,
@@ -1551,14 +1555,19 @@ class _ChatMessageBubble extends StatelessWidget {
                       ),
                   ],
                   if (!message.isLoading &&
-                      (onCopy != null || onRetry != null || onSpeak != null)) ...[
+                      (onCopy != null ||
+                          onRetry != null ||
+                          onSpeak != null)) ...[
                     SizedBox(height: compact ? 4 : 8),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (onSpeak != null)
                           IconButton(
-                            icon: Icon(Icons.volume_up, size: compact ? 12 : 16),
+                            icon: Icon(
+                              Icons.volume_up,
+                              size: compact ? 12 : 16,
+                            ),
                             onPressed: onSpeak,
                             tooltip: 'Read response aloud',
                             padding: EdgeInsets.zero,

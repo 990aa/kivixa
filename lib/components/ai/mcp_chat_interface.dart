@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -296,14 +297,17 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
   }
 
   void _maybeAutoPlayLatestAssistantMessage() {
-    if (!stows.audioAutoPlayResponses.value || widget.controller.messages.isEmpty) {
+    if (!stows.audioAutoPlayResponses.value ||
+        widget.controller.messages.isEmpty) {
       return;
     }
 
     MCPChatMessage? latestAssistant;
     for (int i = widget.controller.messages.length - 1; i >= 0; i--) {
       final message = widget.controller.messages[i];
-      if (message.isAssistant && !message.isLoading && message.content.isNotEmpty) {
+      if (message.isAssistant &&
+          !message.isLoading &&
+          message.content.isNotEmpty) {
         latestAssistant = message;
         break;
       }
@@ -580,7 +584,9 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
                   ),
                   IconButton(
                     icon: Icon(_isListening ? Icons.stop_circle : Icons.mic),
-                    tooltip: _isListening ? 'Stop dictation' : 'Voice dictation',
+                    tooltip: _isListening
+                        ? 'Stop dictation'
+                        : 'Voice dictation',
                     onPressed: widget.controller.isGenerating
                         ? null
                         : _toggleVoiceInput,
@@ -725,7 +731,9 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
                   ],
 
                   if (!message.isLoading &&
-                      (onCopy != null || onRetry != null || onSpeak != null)) ...[
+                      (onCopy != null ||
+                          onRetry != null ||
+                          onSpeak != null)) ...[
                     const SizedBox(height: 8),
                     Row(
                       mainAxisSize: MainAxisSize.min,
