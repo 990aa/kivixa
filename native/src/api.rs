@@ -44,6 +44,7 @@ pub fn init_model_with_config(
             // Auto-detect from path
             let lower = model_path.to_lowercase();
             if lower.contains("qwen")
+                || lower.contains("qwopus")
                 || lower.contains("deepseek-r1-distill-qwen")
                 || lower.contains("smollm2")
                 || lower.contains("smollm3")

@@ -82,6 +82,7 @@ static AI_STATE: Mutex<Option<Arc<ModelState>>> = Mutex::new(None);
 fn detect_model_type(model_path: &str) -> ModelType {
     let lower_path = model_path.to_lowercase();
     if lower_path.contains("qwen")
+        || lower_path.contains("qwopus")
         || lower_path.contains("deepseek-r1-distill-qwen")
         || lower_path.contains("smollm2")
         || lower_path.contains("smollm3")
@@ -696,11 +697,18 @@ fn format_chat_prompt_fallback(
 ) -> String {
     let lower_hint = model_hint.to_lowercase();
 
-    if lower_hint.contains("gemma-3") || lower_hint.contains("gemma3") {
+    if lower_hint.contains("gemma-3")
+        || lower_hint.contains("gemma3")
+        || lower_hint.contains("gemma-4")
+        || lower_hint.contains("gemma4")
+    {
         return format_gemma3_prompt(messages);
     }
 
-    if lower_hint.contains("deepseek-r1-distill-qwen") || lower_hint.contains("smollm2") {
+    if lower_hint.contains("deepseek-r1-distill-qwen")
+        || lower_hint.contains("smollm2")
+        || lower_hint.contains("qwopus")
+    {
         return format_qwen_prompt(messages);
     }
 
@@ -919,6 +927,10 @@ mod tests {
             ModelType::Qwen
         );
         assert_eq!(
+            detect_model_type("/path/to/Qwopus3.5-4B-v3-GGUF/model.gguf"),
+            ModelType::Qwen
+        );
+        assert_eq!(
             detect_model_type("/path/to/functionary-v2.gguf"),
             ModelType::Functionary
         );
@@ -1065,6 +1077,17 @@ mod tests {
             &messages,
             ModelType::Phi4,
             "google_gemma-3-4b-it-q4_k_m.gguf",
+        );
+        assert!(prompt.contains("<start_of_turn>user\nTest<end_of_turn>"));
+    }
+
+    #[test]
+    fn test_fallback_uses_gemma_formatter_for_gemma4() {
+        let messages = vec![("user".to_string(), "Test".to_string())];
+        let prompt = format_chat_prompt_fallback(
+            &messages,
+            ModelType::Phi4,
+            "gemma-4-e2b-it-q4_k_m.gguf",
         );
         assert!(prompt.contains("<start_of_turn>user\nTest<end_of_turn>"));
     }
