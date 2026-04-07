@@ -1036,6 +1036,96 @@ class _TextFileEditorState extends State<TextFileEditor> {
     _controller.updateSelection(selection, ChangeSource.local);
   }
 
+  void _onReadAloudControllerChanged() {
+    final shouldShow =
+        _readAloudController.isPlaying ||
+        _readAloudController.currentSentence.isNotEmpty;
+    if (shouldShow != _showReadAloudPlayer && mounted) {
+      setState(() {
+        _showReadAloudPlayer = shouldShow;
+      });
+    }
+  }
+
+  void _onDictationResult(SpeechRecognitionResult result) {
+    if (!_isDictating || !result.isFinal || result.text.trim().isEmpty) {
+      return;
+    }
+    _insertDictationText('${result.text.trim()} ');
+  }
+
+  void _insertDictationText(String text) {
+    var index = _controller.selection.baseOffset;
+    if (index < 0) index = _controller.document.length - 1;
+
+    _controller.document.insert(index, text);
+    _controller.updateSelection(
+      TextSelection.collapsed(offset: index + text.length),
+      ChangeSource.local,
+    );
+  }
+
+  Future<void> _toggleDictation() async {
+    if (!stows.audioIntelligenceEnabled.value) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Audio Intelligence is disabled')),
+      );
+      return;
+    }
+
+    try {
+      if (_isDictating) {
+        await _audioRecorder.stopRecording();
+        final result = await _audioEngine.stopListening();
+        if (result != null && result.text.trim().isNotEmpty) {
+          _insertDictationText('${result.text.trim()} ');
+        }
+        if (mounted) {
+          setState(() {
+            _isDictating = false;
+          });
+        }
+        return;
+      }
+
+      final initialized = await _audioEngine.initialize();
+      if (!initialized) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to initialize audio engine')),
+        );
+        return;
+      }
+
+      _audioEngine.setVadThreshold(stows.audioVadThreshold.value);
+      await _audioEngine.startListening();
+      await _audioRecorder.startRecording();
+      if (mounted) {
+        setState(() {
+          _isDictating = true;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Dictation failed: $e')));
+    }
+  }
+
+  Future<void> _readDocumentAloud() async {
+    final text = _controller.document.toPlainText().trim();
+    if (text.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Document is empty')),
+      );
+      return;
+    }
+    await _readAloudController.startReading(text);
+  }
+
   /// Update a media embed in the document with new metadata
   void _updateMediaEmbed(int index, MediaElement element) {
     // Delete the old embed and insert a new one with updated data
