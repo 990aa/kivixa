@@ -1065,8 +1065,16 @@ class _TextFileEditorState extends State<TextFileEditor> {
     );
   }
 
+  T _readAudioPref<T>(T Function() reader, T fallback) {
+    try {
+      return reader();
+    } catch (_) {
+      return fallback;
+    }
+  }
+
   Future<void> _toggleDictation() async {
-    if (!stows.audioIntelligenceEnabled.value) {
+    if (!_readAudioPref(() => stows.audioIntelligenceEnabled.value, true)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Audio Intelligence is disabled')),
@@ -1098,7 +1106,9 @@ class _TextFileEditorState extends State<TextFileEditor> {
         return;
       }
 
-      _audioEngine.setVadThreshold(stows.audioVadThreshold.value);
+      _audioEngine.setVadThreshold(
+        _readAudioPref(() => stows.audioVadThreshold.value, 0.5),
+      );
       await _audioEngine.startListening();
       await _audioRecorder.startRecording();
       if (mounted) {
@@ -1881,7 +1891,8 @@ class _TextFileEditorState extends State<TextFileEditor> {
         ],
       ),
       floatingActionButton:
-          !_isTimeTraveling && stows.audioShowReadAloudFab.value
+          !_isTimeTraveling &&
+            _readAudioPref(() => stows.audioShowReadAloudFab.value, true)
           ? FloatingActionButton.small(
               onPressed: _readDocumentAloud,
               tooltip: 'Read document aloud',

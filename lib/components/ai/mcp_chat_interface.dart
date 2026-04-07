@@ -242,8 +242,16 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
     _focusNode.requestFocus();
   }
 
+  T _readAudioPref<T>(T Function() reader, T fallback) {
+    try {
+      return reader();
+    } catch (_) {
+      return fallback;
+    }
+  }
+
   Future<void> _toggleVoiceInput() async {
-    if (!stows.audioIntelligenceEnabled.value) {
+    if (!_readAudioPref(() => stows.audioIntelligenceEnabled.value, true)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Audio Intelligence is disabled')),
@@ -275,7 +283,9 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
         return;
       }
 
-      _audioEngine.setVadThreshold(stows.audioVadThreshold.value);
+      _audioEngine.setVadThreshold(
+        _readAudioPref(() => stows.audioVadThreshold.value, 0.5),
+      );
       await _audioEngine.startListening();
       await _audioRecorder.startRecording();
       if (mounted) {
@@ -284,7 +294,8 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
         });
       }
     } catch (e) {
-      if (!mounted) return;
+          if (!_readAudioPref(() => stows.audioAutoPlayResponses.value, false) ||
+              widget.controller.messages.isEmpty) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Voice input failed: $e')));
