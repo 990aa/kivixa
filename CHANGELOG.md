@@ -467,7 +467,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.6.0] - 2026-04-07
 
 ### Changed
-- Version bump to 0.6.0
 - Updated the Qwen3.5 4B Claude 4.6 Opus reasoning-distilled model source to the Qwopus v3 GGUF link across model metadata, routing, and validation tests.
 - Added Gemma 4 E2B IT (Q4_K_M) to the model catalog and strongest recommendations.
 - Expanded model alias routing and native inference detection/fallback handling for Qwopus and Gemma 4 identifiers.
@@ -484,6 +483,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.0] - 2026-04-07
 
 ### Changed
-- Version bump to 0.7.0
 
 ---
