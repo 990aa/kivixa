@@ -816,7 +816,9 @@ class ProductivityTimerService extends ChangeNotifier {
       return;
     }
 
-    final customIndex = _customQuickPresets.indexWhere((p) => p.id == preset.id);
+    final customIndex = _customQuickPresets.indexWhere(
+      (p) => p.id == preset.id,
+    );
     if (customIndex != -1) {
       _customQuickPresets[customIndex] = preset.copyWith(isDefault: false);
     } else {
@@ -987,7 +989,9 @@ class ProductivityTimerService extends ChangeNotifier {
           ..clear()
           ..addAll(
             decoded
-                .map((item) => QuickPreset.fromJson(item as Map<String, dynamic>))
+                .map(
+                  (item) => QuickPreset.fromJson(item as Map<String, dynamic>),
+                )
                 .map((preset) => preset.copyWith(isDefault: true)),
           );
       }
@@ -999,7 +1003,9 @@ class ProductivityTimerService extends ChangeNotifier {
           ..clear()
           ..addAll(
             decoded
-                .map((item) => QuickPreset.fromJson(item as Map<String, dynamic>))
+                .map(
+                  (item) => QuickPreset.fromJson(item as Map<String, dynamic>),
+                )
                 .map((preset) => preset.copyWith(isDefault: false)),
           );
       }
@@ -1011,7 +1017,9 @@ class ProductivityTimerService extends ChangeNotifier {
   Future<void> _saveDefaultQuickPresets() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final payload = _defaultQuickPresets.map((preset) => preset.toJson()).toList();
+      final payload = _defaultQuickPresets
+          .map((preset) => preset.toJson())
+          .toList();
       await prefs.setString(_defaultQuickPresetsKey, jsonEncode(payload));
     } catch (e) {
       debugPrint('Failed to save default quick presets: $e');
@@ -1021,7 +1029,9 @@ class ProductivityTimerService extends ChangeNotifier {
   Future<void> _saveCustomQuickPresets() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final payload = _customQuickPresets.map((preset) => preset.toJson()).toList();
+      final payload = _customQuickPresets
+          .map((preset) => preset.toJson())
+          .toList();
       await prefs.setString(_customQuickPresetsKey, jsonEncode(payload));
     } catch (e) {
       debugPrint('Failed to save custom quick presets: $e');
