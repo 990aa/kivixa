@@ -20,8 +20,16 @@ const List<_BlockStyle> _blockStyles = [
   _BlockStyle(label: 'Focus', icon: Icons.psychology, color: Color(0xFF4CAF50)),
   _BlockStyle(label: 'Break', icon: Icons.coffee, color: Color(0xFF795548)),
   _BlockStyle(label: 'Study', icon: Icons.school, color: Color(0xFF2196F3)),
-  _BlockStyle(label: 'Exercise', icon: Icons.fitness_center, color: Color(0xFFF44336)),
-  _BlockStyle(label: 'Planning', icon: Icons.event_note, color: Color(0xFF9C27B0)),
+  _BlockStyle(
+    label: 'Exercise',
+    icon: Icons.fitness_center,
+    color: Color(0xFFF44336),
+  ),
+  _BlockStyle(
+    label: 'Planning',
+    icon: Icons.event_note,
+    color: Color(0xFF9C27B0),
+  ),
   _BlockStyle(label: 'Custom', icon: Icons.tune, color: Color(0xFF607D8B)),
 ];
 
@@ -819,8 +827,10 @@ class _ClockPageState extends State<ClockPage>
                           IconButton(
                             icon: const Icon(Icons.edit_outlined),
                             tooltip: 'Edit preset',
-                            onPressed: () =>
-                                _showPresetEditorDialog(context, preset: preset),
+                            onPressed: () => _showPresetEditorDialog(
+                              context,
+                              preset: preset,
+                            ),
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete_outline),
@@ -1021,7 +1031,7 @@ class _ClockPageState extends State<ClockPage>
                       ),
                     const SizedBox(height: 4),
                     Text(
-                      '${routine.blocks.length} blocks • ${routine.totalMinutes} min total',
+                      '${routine.blocks.length} blocks - ${routine.totalMinutes} min total',
                       style: theme.textTheme.bodySmall,
                     ),
                   ],
@@ -1354,7 +1364,10 @@ class _ClockPageState extends State<ClockPage>
                       child: OutlinedButton.icon(
                         onPressed: () {
                           Navigator.pop(context);
-                          _showRoutineEditorDialog(pageContext, routine: routine);
+                          _showRoutineEditorDialog(
+                            pageContext,
+                            routine: routine,
+                          );
                         },
                         icon: const Icon(Icons.edit_outlined),
                         label: const Text('Edit'),
@@ -1447,9 +1460,7 @@ class _ClockPageState extends State<ClockPage>
                     const SizedBox(height: 12),
                     TextField(
                       controller: cyclesController,
-                      decoration: const InputDecoration(
-                        labelText: 'Cycles',
-                      ),
+                      decoration: const InputDecoration(labelText: 'Cycles'),
                       keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 12),
@@ -1602,7 +1613,10 @@ class _ClockPageState extends State<ClockPage>
 
               setSheetState(() {
                 final targetIndex = insertIndex ?? draftBlocks.length;
-                draftBlocks.insert(targetIndex.clamp(0, draftBlocks.length), newBlock);
+                draftBlocks.insert(
+                  targetIndex.clamp(0, draftBlocks.length),
+                  newBlock,
+                );
               });
             }
 
@@ -1719,9 +1733,9 @@ class _ClockPageState extends State<ClockPage>
                                         ),
                                         Text(
                                           '${block.durationMinutes} min',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall,
                                         ),
                                       ],
                                     ),
@@ -1797,7 +1811,8 @@ class _ClockPageState extends State<ClockPage>
                           blocks: List<RoutineBlock>.from(draftBlocks),
                           icon: routine?.icon ?? Icons.account_tree_outlined,
                           color:
-                              routine?.color ?? Theme.of(context).colorScheme.primary,
+                              routine?.color ??
+                              Theme.of(context).colorScheme.primary,
                           description: descriptionController.text.trim().isEmpty
                               ? null
                               : descriptionController.text.trim(),
@@ -1833,7 +1848,9 @@ class _ClockPageState extends State<ClockPage>
     );
 
     final initialStyle = _blockStyles.indexWhere(
-      (style) => style.icon.codePoint == (existing?.icon.codePoint ?? Icons.timer.codePoint),
+      (style) =>
+          style.icon.codePoint ==
+          (existing?.icon.codePoint ?? Icons.timer.codePoint),
     );
     var selectedStyleIndex = initialStyle == -1 ? 0 : initialStyle;
 
@@ -1850,7 +1867,9 @@ class _ClockPageState extends State<ClockPage>
                   children: [
                     TextField(
                       controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Block name'),
+                      decoration: const InputDecoration(
+                        labelText: 'Block name',
+                      ),
                     ),
                     const SizedBox(height: 12),
                     TextField(
@@ -1914,7 +1933,9 @@ class _ClockPageState extends State<ClockPage>
                         durationMinutes <= 0) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Please enter a valid block name and duration.'),
+                          content: Text(
+                            'Please enter a valid block name and duration.',
+                          ),
                         ),
                       );
                       return;
