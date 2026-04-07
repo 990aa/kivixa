@@ -51,6 +51,8 @@ sdk_path: $ANDROID_HOME
 # Canonical URL of the repositoy, needs to end in /repo. Is is used to identity
 # the repo in the client, as well.
 # repo_url: https://MyFirstFDroidRepo.org/fdroid/repo
+repo_url: https://990aa.github.io/kivixa/repo
+
 #
 # Base URL for per-package pages on the website of this repo,
 # i.e. https://f-droid.org/packages/<appid>/ This should be accessible
@@ -65,6 +67,11 @@ sdk_path: $ANDROID_HOME
 #   original application developers, or are binaries built from source
 #   by the admin of f-droid.org using the tools on
 #   https://gitlab.com/fdroid.
+repo_name: Kivixa
+repo_description: >-
+  A privacy-first cross-platform productivity workspace for notes, 
+  sketching, planning, and local AI assistance.
+  
 
 # As above, but for the archive repo.
 #
@@ -73,6 +80,10 @@ sdk_path: $ANDROID_HOME
 # archive_name: My First F-Droid Archive Demo
 # archive_description: >-
 #   The repository of older versions of packages from the main demo repository.
+archive_name: Kivixa Archive
+archive_description: >-
+  The repository of older versions of Kivixa.
+  
 
 # archive_older sets the number of versions kept in the main repo, with all
 # older ones going to the archive. Set it to 0, and there will be no archive
