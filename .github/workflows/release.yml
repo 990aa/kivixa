@@ -66,7 +66,7 @@ jobs:
           docker-images: true
           swap-storage: true
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
           fetch-depth: 0
@@ -343,7 +343,7 @@ jobs:
           rm -rf /tmp/apk_check
 
       - name: Upload Android artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: android-apks
           path: artifacts/*.apk
@@ -360,7 +360,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -482,7 +482,7 @@ jobs:
 
       - name: Upload MSIX Artifact
         if: always() && steps.build_msix.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-msix
           path: build\windows\x64\runner\Release\*.msix
@@ -592,7 +592,7 @@ jobs:
           }
 
       - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-installer
           path: build_windows_installer/Kivixa-Setup-*.exe
@@ -614,7 +614,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download Android artifacts
         uses: actions/download-artifact@v4
@@ -700,7 +700,7 @@ jobs:
     
     steps:
       - name: Checkout gh-pages branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: gh-pages
           fetch-depth: 0
@@ -733,10 +733,10 @@ jobs:
           # --- 2. COPY APKs ---
           cp fdroid-apks/*.apk repo/
           
-          # --- 3. CREATE METADATA ---
+          # --- 3. CREATE METADATA (Flush to left to avoid weird spaces) ---
           cat > metadata/com.a990aa.kivixa/en-US/full_description.txt << 'DESCEOF'
-          Kivixa is a privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance..
-          
+          Kivixa is a privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
+
           Features:
           - Rich markdown and text editing for fast note-taking
           - Digital canvas for handwriting, drawing, and mixed media notes
@@ -752,26 +752,22 @@ jobs:
           DESCEOF
           
           # --- 4. HANDLE KEYSTORE (CRITICAL) ---
-          # If we don't have the key, delete old config to force fresh init
           if [ ! -f keystore.p12 ]; then
-            echo "Keystore missing. Cleaning up to force re-initialization..."
+            echo "Keystore missing. Initializing fresh keys..."
             rm -f config.yml
-            
-            echo "Initializing F-Droid Repository keys..."
             fdroid init --verbose
           fi
           
-          # --- 5. CREATE CONFIG ---
-          if [ ! -f config.yml ]; then
-            cat > config.yml << 'CFGEOF'
+          # --- 5. CREATE/OVERWRITE CONFIG (No 'if' check, so it actually updates) ---
+          cat > config.yml << 'CFGEOF'
           repo_url: https://990aa.github.io/kivixa/repo
-          repo_name: Kivixa F-Droid Repo
+          repo_name: Kivixa
           repo_icon: icon.png
           repo_description: |
-            Official F-Droid repository for Kivixa app releases.
+          Official F-Droid repository for the Kivixa productivity workspace.
           archive_older: 3
           CFGEOF
-          fi
+
           
           # --- 6. UPDATE REPO (GENERATE INDEX) ---
           echo "Running F-Droid Update..."
