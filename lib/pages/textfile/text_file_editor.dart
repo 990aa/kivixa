@@ -10,11 +10,15 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kivixa/components/audio/read_aloud.dart';
 import 'package:kivixa/components/life_git/time_travel_slider.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/models/media_element.dart';
+import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
+import 'package:kivixa/services/audio/audio_neural_engine.dart';
+import 'package:kivixa/services/audio/audio_recording_service.dart';
 import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:logging/logging.dart';
 import 'package:media_kit/media_kit.dart';
@@ -897,6 +901,13 @@ class _TextFileEditorState extends State<TextFileEditor> {
   var _isEditingFileName = false;
   DateTime? _lastEditorTapAt;
   var _editorTapCount = 0;
+
+  final _audioEngine = AudioNeuralEngine();
+  final _audioRecorder = AudioRecordingService();
+  final _readAloudController = ReadAloudController();
+  StreamSubscription<SpeechRecognitionResult>? _dictationSub;
+  var _isDictating = false;
+  var _showReadAloudPlayer = false;
 
   static const _tripleTapWindow = Duration(milliseconds: 450);
 
