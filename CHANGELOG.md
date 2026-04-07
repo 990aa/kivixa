@@ -468,5 +468,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Version bump to 0.6.0
+- Updated the Qwen3.5 4B Claude 4.6 Opus reasoning-distilled model source to the Qwopus v3 GGUF link across model metadata, routing, and validation tests.
+- Added Gemma 4 E2B IT (Q4_K_M) to the model catalog and strongest recommendations.
+- Expanded model alias routing and native inference detection/fallback handling for Qwopus and Gemma 4 identifiers.
+- Productivity Clock now includes a dedicated Custom Chains tab with full routine creation, editing, and deletion workflows.
+- Presets and routines tabs now allow editing and deleting both built-in and custom entries.
+- Added timer settings actions to restore default presets/routines and delete all custom routines.
+
+### Added
+- Added advanced routine-chain editing UI that supports block-level insert, edit, and delete operations before saving.
+- Added focused productivity service tests for quick preset CRUD/reset flows and chained routine CRUD/block operations.
+- Added native Rust inference tests covering Qwopus model-type detection and Gemma 4 fallback prompt formatting.
 
 ---
