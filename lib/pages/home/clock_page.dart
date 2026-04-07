@@ -16,7 +16,7 @@ class _BlockStyle {
   final Color color;
 }
 
-const List<_BlockStyle> _blockStyles = [
+const _blockStyles = <_BlockStyle>[
   _BlockStyle(label: 'Focus', icon: Icons.psychology, color: Color(0xFF4CAF50)),
   _BlockStyle(label: 'Break', icon: Icons.coffee, color: Color(0xFF795548)),
   _BlockStyle(label: 'Study', icon: Icons.school, color: Color(0xFF2196F3)),
@@ -1881,7 +1881,7 @@ class _ClockPageState extends State<ClockPage>
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<int>(
-                      value: selectedStyleIndex,
+                      initialValue: selectedStyleIndex,
                       decoration: const InputDecoration(labelText: 'Style'),
                       items: _blockStyles.asMap().entries.map((entry) {
                         final index = entry.key;
