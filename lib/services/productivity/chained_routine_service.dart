@@ -369,7 +369,7 @@ class ChainedRoutineService extends ChangeNotifier {
   Timer? _timer;
 
   // Routine catalogs
-  final List<ChainedRoutine> _defaultRoutines = List<ChainedRoutine>.from(
+  final _defaultRoutines = List<ChainedRoutine>.from(
     ChainedRoutine.defaultRoutines,
   );
   final List<ChainedRoutine> _customRoutines = [];
@@ -720,7 +720,7 @@ class ChainedRoutineService extends ChangeNotifier {
     }
 
     final blocks = List<RoutineBlock>.from(routine.blocks);
-    final safeIndex = insertIndex.clamp(0, blocks.length) as int;
+    final safeIndex = insertIndex.clamp(0, blocks.length);
     blocks.insert(safeIndex, block);
     saveRoutine(routine.copyWith(blocks: blocks));
     return true;

@@ -226,7 +226,7 @@ class ProductivityTimerService extends ChangeNotifier {
   TimerTemplate? _activeTemplate;
   QuickPreset? _activePreset;
 
-  final List<QuickPreset> _defaultQuickPresets = List<QuickPreset>.from(
+  final _defaultQuickPresets = List<QuickPreset>.from(
     QuickPreset.defaultPresets,
   );
   final List<QuickPreset> _customQuickPresets = [];
