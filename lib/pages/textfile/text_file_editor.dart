@@ -1825,6 +1825,19 @@ class _TextFileEditorState extends State<TextFileEditor> {
               tooltip: 'Insert Table',
               onPressed: _insertTable,
             ),
+            IconButton(
+              icon: Icon(_isDictating ? Icons.stop_circle : Icons.mic),
+              tooltip: _isDictating
+                  ? 'Stop dictation'
+                  : 'Dictate into document',
+              color: _isDictating ? colorScheme.error : null,
+              onPressed: _toggleDictation,
+            ),
+            IconButton(
+              icon: const Icon(Icons.volume_up),
+              tooltip: 'Read document aloud',
+              onPressed: _readDocumentAloud,
+            ),
             // Time Travel button
             IconButton(
               icon: const Icon(Icons.history),
@@ -1867,6 +1880,14 @@ class _TextFileEditorState extends State<TextFileEditor> {
           ],
         ],
       ),
+      floatingActionButton:
+          !_isTimeTraveling && stows.audioShowReadAloudFab.value
+          ? FloatingActionButton.small(
+              onPressed: _readDocumentAloud,
+              tooltip: 'Read document aloud',
+              child: const Icon(Icons.volume_up),
+            )
+          : null,
       body: SafeArea(
         child: Column(
           children: [
@@ -1974,6 +1995,17 @@ class _TextFileEditorState extends State<TextFileEditor> {
                 ),
               ),
             ),
+            if (_showReadAloudPlayer)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: ReadAloudMiniPlayer(
+                  controller: _readAloudController,
+                  expanded: true,
+                  onClose: () {
+                    _readAloudController.stop();
+                  },
+                ),
+              ),
           ],
         ),
       ),
