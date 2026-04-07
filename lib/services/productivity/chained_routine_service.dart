@@ -368,7 +368,10 @@ class ChainedRoutineService extends ChangeNotifier {
   Duration _remainingTime = Duration.zero;
   Timer? _timer;
 
-  // User-created routines
+  // Routine catalogs
+  final List<ChainedRoutine> _defaultRoutines = List<ChainedRoutine>.from(
+    ChainedRoutine.defaultRoutines,
+  );
   final List<ChainedRoutine> _customRoutines = [];
 
   // Notifications
@@ -382,7 +385,8 @@ class ChainedRoutineService extends ChangeNotifier {
   Timer? _saveSettingsDebounce;
   static const _debounceDelay = Duration(milliseconds: 500);
 
-  static const _routinesKey = 'custom_routines';
+  static const _customRoutinesKey = 'custom_routines';
+  static const _defaultRoutinesKey = 'default_routines';
   static const _settingsKey = 'routine_settings';
 
   // Getters
@@ -428,10 +432,11 @@ class ChainedRoutineService extends ChangeNotifier {
   }
 
   List<ChainedRoutine> get allRoutines => [
-    ...ChainedRoutine.defaultRoutines,
+    ..._defaultRoutines,
     ..._customRoutines,
   ];
 
+  List<ChainedRoutine> get defaultRoutines => List.unmodifiable(_defaultRoutines);
   List<ChainedRoutine> get customRoutines => List.unmodifiable(_customRoutines);
 
   /// Initialize the service
@@ -465,6 +470,11 @@ class ChainedRoutineService extends ChangeNotifier {
 
   /// Start a routine
   void startRoutine(ChainedRoutine routine) {
+    if (routine.blocks.isEmpty) {
+      debugPrint('Cannot start routine with no blocks: ${routine.id}');
+      return;
+    }
+
     _currentRoutine = routine;
     _currentBlockIndex = 0;
     _state = RoutineState.running;
@@ -563,26 +573,192 @@ class ChainedRoutineService extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Custom routine management
-  void addCustomRoutine(ChainedRoutine routine) {
-    _customRoutines.add(routine);
-    _saveRoutines();
+  // Routine management
+  ChainedRoutine? getRoutineById(String id) {
+    try {
+      return allRoutines.firstWhere((r) => r.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void saveRoutine(ChainedRoutine routine) {
+    final defaultIndex = _defaultRoutines.indexWhere((r) => r.id == routine.id);
+    if (defaultIndex != -1) {
+      _defaultRoutines[defaultIndex] = routine.copyWith(isDefault: true);
+      _saveDefaultRoutines();
+      notifyListeners();
+      return;
+    }
+
+    final customIndex = _customRoutines.indexWhere((r) => r.id == routine.id);
+    if (customIndex != -1) {
+      _customRoutines[customIndex] = routine.copyWith(isDefault: false);
+    } else {
+      _customRoutines.add(routine.copyWith(isDefault: false));
+    }
+
+    _saveCustomRoutines();
     notifyListeners();
   }
 
+  void addCustomRoutine(ChainedRoutine routine) {
+    saveRoutine(routine.copyWith(isDefault: false));
+  }
+
   void updateCustomRoutine(String id, ChainedRoutine updated) {
-    final index = _customRoutines.indexWhere((r) => r.id == id);
-    if (index != -1) {
-      _customRoutines[index] = updated;
-      _saveRoutines();
-      notifyListeners();
+    saveRoutine(updated.copyWith(id: id, isDefault: false));
+  }
+
+  void deleteRoutine(String id) {
+    var removedAny = false;
+
+    final beforeDefaults = _defaultRoutines.length;
+    _defaultRoutines.removeWhere((r) => r.id == id);
+    if (_defaultRoutines.length != beforeDefaults) {
+      removedAny = true;
+      _saveDefaultRoutines();
+    }
+
+    final beforeCustom = _customRoutines.length;
+    _customRoutines.removeWhere((r) => r.id == id);
+    if (_customRoutines.length != beforeCustom) {
+      removedAny = true;
+      _saveCustomRoutines();
+    }
+
+    if (removedAny) {
+      if (_currentRoutine?.id == id) {
+        stop();
+      } else {
+        notifyListeners();
+      }
     }
   }
 
   void deleteCustomRoutine(String id) {
+    final before = _customRoutines.length;
     _customRoutines.removeWhere((r) => r.id == id);
-    _saveRoutines();
+    if (_customRoutines.length == before) {
+      return;
+    }
+
+    if (_currentRoutine?.id == id) {
+      stop();
+    }
+
+    _saveCustomRoutines();
     notifyListeners();
+  }
+
+  void deleteAllCustomRoutines() {
+    if (_customRoutines.isEmpty) {
+      return;
+    }
+
+    final activeId = _currentRoutine?.id;
+    final activeWasCustom =
+        activeId != null && _customRoutines.any((r) => r.id == activeId);
+
+    _customRoutines.clear();
+    _saveCustomRoutines();
+
+    if (activeWasCustom) {
+      stop();
+    }
+
+    notifyListeners();
+  }
+
+  void restoreDefaultRoutines({bool preserveCustom = true}) {
+    _defaultRoutines
+      ..clear()
+      ..addAll(ChainedRoutine.defaultRoutines);
+    _saveDefaultRoutines();
+
+    if (!preserveCustom) {
+      _customRoutines.clear();
+      _saveCustomRoutines();
+    }
+
+    final activeId = _currentRoutine?.id;
+    if (activeId != null && !allRoutines.any((r) => r.id == activeId)) {
+      stop();
+    }
+
+    notifyListeners();
+  }
+
+  bool updateRoutineMetadata(
+    String routineId, {
+    String? name,
+    String? description,
+  }) {
+    final routine = getRoutineById(routineId);
+    if (routine == null) {
+      return false;
+    }
+
+    saveRoutine(
+      routine.copyWith(
+        name: name ?? routine.name,
+        description: description ?? routine.description,
+      ),
+    );
+    return true;
+  }
+
+  bool insertBlockInRoutine(
+    String routineId,
+    int insertIndex,
+    RoutineBlock block,
+  ) {
+    final routine = getRoutineById(routineId);
+    if (routine == null) {
+      return false;
+    }
+
+    final blocks = List<RoutineBlock>.from(routine.blocks);
+    final safeIndex = insertIndex.clamp(0, blocks.length) as int;
+    blocks.insert(safeIndex, block);
+    saveRoutine(routine.copyWith(blocks: blocks));
+    return true;
+  }
+
+  bool updateBlockInRoutine(
+    String routineId,
+    int blockIndex,
+    RoutineBlock block,
+  ) {
+    final routine = getRoutineById(routineId);
+    if (routine == null) {
+      return false;
+    }
+
+    final blocks = List<RoutineBlock>.from(routine.blocks);
+    if (blockIndex < 0 || blockIndex >= blocks.length) {
+      return false;
+    }
+
+    blocks[blockIndex] = block;
+    saveRoutine(routine.copyWith(blocks: blocks));
+    return true;
+  }
+
+  bool deleteBlockFromRoutine(String routineId, int blockIndex) {
+    final routine = getRoutineById(routineId);
+    if (routine == null) {
+      return false;
+    }
+
+    final blocks = List<RoutineBlock>.from(routine.blocks);
+    if (blockIndex < 0 || blockIndex >= blocks.length) {
+      return false;
+    }
+
+    blocks.removeAt(blockIndex);
+    saveRoutine(routine.copyWith(blocks: blocks));
+    return true;
   }
 
   // Settings
@@ -622,14 +798,29 @@ class ChainedRoutineService extends ChangeNotifier {
     try {
       final prefs = _prefs ?? await SharedPreferences.getInstance();
       _prefs = prefs;
-      final json = prefs.getString(_routinesKey);
-      if (json != null) {
+      final defaultJson = prefs.getString(_defaultRoutinesKey);
+      if (defaultJson != null) {
+        final list = await compute(_parseJsonList, defaultJson);
+        _defaultRoutines.clear();
+        for (final item in list) {
+          _defaultRoutines.add(
+            ChainedRoutine.fromJson(item as Map<String, dynamic>).copyWith(
+              isDefault: true,
+            ),
+          );
+        }
+      }
+
+      final customJson = prefs.getString(_customRoutinesKey);
+      if (customJson != null) {
         // PERFORMANCE: Offload JSON parsing to isolate
-        final list = await compute(_parseJsonList, json);
+        final list = await compute(_parseJsonList, customJson);
         _customRoutines.clear();
         for (final item in list) {
           _customRoutines.add(
-            ChainedRoutine.fromJson(item as Map<String, dynamic>),
+            ChainedRoutine.fromJson(item as Map<String, dynamic>).copyWith(
+              isDefault: false,
+            ),
           );
         }
       }
@@ -640,7 +831,7 @@ class ChainedRoutineService extends ChangeNotifier {
 
   static List<dynamic> _parseJsonList(String json) => jsonDecode(json) as List;
 
-  void _saveRoutines() {
+  void _saveCustomRoutines() {
     // PERFORMANCE: Debounce saves
     _saveRoutinesDebounce?.cancel();
     _saveRoutinesDebounce = Timer(_debounceDelay, () async {
@@ -648,11 +839,22 @@ class ChainedRoutineService extends ChangeNotifier {
         final prefs = _prefs ?? await SharedPreferences.getInstance();
         _prefs = prefs;
         final list = _customRoutines.map((r) => r.toJson()).toList();
-        await prefs.setString(_routinesKey, jsonEncode(list));
+        await prefs.setString(_customRoutinesKey, jsonEncode(list));
       } catch (e) {
         debugPrint('Failed to save custom routines: $e');
       }
     });
+  }
+
+  Future<void> _saveDefaultRoutines() async {
+    try {
+      final prefs = _prefs ?? await SharedPreferences.getInstance();
+      _prefs = prefs;
+      final list = _defaultRoutines.map((r) => r.toJson()).toList();
+      await prefs.setString(_defaultRoutinesKey, jsonEncode(list));
+    } catch (e) {
+      debugPrint('Failed to save default routines: $e');
+    }
   }
 
   Future<void> _loadSettings() async {
