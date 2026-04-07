@@ -217,16 +217,14 @@ void main() {
       expect(parsed.visibleContent, 'Answer for user.');
     });
 
-    test(
-      'parses reasoning blocks for all requested strongest reasoning models',
-      () {
+    test('parses reasoning blocks for requested top-tier model IDs', () {
         const samples = {
           'qwen35-4b-claude46-distilled-v2-q4km':
               '<think>plan for 4b model</think>\nfinal 4b answer',
           'qwen35-2b-claude46-distilled-q5km':
               '<think>plan for 2b model</think>\nfinal 2b answer',
-          'qwen35-08b-claude46-distilled-q5km':
-              '<think>plan for 0.8b model</think>\nfinal 0.8b answer',
+        'gemma-4-e2b-it-q4km':
+          '<think>plan for gemma4 model</think>\nfinal gemma4 answer',
           'phi4-mini-reasoning-q4km':
               '<thinking>plan for phi reasoning</thinking>\nfinal phi answer',
         };
