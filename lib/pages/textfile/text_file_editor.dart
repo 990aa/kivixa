@@ -922,6 +922,8 @@ class _TextFileEditorState extends State<TextFileEditor> {
     super.initState();
     _controller = QuillController.basic();
     _fileNameController = TextEditingController();
+    _readAloudController.addListener(_onReadAloudControllerChanged);
+    _dictationSub = _audioEngine.transcriptionStream.listen(_onDictationResult);
     _loadFile();
   }
 
