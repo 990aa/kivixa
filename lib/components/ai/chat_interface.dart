@@ -12,11 +12,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:kivixa/components/audio/read_aloud.dart';
+import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/pages/home/ai_chat.dart';
 import 'package:kivixa/services/ai/chat_attachment_service.dart';
 import 'package:kivixa/services/ai/chat_context_service.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/model_manager.dart';
+import 'package:kivixa/services/audio/audio_neural_engine.dart';
+import 'package:kivixa/services/audio/audio_recording_service.dart';
 
 abstract class ChatInferenceGateway {
   bool get isModelLoaded;
@@ -542,6 +546,14 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
   final _pendingAttachments = <ChatAttachment>[];
+  final _audioEngine = AudioNeuralEngine();
+  final _audioRecorder = AudioRecordingService();
+  final _readAloudController = ReadAloudController();
+
+  StreamSubscription<SpeechRecognitionResult>? _transcriptionSub;
+  var _isListening = false;
+  var _showReadAloudPlayer = false;
+  DateTime? _lastAutoPlayedAssistantMessage;
 
   int? _historyCursor;
   var _draftBeforeHistory = '';
@@ -651,6 +663,10 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
     widget.controller.addListener(_onControllerUpdate);
     widget.promptPrefillListenable?.addListener(_onPromptPrefillChanged);
     _textController.addListener(_onComposerTextChanged);
+    _readAloudController.addListener(_onReadAloudUpdate);
+    _transcriptionSub = _audioEngine.transcriptionStream.listen(
+      _onTranscription,
+    );
   }
 
   @override
@@ -674,14 +690,147 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
     widget.controller.removeListener(_onControllerUpdate);
     widget.promptPrefillListenable?.removeListener(_onPromptPrefillChanged);
     _textController.removeListener(_onComposerTextChanged);
+    _transcriptionSub?.cancel();
+    _readAloudController.removeListener(_onReadAloudUpdate);
+    if (_isListening) {
+      unawaited(_audioRecorder.stopRecording());
+      unawaited(_audioEngine.stopListening());
+    }
+    _readAloudController.dispose();
     _textController.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
+  void _onReadAloudUpdate() {
+    final shouldShow =
+        _readAloudController.isPlaying ||
+        _readAloudController.currentSentence.isNotEmpty;
+    if (shouldShow != _showReadAloudPlayer && mounted) {
+      setState(() {
+        _showReadAloudPlayer = shouldShow;
+      });
+    }
+  }
+
+  void _onTranscription(SpeechRecognitionResult result) {
+    if (!_isListening || !result.isFinal || result.text.trim().isEmpty) {
+      return;
+    }
+    _insertComposerText('${result.text.trim()} ');
+  }
+
+  void _insertComposerText(String text) {
+    final selection = _textController.selection;
+    final currentText = _textController.text;
+
+    if (!selection.isValid) {
+      _textController
+        ..text = currentText + text
+        ..selection = TextSelection.collapsed(
+          offset: (currentText + text).length,
+        );
+      return;
+    }
+
+    final start = selection.start;
+    final end = selection.end;
+    final updatedText =
+        currentText.substring(0, start) + text + currentText.substring(end);
+    final cursor = start + text.length;
+
+    _textController.value = TextEditingValue(
+      text: updatedText,
+      selection: TextSelection.collapsed(offset: cursor),
+    );
+    _focusNode.requestFocus();
+  }
+
+  Future<void> _toggleVoiceInput() async {
+    if (!stows.audioIntelligenceEnabled.value) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Audio Intelligence is disabled')),
+      );
+      return;
+    }
+
+    try {
+      if (_isListening) {
+        await _audioRecorder.stopRecording();
+        final finalResult = await _audioEngine.stopListening();
+        if (finalResult != null && finalResult.text.trim().isNotEmpty) {
+          _insertComposerText('${finalResult.text.trim()} ');
+        }
+        if (mounted) {
+          setState(() {
+            _isListening = false;
+          });
+        }
+        return;
+      }
+
+      final initialized = await _audioEngine.initialize();
+      if (!initialized) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to initialize audio engine')),
+        );
+        return;
+      }
+
+      _audioEngine.setVadThreshold(stows.audioVadThreshold.value);
+      await _audioEngine.startListening();
+      await _audioRecorder.startRecording();
+      if (mounted) {
+        setState(() {
+          _isListening = true;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Voice input failed: $e')));
+    }
+  }
+
+  Future<void> _readAssistantMessage(String text) async {
+    if (text.trim().isEmpty) return;
+    await _readAloudController.startReading(text.trim());
+  }
+
+  void _maybeAutoPlayLatestAssistantMessage() {
+    if (!stows.audioAutoPlayResponses.value ||
+        widget.controller.messages.isEmpty) {
+      return;
+    }
+
+    AIChatMessage? latestAssistant;
+    for (int i = widget.controller.messages.length - 1; i >= 0; i--) {
+      final message = widget.controller.messages[i];
+      if (message.isAssistant && !message.isLoading && message.content.isNotEmpty) {
+        latestAssistant = message;
+        break;
+      }
+    }
+
+    if (latestAssistant == null) return;
+    if (_lastAutoPlayedAssistantMessage != null &&
+        latestAssistant.timestamp.isAtSameMomentAs(
+          _lastAutoPlayedAssistantMessage!,
+        )) {
+      return;
+    }
+
+    _lastAutoPlayedAssistantMessage = latestAssistant.timestamp;
+    unawaited(_readAssistantMessage(latestAssistant.content));
+  }
+
   void _onControllerUpdate() {
     setState(() {});
+    _maybeAutoPlayLatestAssistantMessage();
     // Scroll to bottom when new messages arrive
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -938,6 +1087,13 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                       onCopy: () => _copyMessage(
                         widget.controller.messages[index].content,
                       ),
+                      onSpeak:
+                          widget.controller.messages[index].isAssistant &&
+                              !widget.controller.messages[index].isLoading
+                          ? () => _readAssistantMessage(
+                              widget.controller.messages[index].content,
+                            )
+                          : null,
                     );
                   },
                 ),
@@ -986,6 +1142,15 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                         ? null
                         : _pickAttachments,
                     icon: const Icon(Icons.add),
+                  ),
+                  IconButton(
+                    iconSize: isCompact ? 18 : 22,
+                    tooltip: _isListening ? 'Stop dictation' : 'Voice dictation',
+                    onPressed: widget.controller.isGenerating
+                        ? null
+                        : _toggleVoiceInput,
+                    icon: Icon(_isListening ? Icons.stop_circle : Icons.mic),
+                    color: _isListening ? colorScheme.error : null,
                   ),
                   SizedBox(width: isCompact ? 2 : 4),
                   Expanded(
@@ -1043,6 +1208,17 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
             ],
           ),
         ),
+        if (_showReadAloudPlayer)
+          Padding(
+            padding: EdgeInsets.fromLTRB(padding, 0, padding, padding),
+            child: ReadAloudMiniPlayer(
+              controller: _readAloudController,
+              expanded: true,
+              onClose: () {
+                _readAloudController.stop();
+              },
+            ),
+          ),
       ],
     );
   }
@@ -1269,12 +1445,14 @@ class _ChatMessageBubble extends StatelessWidget {
   final AIChatMessage message;
   final VoidCallback? onRetry;
   final VoidCallback? onCopy;
+  final VoidCallback? onSpeak;
   final bool compact;
 
   const _ChatMessageBubble({
     required this.message,
     this.onRetry,
     this.onCopy,
+    this.onSpeak,
     this.compact = false,
   });
 
@@ -1373,11 +1551,22 @@ class _ChatMessageBubble extends StatelessWidget {
                       ),
                   ],
                   if (!message.isLoading &&
-                      (onCopy != null || onRetry != null)) ...[
+                      (onCopy != null || onRetry != null || onSpeak != null)) ...[
                     SizedBox(height: compact ? 4 : 8),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if (onSpeak != null)
+                          IconButton(
+                            icon: Icon(Icons.volume_up, size: compact ? 12 : 16),
+                            onPressed: onSpeak,
+                            tooltip: 'Read response aloud',
+                            padding: EdgeInsets.zero,
+                            constraints: BoxConstraints(
+                              minWidth: compact ? 24 : 32,
+                              minHeight: compact ? 24 : 32,
+                            ),
+                          ),
                         if (onCopy != null)
                           IconButton(
                             icon: Icon(Icons.copy, size: compact ? 12 : 16),

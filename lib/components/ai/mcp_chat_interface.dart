@@ -4,9 +4,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kivixa/components/audio/read_aloud.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
+import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/ai/chat_attachment_service.dart';
+import 'package:kivixa/services/audio/audio_neural_engine.dart';
+import 'package:kivixa/services/audio/audio_recording_service.dart';
 
 class MCPChatInterface extends StatefulWidget {
   final MCPChatController controller;
@@ -41,6 +45,14 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
   final _pendingAttachments = <ChatAttachment>[];
+  final _audioEngine = AudioNeuralEngine();
+  final _audioRecorder = AudioRecordingService();
+  final _readAloudController = ReadAloudController();
+
+  StreamSubscription<SpeechRecognitionResult>? _transcriptionSub;
+  var _isListening = false;
+  var _showReadAloudPlayer = false;
+  DateTime? _lastAutoPlayedAssistantMessage;
 
   int? _historyCursor;
   var _draftBeforeHistory = '';
@@ -150,6 +162,10 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
     widget.controller.addListener(_onControllerChanged);
     widget.promptPrefillListenable?.addListener(_onPromptPrefillChanged);
     _textController.addListener(_onComposerTextChanged);
+    _readAloudController.addListener(_onReadAloudUpdate);
+    _transcriptionSub = _audioEngine.transcriptionStream.listen(
+      _onTranscription,
+    );
   }
 
   @override
@@ -169,14 +185,145 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
     widget.controller.removeListener(_onControllerChanged);
     widget.promptPrefillListenable?.removeListener(_onPromptPrefillChanged);
     _textController.removeListener(_onComposerTextChanged);
+    _transcriptionSub?.cancel();
+    _readAloudController.removeListener(_onReadAloudUpdate);
+    if (_isListening) {
+      unawaited(_audioRecorder.stopRecording());
+      unawaited(_audioEngine.stopListening());
+    }
+    _readAloudController.dispose();
     _textController.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
 
+  void _onReadAloudUpdate() {
+    final shouldShow =
+        _readAloudController.isPlaying ||
+        _readAloudController.currentSentence.isNotEmpty;
+    if (shouldShow != _showReadAloudPlayer && mounted) {
+      setState(() {
+        _showReadAloudPlayer = shouldShow;
+      });
+    }
+  }
+
+  void _onTranscription(SpeechRecognitionResult result) {
+    if (!_isListening || !result.isFinal || result.text.trim().isEmpty) {
+      return;
+    }
+    _insertComposerText('${result.text.trim()} ');
+  }
+
+  void _insertComposerText(String text) {
+    final selection = _textController.selection;
+    final currentText = _textController.text;
+
+    if (!selection.isValid) {
+      _textController
+        ..text = currentText + text
+        ..selection = TextSelection.collapsed(
+          offset: (currentText + text).length,
+        );
+      return;
+    }
+
+    final start = selection.start;
+    final end = selection.end;
+    final updatedText =
+        currentText.substring(0, start) + text + currentText.substring(end);
+
+    _textController.value = TextEditingValue(
+      text: updatedText,
+      selection: TextSelection.collapsed(offset: start + text.length),
+    );
+    _focusNode.requestFocus();
+  }
+
+  Future<void> _toggleVoiceInput() async {
+    if (!stows.audioIntelligenceEnabled.value) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Audio Intelligence is disabled')),
+      );
+      return;
+    }
+
+    try {
+      if (_isListening) {
+        await _audioRecorder.stopRecording();
+        final finalResult = await _audioEngine.stopListening();
+        if (finalResult != null && finalResult.text.trim().isNotEmpty) {
+          _insertComposerText('${finalResult.text.trim()} ');
+        }
+        if (mounted) {
+          setState(() {
+            _isListening = false;
+          });
+        }
+        return;
+      }
+
+      final initialized = await _audioEngine.initialize();
+      if (!initialized) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to initialize audio engine')),
+        );
+        return;
+      }
+
+      _audioEngine.setVadThreshold(stows.audioVadThreshold.value);
+      await _audioEngine.startListening();
+      await _audioRecorder.startRecording();
+      if (mounted) {
+        setState(() {
+          _isListening = true;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Voice input failed: $e')));
+    }
+  }
+
+  Future<void> _readAssistantMessage(String text) async {
+    if (text.trim().isEmpty) return;
+    await _readAloudController.startReading(text.trim());
+  }
+
+  void _maybeAutoPlayLatestAssistantMessage() {
+    if (!stows.audioAutoPlayResponses.value || widget.controller.messages.isEmpty) {
+      return;
+    }
+
+    MCPChatMessage? latestAssistant;
+    for (int i = widget.controller.messages.length - 1; i >= 0; i--) {
+      final message = widget.controller.messages[i];
+      if (message.isAssistant && !message.isLoading && message.content.isNotEmpty) {
+        latestAssistant = message;
+        break;
+      }
+    }
+
+    if (latestAssistant == null) return;
+    if (_lastAutoPlayedAssistantMessage != null &&
+        latestAssistant.timestamp.isAtSameMomentAs(
+          _lastAutoPlayedAssistantMessage!,
+        )) {
+      return;
+    }
+
+    _lastAutoPlayedAssistantMessage = latestAssistant.timestamp;
+    unawaited(_readAssistantMessage(latestAssistant.content));
+  }
+
   void _onControllerChanged() {
     setState(() {});
+    _maybeAutoPlayLatestAssistantMessage();
     _scrollToBottom();
   }
 
@@ -377,6 +524,9 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
                     return _buildMessageBubble(
                       message,
                       onCopy: () => _copyMessage(message.content),
+                      onSpeak: message.isAssistant && !message.isLoading
+                          ? () => _readAssistantMessage(message.content)
+                          : null,
                       onRetry: canRetry
                           ? () => widget.controller.retryLastMessage(
                               context: widget.context,
@@ -428,6 +578,14 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
                         ? null
                         : _pickAttachments,
                   ),
+                  IconButton(
+                    icon: Icon(_isListening ? Icons.stop_circle : Icons.mic),
+                    tooltip: _isListening ? 'Stop dictation' : 'Voice dictation',
+                    onPressed: widget.controller.isGenerating
+                        ? null
+                        : _toggleVoiceInput,
+                    color: _isListening ? colorScheme.error : null,
+                  ),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Focus(
@@ -469,6 +627,17 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
             ],
           ),
         ),
+        if (_showReadAloudPlayer)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: ReadAloudMiniPlayer(
+              controller: _readAloudController,
+              expanded: true,
+              onClose: () {
+                _readAloudController.stop();
+              },
+            ),
+          ),
       ],
     );
   }
@@ -476,6 +645,7 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
   Widget _buildMessageBubble(
     MCPChatMessage message, {
     VoidCallback? onCopy,
+    VoidCallback? onSpeak,
     VoidCallback? onRetry,
   }) {
     final theme = Theme.of(context);
@@ -555,11 +725,22 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
                   ],
 
                   if (!message.isLoading &&
-                      (onCopy != null || onRetry != null)) ...[
+                      (onCopy != null || onRetry != null || onSpeak != null)) ...[
                     const SizedBox(height: 8),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if (onSpeak != null)
+                          IconButton(
+                            icon: const Icon(Icons.volume_up, size: 16),
+                            onPressed: onSpeak,
+                            tooltip: 'Read response aloud',
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(
+                              minWidth: 32,
+                              minHeight: 32,
+                            ),
+                          ),
                         if (onCopy != null)
                           IconButton(
                             icon: const Icon(Icons.copy, size: 16),
