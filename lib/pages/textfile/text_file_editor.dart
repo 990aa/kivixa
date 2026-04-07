@@ -1118,9 +1118,9 @@ class _TextFileEditorState extends State<TextFileEditor> {
     final text = _controller.document.toPlainText().trim();
     if (text.isEmpty) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Document is empty')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Document is empty')));
       return;
     }
     await _readAloudController.startReading(text);
@@ -1751,6 +1751,13 @@ class _TextFileEditorState extends State<TextFileEditor> {
   void dispose() {
     _autosaveTimer?.cancel();
     _renameTimer?.cancel();
+    _dictationSub?.cancel();
+    _readAloudController.removeListener(_onReadAloudControllerChanged);
+    if (_isDictating) {
+      unawaited(_audioRecorder.stopRecording());
+      unawaited(_audioEngine.stopListening());
+    }
+    _readAloudController.dispose();
     _controller.dispose();
     _fileNameController.dispose();
     _editorFocusNode.dispose();
