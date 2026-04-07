@@ -68,6 +68,13 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
   var _charCount = 0;
   var _lastThemeIsDark = false;
 
+  final _audioEngine = AudioNeuralEngine();
+  final _audioRecorder = AudioRecordingService();
+  final _readAloudController = ReadAloudController();
+  StreamSubscription<SpeechRecognitionResult>? _dictationSub;
+  var _isDictating = false;
+  var _showReadAloudPlayer = false;
+
   // Time Travel state
   var _isTimeTraveling = false;
   String? _originalContent;
@@ -178,6 +185,8 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     _fileNameController = TextEditingController();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_onTabChanged);
+    _readAloudController.addListener(_onReadAloudControllerChanged);
+    _dictationSub = _audioEngine.transcriptionStream.listen(_onDictationResult);
 
     _loadFile();
   }
