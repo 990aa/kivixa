@@ -405,10 +405,7 @@ void main() {
         service.customQuickPresets.any((p) => p.id == customPreset.id),
         true,
       );
-      expect(
-        service.allQuickPresets.any((p) => p.id == customPreset.id),
-        true,
-      );
+      expect(service.allQuickPresets.any((p) => p.id == customPreset.id), true);
 
       service.deleteQuickPreset(customPreset.id);
     });
@@ -491,7 +488,9 @@ void main() {
       );
       expect(defaultCode.name, QuickPreset.code.name);
       expect(
-        service.customQuickPresets.any((p) => p.id == 'test_custom_preset_keep'),
+        service.customQuickPresets.any(
+          (p) => p.id == 'test_custom_preset_keep',
+        ),
         true,
       );
 
