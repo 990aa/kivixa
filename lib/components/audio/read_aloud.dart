@@ -19,6 +19,22 @@ AudioVoiceProfile audioVoiceProfileFromPref(int value) {
   return AudioVoiceProfile.custom;
 }
 
+T _readAudioPref<T>(T Function() reader, T fallback) {
+  try {
+    return reader();
+  } catch (_) {
+    return fallback;
+  }
+}
+
+void _writeAudioPref(void Function() writer) {
+  try {
+    writer();
+  } catch (_) {
+    // Ignore when prefs are not initialized (for example in isolated tests).
+  }
+}
+
 String? selectPreferredVoiceId(
   List<VoiceStyle> voices,
   AudioVoiceProfile profile, {
@@ -85,8 +101,11 @@ class ReadAloudController extends ChangeNotifier {
   String? _voiceId;
 
   ReadAloudController() {
-    _speed = stows.audioTtsSpeed.value.clamp(0.5, 2.0);
-    _voiceId = stows.audioCustomVoiceId.value;
+    _speed = _readAudioPref(
+      () => stows.audioTtsSpeed.value,
+      1.0,
+    ).clamp(0.5, 2.0);
+    _voiceId = _readAudioPref(() => stows.audioCustomVoiceId.value, null);
     _playback.setSpeed(_speed);
   }
 
@@ -110,7 +129,7 @@ class ReadAloudController extends ChangeNotifier {
   set speed(double value) {
     _speed = value.clamp(0.5, 2.0);
     _playback.setSpeed(_speed);
-    stows.audioTtsSpeed.value = _speed;
+    _writeAudioPref(() => stows.audioTtsSpeed.value = _speed);
     notifyListeners();
   }
 
@@ -118,9 +137,11 @@ class ReadAloudController extends ChangeNotifier {
   String? get voiceId => _voiceId;
   set voiceId(String? value) {
     _voiceId = value;
-    stows.audioCustomVoiceId.value = value;
+    _writeAudioPref(() => stows.audioCustomVoiceId.value = value);
     if (value != null && value.isNotEmpty) {
-      stows.audioVoiceProfile.value = AudioVoiceProfile.custom.index;
+      _writeAudioPref(
+        () => stows.audioVoiceProfile.value = AudioVoiceProfile.custom.index,
+      );
     }
     notifyListeners();
   }
@@ -130,9 +151,15 @@ class ReadAloudController extends ChangeNotifier {
 
   /// Start reading text aloud
   Future<void> startReading(String text) async {
-    if (text.isEmpty || !stows.audioIntelligenceEnabled.value) return;
+    if (text.isEmpty ||
+        !_readAudioPref(() => stows.audioIntelligenceEnabled.value, true)) {
+      return;
+    }
 
-    _speed = stows.audioTtsSpeed.value.clamp(0.5, 2.0);
+    _speed = _readAudioPref(
+      () => stows.audioTtsSpeed.value,
+      1.0,
+    ).clamp(0.5, 2.0);
     _playback.setSpeed(_speed);
 
     _sentences = _splitIntoSentences(text);
@@ -154,8 +181,10 @@ class ReadAloudController extends ChangeNotifier {
   void _applyPreferredVoice() {
     final preferred = selectPreferredVoiceId(
       _availableVoices,
-      audioVoiceProfileFromPref(stows.audioVoiceProfile.value),
-      customVoiceId: stows.audioCustomVoiceId.value,
+      audioVoiceProfileFromPref(
+        _readAudioPref(() => stows.audioVoiceProfile.value, 0),
+      ),
+      customVoiceId: _readAudioPref(() => stows.audioCustomVoiceId.value, null),
     );
     _voiceId = preferred;
   }
