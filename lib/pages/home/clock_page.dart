@@ -819,108 +819,108 @@ class _ClockPageState extends State<ClockPage>
                           Wrap(
                             spacing: 8,
                             children: [
-                              _buildPresetChip(
-                                Icons.work,
-                                '${preset.workMinutes}m',
-                              ),
-                              _buildPresetChip(
-                                Icons.coffee,
-                                '${preset.breakMinutes}m break',
-                              ),
-                              _buildPresetChip(
-                                Icons.loop,
-                                '${preset.totalCycles}x',
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      Icons.play_circle,
-                      size: 40,
-                      color: colorScheme.primary,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  Widget _buildPresetChip(IconData icon, String label) {
-    final theme = Theme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12),
-          const SizedBox(width: 4),
-          Text(label, style: theme.textTheme.bodySmall),
-        ],
-      ),
-    );
-  }
-
-  // ============================================================
-  // Routines Tab
-  // ============================================================
-
-  Widget _buildRoutinesTab(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    // Show active routine if running
-    if (!_routineService.isIdle) {
-      return _buildActiveRoutineView(context);
-    }
-
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Text(
-          'Chained Routines',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Run a sequence of timed blocks automatically',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 16),
-        ..._routineService.allRoutines.map((routine) {
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: InkWell(
-              onTap: () => _showRoutineDetails(context, routine),
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: routine.color.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(routine.icon, color: routine.color),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
+                            ...presets.map((preset) {
+                              final presetType = preset.isDefault ? 'Default' : 'Custom';
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                child: InkWell(
+                                  onTap: () {
+                                    _timerService.startWithPreset(preset);
+                                    _tabController.animateTo(0);
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: colorScheme.primaryContainer,
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Icon(preset.icon, color: colorScheme.primary),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Wrap(
+                                                spacing: 8,
+                                                runSpacing: 4,
+                                                crossAxisAlignment: WrapCrossAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    preset.name,
+                                                    style: theme.textTheme.titleMedium?.copyWith(
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  Chip(
+                                                    label: Text(presetType),
+                                                    visualDensity: VisualDensity.compact,
+                                                    padding: EdgeInsets.zero,
+                                                  ),
+                                                ],
+                                              ),
+                                              if (preset.description != null)
+                                                Text(
+                                                  preset.description!,
+                                                  style: theme.textTheme.bodySmall?.copyWith(
+                                                    color: colorScheme.onSurfaceVariant,
+                                                  ),
+                                                ),
+                                              const SizedBox(height: 4),
+                                              Wrap(
+                                                spacing: 8,
+                                                children: [
+                                                  _buildPresetChip(
+                                                    Icons.work,
+                                                    '${preset.workMinutes}m',
+                                                  ),
+                                                  _buildPresetChip(
+                                                    Icons.coffee,
+                                                    '${preset.breakMinutes}m break',
+                                                  ),
+                                                  _buildPresetChip(
+                                                    Icons.loop,
+                                                    '${preset.totalCycles}x',
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.play_circle),
+                                          iconSize: 32,
+                                          color: colorScheme.primary,
+                                          tooltip: 'Start preset',
+                                          onPressed: () {
+                                            _timerService.startWithPreset(preset);
+                                            _tabController.animateTo(0);
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.edit_outlined),
+                                          tooltip: 'Edit preset',
+                                          onPressed: () => _showPresetEditorDialog(
+                                            context,
+                                            preset: preset,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete_outline),
+                                          tooltip: 'Delete preset',
+                                          onPressed: () => _confirmDeletePreset(context, preset),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
