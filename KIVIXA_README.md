@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public\assets\icon.png" alt="Kivixa Logo" width="200" height="200">
+<img src="assets/icon/icon.png" alt="Kivixa Logo" width="200" height="200">
 
 # Kivixa
 
@@ -9,16 +9,16 @@
 ### A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
 
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.41.6+-02569B?logo=flutter)](https://flutter.dev)
-[![Dart](https://img.shields.io/badge/Dart-3.11.4+-0175C2?logo=dart)](https://dart.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-3.35.0+-02569B?logo=flutter)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.9.0+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
-[![Version](https://img.shields.io/badge/Version-0.3.9%2B3009--beta-orange)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-0.7.1%2B7001--beta-orange)](CHANGELOG.md)
 
-[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.3.9%2B3009/Kivixa-Setup-0.3.9.exe)
+[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.7.1%2B7001/Kivixa-Setup-0.7.1.exe)
 
-[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.3.9%2B3009/Kivixa-Android-0.3.9-arm64.apk)
-[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.3.9%2B3009/Kivixa-Android-0.3.9-armv7.apk)
-[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.3.9%2B3009/Kivixa-Android-0.3.9-x86_64.apk)
+[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.7.1%2B7001/Kivixa-Android-0.7.1-arm64.apk)
+[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.7.1%2B7001/Kivixa-Android-0.7.1-armv7.apk)
+[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.7.1%2B7001/Kivixa-Android-0.7.1-x86_64.apk)
 
 **F-Droid Repository:**
 
@@ -26,6 +26,7 @@
 <details>
 <summary>Scan QR Code to add F-Droid repo</summary>
 <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://990aa.github.io/kivixa/repo" alt="F-Droid Repo QR Code" width="200">
+
 *Scan with F-Droid app to auto-add the repository*
 </details>
 
@@ -42,14 +43,18 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
   - **Phi-4 Mini** - Default model for reasoning, conversation, and general assistance
   - **Phi-4 Mini Reasoning** - Reasoning-tuned Phi model for math-heavy and logic-heavy tasks
   - **Qwen 2.5 3B** - Specialized for writing, notes, and code generation
-  - **Qwen3.5 4B Distilled v2** - Best quality distilled Qwen model for deep reasoning and code
+  - **Qwen3.5 4B Distilled** - Claude 4.6 Opus reasoning-distilled 4B variant (Qwopus v3 GGUF source) for strongest Qwen quality
   - **Qwen3.5 2B Distilled** - Balanced speed and quality for daily work
   - **Qwen3.5 0.8B Distilled** - Fast lightweight option for low-memory devices
   - **DeepSeek R1 Distill Qwen 1.5B** - Compact reasoning model with strong math/code behavior
   - **SmolLM2 1.7B Instruct** - Fast compact instruct model for writing and lightweight coding
+  - **SmolLM3 3B** - Newer compact SmolLM generation with stronger general assistant quality
+  - **SmolVLM2 500M Video Instruct** - Compact vision-language model for image-aware prompting (GGUF + mmproj)
   - **Function Gemma 270M** - Ultra-fast, optimized for MCP tool calling (~180MB)
   - **Gemma 2B** - Google's efficient compact general-purpose model
   - **Gemma 3 4B IT** - Newer Gemma-family model with stronger balanced output quality
+  - **Gemma 4 E2B IT** - Stronger Gemma-family instruct model for high-quality general, writing, and coding output
+  - **TranslateGemma 4B IT** - Fast multilingual translation and rewriting model for notes
   - Automatic model routing based on task classification
   - Seamless model switching for optimal performance
 
@@ -65,6 +70,7 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
 - **Smart Model Manager**
   - Automatic download with resume support for AI models
   - Background downloading - continues even when app is minimized
+  - Bundled asset downloads for multimodal models (model + mmproj companion files)
   - Progress tracking with speed and ETA display
   - GPU acceleration via Vulkan (Android/Windows/Linux) and Metal (macOS)
 
@@ -75,6 +81,11 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
   - **Question Answering** - Ask questions about your note content
   - **Title Suggestions** - AI-generated title recommendations
   - **MCP Chat Mode** - Toggle tool-enabled AI for file operations
+  - **Prompt History Navigation** - Use Up/Down arrows in AI and MCP composers to cycle through your previous prompts (main chat and floating assistant)
+  - **Attachment-Aware Composer** - Add multiple attachments with the `+` button, preview them above the composer, and remove any attachment before sending
+  - **Attachment-Aware Responses** - On-device models receive attachment context (text extraction + binary metadata) for grounded responses
+  - **Markdown-Aware Chat Rendering** - AI and MCP messages render markdown in chat while preserving raw markdown for model input
+  - **Per-Response Model Metadata Export** - Exported chat JSON includes the model name/id that produced each assistant reply
 
 - **Knowledge Graph Visualization**
   - **Interactive Mind Mapping** - Create visual knowledge networks
@@ -482,8 +493,8 @@ A fully-featured web browser built into Kivixa for seamless research and referen
 
 ### Prerequisites
 
-- [Flutter](https://flutter.dev/docs/get-started/install) 3.41.6 or higher
-- [Dart](https://dart.dev/get-dart) 3.11.4 or higher
+- [Flutter](https://flutter.dev/docs/get-started/install) 3.38.6 or higher
+- [Dart](https://dart.dev/get-dart) 3.11.1 or higher
 - [Rust](https://rustup.rs/) (for building native code)
 - Platform-specific requirements:
   - **Windows**: Visual Studio 2026 with C++ desktop development, Vulkan SDK
@@ -627,15 +638,17 @@ Kivixa's on-device AI support is built on top of model work from the following o
 
 - **Microsoft** - Official creator of Phi model family used by **Phi-4 Mini** and **Phi-4 Mini Reasoning**
 - **Alibaba Cloud (Qwen Team)** - Official creator of Qwen model family used by **Qwen2.5 3B**, **Qwen3.5 Distilled** variants, and DeepSeek distill base architecture
-- **Google (Gemma Team)** - Official creator of Gemma model family used by **Gemma 2B**, **Gemma 3 4B IT**, and **Function Gemma** family
+- **Google (Gemma Team)** - Official creator of Gemma model family used by **Gemma 2B**, **Gemma 3 4B IT**, **Gemma 4 E2B IT**, **TranslateGemma 4B IT**, and **Function Gemma** family
 - **DeepSeek-AI** - Official creator of the **DeepSeek-R1** reasoning family used for distill checkpoints
-- **Hugging Face TB (SmolLM Team)** - Official creator of **SmolLM2** model family
+- **Hugging Face TB (SmolLM Team)** - Official creator of **SmolLM2**, **SmolLM3**, and **SmolVLM2** model families
 - **Jackrong** - Distilled GGUF releases for:
-  - Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled v2
+  - Qwen3.5 4B Claude 4.6 Opus Reasoning Distilled (Qwopus3.5-4B-v3)
   - Qwen3.5 2B Claude 4.6 Opus Reasoning Distilled
   - Qwen3.5 0.8B Claude 4.6 Opus Reasoning Distilled
-- **Unsloth (GGUF distribution credit)** - Function Gemma, Phi-4 Mini Reasoning, and selected DeepSeek-R1-Distill GGUF distributions
+- **ggml-org (GGUF distribution credit)** - SmolLM3 3B and SmolVLM2 500M Video Instruct GGUF/mmproj distributions
+- **Unsloth (GGUF distribution credit)** - Function Gemma, Phi-4 Mini Reasoning, Gemma 4 E2B IT, and selected DeepSeek-R1-Distill GGUF distributions
 - **bartowski (GGUF distribution credit)** - Phi-4 Mini, Gemma 3 4B IT, DeepSeek-R1-Distill-Qwen-1.5B, and SmolLM2-1.7B-Instruct GGUF distributions
+- **mradermacher (GGUF distribution credit)** - TranslateGemma 4B IT GGUF distribution
 
 We appreciate the upstream model creators and the open model packaging community that make high-quality on-device AI possible.
 

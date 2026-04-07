@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import TechStrip from "@/components/TechStrip";
 import Features from "@/components/Features";
 import AISection from "@/components/AISection";
+import FeatureAtlas from "@/components/FeatureAtlas";
 import PlatformGrid from "@/components/PlatformGrid";
 import DownloadSection from "@/components/DownloadSection";
 import Footer from "@/components/Footer";
@@ -19,6 +20,7 @@ export default async function Home() {
         <TechStrip />
         <Features />
         <AISection />
+        <FeatureAtlas />
         <PlatformGrid />
         <DownloadSection release={release} />
       </main>

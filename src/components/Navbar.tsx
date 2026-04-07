@@ -52,6 +52,12 @@ export default function Navbar() {
               Features
             </a>
             <a
+              href="#atlas"
+              className="hidden md:block text-sm text-text-secondary hover:text-text-primary transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-accent-primary hover:after:w-full after:transition-all after:duration-300"
+            >
+              Atlas
+            </a>
+            <a
               href="#download"
               className="hidden sm:block text-sm text-text-secondary hover:text-text-primary transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-accent-primary hover:after:w-full after:transition-all after:duration-300"
             >

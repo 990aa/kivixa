@@ -24,6 +24,7 @@ const expectedScreenshotAssets = [
 type LatestRelease = {
   version: string;
   windowsUrl: string | null;
+  windowsMsixUrl: string | null;
   androidArm64Url: string | null;
 };
 
@@ -42,15 +43,22 @@ async function fetchLatestGitHubVersion(): Promise<LatestRelease | null> {
     const windowsAsset = data.assets.find(
       (a: { name: string }) => a.name.toLowerCase().endsWith(".exe")
     );
+    const windowsMsixAsset = data.assets.find(
+      (a: { name: string }) => a.name.toLowerCase().endsWith(".msix")
+    );
     const androidArm64Asset = data.assets.find(
       (a: { name: string }) =>
         a.name.toLowerCase().includes("arm64") &&
         a.name.toLowerCase().endsWith(".apk")
     );
+    const derivedMsixUrl = `https://github.com/990aa/kivixa/releases/download/${encodeURIComponent(
+      data.tag_name
+    )}/kivixa.msix`;
 
     return {
       version,
       windowsUrl: windowsAsset?.browser_download_url ?? null,
+      windowsMsixUrl: windowsMsixAsset?.browser_download_url ?? derivedMsixUrl,
       androidArm64Url: androidArm64Asset?.browser_download_url ?? null,
     };
   } catch {
@@ -120,6 +128,10 @@ test.describe("Kivixa landing page", () => {
 
     await expect(page.getByTestId("copy-winget")).toBeVisible();
 
+    const msixLink = page.getByTestId("download-windows-msix");
+    await expect(msixLink).toBeVisible();
+    await expect(msixLink).toContainText("Download .msix package");
+
     const exeLink = page.getByTestId("download-windows-exe");
     await expect(exeLink).toBeVisible();
     await expect(exeLink).toContainText("Download .exe");
@@ -159,6 +171,11 @@ test.describe("Kivixa landing page", () => {
       .getByTestId("download-windows-exe")
       .getAttribute("href");
     expect(winHref).toBe(github.windowsUrl);
+
+    const msixHref = await page
+      .getByTestId("download-windows-msix")
+      .getAttribute("href");
+    expect(msixHref).toBe(github.windowsMsixUrl);
 
     const androidHref = await page
       .getByTestId("download-android")
@@ -209,6 +226,13 @@ test.describe("Kivixa landing page", () => {
       .getAttribute("href");
     expect(winHref).toMatch(
       /^https:\/\/github\.com\/990aa\/kivixa\/releases\/download\/.+\.exe$/
+    );
+
+    const msixHref = await page
+      .getByTestId("download-windows-msix")
+      .getAttribute("href");
+    expect(msixHref).toMatch(
+      /^https:\/\/github\.com\/990aa\/kivixa\/releases\/download\/.+\.msix$/
     );
 
     const androidHref = await page

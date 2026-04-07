@@ -56,7 +56,7 @@ export default function DownloadSection({ release }: DownloadSectionProps) {
               </div>
             </div>
             <p className="text-sm text-text-secondary mb-4">
-              Fastest setup is via Windows Package Manager. Install from terminal, then use .exe only if you need manual setup.
+              Fastest setup is via Windows Package Manager. Use `.msix` for App Installer deployments, or `.exe` for manual setup.
             </p>
 
             <div className="rounded-xl border border-border-subtle bg-surface-800/40 p-4 mb-4">
@@ -75,6 +75,15 @@ export default function DownloadSection({ release }: DownloadSectionProps) {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               {copiedWinget ? "Copied" : "Copy winget command"}
             </button>
+
+            <a
+              data-testid="download-windows-msix"
+              href={release.windowsMsixUrl ?? release.releasesPageUrl}
+              className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-accent-blue/85 px-5 py-3 text-sm font-semibold text-white hover:bg-accent-blue transition-all hover:-translate-y-0.5"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download .msix package
+            </a>
 
             <a
               data-testid="download-windows-exe"
