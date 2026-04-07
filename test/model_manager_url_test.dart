@@ -33,9 +33,10 @@ void main() {
       );
     });
 
-    test('includes the five newly requested compact models', () {
+    test('includes the newly requested compact and strongest additions', () {
       expect(ModelManager.getModelById('phi4-mini-reasoning-q4km'), isNotNull);
       expect(ModelManager.getModelById('gemma-3-4b-it-q4km'), isNotNull);
+      expect(ModelManager.getModelById('gemma-4-e2b-it-q4km'), isNotNull);
       expect(
         ModelManager.getModelById('deepseek-r1-distill-qwen-15b-q4km'),
         isNotNull,
@@ -57,7 +58,7 @@ void main() {
 
       expect(
         qwen4b.url,
-        'https://huggingface.co/Jackrong/Qwen3.5-4B-Claude-4.6-Opus-Reasoning-Distilled-v2-GGUF/resolve/main/Qwen3.5-4B.Q4_K_M.gguf',
+        'https://huggingface.co/Jackrong/Qwopus3.5-4B-v3-GGUF/resolve/main/Qwen3.5-4B.Q4_K_M.gguf',
       );
       expect(qwen4b.fileName, 'Qwen3.5-4B.Q4_K_M.gguf');
 
@@ -79,6 +80,7 @@ void main() {
         'phi4-mini-reasoning-q4km',
       )!;
       final gemma3 = ModelManager.getModelById('gemma-3-4b-it-q4km')!;
+      final gemma4 = ModelManager.getModelById('gemma-4-e2b-it-q4km')!;
       final deepseek = ModelManager.getModelById(
         'deepseek-r1-distill-qwen-15b-q4km',
       )!;
@@ -98,6 +100,12 @@ void main() {
         'https://huggingface.co/bartowski/google_gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf',
       );
       expect(gemma3.fileName, 'gemma-3-4b-it-Q4_K_M.gguf');
+
+      expect(
+        gemma4.url,
+        'https://huggingface.co/unsloth/gemma-4-E2B-it-GGUF/resolve/main/gemma-4-E2B-it-Q4_K_M.gguf',
+      );
+      expect(gemma4.fileName, 'gemma-4-E2B-it-Q4_K_M.gguf');
 
       expect(
         deepseek.url,
@@ -145,9 +153,7 @@ void main() {
   });
 
   group('Categories and recommendations', () {
-    test(
-      'Qwen Claude-distilled models expose canonical and alternate filenames',
-      () {
+    test('Qwen Claude-distilled models expose canonical filenames', () {
         final manager = ModelManager();
 
         final qwen4b = ModelManager.getModelById(
@@ -165,12 +171,7 @@ void main() {
         final qwen08bCandidates = manager.candidateFileNames(qwen08b);
 
         expect(qwen4bCandidates, contains('Qwen3.5-4B.Q4_K_M.gguf'));
-        expect(
-          qwen4bCandidates,
-          contains(
-            'Qwen3.5-4B-Claude-4.6-Opus-Reasoning-Distilled-v2.Q4_K_M.gguf',
-          ),
-        );
+        expect(qwen4bCandidates.length, 1);
 
         expect(qwen2bCandidates, contains('Qwen3.5-2B.Q5_K_M.gguf'));
         expect(
@@ -190,9 +191,7 @@ void main() {
       },
     );
 
-    test(
-      'Strongest category contains Qwen Claude-distilled trio and Phi reasoning',
-      () {
+    test('Strongest category contains Qwen 4B/2B, Gemma 4, and Phi reasoning', () {
         final strongest = ModelManager.getModelsForCategory(
           ModelCategory.strongest,
         );
@@ -206,12 +205,18 @@ void main() {
           true,
         );
         expect(
-          strongest.any((m) => m.id == 'qwen35-08b-claude46-distilled-q5km'),
+          strongest.any((m) => m.id == 'gemma-4-e2b-it-q4km'),
           true,
         );
         expect(strongest.any((m) => m.id == 'phi4-mini-reasoning-q4km'), true);
       },
     );
+
+    test('Qwen3.5 0.8B remains available but is not in strongest', () {
+      final model = ModelManager.getModelById('qwen35-08b-claude46-distilled-q5km')!;
+      expect(model.supportsCategory(ModelCategory.code), true);
+      expect(model.supportsCategory(ModelCategory.strongest), false);
+    });
 
     test('requested reasoning models are flagged as reasoning-capable', () {
       final qwen4b = ModelManager.getModelById(
@@ -269,6 +274,16 @@ void main() {
         codeModels.any((m) => m.id == 'qwen35-08b-claude46-distilled-q5km'),
         true,
       );
+    });
+
+    test('Gemma 4 E2B IT appears in strongest and code filters', () {
+      final strongest = ModelManager.getModelsForCategory(
+        ModelCategory.strongest,
+      );
+      final codeModels = ModelManager.getModelsForCategory(ModelCategory.code);
+
+      expect(strongest.any((m) => m.id == 'gemma-4-e2b-it-q4km'), true);
+      expect(codeModels.any((m) => m.id == 'gemma-4-e2b-it-q4km'), true);
     });
 
     test('TranslateGemma is placed in writing and general categories', () {
