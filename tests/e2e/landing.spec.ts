@@ -3,21 +3,6 @@ import { expect, test } from "@playwright/test";
 
 const expectedScreenshotAssets = [
   "/assets/screenshots/ai-chat.png",
-  "/assets/screenshots/ai-model-picker.png",
-  "/assets/screenshots/committing-comment.png",
-  "/assets/screenshots/file-version-control.png",
-  "/assets/screenshots/floating-hub.png",
-  "/assets/screenshots/knowledge-graph.png",
-  "/assets/screenshots/markdown-editor.png",
-  "/assets/screenshots/math-module-graph.png",
-  "/assets/screenshots/math-module.png",
-  "/assets/screenshots/mcp-tools.png",
-  "/assets/screenshots/new-(folder,md,txt,handwritten).png",
-  "/assets/screenshots/productivity-calendar.png",
-  "/assets/screenshots/productivity-clock.png",
-  "/assets/screenshots/quick-notes.png",
-  "/assets/screenshots/version-history.png",
-  "/assets/screenshots/workspace-notes-dark-mode.png",
   "/assets/screenshots/workspace-notes.png",
 ];
 
@@ -122,6 +107,9 @@ test.describe("Kivixa landing page", () => {
     await expect(page.getByTestId("cta-winget")).toBeVisible();
     await expect(page.getByTestId("cta-winget")).toContainText("Install with winget");
 
+      await page.getByTestId("download-section").scrollIntoViewIfNeeded();
+      await page.waitForTimeout(650);
+
     const wingetCommand = page.getByTestId("winget-command");
     await expect(wingetCommand).toBeVisible();
     await expect(wingetCommand).toContainText("winget install Kivixa");
@@ -183,13 +171,13 @@ test.describe("Kivixa landing page", () => {
     expect(androidHref).toBe(github.androidArm64Url);
   });
 
-  test("renders all 17 screenshots without crop-oriented image styles", async ({
+  test("renders cinematic mockup screenshots without crop-oriented image styles", async ({
     page,
   }) => {
     await page.goto("/");
 
     const screenshotImages = page.locator('img[data-screenshot="true"]');
-    await expect(screenshotImages).toHaveCount(17);
+      await expect(screenshotImages).toHaveCount(2);
 
     const screenshotSrcList = await screenshotImages.evaluateAll((images) =>
       images.map((image) => image.getAttribute("src") ?? "")

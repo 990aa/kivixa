@@ -1,169 +1,214 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef, useState } from "react";
+import { gsap } from "gsap";
+import type { ReleaseData } from "@/lib/github";
+import { useScrollTrigger } from "@/hooks/useScrollTrigger";
 
-interface PlatformInfo {
-  name: string;
-  status: "stable" | "supported" | "experimental";
-  note: string;
-  icon: React.ReactNode;
+interface PlatformGridProps {
+  release: ReleaseData;
 }
 
-const platforms: PlatformInfo[] = [
-  {
-    name: "Windows",
-    status: "stable",
-    note: "Fully tested and optimized",
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801" />
-      </svg>
-    ),
-  },
-  {
-    name: "Android",
-    status: "stable",
-    note: "API 24+ (Android 7.0)",
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M17.523 15.341c-.628 0-1.137.51-1.137 1.137s.51 1.137 1.137 1.137 1.137-.51 1.137-1.137-.509-1.137-1.137-1.137zm-11.046 0c-.628 0-1.137.51-1.137 1.137s.509 1.137 1.137 1.137 1.137-.51 1.137-1.137-.509-1.137-1.137-1.137zM17.799 10.56l2.182-3.779a.454.454 0 00-.166-.619.454.454 0 00-.619.166l-2.209 3.826A13.298 13.298 0 0012 9.271c-1.855 0-3.607.354-5.187.883L4.604 6.328a.454.454 0 00-.619-.166.454.454 0 00-.166.619l2.182 3.779C2.581 12.353.39 15.484.0 19.108h24c-.39-3.624-2.581-6.755-6.201-8.548z" />
-      </svg>
-    ),
-  },
-  {
-    name: "macOS",
-    status: "supported",
-    note: "Requires macOS",
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-      </svg>
-    ),
-  },
-  {
-    name: "Linux",
-    status: "supported",
-    note: "Requires Linux",
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M12.504 0c-.155 0-.311.005-.466.015C8.618.205 5.691 2.978 5.331 6.385c-.237 2.246.218 3.989.672 5.473.37 1.213.752 2.467.747 3.887-.009 2.3-1.284 3.658-1.734 4.22-.376.47-.522.756-.522 1.152 0 .612.396.979.838 1.183.444.205 1.034.31 1.715.31s1.424-.105 2.078-.321c.624-.207 1.186-.471 1.617-.681l.005-.002c.411-.202.687-.327.895-.327.207 0 .483.125.893.327l.006.002c.431.21.993.474 1.617.681.654.216 1.397.321 2.078.321s1.271-.105 1.715-.31c.442-.204.838-.571.838-1.183 0-.396-.146-.682-.522-1.152-.45-.562-1.725-1.92-1.734-4.22-.005-1.42.377-2.674.747-3.887.454-1.484.909-3.227.672-5.473C18.309 2.978 15.382.205 11.962.015A7.865 7.865 0 0012.504 0z" />
-      </svg>
-    ),
-  },
-  {
-    name: "iOS",
-    status: "supported",
-    note: "Requires iOS",
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-      </svg>
-    ),
-  },
-  {
-    name: "Web",
-    status: "experimental",
-    note: "Limited features",
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M2 12h20" />
-        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-      </svg>
-    ),
-  },
+const platforms = [
+  { name: "Windows", detail: "Stable" },
+  { name: "Android", detail: "Stable" },
+  { name: "Web", detail: "Experimental" },
+  { name: "macOS", detail: "Supported" },
+  { name: "Linux", detail: "Supported" },
+  { name: "iOS", detail: "Supported" },
 ];
 
-const statusStyles: Record<string, { bg: string; text: string; label: string }> = {
-  stable: {
-    bg: "bg-accent-teal/10 border-accent-teal/30",
-    text: "text-accent-teal",
-    label: "Stable",
-  },
-  supported: {
-    bg: "bg-accent-blue/10 border-accent-blue/30",
-    text: "text-accent-blue",
-    label: "Supported",
-  },
-  experimental: {
-    bg: "bg-accent-amber/10 border-accent-amber/30",
-    text: "text-accent-amber",
-    label: "Experimental",
-  },
-};
+export default function PlatformGrid({ release }: PlatformGridProps) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [copied, setCopied] = useState(false);
+  const wingetCommand = "winget install Kivixa";
 
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.06 },
-  },
-};
+  const copyWinget = async () => {
+    try {
+      await navigator.clipboard.writeText(wingetCommand);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-};
+  useScrollTrigger(
+    sectionRef,
+    () => {
+      const section = sectionRef.current;
+      if (!section) return;
 
-export default function PlatformGrid() {
+      const badges = Array.from(section.querySelectorAll<HTMLElement>("[data-platform-badge]"));
+      const cards = Array.from(section.querySelectorAll<HTMLElement>("[data-download-card]"));
+      const fdroid = section.querySelector<HTMLElement>("[data-fdroid-card]");
+
+      gsap.fromTo(
+        badges,
+        { y: -60, autoAlpha: 0 },
+        {
+          y: 0,
+          autoAlpha: 1,
+          duration: 0.95,
+          stagger: 0.08,
+          ease: "elastic.out(1, 0.5)",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 80%",
+            end: "top 42%",
+            scrub: 1,
+          },
+        }
+      );
+
+      gsap.fromTo(
+        cards,
+        { y: 28, autoAlpha: 0 },
+        {
+          y: 0,
+          autoAlpha: 1,
+          duration: 0.7,
+          stagger: 0.12,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 72%",
+            end: "top 28%",
+            scrub: 1,
+          },
+        }
+      );
+
+      gsap.fromTo(
+        fdroid,
+        { autoAlpha: 0, scale: 0.88, boxShadow: "0 0 0 rgba(74, 222, 128, 0)" },
+        {
+          autoAlpha: 1,
+          scale: 1,
+          boxShadow: "0 0 36px rgba(74, 222, 128, 0.35)",
+          duration: 0.85,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 68%",
+            end: "top 30%",
+            scrub: 1,
+          },
+        }
+      );
+    },
+    []
+  );
+
   return (
-    <section className="relative py-24 sm:py-32 px-6">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <p className="text-xs font-mono uppercase tracking-[0.2em] text-accent-teal mb-4">
-            Cross-Platform
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-text-primary mb-4">
-            Runs where you do
+    <section
+      id="platforms"
+      ref={sectionRef}
+      data-testid="download-section"
+      className="scene platform-scene px-6 py-28 sm:py-32"
+    >
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-12 text-center">
+          <p className="mb-4 text-xs font-mono uppercase tracking-[0.24em] text-silver-accent">Scene 6</p>
+          <h2 className="text-balance text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl md:text-5xl">
+            Platforms drop into place
           </h2>
-          <p className="text-text-secondary max-w-lg mx-auto text-lg">
-            One codebase. Six platforms. Your data stays local on every one.
+          <p className="mx-auto mt-4 max-w-3xl text-balance text-base leading-relaxed text-text-secondary sm:text-lg">
+            Kivixa runs cross-platform with the same privacy model and local-first behavior.
           </p>
-        </motion.div>
+        </div>
 
-        {/* Platform grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
-          className="grid grid-cols-2 sm:grid-cols-3 gap-4"
-        >
-          {platforms.map((platform) => {
-            const style = statusStyles[platform.status];
-            return (
-              <motion.div
-                key={platform.name}
-                variants={itemVariants}
-                className="group relative rounded-2xl border border-border-subtle bg-glass-bg backdrop-blur-sm p-6 text-center transition-all duration-300 hover:border-border-hover hover:-translate-y-1 hover:shadow-card"
-              >
-                {/* Icon */}
-                <div className="flex justify-center mb-4 text-text-muted group-hover:text-text-secondary transition-colors">
-                  {platform.icon}
-                </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {platforms.map((platform) => (
+            <article key={platform.name} data-platform-badge className="platform-badge-tile will-change-transform">
+              <p className="text-lg font-semibold tracking-tight text-text-primary">{platform.name}</p>
+              <p className="mt-1 text-xs font-mono uppercase tracking-[0.12em] text-text-secondary">
+                {platform.detail}
+              </p>
+            </article>
+          ))}
+        </div>
 
-                {/* Name */}
-                <h3 className="text-base font-semibold text-text-primary mb-2">{platform.name}</h3>
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          <article data-download-card className="download-card">
+            <h3 className="text-xl font-semibold tracking-tight text-text-primary">Windows</h3>
+            <p data-testid="windows-version" className="mt-2 text-sm text-text-secondary">
+              v{release.version} · Installer and MSIX package
+            </p>
 
-                {/* Status badge */}
-                <span
-                  className={`inline-block rounded-full border px-3 py-0.5 text-xs font-medium mb-2 ${style.bg} ${style.text}`}
-                >
-                  {style.label}
-                </span>
+            <code data-testid="winget-command" className="mt-4 block rounded-xl border border-silver-700 bg-silver-900/70 px-4 py-2 text-sm text-silver-shine">
+              {wingetCommand}
+            </code>
 
-                {/* Note */}
-                <p className="text-xs text-text-muted">{platform.note}</p>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+            <button
+              type="button"
+              data-testid="copy-winget"
+              onClick={copyWinget}
+              className="liquid-btn silver-btn-secondary mt-4 w-full"
+            >
+              {copied ? "Copied" : "Copy winget command"}
+            </button>
+
+            <a
+              data-testid="download-windows-msix"
+              href={release.windowsMsixUrl ?? release.releasesPageUrl}
+              className="liquid-btn silver-btn-primary mt-3 w-full"
+            >
+              Download .msix package
+            </a>
+
+            <a
+              data-testid="download-windows-exe"
+              href={release.windowsUrl ?? release.releasesPageUrl}
+              className="liquid-btn silver-btn-secondary mt-3 w-full"
+            >
+              Download .exe
+            </a>
+          </article>
+
+          <article data-download-card className="download-card">
+            <h3 className="text-xl font-semibold tracking-tight text-text-primary">Android</h3>
+            <p data-testid="android-version" className="mt-2 text-sm text-text-secondary">
+              v{release.version} · ARM64 build
+            </p>
+
+            <a
+              data-testid="download-android"
+              href={release.androidArm64Url ?? release.releasesPageUrl}
+              className="liquid-btn silver-btn-primary mt-6 w-full"
+            >
+              Download ARM64 APK
+            </a>
+
+            <p className="mt-4 text-sm text-text-secondary">
+              Need other architectures? Use the full release page.
+            </p>
+
+            <a
+              href={release.releasesPageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="liquid-btn silver-btn-secondary mt-4 w-full"
+            >
+              Browse all release assets
+            </a>
+          </article>
+
+          <article data-download-card data-fdroid-card className="download-card fdroid-highlight">
+            <h3 className="text-xl font-semibold tracking-tight text-text-primary">F-Droid</h3>
+            <p className="mt-2 text-sm text-text-secondary">
+              Add the Kivixa repository for update-friendly Android installs.
+            </p>
+
+            <a href="https://990aa.github.io/kivixa/repo" className="liquid-btn silver-btn-primary mt-6 w-full">
+              Open F-Droid repository
+            </a>
+
+            <p className="mt-4 text-sm text-text-secondary">
+              Repo URL: <span className="font-mono text-silver-shine">https://990aa.github.io/kivixa/repo</span>
+            </p>
+          </article>
+        </div>
       </div>
     </section>
   );
