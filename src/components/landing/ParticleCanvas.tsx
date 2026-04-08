@@ -8,19 +8,18 @@ type Particle = {
   vx: number;
   vy: number;
   radius: number;
-  opacity: number;
 };
 
 interface ParticleCanvasProps {
   className?: string;
   count?: number;
-  speed?: number;
+  density?: "normal" | "dense";
 }
 
 export default function ParticleCanvas({
   className = "",
   count = 80,
-  speed = 0.22,
+  density = "normal",
 }: ParticleCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -34,25 +33,28 @@ export default function ParticleCanvas({
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const particles: Particle[] = [];
-    let frame = 0;
     let rafId = 0;
 
-    const resize = () => {
+    const velocityFactor = density === "dense" ? 0.28 : 0.22;
+    const particleCount = density === "dense" ? Math.floor(count * 1.35) : count;
+
+    const initialize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const { width, height } = canvas.getBoundingClientRect();
+
       canvas.width = Math.max(1, Math.floor(width * dpr));
       canvas.height = Math.max(1, Math.floor(height * dpr));
+
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       particles.length = 0;
-      for (let i = 0; i < count; i += 1) {
+      for (let index = 0; index < particleCount; index += 1) {
         particles.push({
           x: Math.random() * width,
           y: Math.random() * height,
-          vx: (Math.random() - 0.5) * speed,
-          vy: (Math.random() - 0.5) * speed,
-          radius: Math.random() * 1.6 + 0.3,
-          opacity: Math.random() * 0.45 + 0.15,
+          vx: (Math.random() - 0.5) * velocityFactor,
+          vy: (Math.random() - 0.5) * velocityFactor,
+          radius: 0.45 + Math.random() * 1.6,
         });
       }
     };
@@ -68,34 +70,40 @@ export default function ParticleCanvas({
           particle.x += particle.vx;
           particle.y += particle.vy;
 
-          if (particle.x < -10) particle.x = width + 10;
-          if (particle.x > width + 10) particle.x = -10;
-          if (particle.y < -10) particle.y = height + 10;
-          if (particle.y > height + 10) particle.y = -10;
+          if (particle.x < -4) particle.x = width + 4;
+          if (particle.x > width + 4) particle.x = -4;
+          if (particle.y < -4) particle.y = height + 4;
+          if (particle.y > height + 4) particle.y = -4;
         }
 
         context.beginPath();
-        context.fillStyle = `rgba(232, 237, 242, ${particle.opacity})`;
         context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+        context.fillStyle = "rgba(192, 200, 212, 0.4)";
         context.fill();
       }
 
-      frame += 1;
-      if (!reducedMotion || frame < 2) {
+      if (!reducedMotion) {
         rafId = window.requestAnimationFrame(draw);
       }
     };
 
-    resize();
+    initialize();
     draw();
 
-    window.addEventListener("resize", resize, { passive: true });
+    const onResize = () => {
+      initialize();
+      if (reducedMotion) {
+        draw();
+      }
+    };
+
+    window.addEventListener("resize", onResize, { passive: true });
 
     return () => {
+      window.removeEventListener("resize", onResize);
       window.cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", resize);
     };
-  }, [count, speed]);
+  }, [count, density]);
 
   return <canvas ref={canvasRef} className={`particle-canvas ${className}`} aria-hidden="true" />;
 }

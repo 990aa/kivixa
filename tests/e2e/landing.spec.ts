@@ -107,8 +107,8 @@ test.describe("Kivixa landing page", () => {
     await expect(page.getByTestId("cta-winget")).toBeVisible();
     await expect(page.getByTestId("cta-winget")).toContainText("Install with winget");
 
-      await page.getByTestId("download-section").scrollIntoViewIfNeeded();
-      await page.waitForTimeout(650);
+    await page.getByTestId("download-section").scrollIntoViewIfNeeded();
+    await page.waitForTimeout(650);
 
     const wingetCommand = page.getByTestId("winget-command");
     await expect(wingetCommand).toBeVisible();
@@ -118,7 +118,7 @@ test.describe("Kivixa landing page", () => {
 
     const msixLink = page.getByTestId("download-windows-msix");
     await expect(msixLink).toBeVisible();
-    await expect(msixLink).toContainText("Download .msix package");
+    await expect(msixLink).toContainText(".msix package");
 
     const exeLink = page.getByTestId("download-windows-exe");
     await expect(exeLink).toBeVisible();
@@ -177,7 +177,7 @@ test.describe("Kivixa landing page", () => {
     await page.goto("/");
 
     const screenshotImages = page.locator('img[data-screenshot="true"]');
-      await expect(screenshotImages).toHaveCount(2);
+    await expect(screenshotImages).toHaveCount(2);
 
     const screenshotSrcList = await screenshotImages.evaluateAll((images) =>
       images.map((image) => image.getAttribute("src") ?? "")

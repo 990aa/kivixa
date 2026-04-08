@@ -6,18 +6,21 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function useScrollTrigger(
+export function useScrollAnimations(
   scope: RefObject<HTMLElement | null>,
-  createAnimations: () => void,
+  init: () => void,
   deps: DependencyList = []
 ) {
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
 
-    const ctx = gsap.context(createAnimations, scope);
+    const ctx = gsap.context(() => {
+      init();
+    }, scope);
 
     const refresh = () => ScrollTrigger.refresh();
 
@@ -25,7 +28,7 @@ export function useScrollTrigger(
       (document as Document & { fonts: { ready: Promise<void> } }).fonts.ready
         .then(refresh)
         .catch(() => {
-          // Ignore font loading failures and keep existing trigger measurements.
+          // Keep existing trigger measurements when font readiness fails.
         });
     }
 

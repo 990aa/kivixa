@@ -1,8 +1,8 @@
-import LandingExperience from "@/components/LandingExperience";
+import LandingPage from "@/components/landing/LandingPage";
 import { getLatestRelease } from "@/lib/github";
 
 export default async function Home() {
   const release = await getLatestRelease();
 
-  return <LandingExperience release={release} />;
+  return <LandingPage release={release} />;
 }
