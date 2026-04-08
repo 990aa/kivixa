@@ -39,21 +39,17 @@ export default function HeroSection({ release }: HeroSectionProps) {
         return;
       }
 
+      gsap.set([leftCurtainRef.current, rightCurtainRef.current], { xPercent: 0, autoAlpha: 1 });
+
       const timeline = gsap.timeline({ defaults: { ease: "power3.inOut" } });
 
       timeline
-        .to(leftCurtainRef.current, { xPercent: -100, duration: 1.1 }, 0)
-        .to(rightCurtainRef.current, { xPercent: 100, duration: 1.1 }, 0)
+        .fromTo(leftCurtainRef.current, { xPercent: 0 }, { xPercent: -100, duration: 1.1 }, 0)
+        .fromTo(rightCurtainRef.current, { xPercent: 0 }, { xPercent: 100, duration: 1.1 }, 0)
         .fromTo(
           heroItems,
           { y: 30, autoAlpha: 0 },
-          {
-            y: 0,
-            autoAlpha: 1,
-            duration: 0.65,
-            stagger: 0.12,
-            ease: "power2.out",
-          },
+          { y: 0, autoAlpha: 1, duration: 0.65, stagger: 0.12, ease: "power2.out" },
           1.05
         )
         .to(

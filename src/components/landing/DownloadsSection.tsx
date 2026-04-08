@@ -103,17 +103,19 @@ export default function DownloadsSection({ release }: DownloadsSectionProps) {
               winget install Kivixa
             </code>
 
-            <button type="button" data-testid="copy-winget" onClick={copyWinget} className="silver-button silver-button-secondary w-full">
-              {copied ? "Copied!" : "Copy winget command"}
-            </button>
+            <div className="download-actions-stack">
+              <button type="button" data-testid="copy-winget" onClick={copyWinget} className="silver-button silver-button-secondary">
+                {copied ? "Copied!" : "Copy winget command"}
+              </button>
 
-            <a
-              data-testid="download-windows-exe"
-              href={release.windowsUrl ?? release.releasesPageUrl}
-              className="silver-button silver-button-primary mt-3 w-full"
-            >
-              Download .exe
-            </a>
+              <a
+                data-testid="download-windows-exe"
+                href={release.windowsUrl ?? release.releasesPageUrl}
+                className="silver-button silver-button-primary"
+              >
+                Download .exe
+              </a>
+            </div>
 
             <p className="download-footnote mt-3">
               Also available:
@@ -127,34 +129,38 @@ export default function DownloadsSection({ release }: DownloadsSectionProps) {
             <h3 className="download-card-title">Android</h3>
             <p data-testid="android-version" className="download-version-text">v{release.version}</p>
 
-            <a
-              data-testid="download-android"
-              href={release.androidArm64Url ?? release.releasesPageUrl}
-              className="silver-button silver-button-primary mt-6 w-full"
-            >
-              Download ARM64 APK
-            </a>
+            <div className="download-actions-stack">
+              <a
+                data-testid="download-android"
+                href={release.androidArm64Url ?? release.releasesPageUrl}
+                className="silver-button silver-button-primary"
+              >
+                Download ARM64 APK
+              </a>
 
-            <p className="download-footnote mt-4">Need another arch?</p>
-            <a
-              href={release.releasesPageUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="silver-button silver-button-secondary mt-2 w-full"
-            >
-              Browse all releases
-            </a>
+              <p className="download-footnote">Need another arch?</p>
+              <a
+                href={release.releasesPageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="silver-button silver-button-secondary"
+              >
+                Browse all releases
+              </a>
+            </div>
           </article>
 
-          <article data-download-card className="download-card-box fdroid-card">
+          <article data-download-card className="download-card-box">
             <h3 className="download-card-title">F-Droid</h3>
             <p className="download-footnote mt-2">
               Add the Kivixa repo for automatic update-friendly Android installs.
             </p>
 
-            <a href="https://990aa.github.io/kivixa/repo" className="silver-button silver-button-primary mt-6 w-full">
-              Open F-Droid repo
-            </a>
+            <div className="download-actions-stack">
+              <a href="https://990aa.github.io/kivixa/repo" className="silver-button silver-button-primary">
+                Open F-Droid repo
+              </a>
+            </div>
 
             <p className="download-footnote mt-4">
               Repo URL:

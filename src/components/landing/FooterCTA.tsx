@@ -27,19 +27,19 @@ export default function FooterCTA({ release }: FooterCTAProps) {
         defaults: { ease: "power3.inOut" },
         scrollTrigger: {
           trigger: section,
-          start: "top 78%",
+          start: "top 82%",
           toggleActions: "play none none reverse",
         },
       });
 
       timeline
-        .fromTo(leftPanel, { xPercent: -105 }, { xPercent: 0, duration: 1.08 }, 0)
-        .fromTo(rightPanel, { xPercent: 105 }, { xPercent: 0, duration: 1.08 }, 0)
+        .fromTo(leftPanel, { xPercent: -104, autoAlpha: 0.9 }, { xPercent: 0, autoAlpha: 1, duration: 1.02 }, 0)
+        .fromTo(rightPanel, { xPercent: 104, autoAlpha: 0.9 }, { xPercent: 0, autoAlpha: 1, duration: 1.02 }, 0)
         .fromTo(
           centerPanel,
           { autoAlpha: 0, y: 26, scale: 0.97 },
-          { autoAlpha: 1, y: 0, scale: 1, duration: 0.62, ease: "power2.out" },
-          0.6
+          { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: "power2.out" },
+          0.56
         );
     },
     []
@@ -53,7 +53,7 @@ export default function FooterCTA({ release }: FooterCTAProps) {
       <div data-footer-curtain-left className="footer-curtain-panel footer-curtain-left" aria-hidden="true" />
       <div data-footer-curtain-right className="footer-curtain-panel footer-curtain-right" aria-hidden="true" />
 
-      <div data-footer-center className="relative z-10 mx-auto flex min-h-[56vh] max-w-4xl flex-col items-center justify-center text-center">
+      <div data-footer-center className="relative z-20 mx-auto flex min-h-[56vh] max-w-4xl flex-col items-center justify-center text-center">
         <h2 className="footer-cta-heading">Build your private workspace with Kivixa.</h2>
         <p className="footer-cta-copy">
           One app for notes, sketching, planning, and local AI.

@@ -41,29 +41,35 @@
 
   --font-sans: var(--font-space-grotesk), "Space Grotesk", "Segoe UI", sans-serif;
   --font-mono: var(--font-ibm-plex-mono), "IBM Plex Mono", monospace;
+}
 
-  @keyframes shimmerBorder {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 200% 50%; }
-  }
+@keyframes shimmerBorder {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
 
-  @keyframes auroraSweep {
-    0% { transform: translateX(-30%) skewX(-12deg); opacity: 0.16; }
-    50% { transform: translateX(10%) skewX(-12deg); opacity: 0.3; }
-    100% { transform: translateX(42%) skewX(-12deg); opacity: 0.17; }
-  }
+@keyframes auroraSweep {
+  0% { transform: translateX(-30%) skewX(-12deg); opacity: 0.16; }
+  50% { transform: translateX(10%) skewX(-12deg); opacity: 0.3; }
+  100% { transform: translateX(42%) skewX(-12deg); opacity: 0.17; }
+}
 
-  @keyframes fogShift {
-    0% { transform: translate3d(0, 0, 0) scale(1); }
-    50% { transform: translate3d(2%, -2%, 0) scale(1.04); }
-    100% { transform: translate3d(-2%, 2%, 0) scale(1.02); }
-  }
+@keyframes fogShift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(2%, -2%, 0) scale(1.04); }
+  100% { transform: translate3d(-2%, 2%, 0) scale(1.02); }
+}
 
-  @keyframes gridSweep {
-    0% { opacity: 0; }
-    50% { opacity: 0.1; }
-    100% { opacity: 0.06; }
-  }
+@keyframes gridSweep {
+  0% { opacity: 0; }
+  50% { opacity: 0.1; }
+  100% { opacity: 0.06; }
+}
+
+@keyframes heroGlowDrift {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.38; }
+  50% { transform: translate3d(1.4%, -1.8%, 0) scale(1.04); opacity: 0.5; }
+  100% { transform: translate3d(-1.2%, 1.6%, 0) scale(1.02); opacity: 0.4; }
 }
 
 * {
@@ -119,6 +125,9 @@ button:focus-visible {
 
 .silver-button {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   isolation: isolate;
   overflow: hidden;
   border-radius: 999px;
@@ -181,6 +190,7 @@ button:focus-visible {
   background: radial-gradient(circle at 50% 48%, rgba(192, 200, 212, 0.18), transparent 57%);
   pointer-events: none;
   z-index: 1;
+  animation: heroGlowDrift 14s ease-in-out infinite alternate;
 }
 
 .hero-curtain-panel {
@@ -718,9 +728,17 @@ button:focus-visible {
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
 }
 
 .download-card-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  height: 100%;
+  isolation: isolate;
+  overflow: hidden;
   border-radius: 12px;
   border: 1px solid rgba(192, 200, 212, 0.15);
   background: linear-gradient(160deg, rgba(27, 31, 36, 0.9), rgba(14, 16, 18, 0.95));
@@ -728,8 +746,15 @@ button:focus-visible {
   box-shadow: 0 16px 30px rgba(0, 0, 0, 0.3);
 }
 
-.fdroid-card {
-  border-left: 2px solid #3ddc84;
+.download-actions-stack {
+  margin-top: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.62rem;
+}
+
+.download-card-box .silver-button {
+  width: 100%;
 }
 
 .download-card-title {
@@ -780,6 +805,8 @@ button:focus-visible {
   color: var(--s-shine);
   font-family: var(--font-mono);
   font-size: 0.82rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .downloads-global-footnote {
@@ -809,8 +836,9 @@ button:focus-visible {
   position: absolute;
   top: 0;
   bottom: 58px;
-  width: 33%;
-  z-index: 2;
+  width: 50%;
+  z-index: 12;
+  will-change: transform, opacity;
   background:
     linear-gradient(180deg, rgba(31, 35, 41, 0.92), rgba(14, 16, 18, 0.92)),
     linear-gradient(120deg, rgba(232, 237, 242, 0.08), transparent 65%);

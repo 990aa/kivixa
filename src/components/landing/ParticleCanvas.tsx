@@ -8,6 +8,8 @@ type Particle = {
   vx: number;
   vy: number;
   radius: number;
+  alphaPhase: number;
+  alphaSpeed: number;
 };
 
 interface ParticleCanvasProps {
@@ -35,7 +37,7 @@ export default function ParticleCanvas({
     const particles: Particle[] = [];
     let rafId = 0;
 
-    const velocityFactor = density === "dense" ? 0.28 : 0.22;
+    const velocityFactor = density === "dense" ? 0.52 : 0.4;
     const particleCount = density === "dense" ? Math.floor(count * 1.35) : count;
 
     const initialize = () => {
@@ -55,6 +57,8 @@ export default function ParticleCanvas({
           vx: (Math.random() - 0.5) * velocityFactor,
           vy: (Math.random() - 0.5) * velocityFactor,
           radius: 0.45 + Math.random() * 1.6,
+          alphaPhase: Math.random() * Math.PI * 2,
+          alphaSpeed: 0.0016 + Math.random() * 0.0024,
         });
       }
     };
@@ -62,6 +66,7 @@ export default function ParticleCanvas({
     const draw = () => {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
+      const now = performance.now();
 
       context.clearRect(0, 0, width, height);
 
@@ -78,7 +83,8 @@ export default function ParticleCanvas({
 
         context.beginPath();
         context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-        context.fillStyle = "rgba(192, 200, 212, 0.4)";
+        const alpha = 0.16 + (Math.sin(now * particle.alphaSpeed + particle.alphaPhase) + 1) * 0.22;
+        context.fillStyle = `rgba(192, 200, 212, ${Math.min(alpha, 0.58).toFixed(3)})`;
         context.fill();
       }
 
