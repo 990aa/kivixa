@@ -3,6 +3,7 @@ import 'package:kivixa/components/ai/chat_interface.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
 import 'package:kivixa/components/ai/mcp_chat_interface.dart';
 import 'package:kivixa/components/overlay/floating_window.dart';
+import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
 
 /// A floating AI assistant window that provides quick access to AI chat.
@@ -37,6 +38,7 @@ class _AssistantWindowState extends State<AssistantWindow> {
     try {
       _mcpChatController = MCPChatController(
         systemPrompt: 'You are Kivixa AI, a helpful assistant.',
+        browseDirectory: FileManager.documentsDirectory,
       );
       if (mounted) setState(() {});
     } catch (e) {
