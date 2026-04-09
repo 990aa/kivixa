@@ -1034,7 +1034,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                     ),
                   )
                 else if (widget.controller.isModelLoaded)
-                  _ModelSwitcherChip(
+                  ModelSwitcherChip(
                     controller: widget.controller,
                     isCompact: isCompact,
                   )
@@ -1718,25 +1718,54 @@ class _SuggestionChip extends StatelessWidget {
   }
 }
 
-/// Model switcher chip with dropdown for quick model switching
-class _ModelSwitcherChip extends StatefulWidget {
+/// Model switcher chip with dropdown for quick model switching.
+///
+/// This is used by both the main AI chat header and MCP surfaces.
+class ModelSwitcherChip extends StatefulWidget {
   final AIChatController controller;
   final bool isCompact;
 
-  const _ModelSwitcherChip({required this.controller, required this.isCompact});
+  const ModelSwitcherChip({
+    super.key,
+    required this.controller,
+    required this.isCompact,
+  });
 
   @override
-  State<_ModelSwitcherChip> createState() => _ModelSwitcherChipState();
+  State<ModelSwitcherChip> createState() => _ModelSwitcherChipState();
 }
 
-class _ModelSwitcherChipState extends State<_ModelSwitcherChip> {
+class _ModelSwitcherChipState extends State<ModelSwitcherChip> {
   final GlobalKey _chipKey = GlobalKey();
   List<AIModel> _downloadedModels = [];
 
   @override
   void initState() {
     super.initState();
+    widget.controller.addListener(_onControllerChanged);
     _loadDownloadedModels();
+  }
+
+  @override
+  void didUpdateWidget(covariant ModelSwitcherChip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_onControllerChanged);
+      widget.controller.addListener(_onControllerChanged);
+      _loadDownloadedModels();
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChanged);
+    super.dispose();
+  }
+
+  void _onControllerChanged() {
+    if (!mounted) return;
+    setState(() {});
   }
 
   Future<void> _loadDownloadedModels() async {
