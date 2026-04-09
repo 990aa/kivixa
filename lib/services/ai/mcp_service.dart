@@ -789,7 +789,10 @@ class MCPService {
     if (lower.startsWith('a paragraph') || lower.startsWith('one paragraph')) {
       final topic = normalized
           .replaceFirst(
-            RegExp(r'^(a|one)\s+paragraph(?:\s+(?:about|on))?\s*', caseSensitive: false),
+            RegExp(
+              r'^(a|one)\s+paragraph(?:\s+(?:about|on))?\s*',
+              caseSensitive: false,
+            ),
             '',
           )
           .trim();
