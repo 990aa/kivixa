@@ -498,42 +498,24 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
               children: [
                 Icon(Icons.smart_toy, color: colorScheme.primary, size: 20),
                 const SizedBox(width: 8),
-                Text(
-                  widget.title,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 if (widget.modelSwitcherController != null) ...[
-                  const SizedBox(width: 12),
-                  if (widget.modelSwitcherController!.isInitializing ||
-                      widget.modelSwitcherController!.isLoadingModel)
-                    Chip(
-                      label: Text(
-                        widget.modelSwitcherController!.isLoadingModel
-                            ? 'Switching...'
-                            : 'Loading...',
-                      ),
-                      backgroundColor: colorScheme.secondaryContainer,
-                      labelStyle: TextStyle(
-                        color: colorScheme.onSecondaryContainer,
-                      ),
-                      avatar: SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: colorScheme.onSecondaryContainer,
-                        ),
-                      ),
-                    )
-                  else if (widget.modelSwitcherController!.isModelLoaded)
-                    ModelSwitcherChip(
-                      controller: widget.modelSwitcherController!,
-                      isCompact: true,
-                    ),
+                  const SizedBox(width: 8),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 170),
+                    child: _buildHeaderModelSwitcher(colorScheme),
+                  ),
                 ],
-                const Spacer(),
+                const SizedBox(width: 4),
                 if (messages.isNotEmpty)
                   IconButton(
                     icon: const Icon(Icons.file_download_outlined),
@@ -687,6 +669,35 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
           ),
       ],
     );
+  }
+
+  Widget _buildHeaderModelSwitcher(ColorScheme colorScheme) {
+    final switcher = widget.modelSwitcherController;
+    if (switcher == null) {
+      return const SizedBox.shrink();
+    }
+
+    if (switcher.isInitializing || switcher.isLoadingModel) {
+      return Chip(
+        label: Text(switcher.isLoadingModel ? 'Switching...' : 'Loading...'),
+        backgroundColor: colorScheme.secondaryContainer,
+        labelStyle: TextStyle(color: colorScheme.onSecondaryContainer),
+        avatar: SizedBox(
+          width: 14,
+          height: 14,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: colorScheme.onSecondaryContainer,
+          ),
+        ),
+      );
+    }
+
+    if (!switcher.isModelLoaded) {
+      return const SizedBox.shrink();
+    }
+
+    return ModelSwitcherChip(controller: switcher, isCompact: true);
   }
 
   Widget _buildMessageBubble(

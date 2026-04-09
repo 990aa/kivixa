@@ -517,8 +517,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed legacy artifact accumulation in F-Droid outputs by removing temporary artifact caches and pruning APKs older than `0.4.0` from both `repo/` and `archive/`.
 
 ---
-
-
 ## [0.8.0] - 2026-04-09
 
 ### Added
