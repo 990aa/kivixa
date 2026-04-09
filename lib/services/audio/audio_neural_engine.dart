@@ -274,7 +274,11 @@ class AudioNeuralEngine {
       _rustAudioReady = false;
     }
 
-    _speechFallbackAvailable = await _initializeSpeechFallback();
+    if (_rustAudioReady) {
+      _speechFallbackAvailable = false;
+    } else {
+      _speechFallbackAvailable = await _initializeSpeechFallback();
+    }
 
     final isUsable = _rustAudioReady || _speechFallbackAvailable;
     if (isUsable) {
