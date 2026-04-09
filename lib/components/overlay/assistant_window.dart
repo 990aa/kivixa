@@ -36,9 +36,16 @@ class _AssistantWindowState extends State<AssistantWindow> {
 
   Future<void> _initializeMcpController() async {
     try {
+      String? browseDirectory;
+      try {
+        browseDirectory = FileManager.documentsDirectory;
+      } catch (_) {
+        browseDirectory = null;
+      }
+
       _mcpChatController = MCPChatController(
         systemPrompt: 'You are Kivixa AI, a helpful assistant.',
-        browseDirectory: FileManager.documentsDirectory,
+        browseDirectory: browseDirectory,
       );
       if (mounted) setState(() {});
     } catch (e) {
