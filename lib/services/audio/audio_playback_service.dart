@@ -100,12 +100,10 @@ class AudioPlaybackService {
     final pcmBytes = _floatSamplesToPcm16Bytes(synthesis.samples);
 
     try {
-      await _playPcm16(
-        pcmBytes,
-        sampleRate: synthesis.sampleRate,
-        channels: 1,
+      await _playPcm16(pcmBytes, sampleRate: synthesis.sampleRate, channels: 1);
+      debugPrint(
+        'AudioPlaybackService: Playing ${synthesis.duration}s of audio',
       );
-      debugPrint('AudioPlaybackService: Playing ${synthesis.duration}s of audio');
     } catch (e) {
       debugPrint('AudioPlaybackService: Failed to play synthesis: $e');
       _stateNotifier.value = PlaybackState.stopped;
@@ -155,7 +153,9 @@ class AudioPlaybackService {
         return;
       }
     } catch (e) {
-      debugPrint('AudioPlaybackService: Native synthesis failed, using fallback: $e');
+      debugPrint(
+        'AudioPlaybackService: Native synthesis failed, using fallback: $e',
+      );
     }
 
     try {
@@ -474,7 +474,10 @@ class AudioPlaybackService {
     _writeAscii(header, 36, 'data');
     header.setUint32(40, dataLength, Endian.little);
 
-    return Uint8List.fromList(<int>[...header.buffer.asUint8List(), ...pcmBytes]);
+    return Uint8List.fromList(<int>[
+      ...header.buffer.asUint8List(),
+      ...pcmBytes,
+    ]);
   }
 
   void _writeAscii(ByteData data, int offset, String value) {
@@ -559,7 +562,10 @@ class AudioPlaybackService {
     }
 
     final profile = _readAudioPref(() => stows.audioVoiceProfile.value, 0);
-    final customVoiceId = _readAudioPref(() => stows.audioCustomVoiceId.value, null);
+    final customVoiceId = _readAudioPref(
+      () => stows.audioCustomVoiceId.value,
+      null,
+    );
 
     if (profile == 2 && customVoiceId != null && customVoiceId.isNotEmpty) {
       if (voices.any((voice) => voice.id == customVoiceId)) {
