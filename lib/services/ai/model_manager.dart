@@ -315,52 +315,6 @@ class ModelManager {
       ],
     ),
 
-    // Llama 3.2 3B Instruct - compact all-rounder with MCP readiness
-    AIModel(
-      id: 'llama32-3b-instruct-q3km',
-      name: 'Llama 3.2 3B Instruct',
-      shortDescription:
-          'Compact Llama model for agent workflows, drafting, and everyday tasks.',
-      description:
-          'Llama 3.2 3B Instruct (GGUF by Unsloth) - efficient on-device model '
-          'for general chat, lightweight code help, and MCP-assisted workflows.',
-      recommendation:
-          'Choose this when you want a balanced 3B model for both standard chat and MCP actions.',
-      url:
-          'https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q3_K_M.gguf',
-      fileName: 'Llama-3.2-3B-Instruct-Q3_K_M.gguf',
-      sizeBytes: 1830000000, // ~1.70 GB
-      categories: [
-        ModelCategory.general,
-        ModelCategory.writing,
-        ModelCategory.code,
-        ModelCategory.agent,
-      ],
-    ),
-
-    // Qwen2.5 1.5B Instruct - lightweight assistant and MCP-capable option
-    AIModel(
-      id: 'qwen25-15b-instruct-q4km',
-      name: 'Qwen2.5 1.5B Instruct',
-      shortDescription:
-          'Fast lightweight Qwen model for MCP actions, notes, and quick coding tasks.',
-      description:
-          'Alibaba Qwen2.5 1.5B Instruct (GGUF) - compact model suited for '
-          'tool-driven MCP interactions and low-resource assistant use cases.',
-      recommendation:
-          'Use this for low-memory devices when you still want practical MCP and assistant behavior.',
-      url:
-          'https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf',
-      fileName: 'qwen2.5-1.5b-instruct-q4_k_m.gguf',
-      sizeBytes: 1000000000, // ~0.93 GB
-      categories: [
-        ModelCategory.general,
-        ModelCategory.writing,
-        ModelCategory.code,
-        ModelCategory.agent,
-      ],
-    ),
-
     // Qwen3.5 4B Distilled - Strongest quality among distilled Qwen options
     AIModel(
       id: 'qwen35-4b-claude46-distilled-v2-q4km',
@@ -557,6 +511,52 @@ class ModelManager {
       fileName: 'functiongemma-270m-it-Q4_K_M.gguf',
       sizeBytes: 188743680, // ~180 MB
       categories: [ModelCategory.agent],
+    ),
+
+    // Llama 3.2 3B Instruct - compact all-rounder with MCP readiness
+    AIModel(
+      id: 'llama32-3b-instruct-q3km',
+      name: 'Llama 3.2 3B Instruct',
+      shortDescription:
+          'Compact Llama model for agent workflows, drafting, and everyday tasks.',
+      description:
+          'Llama 3.2 3B Instruct (GGUF by Unsloth) - efficient on-device model '
+          'for general chat, lightweight code help, and MCP-assisted workflows.',
+      recommendation:
+          'Choose this when you want a balanced 3B model for both standard chat and MCP actions.',
+      url:
+          'https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q3_K_M.gguf',
+      fileName: 'Llama-3.2-3B-Instruct-Q3_K_M.gguf',
+      sizeBytes: 1830000000, // ~1.70 GB
+      categories: [
+        ModelCategory.general,
+        ModelCategory.writing,
+        ModelCategory.code,
+        ModelCategory.agent,
+      ],
+    ),
+
+    // Qwen2.5 1.5B Instruct - lightweight assistant and MCP-capable option
+    AIModel(
+      id: 'qwen25-15b-instruct-q4km',
+      name: 'Qwen2.5 1.5B Instruct',
+      shortDescription:
+          'Fast lightweight Qwen model for MCP actions, notes, and quick coding tasks.',
+      description:
+          'Alibaba Qwen2.5 1.5B Instruct (GGUF) - compact model suited for '
+          'tool-driven MCP interactions and low-resource assistant use cases.',
+      recommendation:
+          'Use this for low-memory devices when you still want practical MCP and assistant behavior.',
+      url:
+          'https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf',
+      fileName: 'qwen2.5-1.5b-instruct-q4_k_m.gguf',
+      sizeBytes: 1000000000, // ~0.93 GB
+      categories: [
+        ModelCategory.general,
+        ModelCategory.writing,
+        ModelCategory.code,
+        ModelCategory.agent,
+      ],
     ),
 
     // Gemma 2B - General purpose small model
