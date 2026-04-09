@@ -125,11 +125,7 @@ fn prepare_messages_for_chat(messages: &[(String, String)]) -> ChatModePreparati
     }
 }
 
-fn build_sampler(
-    state: &ModelState,
-    grammar: Option<&str>,
-    seed: u32,
-) -> Result<LlamaSampler> {
+fn build_sampler(state: &ModelState, grammar: Option<&str>, seed: u32) -> Result<LlamaSampler> {
     let mut samplers = Vec::new();
 
     if let Some(grammar_str) = grammar {
@@ -1172,11 +1168,8 @@ mod tests {
     #[test]
     fn test_fallback_uses_gemma_formatter_for_gemma4() {
         let messages = vec![("user".to_string(), "Test".to_string())];
-        let prompt = format_chat_prompt_fallback(
-            &messages,
-            ModelType::Phi4,
-            "gemma-4-e2b-it-q4_k_m.gguf",
-        );
+        let prompt =
+            format_chat_prompt_fallback(&messages, ModelType::Phi4, "gemma-4-e2b-it-q4_k_m.gguf");
         assert!(prompt.contains("<start_of_turn>user\nTest<end_of_turn>"));
     }
 
@@ -1187,7 +1180,10 @@ mod tests {
                 "system".to_string(),
                 "You are a helpful general assistant".to_string(),
             ),
-            ("user".to_string(), "Write an essay on climate change".to_string()),
+            (
+                "user".to_string(),
+                "Write an essay on climate change".to_string(),
+            ),
         ];
 
         let prepared = prepare_messages_for_chat(&messages);
@@ -1214,7 +1210,10 @@ mod tests {
                     crate::mcp::MCP_MODE_SENTINEL
                 ),
             ),
-            ("user".to_string(), "Create a file called todo.md".to_string()),
+            (
+                "user".to_string(),
+                "Create a file called todo.md".to_string(),
+            ),
         ];
 
         let prepared = prepare_messages_for_chat(&messages);
@@ -1223,16 +1222,12 @@ mod tests {
         assert!(prepared.messages.len() >= 3);
         assert_eq!(prepared.messages[0].0, "system");
         assert!(prepared.messages[1].1.contains("AVAILABLE TOOLS:"));
-        assert!(
-            prepared.messages[1]
-                .1
-                .contains("Format: {\"tool\": \"tool_name\", \"args\": { ... }}")
-        );
-        assert!(
-            prepared
-                .messages
-                .iter()
-                .all(|(_, content)| !content.contains(crate::mcp::MCP_MODE_SENTINEL))
-        );
+        assert!(prepared.messages[1]
+            .1
+            .contains("Format: {\"tool\": \"tool_name\", \"args\": { ... }}"));
+        assert!(prepared
+            .messages
+            .iter()
+            .all(|(_, content)| !content.contains(crate::mcp::MCP_MODE_SENTINEL)));
     }
 }
