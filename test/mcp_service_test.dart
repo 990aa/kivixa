@@ -456,7 +456,7 @@ Sure, I can do that.
 
     test('parses args payload with escaped multiline content', () {
       const response =
-          '{"tool":"write_file","args":{"path":"sandbox/changes.md","content":"Line 1\\nLine 2 with \\"quotes\\"","append":false}}';
+          r'{"tool":"write_file","args":{"path":"sandbox/changes.md","content":"Line 1\nLine 2 with \"quotes\"","append":false}}';
 
       final parsed = service.parseToolCall(response);
 
