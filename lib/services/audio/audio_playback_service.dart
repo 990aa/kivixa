@@ -338,15 +338,15 @@ class AudioPlaybackService {
       if (_pausedBackend == _PlaybackBackend.mediaKit && _player != null) {
         _backend = _PlaybackBackend.mediaKit;
         unawaited(_player!.play());
+        _pausedBackend = _PlaybackBackend.none;
         _stateNotifier.value = PlaybackState.playing;
       } else if (_pausedBackend == _PlaybackBackend.flutterTts &&
           _lastSpokenText.isNotEmpty) {
+        _pausedBackend = _PlaybackBackend.none;
         unawaited(_speakWithPlatformTts(_lastSpokenText));
       } else {
         _stateNotifier.value = PlaybackState.stopped;
       }
-
-      _stateNotifier.value = PlaybackState.playing;
       debugPrint('AudioPlaybackService: Resumed');
     }
   }
