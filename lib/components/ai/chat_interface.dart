@@ -293,10 +293,20 @@ class AIChatController extends ChangeNotifier
 
   List<AIChatMessage> get messages => List.unmodifiable(_messages);
   bool get isGenerating => _isGenerating;
+
+  @override
   bool get isModelLoaded => _inferenceGateway.isModelLoaded;
+
+  @override
   bool get isInitializing => _isInitializing;
+
+  @override
   bool get isLoadingModel => _isLoadingModel;
+
+  @override
   String? get loadedModelName => _loadedModel?.name;
+
+  @override
   String? get loadedModelId => _loadedModelId;
   AIModel? get loadedModel => _loadedModel;
   String? get systemPrompt => _systemPrompt;
@@ -344,6 +354,7 @@ class AIChatController extends ChangeNotifier
   }
 
   /// Switch to a different model
+  @override
   Future<bool> switchModel(AIModel model) async {
     if (_isLoadingModel || _isGenerating) return false;
 
@@ -383,6 +394,7 @@ class AIChatController extends ChangeNotifier
   }
 
   /// Get list of downloaded models that can be switched to
+  @override
   Future<List<AIModel>> getAvailableModels() async {
     return await _modelGateway.getDownloadedModels();
   }

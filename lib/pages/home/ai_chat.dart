@@ -483,7 +483,7 @@ class _AIChatPageState extends State<AIChatPage> {
         switcher.isLoadingModel) {
       return Chip(
         label: Text(
-          switcher?.isLoadingModel == true ? 'Switching...' : 'Loading...',
+          (switcher?.isLoadingModel ?? false) ? 'Switching...' : 'Loading...',
         ),
         backgroundColor: colorScheme.secondaryContainer,
         labelStyle: TextStyle(color: colorScheme.onSecondaryContainer),
