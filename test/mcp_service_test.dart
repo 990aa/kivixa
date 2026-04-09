@@ -454,8 +454,7 @@ Sure, I can do that.
     });
 
     test('rejects unknown tool names from model output', () {
-      const response =
-          '{"tool":"shell_exec","args":{"command":"rm -rf /"}}';
+      const response = '{"tool":"shell_exec","args":{"command":"rm -rf /"}}';
 
       final parsed = service.parseToolCall(response);
 
