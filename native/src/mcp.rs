@@ -52,26 +52,36 @@ User: Schedule a meeting for tomorrow at 3 PM.
 Model: {"tool": "calendar_lua", "args": {"script": "return \"Schedule meeting tomorrow at 3 PM\"", "description": "Schedule a meeting for tomorrow at 3 PM"}}"#;
 
 /// Grammar guardrail forcing MCP output into a strict tool-call JSON shape.
-pub const MCP_TOOL_CALL_GBNF: &str = r#"root ::= "{" ws "\"tool\"" ws ":" ws tool_choice ws "," ws "\"args\"" ws ":" ws args_choice ws "}" ws
-
-ws ::= | " " ws | "\n" ws | "\t" ws
+pub const MCP_TOOL_CALL_GBNF: &str = r#"root ::= "{" ws "\"tool\"" ws ":" ws tool_choice ws "," ws "\"args\"" ws ":" ws object ws "}" ws
 
 tool_choice ::= "\"read_file\"" | "\"write_file\"" | "\"delete_file\"" | "\"create_folder\"" | "\"list_files\"" | "\"calendar_lua\"" | "\"timer_lua\"" | "\"export_markdown\""
 
-args_choice ::= "{}" | "{" ws kv_pairs ws "}"
-kv_pairs ::= string_kv | string_kv ws "," ws kv_pairs
-string_kv ::= "\"" key_chars "\"" ws ":" ws value
+object ::= "{" ws members ws "}"
+members ::= "" | member | member ws "," ws members
+member ::= string ws ":" ws value
 
-key_chars ::= key_char | key_char key_chars
-key_char ::= [a-zA-Z0-9_]
+array ::= "[" ws elements ws "]"
+elements ::= "" | value | value ws "," ws elements
 
-value ::= string_val | number_val | bool_val
-string_val ::= "\"" string_chars "\""
-string_chars ::= | string_char string_chars
-string_char ::= [^"\\] | "\\\"" | "\\\\" | "\\n" | "\\r" | "\\t"
-number_val ::= digit | digit number_val
+value ::= string | number | object | array | "true" | "false" | "null"
+
+string ::= "\"" string_body "\""
+string_body ::= "" | string_char string_body
+string_char ::= [^"\\\n\r\t] | "\\" escape
+escape ::= ["\\/bfnrt] | "u" hex hex hex hex
+hex ::= [0-9a-fA-F]
+
+number ::= int frac exp
+int ::= "-" int_digits | int_digits
+int_digits ::= "0" | [1-9] digits
+digits ::= "" | digit digits
 digit ::= [0-9]
-bool_val ::= "true" | "false""#;
+frac ::= "" | "." digits1
+digits1 ::= digit | digit digits1
+exp ::= "" | [eE] sign digits1
+sign ::= "" | "+" | "-"
+
+ws ::= "" | [ \t\n\r] ws"#;
 
 /// Combined MCP prompt block injected into backend system messages.
 pub fn mcp_tool_prompt_block() -> String {
