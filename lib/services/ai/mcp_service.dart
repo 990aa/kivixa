@@ -13,6 +13,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 
+/// Rust backend uses this sentinel to enable MCP-only grammar-constrained mode.
+const kMcpModeSentinel = '[[KIVIXA_MCP_MODE]]';
+
 /// Represents an MCP tool that can be executed
 class MCPToolInfo {
   final String name;
@@ -459,21 +462,39 @@ class MCPService {
   /// Parse a tool call from AI response JSON
   PendingToolCall? parseToolCall(String json) {
     try {
-      final decoded = jsonDecode(json) as Map<String, dynamic>;
+      final decodedRaw = jsonDecode(json);
+      if (decodedRaw is! Map) {
+        return null;
+      }
+
+      final decoded = Map<String, dynamic>.from(decodedRaw as Map);
 
       if (!decoded.containsKey('tool')) {
         return null;
       }
 
-      final tool = decoded['tool'] as String;
-      final parameters = (decoded['parameters'] as Map<String, dynamic>?) ?? {};
+      final tool = (decoded['tool'] as String?)?.trim();
+      if (tool == null || tool.isEmpty) {
+        return null;
+      }
+
+      if (!_tools.any((info) => info.name == tool)) {
+        return null;
+      }
+
+      final rawParameters = decoded['args'] ?? decoded['parameters'];
+      final parameters = rawParameters is Map
+          ? Map<String, dynamic>.from(rawParameters)
+          : <String, dynamic>{};
       final description = decoded['description'] as String? ?? 'Execute $tool';
 
       return PendingToolCall(
         tool: tool,
         parameters: parameters,
         description: description,
-        luaScript: parameters['script'] as String?,
+        luaScript: parameters['script'] is String
+            ? parameters['script'] as String
+            : null,
       );
     } catch (e) {
       debugPrint('Failed to parse tool call: $e');

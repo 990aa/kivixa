@@ -440,6 +440,28 @@ Sure, I can do that.
       expect(parsed.parameters['path'], 'sandbox/tmp_folder');
     });
 
+    test('parses args-based MCP backend tool call payload', () {
+      const response =
+          '{"tool":"write_file","args":{"path":"sandbox/demo.md","content":"hello","append":false}}';
+
+      final parsed = service.parseToolCall(response);
+
+      expect(parsed, isNotNull);
+      expect(parsed!.tool, 'write_file');
+      expect(parsed.parameters['path'], 'sandbox/demo.md');
+      expect(parsed.parameters['content'], 'hello');
+      expect(parsed.parameters['append'], isFalse);
+    });
+
+    test('rejects unknown tool names from model output', () {
+      const response =
+          '{"tool":"shell_exec","args":{"command":"rm -rf /"}}';
+
+      final parsed = service.parseToolCall(response);
+
+      expect(parsed, isNull);
+    });
+
     test('parses direct user instruction for create_folder template', () {
       const prompt = 'Use create_folder to create sandbox/tmp_folder.';
       final parsed = service.parseUserDirectedToolCall(prompt);

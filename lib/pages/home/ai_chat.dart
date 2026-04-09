@@ -47,6 +47,67 @@ const mcpToolPromptTemplates = <String, String>{
 };
 
 @visibleForTesting
+String buildMainAiSystemPrompt({String? initialContext}) {
+  final buffer = StringBuffer();
+  buffer.writeln(
+    'You are Kivixa AI, a helpful assistant integrated into a note-taking and '
+    'knowledge management application.',
+  );
+  buffer.writeln();
+  buffer.writeln(
+    'You can assist with any user request, including general knowledge, writing, '
+    'essays, brainstorming, coding, planning, and productivity tasks.',
+  );
+  buffer.writeln(
+    'Do not refuse a request only because it is not about notes or app features.',
+  );
+  buffer.writeln(
+    'Use workspace note context when relevant, but answer normally for unrelated prompts.',
+  );
+  buffer.writeln();
+  buffer.writeln(
+    'Be accurate, direct, and helpful. If information is uncertain, say so clearly.',
+  );
+
+  if (initialContext != null && initialContext.isNotEmpty) {
+    buffer.writeln();
+    buffer.writeln('Here is some context from the user\'s current note:');
+    buffer.writeln('---');
+    buffer.writeln(initialContext);
+    buffer.writeln('---');
+  }
+
+  return buffer.toString();
+}
+
+@visibleForTesting
+String buildMcpBasePrompt({String? initialContext}) {
+  final buffer = StringBuffer();
+  buffer.writeln(
+    'You are Kivixa AI, a helpful assistant integrated into a note-taking and '
+    'knowledge management application with advanced tool capabilities.',
+  );
+  buffer.writeln();
+  buffer.writeln('Your capabilities include:');
+  buffer.writeln('- Answering questions about the user\'s notes');
+  buffer.writeln('- Reading, writing, and managing files');
+  buffer.writeln('- Creating and organizing folders');
+  buffer.writeln('- Exporting content as markdown');
+  buffer.writeln('- Running calendar and timer scripts');
+  buffer.writeln('- Finding connections between topics');
+  buffer.writeln();
+
+  if (initialContext != null && initialContext.isNotEmpty) {
+    buffer.writeln('Here is some context from the user\'s current note:');
+    buffer.writeln('---');
+    buffer.writeln(initialContext);
+    buffer.writeln('---');
+  }
+
+  return buffer.toString();
+}
+
+@visibleForTesting
 String promptForMcpTool(String toolName) {
   return mcpToolPromptTemplates[toolName] ??
       'Use $toolName for this task and describe what you will do before executing it.';
@@ -122,33 +183,7 @@ class _AIChatPageState extends State<AIChatPage> {
   }
 
   String _buildSystemPrompt() {
-    final buffer = StringBuffer();
-    buffer.writeln(
-      'You are Kivixa AI, a helpful assistant integrated into a note-taking and '
-      'knowledge management application. You help users organize, understand, and '
-      'explore their notes and ideas.',
-    );
-    buffer.writeln();
-    buffer.writeln('Your capabilities include:');
-    buffer.writeln('- Answering questions about the user\'s notes');
-    buffer.writeln('- Summarizing content');
-    buffer.writeln('- Finding connections between topics');
-    buffer.writeln('- Helping with writing and brainstorming');
-    buffer.writeln('- Explaining concepts');
-    buffer.writeln();
-    buffer.writeln(
-      'Be concise, helpful, and friendly. If you don\'t know something, say so.',
-    );
-
-    if (widget.initialContext != null && widget.initialContext!.isNotEmpty) {
-      buffer.writeln();
-      buffer.writeln('Here is some context from the user\'s current note:');
-      buffer.writeln('---');
-      buffer.writeln(widget.initialContext);
-      buffer.writeln('---');
-    }
-
-    return buffer.toString();
+    return buildMainAiSystemPrompt(initialContext: widget.initialContext);
   }
 
   /// Initialize MCP controller for tool-enabled mode
@@ -199,29 +234,7 @@ class _AIChatPageState extends State<AIChatPage> {
 
   /// Build system prompt with MCP tool information
   String _buildMcpSystemPrompt() {
-    final buffer = StringBuffer();
-    buffer.writeln(
-      'You are Kivixa AI, a helpful assistant integrated into a note-taking and '
-      'knowledge management application with advanced tool capabilities.',
-    );
-    buffer.writeln();
-    buffer.writeln('Your capabilities include:');
-    buffer.writeln('- Answering questions about the user\'s notes');
-    buffer.writeln('- Reading, writing, and managing files');
-    buffer.writeln('- Creating and organizing folders');
-    buffer.writeln('- Exporting content as markdown');
-    buffer.writeln('- Running calendar and timer scripts');
-    buffer.writeln('- Finding connections between topics');
-    buffer.writeln();
-
-    if (widget.initialContext != null && widget.initialContext!.isNotEmpty) {
-      buffer.writeln('Here is some context from the user\'s current note:');
-      buffer.writeln('---');
-      buffer.writeln(widget.initialContext);
-      buffer.writeln('---');
-    }
-
-    return buffer.toString();
+    return buildMcpBasePrompt(initialContext: widget.initialContext);
   }
 
   Future<void> _checkModelStatus() async {
