@@ -388,7 +388,6 @@ fn generate_text_with_options(
 
     // Generate tokens
     let mut output_tokens = Vec::new();
-    let mut n_cur = tokens.len();
 
     let seed: u32 = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -397,7 +396,7 @@ fn generate_text_with_options(
 
     let mut sampler = build_sampler(state, grammar, seed)?;
 
-    for _ in 0..max_tokens {
+    for n_cur in (tokens.len()..).take(max_tokens as usize) {
         let new_token = sampler.sample(&ctx, batch.n_tokens() - 1);
 
         // Check for end of generation
@@ -411,7 +410,6 @@ fn generate_text_with_options(
         // Prepare next batch
         batch.clear();
         batch.add(new_token, n_cur as i32, &[0], true)?;
-        n_cur += 1;
 
         ctx.decode(&mut batch)
             .map_err(|e| anyhow!("Failed to decode: {:?}", e))?;
