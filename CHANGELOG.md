@@ -521,7 +521,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added two new downloadable on-device AI models to Model Manager:
-  - **Llama 3.2 3B Instruct** (`Llama-3.2-3B-Instruct-Q3_K_M.gguf`)
+  - **Llama 3.2 3B Instruct** (`Llama-3.2-3B-Instruct-Q4_K_M.gguf`)
   - **Qwen2.5 1.5B Instruct** (`qwen2.5-1.5b-instruct-q4_k_m.gguf`)
 - Added both new models to the **MCP / Agent Brain** category so they are available in agent-focused filtering.
 - Added shared model-picker support directly in MCP chat surfaces using the same `ModelSwitcherChip` UI/interaction pattern used in standard AI chat.

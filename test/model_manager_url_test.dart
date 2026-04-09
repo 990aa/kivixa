@@ -101,9 +101,9 @@ void main() {
 
       expect(
         llama32.url,
-        'https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q3_K_M.gguf',
+        'https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf',
       );
-      expect(llama32.fileName, 'Llama-3.2-3B-Instruct-Q3_K_M.gguf');
+      expect(llama32.fileName, 'Llama-3.2-3B-Instruct-Q4_K_M.gguf');
 
       expect(
         qwen15b.url,
@@ -394,9 +394,9 @@ void main() {
 
       expect(
         llamaTask.url,
-        'https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q3_K_M.gguf',
+        'https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf',
       );
-      expect(llamaTask.filename, 'Llama-3.2-3B-Instruct-Q3_K_M.gguf');
+      expect(llamaTask.filename, 'Llama-3.2-3B-Instruct-Q4_K_M.gguf');
       expect(llamaTask.metaData, 'llama32-3b-instruct-q3km');
 
       expect(
