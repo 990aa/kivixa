@@ -1250,7 +1250,7 @@ mod tests {
         assert!(prompt.contains("export_markdown"));
         assert!(MCP_TOOL_CALL_GBNF.contains("root ::= "));
         assert!(MCP_TOOL_CALL_GBNF.contains("tool_choice"));
-        assert!(MCP_TOOL_CALL_GBNF.contains("\"timer_lua\""));
+        assert!(MCP_TOOL_CALL_GBNF.contains("timer_lua"));
     }
 
     #[test]

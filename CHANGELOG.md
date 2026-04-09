@@ -534,5 +534,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated README model list to include Llama 3.2 3B Instruct and Qwen2.5 1.5B Instruct.
 - Updated AI model credits/attributions in README for the new model sources.
+- MCP mode is now isolated in native backend inference using a dedicated mode sentinel so strict tool-calling guidance is only applied in MCP sessions.
+- MCP backend now injects a lean tool schema + few-shot tool-call examples and enforces an MCP-only grammar-constrained JSON output path for supported local models.
+- Main AI chat system prompting is now explicitly unrestricted for general-purpose requests (including essays, writing, coding, and non-note prompts) while still using note context when relevant.
+- MCP tool-call parsing now supports both `{"tool": ..., "parameters": ...}` and `{"tool": ..., "args": ...}` payload variants while rejecting unknown tool names.
+
+### Fixed
+- Floating assistant MCP initialization no longer fails in test/runtime contexts where `FileManager.documentsDirectory` has not been initialized yet (safe fallback handling).
+
+### Added
+- Added Rust tests for:
+  - MCP-mode message preparation and sentinel stripping in native inference.
+  - Args-based MCP tool-call parsing compatibility.
+  - MCP prompt-block and grammar constant integrity checks.
+- Added Dart tests for:
+  - unrestricted main AI system prompt behavior and context inclusion,
+  - args-based MCP tool-call parsing,
+  - unknown tool rejection in MCP parser.
 
 ---
