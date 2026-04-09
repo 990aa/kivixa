@@ -224,6 +224,18 @@ class AIChatMessage {
   };
 }
 
+/// Shared contract for model-switch capable chat controllers.
+abstract class ModelSwitcherController extends Listenable {
+  bool get isInitializing;
+  bool get isLoadingModel;
+  bool get isModelLoaded;
+  String? get loadedModelName;
+  String? get loadedModelId;
+
+  Future<List<AIModel>> getAvailableModels();
+  Future<bool> switchModel(AIModel model);
+}
+
 String buildChatConversationExportJson(
   List<AIChatMessage> messages, {
   required String sessionType,
@@ -246,7 +258,8 @@ String buildChatConversationExportJson(
 }
 
 /// Controller for managing chat state
-class AIChatController extends ChangeNotifier {
+class AIChatController extends ChangeNotifier
+  implements ModelSwitcherController {
   final ChatInferenceGateway _inferenceGateway;
   final ChatModelGateway _modelGateway;
   final ChatContextGateway _contextGateway;
@@ -1722,7 +1735,7 @@ class _SuggestionChip extends StatelessWidget {
 ///
 /// This is used by both the main AI chat header and MCP surfaces.
 class ModelSwitcherChip extends StatefulWidget {
-  final AIChatController controller;
+  final ModelSwitcherController controller;
   final bool isCompact;
 
   const ModelSwitcherChip({
