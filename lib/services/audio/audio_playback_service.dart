@@ -4,15 +4,13 @@
 
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:media_kit/media_kit.dart';
-import 'package:path_provider/path_provider.dart';
-
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:path_provider/path_provider.dart';
 
 enum _PlaybackBackend { none, mediaKit, flutterTts }
 
@@ -506,11 +504,11 @@ class AudioPlaybackService {
       return;
     }
 
-    unawaited(
-      file.delete().catchError((_) {
-        // Ignore cleanup failures for temporary files.
-      }),
-    );
+    try {
+      file.deleteSync();
+    } catch (_) {
+      // Ignore cleanup failures for temporary files.
+    }
   }
 
   bool _isMostlySilent(Float32List samples) {
