@@ -325,7 +325,9 @@ void main() {
     });
 
     test('agent category includes new Llama 3.2 and Qwen2.5 1.5B entries', () {
-      final agentModels = ModelManager.getModelsForCategory(ModelCategory.agent);
+      final agentModels = ModelManager.getModelsForCategory(
+        ModelCategory.agent,
+      );
 
       expect(agentModels.any((m) => m.id == 'function-gemma-270m'), true);
       expect(agentModels.any((m) => m.id == 'llama32-3b-instruct-q3km'), true);
