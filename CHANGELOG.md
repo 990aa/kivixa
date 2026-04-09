@@ -545,6 +545,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.8.1] - 2026-04-09
 
+### Added
+- Added platform speech fallback dependencies for dictation/read-aloud (`speech_to_text`, `flutter_tts`, and `record`) plus required Android/iOS microphone and speech permission metadata.
+- Added MCP regression tests for escaped multiline `args` payload parsing and Function Gemma-style direct `write_file` paragraph prompts.
+
 ### Changed
+- Audio dictation now uses real microphone streaming via `AudioRecordingService` and forwards PCM chunks to `AudioNeuralEngine` instead of simulated timer-based samples.
+- Read-aloud playback now uses native synthesis-to-WAV playback first, with automatic platform TTS fallback when native synthesis is unavailable or silent.
+- `AudioNeuralEngine` initialization now supports fallback-only mode when native Rust audio is unavailable, with lazy speech recognizer setup and safer teardown.
+- Read-aloud sentence playback in editors now routes through the shared playback service so fallback TTS is consistently applied.
+- MCP direct prompt handling now materializes implicit content for natural-language write-file requests (for example, paragraph-style prompts) before tool execution.
+- Native MCP grammar was upgraded to a more robust JSON-safe grammar for escaped strings, nested objects/arrays, and whitespace variations.
+
+### Fixed
+- MCP grammar sampler initialization failures no longer abort response generation; inference now logs a warning and falls back to unconstrained sampling.
+- Resolved strict clippy findings in native/native_audio Rust code paths so `cargo check`, `cargo clippy`, `cargo fmt`, `cargo test`, and `cargo audit` pass in both crates.
 
 ---
