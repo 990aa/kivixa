@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Kivixa uses the microphone for voice dictation and audio notes.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Kivixa uses speech recognition to transcribe your voice into text.</string>
 </dict>
 </plist>
