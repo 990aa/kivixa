@@ -42,7 +42,7 @@ class AudioPlaybackService {
   final _speedNotifier = ValueNotifier<double>(1.0);
 
   final _positionController = StreamController<Duration>.broadcast();
-  final _tts = FlutterTts();
+  FlutterTts? _tts;
   Player? _player;
   StreamSubscription<Duration>? _positionSubscription;
   StreamSubscription<Duration>? _durationSubscription;
@@ -213,15 +213,15 @@ class AudioPlaybackService {
 
     if (voiceId != null && voiceId.isNotEmpty) {
       try {
-        await _tts.setVoice({'name': voiceId});
+        await _tts!.setVoice({'name': voiceId});
       } catch (e) {
         debugPrint('AudioPlaybackService: Voice selection warning: $e');
       }
     }
 
-    await _tts.setVolume(_volumeNotifier.value);
-    await _tts.setSpeechRate(_toFlutterTtsRate(_speedNotifier.value));
-    await _tts.speak(text);
+    await _tts!.setVolume(_volumeNotifier.value);
+    await _tts!.setSpeechRate(_toFlutterTtsRate(_speedNotifier.value));
+    await _tts!.speak(text);
   }
 
   Future<void> _ensurePlayerInitialized() async {
@@ -276,20 +276,23 @@ class AudioPlaybackService {
       return;
     }
 
+    _tts ??= FlutterTts();
+    final tts = _tts!;
+
     try {
-      await _tts.awaitSpeakCompletion(true);
+      await tts.awaitSpeakCompletion(true);
     } catch (_) {
       // Some platforms ignore await-speak-completion; handlers below still keep state coherent.
     }
 
-    _tts.setStartHandler(() {
+    tts.setStartHandler(() {
       if (_backend == _PlaybackBackend.flutterTts) {
         _stateNotifier.value = PlaybackState.playing;
         _ttsStartedAt ??= DateTime.now();
       }
     });
 
-    _tts.setCompletionHandler(() {
+    tts.setCompletionHandler(() {
       if (_backend == _PlaybackBackend.flutterTts) {
         if (_durationNotifier.value == Duration.zero && _ttsStartedAt != null) {
           _durationNotifier.value = DateTime.now().difference(_ttsStartedAt!);
@@ -302,7 +305,7 @@ class AudioPlaybackService {
       }
     });
 
-    _tts.setErrorHandler((message) {
+    tts.setErrorHandler((message) {
       if (_backend == _PlaybackBackend.flutterTts) {
         debugPrint('AudioPlaybackService: Platform TTS error: $message');
         _stateNotifier.value = PlaybackState.stopped;
@@ -321,7 +324,7 @@ class AudioPlaybackService {
       if (_backend == _PlaybackBackend.mediaKit && _player != null) {
         unawaited(_player!.pause());
       } else if (_backend == _PlaybackBackend.flutterTts) {
-        unawaited(_tts.stop());
+        unawaited(_tts?.stop());
         _backend = _PlaybackBackend.none;
       }
 
@@ -360,7 +363,7 @@ class AudioPlaybackService {
     if (activeBackend == _PlaybackBackend.mediaKit && _player != null) {
       unawaited(_player!.stop());
     } else if (activeBackend == _PlaybackBackend.flutterTts) {
-      unawaited(_tts.stop());
+      unawaited(_tts?.stop());
     }
 
     _deleteTemporaryWavFile(_currentTempWavPath);
@@ -396,7 +399,7 @@ class AudioPlaybackService {
     if (_backend == _PlaybackBackend.mediaKit && _player != null) {
       unawaited(_player!.setVolume(_volumeNotifier.value * 100.0));
     } else if (_backend == _PlaybackBackend.flutterTts) {
-      unawaited(_tts.setVolume(_volumeNotifier.value));
+      unawaited(_tts?.setVolume(_volumeNotifier.value));
     }
   }
 
@@ -407,7 +410,7 @@ class AudioPlaybackService {
     if (_backend == _PlaybackBackend.mediaKit && _player != null) {
       unawaited(_player!.setRate(_speedNotifier.value));
     } else if (_backend == _PlaybackBackend.flutterTts) {
-      unawaited(_tts.setSpeechRate(_toFlutterTtsRate(_speedNotifier.value)));
+      unawaited(_tts?.setSpeechRate(_toFlutterTtsRate(_speedNotifier.value)));
     }
   }
 
