@@ -467,7 +467,7 @@ class MCPService {
         return null;
       }
 
-      final decoded = Map<String, dynamic>.from(decodedRaw as Map);
+      final decoded = Map<String, dynamic>.from(decodedRaw);
 
       if (!decoded.containsKey('tool')) {
         return null;
