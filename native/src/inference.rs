@@ -133,9 +133,15 @@ fn build_sampler(
     let mut samplers = Vec::new();
 
     if let Some(grammar_str) = grammar {
-        let grammar_sampler = LlamaSampler::grammar(&state.model, grammar_str, "root")
-            .map_err(|e| anyhow!("Failed to initialize grammar sampler: {}", e))?;
-        samplers.push(grammar_sampler);
+        match LlamaSampler::grammar(&state.model, grammar_str, "root") {
+            Ok(grammar_sampler) => samplers.push(grammar_sampler),
+            Err(e) => {
+                log::warn!(
+                    "Failed to initialize grammar sampler: {}. Falling back to unconstrained sampling.",
+                    e
+                );
+            }
+        }
     }
 
     samplers.push(LlamaSampler::temp(state.config.temperature.max(0.0)));
