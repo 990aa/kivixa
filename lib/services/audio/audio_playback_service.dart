@@ -58,7 +58,7 @@ class AudioPlaybackService {
   var _pausedBackend = _PlaybackBackend.none;
   var _ttsConfigured = false;
   String? _currentTempWavPath;
-  String _lastSpokenText = '';
+  var _lastSpokenText = '';
   DateTime? _ttsStartedAt;
 
   /// Current playback state
@@ -441,7 +441,7 @@ class AudioPlaybackService {
     final byteData = ByteData.sublistView(bytes);
 
     for (var i = 0; i < samples.length; i++) {
-      final value = (samples[i].clamp(-1.0, 1.0) as double);
+      final value = samples[i].clamp(-1.0, 1.0);
       final pcm = (value * 32767.0).round();
       byteData.setInt16(i * 2, pcm, Endian.little);
     }

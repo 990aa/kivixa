@@ -77,7 +77,7 @@ class AudioRecordingService {
   StreamSubscription<Uint8List>? _recordingSubscription;
   DateTime? _recordingStartTime;
   AudioFormatConfig _config = AudioFormatConfig.whisper;
-  BytesBuilder _recordedBytes = BytesBuilder(copy: false);
+  var _recordedBytes = BytesBuilder(copy: false);
   var _isVirtualRecording = false;
 
   /// Current recording state
