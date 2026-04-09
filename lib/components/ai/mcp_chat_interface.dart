@@ -20,6 +20,7 @@ class MCPChatInterface extends StatefulWidget {
   final bool showHeader;
   final String title;
   final ValueListenable<String?>? promptPrefillListenable;
+  final ModelSwitcherController? modelSwitcherController;
   final VoidCallback? onClear;
   final Future<void> Function(String jsonPayload)? onExportChat;
   final Future<List<ChatAttachment>> Function()? onPickAttachments;
@@ -32,6 +33,7 @@ class MCPChatInterface extends StatefulWidget {
     this.showHeader = true,
     this.title = 'Kivixa MCP Assistant',
     this.promptPrefillListenable,
+    this.modelSwitcherController,
     this.onClear,
     this.onExportChat,
     this.onPickAttachments,
@@ -502,6 +504,35 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                if (widget.modelSwitcherController != null) ...[
+                  const SizedBox(width: 12),
+                  if (widget.modelSwitcherController!.isInitializing ||
+                      widget.modelSwitcherController!.isLoadingModel)
+                    Chip(
+                      label: Text(
+                        widget.modelSwitcherController!.isLoadingModel
+                            ? 'Switching...'
+                            : 'Loading...',
+                      ),
+                      backgroundColor: colorScheme.secondaryContainer,
+                      labelStyle: TextStyle(
+                        color: colorScheme.onSecondaryContainer,
+                      ),
+                      avatar: SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colorScheme.onSecondaryContainer,
+                        ),
+                      ),
+                    )
+                  else if (widget.modelSwitcherController!.isModelLoaded)
+                    ModelSwitcherChip(
+                      controller: widget.modelSwitcherController!,
+                      isCompact: true,
+                    ),
+                ],
                 const Spacer(),
                 if (messages.isNotEmpty)
                   IconButton(
