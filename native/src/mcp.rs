@@ -12,6 +12,75 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
+/// Sentinel inserted into MCP system prompts so the Rust backend can
+/// deterministically switch into tool-call-only generation mode.
+pub const MCP_MODE_SENTINEL: &str = "[[KIVIXA_MCP_MODE]]";
+
+/// Lean MCP schema optimized for small local models.
+pub const MCP_TOOL_SCHEMA_LEAN: &str = r#"AVAILABLE TOOLS:
+1. read_file: {"path": string}
+2. write_file: {"path": string, "content": string, "append": boolean}
+3. delete_file: {"path": string}
+4. create_folder: {"path": string}
+5. list_files: {"path": string, "recursive": boolean}
+6. calendar_lua: {"script": string, "description": string}
+7. timer_lua: {"script": string, "description": string}
+8. export_markdown: {"path": string, "content": string, "append": boolean}"#;
+
+/// Few-shot instruction block used only in MCP mode.
+pub const MCP_FEW_SHOT_SYSTEM_PROMPT: &str = r#"You are a sandboxed AI assistant.
+When the user makes a request, output ONLY one valid JSON tool call.
+Do not include conversational text, pleasantries, or explanations.
+
+Format: {"tool": "tool_name", "args": { ... }}
+
+EXAMPLES:
+
+User: Can you check what's in my notes folder?
+Model: {"tool": "list_files", "args": {"path": "", "recursive": false}}
+
+User: Set a timer for my 20 minute focus session.
+Model: {"tool": "timer_lua", "args": {"script": "return \"Start a 1200 second timer labeled focus session\"", "description": "Start a 20 minute focus session timer"}}
+
+User: Make a new note called ideas.md and write down app architecture.
+Model: {"tool": "write_file", "args": {"path": "ideas.md", "content": "app architecture", "append": false}}
+
+User: Trash that old schedule file.
+Model: {"tool": "delete_file", "args": {"path": "schedule.md"}}
+
+User: Schedule a meeting for tomorrow at 3 PM.
+Model: {"tool": "calendar_lua", "args": {"script": "return \"Schedule meeting tomorrow at 3 PM\"", "description": "Schedule a meeting for tomorrow at 3 PM"}}"#;
+
+/// Grammar guardrail forcing MCP output into a strict tool-call JSON shape.
+pub const MCP_TOOL_CALL_GBNF: &str = r#"root ::= "{" ws "\"tool\"" ws ":" ws tool_choice ws "," ws "\"args\"" ws ":" ws args_choice ws "}" ws
+
+ws ::= | " " ws | "\n" ws | "\t" ws
+
+tool_choice ::= "\"read_file\"" | "\"write_file\"" | "\"delete_file\"" | "\"create_folder\"" | "\"list_files\"" | "\"calendar_lua\"" | "\"timer_lua\"" | "\"export_markdown\""
+
+args_choice ::= "{}" | "{" ws kv_pairs ws "}"
+kv_pairs ::= string_kv | string_kv ws "," ws kv_pairs
+string_kv ::= "\"" key_chars "\"" ws ":" ws value
+
+key_chars ::= key_char | key_char key_chars
+key_char ::= [a-zA-Z0-9_]
+
+value ::= string_val | number_val | bool_val
+string_val ::= "\"" string_chars "\""
+string_chars ::= | string_char string_chars
+string_char ::= [^"\\] | "\\\"" | "\\\\" | "\\n" | "\\r" | "\\t"
+number_val ::= digit | digit number_val
+digit ::= [0-9]
+bool_val ::= "true" | "false""#;
+
+/// Combined MCP prompt block injected into backend system messages.
+pub fn mcp_tool_prompt_block() -> String {
+    format!(
+        "{}\n\n{}\n\nRespond with JSON only.",
+        MCP_TOOL_SCHEMA_LEAN, MCP_FEW_SHOT_SYSTEM_PROMPT
+    )
+}
+
 // Tool Definitions
 
 /// Available MCP tools
@@ -669,7 +738,40 @@ pub fn get_tool_schemas() -> String {
 
 /// Parse a tool call from JSON
 pub fn parse_tool_call(json: &str) -> Result<MCPToolCall> {
-    serde_json::from_str(json).map_err(|e| anyhow!("Failed to parse tool call: {}", e))
+    if let Ok(parsed) = serde_json::from_str::<MCPToolCall>(json) {
+        return Ok(parsed);
+    }
+
+    let decoded: serde_json::Value =
+        serde_json::from_str(json).map_err(|e| anyhow!("Failed to parse tool call: {}", e))?;
+    let obj = decoded
+        .as_object()
+        .ok_or_else(|| anyhow!("Tool call must be a JSON object"))?;
+
+    let tool = obj
+        .get("tool")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| anyhow!("Tool call missing required string field 'tool'"))?
+        .to_string();
+
+    let args = obj
+        .get("args")
+        .cloned()
+        .or_else(|| obj.get("parameters").cloned())
+        .unwrap_or_else(|| serde_json::json!({}));
+
+    let description = obj
+        .get("description")
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string())
+        .unwrap_or_else(|| format!("Execute {}", tool));
+
+    Ok(MCPToolCall {
+        tool,
+        parameters_json: serde_json::to_string(&args)
+            .map_err(|e| anyhow!("Failed to serialize tool arguments: {}", e))?,
+        description,
+    })
 }
 
 /// Execute a tool call
