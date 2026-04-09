@@ -170,7 +170,10 @@ void main() {
         initialContext: 'Draft topic: climate essay outline',
       );
 
-      expect(prompt, contains('Here is some context from the user\'s current note'));
+      expect(
+        prompt,
+        contains('Here is some context from the user\'s current note'),
+      );
       expect(prompt, contains('Draft topic: climate essay outline'));
     });
   });
