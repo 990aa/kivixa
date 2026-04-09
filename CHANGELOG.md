@@ -542,20 +542,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Floating assistant MCP initialization no longer fails in test/runtime contexts where `FileManager.documentsDirectory` has not been initialized yet (safe fallback handling).
 
-### Added
-- Added Rust tests for:
-  - MCP-mode message preparation and sentinel stripping in native inference.
-  - Args-based MCP tool-call parsing compatibility.
-  - MCP prompt-block and grammar constant integrity checks.
-- Added Dart tests for:
-  - unrestricted main AI system prompt behavior and context inclusion,
-  - args-based MCP tool-call parsing,
-  - unknown tool rejection in MCP parser.
-
 ---
 ## [0.8.1] - 2026-04-09
 
 ### Changed
-- Version bump to 0.8.1
 
 ---
