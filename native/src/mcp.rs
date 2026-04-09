@@ -1240,8 +1240,7 @@ mod tests {
 
     #[test]
     fn test_tool_call_parsing_supports_args_format() {
-        let json =
-            r#"{"tool":"create_folder","args":{"path":"sandbox/tmp"},"description":"Create folder"}"#;
+        let json = r#"{"tool":"create_folder","args":{"path":"sandbox/tmp"},"description":"Create folder"}"#;
 
         let call = parse_tool_call(json).unwrap();
         assert_eq!(call.tool, "create_folder");
@@ -1254,7 +1253,7 @@ mod tests {
 
     #[test]
     fn test_tool_call_parsing_handles_escaped_multiline_args() {
-        let json = r#"{"tool":"write_file","args":{"path":"sandbox/changes.md","content":"Line 1\\nLine 2 with \\\"quoted\\\" text","append":false}}"#;
+        let json = r#"{"tool":"write_file","args":{"path":"sandbox/changes.md","content":"Line 1\nLine 2 with \"quoted\" text","append":false}}"#;
 
         let call = parse_tool_call(json).unwrap();
         assert_eq!(call.tool, "write_file");
