@@ -482,15 +482,17 @@ class AudioNeuralEngine {
               isFinal: result.finalResult,
               startTime: 0.0,
               endTime: elapsedSeconds,
-              language: result.localeId,
+              language: null,
             ),
           );
         },
-        listenMode: stt.ListenMode.dictation,
-        partialResults: true,
-        cancelOnError: true,
         pauseFor: const Duration(seconds: 5),
         listenFor: const Duration(minutes: 10),
+        listenOptions: stt.SpeechListenOptions(
+          listenMode: stt.ListenMode.dictation,
+          partialResults: true,
+          cancelOnError: true,
+        ),
       );
 
       _speechFallbackListening = true;
