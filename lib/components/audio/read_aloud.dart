@@ -250,25 +250,21 @@ class ReadAloudController extends ChangeNotifier {
     _progress = _currentSentenceIndex / _sentences.length;
     notifyListeners();
 
-    final result = await _engine.synthesize(
-      _currentSentence,
-      voiceId: _voiceId,
-    );
-    if (result != null) {
-      await _playback.playSynthesis(result);
+    await _playback.speak(_currentSentence, voiceId: _voiceId);
 
-      // Wait for completion
-      while (_playback.state.value == PlaybackState.playing && _isPlaying) {
-        await Future.delayed(const Duration(milliseconds: 50));
-      }
+    // Wait for completion
+    while (_isPlaying &&
+        (_playback.state.value == PlaybackState.loading ||
+            _playback.state.value == PlaybackState.playing)) {
+      await Future.delayed(const Duration(milliseconds: 50));
+    }
 
-      // Move to next sentence if still playing
-      if (_isPlaying && _currentSentenceIndex < _sentences.length - 1) {
-        _currentSentenceIndex++;
-        await _playCurrentSentence();
-      } else if (_currentSentenceIndex >= _sentences.length - 1) {
-        stop();
-      }
+    // Move to next sentence if still playing
+    if (_isPlaying && _currentSentenceIndex < _sentences.length - 1) {
+      _currentSentenceIndex++;
+      await _playCurrentSentence();
+    } else if (_currentSentenceIndex >= _sentences.length - 1) {
+      stop();
     }
   }
 
