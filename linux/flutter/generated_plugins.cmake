@@ -12,6 +12,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   objectbox_flutter_libs
   open_file_linux
   printing
+  record_linux
   screen_retriever_linux
   super_native_extensions
   url_launcher_linux
