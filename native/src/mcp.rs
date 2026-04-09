@@ -1157,6 +1157,12 @@ mod tests {
             classify_task("List files in the notes folder"),
             TaskCategory::ToolUse
         );
+        assert_eq!(
+            classify_task(
+                "Use write_file to create sandbox/changes.md and write about a paragraph on changes around us"
+            ),
+            TaskCategory::ToolUse
+        );
 
         // Code generation
         assert_eq!(
@@ -1243,6 +1249,28 @@ mod tests {
         assert_eq!(
             params.get("path").and_then(|value| value.as_str()),
             Some("sandbox/tmp")
+        );
+    }
+
+    #[test]
+    fn test_tool_call_parsing_handles_escaped_multiline_args() {
+        let json = r#"{"tool":"write_file","args":{"path":"sandbox/changes.md","content":"Line 1\\nLine 2 with \\\"quoted\\\" text","append":false}}"#;
+
+        let call = parse_tool_call(json).unwrap();
+        assert_eq!(call.tool, "write_file");
+
+        let params = call.get_parameters();
+        assert_eq!(
+            params.get("path").and_then(|value| value.as_str()),
+            Some("sandbox/changes.md")
+        );
+        assert_eq!(
+            params.get("content").and_then(|value| value.as_str()),
+            Some("Line 1\nLine 2 with \"quoted\" text")
+        );
+        assert_eq!(
+            params.get("append").and_then(|value| value.as_bool()),
+            Some(false)
         );
     }
 
