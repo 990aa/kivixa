@@ -477,7 +477,9 @@ class _AIChatPageState extends State<AIChatPage> {
   Widget _buildMcpModelStatusChip(ThemeData theme, ColorScheme colorScheme) {
     final switcher = _mcpModelSwitcherController;
 
-    if (switcher == null || switcher.isInitializing || switcher.isLoadingModel) {
+    if (switcher == null ||
+        switcher.isInitializing ||
+        switcher.isLoadingModel) {
       return Chip(
         label: Text(
           switcher?.isLoadingModel == true ? 'Switching...' : 'Loading...',

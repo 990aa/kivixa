@@ -259,7 +259,7 @@ String buildChatConversationExportJson(
 
 /// Controller for managing chat state
 class AIChatController extends ChangeNotifier
-  implements ModelSwitcherController {
+    implements ModelSwitcherController {
   final ChatInferenceGateway _inferenceGateway;
   final ChatModelGateway _modelGateway;
   final ChatContextGateway _contextGateway;
