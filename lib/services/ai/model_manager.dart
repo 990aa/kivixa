@@ -525,8 +525,9 @@ class ModelManager {
       recommendation:
           'Choose this when you want a balanced 3B model for both standard chat and MCP actions.',
       url:
-          'https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q3_K_M.gguf',
-      fileName: 'Llama-3.2-3B-Instruct-Q3_K_M.gguf',
+          'https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf',
+          
+      fileName: 'Llama-3.2-3B-Instruct-Q4_K_M.gguf',
       sizeBytes: 1830000000, // ~1.70 GB
       categories: [
         ModelCategory.general,
