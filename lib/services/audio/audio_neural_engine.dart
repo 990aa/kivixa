@@ -441,6 +441,10 @@ class AudioNeuralEngine {
     );
     setVadThreshold(configuredThreshold);
 
+    if (!_speechFallbackAvailable) {
+      _speechFallbackAvailable = await _initializeSpeechFallback();
+    }
+
     if (_speechFallbackAvailable) {
       final started = await _startSpeechFallback();
       if (started) {
