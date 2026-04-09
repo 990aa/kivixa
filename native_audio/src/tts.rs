@@ -13,8 +13,7 @@ use std::sync::Arc;
 use crate::phonemizer::{Phoneme, PhonemeSequence, Phonemizer};
 
 /// TTS model variants
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum TtsModel {
     /// Kokoro small (~80MB, fast)
     #[default]
@@ -32,7 +31,6 @@ impl TtsModel {
         }
     }
 }
-
 
 /// Voice style parameters
 #[derive(Debug, Clone, Serialize, Deserialize)]
