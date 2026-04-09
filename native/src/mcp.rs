@@ -1223,6 +1223,37 @@ mod tests {
     }
 
     #[test]
+    fn test_tool_call_parsing_supports_args_format() {
+        let json =
+            r#"{"tool":"create_folder","args":{"path":"sandbox/tmp"},"description":"Create folder"}"#;
+
+        let call = parse_tool_call(json).unwrap();
+        assert_eq!(call.tool, "create_folder");
+        let params = call.get_parameters();
+        assert_eq!(
+            params.get("path").and_then(|value| value.as_str()),
+            Some("sandbox/tmp")
+        );
+    }
+
+    #[test]
+    fn test_mcp_prompt_block_and_grammar_constants() {
+        let prompt = mcp_tool_prompt_block();
+        assert!(prompt.contains("AVAILABLE TOOLS:"));
+        assert!(prompt.contains("read_file"));
+        assert!(prompt.contains("write_file"));
+        assert!(prompt.contains("delete_file"));
+        assert!(prompt.contains("create_folder"));
+        assert!(prompt.contains("list_files"));
+        assert!(prompt.contains("calendar_lua"));
+        assert!(prompt.contains("timer_lua"));
+        assert!(prompt.contains("export_markdown"));
+        assert!(MCP_TOOL_CALL_GBNF.contains("root ::= "));
+        assert!(MCP_TOOL_CALL_GBNF.contains("tool_choice"));
+        assert!(MCP_TOOL_CALL_GBNF.contains("\"timer_lua\""));
+    }
+
+    #[test]
     fn test_tool_execution() {
         let temp = setup_mcp();
 

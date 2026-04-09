@@ -1173,4 +1173,60 @@ mod tests {
         );
         assert!(prompt.contains("<start_of_turn>user\nTest<end_of_turn>"));
     }
+
+    #[test]
+    fn test_prepare_messages_for_chat_keeps_normal_mode_without_sentinel() {
+        let messages = vec![
+            (
+                "system".to_string(),
+                "You are a helpful general assistant".to_string(),
+            ),
+            ("user".to_string(), "Write an essay on climate change".to_string()),
+        ];
+
+        let prepared = prepare_messages_for_chat(&messages);
+
+        assert!(!prepared.mcp_mode);
+        assert_eq!(prepared.messages, messages);
+        assert_eq!(
+            prepared
+                .messages
+                .iter()
+                .filter(|(role, _)| role == "system")
+                .count(),
+            1
+        );
+    }
+
+    #[test]
+    fn test_prepare_messages_for_chat_enables_mcp_mode_and_injects_contract() {
+        let messages = vec![
+            (
+                "system".to_string(),
+                format!(
+                    "{}\nRoute actionable requests to MCP tools.",
+                    crate::mcp::MCP_MODE_SENTINEL
+                ),
+            ),
+            ("user".to_string(), "Create a file called todo.md".to_string()),
+        ];
+
+        let prepared = prepare_messages_for_chat(&messages);
+
+        assert!(prepared.mcp_mode);
+        assert!(prepared.messages.len() >= 3);
+        assert_eq!(prepared.messages[0].0, "system");
+        assert!(prepared.messages[1].1.contains("AVAILABLE TOOLS:"));
+        assert!(
+            prepared.messages[1]
+                .1
+                .contains("Format: {\"tool\": \"tool_name\", \"args\": { ... }}")
+        );
+        assert!(
+            prepared
+                .messages
+                .iter()
+                .all(|(_, content)| !content.contains(crate::mcp::MCP_MODE_SENTINEL))
+        );
+    }
 }
