@@ -1,6 +1,6 @@
 {
   "repo": {
-    "timestamp": 1775586296000,
+    "timestamp": 1775749021000,
     "version": 20002,
     "name": "Kivixa",
     "icon": "icon.png",
@@ -16,13 +16,13 @@
       "categories": [
         "Productivity"
       ],
-      "suggestedVersionCode": "70013",
+      "suggestedVersionCode": "80003",
       "license": "Unknown",
       "name": "Kivixa",
       "summary": "A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.",
       "added": 1775272744000,
       "packageName": "com.a990aa.kivixa",
-      "lastUpdated": 1775586292000,
+      "lastUpdated": 1775749013000,
       "localized": {
         "en-US": {
           "description": "Kivixa is a privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.\n\nFeatures:\n- Rich markdown and text editing for fast note-taking\n- Digital canvas for handwriting, drawing, and mixed media notes\n- On-device AI with multi-model MCP workflows (no cloud required)\n- Knowledge graph view to connect ideas and topics visually\n- PDF reading and annotation inside the same workspace\n- Focus tools including Pomodoro and custom productivity timers\n- High-performance math tools powered by a Rust backend\n",
@@ -35,9 +35,9 @@
   "packages": {
     "com.a990aa.kivixa": [
       {
-        "added": 1775586292000,
-        "apkName": "Kivixa-Android-0.7.1-x86_64.apk",
-        "hash": "e2fe0a3bd4cf05cf0a02ff1872dc918e2f86e8b4d912af048e1e602ea81870bd",
+        "added": 1775749013000,
+        "apkName": "Kivixa-Android-0.8.0-x86_64.apk",
+        "hash": "47c6285de83bc1fbf402b3219bcc3bf715bdba4b1f3225e2a0517790b9b4200e",
         "hashType": "sha256",
         "minSdkVersion": 24,
         "nativecode": [
@@ -46,7 +46,7 @@
         "packageName": "com.a990aa.kivixa",
         "sig": "4afe97afa2b0ea3f4a207c205fea0960",
         "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
-        "size": 73135113,
+        "size": 73479255,
         "targetSdkVersion": 36,
         "uses-permission": [
           [
@@ -90,13 +90,13 @@
             null
           ]
         ],
-        "versionCode": 70013,
-        "versionName": "0.7.1"
+        "versionCode": 80003,
+        "versionName": "0.8.0"
       },
       {
-        "added": 1775586291000,
-        "apkName": "Kivixa-Android-0.7.1-arm64.apk",
-        "hash": "60de2ad63ef3501a2ae018a74dba4ac8055079ed3d97842db75445b8ad037db7",
+        "added": 1775749012000,
+        "apkName": "Kivixa-Android-0.8.0-arm64.apk",
+        "hash": "5ec82d60d0a3fc1e95d71488844100ddd80631c444e6698ef0d8d3e587c2fb37",
         "hashType": "sha256",
         "minSdkVersion": 24,
         "nativecode": [
@@ -105,7 +105,7 @@
         "packageName": "com.a990aa.kivixa",
         "sig": "4afe97afa2b0ea3f4a207c205fea0960",
         "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
-        "size": 66822476,
+        "size": 67084697,
         "targetSdkVersion": 36,
         "uses-permission": [
           [
@@ -149,13 +149,13 @@
             null
           ]
         ],
-        "versionCode": 70012,
-        "versionName": "0.7.1"
+        "versionCode": 80002,
+        "versionName": "0.8.0"
       },
       {
-        "added": 1775586292000,
-        "apkName": "Kivixa-Android-0.7.1-armv7.apk",
-        "hash": "53b24e9ec9dd88b15648ab28b5ec90852b23aa3f7ce17005d1d9c64041589827",
+        "added": 1775749012000,
+        "apkName": "Kivixa-Android-0.8.0-armv7.apk",
+        "hash": "53016221dbaa200d87dca7d69628c05f8b6223193e74d0bfd4703c5656ca76a8",
         "hashType": "sha256",
         "minSdkVersion": 24,
         "nativecode": [
@@ -164,7 +164,7 @@
         "packageName": "com.a990aa.kivixa",
         "sig": "4afe97afa2b0ea3f4a207c205fea0960",
         "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
-        "size": 59805914,
+        "size": 59986221,
         "targetSdkVersion": 36,
         "uses-permission": [
           [
@@ -208,8 +208,8 @@
             null
           ]
         ],
-        "versionCode": 70011,
-        "versionName": "0.7.1"
+        "versionCode": 80001,
+        "versionName": "0.8.0"
       }
     ]
   }
