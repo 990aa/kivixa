@@ -86,6 +86,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Kivixa MCP Assistant'), findsOneWidget);
+    expect(find.text(model.name), findsOneWidget);
     expect(find.byTooltip('Add attachments'), findsOneWidget);
 
     chatController.dispose();
