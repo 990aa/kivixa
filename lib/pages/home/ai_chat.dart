@@ -367,6 +367,7 @@ class _AIChatPageState extends State<AIChatPage> {
             controller: _mcpChatController!,
             context: context,
             showHeader: false,
+            modelSwitcherController: _mcpModelSwitcherController,
             promptPrefillListenable: _mcpPromptPrefill,
             emptyState: _buildMcpWelcomeWidget(),
           ),

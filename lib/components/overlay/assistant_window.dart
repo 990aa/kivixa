@@ -119,6 +119,7 @@ class _AssistantWindowState extends State<AssistantWindow> {
             child: MCPChatInterface(
               controller: _mcpChatController!,
               context: context,
+              modelSwitcherController: _chatController,
             ),
           ),
         ],
