@@ -3,8 +3,12 @@
 // Handles microphone access and audio capture for the Audio Neural Engine.
 
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:record/record.dart';
 
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
 
@@ -67,10 +71,14 @@ class AudioRecordingService {
   final _stateNotifier = ValueNotifier<RecordingState>(RecordingState.stopped);
   final _audioDataController = StreamController<Uint8List>.broadcast();
   final _durationNotifier = ValueNotifier<Duration>(Duration.zero);
+  final _recorder = AudioRecorder();
 
   Timer? _durationTimer;
+  StreamSubscription<Uint8List>? _recordingSubscription;
   DateTime? _recordingStartTime;
   AudioFormatConfig _config = AudioFormatConfig.whisper;
+  BytesBuilder _recordedBytes = BytesBuilder(copy: false);
+  var _isVirtualRecording = false;
 
   /// Current recording state
   ValueListenable<RecordingState> get state => _stateNotifier;
@@ -95,10 +103,43 @@ class AudioRecordingService {
 
     _stateNotifier.value = RecordingState.preparing;
     _config = format ?? AudioFormatConfig.whisper;
+    _recordedBytes = BytesBuilder(copy: false);
 
     try {
-      // In a real implementation, this would initialize platform audio capture
-      // For now, we'll simulate with a placeholder
+      _isVirtualRecording = AudioNeuralEngine().usesPlatformSpeechRecognition;
+
+      if (!_isVirtualRecording) {
+        final hasPermission = await _ensureMicrophonePermission();
+        if (!hasPermission) {
+          throw StateError('Microphone permission not granted');
+        }
+
+        final stream = await _recorder.startStream(
+          RecordConfig(
+            encoder: AudioEncoder.pcm16bits,
+            sampleRate: _config.sampleRate,
+            numChannels: _config.channels,
+          ),
+        );
+
+        _recordingSubscription = stream.listen(
+          (chunk) {
+            if (_stateNotifier.value != RecordingState.recording) {
+              return;
+            }
+
+            _recordedBytes.add(chunk);
+            _audioDataController.add(chunk);
+            unawaited(AudioNeuralEngine().processAudioBytes(chunk));
+          },
+          onError: (Object error, StackTrace stackTrace) {
+            debugPrint('AudioRecordingService: Stream error: $error');
+            debugPrint('Stack trace: $stackTrace');
+            _stateNotifier.value = RecordingState.stopped;
+          },
+          cancelOnError: true,
+        );
+      }
 
       _recordingStartTime = DateTime.now();
       _stateNotifier.value = RecordingState.recording;
@@ -110,11 +151,13 @@ class AudioRecordingService {
       );
 
       debugPrint(
-        'AudioRecordingService: Started recording at ${_config.sampleRate}Hz',
+        'AudioRecordingService: Started recording at ${_config.sampleRate}Hz '
+        '(virtual: $_isVirtualRecording)',
       );
       return true;
     } catch (e) {
       debugPrint('AudioRecordingService: Failed to start recording: $e');
+      _isVirtualRecording = false;
       _stateNotifier.value = RecordingState.stopped;
       return false;
     }
@@ -122,7 +165,8 @@ class AudioRecordingService {
 
   /// Stop recording and return the final audio data
   Future<Uint8List?> stopRecording() async {
-    if (_stateNotifier.value != RecordingState.recording) {
+    if (_stateNotifier.value != RecordingState.recording &&
+        _stateNotifier.value != RecordingState.paused) {
       return null;
     }
 
@@ -132,18 +176,30 @@ class AudioRecordingService {
       _durationTimer?.cancel();
       _durationTimer = null;
 
-      // In a real implementation, this would stop platform audio capture
-      // and return the recorded audio data
+      if (!_isVirtualRecording) {
+        await _recordingSubscription?.cancel();
+        _recordingSubscription = null;
+
+        try {
+          await _recorder.stop();
+        } catch (e) {
+          debugPrint('AudioRecordingService: Recorder stop warning: $e');
+        }
+      }
+
+      final data = Uint8List.fromList(_recordedBytes.takeBytes());
 
       _stateNotifier.value = RecordingState.stopped;
       _durationNotifier.value = Duration.zero;
       _recordingStartTime = null;
+      _isVirtualRecording = false;
 
       debugPrint('AudioRecordingService: Stopped recording');
-      return Uint8List(0); // Placeholder
+      return data;
     } catch (e) {
       debugPrint('AudioRecordingService: Failed to stop recording: $e');
       _stateNotifier.value = RecordingState.stopped;
+      _isVirtualRecording = false;
       return null;
     }
   }
@@ -153,6 +209,9 @@ class AudioRecordingService {
     if (_stateNotifier.value == RecordingState.recording) {
       _stateNotifier.value = RecordingState.paused;
       _durationTimer?.cancel();
+      if (!_isVirtualRecording) {
+        unawaited(_pauseNativeRecording());
+      }
       debugPrint('AudioRecordingService: Paused recording');
     }
   }
@@ -165,6 +224,9 @@ class AudioRecordingService {
         const Duration(milliseconds: 100),
         (_) => _updateDuration(),
       );
+      if (!_isVirtualRecording) {
+        unawaited(_resumeNativeRecording());
+      }
       debugPrint('AudioRecordingService: Resumed recording');
     }
   }
@@ -172,10 +234,11 @@ class AudioRecordingService {
   /// Feed audio data manually (for testing or external sources)
   void feedAudioData(Uint8List data) {
     if (_stateNotifier.value == RecordingState.recording) {
+      _recordedBytes.add(data);
       _audioDataController.add(data);
 
       // Also send to neural engine for processing
-      AudioNeuralEngine().processAudioBytes(data);
+      unawaited(AudioNeuralEngine().processAudioBytes(data));
     }
   }
 
@@ -188,9 +251,52 @@ class AudioRecordingService {
   /// Dispose resources
   void dispose() {
     _durationTimer?.cancel();
+    unawaited(_recordingSubscription?.cancel());
+    _recordingSubscription = null;
+    try {
+      _recorder.dispose();
+    } catch (_) {
+      // Ignore recorder disposal errors during shutdown.
+    }
     _audioDataController.close();
     _stateNotifier.dispose();
     _durationNotifier.dispose();
+  }
+
+  Future<void> _pauseNativeRecording() async {
+    try {
+      await _recorder.pause();
+    } catch (e) {
+      debugPrint('AudioRecordingService: Native pause unavailable: $e');
+    }
+  }
+
+  Future<void> _resumeNativeRecording() async {
+    try {
+      await _recorder.resume();
+    } catch (e) {
+      debugPrint('AudioRecordingService: Native resume unavailable: $e');
+    }
+  }
+
+  Future<bool> _ensureMicrophonePermission() async {
+    try {
+      if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
+        final permission = await Permission.microphone.request();
+        if (!permission.isGranted) {
+          return false;
+        }
+      }
+    } catch (e) {
+      debugPrint('AudioRecordingService: Permission request warning: $e');
+    }
+
+    try {
+      return await _recorder.hasPermission();
+    } catch (e) {
+      debugPrint('AudioRecordingService: Permission probe warning: $e');
+      return true;
+    }
   }
 
   void _updateDuration() {

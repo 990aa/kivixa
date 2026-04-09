@@ -8,11 +8,11 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/src/rust_audio/api.dart' as audio_api;
 import 'package:kivixa/src/rust_audio/frb_generated.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 /// Audio engine state enum
 enum AudioEngineState {
