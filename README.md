@@ -43,6 +43,8 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
   - **Phi-4 Mini** - Default model for reasoning, conversation, and general assistance
   - **Phi-4 Mini Reasoning** - Reasoning-tuned Phi model for math-heavy and logic-heavy tasks
   - **Qwen 2.5 3B** - Specialized for writing, notes, and code generation
+  - **Llama 3.2 3B Instruct** - Balanced compact model for MCP workflows, drafting, and general use
+  - **Qwen2.5 1.5B Instruct** - Lightweight model for MCP actions and low-memory assistant workflows
   - **Qwen3.5 4B Distilled** - Claude 4.6 Opus reasoning-distilled 4B variant (Qwopus v3 GGUF source) for strongest Qwen quality
   - **Qwen3.5 2B Distilled** - Balanced speed and quality for daily work
   - **Qwen3.5 0.8B Distilled** - Fast lightweight option for low-memory devices
@@ -637,7 +639,8 @@ To report a new issue, use [Bug Report Template](.github/ISSUE_TEMPLATE/bug_repo
 Kivixa's on-device AI support is built on top of model work from the following official organizations and distribution contributors:
 
 - **Microsoft** - Official creator of Phi model family used by **Phi-4 Mini** and **Phi-4 Mini Reasoning**
-- **Alibaba Cloud (Qwen Team)** - Official creator of Qwen model family used by **Qwen2.5 3B**, **Qwen3.5 Distilled** variants, and DeepSeek distill base architecture
+- **Alibaba Cloud (Qwen Team)** - Official creator of Qwen model family used by **Qwen2.5 3B**, **Qwen2.5 1.5B Instruct**, **Qwen3.5 Distilled** variants, and DeepSeek distill base architecture
+- **Meta AI (Llama Team)** - Official creator of the **Llama 3.2** model family used by **Llama 3.2 3B Instruct**
 - **Google (Gemma Team)** - Official creator of Gemma model family used by **Gemma 2B**, **Gemma 3 4B IT**, **Gemma 4 E2B IT**, **TranslateGemma 4B IT**, and **Function Gemma** family
 - **DeepSeek-AI** - Official creator of the **DeepSeek-R1** reasoning family used for distill checkpoints
 - **Hugging Face TB (SmolLM Team)** - Official creator of **SmolLM2**, **SmolLM3**, and **SmolVLM2** model families
@@ -646,7 +649,7 @@ Kivixa's on-device AI support is built on top of model work from the following o
   - Qwen3.5 2B Claude 4.6 Opus Reasoning Distilled
   - Qwen3.5 0.8B Claude 4.6 Opus Reasoning Distilled
 - **ggml-org (GGUF distribution credit)** - SmolLM3 3B and SmolVLM2 500M Video Instruct GGUF/mmproj distributions
-- **Unsloth (GGUF distribution credit)** - Function Gemma, Phi-4 Mini Reasoning, Gemma 4 E2B IT, and selected DeepSeek-R1-Distill GGUF distributions
+- **Unsloth (GGUF distribution credit)** - Function Gemma, Phi-4 Mini Reasoning, Gemma 4 E2B IT, Llama 3.2 3B Instruct, and selected DeepSeek-R1-Distill GGUF distributions
 - **bartowski (GGUF distribution credit)** - Phi-4 Mini, Gemma 3 4B IT, DeepSeek-R1-Distill-Qwen-1.5B, and SmolLM2-1.7B-Instruct GGUF distributions
 - **mradermacher (GGUF distribution credit)** - TranslateGemma 4B IT GGUF distribution
 

@@ -516,11 +516,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed stale/default F-Droid repository presentation by normalizing app/repo metadata and branding to Kivixa.
 - Fixed legacy artifact accumulation in F-Droid outputs by removing temporary artifact caches and pruning APKs older than `0.4.0` from both `repo/` and `archive/`.
 
-
 ---
-## [0.7.2] - 2026-04-09
+
+
+## [0.8.0] - 2026-04-09
+
+### Added
+- Added two new downloadable on-device AI models to Model Manager:
+  - **Llama 3.2 3B Instruct** (`Llama-3.2-3B-Instruct-Q3_K_M.gguf`)
+  - **Qwen2.5 1.5B Instruct** (`qwen2.5-1.5b-instruct-q4_k_m.gguf`)
+- Added both new models to the **MCP / Agent Brain** category so they are available in agent-focused filtering.
+- Added shared model-picker support directly in MCP chat surfaces using the same `ModelSwitcherChip` UI/interaction pattern used in standard AI chat.
+- Added regression tests covering:
+  - exact Hugging Face links and filenames for the new models,
+  - download task/url wiring (downloadable task construction),
+  - MCP/Agent category presence,
+  - frontend catalog card rendering for the new model entries.
 
 ### Changed
-- Version bump to 0.7.2
+- Updated README model list to include Llama 3.2 3B Instruct and Qwen2.5 1.5B Instruct.
+- Updated AI model credits/attributions in README for the new model sources.
 
 ---
