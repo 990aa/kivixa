@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/audio/audio_settings_page.dart';
@@ -102,5 +104,53 @@ void main() {
 
     expect(previewVoiceId, 'af_heart');
     expect(previewText, contains('punctuation'));
+  });
+
+  testWidgets('voice preview remains busy until preview handler completes', (
+    tester,
+  ) async {
+    final voices = <VoiceStyle>[
+      voiceFactory(
+        'af_heart',
+        'Heart',
+        'Warm and expressive American female voice.',
+      ),
+    ];
+    final previewCompleter = Completer<void>();
+    var previewCalls = 0;
+
+    await tester.pumpWidget(
+      wrapWidget(
+        AudioSettingsPage(
+          voiceLoader: () async => voices,
+          voicePreviewHandler: (_, __) {
+            previewCalls += 1;
+            return previewCompleter.future;
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Voices'));
+    await tester.pumpAndSettle();
+
+    final previewButton = find.byKey(const Key('preview-voice-af_heart'));
+    await tester.tap(previewButton);
+    await tester.pump();
+
+    expect(previewCalls, 1);
+    expect(
+      tester.widget<OutlinedButton>(previewButton).onPressed,
+      isNull,
+    );
+
+    previewCompleter.complete();
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<OutlinedButton>(previewButton).onPressed,
+      isNotNull,
+    );
   });
 }
