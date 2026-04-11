@@ -28,6 +28,7 @@ void main() {
       if (tempDir.existsSync()) {
         tempDir.deleteSync(recursive: true);
       }
+      mcpService.resetForTests();
     });
 
     test('Valid relative paths should be allowed', () {
