@@ -615,3 +615,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Kept quality gates clean for this update with passing Flutter analyze and passing Rust checks in native, native_audio, and native_math.
 
 ---
+## [0.8.6] - 2026-04-11
+
+### Changed
+- Version bump to 0.8.6
+
+---
