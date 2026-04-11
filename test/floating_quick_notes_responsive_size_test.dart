@@ -38,5 +38,9 @@ void main() {
     final size = tester.getSize(find.byType(FloatingQuickNotes));
     expect(size.width, closeTo(620, 0.01));
     expect(size.height, closeTo(560, 0.01));
+
+    QuickNotesService.instance.resetForTests();
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
   });
 }
