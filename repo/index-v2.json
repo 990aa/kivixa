@@ -14,7 +14,7 @@
       }
     },
     "address": "https://990aa.github.io/kivixa/repo",
-    "timestamp": 1775887391000,
+    "timestamp": 1775890740000,
     "categories": {
       "Productivity": {
         "name": {
@@ -30,7 +30,7 @@
         "categories": [
           "Productivity"
         ],
-        "lastUpdated": 1775887378000,
+        "lastUpdated": 1775890726000,
         "name": {
           "en-US": "Kivixa"
         },
@@ -43,19 +43,19 @@
         "preferredSigner": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512"
       },
       "versions": {
-        "7210e3306bfccea7be5baac3843dd39785c3007ddffa1712b8ce701d85a9da0e": {
-          "added": 1775887378000,
+        "9f046714d681cc764f5e7327a82c4981bc92f2f7fb826896a8806faab576eec9": {
+          "added": 1775890726000,
           "file": {
-            "name": "/Kivixa-Android-0.8.4-x86_64.apk",
-            "sha256": "7210e3306bfccea7be5baac3843dd39785c3007ddffa1712b8ce701d85a9da0e",
+            "name": "/Kivixa-Android-0.8.5-x86_64.apk",
+            "sha256": "9f046714d681cc764f5e7327a82c4981bc92f2f7fb826896a8806faab576eec9",
             "size": 73612893
           },
           "manifest": {
             "nativecode": [
               "x86_64"
             ],
-            "versionName": "0.8.4",
-            "versionCode": 80043,
+            "versionName": "0.8.5",
+            "versionCode": 80053,
             "usesSdk": {
               "minSdkVersion": 24,
               "targetSdkVersion": 36
@@ -102,19 +102,19 @@
             ]
           }
         },
-        "2179ad5d9486c4e090463e72c8cb7a3bca822caa87fb4b9f69faf8e071a3d317": {
-          "added": 1775887377000,
+        "93c6389e810cd1f5201fbc54e4899715a355b2f8b2a33ed8199ec0701c00213f": {
+          "added": 1775890725000,
           "file": {
-            "name": "/Kivixa-Android-0.8.4-arm64.apk",
-            "sha256": "2179ad5d9486c4e090463e72c8cb7a3bca822caa87fb4b9f69faf8e071a3d317",
+            "name": "/Kivixa-Android-0.8.5-arm64.apk",
+            "sha256": "93c6389e810cd1f5201fbc54e4899715a355b2f8b2a33ed8199ec0701c00213f",
             "size": 67218335
           },
           "manifest": {
             "nativecode": [
               "arm64-v8a"
             ],
-            "versionName": "0.8.4",
-            "versionCode": 80042,
+            "versionName": "0.8.5",
+            "versionCode": 80052,
             "usesSdk": {
               "minSdkVersion": 24,
               "targetSdkVersion": 36
@@ -161,19 +161,19 @@
             ]
           }
         },
-        "0bad060c7f1c71e95a75a0c3a5831c09b3fe30a34cb4777137e447d614763066": {
-          "added": 1775887378000,
+        "540f82a043162f424c367c2c49c98ca5d7bb9273213ad4ff3a3265ed393a920a": {
+          "added": 1775890725000,
           "file": {
-            "name": "/Kivixa-Android-0.8.4-armv7.apk",
-            "sha256": "0bad060c7f1c71e95a75a0c3a5831c09b3fe30a34cb4777137e447d614763066",
+            "name": "/Kivixa-Android-0.8.5-armv7.apk",
+            "sha256": "540f82a043162f424c367c2c49c98ca5d7bb9273213ad4ff3a3265ed393a920a",
             "size": 60119859
           },
           "manifest": {
             "nativecode": [
               "armeabi-v7a"
             ],
-            "versionName": "0.8.4",
-            "versionCode": 80041,
+            "versionName": "0.8.5",
+            "versionCode": 80051,
             "usesSdk": {
               "minSdkVersion": 24,
               "targetSdkVersion": 36
