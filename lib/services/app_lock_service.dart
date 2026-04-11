@@ -38,7 +38,7 @@ class AppLockService {
   /// Generate a PBKDF2 hash using the provided salt
   Uint8List _hashPinPbkdf2(String pin, Uint8List salt) {
     final pinBytes = Uint8List.fromList(utf8.encode(pin));
-    final pbkdf2 = PBKDF2KeyDerivator(Mac('SHA-256/HMAC'))
+    final pbkdf2 = PBKDF2KeyDerivator(HMac(SHA256Digest(), 64))
       ..init(Pbkdf2Parameters(salt, 10000, 32));
     return pbkdf2.process(pinBytes);
   }
