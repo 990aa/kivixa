@@ -13,6 +13,51 @@ class _FakePluginExecutor implements PluginScriptExecutor {
 }
 
 void main() {
+  group('MCP Service Path Validation Tests', () {
+    late MCPService mcpService;
+    late Directory tempDir;
+
+    setUp(() async {
+      mcpService = MCPService.instance;
+      mcpService.resetForTests();
+      tempDir = await Directory.systemTemp.createTemp('mcp_path_test_');
+      await mcpService.initialize(tempDir.path);
+    });
+
+    tearDown(() async {
+      if (tempDir.existsSync()) {
+        tempDir.deleteSync(recursive: true);
+      }
+    });
+
+    test('Valid relative paths should be allowed', () {
+      expect(mcpService.validatePath('test.txt'), isTrue);
+      expect(mcpService.validatePath('folder/test.txt'), isTrue);
+      expect(mcpService.validatePath('folder/subfolder/test.txt'), isTrue);
+    });
+
+    test('Path traversal via .. should be blocked', () {
+      expect(mcpService.validatePath('../test.txt'), isFalse);
+      expect(mcpService.validatePath('folder/../../test.txt'), isFalse);
+    });
+
+    test('URL encoded path traversal should be blocked', () {
+      expect(mcpService.validatePath('%2e%2e/test.txt'), isFalse);
+      expect(mcpService.validatePath('folder/%2e%2e/%2e%2e/test.txt'), isFalse);
+    });
+
+    test('Null bytes injection should be blocked', () {
+      expect(mcpService.validatePath('test\x00.txt'), isFalse);
+      expect(mcpService.validatePath('%00test.txt'), isFalse);
+      expect(mcpService.validatePath('test.txt%00'), isFalse);
+    });
+
+    test('Absolute paths should be blocked', () {
+      expect(mcpService.validatePath('/etc/passwd'), isFalse);
+      expect(mcpService.validatePath('C:\\Windows\\System32'), isFalse);
+    });
+  });
+
   group('MCP Service Tests', () {
     group('MCPToolInfo', () {
       test('should create tool info with correct properties', () {
