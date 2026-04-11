@@ -11,6 +11,7 @@ import 'package:kivixa/components/audio/read_aloud.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/ai/chat_attachment_service.dart';
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
+import 'package:kivixa/services/audio/live_transcription_buffer.dart';
 import 'package:kivixa/services/audio/audio_recording_service.dart';
 
 class MCPChatInterface extends StatefulWidget {
@@ -56,6 +57,7 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
   var _isListening = false;
   var _showReadAloudPlayer = false;
   DateTime? _lastAutoPlayedAssistantMessage;
+  final _liveTranscription = LiveTranscriptionBuffer();
 
   int? _historyCursor;
   var _draftBeforeHistory = '';
@@ -213,33 +215,53 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
   }
 
   void _onTranscription(SpeechRecognitionResult result) {
-    if (!_isListening || !result.isFinal || result.text.trim().isEmpty) {
+    if (!_isListening) {
       return;
     }
-    _insertComposerText('${result.text.trim()} ');
+    _applyLiveTranscription(result.text, isFinal: result.isFinal);
   }
 
-  void _insertComposerText(String text) {
+  int _currentComposerOffset() {
     final selection = _textController.selection;
-    final currentText = _textController.text;
+    final textLength = _textController.text.length;
 
     if (!selection.isValid) {
-      _textController
-        ..text = currentText + text
-        ..selection = TextSelection.collapsed(
-          offset: (currentText + text).length,
-        );
+      return textLength;
+    }
+
+    if (selection.start < 0) {
+      return 0;
+    }
+
+    if (selection.start > textLength) {
+      return textLength;
+    }
+
+    return selection.start;
+  }
+
+  void _applyLiveTranscription(String text, {required bool isFinal}) {
+    final edit = _liveTranscription.buildEdit(
+      text: text,
+      isFinal: isFinal,
+      currentTextLength: _textController.text.length,
+      fallbackAnchorOffset: _currentComposerOffset(),
+    );
+
+    if (edit == null) {
       return;
     }
 
-    final start = selection.start;
-    final end = selection.end;
-    final updatedText =
-        currentText.substring(0, start) + text + currentText.substring(end);
+    final currentText = _textController.text;
+    final updatedText = currentText.replaceRange(
+      edit.startOffset,
+      edit.endOffset,
+      edit.replacementText,
+    );
 
     _textController.value = TextEditingValue(
       text: updatedText,
-      selection: TextSelection.collapsed(offset: start + text.length),
+      selection: TextSelection.collapsed(offset: edit.caretOffset),
     );
     _focusNode.requestFocus();
   }
@@ -266,13 +288,14 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
         await _audioRecorder.stopRecording();
         final finalResult = await _audioEngine.stopListening();
         if (finalResult != null && finalResult.text.trim().isNotEmpty) {
-          _insertComposerText('${finalResult.text.trim()} ');
+          _applyLiveTranscription(finalResult.text, isFinal: true);
         }
         if (mounted) {
           setState(() {
             _isListening = false;
           });
         }
+        _liveTranscription.reset();
         return;
       }
 
@@ -290,6 +313,7 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
       );
       await _audioEngine.startListening();
       await _audioRecorder.startRecording();
+      _liveTranscription.startSession(anchorOffset: _currentComposerOffset());
       if (mounted) {
         setState(() {
           _isListening = true;
