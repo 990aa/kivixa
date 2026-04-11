@@ -17,8 +17,7 @@ use crate::audio_buffer::WHISPER_SAMPLE_RATE;
 use crate::vad::SharedVad;
 
 /// Whisper model size variants
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum WhisperModel {
     /// Tiny model (~39M parameters, ~150MB)
     #[default]
@@ -62,7 +61,6 @@ impl WhisperModel {
         "cpu"
     }
 }
-
 
 /// Configuration for STT engine
 #[derive(Debug, Clone, Serialize, Deserialize)]

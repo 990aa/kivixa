@@ -15,7 +15,7 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
 
 [lib]
 name = "kivixa_native"
-crate-type = ["cdylib", "staticlib"]
+crate-type = ["cdylib", "staticlib", "rlib"]
 
 [dependencies]
 # Flutter Rust Bridge for Dart interop

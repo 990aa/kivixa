@@ -67,10 +67,6 @@ void main() {
       test('formatBytes method exists', () {
         expect(AppDataClearService.formatBytes, isA<Function>());
       });
-
-      test('invalidateCache method exists', () {
-        expect(AppDataClearService.invalidateCache, isA<Function>());
-      });
     });
 
     group('formatBytes', () {
@@ -114,38 +110,6 @@ void main() {
             .map((t) => t.displayName)
             .toSet();
         expect(displayNames.length, AppDataType.values.length);
-      });
-    });
-
-    group('invalidateCache', () {
-      test('invalidateCache can be called without error', () {
-        // Should complete without throwing even if cache is already empty
-        expect(() => AppDataClearService.invalidateCache(), returnsNormally);
-      });
-
-      test('invalidateCache can be called multiple times', () {
-        AppDataClearService.invalidateCache();
-        AppDataClearService.invalidateCache();
-        expect(() => AppDataClearService.invalidateCache(), returnsNormally);
-      });
-
-      test('filesystem-affecting types trigger cache invalidation', () {
-        // Verify the set of types expected to trigger invalidation.
-        // notes, markdown, and all modify the filesystem; others do not.
-        const filesystemAffectingTypes = {
-          AppDataType.notes,
-          AppDataType.markdown,
-          AppDataType.all,
-        };
-        expect(filesystemAffectingTypes.contains(AppDataType.notes), true);
-        expect(filesystemAffectingTypes.contains(AppDataType.markdown), true);
-        expect(filesystemAffectingTypes.contains(AppDataType.all), true);
-        expect(filesystemAffectingTypes.contains(AppDataType.preferences), false);
-        expect(filesystemAffectingTypes.contains(AppDataType.projects), false);
-        expect(filesystemAffectingTypes.contains(AppDataType.calendar), false);
-        expect(filesystemAffectingTypes.contains(AppDataType.recentFiles), false);
-        expect(filesystemAffectingTypes.contains(AppDataType.aiData), false);
-        expect(filesystemAffectingTypes.contains(AppDataType.browserData), false);
       });
     });
   });

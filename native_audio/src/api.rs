@@ -11,9 +11,7 @@ use crate::stt::{SharedSttEngine, SttState, Transcription, TranscriptionSegment,
 use crate::tts::{SharedTtsEngine, SynthesizedAudio, TtsState, VoiceStyle};
 use crate::vad::{SharedVad, VadResult, VadState};
 
-
 // Global State Management
-
 
 /// Global STT engine instance
 static STT_ENGINE: Lazy<SharedSttEngine> = Lazy::new(SharedSttEngine::new);
@@ -27,9 +25,7 @@ static VAD: Lazy<SharedVad> = Lazy::new(SharedVad::new);
 /// Global audio buffer for streaming
 static AUDIO_BUFFER: Lazy<SharedAudioBuffer> = Lazy::new(SharedAudioBuffer::for_whisper);
 
-
 // Audio Buffer API
-
 
 /// Write raw PCM bytes to the audio buffer
 ///
@@ -118,9 +114,7 @@ pub fn get_whisper_sample_rate() -> u32 {
     WHISPER_SAMPLE_RATE
 }
 
-
 // Voice Activity Detection API
-
 
 /// VAD result returned to Dart
 #[flutter_rust_bridge::frb]
@@ -192,9 +186,7 @@ pub fn vad_reset() {
     VAD.reset()
 }
 
-
 // Speech-to-Text API
-
 
 /// Transcription segment for Dart
 #[flutter_rust_bridge::frb]
@@ -331,9 +323,7 @@ pub fn stt_model_size(model_name: String) -> u64 {
     }
 }
 
-
 // Text-to-Speech API
-
 
 /// Voice style for Dart
 #[flutter_rust_bridge::frb]
@@ -445,9 +435,7 @@ pub fn tts_synthesize_to_i16(text: String) -> Result<Vec<i16>> {
     Ok(audio.to_i16())
 }
 
-
 // Combined Processing API
-
 
 /// Streaming audio processing result
 #[flutter_rust_bridge::frb]
@@ -508,9 +496,7 @@ pub fn process_streaming_audio(
     })
 }
 
-
 // Utility Functions
-
 
 /// Get the audio module version
 #[flutter_rust_bridge::frb(sync)]
@@ -524,7 +510,7 @@ pub fn audio_module_health_check() -> bool {
     // Basic health check - verify buffer is accessible
     // available() returns usize, so just check it's working (call succeeds)
     let _ = AUDIO_BUFFER.available();
-     // VAD is always available
+    // VAD is always available
 
     true
 }
@@ -572,7 +558,7 @@ mod tests {
     #[test]
     fn test_stt_api() {
         let state = stt_state();
-        assert!(state >= 0 && state <= 4);
+        assert!((0..=4).contains(&state));
 
         let models = stt_available_models();
         assert!(!models.is_empty());
@@ -584,7 +570,7 @@ mod tests {
     #[test]
     fn test_tts_api() {
         let state = tts_state();
-        assert!(state >= 0 && state <= 4);
+        assert!((0..=4).contains(&state));
 
         let voices = tts_available_voices();
         assert!(!voices.is_empty());
