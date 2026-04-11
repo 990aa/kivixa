@@ -17,7 +17,7 @@ class LiveTranscriptionEdit {
 /// Tracks partial speech dictation so interim updates replace in-place.
 class LiveTranscriptionBuffer {
   int? _anchorOffset;
-  int _previewLength = 0;
+  var _previewLength = 0;
   String? _lastFinalText;
 
   void startSession({required int anchorOffset}) {
