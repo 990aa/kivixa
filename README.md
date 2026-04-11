@@ -57,7 +57,6 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
   - **Gemma 3 4B IT** - Newer Gemma-family model with stronger balanced output quality
   - **Gemma 4 E2B IT** - Stronger Gemma-family instruct model for high-quality general, writing, and coding output
   - **TranslateGemma 4B IT** - Fast multilingual translation and rewriting model for notes
-  - Automatic model routing based on task classification
   - Seamless model switching for optimal performance
 
 - **Model Context Protocol (MCP)**
