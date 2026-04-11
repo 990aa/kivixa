@@ -861,8 +861,8 @@ class _BrowserPageState extends State<BrowserPage> {
         databaseEnabled: true,
         geolocationEnabled: true,
         // Allow universal access from file URLs
-        allowUniversalAccessFromFileURLs: true,
-        allowFileAccessFromFileURLs: true,
+        allowUniversalAccessFromFileURLs: false,
+        allowFileAccessFromFileURLs: false,
         // Desktop-like user agent for better compatibility
         userAgent: _isDesktop
             ? null // Use default WebView2 user agent on Windows
