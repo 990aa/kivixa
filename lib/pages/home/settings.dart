@@ -161,8 +161,11 @@ class _SettingsPageState extends State<SettingsPage> {
       return;
     }
 
+    final voices = _audioEngine.getAvailableVoices().toList(growable: false)
+      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+
     setState(() {
-      _availableVoices = _audioEngine.getAvailableVoices();
+      _availableVoices = voices;
     });
   }
 
