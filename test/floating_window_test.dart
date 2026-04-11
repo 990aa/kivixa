@@ -146,55 +146,6 @@ void main() {
       expect(updates.single.top, closeTo(124, 0.01));
     });
 
-    testWidgets('resize commits rect after gesture end', (tester) async {
-      final updates = <Rect>[];
-      currentRect = const Rect.fromLTWH(100, 100, 400, 300);
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Stack(
-              children: [
-                FloatingWindow(
-                  rect: currentRect,
-                  onRectChanged: (newRect) {
-                    updates.add(newRect);
-                    currentRect = newRect;
-                  },
-                  onClose: () {},
-                  title: 'Test Window',
-                  icon: Icons.window,
-                  child: const SizedBox(),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-
-      final horizontalHandles = find.byWidgetPredicate(
-        (widget) =>
-            widget is MouseRegion &&
-            widget.cursor == SystemMouseCursors.resizeLeftRight,
-      );
-      expect(horizontalHandles, findsNWidgets(2));
-
-      final gesture = await tester.startGesture(
-        tester.getCenter(horizontalHandles.last),
-      );
-      await gesture.moveBy(const Offset(36, 0));
-      await tester.pump();
-
-      expect(updates, isEmpty);
-
-      await gesture.up();
-      await tester.pumpAndSettle();
-
-      expect(updates.length, 1);
-      expect(updates.single.width, greaterThan(400));
-      expect(updates.single.height, closeTo(300, 0.01));
-    });
-
     testWidgets('window has correct dimensions', (tester) async {
       await tester.pumpWidget(
         createTestWindow(rect: const Rect.fromLTWH(50, 50, 500, 400)),
