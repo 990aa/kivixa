@@ -112,13 +112,7 @@ Future<String> importTextLikeNoteAsCopy({
   required String sourcePath,
   required String destinationDir,
 }) async {
-  var safeDestinationDir = destinationDir;
-  if (!safeDestinationDir.startsWith('/')) {
-    safeDestinationDir = '/$safeDestinationDir';
-  }
-  if (!safeDestinationDir.endsWith('/')) {
-    safeDestinationDir = '$safeDestinationDir/';
-  }
+  final safeDestinationDir = FileManager.sanitizeDirectoryPath(destinationDir);
 
   final baseName = importedNoteBaseName(sourcePath);
   final uniqueBasePath = await FileManager.suffixFilePathToMakeItUnique(
@@ -275,7 +269,7 @@ class _NewNoteButtonState extends State<NewNoteButton> {
             if (filePath == null) return;
 
             final importedType = classifyImportedNoteType(filePath);
-            final destinationDir = '${widget.path ?? ''}/';
+            final destinationDir = FileManager.sanitizeDirectoryPath(widget.path);
 
             try {
               switch (importedType) {

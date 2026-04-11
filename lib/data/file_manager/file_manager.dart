@@ -23,6 +23,32 @@ class FileManager {
 
   static final log = Logger('FileManager');
 
+  /// Sanitizes a directory path to ensure it is absolute and properly formatted.
+  ///
+  /// This handles cases where the path might be:
+  /// - `null` or the literal string `"null"` (treated as root `/`)
+  /// - Starting with `"null/"` (strips the prefix)
+  /// - Missing a leading or trailing slash
+  /// - Containing double slashes
+  static String sanitizeDirectoryPath(String? path) {
+    var sanitized = path ?? '/';
+
+    // Handle string "null" or "null/" which can come from the router
+    if (sanitized.startsWith('null/')) {
+      sanitized = sanitized.substring(4);
+    } else if (sanitized == 'null') {
+      sanitized = '/';
+    }
+
+    if (!sanitized.startsWith('/')) sanitized = '/$sanitized';
+    if (!sanitized.endsWith('/')) sanitized = '$sanitized/';
+
+    // Replace multiple slashes with a single one
+    sanitized = sanitized.replaceAll(RegExp(r'/+'), '/');
+
+    return sanitized;
+  }
+
   static const appRootDirectoryPrefix = 'kivixa';
 
   static late String documentsDirectory;
@@ -767,8 +793,10 @@ class FileManager {
     String? extension,
     bool awaitWrite = true,
   }) async {
+    final safeParentDir = sanitizeDirectoryPath(parentDir);
+
     assert(
-      parentDir == null || parentDir.startsWith('/') && parentDir.endsWith('/'),
+      safeParentDir.startsWith('/') && safeParentDir.endsWith('/'),
     );
 
     if (extension == null) {
@@ -801,7 +829,7 @@ class FileManager {
       final mainFileExtension = '.${mainFile.name.split('.').last}'
           .toLowerCase();
       importedPath = await suffixFilePathToMakeItUnique(
-        '${parentDir ?? '/'}$fileName',
+        '$safeParentDir$fileName',
         intendedExtension: mainFileExtension,
       );
       final mainFileContents = () {
@@ -843,7 +871,7 @@ class FileManager {
       final file = File(path);
       final fileContents = await file.readAsBytes();
       importedPath = await suffixFilePathToMakeItUnique(
-        '${parentDir ?? '/'}$fileName',
+        '$safeParentDir$fileName',
         intendedExtension: extension.toLowerCase(),
       );
       writeFutures.add(
