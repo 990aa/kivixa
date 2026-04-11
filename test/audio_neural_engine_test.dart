@@ -198,10 +198,7 @@ void main() {
 
   group('buildSpeechFallbackFinalResult', () {
     test('returns null for empty transcript', () {
-      final result = buildSpeechFallbackFinalResult(
-        '   ',
-        endTime: 2.0,
-      );
+      final result = buildSpeechFallbackFinalResult('   ', endTime: 2.0);
 
       expect(result, isNull);
     });
