@@ -205,15 +205,13 @@ class _AssistantWindowState extends State<AssistantWindow> {
       );
     }
 
-    if (_chatController.isModelLoaded && _chatController.loadedModelId != null) {
+    if (_chatController.isModelLoaded &&
+        _chatController.loadedModelId != null) {
       return ModelSwitcherChip(controller: _chatController, isCompact: true);
     }
 
     return Chip(
-      label: Text(
-        'No model',
-        style: theme.textTheme.labelSmall,
-      ),
+      label: Text('No model', style: theme.textTheme.labelSmall),
       visualDensity: VisualDensity.compact,
     );
   }
@@ -250,9 +248,9 @@ class _AssistantWindowState extends State<AssistantWindow> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to export chat: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to export chat: $e')));
     }
   }
 }
