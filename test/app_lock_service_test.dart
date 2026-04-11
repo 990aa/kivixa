@@ -1,12 +1,14 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kivixa/data/flavor_config.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/app_lock_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  FlavorConfig.setupFromEnvironment();
 
-  const channel = MethodChannel('plugins.it_vance.com/flutter_secure_storage');
+  const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
   final log = <MethodCall>[];
 
   void setupMockSecureStorage(MethodChannel channel, {Map<String, String>? initialData}) {
@@ -74,6 +76,14 @@ void main() {
     test('returns false for PIN shorter than 4 characters', () async {
       final service = AppLockService();
       final result = await service.setPin('123');
+
+      expect(result, isFalse);
+      expect(stows.appLockPinSet.value, isFalse);
+    });
+
+    test('returns false for empty PIN', () async {
+      final service = AppLockService();
+      final result = await service.setPin('');
 
       expect(result, isFalse);
       expect(stows.appLockPinSet.value, isFalse);
