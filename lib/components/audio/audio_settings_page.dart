@@ -221,7 +221,7 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
   ];
 
   static const _fallbackVoices = <VoiceInfo>[
-    const VoiceInfo(
+    VoiceInfo(
       id: 'af_heart',
       name: 'Heart',
       description: 'Warm and friendly female voice.',
@@ -229,35 +229,35 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
       gender: 'female',
       isSelected: true,
     ),
-    const VoiceInfo(
+    VoiceInfo(
       id: 'af_sky',
       name: 'Sky',
       description: 'Clear and professional female voice.',
       language: 'en-US',
       gender: 'female',
     ),
-    const VoiceInfo(
+    VoiceInfo(
       id: 'am_adam',
       name: 'Adam',
       description: 'Calm and authoritative male voice.',
       language: 'en-US',
       gender: 'male',
     ),
-    const VoiceInfo(
+    VoiceInfo(
       id: 'am_michael',
       name: 'Michael',
       description: 'Energetic and engaging male voice.',
       language: 'en-US',
       gender: 'male',
     ),
-    const VoiceInfo(
+    VoiceInfo(
       id: 'bf_emma',
       name: 'Emma',
       description: 'Sophisticated British female voice.',
       language: 'en-GB',
       gender: 'female',
     ),
-    const VoiceInfo(
+    VoiceInfo(
       id: 'bm_george',
       name: 'George',
       description: 'Elegant British male voice.',
