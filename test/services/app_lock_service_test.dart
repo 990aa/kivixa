@@ -15,7 +15,7 @@ void main() {
     // Mock the FlutterSecureStorage MethodChannel
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      const MethodChannel('plugins.it_vance.com/flutter_secure_storage'),
       (MethodCall methodCall) async {
         if (methodCall.method == 'read') {
           return null;
@@ -48,7 +48,7 @@ void main() {
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      const MethodChannel('plugins.it_vance.com/flutter_secure_storage'),
       (MethodCall methodCall) async {
         if (methodCall.method == 'write') {
           writtenKey = methodCall.arguments['key'];
@@ -71,7 +71,7 @@ void main() {
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      const MethodChannel('plugins.it_vance.com/flutter_secure_storage'),
       (MethodCall methodCall) async {
         if (methodCall.method == 'write') {
           storedValue = methodCall.arguments['value'];
@@ -101,7 +101,7 @@ void main() {
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      const MethodChannel('plugins.it_vance.com/flutter_secure_storage'),
       (MethodCall methodCall) async {
         if (methodCall.method == 'read') {
           return storedValue;
