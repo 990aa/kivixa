@@ -849,7 +849,9 @@ class _BrowserPageState extends State<BrowserPage> {
         transparentBackground: false,
         useShouldOverrideUrlLoading: true,
         allowFileAccess: false,
-        allowContentAccess: false,
+        // Allow content resolver URIs (for example file uploads via content://)
+        // while keeping file-URL access restricted below.
+        allowContentAccess: true,
         // Disable mixed content mode for security
         mixedContentMode: MixedContentMode.MIXED_CONTENT_NEVER_ALLOW,
         // Do not allow WebView to open windows automatically without user interaction
