@@ -6,7 +6,10 @@ import 'package:kivixa/services/app_lock_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  FlavorConfig.setupFromEnvironment();
+
+  setUpAll(() {
+    FlavorConfig.setup();
+  });
 
   const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
   final log = <MethodCall>[];
