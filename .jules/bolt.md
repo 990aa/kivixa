@@ -1,0 +1,3 @@
+## 2025-04-11 - File Browser List Rendering & I/O Bottlenecks
+**Learning:** In Flutter, using `ListView` with a large number of children created synchronously forces the instantiation of all children at once, causing jank. Additionally, when mapping files to their icons, making synchronous filesystem calls (`existsSync` via `doesFileExist`) for every file within a list build path blocks the main thread completely and results in severe stuttering, especially on Android with slower storage.
+**Action:** Always prefer `ListView.builder` for unbounded or potentially large lists (like file browsers). Crucially, never perform filesystem checks inside `build` or render-path methods; use pre-computed properties or metadata from the directory listing.
