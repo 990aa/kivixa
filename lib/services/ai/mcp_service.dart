@@ -755,18 +755,55 @@ class MCPService {
   bool validatePath(String relativePath) {
     if (relativePath.isEmpty) return false;
 
+    // Block null bytes (path truncation attacks)
+    if (relativePath.contains('\x00')) return false;
+
+    // Decode URL-encoded paths (prevent %2e%2e bypass)
+    String decoded;
+    try {
+      decoded = Uri.decodeComponent(relativePath);
+    } catch (_) {
+      return false; // Invalid URL encoding
+    }
+
+    // Re-check for null bytes after decoding
+    if (decoded.contains('\x00')) return false;
+
     // Block parent traversal
-    if (relativePath.contains('..')) return false;
+    if (decoded.contains('..')) return false;
+
+    // Use platform-independent contexts to catch cross-platform attacks
+    final windowsCtx = path.Context(style: path.Style.windows);
+    final posixCtx = path.Context(style: path.Style.posix);
 
     // Block absolute paths
-    if (path.isAbsolute(relativePath)) return false;
-
-    // Normalize and check
-    final normalized = path.normalize(relativePath);
-    if (normalized.startsWith('..') ||
-        normalized.startsWith('/') ||
-        normalized.startsWith('\\')) {
+    if (windowsCtx.isAbsolute(decoded) || posixCtx.isAbsolute(decoded)) {
       return false;
+    }
+
+    // Normalize and check for traversal or root indicators
+    final normalizedWindows = windowsCtx.normalize(decoded);
+    final normalizedPosix = posixCtx.normalize(decoded);
+
+    if (normalizedWindows.startsWith('..') ||
+        normalizedWindows.startsWith('/') ||
+        normalizedWindows.startsWith('\\') ||
+        normalizedPosix.startsWith('..') ||
+        normalizedPosix.startsWith('/') ||
+        normalizedPosix.startsWith('\\')) {
+      return false;
+    }
+
+    // Ensure the path stays within the sandbox directory
+    if (_browseDir != null) {
+      try {
+        final joined = path.join(_browseDir!, decoded);
+        final isWithin = path.isWithin(_browseDir!, joined);
+        final equals = path.equals(_browseDir!, joined);
+        if (!isWithin && !equals) return false;
+      } catch (_) {
+        return false;
+      }
     }
 
     return true;
