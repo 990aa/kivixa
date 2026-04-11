@@ -89,12 +89,20 @@ void main() {
       expect(stows.appLockPinSet.value, isFalse);
     });
 
-    test('returns false for empty PIN', () async {
+    test(
+        'returns false for empty PIN without writing or overwriting existing PIN',
+        () async {
       final service = AppLockService();
+      await service.setPin('1234');
+      log.clear();
+
       final result = await service.setPin('');
 
       expect(result, isFalse);
-      expect(stows.appLockPinSet.value, isFalse);
+      expect(log.where((c) => c.method == 'write'), isEmpty);
+      expect(stows.appLockPinSet.value, isTrue);
+      expect(stows.appLockEnabled.value, isTrue);
+      expect(await service.verifyPin('1234'), isTrue);
     });
   });
 
