@@ -217,4 +217,45 @@ void main() {
       expect(result.confidence, 0.8);
     });
   });
+
+  group('stopListening fallback session handling', () {
+    test(
+      'returns fallback transcript when fallback session ended before stop',
+      () async {
+        final engine = AudioNeuralEngine();
+        engine.debugConfigureStopListeningForTest(
+          useSpeechFallback: true,
+          speechFallbackListening: false,
+          speechFallbackTranscript: 'dictated transcript',
+          rustAudioReady: false,
+        );
+
+        final result = await engine.stopListening();
+
+        expect(result, isNotNull);
+        expect(result!.text, 'dictated transcript');
+        expect(result.isFinal, isTrue);
+        expect(engine.state.value, AudioEngineState.idle);
+
+        engine.reset();
+      },
+    );
+
+    test('returns null when fallback transcript is empty', () async {
+      final engine = AudioNeuralEngine();
+      engine.debugConfigureStopListeningForTest(
+        useSpeechFallback: true,
+        speechFallbackListening: false,
+        speechFallbackTranscript: '   ',
+        rustAudioReady: false,
+      );
+
+      final result = await engine.stopListening();
+
+      expect(result, isNull);
+      expect(engine.state.value, AudioEngineState.idle);
+
+      engine.reset();
+    });
+  });
 }
