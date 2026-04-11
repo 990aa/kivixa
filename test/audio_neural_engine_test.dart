@@ -143,7 +143,7 @@ void main() {
     });
   });
 
-  group('AudioNeuralEngine', skip: 'Native dependencies unavailable', () {
+  group('AudioNeuralEngine', () {
     test('should be a singleton', () {
       final instance1 = AudioNeuralEngine();
       final instance2 = AudioNeuralEngine();
