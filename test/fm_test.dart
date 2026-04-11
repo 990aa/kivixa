@@ -20,6 +20,11 @@ void main() {
     setUpAll(() async {
       await FileManager.init();
       rootDir = FileManager.documentsDirectory;
+      await Directory(rootDir).create(recursive: true);
+    });
+
+    setUp(() async {
+      await Directory(rootDir).create(recursive: true);
     });
 
     test('readFile', () async {
