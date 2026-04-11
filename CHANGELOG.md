@@ -543,7 +543,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Floating assistant MCP initialization no longer fails in test/runtime contexts where `FileManager.documentsDirectory` has not been initialized yet (safe fallback handling).
 
 ---
-## [0.8.1] - 2026-04-09
+## [0.8.2] - 2026-04-09
+
 
 ### Added
 - Added platform speech fallback dependencies for dictation/read-aloud (`speech_to_text`, `flutter_tts`, and `record`) plus required Android/iOS microphone and speech permission metadata.
@@ -560,11 +561,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - MCP grammar sampler initialization failures no longer abort response generation; inference now logs a warning and falls back to unconstrained sampling.
 - Resolved strict clippy findings in native/native_audio Rust code paths so `cargo check`, `cargo clippy`, `cargo fmt`, `cargo test`, and `cargo audit` pass in both crates.
-
----
-## [0.8.2] - 2026-04-09
-
-### Changed
-- Version bump to 0.8.2
 
 ---
