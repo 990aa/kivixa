@@ -1,3 +1,4 @@
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/data/editor/page.dart';
 import 'package:kivixa/data/tools/laser_pointer.dart';
@@ -23,73 +24,149 @@ void main() {
       }
     });
 
-    test('matches drawn speed', () async {
-      expect(laserPointer.strokePointDelays, strokePointDelays);
-      final stroke = Pen.currentStroke as LaserStroke;
-      expect(stroke.length, strokePointDelays.length);
+    test('matches drawn speed', () {
+      fakeAsync((async) {
+        expect(laserPointer.strokePointDelays, strokePointDelays);
+        final stroke = Pen.currentStroke as LaserStroke;
+        expect(stroke.length, strokePointDelays.length);
 
-      var redraws = 0;
-      var deletions = 0;
-      final delays = <Duration>[];
+        var redraws = 0;
+        var deletions = 0;
 
-      LaserPointer.isDrawing = false;
-      await LaserPointer.fadeOutStroke(
-        stroke: stroke,
-        strokePointDelays: strokePointDelays,
-        redrawPage: () => redraws++,
-        deleteStroke: (_) => deletions++,
-        wait: (duration) async => delays.add(duration),
-      );
+        LaserPointer.isDrawing = false;
 
-      expect(redraws, 4);
-      expect(deletions, 1);
-      expect(delays, [LaserPointer.fadeOutDelay, ...strokePointDelays]);
+        LaserPointer.fadeOutStroke(
+          stroke: stroke,
+          strokePointDelays: strokePointDelays,
+          redrawPage: () => redraws++,
+          deleteStroke: (_) => deletions++,
+        );
+
+        async.elapse(LaserPointer.fadeOutDelay);
+
+        for (final delay in strokePointDelays) {
+          async.elapse(delay);
+        }
+
+        expect(redraws, 4);
+        expect(deletions, 1);
+      });
     });
 
-    test('reduces point count', () async {
-      final stroke = Pen.currentStroke as LaserStroke;
-      var lastStrokeLength = stroke.length + 1; // +1 for initial fadeOutDelay
+    test('reduces point count', () {
+      fakeAsync((async) {
+        final stroke = Pen.currentStroke as LaserStroke;
+        final initialLength = stroke.length;
 
-      LaserPointer.isDrawing = false;
-      await LaserPointer.fadeOutStroke(
-        stroke: stroke,
-        strokePointDelays: strokePointDelays,
-        redrawPage: () {},
-        deleteStroke: (_) {
-          printOnFailure('Deleting stroke, length ${stroke.length}');
-          expect(
-            stroke.length,
-            lessThanOrEqualTo(1),
-            reason: 'Stroke should only be deleted at end',
-          );
-          lastStrokeLength = 0;
-        },
-        wait: (duration) async {
-          printOnFailure(
-            'Waiting for $duration, stroke length ${stroke.length}',
-          );
-          if (duration == Duration.zero) return; // skip wait before first pop
-          expect(stroke.length, lessThan(lastStrokeLength));
-          lastStrokeLength = stroke.length;
-        },
-      );
+        LaserPointer.isDrawing = false;
+
+        LaserPointer.fadeOutStroke(
+          stroke: stroke,
+          strokePointDelays: strokePointDelays,
+          redrawPage: () {},
+          deleteStroke: (_) {
+            expect(
+              stroke.length,
+              lessThanOrEqualTo(1),
+              reason: 'Stroke should only be deleted at end',
+            );
+          },
+        );
+
+        async.elapse(LaserPointer.fadeOutDelay);
+
+        for (int i = 0; i < strokePointDelays.length; i++) {
+          async.elapse(strokePointDelays[i]);
+          if (i < strokePointDelays.length - 1) {
+             expect(stroke.length, initialLength - (i + 1));
+          }
+        }
+      });
     });
 
-    test('produces valid strokes', () async {
-      final stroke = Pen.currentStroke as LaserStroke;
-      expect(stroke.points, isNotEmpty);
+    test('produces valid strokes', () {
+      fakeAsync((async) {
+        final stroke = Pen.currentStroke as LaserStroke;
+        expect(stroke.points, isNotEmpty);
 
-      LaserPointer.isDrawing = false;
-      await LaserPointer.fadeOutStroke(
-        stroke: stroke,
-        strokePointDelays: strokePointDelays,
-        redrawPage: () {
-          expect(stroke.points, isNotEmpty);
-          expect(() => stroke.lowQualityPath, returnsNormally);
-        },
-        deleteStroke: (stroke) {},
-        wait: (duration) async {},
-      );
+        LaserPointer.isDrawing = false;
+
+        LaserPointer.fadeOutStroke(
+          stroke: stroke,
+          strokePointDelays: strokePointDelays,
+          redrawPage: () {
+            expect(stroke.points, isNotEmpty);
+            expect(() => stroke.lowQualityPath, returnsNormally);
+          },
+          deleteStroke: (stroke) {},
+        );
+
+        async.elapse(LaserPointer.fadeOutDelay);
+        for (final delay in strokePointDelays) {
+          async.elapse(delay);
+        }
+      });
+    });
+
+    test('pauses fade out when isDrawing is true', () {
+      fakeAsync((async) {
+        final stroke = Pen.currentStroke as LaserStroke;
+
+        var redraws = 0;
+        var deletions = 0;
+
+        LaserPointer.isDrawing = false;
+
+        LaserPointer.fadeOutStroke(
+          stroke: stroke,
+          strokePointDelays: strokePointDelays,
+          redrawPage: () => redraws++,
+          deleteStroke: (_) => deletions++,
+        );
+
+        // Advance initial delay
+        async.elapse(LaserPointer.fadeOutDelay);
+
+        // First delay is Duration.zero, so the first point is popped immediately after fadeOutDelay
+        expect(redraws, 1);
+
+        // Before advancing the delay for the *second* point (strokePointDelays[1]),
+        // we set isDrawing to true.
+        // The delay for the second point is 37ms. Let's advance 37ms.
+        // It will pop the second point, redraw, and then check `if (isDrawing)`.
+        LaserPointer.isDrawing = true;
+
+        async.elapse(strokePointDelays[1]);
+
+        // Redraws should now be 2, because we elapsed enough time for the second point to pop
+        expect(redraws, 2);
+
+        // Now the code is inside the `while (isDrawing)` loop, waiting `waitTime` (100ms) repeatedly.
+        // If we elapse 500ms, it should stay stuck there, not popping any more points.
+        async.elapse(const Duration(milliseconds: 500));
+
+        // No new redraws or deletions
+        expect(redraws, 2);
+        expect(deletions, 0);
+
+        // User stops drawing
+        LaserPointer.isDrawing = false;
+
+        // Wait 100ms for the while loop condition to be checked
+        async.elapse(const Duration(milliseconds: 100));
+
+        // It then waits `fadeOutDelay - waitTime` (1.9 seconds).
+        async.elapse(LaserPointer.fadeOutDelay - const Duration(milliseconds: 100));
+
+        // Now it's out of the isDrawing block. Let's advance the rest of the delays.
+        for (final delay in strokePointDelays.skip(2)) {
+          async.elapse(delay);
+        }
+
+        // All points popped and deleted
+        expect(redraws, 4);
+        expect(deletions, 1);
+      });
     });
   });
 }

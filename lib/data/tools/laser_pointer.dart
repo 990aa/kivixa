@@ -91,12 +91,11 @@ class LaserPointer extends Tool {
     required List<Duration> strokePointDelays,
     required VoidCallback redrawPage,
     required void Function(LaserStroke) deleteStroke,
-    @visibleForTesting Future<void> Function(Duration) wait = Future.delayed,
   }) async {
-    await wait(fadeOutDelay);
+    await Future.delayed(fadeOutDelay);
 
     for (final delay in strokePointDelays) {
-      await wait(delay);
+      await Future.delayed(delay);
 
       if (stroke.length <= 1) break;
 
@@ -106,9 +105,9 @@ class LaserPointer extends Tool {
       if (isDrawing) {
         // if the user starts drawing again, wait until they stop
         const waitTime = Duration(milliseconds: 100);
-        while (isDrawing) await wait(waitTime);
+        while (isDrawing) await Future.delayed(waitTime);
         // now wait the normal delay before continuing
-        await wait(fadeOutDelay - waitTime);
+        await Future.delayed(fadeOutDelay - waitTime);
       }
     }
 
