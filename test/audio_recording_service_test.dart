@@ -47,33 +47,24 @@ void main() {
       expect(identical(service1, service2), true);
     });
 
-    test(
-      'should expose a valid recording state',
-      () {
-        final service = AudioRecordingService();
-        expect(RecordingState.values, contains(service.state.value));
-      },
-    );
+    test('should expose a valid recording state', () {
+      final service = AudioRecordingService();
+      expect(RecordingState.values, contains(service.state.value));
+    });
 
     test('should have state notifier', () {
       final service = AudioRecordingService();
       expect(service.state, isNotNull);
     });
 
-    test(
-      'should have audioDataStream',
-      () {
-        final service = AudioRecordingService();
-        expect(service.audioDataStream, isNotNull);
-      },
-    );
+    test('should have audioDataStream', () {
+      final service = AudioRecordingService();
+      expect(service.audioDataStream, isNotNull);
+    });
 
-    test(
-      'should have default format config',
-      () {
-        final service = AudioRecordingService();
-        expect(service.config, isNotNull);
-      },
-    );
+    test('should have default format config', () {
+      final service = AudioRecordingService();
+      expect(service.config, isNotNull);
+    });
   });
 }
