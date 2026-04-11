@@ -42,6 +42,7 @@ class InteractiveCanvasViewer extends StatefulWidget {
     this.onDrawUpdate,
     this.panEnabled = true,
     this.scaleEnabled = true,
+    this.rotateEnabled = false,
     this.scaleFactor = kDefaultMouseScrollToScaleFactor,
     this.transformationController,
     this.alignment,
@@ -89,6 +90,7 @@ class InteractiveCanvasViewer extends StatefulWidget {
     this.onDrawUpdate,
     this.panEnabled = true,
     this.scaleEnabled = true,
+    this.rotateEnabled = false,
     this.scaleFactor = 200.0,
     this.transformationController,
     this.alignment,
@@ -220,6 +222,16 @@ class InteractiveCanvasViewer extends StatefulWidget {
   ///
   ///   * [panEnabled], which is similar but for panning.
   final bool scaleEnabled;
+
+  /// If false, the user will be prevented from rotating.
+  ///
+  /// Defaults to false.
+  ///
+  /// See also:
+  ///
+  ///   * [panEnabled], which is similar but for panning.
+  ///   * [scaleEnabled], which is similar but for scaling.
+  final bool rotateEnabled;
 
   /// {@macro flutter.gestures.scale.trackpadScrollCausesScale}
   final bool trackpadScrollCausesScale;
@@ -497,11 +509,6 @@ class _InteractiveCanvasViewerState extends State<InteractiveCanvasViewer>
   double _currentRotation = 0; // Rotation of _transformationController.value.
   _GestureType? _gestureType;
 
-  // -TODO(justinmc): Add rotateEnabled parameter to the widget and remove this
-  // hardcoded value when the rotation feature is implemented.
-  // https://github.com/flutter/flutter/issues/57698
-  final bool _rotateEnabled = false;
-
   // The _boundaryRect is calculated by adding the boundaryMargin to the size of
   // the child.
   Rect get _boundaryRect {
@@ -693,7 +700,7 @@ class _InteractiveCanvasViewerState extends State<InteractiveCanvasViewer>
   // Returns true iff the given _GestureType is enabled.
   bool _gestureIsSupported(_GestureType? gestureType) {
     return switch (gestureType) {
-      _GestureType.rotate => _rotateEnabled,
+      _GestureType.rotate => widget.rotateEnabled,
       _GestureType.scale => widget.scaleEnabled,
       _GestureType.pan || null => widget.panEnabled,
     };
@@ -705,7 +712,7 @@ class _InteractiveCanvasViewerState extends State<InteractiveCanvasViewer>
   // finger.
   _GestureType _getGestureType(ScaleUpdateDetails details) {
     final double scale = !widget.scaleEnabled ? 1.0 : details.scale;
-    final double rotation = !_rotateEnabled ? 0.0 : details.rotation;
+    final double rotation = !widget.rotateEnabled ? 0.0 : details.rotation;
     if ((scale - 1).abs() > rotation.abs()) {
       return _GestureType.scale;
     } else if (rotation != 0.0) {
