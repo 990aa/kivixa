@@ -11,8 +11,8 @@ import 'package:kivixa/components/audio/read_aloud.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/ai/chat_attachment_service.dart';
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
-import 'package:kivixa/services/audio/live_transcription_buffer.dart';
 import 'package:kivixa/services/audio/audio_recording_service.dart';
+import 'package:kivixa/services/audio/live_transcription_buffer.dart';
 
 class MCPChatInterface extends StatefulWidget {
   final MCPChatController controller;
