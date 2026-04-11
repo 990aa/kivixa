@@ -123,8 +123,10 @@ void main() {
       wrapWidget(
         AudioSettingsPage(
           voiceLoader: () async => voices,
-          voicePreviewHandler: (_, __) {
+          voicePreviewHandler: (sampleText, sampleVoiceId) {
             previewCalls += 1;
+            expect(sampleText, isNotEmpty);
+            expect(sampleVoiceId, isNotEmpty);
             return previewCompleter.future;
           },
         ),

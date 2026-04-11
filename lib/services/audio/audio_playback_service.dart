@@ -15,7 +15,7 @@ import 'package:path_provider/path_provider.dart';
 
 enum _PlaybackBackend { none, mediaKit, flutterTts }
 
-const Duration _mediaKitCompletionTolerance = Duration(milliseconds: 150);
+const _mediaKitCompletionTolerance = Duration(milliseconds: 150);
 
 /// Playback state
 enum PlaybackState {
