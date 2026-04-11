@@ -88,6 +88,14 @@ void main() {
       expect(result, isFalse);
       expect(stows.appLockPinSet.value, isFalse);
     });
+
+    test('returns false for empty PIN', () async {
+      final service = AppLockService();
+      final result = await service.setPin('');
+
+      expect(result, isFalse);
+      expect(stows.appLockPinSet.value, isFalse);
+    });
   });
 
   group('AppLockService.verifyPin', () {
