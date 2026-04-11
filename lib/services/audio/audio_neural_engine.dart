@@ -516,6 +516,15 @@ class AudioNeuralEngine {
     _visualizerNotifier.value = AudioVisualizerData.empty;
   }
 
+  /// Reset internal state for testing
+  @visibleForTesting
+  void resetForTesting() {
+    _isInitialized = false;
+    _initializationFailed = false;
+    _initializationError = null;
+    _stateNotifier.value = AudioEngineState.uninitialized;
+  }
+
   /// Dispose resources
   void dispose() {
     _processingTimer?.cancel();
