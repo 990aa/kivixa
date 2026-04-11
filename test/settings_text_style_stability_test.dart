@@ -22,11 +22,11 @@ void main() {
   late int originalHubTransparency;
   late Color? originalAccentColor;
 
-  Text _titleText(WidgetTester tester, String title) {
+  Text titleText(WidgetTester tester, String title) {
     return tester.widget<Text>(find.text(title).first);
   }
 
-  void _expectNotItalic(Text text) {
+  void expectNotItalic(Text text) {
     expect(text.style?.fontStyle, isNot(FontStyle.italic));
   }
 
@@ -65,12 +65,12 @@ void main() {
       ),
     );
 
-    _expectNotItalic(_titleText(tester, switchTitle));
+    expectNotItalic(titleText(tester, switchTitle));
 
     stows.floatingHubEnabled.value = !stows.floatingHubEnabled.defaultValue;
     await tester.pumpAndSettle();
 
-    _expectNotItalic(_titleText(tester, switchTitle));
+    expectNotItalic(titleText(tester, switchTitle));
   });
 
   testWidgets('SettingsDropdown title remains non-italic when value changes', (
@@ -96,12 +96,12 @@ void main() {
       ),
     );
 
-    _expectNotItalic(_titleText(tester, dropdownTitle));
+    expectNotItalic(titleText(tester, dropdownTitle));
 
     stows.floatingHubSize.value = 0;
     await tester.pumpAndSettle();
 
-    _expectNotItalic(_titleText(tester, dropdownTitle));
+    expectNotItalic(titleText(tester, dropdownTitle));
   });
 
   testWidgets('SettingsSelection title remains non-italic when value changes', (
@@ -128,12 +128,12 @@ void main() {
       ),
     );
 
-    _expectNotItalic(_titleText(tester, selectionTitle));
+    expectNotItalic(titleText(tester, selectionTitle));
 
     stows.floatingHubTransparency.value = 0;
     await tester.pumpAndSettle();
 
-    _expectNotItalic(_titleText(tester, selectionTitle));
+    expectNotItalic(titleText(tester, selectionTitle));
   });
 
   testWidgets('SettingsColor title remains non-italic when value changes', (
@@ -149,11 +149,11 @@ void main() {
       ),
     );
 
-    _expectNotItalic(_titleText(tester, colorTitle));
+    expectNotItalic(titleText(tester, colorTitle));
 
     stows.accentColor.value = Colors.teal;
     await tester.pumpAndSettle();
 
-    _expectNotItalic(_titleText(tester, colorTitle));
+    expectNotItalic(titleText(tester, colorTitle));
   });
 }
