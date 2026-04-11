@@ -76,4 +76,7 @@ class MockFlutterLocalNotificationsPlugin implements FlutterLocalNotificationsPl
 
   @override
   Future<void> show(int id, String? title, String? body, NotificationDetails? notificationDetails, {String? payload}) async {}
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
