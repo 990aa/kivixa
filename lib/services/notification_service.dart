@@ -14,11 +14,14 @@ class NotificationService {
 
   static final instance = NotificationService._();
 
+  final FlutterLocalNotificationsPlugin _defaultNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
   @visibleForTesting
   FlutterLocalNotificationsPlugin? notificationsPluginOverride;
 
   FlutterLocalNotificationsPlugin get _notifications =>
-      notificationsPluginOverride ?? FlutterLocalNotificationsPlugin();
+      notificationsPluginOverride ?? _defaultNotificationsPlugin;
 
   var _initialized = false;
 
