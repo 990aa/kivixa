@@ -21,6 +21,27 @@ String browserWebViewKeyForTab(String tabId) => 'webview_tab_$tabId';
 @visibleForTesting
 bool browserShouldUseHybridComposition({required bool isAndroid}) => isAndroid;
 
+/// Creates an [InAppWebViewSettings] baseline with secure defaults to guard
+/// against MITM attacks and local file exfiltration. These settings are shared
+/// across all in-app browser WebViews so that security posture cannot drift
+/// between code paths.
+@visibleForTesting
+InAppWebViewSettings browserSecureWebViewSettings() {
+  return InAppWebViewSettings(
+    allowFileAccess: false,
+    // Allow content resolver URIs (for example file uploads via content://)
+    // while keeping file-URL access restricted below.
+    allowContentAccess: true,
+    // Disable mixed content to prevent MITM attacks in HTTPS contexts.
+    mixedContentMode: MixedContentMode.MIXED_CONTENT_NEVER_ALLOW,
+    // Do not allow WebView to open windows automatically without user interaction.
+    javaScriptCanOpenWindowsAutomatically: false,
+    // Disallow access from file URLs for security.
+    allowUniversalAccessFromFileURLs: false,
+    allowFileAccessFromFileURLs: false,
+  );
+}
+
 /// Console log entry for developer tools
 class ConsoleLogEntry {
   final String message;
@@ -835,43 +856,27 @@ class _BrowserPageState extends State<BrowserPage> {
     return InAppWebView(
       key: webViewKey,
       initialUrlRequest: URLRequest(url: WebUri(_currentUrl)),
-      initialSettings: InAppWebViewSettings(
-        javaScriptEnabled: true,
-        domStorageEnabled: true,
-        supportZoom: true,
-        builtInZoomControls: !_isDesktop,
-        displayZoomControls: false,
-        useHybridComposition: browserShouldUseHybridComposition(
+      initialSettings: browserSecureWebViewSettings()
+        ..javaScriptEnabled = true
+        ..domStorageEnabled = true
+        ..supportZoom = true
+        ..builtInZoomControls = !_isDesktop
+        ..displayZoomControls = false
+        ..useHybridComposition = browserShouldUseHybridComposition(
           isAndroid: isAndroid,
-        ),
-        allowsInlineMediaPlayback: true,
-        mediaPlaybackRequiresUserGesture: false,
-        transparentBackground: false,
-        useShouldOverrideUrlLoading: true,
-        allowFileAccess: false,
-        // Allow content resolver URIs (for example file uploads via content://)
-        // while keeping file-URL access restricted below.
-        allowContentAccess: true,
-        // Disable mixed content mode for security
-        mixedContentMode: MixedContentMode.MIXED_CONTENT_NEVER_ALLOW,
-        // Do not allow WebView to open windows automatically without user interaction
-        javaScriptCanOpenWindowsAutomatically: false,
+        )
+        ..allowsInlineMediaPlayback = true
+        ..mediaPlaybackRequiresUserGesture = false
+        ..transparentBackground = false
+        ..useShouldOverrideUrlLoading = true
         // Enable caching for better performance
-        cacheEnabled: true,
-        cacheMode: CacheMode.LOAD_DEFAULT,
+        ..cacheEnabled = true
+        ..cacheMode = CacheMode.LOAD_DEFAULT
         // Enable database and geolocation
-        databaseEnabled: true,
-        geolocationEnabled: true,
-        // Disallow universal access from file URLs for security
-        allowUniversalAccessFromFileURLs: false,
-        allowFileAccessFromFileURLs: false,
-        // Desktop-like user agent for better compatibility
-        userAgent: _isDesktop
-            ? null // Use default WebView2 user agent on Windows
-            : null,
+        ..databaseEnabled = true
+        ..geolocationEnabled = true
         // FindInteractionController is not supported on desktop platforms
-        isFindInteractionEnabled: !_isDesktop,
-      ),
+        ..isFindInteractionEnabled = !_isDesktop,
       // FindInteractionController is only supported on mobile platforms
       findInteractionController: _isDesktop
           ? null
