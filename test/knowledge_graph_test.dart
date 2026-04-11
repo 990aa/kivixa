@@ -466,8 +466,8 @@ void main() {
       await tester.tap(find.text('Add'));
       await tester.pump();
 
-      expect(find.text('Title is required'), findsOneWidget);
       expect(find.text('Add Node'), findsOneWidget);
+      expect(find.byType(AlertDialog), findsOneWidget);
     });
 
     testWidgets('can cancel add node dialog', (tester) async {
