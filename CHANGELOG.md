@@ -565,6 +565,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.8.3] - 2026-04-11
 
+### Added
+- Added a shared voice-preference utility path (`voice_preference_utils`) used by playback/read-aloud selection logic for female, male, and custom profiles.
+- Added new Flutter regression tests for advanced audio voice settings UI interactions and voice preference utility coverage.
+- Added expanded Rust TTS/API tests validating character-voice availability, audible synthesis output, punctuation-driven duration changes, and per-voice waveform differentiation.
+
 ### Changed
+- Reworked native Rust TTS to provide a full built-in voice catalog (`af_heart`, `af_sky`, `am_adam`, `am_michael`, `bf_emma`, `bm_george`, plus compatibility aliases), with deterministic ordering for stable frontend selection.
+- Replaced silent placeholder TTS waveform generation with voice-conditioned procedural synthesis including smoother envelopes, harmonic shaping, breath/noise blending, and punctuation-aware prosody/pause behavior.
+- Updated Advanced Audio Models -> Voices UI to a horizontal voice catalog layout with direct preview and explicit `Set Preferred` actions per voice.
+- Wired advanced voice selection to persistent global settings so chosen custom voice becomes the default for all TTS/read-aloud paths.
+- Improved fallback platform-TTS voice mapping to respect selected profile/voice intent via locale/gender-aware matching when native synthesis is unavailable.
+
+### Fixed
+- Fixed profile switching issues where female/custom preferences could still sound unchanged by ensuring shared voice resolution logic is used end-to-end.
+- Fixed settings-page custom voice behavior that previously exposed only generic male/female choices by exposing backend character voices in selection surfaces.
+- Fixed Advanced Audio Models voice preview actions that previously produced no audio by routing previews through the playback service with real synthesis.
+- Fixed Rust quality gate instability by adding explicit native crate license metadata and a repository `deny.toml`, enabling `cargo deny` to pass alongside check/clippy/fmt/test/audit.
 
 ---
