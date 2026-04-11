@@ -584,3 +584,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed Rust quality gate instability by adding explicit native crate license metadata and a repository `deny.toml`, enabling `cargo deny` to pass alongside check/clippy/fmt/test/audit.
 
 ---
+## [0.8.4] - 2026-04-11
+
+### Changed
+- Version bump to 0.8.4
+
+---
