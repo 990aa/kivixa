@@ -57,7 +57,10 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: SettingsSwitch(title: switchTitle, pref: stows.floatingHubEnabled),
+          body: SettingsSwitch(
+            title: switchTitle,
+            pref: stows.floatingHubEnabled,
+          ),
         ),
       ),
     );
