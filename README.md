@@ -650,7 +650,6 @@ The installer includes a custom uninstaller that allows users to optionally wipe
 |  **Linux** | - | Requires Linux |
 |  **Android** | Stable | Android 7.0 (API 24)+ |
 |  **iOS** | - | Requires iOS |
-|  **Web** | Experimental | Limited features |
 
 ---
 
