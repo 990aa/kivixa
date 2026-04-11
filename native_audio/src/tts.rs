@@ -49,6 +49,13 @@ pub struct VoiceStyle {
     pub embedding: Vec<f32>,
 }
 
+#[derive(Debug, Clone, Copy)]
+struct VoiceTimbre {
+    brightness: f32,
+    warmth: f32,
+    breathiness: f32,
+}
+
 impl VoiceStyle {
     fn build_voice(
         id: &str,
@@ -56,20 +63,18 @@ impl VoiceStyle {
         description: &str,
         rate: f32,
         pitch: f32,
-        brightness: f32,
-        warmth: f32,
-        breathiness: f32,
+        timbre: VoiceTimbre,
     ) -> Self {
         let mut embedding = vec![0.0; 256];
 
         for item in embedding.iter_mut().take(64) {
-            *item = brightness;
+            *item = timbre.brightness;
         }
         for item in embedding.iter_mut().skip(64).take(64) {
-            *item = warmth;
+            *item = timbre.warmth;
         }
         for item in embedding.iter_mut().skip(128).take(64) {
-            *item = breathiness;
+            *item = timbre.breathiness;
         }
         for (index, item) in embedding.iter_mut().skip(192).enumerate() {
             *item = ((index as f32 / 64.0) * std::f32::consts::PI).sin() * 0.1;
@@ -93,9 +98,11 @@ impl VoiceStyle {
             "Balanced neutral narration voice.",
             1.0,
             0.0,
-            0.5,
-            0.5,
-            0.25,
+            VoiceTimbre {
+                brightness: 0.5,
+                warmth: 0.5,
+                breathiness: 0.25,
+            },
         )
     }
 
@@ -107,9 +114,11 @@ impl VoiceStyle {
             "Female presentation voice.",
             1.0,
             2.0,
-            0.74,
-            0.44,
-            0.34,
+            VoiceTimbre {
+                brightness: 0.74,
+                warmth: 0.44,
+                breathiness: 0.34,
+            },
         )
     }
 
@@ -121,9 +130,11 @@ impl VoiceStyle {
             "Male presentation voice.",
             0.98,
             -2.0,
-            0.42,
-            0.72,
-            0.2,
+            VoiceTimbre {
+                brightness: 0.42,
+                warmth: 0.72,
+                breathiness: 0.2,
+            },
         )
     }
 
@@ -134,9 +145,11 @@ impl VoiceStyle {
             "Warm and expressive American female voice.",
             1.0,
             2.5,
-            0.76,
-            0.58,
-            0.28,
+            VoiceTimbre {
+                brightness: 0.76,
+                warmth: 0.58,
+                breathiness: 0.28,
+            },
         )
     }
 
@@ -147,9 +160,11 @@ impl VoiceStyle {
             "Clear and professional American female voice.",
             1.02,
             2.2,
-            0.82,
-            0.38,
-            0.22,
+            VoiceTimbre {
+                brightness: 0.82,
+                warmth: 0.38,
+                breathiness: 0.22,
+            },
         )
     }
 
@@ -160,9 +175,11 @@ impl VoiceStyle {
             "Calm and authoritative American male voice.",
             0.96,
             -2.8,
-            0.44,
-            0.74,
-            0.18,
+            VoiceTimbre {
+                brightness: 0.44,
+                warmth: 0.74,
+                breathiness: 0.18,
+            },
         )
     }
 
@@ -173,9 +190,11 @@ impl VoiceStyle {
             "Energetic and engaging American male voice.",
             1.05,
             -1.8,
-            0.52,
-            0.64,
-            0.16,
+            VoiceTimbre {
+                brightness: 0.52,
+                warmth: 0.64,
+                breathiness: 0.16,
+            },
         )
     }
 
@@ -186,9 +205,11 @@ impl VoiceStyle {
             "Sophisticated British female voice.",
             0.99,
             2.0,
-            0.71,
-            0.54,
-            0.2,
+            VoiceTimbre {
+                brightness: 0.71,
+                warmth: 0.54,
+                breathiness: 0.2,
+            },
         )
     }
 
@@ -199,9 +220,11 @@ impl VoiceStyle {
             "Elegant British male voice.",
             0.97,
             -2.2,
-            0.46,
-            0.71,
-            0.16,
+            VoiceTimbre {
+                brightness: 0.46,
+                warmth: 0.71,
+                breathiness: 0.16,
+            },
         )
     }
 
@@ -439,6 +462,7 @@ impl TtsEngine {
     }
 
     /// Encode phonemes to model input IDs
+    #[cfg(test)]
     fn encode_phonemes(&self, sequences: &[PhonemeSequence]) -> Vec<i64> {
         let mut ids = Vec::new();
 
