@@ -1,6 +1,6 @@
 {
   "repo": {
-    "timestamp": 1775749021000,
+    "timestamp": 1775870927000,
     "version": 20002,
     "name": "Kivixa",
     "icon": "icon.png",
@@ -16,13 +16,13 @@
       "categories": [
         "Productivity"
       ],
-      "suggestedVersionCode": "80003",
+      "suggestedVersionCode": "80023",
       "license": "Unknown",
       "name": "Kivixa",
       "summary": "A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.",
       "added": 1775272744000,
       "packageName": "com.a990aa.kivixa",
-      "lastUpdated": 1775749013000,
+      "lastUpdated": 1775870917000,
       "localized": {
         "en-US": {
           "description": "Kivixa is a privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.\n\nFeatures:\n- Rich markdown and text editing for fast note-taking\n- Digital canvas for handwriting, drawing, and mixed media notes\n- On-device AI with multi-model MCP workflows (no cloud required)\n- Knowledge graph view to connect ideas and topics visually\n- PDF reading and annotation inside the same workspace\n- Focus tools including Pomodoro and custom productivity timers\n- High-performance math tools powered by a Rust backend\n",
@@ -35,9 +35,9 @@
   "packages": {
     "com.a990aa.kivixa": [
       {
-        "added": 1775749013000,
-        "apkName": "Kivixa-Android-0.8.0-x86_64.apk",
-        "hash": "47c6285de83bc1fbf402b3219bcc3bf715bdba4b1f3225e2a0517790b9b4200e",
+        "added": 1775870917000,
+        "apkName": "Kivixa-Android-0.8.2-x86_64.apk",
+        "hash": "2c1c1eaa2182fbcd2af5a4117bcf8b5b6b969a21d3ae6eb2d19e9cd4f4247601",
         "hashType": "sha256",
         "minSdkVersion": 24,
         "nativecode": [
@@ -46,11 +46,15 @@
         "packageName": "com.a990aa.kivixa",
         "sig": "4afe97afa2b0ea3f4a207c205fea0960",
         "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
-        "size": 73479255,
+        "size": 73596689,
         "targetSdkVersion": 36,
         "uses-permission": [
           [
             "android.permission.INTERNET",
+            null
+          ],
+          [
+            "android.permission.RECORD_AUDIO",
             null
           ],
           [
@@ -90,13 +94,13 @@
             null
           ]
         ],
-        "versionCode": 80003,
-        "versionName": "0.8.0"
+        "versionCode": 80023,
+        "versionName": "0.8.2"
       },
       {
-        "added": 1775749012000,
-        "apkName": "Kivixa-Android-0.8.0-arm64.apk",
-        "hash": "5ec82d60d0a3fc1e95d71488844100ddd80631c444e6698ef0d8d3e587c2fb37",
+        "added": 1775870916000,
+        "apkName": "Kivixa-Android-0.8.2-arm64.apk",
+        "hash": "17482f1523aeade9016adc0dc122d2e0f0aaa0304d56670a54ad259df278252a",
         "hashType": "sha256",
         "minSdkVersion": 24,
         "nativecode": [
@@ -105,11 +109,15 @@
         "packageName": "com.a990aa.kivixa",
         "sig": "4afe97afa2b0ea3f4a207c205fea0960",
         "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
-        "size": 67084697,
+        "size": 67202131,
         "targetSdkVersion": 36,
         "uses-permission": [
           [
             "android.permission.INTERNET",
+            null
+          ],
+          [
+            "android.permission.RECORD_AUDIO",
             null
           ],
           [
@@ -149,13 +157,13 @@
             null
           ]
         ],
-        "versionCode": 80002,
-        "versionName": "0.8.0"
+        "versionCode": 80022,
+        "versionName": "0.8.2"
       },
       {
-        "added": 1775749012000,
-        "apkName": "Kivixa-Android-0.8.0-armv7.apk",
-        "hash": "53016221dbaa200d87dca7d69628c05f8b6223193e74d0bfd4703c5656ca76a8",
+        "added": 1775870916000,
+        "apkName": "Kivixa-Android-0.8.2-armv7.apk",
+        "hash": "d65716a7bd1f9f36ba7dbc0274d3d22308849859b18d613a5ccde1daa9388fad",
         "hashType": "sha256",
         "minSdkVersion": 24,
         "nativecode": [
@@ -164,11 +172,15 @@
         "packageName": "com.a990aa.kivixa",
         "sig": "4afe97afa2b0ea3f4a207c205fea0960",
         "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
-        "size": 59986221,
+        "size": 60103655,
         "targetSdkVersion": 36,
         "uses-permission": [
           [
             "android.permission.INTERNET",
+            null
+          ],
+          [
+            "android.permission.RECORD_AUDIO",
             null
           ],
           [
@@ -208,8 +220,8 @@
             null
           ]
         ],
-        "versionCode": 80001,
-        "versionName": "0.8.0"
+        "versionCode": 80021,
+        "versionName": "0.8.2"
       }
     ]
   }
