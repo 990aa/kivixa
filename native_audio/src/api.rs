@@ -574,6 +574,8 @@ mod tests {
 
         let voices = tts_available_voices();
         assert!(!voices.is_empty());
+        assert!(voices.iter().any(|voice| voice.id == "af_heart"));
+        assert!(voices.iter().any(|voice| voice.id == "am_adam"));
     }
 
     #[test]
