@@ -35,14 +35,24 @@ class AppDataClearService {
   ) async {
     final results = <AppDataType, bool>{};
 
+    // Optimization: fetch files once if we need to clear notes or markdown, but not if 'all' is selected
+    // since 'all' deletes everything directly from the file system.
+    // Note: Since `getDataSizes` might have been called recently, we utilize a brief cache.
+    List<String>? cachedFiles;
+    if (!dataTypes.contains(AppDataType.all) &&
+        (dataTypes.contains(AppDataType.notes) ||
+            dataTypes.contains(AppDataType.markdown))) {
+      cachedFiles = await _getAllFilesCached();
+    }
+
     for (final dataType in dataTypes) {
       try {
         switch (dataType) {
           case AppDataType.notes:
-            await _clearNotes();
+            await _clearNotes(cachedFiles);
             results[dataType] = true;
           case AppDataType.markdown:
-            await _clearMarkdown();
+            await _clearMarkdown(cachedFiles);
             results[dataType] = true;
           case AppDataType.projects:
             await _clearProjects();
@@ -71,12 +81,15 @@ class AppDataClearService {
       }
     }
 
+    // Invalidate the cache after deletion
+    invalidateCache();
+
     return results;
   }
 
   /// Clears all notes (.kvx files)
-  static Future<void> _clearNotes() async {
-    final files = await FileManager.getAllFiles(includeExtensions: true);
+  static Future<void> _clearNotes([List<String>? preFetchedFiles]) async {
+    final files = preFetchedFiles ?? await _getAllFilesCached();
     for (final file in files) {
       if (file.endsWith('.kvx') || file.endsWith('.kvx1')) {
         await FileManager.deleteFile(file, alsoDeleteAssets: true);
@@ -85,8 +98,8 @@ class AppDataClearService {
   }
 
   /// Clears all markdown files
-  static Future<void> _clearMarkdown() async {
-    final files = await FileManager.getAllFiles(includeExtensions: true);
+  static Future<void> _clearMarkdown([List<String>? preFetchedFiles]) async {
+    final files = preFetchedFiles ?? await _getAllFilesCached();
     for (final file in files) {
       if (file.endsWith('.md')) {
         await FileManager.deleteFile(file, alsoDeleteAssets: false);
@@ -193,15 +206,40 @@ class AppDataClearService {
     await _clearBrowserData();
   }
 
+  // Define a static cache that we can invalidate or lazily load
+  static List<String>? _cachedAllFiles;
+  static DateTime? _cacheTimestamp;
+
+  /// Retrieves all files, utilizing an in-memory cache if it is less than 5 seconds old.
+  static Future<List<String>> _getAllFilesCached() async {
+    final now = DateTime.now();
+    if (_cachedAllFiles != null && _cacheTimestamp != null) {
+      if (now.difference(_cacheTimestamp!).inSeconds < 5) {
+        return _cachedAllFiles!;
+      }
+    }
+    _cachedAllFiles = await FileManager.getAllFiles(
+      includeExtensions: true,
+      includeAssets: true,
+    );
+    _cacheTimestamp = now;
+    return _cachedAllFiles!;
+  }
+
+  /// Invalidates the file cache
+  static void invalidateCache() {
+    _cachedAllFiles = null;
+    _cacheTimestamp = null;
+  }
+
   /// Gets the estimated size of each data type
   static Future<Map<AppDataType, int>> getDataSizes() async {
     final sizes = <AppDataType, int>{};
 
     try {
-      final files = await FileManager.getAllFiles(
-        includeExtensions: true,
-        includeAssets: true,
-      );
+      // Use the cached file retrieval method to avoid duplicate slow operations
+      // if clearData or something else just called it
+      final files = await _getAllFilesCached();
 
       int notesSize = 0;
       int markdownSize = 0;
