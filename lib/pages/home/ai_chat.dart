@@ -452,9 +452,7 @@ class _AIChatPageState extends State<AIChatPage> {
               icon: const Icon(Icons.build_outlined, size: 20),
               tooltip: 'Enable MCP Tools',
               onPressed: _toggleMcpMode,
-              style: IconButton.styleFrom(
-                foregroundColor: colorScheme.primary,
-              ),
+              style: IconButton.styleFrom(foregroundColor: colorScheme.primary),
             ),
         ],
       ),
@@ -480,7 +478,8 @@ class _AIChatPageState extends State<AIChatPage> {
       );
     }
 
-    if (_chatController.isModelLoaded && _chatController.loadedModelId != null) {
+    if (_chatController.isModelLoaded &&
+        _chatController.loadedModelId != null) {
       return ModelSwitcherChip(controller: _chatController, isCompact: true);
     }
 
