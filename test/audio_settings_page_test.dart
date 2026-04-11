@@ -19,11 +19,11 @@ void main() {
     stows.audioCustomVoiceId.value = stows.audioCustomVoiceId.defaultValue;
   });
 
-  Widget _wrap(Widget child) {
+  Widget wrapWidget(Widget child) {
     return MaterialApp(home: child);
   }
 
-  VoiceStyle _voice(String id, String name, String description) {
+  VoiceStyle voiceFactory(String id, String name, String description) {
     return VoiceStyle(id: id, name: name, description: description);
   }
 
@@ -31,12 +31,12 @@ void main() {
     'voices tab renders backend voices and persists preferred voice',
     (tester) async {
       final voices = <VoiceStyle>[
-        _voice(
+        voiceFactory(
           'af_heart',
           'Heart',
           'Warm and expressive American female voice.',
         ),
-        _voice(
+        voiceFactory(
           'am_adam',
           'Adam',
           'Calm and authoritative American male voice.',
@@ -44,7 +44,7 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        _wrap(
+        wrapWidget(
           AudioSettingsPage(
             voiceLoader: () async => voices,
             voicePreviewHandler: (text, voiceId) async {},
@@ -72,13 +72,17 @@ void main() {
     tester,
   ) async {
     final voices = <VoiceStyle>[
-      _voice('af_heart', 'Heart', 'Warm and expressive American female voice.'),
+      voiceFactory(
+        'af_heart',
+        'Heart',
+        'Warm and expressive American female voice.',
+      ),
     ];
     var previewText = '';
     var previewVoiceId = '';
 
     await tester.pumpWidget(
-      _wrap(
+      wrapWidget(
         AudioSettingsPage(
           voiceLoader: () async => voices,
           voicePreviewHandler: (text, voiceId) async {
