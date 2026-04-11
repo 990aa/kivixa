@@ -20,6 +20,7 @@ import 'package:kivixa/services/ai/chat_context_service.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/model_manager.dart';
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
+import 'package:kivixa/services/audio/live_transcription_buffer.dart';
 import 'package:kivixa/services/audio/audio_recording_service.dart';
 
 abstract class ChatInferenceGateway {
@@ -579,6 +580,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
   var _isListening = false;
   var _showReadAloudPlayer = false;
   DateTime? _lastAutoPlayedAssistantMessage;
+  final _liveTranscription = LiveTranscriptionBuffer();
 
   int? _historyCursor;
   var _draftBeforeHistory = '';
@@ -740,34 +742,53 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
   }
 
   void _onTranscription(SpeechRecognitionResult result) {
-    if (!_isListening || !result.isFinal || result.text.trim().isEmpty) {
+    if (!_isListening) {
       return;
     }
-    _insertComposerText('${result.text.trim()} ');
+    _applyLiveTranscription(result.text, isFinal: result.isFinal);
   }
 
-  void _insertComposerText(String text) {
+  int _currentComposerOffset() {
     final selection = _textController.selection;
-    final currentText = _textController.text;
+    final textLength = _textController.text.length;
 
     if (!selection.isValid) {
-      _textController
-        ..text = currentText + text
-        ..selection = TextSelection.collapsed(
-          offset: (currentText + text).length,
-        );
+      return textLength;
+    }
+
+    if (selection.start < 0) {
+      return 0;
+    }
+
+    if (selection.start > textLength) {
+      return textLength;
+    }
+
+    return selection.start;
+  }
+
+  void _applyLiveTranscription(String text, {required bool isFinal}) {
+    final edit = _liveTranscription.buildEdit(
+      text: text,
+      isFinal: isFinal,
+      currentTextLength: _textController.text.length,
+      fallbackAnchorOffset: _currentComposerOffset(),
+    );
+
+    if (edit == null) {
       return;
     }
 
-    final start = selection.start;
-    final end = selection.end;
-    final updatedText =
-        currentText.substring(0, start) + text + currentText.substring(end);
-    final cursor = start + text.length;
+    final currentText = _textController.text;
+    final updatedText = currentText.replaceRange(
+      edit.startOffset,
+      edit.endOffset,
+      edit.replacementText,
+    );
 
     _textController.value = TextEditingValue(
       text: updatedText,
-      selection: TextSelection.collapsed(offset: cursor),
+      selection: TextSelection.collapsed(offset: edit.caretOffset),
     );
     _focusNode.requestFocus();
   }
@@ -794,13 +815,14 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
         await _audioRecorder.stopRecording();
         final finalResult = await _audioEngine.stopListening();
         if (finalResult != null && finalResult.text.trim().isNotEmpty) {
-          _insertComposerText('${finalResult.text.trim()} ');
+          _applyLiveTranscription(finalResult.text, isFinal: true);
         }
         if (mounted) {
           setState(() {
             _isListening = false;
           });
         }
+        _liveTranscription.reset();
         return;
       }
 
@@ -818,6 +840,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
       );
       await _audioEngine.startListening();
       await _audioRecorder.startRecording();
+      _liveTranscription.startSession(anchorOffset: _currentComposerOffset());
       if (mounted) {
         setState(() {
           _isListening = true;
@@ -1000,17 +1023,13 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isCompact = widget.compact;
-    final padding = isCompact ? 8.0 : 16.0;
 
     return Column(
       children: [
         // Header
         if (widget.showHeader)
           Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: padding,
-              vertical: isCompact ? 8 : 12,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest,
               border: Border(
@@ -1019,80 +1038,79 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
             ),
             child: Row(
               children: [
-                Icon(
-                  Icons.smart_toy,
-                  color: colorScheme.primary,
-                  size: isCompact ? 18 : 24,
-                ),
+                Icon(Icons.smart_toy, color: colorScheme.primary, size: 20),
                 const SizedBox(width: 8),
-                Text(
-                  widget.title ?? 'AI Assistant',
-                  style:
-                      (isCompact
-                              ? theme.textTheme.titleSmall
-                              : theme.textTheme.titleMedium)
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Text(
+                    widget.title ?? 'AI Assistant',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                const Spacer(),
                 // Model status chip
                 if (widget.controller.isInitializing ||
-                    widget.controller.isLoadingModel)
-                  Chip(
-                    label: Text(
-                      widget.controller.isLoadingModel
-                          ? (isCompact ? 'Switching...' : 'Switching model...')
-                          : (isCompact ? 'Loading...' : 'Loading model...'),
-                    ),
-                    backgroundColor: colorScheme.secondaryContainer,
-                    labelStyle: TextStyle(
-                      color: colorScheme.onSecondaryContainer,
-                      fontSize: isCompact ? 10 : null,
-                    ),
-                    padding: isCompact ? EdgeInsets.zero : null,
-                    avatar: SizedBox(
-                      width: isCompact ? 12 : 16,
-                      height: isCompact ? 12 : 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                  )
-                else if (widget.controller.isModelLoaded)
-                  ModelSwitcherChip(
-                    controller: widget.controller,
-                    isCompact: isCompact,
-                  )
-                else
-                  ActionChip(
-                    label: Text(isCompact ? 'No model' : 'Model not loaded'),
-                    backgroundColor: colorScheme.errorContainer,
-                    labelStyle: TextStyle(
-                      color: colorScheme.onErrorContainer,
-                      fontSize: isCompact ? 10 : null,
-                    ),
-                    padding: isCompact ? EdgeInsets.zero : null,
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const ModelSelectionPage(),
-                        ),
-                      );
-                    },
+                    widget.controller.isLoadingModel) ...[
+                  const SizedBox(width: 8),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 170),
+                    child:
+                        widget.controller.isInitializing ||
+                            widget.controller.isLoadingModel
+                        ? Chip(
+                            label: Text(
+                              widget.controller.isLoadingModel
+                                  ? 'Switching...'
+                                  : 'Loading...',
+                            ),
+                            backgroundColor: colorScheme.secondaryContainer,
+                            labelStyle: TextStyle(
+                              color: colorScheme.onSecondaryContainer,
+                            ),
+                            avatar: SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: colorScheme.onSecondaryContainer,
+                              ),
+                            ),
+                          )
+                        : widget.controller.isModelLoaded
+                        ? ModelSwitcherChip(
+                            controller: widget.controller,
+                            isCompact: true,
+                          )
+                        : ActionChip(
+                            label: const Text('Model not loaded'),
+                            backgroundColor: colorScheme.errorContainer,
+                            labelStyle: TextStyle(
+                              color: colorScheme.onErrorContainer,
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ModelSelectionPage(),
+                                ),
+                              );
+                            },
+                          ),
                   ),
+                ],
                 // Custom header actions
                 if (widget.headerActions != null) ...widget.headerActions!,
                 if (widget.controller.messages.isNotEmpty)
                   IconButton(
                     icon: const Icon(Icons.file_download_outlined),
-                    iconSize: isCompact ? 18 : 24,
                     onPressed: _handleExportChat,
                     tooltip: 'Export chat as JSON',
                   ),
                 if (widget.controller.messages.isNotEmpty)
                   IconButton(
                     icon: const Icon(Icons.delete_outline),
-                    iconSize: isCompact ? 18 : 24,
                     onPressed: () {
                       widget.controller.clearMessages();
                       widget.onClear?.call();
@@ -1109,7 +1127,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
               ? _buildEmptyState(context)
               : ListView.builder(
                   controller: _scrollController,
-                  padding: EdgeInsets.all(padding),
+                  padding: const EdgeInsets.all(16),
                   itemCount: widget.controller.messages.length,
                   itemBuilder: (context, index) {
                     return _ChatMessageBubble(
@@ -1138,7 +1156,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
 
         // Input area
         Container(
-          padding: EdgeInsets.all(padding),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: colorScheme.surface,
             border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
@@ -1150,8 +1168,8 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Wrap(
-                    spacing: isCompact ? 6 : 8,
-                    runSpacing: isCompact ? 6 : 8,
+                    spacing: 8,
+                    runSpacing: 8,
                     children: _pendingAttachments
                         .map(
                           (attachment) => _PendingAttachmentChip(
@@ -1159,7 +1177,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                               'ai-attachment-${attachment.id}',
                             ),
                             attachment: attachment,
-                            compact: isCompact,
+                            compact: false,
                             onRemove: () =>
                                 _removePendingAttachment(attachment.id),
                           ),
@@ -1167,80 +1185,62 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                         .toList(growable: false),
                   ),
                 ),
-                SizedBox(height: isCompact ? 6 : 10),
+                const SizedBox(height: 10),
               ],
               Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   IconButton(
-                    iconSize: isCompact ? 18 : 22,
+                    icon: const Icon(Icons.add),
                     tooltip: 'Add attachments',
                     onPressed: widget.controller.isGenerating
                         ? null
                         : _pickAttachments,
-                    icon: const Icon(Icons.add),
                   ),
                   IconButton(
-                    iconSize: isCompact ? 18 : 22,
+                    icon: Icon(_isListening ? Icons.stop_circle : Icons.mic),
                     tooltip: _isListening
                         ? 'Stop dictation'
                         : 'Voice dictation',
                     onPressed: widget.controller.isGenerating
                         ? null
                         : _toggleVoiceInput,
-                    icon: Icon(_isListening ? Icons.stop_circle : Icons.mic),
                     color: _isListening ? colorScheme.error : null,
                   ),
-                  SizedBox(width: isCompact ? 2 : 4),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: Focus(
                       onKeyEvent: _handleComposerKeyEvent,
                       child: TextField(
                         controller: _textController,
                         focusNode: _focusNode,
-                        maxLines: isCompact ? 3 : 5,
-                        minLines: 1,
-                        style: isCompact ? theme.textTheme.bodySmall : null,
+                        decoration: InputDecoration(
+                          hintText: widget.placeholder ?? 'Ask Kivixa AI...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
+                        maxLines: null,
                         textInputAction: TextInputAction.send,
                         onSubmitted: (_) => _handleSubmit(),
-                        decoration: InputDecoration(
-                          hintText:
-                              widget.placeholder ??
-                              (isCompact ? 'Ask...' : 'Ask me anything...'),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              isCompact ? 16 : 24,
-                            ),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: isCompact ? 12 : 16,
-                            vertical: isCompact ? 8 : 12,
-                          ),
-                          isDense: isCompact,
-                        ),
                       ),
                     ),
                   ),
-                  SizedBox(width: isCompact ? 4 : 8),
-                  SizedBox(
-                    width: isCompact ? 36 : 56,
-                    height: isCompact ? 36 : 56,
-                    child: FloatingActionButton(
-                      onPressed: widget.controller.isGenerating
-                          ? null
-                          : _handleSubmit,
-                      elevation: 0,
-                      mini: isCompact,
-                      child: widget.controller.isGenerating
-                          ? SizedBox(
-                              width: isCompact ? 16 : 24,
-                              height: isCompact ? 16 : 24,
-                              child: const CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : Icon(Icons.send, size: isCompact ? 18 : 24),
-                    ),
+                  const SizedBox(width: 8),
+                  IconButton.filled(
+                    icon: widget.controller.isGenerating
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.send),
+                    onPressed: widget.controller.isGenerating
+                        ? null
+                        : _handleSubmit,
                   ),
                 ],
               ),
@@ -1249,7 +1249,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
         ),
         if (_showReadAloudPlayer)
           Padding(
-            padding: EdgeInsets.fromLTRB(padding, 0, padding, padding),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: ReadAloudMiniPlayer(
               controller: _readAloudController,
               expanded: true,
