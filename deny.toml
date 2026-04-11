@@ -1,12 +1,6 @@
 [graph]
 all-features = true
 
-[advisories]
-vulnerability = "deny"
-unmaintained = "warn"
-notice = "warn"
-ignore = []
-
 [bans]
 multiple-versions = "warn"
 wildcards = "allow"
