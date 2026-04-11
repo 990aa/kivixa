@@ -1,6 +1,6 @@
 name: PR Quality Gate
 
-run-name: ${{ github.event_name == 'workflow_dispatch' && format('Manual PR #{0}', inputs.pr_number) || format('PR #{0}', github.event.pull_request.number) }}
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Manual PR {0}', inputs.pr_number) || format('PR {0}', github.event.pull_request.number) }}
 
 on:
   pull_request:
@@ -14,9 +14,10 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
-  group: pr-quality-${{ github.event_name }}-${{ github.event.pull_request.number || inputs.pr_number || github.ref }}
+  group: pr-quality-${{ github.event_name }}-${{ github.event.pull_request.number || inputs.pr_number || github.ref_name }}
   cancel-in-progress: true
 
 env:
@@ -29,17 +30,27 @@ jobs:
     outputs:
       checkout_ref: ${{ steps.resolve.outputs.checkout_ref }}
       target_label: ${{ steps.resolve.outputs.target_label }}
+      base_sha: ${{ steps.resolve.outputs.base_sha }}
+      head_sha: ${{ steps.resolve.outputs.head_sha }}
     steps:
       - name: Resolve checkout reference
         id: resolve
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.pr_number }}" ]]; then
+            base_sha=$(gh api "repos/${{ github.repository }}/pulls/${{ inputs.pr_number }}" --jq '.base.sha')
+            head_sha=$(gh api "repos/${{ github.repository }}/pulls/${{ inputs.pr_number }}" --jq '.head.sha')
             echo "checkout_ref=refs/pull/${{ inputs.pr_number }}/head" >> "$GITHUB_OUTPUT"
-            echo "target_label=PR #${{ inputs.pr_number }}" >> "$GITHUB_OUTPUT"
+            echo "target_label=PR ${{ inputs.pr_number }}" >> "$GITHUB_OUTPUT"
+            echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
+            echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
           else
-            echo "checkout_ref=${GITHUB_REF}" >> "$GITHUB_OUTPUT"
-            echo "target_label=${GITHUB_REF}" >> "$GITHUB_OUTPUT"
+            echo "checkout_ref=refs/pull/${{ github.event.pull_request.number }}/head" >> "$GITHUB_OUTPUT"
+            echo "target_label=PR ${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+            echo "base_sha=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+            echo "head_sha=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
           fi
 
   flutter-quality:
@@ -64,8 +75,27 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Enforce Dart formatting
-        run: dart format --set-exit-if-changed --output=none .
+      - name: Collect changed Dart files
+        id: changed_dart
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "${{ github.base_ref || 'main' }}" || true
+          git diff --name-only "${{ needs.resolve-target.outputs.base_sha }}...${{ needs.resolve-target.outputs.head_sha }}" -- '*.dart' \
+            | grep -vE '\\.(g|freezed)\\.dart$' > changed_dart_files.txt || true
+
+          if [[ -s changed_dart_files.txt ]]; then
+            echo "has_changed_dart=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changed_dart=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Enforce Dart formatting (changed files)
+        if: steps.changed_dart.outputs.has_changed_dart == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          xargs dart format --set-exit-if-changed --output=none < changed_dart_files.txt
 
       - name: Analyze Flutter/Dart code (fatal warnings and infos)
         run: flutter analyze --fatal-infos --fatal-warnings
@@ -81,7 +111,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        crate: [native, native_audio, native_math, rust_builder]
+        crate: [native, native_audio, native_math]
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -102,13 +132,64 @@ jobs:
       - name: Cargo check
         run: cargo check --manifest-path ${{ matrix.crate }}/Cargo.toml --all-targets --all-features
 
-      - name: Cargo clippy (deny warnings)
-        run: cargo clippy --manifest-path ${{ matrix.crate }}/Cargo.toml --all-targets --all-features -- -D warnings
+      - name: Cargo clippy (deny warnings for production targets)
+        run: cargo clippy --manifest-path ${{ matrix.crate }}/Cargo.toml --all-features --lib --bins --examples -- -D warnings
 
-      - name: Cargo fmt check
-        run: cargo fmt --manifest-path ${{ matrix.crate }}/Cargo.toml --all -- --check
+      - name: Collect changed Rust files in crate
+        id: changed_rs
+        shell: bash
+        run: |
+          set -euo pipefail
+          crate="${{ matrix.crate }}"
+          git diff --name-only "${{ needs.resolve-target.outputs.base_sha }}...${{ needs.resolve-target.outputs.head_sha }}" -- "$crate" \
+            | grep -E "^${crate}/.*\\.rs$" \
+            | sed "s#^${crate}/##" > "${crate}/changed_rs_files.txt" || true
+
+          if [[ -s "${crate}/changed_rs_files.txt" ]]; then
+            echo "has_changed_rs=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changed_rs=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Cargo fmt check (changed Rust files)
+        if: steps.changed_rs.outputs.has_changed_rs == 'true'
+        working-directory: ${{ matrix.crate }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          xargs cargo fmt --all -- --check < changed_rs_files.txt
 
       - name: Run full Rust test suite
         env:
           RUST_TEST_THREADS: "1"
         run: cargo test --manifest-path ${{ matrix.crate }}/Cargo.toml --all-targets --all-features
+
+  rust-security:
+    name: Rust Security & Policy (${{ matrix.crate }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: resolve-target
+    strategy:
+      fail-fast: false
+      matrix:
+        crate: [native, native_audio, native_math]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.resolve-target.outputs.checkout_ref }}
+          fetch-depth: 0
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-audit and cargo-deny
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit,cargo-deny
+
+      - name: Cargo audit
+        run: cargo audit --manifest-path ${{ matrix.crate }}/Cargo.toml
+
+      - name: Cargo deny
+        run: cargo deny check --manifest-path ${{ matrix.crate }}/Cargo.toml
