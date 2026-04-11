@@ -551,7 +551,7 @@ flutter build ios --release
 
 ### Windows Installer (Inno Setup)
 
-For Windows distribution, we use [Inno Setup](https://jrsoftware.org/isinfo.php) to create a professional installer.
+For Windows distribution, use [Inno Setup](https://jrsoftware.org/isinfo.php) to create a professional installer.
 
 *   **Script:** `windows/installer/kivixa-installer.iss`
 *   **Output:** `build/windows/installer/`
