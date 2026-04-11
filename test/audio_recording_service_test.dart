@@ -1,8 +1,30 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/services/audio/audio_recording_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  const recordChannel = MethodChannel('com.llfbandit.record/messages');
+
+  setUpAll(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(recordChannel, (MethodCall call) async {
+          switch (call.method) {
+            case 'create':
+              return null;
+            case 'hasPermission':
+              return true;
+            default:
+              return null;
+          }
+        });
+  });
+
+  tearDownAll(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(recordChannel, null);
+  });
 
   group('RecordingState', () {
     test('should have all expected states', () {
