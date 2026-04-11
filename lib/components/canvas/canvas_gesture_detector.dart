@@ -11,7 +11,6 @@ import 'package:keybinder/keybinder.dart';
 import 'package:kivixa/components/canvas/hud/canvas_hud.dart';
 import 'package:kivixa/components/canvas/interactive_canvas.dart';
 import 'package:kivixa/data/editor/page.dart';
-import 'package:kivixa/data/extensions/change_notifier_extensions.dart';
 import 'package:kivixa/data/extensions/matrix4_extensions.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/pages/editor/editor.dart';
@@ -226,7 +225,7 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
   }
 
   void _arrowKeyPanNow(AxisDirection direction) {
-    final transformation = widget._transformationController.value;
+    final transformation = widget._transformationController.value.clone();
     const panAmount = 50.0;
 
     transformation.leftTranslateByDouble(
@@ -245,7 +244,7 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
       0,
       1,
     );
-    widget._transformationController.notifyListenersPlease();
+    widget._transformationController.value = transformation;
   }
 
   var _setupKeybindings = false;

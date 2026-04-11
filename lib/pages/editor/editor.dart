@@ -32,7 +32,6 @@ import 'package:kivixa/data/editor/editor_core_info.dart';
 import 'package:kivixa/data/editor/editor_exporter.dart';
 import 'package:kivixa/data/editor/editor_history.dart';
 import 'package:kivixa/data/editor/page.dart';
-import 'package:kivixa/data/extensions/change_notifier_extensions.dart';
 import 'package:kivixa/data/extensions/matrix4_extensions.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/prefs.dart';
@@ -542,7 +541,7 @@ class EditorState extends State<Editor> {
     if (coreInfo.readOnly) return false;
 
     CanvasImage.activeListener
-        .notifyListenersPlease(); // un-select active image
+        .deactivateAll(); // un-select active image
 
     _lastSeenPointerCountTimer?.cancel();
     if (lastSeenPointerCount >= 2) {
@@ -2080,7 +2079,7 @@ class EditorState extends State<Editor> {
         page.backgroundImage = image;
 
         CanvasImage.activeListener
-            .notifyListenersPlease(); // un-select active image
+            .deactivateAll(); // un-select active image
 
         autosaveAfterDelay();
         setState(() {});

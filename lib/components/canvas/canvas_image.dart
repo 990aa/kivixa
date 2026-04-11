@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:defer_pointer/defer_pointer.dart';
 import 'package:flutter/material.dart';
+import 'package:kivixa/components/canvas/canvas_image_active_notifier.dart';
 import 'package:kivixa/components/canvas/canvas_image_dialog.dart';
 import 'package:kivixa/components/canvas/image/editor_image.dart';
 import 'package:kivixa/components/theming/adaptive_alert_dialog.dart';
-import 'package:kivixa/data/extensions/change_notifier_extensions.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 
@@ -32,7 +32,7 @@ class CanvasImage extends StatefulWidget {
   final bool selected;
 
   /// When notified, all [CanvasImages] will have their [active] property set to false.
-  static var activeListener = ChangeNotifier();
+  static var activeListener = CanvasImageActiveNotifier();
 
   /// The minimum size of the interactive area for the image.
   static double minInteractiveSize = 50;
@@ -54,7 +54,7 @@ class _CanvasImageState extends State<CanvasImage> {
 
     if (value) {
       CanvasImage.activeListener
-          .notifyListenersPlease(); // de-activate all other images
+          .deactivateAll(); // de-activate all other images
     }
 
     _active = value;
