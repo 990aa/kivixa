@@ -1,8 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kivixa/services/app_lock_service.dart';
 import 'package:flutter/services.dart';
-import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/flavor_config.dart';
 import 'package:stow/stow.dart';
 
