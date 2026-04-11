@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kivixa/data/calendar_storage.dart';
 import 'package:kivixa/data/models/calendar_event.dart';
