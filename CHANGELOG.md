@@ -618,5 +618,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.6] - 2026-04-11
 
 ### Changed
+- Added Flutter regression coverage for media-kit playback completion heuristics, speech-fallback final transcript handling, and voice-preview busy-state lifecycle behavior.
+
+### Added
+- Updated media-kit playback state handling to finalize on explicit completion signals instead of transient startup `playing=false` stream events.
+- Updated dictation start flow in AI chat, MCP chat, markdown editor, text editor, and shared dictation widgets to require successful microphone-capture startup before entering active listening state.
+
+### Fixed
+- Fixed read-aloud and advanced voice-preview sessions that could flash and stop early due to premature playback-state transitions.
+- Fixed fallback speech-to-text sessions dropping final transcript insertion when recognizer auto-stop occurred before the UI stop action.
+- Fixed flaky native graph unit-test ordering by serializing access to shared global graph state during tests.
 
 ---
