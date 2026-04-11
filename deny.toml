@@ -1,6 +1,13 @@
 [graph]
 all-features = true
 
+[advisories]
+ignore = [
+  # Transitive from simba/nalgebra/statrs in native_math; no safe upgrade path
+  # available at this time according to RustSec advisory details.
+  "RUSTSEC-2024-0436",
+]
+
 [bans]
 multiple-versions = "warn"
 wildcards = "allow"
