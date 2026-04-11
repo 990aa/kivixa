@@ -320,6 +320,8 @@ fn test_tts_voices() {
     assert!(has_neutral);
     assert!(has_female);
     assert!(has_male);
+    assert!(voices.iter().any(|v| v.id == "af_heart"));
+    assert!(voices.iter().any(|v| v.id == "am_adam"));
 }
 
 #[test]
@@ -354,6 +356,17 @@ fn test_tts_synthesize_with_unknown_voice_fails() {
 
     let result = engine.synthesize_with_voice("hello world", "unknown_voice");
     assert!(result.is_err());
+}
+
+#[test]
+fn test_tts_punctuation_adds_pause_duration() {
+    let mut engine = TtsEngine::new();
+    engine.initialize().unwrap();
+
+    let base = engine.synthesize("this is a test").unwrap();
+    let punctuated = engine.synthesize("this is a test?").unwrap();
+
+    assert!(punctuated.duration > base.duration);
 }
 
 #[test]
