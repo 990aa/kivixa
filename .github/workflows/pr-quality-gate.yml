@@ -1,5 +1,7 @@
 name: PR Quality Gate
 
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Manual PR #{0}', inputs.pr_number) || format('PR #{0}', github.event.pull_request.number) }}
+
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
@@ -14,7 +16,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: pr-quality-${{ github.event.pull_request.number || github.ref }}
+  group: pr-quality-${{ github.event_name }}-${{ github.event.pull_request.number || inputs.pr_number || github.ref }}
   cancel-in-progress: true
 
 env:
