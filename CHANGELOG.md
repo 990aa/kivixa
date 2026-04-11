@@ -563,3 +563,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Resolved strict clippy findings in native/native_audio Rust code paths so `cargo check`, `cargo clippy`, `cargo fmt`, `cargo test`, and `cargo audit` pass in both crates.
 
 ---
+## [0.8.3] - 2026-04-11
+
+### Changed
+- Version bump to 0.8.3
+
+---
