@@ -126,6 +126,8 @@ void main() {
 
         // Advance initial delay
         async.elapse(LaserPointer.fadeOutDelay);
+        // Flush the 0-duration timer scheduled for the first loop iteration
+        async.elapse(Duration.zero);
 
         // First delay is Duration.zero, so the first point is popped immediately after fadeOutDelay
         expect(redraws, 1);
