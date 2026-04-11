@@ -600,3 +600,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed duplicate final transcript commits that could occur when stopping dictation after a streamed final update.
 
 ---
+## [0.8.5] - 2026-04-11
+
+### Changed
+
+---
