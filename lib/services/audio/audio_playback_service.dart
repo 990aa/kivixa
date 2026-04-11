@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
+import 'package:kivixa/services/audio/voice_preference_utils.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -211,13 +212,7 @@ class AudioPlaybackService {
     _durationNotifier.value = _estimateTtsDuration(text, _speedNotifier.value);
     _ttsStartedAt = DateTime.now();
 
-    if (voiceId != null && voiceId.isNotEmpty) {
-      try {
-        await _tts!.setVoice({'name': voiceId});
-      } catch (e) {
-        debugPrint('AudioPlaybackService: Voice selection warning: $e');
-      }
-    }
+    await _applyPlatformVoicePreference(voiceId);
 
     await _tts!.setVolume(_volumeNotifier.value);
     await _tts!.setSpeechRate(_toFlutterTtsRate(_speedNotifier.value));
@@ -568,41 +563,130 @@ class AudioPlaybackService {
       null,
     );
 
-    if (profile == 2 && customVoiceId != null && customVoiceId.isNotEmpty) {
-      if (voices.any((voice) => voice.id == customVoiceId)) {
-        return customVoiceId;
+    return selectPreferredVoiceId(
+      voices,
+      audioVoiceProfileFromPref(profile),
+      customVoiceId: customVoiceId,
+    );
+  }
+
+  Future<void> _applyPlatformVoicePreference(String? voiceId) async {
+    if (_tts == null) {
+      return;
+    }
+
+    try {
+      final dynamic rawVoices = await _tts!.getVoices;
+      if (rawVoices is! List || rawVoices.isEmpty) {
+        return;
       }
+
+      final profile = audioVoiceProfileFromPref(
+        _readAudioPref(() => stows.audioVoiceProfile.value, 0),
+      );
+      final localeFromId = voiceId != null && voiceId.isNotEmpty
+          ? inferVoiceLocaleFromId(voiceId)
+          : null;
+      final requestsFemale =
+          voiceId != null &&
+          voiceId.isNotEmpty &&
+          isFemaleVoiceIdOrName(voiceId, voiceId, '');
+      final requestsMale =
+          voiceId != null &&
+          voiceId.isNotEmpty &&
+          isMaleVoiceIdOrName(voiceId, voiceId, '');
+
+      final voiceTokens = (voiceId ?? '')
+          .toLowerCase()
+          .split(RegExp(r'[_\-\s]+'))
+          .where((token) => token.isNotEmpty)
+          .toList(growable: false);
+
+      Map<String, String?>? bestMatch;
+      for (final candidate in rawVoices) {
+        final parsed = _parsePlatformVoiceEntry(candidate);
+        if (parsed == null) {
+          continue;
+        }
+
+        if (voiceTokens.isNotEmpty &&
+            _matchesVoiceTokens(parsed, voiceTokens)) {
+          bestMatch = parsed;
+          break;
+        }
+
+        final locale = parsed['locale']?.toLowerCase() ?? '';
+        final genderText = '${parsed['name'] ?? ''} ${parsed['gender'] ?? ''}'
+            .toLowerCase();
+
+        final localeMatches =
+            localeFromId == null ||
+            locale.startsWith(localeFromId.toLowerCase());
+        final genderMatches = switch (profile) {
+          AudioVoiceProfile.female =>
+            genderText.contains('female') || genderText.contains('woman'),
+          AudioVoiceProfile.male =>
+            genderText.contains('male') || genderText.contains('man'),
+          AudioVoiceProfile.custom =>
+            requestsFemale
+                ? genderText.contains('female') || genderText.contains('woman')
+                : requestsMale
+                ? genderText.contains('male') || genderText.contains('man')
+                : true,
+        };
+
+        if (localeMatches && genderMatches) {
+          bestMatch ??= parsed;
+        }
+      }
+
+      if (bestMatch != null && (bestMatch['name'] ?? '').isNotEmpty) {
+        final voice = <String, String>{'name': bestMatch['name']!};
+        if ((bestMatch['locale'] ?? '').isNotEmpty) {
+          voice['locale'] = bestMatch['locale']!;
+        }
+        await _tts!.setVoice(voice);
+        return;
+      }
+
+      if (localeFromId != null && localeFromId.isNotEmpty) {
+        await _tts!.setLanguage(localeFromId);
+      }
+    } catch (e) {
+      debugPrint('AudioPlaybackService: Platform voice mapping warning: $e');
+    }
+  }
+
+  Map<String, String?>? _parsePlatformVoiceEntry(dynamic rawEntry) {
+    if (rawEntry is! Map) {
+      return null;
     }
 
-    bool isMaleVoice(VoiceStyle voice) {
-      final id = voice.id.toLowerCase();
-      final name = voice.name.toLowerCase();
-      final malePattern = RegExp(r'(^|[^a-z])male([^a-z]|$)');
-      return id.startsWith('am_') ||
-          id.startsWith('bm_') ||
-          malePattern.hasMatch(id) ||
-          malePattern.hasMatch(name);
+    final normalized = <String, String?>{
+      'name':
+          rawEntry['name']?.toString() ??
+          rawEntry['identifier']?.toString() ??
+          rawEntry['id']?.toString(),
+      'locale':
+          rawEntry['locale']?.toString() ??
+          rawEntry['language']?.toString() ??
+          rawEntry['lang']?.toString(),
+      'gender': rawEntry['gender']?.toString(),
+    };
+
+    if ((normalized['name'] ?? '').isEmpty) {
+      return null;
     }
+    return normalized;
+  }
 
-    bool isFemaleVoice(VoiceStyle voice) {
-      final id = voice.id.toLowerCase();
-      final name = voice.name.toLowerCase();
-      final femalePattern = RegExp(r'(^|[^a-z])female([^a-z]|$)');
-      return id.startsWith('af_') ||
-          id.startsWith('bf_') ||
-          femalePattern.hasMatch(id) ||
-          femalePattern.hasMatch(name);
-    }
-
-    final preferred = profile == 1
-        ? voices.where(isMaleVoice)
-        : voices.where(isFemaleVoice);
-
-    if (preferred.isNotEmpty) {
-      return preferred.first.id;
-    }
-
-    return voices.first.id;
+  bool _matchesVoiceTokens(
+    Map<String, String?> candidate,
+    List<String> voiceTokens,
+  ) {
+    final searchable = '${candidate['name'] ?? ''} ${candidate['locale'] ?? ''}'
+        .toLowerCase();
+    return voiceTokens.any((token) => searchable.contains(token));
   }
 
   T _readAudioPref<T>(T Function() reader, T fallback) {
