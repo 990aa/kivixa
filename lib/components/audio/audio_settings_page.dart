@@ -1049,6 +1049,16 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
         await widget.voicePreviewHandler!(sample, voice.id);
       } else {
         await _playbackService.speak(sample, voiceId: voice.id);
+        final startedAt = DateTime.now();
+        while (mounted &&
+            (_playbackService.state.value == PlaybackState.loading ||
+                _playbackService.state.value == PlaybackState.playing)) {
+          if (DateTime.now().difference(startedAt) >=
+              const Duration(seconds: 30)) {
+            break;
+          }
+          await Future.delayed(const Duration(milliseconds: 50));
+        }
       }
     } catch (e) {
       if (mounted) {
