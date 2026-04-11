@@ -172,8 +172,16 @@ void main() {
         ),
       );
 
-      // Right-edge handle is around the right side of the initial window.
-      final gesture = await tester.startGesture(const Offset(500, 250));
+      final horizontalHandles = find.byWidgetPredicate(
+        (widget) =>
+            widget is MouseRegion &&
+            widget.cursor == SystemMouseCursors.resizeLeftRight,
+      );
+      expect(horizontalHandles, findsNWidgets(2));
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(horizontalHandles.last),
+      );
       await gesture.moveBy(const Offset(36, 0));
       await tester.pump();
 
