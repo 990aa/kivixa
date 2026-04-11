@@ -195,9 +195,9 @@ class AudioNeuralEngine {
   var _selectedVoiceId = 'default';
   var _speechRate = 1.0;
 
-  /// Override for the Rust library initializer, used in tests to inject failures.
+  // Test injection
   @visibleForTesting
-  Future<void> Function()? rustLibInitializerOverride;
+  Future<void> Function()? initializeRustLibOverride;
 
   /// Current engine state
   ValueListenable<AudioEngineState> get state => _stateNotifier;
@@ -272,10 +272,11 @@ class AudioNeuralEngine {
 
   /// Initialize the Rust library with platform-specific handling
   Future<void> _initializeRustLib() async {
-    if (rustLibInitializerOverride != null) {
-      await rustLibInitializerOverride!();
+    if (initializeRustLibOverride != null) {
+      await initializeRustLibOverride!();
       return;
     }
+
     try {
       if (Platform.isWindows) {
         // Try multiple locations for the DLL
@@ -527,16 +528,11 @@ class AudioNeuralEngine {
   /// Reset internal state for testing
   @visibleForTesting
   void resetForTesting() {
-    _processingTimer?.cancel();
-    _processingTimer = null;
     _isInitialized = false;
     _initializationFailed = false;
     _initializationError = null;
-    _recordingStartTime = 0.0;
     _stateNotifier.value = AudioEngineState.uninitialized;
-    _vadStateNotifier.value = VadState.silence;
-    _visualizerNotifier.value = AudioVisualizerData.empty;
-    rustLibInitializerOverride = null;
+    initializeRustLibOverride = null;
   }
 
   /// Dispose resources

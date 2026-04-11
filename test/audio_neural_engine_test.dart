@@ -200,17 +200,19 @@ void main() {
     });
 
     group('Initialization', () {
-      test('handles initialization failure correctly', () async {
+      test('handles initialization failure correctly using injection', () async {
         final engine = AudioNeuralEngine();
 
-        // Inject a failing initializer so the test is deterministic on all platforms
-        engine.rustLibInitializerOverride = () async =>
-            throw Exception('Mocked native library load failure');
+        // Inject a mocked failure directly into the initialization flow
+        engine.initializeRustLibOverride = () async {
+          throw Exception('Injected native library error');
+        };
 
         // Ensure starting state
         expect(engine.state.value, equals(AudioEngineState.uninitialized));
         expect(engine.isInitialized, isFalse);
 
+        // Call initialize
         final result = await engine.initialize();
 
         // Assertions for error path
@@ -218,6 +220,7 @@ void main() {
         expect(engine.isInitialized, isFalse, reason: 'Engine should not be marked as initialized');
         expect(engine.state.value, equals(AudioEngineState.error), reason: 'State should be updated to error');
         expect(engine.initializationError, isNotNull, reason: 'Error message should be captured');
+        expect(engine.initializationError, contains('Injected native library error'));
 
         // Ensure another call returns false directly without throwing
         final secondResult = await engine.initialize();
