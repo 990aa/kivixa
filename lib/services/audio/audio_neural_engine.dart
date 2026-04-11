@@ -530,10 +530,10 @@ class AudioNeuralEngine {
   void resetForTesting() {
     _processingTimer?.cancel();
     _processingTimer = null;
+    _recordingStartTime = 0.0;
     _isInitialized = false;
     _initializationFailed = false;
     _initializationError = null;
-    _recordingStartTime = 0.0;
     _stateNotifier.value = AudioEngineState.uninitialized;
     _vadStateNotifier.value = VadState.silence;
     _visualizerNotifier.value = AudioVisualizerData.empty;
