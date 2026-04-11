@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
@@ -25,28 +24,20 @@ class AppLockService {
   /// Whether a PIN has been set
   bool get isPinSet => stows.appLockPinSet.value;
 
-  /// Constant-time byte array comparison to prevent timing side-channels
-  bool _constantTimeEquals(Uint8List a, Uint8List b) {
-    if (a.length != b.length) return false;
-    int result = 0;
-    for (int i = 0; i < a.length; i++) {
-      result |= a[i] ^ b[i];
-    }
-    return result == 0;
-  }
-
   /// Generate a PBKDF2 hash using the provided salt
-  Uint8List _hashPinPbkdf2(String pin, Uint8List salt) {
+  String _hashPinPbkdf2(String pin, Uint8List salt) {
     final pinBytes = Uint8List.fromList(utf8.encode(pin));
-    final pbkdf2 = PBKDF2KeyDerivator(HMac(SHA256Digest(), 64))
+    final pbkdf2 = PBKDF2KeyDerivator(Mac('SHA-256/HMAC'))
       ..init(Pbkdf2Parameters(salt, 10000, 32));
-    return pbkdf2.process(pinBytes);
+    final hash = pbkdf2.process(pinBytes);
+    return base64.encode(hash);
   }
 
   /// Legacy SHA256 hash for backward compatibility
-  Uint8List _hashPinLegacy(String pin) {
+  String _hashPinLegacy(String pin) {
     final bytes = utf8.encode(pin);
-    return Uint8List.fromList(sha256.convert(bytes).bytes);
+    final hash = sha256.convert(bytes);
+    return hash.toString();
   }
 
   /// Set up a new PIN
@@ -64,7 +55,7 @@ class AppLockService {
       }
 
       final saltStr = base64.encode(salt);
-      final hashedPin = base64.encode(_hashPinPbkdf2(pin, salt));
+      final hashedPin = _hashPinPbkdf2(pin, salt);
 
       final storedFormat = 'pbkdf2:sha256:10000:$saltStr:$hashedPin';
 
@@ -92,32 +83,53 @@ class AppLockService {
         if (parts.length != 5) return false;
 
         final saltStr = parts[3];
-        final storedHashBytes = base64.decode(parts[4]);
+        final hashStr = parts[4];
 
         final salt = base64.decode(saltStr);
-        final inputHashBytes = _hashPinPbkdf2(pin, salt);
+        final expectedHashBytes = base64.decode(hashStr);
 
-        return _constantTimeEquals(inputHashBytes, storedHashBytes);
+        final pinBytes = Uint8List.fromList(utf8.encode(pin));
+        final pbkdf2 = PBKDF2KeyDerivator(Mac('SHA-256/HMAC'))
+          ..init(Pbkdf2Parameters(salt, 10000, 32));
+        final actualHashBytes = pbkdf2.process(pinBytes);
+
+        if (expectedHashBytes.length != actualHashBytes.length) return false;
+
+        var result = 0;
+        for (var i = 0; i < expectedHashBytes.length; i++) {
+          result |= expectedHashBytes[i] ^ actualHashBytes[i];
+        }
+
+        return result == 0;
       } else {
         // Fallback to legacy SHA256 format
-        final storedHashBytes = Uint8List.fromList(
-          List.generate(storedHash.length ~/ 2,
-              (i) => int.parse(storedHash.substring(i * 2, i * 2 + 2), radix: 16)),
-        );
-        final inputHashBytes = _hashPinLegacy(pin);
-        final isValid = _constantTimeEquals(inputHashBytes, storedHashBytes);
+        final inputHash = _hashPinLegacy(pin);
 
-        // Transparent migration to PBKDF2 if verification succeeds,
-        // preserving current enabled/disabled state
+        final expectedBytes = utf8.encode(storedHash);
+        final actualBytes = utf8.encode(inputHash);
+
+        if (expectedBytes.length != actualBytes.length) return false;
+
+        var result = 0;
+        for (var i = 0; i < expectedBytes.length; i++) {
+          result |= expectedBytes[i] ^ actualBytes[i];
+        }
+
+        final isValid = result == 0;
+
+        // Transparent migration to PBKDF2 if verification succeeds
         if (isValid) {
+          // Re-hash and store without changing the enabled state
           final random = Random.secure();
           final salt = Uint8List(16);
           for (int i = 0; i < 16; i++) {
             salt[i] = random.nextInt(256);
           }
+
           final saltStr = base64.encode(salt);
-          final hashedPin = base64.encode(_hashPinPbkdf2(pin, salt));
+          final hashedPin = _hashPinPbkdf2(pin, salt);
           final storedFormat = 'pbkdf2:sha256:10000:$saltStr:$hashedPin';
+
           await _storage.write(key: _pinKey, value: storedFormat);
         }
 
