@@ -824,6 +824,28 @@ class MCPService {
     return value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
   }
 
+  /// Tolerantly decodes URL percent-encoded sequences.
+  /// Valid %XX sequences are decoded; bare '%' followed by non-hex characters
+  /// are left as-is so filenames like "100%.md" remain valid.
+  String _tolerantUrlDecode(String input) {
+    final buffer = StringBuffer();
+    int i = 0;
+    while (i < input.length) {
+      final char = input[i];
+      if (char == '%' && i + 2 < input.length) {
+        final hex = input.substring(i + 1, i + 3);
+        if (RegExp(r'^[0-9a-fA-F]{2}$').hasMatch(hex)) {
+          buffer.writeCharCode(int.parse(hex, radix: 16));
+          i += 3;
+          continue;
+        }
+      }
+      buffer.write(char);
+      i++;
+    }
+    return buffer.toString();
+  }
+
   /// Validate a path (ensure it's within the sandbox)
   bool validatePath(String relativePath) {
     if (relativePath.isEmpty) return false;
@@ -831,13 +853,10 @@ class MCPService {
     // Block null bytes (path truncation attacks)
     if (relativePath.contains('\x00')) return false;
 
-    // Decode URL-encoded paths (prevent %2e%2e bypass)
-    String decoded;
-    try {
-      decoded = Uri.decodeComponent(relativePath);
-    } catch (_) {
-      return false; // Invalid URL encoding
-    }
+    // Tolerantly decode URL-encoded paths (prevent %2e%2e bypass).
+    // Invalid percent sequences (e.g. bare "%" in "100%.md") are left as-is
+    // so legitimate filenames containing "%" are not incorrectly rejected.
+    final decoded = _tolerantUrlDecode(relativePath);
 
     // Re-check for null bytes after decoding
     if (decoded.contains('\x00')) return false;

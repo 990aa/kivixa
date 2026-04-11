@@ -47,6 +47,20 @@ void main() {
       expect(mcpService.validatePath('folder/%2e%2e/%2e%2e/test.txt'), isFalse);
     });
 
+    test('Legitimate filenames containing % should be allowed', () {
+      expect(mcpService.validatePath('100%.md'), isTrue);
+      expect(mcpService.validatePath('progress_50%.txt'), isTrue);
+      expect(mcpService.validatePath('folder/report_%done.txt'), isTrue);
+    });
+
+    test('Malformed URL encodings (stray %) should be treated as literals', () {
+      // Bare % not followed by two hex digits is left as-is (not rejected)
+      expect(mcpService.validatePath('file%zz.txt'), isTrue);
+      expect(mcpService.validatePath('100%report.txt'), isTrue);
+      // But a valid %2e%2e encoding that decodes to ".." must still be blocked
+      expect(mcpService.validatePath('%2e%2e/escape.txt'), isFalse);
+    });
+
     test('Null bytes injection should be blocked', () {
       expect(mcpService.validatePath('test\x00.txt'), isFalse);
       expect(mcpService.validatePath('%00test.txt'), isFalse);
