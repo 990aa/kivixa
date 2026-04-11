@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kivixa/data/calendar_storage.dart';
 import 'package:kivixa/data/models/calendar_event.dart';
@@ -13,12 +14,25 @@ class NotificationService {
 
   static final instance = NotificationService._();
 
-  final _notifications = FlutterLocalNotificationsPlugin();
+  @visibleForTesting
+  FlutterLocalNotificationsPlugin? notificationsPluginOverride;
+
+  FlutterLocalNotificationsPlugin get _notifications =>
+      notificationsPluginOverride ?? FlutterLocalNotificationsPlugin();
 
   var _initialized = false;
 
+  @visibleForTesting
+  void resetForTesting() {
+    _initialized = false;
+    notificationsPluginOverride = null;
+  }
+
+  @visibleForTesting
+  static bool? forceIsSupported;
+
   /// Returns true if notifications are supported on the current platform
-  static bool get isSupported => Platform.isAndroid || Platform.isIOS;
+  static bool get isSupported => forceIsSupported ?? (Platform.isAndroid || Platform.isIOS);
 
   Future<void> initialize() async {
     if (_initialized) return;
