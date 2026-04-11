@@ -563,6 +563,13 @@ class _BrowserWindowState extends State<BrowserWindow> {
         // Ensure touch events are handled correctly on Android
         verticalScrollBarEnabled: true,
         horizontalScrollBarEnabled: true,
+        // Security Settings
+        allowFileAccess: false,
+        allowContentAccess: false,
+        mixedContentMode: MixedContentMode.MIXED_CONTENT_NEVER_ALLOW,
+        javaScriptCanOpenWindowsAutomatically: false,
+        allowUniversalAccessFromFileURLs: false,
+        allowFileAccessFromFileURLs: false,
       ),
       // Use a gesture recognizer factory on Android to prevent conflicts
       gestureRecognizers: isAndroid

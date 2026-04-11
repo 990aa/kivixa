@@ -848,21 +848,21 @@ class _BrowserPageState extends State<BrowserPage> {
         mediaPlaybackRequiresUserGesture: false,
         transparentBackground: false,
         useShouldOverrideUrlLoading: true,
-        allowFileAccess: true,
-        allowContentAccess: true,
-        // Enable mixed content mode for better compatibility
-        mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
-        // Allow WebView to load resources
-        javaScriptCanOpenWindowsAutomatically: true,
+        allowFileAccess: false,
+        allowContentAccess: false,
+        // Disable mixed content mode for security
+        mixedContentMode: MixedContentMode.MIXED_CONTENT_NEVER_ALLOW,
+        // Do not allow WebView to open windows automatically without user interaction
+        javaScriptCanOpenWindowsAutomatically: false,
         // Enable caching for better performance
         cacheEnabled: true,
         cacheMode: CacheMode.LOAD_DEFAULT,
         // Enable database and geolocation
         databaseEnabled: true,
         geolocationEnabled: true,
-        // Allow universal access from file URLs
-        allowUniversalAccessFromFileURLs: true,
-        allowFileAccessFromFileURLs: true,
+        // Disallow universal access from file URLs for security
+        allowUniversalAccessFromFileURLs: false,
+        allowFileAccessFromFileURLs: false,
         // Desktop-like user agent for better compatibility
         userAgent: _isDesktop
             ? null // Use default WebView2 user agent on Windows
