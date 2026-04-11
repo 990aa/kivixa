@@ -1,7 +1,5 @@
 import 'dart:typed_data';
 
-import 'dart:io' as dart_io;
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
 
@@ -202,27 +200,24 @@ void main() {
     });
 
     group('Initialization', () {
-      test('handles initialization failure correctly using IOOverrides', () async {
+      test('handles initialization failure correctly', () async {
         final engine = AudioNeuralEngine();
+
+        // Inject a failing initializer so the test is deterministic on all platforms
+        engine.rustLibInitializerOverride = () async =>
+            throw Exception('Mocked native library load failure');
 
         // Ensure starting state
         expect(engine.state.value, equals(AudioEngineState.uninitialized));
         expect(engine.isInitialized, isFalse);
 
-        // Use IOOverrides to mock the file system so the library fails to load
-        // This is safe even in environments where the native library is available
-        await dart_io.IOOverrides.runZoned(
-          () async {
-            final result = await engine.initialize();
+        final result = await engine.initialize();
 
-            // Assertions for error path
-            expect(result, isFalse, reason: 'Initialize should return false when failing to load library');
-            expect(engine.isInitialized, isFalse, reason: 'Engine should not be marked as initialized');
-            expect(engine.state.value, equals(AudioEngineState.error), reason: 'State should be updated to error');
-            expect(engine.initializationError, isNotNull, reason: 'Error message should be captured');
-          },
-          createFile: (String path) => throw Exception('Mocked file system error: File not found'),
-        );
+        // Assertions for error path
+        expect(result, isFalse, reason: 'Initialize should return false when failing to load library');
+        expect(engine.isInitialized, isFalse, reason: 'Engine should not be marked as initialized');
+        expect(engine.state.value, equals(AudioEngineState.error), reason: 'State should be updated to error');
+        expect(engine.initializationError, isNotNull, reason: 'Error message should be captured');
 
         // Ensure another call returns false directly without throwing
         final secondResult = await engine.initialize();
