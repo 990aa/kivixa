@@ -20,8 +20,8 @@ import 'package:kivixa/services/ai/chat_context_service.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/model_manager.dart';
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
-import 'package:kivixa/services/audio/live_transcription_buffer.dart';
 import 'package:kivixa/services/audio/audio_recording_service.dart';
+import 'package:kivixa/services/audio/live_transcription_buffer.dart';
 
 abstract class ChatInferenceGateway {
   bool get isModelLoaded;
