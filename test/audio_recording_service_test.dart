@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/services/audio/audio_recording_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('RecordingState', () {
     test('should have all expected states', () {
       expect(RecordingState.values.length, 5);
