@@ -740,6 +740,22 @@ class AudioNeuralEngine {
     }
   }
 
+  @visibleForTesting
+  void debugConfigureStopListeningForTest({
+    required bool useSpeechFallback,
+    required bool speechFallbackListening,
+    required String speechFallbackTranscript,
+    required bool rustAudioReady,
+  }) {
+    _isInitialized = true;
+    _rustAudioReady = rustAudioReady;
+    _usedSpeechFallbackInCurrentSession = useSpeechFallback;
+    _speechFallbackListening = speechFallbackListening;
+    _speechFallbackTranscript = speechFallbackTranscript;
+    _recordingStartTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
+    _stateNotifier.value = AudioEngineState.listening;
+  }
+
   // Private helpers
 
   void _updateVadState(audio_api.DartVadResult result) {

@@ -140,17 +140,11 @@ void main() {
     await tester.pump();
 
     expect(previewCalls, 1);
-    expect(
-      tester.widget<OutlinedButton>(previewButton).onPressed,
-      isNull,
-    );
+    expect(tester.widget<OutlinedButton>(previewButton).onPressed, isNull);
 
     previewCompleter.complete();
     await tester.pumpAndSettle();
 
-    expect(
-      tester.widget<OutlinedButton>(previewButton).onPressed,
-      isNotNull,
-    );
+    expect(tester.widget<OutlinedButton>(previewButton).onPressed, isNotNull);
   });
 }
