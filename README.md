@@ -495,37 +495,106 @@ A fully-featured web browser built into Kivixa for seamless research and referen
 
 ### Prerequisites
 
-- [Flutter](https://flutter.dev/docs/get-started/install) 3.38.6 or higher
-- [Dart](https://dart.dev/get-dart) 3.11.1 or higher
-- [Rust](https://rustup.rs/) (for building native code)
+- [Flutter](https://flutter.dev/docs/get-started/install) 3.41.4 or higher
+- [Dart](https://dart.dev/get-dart) 3.9.0 or higher
+- [Git](https://git-scm.com)
+- [Rustup](https://rustup.rs/) (installs Rust + Cargo)
 - Platform-specific requirements:
-  - **Windows**: Visual Studio 2026 with C++ desktop development, Vulkan SDK
-  - **macOS**: Xcode 15+, Rust with aarch64-apple-darwin target
-  - **Linux**: Standard build tools (`clang`, `cmake`, `ninja-build`), Vulkan SDK
-  - **Android**: Android Studio / Android SDK, NDK for Rust cross-compilation
+  - **Windows**: Visual Studio 2026 with Desktop development with C++, CMake tools, Ninja, and Vulkan SDK
+  - **macOS**: Xcode 15+, CocoaPods, and command line tools
+  - **Linux**: `clang`, `cmake`, `ninja-build`, and Vulkan SDK
+  - **Android**: Android Studio, Android SDK, and Android NDK (scripts auto-detect latest NDK under Android SDK)
   - **iOS**: Xcode 15+ and CocoaPods
 
-### Installation
+### 1) Clone the repository
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/990aa/kivixa.git
-   cd kivixa
-   ```
+```bash
+git clone https://github.com/990aa/kivixa.git
+cd kivixa
+```
 
-2. **Install dependencies**
-   ```bash
-   flutter pub get
-   ```
+### 2) Install Flutter dependencies
 
-3. **Run the app**
-   ```bash
-   # For desktop (Windows/macOS/Linux)
-   flutter run -d windows  # or macos, linux
-   
-   # For mobile (Android/iOS)
-   flutter run -d android  # or ios
-   ```
+```bash
+flutter pub get
+```
+
+### 3) Install Rust toolchain and targets
+
+Install stable Rust, required components, and platform targets.
+
+```bash
+rustup toolchain install stable
+rustup default stable
+rustup component add rustfmt clippy
+```
+
+Common targets:
+
+```bash
+# Windows
+rustup target add x86_64-pc-windows-msvc
+
+# Android (required for native Android builds in this repo)
+rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
+
+# Apple Silicon macOS (if building on macOS)
+rustup target add aarch64-apple-darwin
+```
+
+### 4) Install Flutter Rust Bridge codegen
+
+```bash
+cargo install flutter_rust_bridge_codegen --locked
+```
+
+If `flutter_rust_bridge_codegen` is not found after install, open a new terminal so Cargo bin path is reloaded.
+
+### 5) Build native Rust modules before first run
+
+From repository root, run the native build scripts before `flutter run`.
+
+Windows desktop-focused local setup:
+
+```powershell
+.\scripts\build_native.ps1 -SkipAndroid
+.\scripts\build_audio.ps1 -SkipAndroid
+.\scripts\build_math.ps1 -SkipAndroid
+```
+
+Android-focused local setup:
+
+```powershell
+.\scripts\build_native.ps1 -SkipWindows
+.\scripts\build_audio.ps1 -SkipWindows
+.\scripts\build_math.ps1 -SkipWindows
+```
+
+If PowerShell blocks script execution, run this once per terminal session:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+If Android NDK is not auto-detected, set one of these environment variables before running scripts:
+
+```powershell
+$env:ANDROID_NDK_HOME="<path-to-ndk>"
+# or
+$env:NDK_HOME="<path-to-ndk>"
+```
+
+### 6) Run the app
+
+```bash
+# Desktop
+flutter run -d windows   # or: macos, linux
+
+# Mobile
+flutter run -d android   # or: ios
+```
+
+When Rust code changes in `native/`, `native_audio/`, or `native_math/`, rerun the corresponding build script before launching Flutter again.
 
 ### Build for Production
 
