@@ -413,6 +413,13 @@ void main() {
   });
 
   group('Add Node Dialog', () {
+    Future<void> openAddNodeDialog(WidgetTester tester) async {
+      await tester.tap(find.byIcon(Icons.add_circle_outline));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(300, 300));
+      await tester.pumpAndSettle();
+    }
+
     testWidgets('tapping canvas in add mode opens add node dialog', (
       tester,
     ) async {
@@ -426,28 +433,53 @@ void main() {
       expect(find.text('Tap to place node'), findsOneWidget);
     });
 
-    // Complex gesture interaction tests - skipped due to canvas gesture handling issues in test environment
-    testWidgets(
-      'add node dialog has node type selector',
-      (tester) async {},
-      skip: true,
-    );
+    testWidgets('add node dialog has node type selector', (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: KnowledgeGraphPage()));
+      await openAddNodeDialog(tester);
 
-    testWidgets(
-      'add node dialog has shape selector',
-      (tester) async {},
-      skip: true,
-    );
+      expect(find.text('Add Node'), findsOneWidget);
+      expect(find.text('Node Type'), findsOneWidget);
+      expect(find.text('Note'), findsOneWidget);
+      expect(find.text('Hub'), findsOneWidget);
+      expect(find.text('Idea'), findsOneWidget);
+    });
 
-    testWidgets(
-      'add node dialog has color selector',
-      (tester) async {},
-      skip: true,
-    );
+    testWidgets('add node dialog has shape selector', (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: KnowledgeGraphPage()));
+      await openAddNodeDialog(tester);
 
-    testWidgets('add node requires title', (tester) async {}, skip: true);
+      expect(find.text('Shape'), findsOneWidget);
+      expect(find.byType(ChoiceChip), findsNWidgets(NodeShape.values.length));
+    });
 
-    testWidgets('can cancel add node dialog', (tester) async {}, skip: true);
+    testWidgets('add node dialog has color selector', (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: KnowledgeGraphPage()));
+      await openAddNodeDialog(tester);
+
+      expect(find.text('Color'), findsOneWidget);
+    });
+
+    testWidgets('add node requires title', (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: KnowledgeGraphPage()));
+      await openAddNodeDialog(tester);
+
+      await tester.tap(find.text('Add'));
+      await tester.pump();
+
+      expect(find.text('Title is required'), findsOneWidget);
+      expect(find.text('Add Node'), findsOneWidget);
+    });
+
+    testWidgets('can cancel add node dialog', (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: KnowledgeGraphPage()));
+      await openAddNodeDialog(tester);
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Add Node'), findsNothing);
+      expect(find.text('Tap to place node'), findsNothing);
+    });
   });
 
   group('Clear Graph', () {
