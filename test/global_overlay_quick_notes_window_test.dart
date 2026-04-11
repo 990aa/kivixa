@@ -18,7 +18,9 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: GlobalOverlay(
-          child: Scaffold(body: SizedBox.expand(child: ColoredBox(color: Colors.white))),
+          child: Scaffold(
+            body: SizedBox.expand(child: ColoredBox(color: Colors.white)),
+          ),
         ),
       ),
     );
