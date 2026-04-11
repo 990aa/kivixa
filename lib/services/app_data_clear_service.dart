@@ -81,8 +81,12 @@ class AppDataClearService {
       }
     }
 
-    // Invalidate the cache after deletion
-    invalidateCache();
+    // Invalidate the cache only when a filesystem-affecting type was cleared,
+    // so non-filesystem operations (preferences, projects, calendar, etc.)
+    // can still benefit from a warm cache on the next _loadDataSizes call.
+    if (dataTypes.any(_filesystemAffectingTypes.contains)) {
+      invalidateCache();
+    }
 
     return results;
   }
@@ -206,29 +210,42 @@ class AppDataClearService {
     await _clearBrowserData();
   }
 
-  // Define a static cache that we can invalidate or lazily load
-  static List<String>? _cachedAllFiles;
+  // Define a static cache that we can invalidate or lazily load.
+  // An in-flight Future is stored to avoid concurrent duplicate traversals.
+  static Future<List<String>>? _cachedAllFilesFuture;
   static DateTime? _cacheTimestamp;
 
+  /// Data types that directly modify the filesystem and require cache invalidation.
+  static const _filesystemAffectingTypes = {
+    AppDataType.notes,
+    AppDataType.markdown,
+    AppDataType.all,
+  };
+
   /// Retrieves all files, utilizing an in-memory cache if it is less than 5 seconds old.
-  static Future<List<String>> _getAllFilesCached() async {
-    final now = DateTime.now();
-    if (_cachedAllFiles != null && _cacheTimestamp != null) {
-      if (now.difference(_cacheTimestamp!).inSeconds < 5) {
-        return _cachedAllFiles!;
+  /// Concurrent callers share the same in-flight traversal to avoid N+1 issues.
+  static Future<List<String>> _getAllFilesCached() {
+    if (_cachedAllFilesFuture != null && _cacheTimestamp != null) {
+      if (DateTime.now().difference(_cacheTimestamp!).inSeconds < 5) {
+        return _cachedAllFilesFuture!;
       }
     }
-    _cachedAllFiles = await FileManager.getAllFiles(
+    // Store the future immediately so concurrent callers reuse it.
+    _cachedAllFilesFuture = FileManager.getAllFiles(
       includeExtensions: true,
-      includeAssets: true,
-    );
-    _cacheTimestamp = now;
-    return _cachedAllFiles!;
+      includeAssets: false,
+    ).then((files) {
+      // Record the timestamp only once the traversal has completed
+      // so the TTL starts from when the data became valid.
+      _cacheTimestamp = DateTime.now();
+      return files;
+    });
+    return _cachedAllFilesFuture!;
   }
 
   /// Invalidates the file cache
   static void invalidateCache() {
-    _cachedAllFiles = null;
+    _cachedAllFilesFuture = null;
     _cacheTimestamp = null;
   }
 
