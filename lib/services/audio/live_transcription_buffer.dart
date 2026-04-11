@@ -45,11 +45,7 @@ class LiveTranscriptionBuffer {
 
     final safeLength = currentTextLength < 0 ? 0 : currentTextLength;
     final anchor = _resolveAnchor(safeLength, fallbackAnchorOffset);
-    final safePreviewLength = _clamp(
-      _previewLength,
-      0,
-      safeLength - anchor,
-    );
+    final safePreviewLength = _clamp(_previewLength, 0, safeLength - anchor);
 
     if (isFinal && _lastFinalText == normalizedText && safePreviewLength == 0) {
       return null;
