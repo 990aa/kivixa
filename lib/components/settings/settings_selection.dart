@@ -109,12 +109,7 @@ class _SettingsSelectionState<T extends num>
       ),
       title: Text(
         widget.title,
-        style: TextStyle(
-          fontSize: 18,
-          fontStyle: widget.pref.value != widget.pref.defaultValue
-              ? FontStyle.italic
-              : null,
-        ),
+        style: const TextStyle(fontSize: 18),
       ),
       subtitle: Text(
         widget.subtitle ?? '',
