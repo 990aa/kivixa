@@ -161,6 +161,26 @@ class AudioVisualizerData {
   );
 }
 
+@visibleForTesting
+SpeechRecognitionResult? buildSpeechFallbackFinalResult(
+  String transcript, {
+  required double endTime,
+}) {
+  final trimmed = transcript.trim();
+  if (trimmed.isEmpty) {
+    return null;
+  }
+
+  return SpeechRecognitionResult(
+    text: trimmed,
+    confidence: 0.8,
+    isFinal: true,
+    startTime: 0.0,
+    endTime: endTime,
+    language: null,
+  );
+}
+
 /// Audio Neural Engine - Central service for audio intelligence
 class AudioNeuralEngine {
   // Singleton instance
@@ -193,6 +213,7 @@ class AudioNeuralEngine {
   var _speechFallbackAvailable = false;
   var _speechFallbackListening = false;
   var _speechFallbackTranscript = '';
+  var _usedSpeechFallbackInCurrentSession = false;
   var _recordingStartTime = 0.0;
   Timer? _processingTimer;
   final _speechToText = stt.SpeechToText();
@@ -434,6 +455,7 @@ class AudioNeuralEngine {
     _stateNotifier.value = AudioEngineState.listening;
     _recordingStartTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
     _speechFallbackTranscript = '';
+    _usedSpeechFallbackInCurrentSession = false;
 
     final configuredThreshold = _readAudioPref(
       () => stows.audioVadThreshold.value,
@@ -448,6 +470,7 @@ class AudioNeuralEngine {
     if (_speechFallbackAvailable) {
       final started = await _startSpeechFallback();
       if (started) {
+        _usedSpeechFallbackInCurrentSession = true;
         return;
       }
     }
@@ -510,28 +533,24 @@ class AudioNeuralEngine {
 
     _stateNotifier.value = AudioEngineState.processing;
 
-    if (_speechFallbackListening) {
-      try {
-        await _speechToText.stop();
-      } catch (e) {
-        debugPrint('AudioNeuralEngine: Failed to stop speech fallback: $e');
-      } finally {
-        _speechFallbackListening = false;
+    if (_usedSpeechFallbackInCurrentSession) {
+      if (_speechFallbackListening) {
+        try {
+          await _speechToText.stop();
+        } catch (e) {
+          debugPrint('AudioNeuralEngine: Failed to stop speech fallback: $e');
+        } finally {
+          _speechFallbackListening = false;
+        }
       }
 
-      final fallbackText = _speechFallbackTranscript.trim();
+      final fallbackResult = buildSpeechFallbackFinalResult(
+        _speechFallbackTranscript,
+        endTime: _currentRecordingElapsedSeconds(),
+      );
+      _usedSpeechFallbackInCurrentSession = false;
       _stateNotifier.value = AudioEngineState.idle;
-      if (fallbackText.isNotEmpty) {
-        return SpeechRecognitionResult(
-          text: fallbackText,
-          confidence: 0.8,
-          isFinal: true,
-          startTime: 0.0,
-          endTime: _currentRecordingElapsedSeconds(),
-          language: null,
-        );
-      }
-      return null;
+      return fallbackResult;
     }
 
     if (!_rustAudioReady) {
@@ -686,6 +705,7 @@ class AudioNeuralEngine {
       unawaited(_speechToText.stop());
       _speechFallbackListening = false;
     }
+    _usedSpeechFallbackInCurrentSession = false;
 
     if (_isInitialized && _rustAudioReady) {
       audio_api.audioResetAll();
