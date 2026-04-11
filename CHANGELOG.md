@@ -630,3 +630,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed flaky native graph unit-test ordering by serializing access to shared global graph state during tests.
 
 ---
+## [0.8.7] - 2026-04-11
+
+
+---
