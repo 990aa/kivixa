@@ -1150,7 +1150,15 @@ class _TextFileEditorState extends State<TextFileEditor> {
         _readAudioPref(() => stows.audioVadThreshold.value, 0.5),
       );
       await _audioEngine.startListening();
-      await _audioRecorder.startRecording();
+      final recordingStarted = await _audioRecorder.startRecording();
+      if (!recordingStarted) {
+        await _audioEngine.stopListening();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to start microphone capture')),
+        );
+        return;
+      }
       _liveTranscription.startSession(anchorOffset: _currentDictationOffset());
       if (mounted) {
         setState(() {
