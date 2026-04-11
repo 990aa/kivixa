@@ -6,7 +6,7 @@ version: 0.7.1+7001
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
-  flutter: ">=3.41.4"
+  flutter: ">=3.41.0"
 
 dependencies:
   flutter:
@@ -99,6 +99,7 @@ dependencies:
   rust_lib_kivixa:
     path: rust_builder
   shared_preferences: ^2.5.4
+  pointycastle: ^4.0.0
 
 dependency_overrides:
   flutter_local_notifications_windows:
