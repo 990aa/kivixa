@@ -195,4 +195,29 @@ void main() {
       expect(engine.selectedVoiceId, isA<String>());
     });
   });
+
+  group('buildSpeechFallbackFinalResult', () {
+    test('returns null for empty transcript', () {
+      final result = buildSpeechFallbackFinalResult(
+        '   ',
+        endTime: 2.0,
+      );
+
+      expect(result, isNull);
+    });
+
+    test('returns normalized final transcript result', () {
+      final result = buildSpeechFallbackFinalResult(
+        '  hello world  ',
+        endTime: 3.25,
+      );
+
+      expect(result, isNotNull);
+      expect(result!.text, 'hello world');
+      expect(result.isFinal, isTrue);
+      expect(result.startTime, 0.0);
+      expect(result.endTime, 3.25);
+      expect(result.confidence, 0.8);
+    });
+  });
 }
