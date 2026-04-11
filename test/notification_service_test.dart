@@ -27,6 +27,10 @@ void main() {
     NotificationService.forceIsSupported = true; // Force support for testing
   });
 
+  tearDown(() {
+    NotificationService.forceIsSupported = null;
+  });
+
   group('NotificationService tests', () {
     test('initializes correctly', () async {
       await notificationService.initialize();
