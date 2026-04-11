@@ -335,6 +335,42 @@ class _AIChatPageState extends State<AIChatPage> {
     }
   }
 
+  Future<void> _exportAiConversation() async {
+    final jsonPayload = _chatController.exportConversationAsJson();
+
+    try {
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export Chat as JSON',
+        fileName:
+            'kivixa_ai_chat_${DateTime.now().millisecondsSinceEpoch}.json',
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null || !mounted) {
+        return;
+      }
+
+      await File(result).writeAsString(jsonPayload);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Chat exported as JSON'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to export chat: $e'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   /// Toggle MCP mode on/off
   void _toggleMcpMode() {
     setState(() {
@@ -348,22 +384,111 @@ class _AIChatPageState extends State<AIChatPage> {
       body: _isModelReady
           ? _isMcpMode && _mcpChatController != null
                 ? _buildMcpChatInterface()
-                : AIChatInterface(
-                    controller: _chatController,
-                    promptPrefillListenable: _mainPromptPrefill,
-                    title: 'Kivixa AI',
-                    placeholder: 'Ask me about your notes...',
-                    emptyState: _buildWelcomeWidget(),
-                    headerActions: [
-                      if (widget.enableMcp && _mcpChatController != null)
-                        IconButton(
-                          icon: const Icon(Icons.build_outlined),
-                          tooltip: 'Enable MCP Tools',
-                          onPressed: _toggleMcpMode,
-                        ),
-                    ],
-                  )
+                : _buildAiChatInterface()
           : _buildModelNotLoadedWidget(),
+    );
+  }
+
+  Widget _buildAiChatInterface() {
+    return Column(
+      children: [
+        _buildAiStatusBar(),
+        Expanded(
+          child: AIChatInterface(
+            controller: _chatController,
+            showHeader: false,
+            promptPrefillListenable: _mainPromptPrefill,
+            placeholder: 'Ask me about your notes...',
+            emptyState: _buildWelcomeWidget(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAiStatusBar() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final hasMessages = _chatController.messages.isNotEmpty;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.smart_toy, color: colorScheme.primary, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            'Kivixa AI Assistant',
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          _buildAiModelStatusChip(theme, colorScheme),
+
+          const Spacer(),
+
+          if (hasMessages)
+            IconButton(
+              icon: const Icon(Icons.file_download_outlined),
+              tooltip: 'Export chat as JSON',
+              onPressed: _exportAiConversation,
+            ),
+          if (hasMessages)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              tooltip: 'Clear chat',
+              onPressed: _chatController.clearMessages,
+            ),
+
+          if (widget.enableMcp && _mcpChatController != null)
+            IconButton(
+              icon: const Icon(Icons.build_outlined, size: 20),
+              tooltip: 'Enable MCP Tools',
+              onPressed: _toggleMcpMode,
+              style: IconButton.styleFrom(
+                foregroundColor: colorScheme.primary,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAiModelStatusChip(ThemeData theme, ColorScheme colorScheme) {
+    if (_chatController.isInitializing || _chatController.isLoadingModel) {
+      return Chip(
+        label: Text(
+          _chatController.isLoadingModel ? 'Switching...' : 'Loading...',
+        ),
+        backgroundColor: colorScheme.secondaryContainer,
+        labelStyle: TextStyle(color: colorScheme.onSecondaryContainer),
+        avatar: SizedBox(
+          width: 14,
+          height: 14,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: colorScheme.onSecondaryContainer,
+          ),
+        ),
+      );
+    }
+
+    if (_chatController.isModelLoaded && _chatController.loadedModelId != null) {
+      return ModelSwitcherChip(controller: _chatController, isCompact: true);
+    }
+
+    return ActionChip(
+      label: const Text('Model not loaded'),
+      backgroundColor: colorScheme.errorContainer,
+      labelStyle: TextStyle(color: colorScheme.onErrorContainer),
+      onPressed: _loadModel,
     );
   }
 
