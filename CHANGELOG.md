@@ -586,7 +586,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.8.4] - 2026-04-11
 
+### Added
+- Added a shared live dictation buffer utility to support in-place partial transcription updates and safe final-result deduplication.
+- Added regression coverage for live transcription buffering behavior and floating assistant merged action-bar controls.
+
 ### Changed
-- Version bump to 0.8.4
+- Aligned main AI chat top bar sizing and spacing with MCP mode by using a unified page-level status bar pattern.
+- Aligned AI composer/input bar visuals and controls with MCP composer styling, including floating assistant usage.
+- Simplified floating assistant controls into a single merged action row and removed quick-action chips/labels (`Summarize`, `Code`, `Ideas`, `MCP Mode`).
+
+### Fixed
+- Fixed dictation insertion lag by enabling real-time partial speech-to-text insertion in AI chat, MCP chat, text editor, and markdown editor.
+- Fixed duplicate final transcript commits that could occur when stopping dictation after a streamed final update.
 
 ---
