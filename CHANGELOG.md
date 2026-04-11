@@ -602,6 +602,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.8.5] - 2026-04-11
 
+### Added
+- Added regression coverage for floating window drag commit behavior, quick notes responsive resizing, and settings title style stability.
+
 ### Changed
+- Reworked shared floating window interaction flow to use local per-frame drag/resize rect updates with commit-on-end persistence for smoother movement and resize behavior.
+- Updated floating Math and Productivity Timer windows to use the same clamped layout and positioning model as browser and assistant overlays.
+- Enabled quick notes window resizing from all sides while preserving its existing local drag behavior.
+
+### Fixed
+- Removed dynamic italic styling from settings titles for switch, dropdown, selection, color, and directory controls so labels remain visually stable when values differ from defaults.
+- Kept quality gates clean for this update with passing Flutter analyze and passing Rust checks in native, native_audio, and native_math.
 
 ---
