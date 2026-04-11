@@ -8,7 +8,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   SharedPreferences.setMockInitialValues({});
-  FlavorConfig.setup();
+
+  setUpAll(() {
+    FlavorConfig.setup();
+  });
 
   const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
   final log = <MethodCall>[];
