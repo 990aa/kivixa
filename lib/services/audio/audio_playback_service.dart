@@ -15,6 +15,8 @@ import 'package:path_provider/path_provider.dart';
 
 enum _PlaybackBackend { none, mediaKit, flutterTts }
 
+const Duration _mediaKitCompletionTolerance = Duration(milliseconds: 150);
+
 /// Playback state
 enum PlaybackState {
   /// Not playing
@@ -28,6 +30,28 @@ enum PlaybackState {
 
   /// Paused
   paused,
+}
+
+@visibleForTesting
+bool shouldFinalizeMediaKitPlayback({
+  required bool playing,
+  required PlaybackState playbackState,
+  required Duration position,
+  required Duration duration,
+}) {
+  if (playing) {
+    return false;
+  }
+
+  if (playbackState != PlaybackState.playing) {
+    return false;
+  }
+
+  if (duration <= Duration.zero) {
+    return false;
+  }
+
+  return position + _mediaKitCompletionTolerance >= duration;
 }
 
 /// Audio Playback Service
@@ -48,6 +72,7 @@ class AudioPlaybackService {
   StreamSubscription<Duration>? _positionSubscription;
   StreamSubscription<Duration>? _durationSubscription;
   StreamSubscription<bool>? _playingSubscription;
+  StreamSubscription<bool>? _completedSubscription;
 
   // Current playback info
   Float32List? _currentSamples;
@@ -176,6 +201,7 @@ class AudioPlaybackService {
 
     _backend = _PlaybackBackend.mediaKit;
     _pausedBackend = _PlaybackBackend.none;
+    _stateNotifier.value = PlaybackState.loading;
 
     final durationSeconds = (pcmBytes.length / (2 * channels)) / sampleRate;
     _durationNotifier.value = Duration(
@@ -197,7 +223,6 @@ class AudioPlaybackService {
     await _player!.setRate(_speedNotifier.value);
     await _player!.setVolume(_volumeNotifier.value * 100.0);
     await _player!.open(Media(wavFile.path), play: true);
-    _stateNotifier.value = PlaybackState.playing;
   }
 
   Future<void> _speakWithPlatformTts(String text, {String? voiceId}) async {
@@ -255,15 +280,37 @@ class AudioPlaybackService {
         return;
       }
 
-      if (_stateNotifier.value != PlaybackState.stopped) {
-        _stateNotifier.value = PlaybackState.stopped;
-        _positionNotifier.value = _durationNotifier.value;
-        _positionController.add(_positionNotifier.value);
-        _backend = _PlaybackBackend.none;
-        _deleteTemporaryWavFile(_currentTempWavPath);
-        _currentTempWavPath = null;
+      if (shouldFinalizeMediaKitPlayback(
+        playing: playing,
+        playbackState: _stateNotifier.value,
+        position: _positionNotifier.value,
+        duration: _durationNotifier.value,
+      )) {
+        _finalizeMediaKitPlayback();
       }
     });
+
+    _completedSubscription = _player!.stream.completed.listen((completed) {
+      if (_backend != _PlaybackBackend.mediaKit || !completed) {
+        return;
+      }
+
+      _finalizeMediaKitPlayback();
+    });
+  }
+
+  void _finalizeMediaKitPlayback() {
+    if (_backend != _PlaybackBackend.mediaKit) {
+      return;
+    }
+
+    _stateNotifier.value = PlaybackState.stopped;
+    _positionNotifier.value = _durationNotifier.value;
+    _positionController.add(_positionNotifier.value);
+    _backend = _PlaybackBackend.none;
+    _pausedBackend = _PlaybackBackend.none;
+    _deleteTemporaryWavFile(_currentTempWavPath);
+    _currentTempWavPath = null;
   }
 
   Future<void> _ensureTtsConfigured() async {
@@ -415,9 +462,11 @@ class AudioPlaybackService {
     _positionSubscription?.cancel();
     _durationSubscription?.cancel();
     _playingSubscription?.cancel();
+    _completedSubscription?.cancel();
     _positionSubscription = null;
     _durationSubscription = null;
     _playingSubscription = null;
+    _completedSubscription = null;
     try {
       _player?.dispose();
     } catch (_) {
