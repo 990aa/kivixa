@@ -566,6 +566,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.3] - 2026-04-11
 
 ### Changed
-- Version bump to 0.8.3
 
 ---
