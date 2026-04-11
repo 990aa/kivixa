@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kivixa/data/prefs.dart';
+import 'package:pointycastle/export.dart';
 
 /// Service to manage app lock functionality with PIN/password protection.
 ///
@@ -22,8 +24,17 @@ class AppLockService {
   /// Whether a PIN has been set
   bool get isPinSet => stows.appLockPinSet.value;
 
-  /// Hash a PIN using SHA256
-  String _hashPin(String pin) {
+  /// Generate a PBKDF2 hash using the provided salt
+  String _hashPinPbkdf2(String pin, Uint8List salt) {
+    final pinBytes = Uint8List.fromList(utf8.encode(pin));
+    final pbkdf2 = PBKDF2KeyDerivator(Mac('SHA-256/HMAC'))
+      ..init(Pbkdf2Parameters(salt, 10000, 32));
+    final hash = pbkdf2.process(pinBytes);
+    return base64.encode(hash);
+  }
+
+  /// Legacy SHA256 hash for backward compatibility
+  String _hashPinLegacy(String pin) {
     final bytes = utf8.encode(pin);
     final hash = sha256.convert(bytes);
     return hash.toString();
@@ -37,8 +48,18 @@ class AppLockService {
     }
 
     try {
-      final hashedPin = _hashPin(pin);
-      await _storage.write(key: _pinKey, value: hashedPin);
+      final random = Random.secure();
+      final salt = Uint8List(16);
+      for (int i = 0; i < 16; i++) {
+        salt[i] = random.nextInt(256);
+      }
+
+      final saltStr = base64.encode(salt);
+      final hashedPin = _hashPinPbkdf2(pin, salt);
+
+      final storedFormat = 'pbkdf2:sha256:10000:$saltStr:$hashedPin';
+
+      await _storage.write(key: _pinKey, value: storedFormat);
       stows.appLockPinSet.value = true;
       stows.appLockEnabled.value = true;
       return true;
@@ -56,8 +77,30 @@ class AppLockService {
         return false;
       }
 
-      final inputHash = _hashPin(pin);
-      return storedHash == inputHash;
+      // Check if it's the new PBKDF2 format
+      if (storedHash.startsWith('pbkdf2:sha256:10000:')) {
+        final parts = storedHash.split(':');
+        if (parts.length != 5) return false;
+
+        final saltStr = parts[3];
+        final hashStr = parts[4];
+
+        final salt = base64.decode(saltStr);
+        final inputHash = _hashPinPbkdf2(pin, salt);
+
+        return inputHash == hashStr;
+      } else {
+        // Fallback to legacy SHA256 format
+        final inputHash = _hashPinLegacy(pin);
+        final isValid = storedHash == inputHash;
+
+        // Transparent migration to PBKDF2 if verification succeeds
+        if (isValid) {
+          await setPin(pin);
+        }
+
+        return isValid;
+      }
     } catch (e) {
       debugPrint('Error verifying PIN: $e');
       return false;
