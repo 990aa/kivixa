@@ -1,7 +1,31 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/services/audio/audio_recording_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  const recordChannel = MethodChannel('com.llfbandit.record/messages');
+
+  setUpAll(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(recordChannel, (MethodCall call) async {
+          switch (call.method) {
+            case 'create':
+              return null;
+            case 'hasPermission':
+              return true;
+            default:
+              return null;
+          }
+        });
+  });
+
+  tearDownAll(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(recordChannel, null);
+  });
+
   group('RecordingState', () {
     test('should have all expected states', () {
       expect(RecordingState.values.length, 5);
@@ -40,44 +64,31 @@ void main() {
     });
   });
 
-  // Skip tests that require singleton state or native deps
   group('AudioRecordingService', () {
     test('should be a singleton', () {
       final service1 = AudioRecordingService();
       final service2 = AudioRecordingService();
       expect(identical(service1, service2), true);
-    }, skip: 'Singleton state may vary between tests');
+    });
 
-    test(
-      'should start in stopped state',
-      () {
-        final service = AudioRecordingService();
-        expect(service.state.value, RecordingState.stopped);
-      },
-      skip: 'Singleton state may vary between tests',
-    );
+    test('should expose a valid recording state', () {
+      final service = AudioRecordingService();
+      expect(RecordingState.values, contains(service.state.value));
+    });
 
     test('should have state notifier', () {
       final service = AudioRecordingService();
       expect(service.state, isNotNull);
-    }, skip: 'Singleton state may vary between tests');
+    });
 
-    test(
-      'should have audioDataStream',
-      () {
-        final service = AudioRecordingService();
-        expect(service.audioDataStream, isNotNull);
-      },
-      skip: 'Singleton state may vary between tests',
-    );
+    test('should have audioDataStream', () {
+      final service = AudioRecordingService();
+      expect(service.audioDataStream, isNotNull);
+    });
 
-    test(
-      'should have default format config',
-      () {
-        final service = AudioRecordingService();
-        expect(service.config, isNotNull);
-      },
-      skip: 'Singleton state may vary between tests',
-    );
+    test('should have default format config', () {
+      final service = AudioRecordingService();
+      expect(service.config, isNotNull);
+    });
   });
 }

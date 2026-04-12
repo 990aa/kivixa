@@ -87,15 +87,7 @@ class _SettingsSwitchState extends State<SettingsColor> {
         duration: const Duration(milliseconds: 100),
         child: Icon(icon, key: ValueKey(icon)),
       ),
-      title: Text(
-        widget.title,
-        style: TextStyle(
-          fontSize: 18,
-          fontStyle: widget.pref.value != widget.pref.defaultValue
-              ? FontStyle.italic
-              : null,
-        ),
-      ),
+      title: Text(widget.title, style: const TextStyle(fontSize: 18)),
       subtitle: Text(
         widget.subtitle ?? '',
         style: const TextStyle(fontSize: 13),
