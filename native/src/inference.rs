@@ -1084,11 +1084,8 @@ mod tests {
     #[test]
     fn test_fallback_uses_gemma_formatter_for_gemma4() {
         let messages = vec![("user".to_string(), "Test".to_string())];
-        let prompt = format_chat_prompt_fallback(
-            &messages,
-            ModelType::Phi4,
-            "gemma-4-e2b-it-q4_k_m.gguf",
-        );
+        let prompt =
+            format_chat_prompt_fallback(&messages, ModelType::Phi4, "gemma-4-e2b-it-q4_k_m.gguf");
         assert!(prompt.contains("<start_of_turn>user\nTest<end_of_turn>"));
     }
 }
