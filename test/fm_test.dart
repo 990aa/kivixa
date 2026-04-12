@@ -17,6 +17,16 @@ void main() {
     FlavorConfig.setup();
 
     late String rootDir;
+
+    Future<void> _resetFileManagerRoot(String root) async {
+      await FileManager.init(
+        documentsDirectory: root,
+        shouldWatchRootDirectory: false,
+      );
+      FileManager.shouldUseRawFilePath = false;
+      await Directory(root).create(recursive: true);
+    }
+
     setUpAll(() async {
       await FileManager.init(shouldWatchRootDirectory: false);
       FileManager.shouldUseRawFilePath = false;
@@ -25,12 +35,7 @@ void main() {
     });
 
     setUp(() async {
-      await FileManager.init(
-        documentsDirectory: rootDir,
-        shouldWatchRootDirectory: false,
-      );
-      FileManager.shouldUseRawFilePath = false;
-      await Directory(rootDir).create(recursive: true);
+      await _resetFileManagerRoot(rootDir);
     });
 
     test('readFile', () async {
@@ -55,6 +60,8 @@ void main() {
       const filePath = '/test_writeFile.kvx';
       const content = 'test content for $filePath';
 
+      await _resetFileManagerRoot(rootDir);
+
       // write file
       await FileManager.writeFile(
         filePath,
@@ -65,13 +72,17 @@ void main() {
       // Wait to ensure file is written and handles are released
       await Future.delayed(const Duration(milliseconds: 200));
 
+      await _resetFileManagerRoot(rootDir);
+
       // read file
-      final file = File('$rootDir$filePath');
-      final readContent = await file.readAsString();
+      final readBytes = await FileManager.readFile(filePath);
+      final readContent = utf8.decode(readBytes!);
       expect(readContent, content);
 
       // Wait before deleting to avoid file locking issues on Windows
       await Future.delayed(const Duration(milliseconds: 200));
+
+      await _resetFileManagerRoot(rootDir);
 
       // delete file - use FileManager.deleteFile instead
       try {
@@ -84,6 +95,8 @@ void main() {
       const filePath = '/test_readWriteFile.kvx';
       const content = 'test content for $filePath';
 
+      await _resetFileManagerRoot(rootDir);
+
       // write file
       await FileManager.writeFile(
         filePath,
@@ -94,6 +107,8 @@ void main() {
       // Wait to ensure file is written and handles are released
       await Future.delayed(const Duration(milliseconds: 200));
 
+      await _resetFileManagerRoot(rootDir);
+
       // read file
       final readBytes = await FileManager.readFile(filePath);
       final readContent = utf8.decode(readBytes!);
@@ -101,6 +116,8 @@ void main() {
 
       // Wait before deleting to avoid file locking issues on Windows
       await Future.delayed(const Duration(milliseconds: 200));
+
+      await _resetFileManagerRoot(rootDir);
 
       // delete file
       try {
@@ -120,6 +137,8 @@ void main() {
       const content = 'test content for $filePathBefore';
       const contentA = 'test content for $filePathBefore.0';
       const contentP = 'test content for $filePathBefore.p';
+
+      await _resetFileManagerRoot(rootDir);
 
       // write files
       await FileManager.writeFile(
@@ -141,6 +160,8 @@ void main() {
       // Wait to ensure files are written and handles are released
       await Future.delayed(const Duration(milliseconds: 300));
 
+      await _resetFileManagerRoot(rootDir);
+
       // ensure file does not exist (in case of previous test failure)
       try {
         await FileManager.deleteFile(filePathAfter);
@@ -150,6 +171,8 @@ void main() {
 
       await Future.delayed(const Duration(milliseconds: 200));
 
+      await _resetFileManagerRoot(rootDir);
+
       // move file
       final filePathActual = await FileManager.moveFile(
         filePathBefore,
@@ -157,9 +180,11 @@ void main() {
       );
       expect(filePathActual, filePathAfter);
 
+      await _resetFileManagerRoot(rootDir);
+
       // verify filePathBefore does not exist, but filePathAfter does
-      final fileBefore = File('$rootDir$filePathBefore');
-      final fileAfter = File('$rootDir$filePathAfter');
+      final fileBefore = FileManager.getFile(filePathBefore);
+      final fileAfter = FileManager.getFile(filePathAfter);
       expect(fileBefore.existsSync(), false);
       expect(fileAfter.existsSync(), true);
       // read file
@@ -167,8 +192,8 @@ void main() {
       final readContent = utf8.decode(readBytes!);
       expect(readContent, content);
 
-      final fileBeforeA = File('$rootDir$filePathBeforeA');
-      final fileAfterA = File('$rootDir$filePathAfterA');
+      final fileBeforeA = FileManager.getFile(filePathBeforeA);
+      final fileAfterA = FileManager.getFile(filePathAfterA);
       expect(fileBeforeA.existsSync(), false);
       expect(fileAfterA.existsSync(), true);
       // read file
@@ -176,8 +201,8 @@ void main() {
       final readContentA = utf8.decode(readBytesA!);
       expect(readContentA, contentA);
 
-      final fileBeforeP = File('$rootDir$filePathBeforeP');
-      final fileAfterP = File('$rootDir$filePathAfterP');
+      final fileBeforeP = FileManager.getFile(filePathBeforeP);
+      final fileAfterP = FileManager.getFile(filePathAfterP);
       expect(fileBeforeP.existsSync(), false);
       expect(fileAfterP.existsSync(), true);
       // read file
@@ -187,6 +212,8 @@ void main() {
 
       // Wait before deleting to avoid file locking issues on Windows
       await Future.delayed(const Duration(milliseconds: 300));
+
+      await _resetFileManagerRoot(rootDir);
 
       // delete files using FileManager
       try {
@@ -201,6 +228,8 @@ void main() {
       const filePathA = '/test_deleteFile.kvx.0';
       const filePathP = '/test_deleteFile.kvx.p';
       const content = 'test content for $filePath';
+
+      await _resetFileManagerRoot(rootDir);
 
       // write files
       await FileManager.writeFile(
@@ -219,13 +248,15 @@ void main() {
         awaitWrite: true,
       );
 
+      await _resetFileManagerRoot(rootDir);
+
       // delete file
       await FileManager.deleteFile(filePath);
 
       // verify files do not exist
-      expect(File('$rootDir$filePath').existsSync(), false);
-      expect(File('$rootDir$filePathA').existsSync(), false);
-      expect(File('$rootDir$filePathP').existsSync(), false);
+      expect(FileManager.getFile(filePath).existsSync(), false);
+      expect(FileManager.getFile(filePathA).existsSync(), false);
+      expect(FileManager.getFile(filePathP).existsSync(), false);
     });
 
     group('getChildrenOfDirectory', () {
