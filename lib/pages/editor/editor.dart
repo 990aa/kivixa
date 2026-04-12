@@ -540,8 +540,7 @@ class EditorState extends State<Editor> {
   bool isDrawGesture(ScaleStartDetails details) {
     if (coreInfo.readOnly) return false;
 
-    CanvasImage.activeListener
-        .deactivateAll(); // un-select active image
+    CanvasImage.activeListener.deactivateAll(); // un-select active image
 
     _lastSeenPointerCountTimer?.cancel();
     if (lastSeenPointerCount >= 2) {
@@ -2078,8 +2077,7 @@ class EditorState extends State<Editor> {
         page.images.remove(image);
         page.backgroundImage = image;
 
-        CanvasImage.activeListener
-            .deactivateAll(); // un-select active image
+        CanvasImage.activeListener.deactivateAll(); // un-select active image
 
         autosaveAfterDelay();
         setState(() {});

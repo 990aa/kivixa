@@ -130,10 +130,12 @@ jobs:
           workspaces: ${{ matrix.crate }}
 
       - name: Cargo check
-        run: cargo check --manifest-path ${{ matrix.crate }}/Cargo.toml --all-targets --all-features
+        working-directory: ${{ matrix.crate }}
+        run: cargo check --all-targets --all-features
 
       - name: Cargo clippy (deny warnings for production targets)
-        run: cargo clippy --manifest-path ${{ matrix.crate }}/Cargo.toml --all-features --lib --bins --examples -- -D warnings
+        working-directory: ${{ matrix.crate }}
+        run: cargo clippy --all-features --lib --bins --examples -- -D warnings
 
       - name: Collect changed Rust files in crate
         id: changed_rs
@@ -160,9 +162,10 @@ jobs:
           xargs cargo fmt --all -- --check < changed_rs_files.txt
 
       - name: Run full Rust test suite
+        working-directory: ${{ matrix.crate }}
         env:
           RUST_TEST_THREADS: "1"
-        run: cargo test --manifest-path ${{ matrix.crate }}/Cargo.toml --all-targets --all-features
+        run: cargo test --all-targets --all-features
 
   rust-security:
     name: Rust Security & Policy (${{ matrix.crate }})
@@ -189,7 +192,9 @@ jobs:
           tool: cargo-audit,cargo-deny
 
       - name: Cargo audit
-        run: cargo audit --manifest-path ${{ matrix.crate }}/Cargo.toml
+        working-directory: ${{ matrix.crate }}
+        run: cargo audit
 
       - name: Cargo deny
-        run: cargo deny check --manifest-path ${{ matrix.crate }}/Cargo.toml
+        working-directory: ${{ matrix.crate }}
+        run: cargo deny check

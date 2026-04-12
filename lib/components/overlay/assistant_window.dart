@@ -1,12 +1,8 @@
-import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
 import 'package:kivixa/components/ai/mcp_chat_interface.dart';
 import 'package:kivixa/components/overlay/floating_window.dart';
-import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
 
 /// A floating AI assistant window that provides quick access to AI chat.
@@ -39,16 +35,8 @@ class _AssistantWindowState extends State<AssistantWindow> {
 
   Future<void> _initializeMcpController() async {
     try {
-      String? browseDirectory;
-      try {
-        browseDirectory = FileManager.documentsDirectory;
-      } catch (_) {
-        browseDirectory = null;
-      }
-
       _mcpChatController = MCPChatController(
         systemPrompt: 'You are Kivixa AI, a helpful assistant.',
-        browseDirectory: browseDirectory,
       );
       if (mounted) setState(() {});
     } catch (e) {
@@ -123,27 +111,32 @@ class _AssistantWindowState extends State<AssistantWindow> {
   }
 
   Widget _buildAssistantContent(BuildContext context) {
+    if (_isMcpMode && _mcpChatController != null) {
+      return Column(
+        children: [
+          _buildQuickActionBar(context),
+          Expanded(
+            child: MCPChatInterface(
+              controller: _mcpChatController!,
+              context: context,
+            ),
+          ),
+        ],
+      );
+    }
+
     return Column(
       children: [
-        _buildActionBar(context),
+        _buildQuickActionBar(context),
+        // Chat interface
         Expanded(
-          child: _isMcpMode && _mcpChatController != null
-              ? MCPChatInterface(
-                  controller: _mcpChatController!,
-                  context: context,
-                  showHeader: false,
-                )
-              : AIChatInterface(
-                  controller: _chatController,
-                  compact: true,
-                  showHeader: false,
-                ),
+          child: AIChatInterface(controller: _chatController, compact: true),
         ),
       ],
     );
   }
 
-  Widget _buildActionBar(BuildContext context) {
+  Widget _buildQuickActionBar(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -159,26 +152,48 @@ class _AssistantWindowState extends State<AssistantWindow> {
       ),
       child: Row(
         children: [
+          if (!_isMcpMode)
+            Flexible(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _QuickActionChip(
+                      icon: Icons.summarize_rounded,
+                      label: 'Summarize',
+                      onTap: () => _sendQuickAction(
+                        'Please summarize the current context.',
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    _QuickActionChip(
+                      icon: Icons.code_rounded,
+                      label: 'Code',
+                      onTap: () => _sendQuickAction('Help me with code.'),
+                    ),
+                    const SizedBox(width: 4),
+                    _QuickActionChip(
+                      icon: Icons.lightbulb_outline_rounded,
+                      label: 'Ideas',
+                      onTap: () => _sendQuickAction('Give me some ideas.'),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            const Expanded(child: Text('MCP Mode')),
+
+          const SizedBox(width: 4),
           IconButton(
-            icon: Icon(_isMcpMode ? Icons.auto_awesome : Icons.build_outlined),
-            iconSize: 18,
-            tooltip: _isMcpMode ? 'Switch to AI Chat' : 'Enable MCP Tools',
-            onPressed: _toggleMcpMode,
-            color: _isMcpMode ? colorScheme.primary : null,
-          ),
-          if (!_isMcpMode) ...[
-            const SizedBox(width: 4),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 170),
-              child: _buildFloatingModelControl(theme, colorScheme),
+            icon: Icon(
+              _isMcpMode ? Icons.build : Icons.build_outlined,
+              color: _isMcpMode ? colorScheme.primary : null,
             ),
-          ],
-          const Spacer(),
-          IconButton(
-            icon: const Icon(Icons.file_download_outlined),
             iconSize: 18,
-            tooltip: 'Export chat as JSON',
-            onPressed: _handleExportChat,
+            tooltip: _isMcpMode ? 'Disable MCP Tools' : 'Enable MCP Tools',
+            onPressed: _toggleMcpMode,
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline_rounded),
@@ -193,64 +208,50 @@ class _AssistantWindowState extends State<AssistantWindow> {
     );
   }
 
-  Widget _buildFloatingModelControl(ThemeData theme, ColorScheme colorScheme) {
-    if (_chatController.isInitializing || _chatController.isLoadingModel) {
-      return Chip(
-        label: Text(
-          _chatController.isLoadingModel ? 'Switching...' : 'Loading...',
-        ),
-        backgroundColor: colorScheme.secondaryContainer,
-        labelStyle: TextStyle(color: colorScheme.onSecondaryContainer),
-        visualDensity: VisualDensity.compact,
-      );
-    }
-
-    if (_chatController.isModelLoaded &&
-        _chatController.loadedModelId != null) {
-      return ModelSwitcherChip(controller: _chatController, isCompact: true);
-    }
-
-    return Chip(
-      label: Text('No model', style: theme.textTheme.labelSmall),
-      visualDensity: VisualDensity.compact,
-    );
+  void _sendQuickAction(String prompt) {
+    _chatController.sendMessage(prompt);
   }
+}
 
-  Future<void> _handleExportChat() async {
-    final useMcp = _isMcpMode && _mcpChatController != null;
-    final jsonPayload = useMcp
-        ? _mcpChatController!.exportConversationAsJson()
-        : _chatController.exportConversationAsJson();
+class _QuickActionChip extends StatelessWidget {
+  const _QuickActionChip({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
-    try {
-      final result = await FilePicker.platform.saveFile(
-        dialogTitle: useMcp ? 'Export MCP Chat as JSON' : 'Export Chat as JSON',
-        fileName:
-            '${useMcp ? 'kivixa_mcp_chat' : 'kivixa_ai_chat'}_${DateTime.now().millisecondsSinceEpoch}.json',
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      );
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
 
-      if (result == null || !mounted) {
-        return;
-      }
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-      await File(result).writeAsString(jsonPayload);
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            useMcp ? 'MCP chat exported as JSON' : 'Chat exported as JSON',
+    return Material(
+      color: colorScheme.surfaceContainerHigh,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 14, color: colorScheme.primary),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ],
           ),
-          duration: const Duration(seconds: 2),
         ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to export chat: $e')));
-    }
+      ),
+    );
   }
 }

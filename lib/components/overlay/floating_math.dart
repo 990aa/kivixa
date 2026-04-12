@@ -47,59 +47,46 @@ class _FloatingMathWindowState extends State<FloatingMathWindow>
   @override
   Widget build(BuildContext context) {
     final controller = OverlayController.instance;
-    final storedRect =
+    final rect =
         controller.getToolWindowRect('math') ??
         const Rect.fromLTWH(100, 100, 600, 700);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final screenSize = Size(constraints.maxWidth, constraints.maxHeight);
-        final clampedRect = controller.clampToScreen(storedRect, screenSize);
-
-        return Stack(
-          children: [
-            FloatingWindow(
-              rect: clampedRect,
-              onRectChanged: (newRect) => controller.updateToolWindowRect(
-                'math',
-                controller.clampToScreen(newRect, screenSize),
-              ),
-              onClose: () => controller.closeToolWindow('math'),
-              title: 'Math',
-              icon: Icons.calculate,
-              minWidth: 400,
-              minHeight: 500,
-              child: Column(
-                children: [
-                  // Tab bar
-                  TabBar(
-                    controller: _tabController,
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.start,
-                    tabs: _tabs,
-                  ),
-                  // Tab content
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: const [
-                        MathGeneralTab(),
-                        MathAlgebraTab(),
-                        MathCalculusTab(),
-                        MathStatisticsTab(),
-                        MathDiscreteTab(),
-                        MathGraphingTab(),
-                        MathToolsTab(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+    return FloatingWindow(
+      rect: rect,
+      onRectChanged: (newRect) =>
+          controller.updateToolWindowRect('math', newRect),
+      onClose: () => controller.closeToolWindow('math'),
+      title: 'Math',
+      icon: Icons.calculate,
+      minWidth: 400,
+      minHeight: 500,
+      child: Column(
+        children: [
+          // Tab bar
+          TabBar(
+            controller: _tabController,
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            tabs: _tabs,
+          ),
+          // Tab content
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              physics: const NeverScrollableScrollPhysics(),
+              children: const [
+                MathGeneralTab(),
+                MathAlgebraTab(),
+                MathCalculusTab(),
+                MathStatisticsTab(),
+                MathDiscreteTab(),
+                MathGraphingTab(),
+                MathToolsTab(),
+              ],
             ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 }

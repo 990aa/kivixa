@@ -80,21 +80,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Summarize'), findsNothing);
-    expect(find.text('Code'), findsNothing);
-    expect(find.text('Ideas'), findsNothing);
-    expect(find.text('MCP Mode'), findsNothing);
-    expect(find.text(model.name), findsOneWidget);
-    expect(find.byTooltip('Export chat as JSON'), findsOneWidget);
     expect(find.byTooltip('Add attachments'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Enable MCP Tools'));
     await tester.pumpAndSettle();
 
-    expect(find.byTooltip('Switch to AI Chat'), findsOneWidget);
-    expect(find.text('Kivixa MCP Assistant'), findsNothing);
-    expect(find.text(model.name), findsNothing);
-    expect(find.byTooltip('Export chat as JSON'), findsOneWidget);
+    expect(find.text('Kivixa MCP Assistant'), findsOneWidget);
     expect(find.byTooltip('Add attachments'), findsOneWidget);
 
     chatController.dispose();
