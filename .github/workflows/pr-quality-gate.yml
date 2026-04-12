@@ -192,4 +192,4 @@ jobs:
         run: cd ${{ matrix.crate }} && cargo audit
 
       - name: Cargo deny
-        run: cargo deny check --manifest-path ${{ matrix.crate }}/Cargo.toml
+        run: cd ${{ matrix.crate }} && cargo deny check
