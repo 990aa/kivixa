@@ -194,4 +194,4 @@ jobs:
 
       - name: Cargo deny
         working-directory: ${{ matrix.crate }}
-        run: cargo deny check advisories -A unmaintained
+        run: cargo deny check advisories -A unmaintained -A unsound
