@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/services/ai/mcp_service.dart';
 import 'package:kivixa/services/ai/model_router.dart';
+import 'package:path/path.dart' as p;
 
 class _FakePluginExecutor implements PluginScriptExecutor {
   @override
@@ -500,6 +501,40 @@ Sure, I can do that.
       expect(parsed.parameters['path'], 'sandbox/tmp_folder');
     });
 
+    test('parses args-based MCP backend tool call payload', () {
+      const response =
+          '{"tool":"write_file","args":{"path":"sandbox/demo.md","content":"hello","append":false}}';
+
+      final parsed = service.parseToolCall(response);
+
+      expect(parsed, isNotNull);
+      expect(parsed!.tool, 'write_file');
+      expect(parsed.parameters['path'], 'sandbox/demo.md');
+      expect(parsed.parameters['content'], 'hello');
+      expect(parsed.parameters['append'], isFalse);
+    });
+
+    test('parses args payload with escaped multiline content', () {
+      const response =
+          r'{"tool":"write_file","args":{"path":"sandbox/changes.md","content":"Line 1\nLine 2 with \"quotes\"","append":false}}';
+
+      final parsed = service.parseToolCall(response);
+
+      expect(parsed, isNotNull);
+      expect(parsed!.tool, 'write_file');
+      expect(parsed.parameters['path'], 'sandbox/changes.md');
+      expect(parsed.parameters['content'], 'Line 1\nLine 2 with "quotes"');
+      expect(parsed.parameters['append'], isFalse);
+    });
+
+    test('rejects unknown tool names from model output', () {
+      const response = '{"tool":"shell_exec","args":{"command":"rm -rf /"}}';
+
+      final parsed = service.parseToolCall(response);
+
+      expect(parsed, isNull);
+    });
+
     test('parses direct user instruction for create_folder template', () {
       const prompt = 'Use create_folder to create sandbox/tmp_folder.';
       final parsed = service.parseUserDirectedToolCall(prompt);
@@ -508,6 +543,44 @@ Sure, I can do that.
       expect(parsed!.tool, 'create_folder');
       expect(parsed.parameters['path'], 'sandbox/tmp_folder');
     });
+
+    test('parses function-gemma style write_file paragraph request', () {
+      const prompt =
+          'Use write_file to create sandbox/changes.md and write about a paragraph on changes around us';
+
+      final parsed = service.parseUserDirectedToolCall(prompt);
+
+      expect(parsed, isNotNull);
+      expect(parsed!.tool, 'write_file');
+      expect(parsed.parameters['path'], 'sandbox/changes.md');
+      expect(
+        (parsed.parameters['content'] as String).toLowerCase(),
+        contains('changes around us'),
+      );
+      expect(parsed.parameters['append'], isFalse);
+    });
+
+    test(
+      'executes function-gemma style write_file paragraph request end-to-end',
+      () async {
+        const prompt =
+            'Use write_file to create sandbox/changes.md and write about a paragraph on changes around us';
+        final parsed = service.parseUserDirectedToolCall(prompt);
+
+        expect(parsed, isNotNull);
+
+        final result = await service.executeDirectly(parsed!);
+        expect(result.success, isTrue);
+
+        final outputFile = File(
+          p.join(sandboxDir.path, 'sandbox', 'changes.md'),
+        );
+        expect(outputFile.existsSync(), isTrue);
+        final text = await outputFile.readAsString();
+        expect(text.toLowerCase(), contains('changes around us'));
+        expect(text.trim().length, greaterThan(40));
+      },
+    );
 
     test('parses export_markdown instruction with markdown body', () {
       const prompt =

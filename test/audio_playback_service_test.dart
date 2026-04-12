@@ -104,4 +104,50 @@ void main() {
       expect(service.position.value, Duration.zero);
     });
   });
+
+  group('media-kit completion heuristics', () {
+    test('does not finalize when player reports false during loading', () {
+      final shouldFinalize = shouldFinalizeMediaKitPlayback(
+        playing: false,
+        playbackState: PlaybackState.loading,
+        position: Duration.zero,
+        duration: const Duration(seconds: 2),
+      );
+
+      expect(shouldFinalize, isFalse);
+    });
+
+    test('does not finalize when player is paused', () {
+      final shouldFinalize = shouldFinalizeMediaKitPlayback(
+        playing: false,
+        playbackState: PlaybackState.paused,
+        position: const Duration(seconds: 1),
+        duration: const Duration(seconds: 2),
+      );
+
+      expect(shouldFinalize, isFalse);
+    });
+
+    test('does not finalize before reaching end of media', () {
+      final shouldFinalize = shouldFinalizeMediaKitPlayback(
+        playing: false,
+        playbackState: PlaybackState.playing,
+        position: const Duration(milliseconds: 200),
+        duration: const Duration(seconds: 2),
+      );
+
+      expect(shouldFinalize, isFalse);
+    });
+
+    test('finalizes once playback reaches media end tolerance', () {
+      final shouldFinalize = shouldFinalizeMediaKitPlayback(
+        playing: false,
+        playbackState: PlaybackState.playing,
+        position: const Duration(milliseconds: 1950),
+        duration: const Duration(seconds: 2),
+      );
+
+      expect(shouldFinalize, isTrue);
+    });
+  });
 }

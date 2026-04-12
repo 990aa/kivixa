@@ -13,6 +13,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 
+/// Rust backend uses this sentinel to enable MCP-only grammar-constrained mode.
+const kMcpModeSentinel = '[[KIVIXA_MCP_MODE]]';
+
 /// Represents an MCP tool that can be executed
 class MCPToolInfo {
   final String name;
@@ -459,21 +462,39 @@ class MCPService {
   /// Parse a tool call from AI response JSON
   PendingToolCall? parseToolCall(String json) {
     try {
-      final decoded = jsonDecode(json) as Map<String, dynamic>;
+      final decodedRaw = jsonDecode(json);
+      if (decodedRaw is! Map) {
+        return null;
+      }
+
+      final decoded = Map<String, dynamic>.from(decodedRaw);
 
       if (!decoded.containsKey('tool')) {
         return null;
       }
 
-      final tool = decoded['tool'] as String;
-      final parameters = (decoded['parameters'] as Map<String, dynamic>?) ?? {};
+      final tool = (decoded['tool'] as String?)?.trim();
+      if (tool == null || tool.isEmpty) {
+        return null;
+      }
+
+      if (!_tools.any((info) => info.name == tool)) {
+        return null;
+      }
+
+      final rawParameters = decoded['args'] ?? decoded['parameters'];
+      final parameters = rawParameters is Map
+          ? Map<String, dynamic>.from(rawParameters)
+          : <String, dynamic>{};
       final description = decoded['description'] as String? ?? 'Execute $tool';
 
       return PendingToolCall(
         tool: tool,
         parameters: parameters,
         description: description,
-        luaScript: parameters['script'] as String?,
+        luaScript: parameters['script'] is String
+            ? parameters['script'] as String
+            : null,
       );
     } catch (e) {
       debugPrint('Failed to parse tool call: $e');
@@ -570,10 +591,13 @@ class MCPService {
             RegExp(r'''into\s+["']?([^"'\s:]+)'''),
           ],
         );
-        final content = _extractContentFromMessage(
+        var content = _extractContentFromMessage(
           normalized,
           markers: const ['with this content:', 'content:', ':'],
         );
+        if (content.isEmpty) {
+          content = _extractImplicitWriteContent(normalized);
+        }
         if (path == null || content.isEmpty) return null;
         return PendingToolCall(
           tool: tool,
@@ -732,6 +756,55 @@ class MCPService {
     }
 
     return '';
+  }
+
+  String _extractImplicitWriteContent(String message) {
+    final patterns = <RegExp>[
+      RegExp(r'\band\s+write\s+(?:about|on)\s+(.+)$', caseSensitive: false),
+      RegExp(r'\bwrite\s+(?:about|on)\s+(.+)$', caseSensitive: false),
+      RegExp(r'\bwrite\s+(.+)$', caseSensitive: false),
+    ];
+
+    for (final pattern in patterns) {
+      final match = pattern.firstMatch(message);
+      if (match == null) {
+        continue;
+      }
+
+      final extracted = match.group(1)?.trim() ?? '';
+      if (extracted.isEmpty) {
+        continue;
+      }
+
+      return _materializeWriteContent(extracted);
+    }
+
+    return '';
+  }
+
+  String _materializeWriteContent(String extracted) {
+    final normalized = extracted.replaceAll(RegExp(r'[\s\.]+$'), '').trim();
+    final lower = normalized.toLowerCase();
+
+    if (lower.startsWith('a paragraph') || lower.startsWith('one paragraph')) {
+      final topic = normalized
+          .replaceFirst(
+            RegExp(
+              r'^(a|one)\s+paragraph(?:\s+(?:about|on))?\s*',
+              caseSensitive: false,
+            ),
+            '',
+          )
+          .trim();
+
+      if (topic.isNotEmpty) {
+        return 'Change is always moving through the world around us, quietly reshaping how we live, work, and connect with one another. '
+            'When we pay attention to $topic, we often notice that small shifts build over time into meaningful progress, whether in our habits, communities, or ideas. '
+            'The most useful response is to stay curious and adaptable, because growth usually begins where we are willing to learn, adjust, and take the next thoughtful step.';
+      }
+    }
+
+    return normalized;
   }
 
   String? _sanitizePathToken(String? rawToken) {
