@@ -101,7 +101,7 @@ jobs:
         run: flutter analyze --fatal-infos --fatal-warnings
 
       - name: Run full Flutter test suite
-        run: flutter test --no-pub --reporter expanded
+        run: flutter test --no-pub --reporter expanded --concurrency=1
 
   rust-quality:
     name: Rust Quality Suite (${{ matrix.crate }})
