@@ -4,7 +4,6 @@ import 'package:kivixa/components/overlay/browser_window.dart';
 import 'package:kivixa/components/overlay/floating_clock.dart';
 import 'package:kivixa/components/overlay/floating_hub.dart';
 import 'package:kivixa/components/overlay/floating_math.dart';
-import 'package:kivixa/components/overlay/floating_window.dart';
 import 'package:kivixa/components/quick_notes/floating_quick_notes.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
@@ -204,11 +203,7 @@ class _QuickNotesWindowWrapper extends StatefulWidget {
 }
 
 class _QuickNotesWindowWrapperState extends State<_QuickNotesWindowWrapper> {
-  var _windowRect = const Rect.fromLTWH(100, 100, 360, 420);
-  var _isDragging = false;
-  var _isResizing = false;
-
-  bool get _isInteracting => _isDragging || _isResizing;
+  var _position = const Offset(100, 100);
 
   @override
   void initState() {
@@ -234,57 +229,20 @@ class _QuickNotesWindowWrapperState extends State<_QuickNotesWindowWrapper> {
       return const SizedBox.shrink();
     }
 
-    final storedRect = controller.getToolWindowRect('quick_notes');
-    if (!_isInteracting && storedRect != null && storedRect != _windowRect) {
-      _windowRect = storedRect;
-    }
-
     return Positioned(
-      left: _windowRect.left,
-      top: _windowRect.top,
+      left: _position.dx,
+      top: _position.dy,
       child: GestureDetector(
-        onPanStart: (_) {
-          _isDragging = true;
-        },
         onPanUpdate: (details) {
           setState(() {
-            _windowRect = _windowRect.translate(
-              details.delta.dx,
-              details.delta.dy,
+            _position = Offset(
+              _position.dx + details.delta.dx,
+              _position.dy + details.delta.dy,
             );
           });
         },
-        onPanEnd: (_) {
-          _isDragging = false;
-          controller.updateToolWindowRect('quick_notes', _windowRect);
-        },
-        onPanCancel: () {
-          _isDragging = false;
-          controller.updateToolWindowRect('quick_notes', _windowRect);
-        },
-        child: ResizableWindowContainer(
-          rect: _windowRect,
-          minWidth: 320,
-          minHeight: 300,
-          onResizeStart: () {
-            _isResizing = true;
-          },
-          onResizeEnd: () {
-            _isResizing = false;
-            controller.updateToolWindowRect('quick_notes', _windowRect);
-          },
-          onRectChanged: (newRect) {
-            setState(() {
-              _windowRect = newRect;
-            });
-          },
-          child: SizedBox(
-            width: _windowRect.width,
-            height: _windowRect.height,
-            child: FloatingQuickNotes(
-              onClose: () => controller.closeToolWindow('quick_notes'),
-            ),
-          ),
+        child: FloatingQuickNotes(
+          onClose: () => controller.closeToolWindow('quick_notes'),
         ),
       ),
     );

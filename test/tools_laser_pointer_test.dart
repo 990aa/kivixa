@@ -78,7 +78,7 @@ void main() {
         for (int i = 0; i < strokePointDelays.length; i++) {
           async.elapse(strokePointDelays[i]);
           if (i < strokePointDelays.length - 1) {
-             expect(stroke.length, initialLength - (i + 1));
+            expect(stroke.length, initialLength - (i + 1));
           }
         }
       });
@@ -159,7 +159,9 @@ void main() {
         async.elapse(const Duration(milliseconds: 100));
 
         // It then waits `fadeOutDelay - waitTime` (1.9 seconds).
-        async.elapse(LaserPointer.fadeOutDelay - const Duration(milliseconds: 100));
+        async.elapse(
+          LaserPointer.fadeOutDelay - const Duration(milliseconds: 100),
+        );
 
         // Now it's out of the isDrawing block. Let's advance the rest of the delays.
         for (final delay in strokePointDelays.skip(2)) {

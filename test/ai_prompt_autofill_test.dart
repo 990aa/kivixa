@@ -155,27 +155,6 @@ void main() {
         );
       }
     });
-
-    test('main AI system prompt allows unrestricted assistance', () {
-      final prompt = buildMainAiSystemPrompt();
-
-      expect(prompt, contains('assist with any user request'));
-      expect(prompt, contains('essays'));
-      expect(prompt, contains('Do not refuse a request only because'));
-      expect(prompt, contains('answer normally for unrelated prompts'));
-    });
-
-    test('main AI system prompt appends provided note context', () {
-      final prompt = buildMainAiSystemPrompt(
-        initialContext: 'Draft topic: climate essay outline',
-      );
-
-      expect(
-        prompt,
-        contains('Here is some context from the user\'s current note'),
-      );
-      expect(prompt, contains('Draft topic: climate essay outline'));
-    });
   });
 
   group('Composer autofill behavior', () {

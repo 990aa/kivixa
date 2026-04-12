@@ -47,67 +47,6 @@ const mcpToolPromptTemplates = <String, String>{
 };
 
 @visibleForTesting
-String buildMainAiSystemPrompt({String? initialContext}) {
-  final buffer = StringBuffer();
-  buffer.writeln(
-    'You are Kivixa AI, a helpful assistant integrated into a note-taking and '
-    'knowledge management application.',
-  );
-  buffer.writeln();
-  buffer.writeln(
-    'You can assist with any user request, including general knowledge, writing, '
-    'essays, brainstorming, coding, planning, and productivity tasks.',
-  );
-  buffer.writeln(
-    'Do not refuse a request only because it is not about notes or app features.',
-  );
-  buffer.writeln(
-    'Use workspace note context when relevant, but answer normally for unrelated prompts.',
-  );
-  buffer.writeln();
-  buffer.writeln(
-    'Be accurate, direct, and helpful. If information is uncertain, say so clearly.',
-  );
-
-  if (initialContext != null && initialContext.isNotEmpty) {
-    buffer.writeln();
-    buffer.writeln('Here is some context from the user\'s current note:');
-    buffer.writeln('---');
-    buffer.writeln(initialContext);
-    buffer.writeln('---');
-  }
-
-  return buffer.toString();
-}
-
-@visibleForTesting
-String buildMcpBasePrompt({String? initialContext}) {
-  final buffer = StringBuffer();
-  buffer.writeln(
-    'You are Kivixa AI, a helpful assistant integrated into a note-taking and '
-    'knowledge management application with advanced tool capabilities.',
-  );
-  buffer.writeln();
-  buffer.writeln('Your capabilities include:');
-  buffer.writeln('- Answering questions about the user\'s notes');
-  buffer.writeln('- Reading, writing, and managing files');
-  buffer.writeln('- Creating and organizing folders');
-  buffer.writeln('- Exporting content as markdown');
-  buffer.writeln('- Running calendar and timer scripts');
-  buffer.writeln('- Finding connections between topics');
-  buffer.writeln();
-
-  if (initialContext != null && initialContext.isNotEmpty) {
-    buffer.writeln('Here is some context from the user\'s current note:');
-    buffer.writeln('---');
-    buffer.writeln(initialContext);
-    buffer.writeln('---');
-  }
-
-  return buffer.toString();
-}
-
-@visibleForTesting
 String promptForMcpTool(String toolName) {
   return mcpToolPromptTemplates[toolName] ??
       'Use $toolName for this task and describe what you will do before executing it.';
@@ -147,7 +86,6 @@ class AIChatPage extends StatefulWidget {
 class _AIChatPageState extends State<AIChatPage> {
   late AIChatController _chatController;
   MCPChatController? _mcpChatController;
-  _McpModelSwitcherController? _mcpModelSwitcherController;
   VoidCallback? _mcpControllerListener;
   late ModelManager _modelManager;
   final _mainPromptPrefill = ValueNotifier<String?>(null);
@@ -183,7 +121,33 @@ class _AIChatPageState extends State<AIChatPage> {
   }
 
   String _buildSystemPrompt() {
-    return buildMainAiSystemPrompt(initialContext: widget.initialContext);
+    final buffer = StringBuffer();
+    buffer.writeln(
+      'You are Kivixa AI, a helpful assistant integrated into a note-taking and '
+      'knowledge management application. You help users organize, understand, and '
+      'explore their notes and ideas.',
+    );
+    buffer.writeln();
+    buffer.writeln('Your capabilities include:');
+    buffer.writeln('- Answering questions about the user\'s notes');
+    buffer.writeln('- Summarizing content');
+    buffer.writeln('- Finding connections between topics');
+    buffer.writeln('- Helping with writing and brainstorming');
+    buffer.writeln('- Explaining concepts');
+    buffer.writeln();
+    buffer.writeln(
+      'Be concise, helpful, and friendly. If you don\'t know something, say so.',
+    );
+
+    if (widget.initialContext != null && widget.initialContext!.isNotEmpty) {
+      buffer.writeln();
+      buffer.writeln('Here is some context from the user\'s current note:');
+      buffer.writeln('---');
+      buffer.writeln(widget.initialContext);
+      buffer.writeln('---');
+    }
+
+    return buffer.toString();
   }
 
   /// Initialize MCP controller for tool-enabled mode
@@ -218,12 +182,6 @@ class _AIChatPageState extends State<AIChatPage> {
         }
       };
 
-      _mcpModelSwitcherController?.dispose();
-      _mcpModelSwitcherController = _McpModelSwitcherController(
-        modelManager: _modelManager,
-      );
-      await _mcpModelSwitcherController!.initialize();
-
       setState(() {
         _isMcpMode = true;
       });
@@ -234,7 +192,29 @@ class _AIChatPageState extends State<AIChatPage> {
 
   /// Build system prompt with MCP tool information
   String _buildMcpSystemPrompt() {
-    return buildMcpBasePrompt(initialContext: widget.initialContext);
+    final buffer = StringBuffer();
+    buffer.writeln(
+      'You are Kivixa AI, a helpful assistant integrated into a note-taking and '
+      'knowledge management application with advanced tool capabilities.',
+    );
+    buffer.writeln();
+    buffer.writeln('Your capabilities include:');
+    buffer.writeln('- Answering questions about the user\'s notes');
+    buffer.writeln('- Reading, writing, and managing files');
+    buffer.writeln('- Creating and organizing folders');
+    buffer.writeln('- Exporting content as markdown');
+    buffer.writeln('- Running calendar and timer scripts');
+    buffer.writeln('- Finding connections between topics');
+    buffer.writeln();
+
+    if (widget.initialContext != null && widget.initialContext!.isNotEmpty) {
+      buffer.writeln('Here is some context from the user\'s current note:');
+      buffer.writeln('---');
+      buffer.writeln(widget.initialContext);
+      buffer.writeln('---');
+    }
+
+    return buffer.toString();
   }
 
   Future<void> _checkModelStatus() async {
@@ -284,7 +264,6 @@ class _AIChatPageState extends State<AIChatPage> {
     if (_mcpControllerListener != null) {
       _mcpChatController?.removeListener(_mcpControllerListener!);
     }
-    _mcpModelSwitcherController?.dispose();
     _mcpChatController?.dispose();
     _mainPromptPrefill.dispose();
     _mcpPromptPrefill.dispose();
@@ -335,42 +314,6 @@ class _AIChatPageState extends State<AIChatPage> {
     }
   }
 
-  Future<void> _exportAiConversation() async {
-    final jsonPayload = _chatController.exportConversationAsJson();
-
-    try {
-      final result = await FilePicker.platform.saveFile(
-        dialogTitle: 'Export Chat as JSON',
-        fileName:
-            'kivixa_ai_chat_${DateTime.now().millisecondsSinceEpoch}.json',
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      );
-
-      if (result == null || !mounted) {
-        return;
-      }
-
-      await File(result).writeAsString(jsonPayload);
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Chat exported as JSON'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to export chat: $e'),
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    }
-  }
-
   /// Toggle MCP mode on/off
   void _toggleMcpMode() {
     setState(() {
@@ -384,110 +327,22 @@ class _AIChatPageState extends State<AIChatPage> {
       body: _isModelReady
           ? _isMcpMode && _mcpChatController != null
                 ? _buildMcpChatInterface()
-                : _buildAiChatInterface()
+                : AIChatInterface(
+                    controller: _chatController,
+                    promptPrefillListenable: _mainPromptPrefill,
+                    title: 'Kivixa AI',
+                    placeholder: 'Ask me about your notes...',
+                    emptyState: _buildWelcomeWidget(),
+                    headerActions: [
+                      if (widget.enableMcp && _mcpChatController != null)
+                        IconButton(
+                          icon: const Icon(Icons.build_outlined),
+                          tooltip: 'Enable MCP Tools',
+                          onPressed: _toggleMcpMode,
+                        ),
+                    ],
+                  )
           : _buildModelNotLoadedWidget(),
-    );
-  }
-
-  Widget _buildAiChatInterface() {
-    return Column(
-      children: [
-        _buildAiStatusBar(),
-        Expanded(
-          child: AIChatInterface(
-            controller: _chatController,
-            showHeader: false,
-            promptPrefillListenable: _mainPromptPrefill,
-            placeholder: 'Ask me about your notes...',
-            emptyState: _buildWelcomeWidget(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAiStatusBar() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final hasMessages = _chatController.messages.isNotEmpty;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.smart_toy, color: colorScheme.primary, size: 20),
-          const SizedBox(width: 8),
-          Text(
-            'Kivixa AI Assistant',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          _buildAiModelStatusChip(theme, colorScheme),
-
-          const Spacer(),
-
-          if (hasMessages)
-            IconButton(
-              icon: const Icon(Icons.file_download_outlined),
-              tooltip: 'Export chat as JSON',
-              onPressed: _exportAiConversation,
-            ),
-          if (hasMessages)
-            IconButton(
-              icon: const Icon(Icons.delete_outline),
-              tooltip: 'Clear chat',
-              onPressed: _chatController.clearMessages,
-            ),
-
-          if (widget.enableMcp && _mcpChatController != null)
-            IconButton(
-              icon: const Icon(Icons.build_outlined, size: 20),
-              tooltip: 'Enable MCP Tools',
-              onPressed: _toggleMcpMode,
-              style: IconButton.styleFrom(foregroundColor: colorScheme.primary),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAiModelStatusChip(ThemeData theme, ColorScheme colorScheme) {
-    if (_chatController.isInitializing || _chatController.isLoadingModel) {
-      return Chip(
-        label: Text(
-          _chatController.isLoadingModel ? 'Switching...' : 'Loading...',
-        ),
-        backgroundColor: colorScheme.secondaryContainer,
-        labelStyle: TextStyle(color: colorScheme.onSecondaryContainer),
-        avatar: SizedBox(
-          width: 14,
-          height: 14,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: colorScheme.onSecondaryContainer,
-          ),
-        ),
-      );
-    }
-
-    if (_chatController.isModelLoaded &&
-        _chatController.loadedModelId != null) {
-      return ModelSwitcherChip(controller: _chatController, isCompact: true);
-    }
-
-    return ActionChip(
-      label: const Text('Model not loaded'),
-      backgroundColor: colorScheme.errorContainer,
-      labelStyle: TextStyle(color: colorScheme.onErrorContainer),
-      onPressed: _loadModel,
     );
   }
 
@@ -504,7 +359,6 @@ class _AIChatPageState extends State<AIChatPage> {
             controller: _mcpChatController!,
             context: context,
             showHeader: false,
-            modelSwitcherController: _mcpModelSwitcherController,
             promptPrefillListenable: _mcpPromptPrefill,
             emptyState: _buildMcpWelcomeWidget(),
           ),
@@ -518,6 +372,7 @@ class _AIChatPageState extends State<AIChatPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final mcpService = MCPService.instance;
+    final modelRouter = ModelRouterService.instance;
     final mcpController = _mcpChatController;
     final hasMessages =
         mcpController != null && mcpController.messages.isNotEmpty;
@@ -570,10 +425,23 @@ class _AIChatPageState extends State<AIChatPage> {
 
           const SizedBox(width: 12),
 
-          // Shared model picker (same switcher interface as AI chat header)
-          _buildMcpModelStatusChip(theme, colorScheme),
-
-          const SizedBox(width: 12),
+          // Current model type
+          if (modelRouter.currentModel != null) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: colorScheme.tertiaryContainer,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                modelRouter.currentModel!.shortName,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onTertiaryContainer,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+          ],
 
           // Tool count
           Text(
@@ -609,41 +477,6 @@ class _AIChatPageState extends State<AIChatPage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildMcpModelStatusChip(ThemeData theme, ColorScheme colorScheme) {
-    final switcher = _mcpModelSwitcherController;
-
-    if (switcher == null ||
-        switcher.isInitializing ||
-        switcher.isLoadingModel) {
-      return Chip(
-        label: Text(
-          (switcher?.isLoadingModel ?? false) ? 'Switching...' : 'Loading...',
-        ),
-        backgroundColor: colorScheme.secondaryContainer,
-        labelStyle: TextStyle(color: colorScheme.onSecondaryContainer),
-        avatar: SizedBox(
-          width: 14,
-          height: 14,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: colorScheme.onSecondaryContainer,
-          ),
-        ),
-      );
-    }
-
-    if (switcher.isModelLoaded && switcher.loadedModelId != null) {
-      return ModelSwitcherChip(controller: switcher, isCompact: true);
-    }
-
-    return ActionChip(
-      label: const Text('Model not loaded'),
-      backgroundColor: colorScheme.errorContainer,
-      labelStyle: TextStyle(color: colorScheme.onErrorContainer),
-      onPressed: _loadModel,
     );
   }
 
@@ -1124,120 +957,6 @@ class _FeatureCard extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _McpModelSwitcherController extends ChangeNotifier
-    implements ModelSwitcherController {
-  _McpModelSwitcherController({
-    required ModelManager modelManager,
-    InferenceService? inferenceService,
-    ModelRouterService? modelRouter,
-  }) : _modelManager = modelManager,
-       _inferenceService = inferenceService ?? InferenceService(),
-       _modelRouter = modelRouter ?? ModelRouterService.instance;
-
-  final ModelManager _modelManager;
-  final InferenceService _inferenceService;
-  final ModelRouterService _modelRouter;
-
-  var _isInitializing = false;
-  var _isLoadingModel = false;
-
-  @override
-  bool get isInitializing => _isInitializing;
-
-  @override
-  bool get isLoadingModel => _isLoadingModel;
-
-  @override
-  bool get isModelLoaded => _inferenceService.isModelLoaded;
-
-  AIModel? get _loadedModel {
-    final current = _modelManager.currentlyLoadedModel;
-    if (current != null) {
-      return current;
-    }
-    if (_inferenceService.isModelLoaded) {
-      return ModelManager.defaultModel;
-    }
-    return null;
-  }
-
-  @override
-  String? get loadedModelName => _loadedModel?.name;
-
-  @override
-  String? get loadedModelId => _loadedModel?.id;
-
-  Future<void> initialize() async {
-    _isInitializing = true;
-    notifyListeners();
-
-    try {
-      await _modelManager.initialize();
-      await _inferenceService.initialize();
-    } finally {
-      _isInitializing = false;
-      notifyListeners();
-    }
-  }
-
-  @override
-  Future<List<AIModel>> getAvailableModels() async {
-    return _modelManager.getDownloadedModels();
-  }
-
-  @override
-  Future<bool> switchModel(AIModel model) async {
-    if (_isLoadingModel) {
-      return false;
-    }
-
-    _isLoadingModel = true;
-    notifyListeners();
-
-    try {
-      final isDownloaded = await _modelManager.isModelDownloaded(model);
-      if (!isDownloaded) {
-        return false;
-      }
-
-      if (_inferenceService.isModelLoaded) {
-        _inferenceService.unloadModel();
-      }
-
-      final modelPath = await _modelManager.getModelPath(model);
-      await _inferenceService.loadModel(modelPath);
-
-      _modelManager.setCurrentlyLoadedModel(model.id);
-      await _modelRouter.loadModel(_mapModelType(model.id), modelPath);
-      return true;
-    } catch (e) {
-      debugPrint('Failed to switch MCP model: $e');
-      return false;
-    } finally {
-      _isLoadingModel = false;
-      notifyListeners();
-    }
-  }
-
-  AIModelType _mapModelType(String modelId) {
-    final lower = modelId.toLowerCase();
-
-    if (lower == 'function-gemma-270m') {
-      return AIModelType.functionGemma;
-    }
-
-    if (lower.startsWith('qwen') ||
-        lower.startsWith('deepseek') ||
-        lower.startsWith('smollm') ||
-        lower.startsWith('smolvlm') ||
-        lower.startsWith('translategemma')) {
-      return AIModelType.qwen;
-    }
-
-    return AIModelType.phi4;
   }
 }
 

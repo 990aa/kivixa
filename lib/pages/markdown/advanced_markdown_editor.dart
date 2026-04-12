@@ -20,7 +20,6 @@ import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
 import 'package:kivixa/services/audio/audio_recording_service.dart';
-import 'package:kivixa/services/audio/live_transcription_buffer.dart';
 import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:kivixa/services/media_service.dart';
 import 'package:logging/logging.dart';
@@ -75,7 +74,6 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
   StreamSubscription<SpeechRecognitionResult>? _dictationSub;
   var _isDictating = false;
   var _showReadAloudPlayer = false;
-  final _liveTranscription = LiveTranscriptionBuffer();
 
   // Time Travel state
   var _isTimeTraveling = false;
@@ -1024,60 +1022,25 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
   }
 
   void _onDictationResult(SpeechRecognitionResult result) {
-    if (!_isDictating) {
+    if (!_isDictating || !result.isFinal || result.text.trim().isEmpty) {
       return;
     }
-    _applyLiveDictation(result.text, isFinal: result.isFinal);
+    _insertDictationText('${result.text.trim()} ');
   }
 
-  int _currentDictationOffset() {
-    final controller = _codeController;
-    if (controller == null) {
-      return 0;
-    }
-
-    final selection = controller.selection;
-    final textLength = controller.text.length;
-
-    if (!selection.isValid) {
-      return textLength;
-    }
-
-    if (selection.start < 0) {
-      return 0;
-    }
-
-    if (selection.start > textLength) {
-      return textLength;
-    }
-
-    return selection.start;
-  }
-
-  void _applyLiveDictation(String text, {required bool isFinal}) {
+  void _insertDictationText(String text) {
     final controller = _codeController;
     if (controller == null) return;
 
-    final edit = _liveTranscription.buildEdit(
-      text: text,
-      isFinal: isFinal,
-      currentTextLength: controller.text.length,
-      fallbackAnchorOffset: _currentDictationOffset(),
-    );
-
-    if (edit == null) {
-      return;
-    }
-
+    final selection = controller.selection;
     final currentText = controller.text;
-    final updatedText = currentText.replaceRange(
-      edit.startOffset,
-      edit.endOffset,
-      edit.replacementText,
-    );
+    final start = selection.isValid ? selection.start : currentText.length;
+    final end = selection.isValid ? selection.end : currentText.length;
+    final updatedText =
+        currentText.substring(0, start) + text + currentText.substring(end);
 
     controller.text = updatedText;
-    controller.selection = TextSelection.collapsed(offset: edit.caretOffset);
+    controller.selection = TextSelection.collapsed(offset: start + text.length);
   }
 
   T _readAudioPref<T>(T Function() reader, T fallback) {
@@ -1102,14 +1065,13 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
         await _audioRecorder.stopRecording();
         final result = await _audioEngine.stopListening();
         if (result != null && result.text.trim().isNotEmpty) {
-          _applyLiveDictation(result.text, isFinal: true);
+          _insertDictationText('${result.text.trim()} ');
         }
         if (mounted) {
           setState(() {
             _isDictating = false;
           });
         }
-        _liveTranscription.reset();
         return;
       }
 
@@ -1126,16 +1088,7 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
         _readAudioPref(() => stows.audioVadThreshold.value, 0.5),
       );
       await _audioEngine.startListening();
-      final recordingStarted = await _audioRecorder.startRecording();
-      if (!recordingStarted) {
-        await _audioEngine.stopListening();
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to start microphone capture')),
-        );
-        return;
-      }
-      _liveTranscription.startSession(anchorOffset: _currentDictationOffset());
+      await _audioRecorder.startRecording();
       if (mounted) {
         setState(() {
           _isDictating = true;
