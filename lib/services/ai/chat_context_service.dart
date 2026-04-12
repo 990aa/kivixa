@@ -53,10 +53,7 @@ class NotesActivityContextGateway implements ChatContextGateway {
       final buffer = StringBuffer();
       buffer.writeln('## User Workspace Context');
       buffer.writeln(
-        'Use this context when it is relevant to the user\'s request.',
-      );
-      buffer.writeln(
-        'Do not treat this as a hard scope limit; general prompts can be answered normally.',
+        'Use this context to answer note and activity questions directly.',
       );
       buffer.writeln(
         'Skip handwritten note assumptions unless explicitly provided.',

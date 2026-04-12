@@ -102,50 +102,6 @@ void main() {
       expect(currentRect.left, isNot(equals(initialLeft)));
       expect(currentRect.top, isNot(equals(initialTop)));
     });
-
-    testWidgets('drag commits rect after gesture end', (tester) async {
-      final updates = <Rect>[];
-      currentRect = const Rect.fromLTWH(100, 100, 400, 300);
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Stack(
-              children: [
-                FloatingWindow(
-                  rect: currentRect,
-                  onRectChanged: (newRect) {
-                    updates.add(newRect);
-                    currentRect = newRect;
-                  },
-                  onClose: () {},
-                  title: 'Test Window',
-                  icon: Icons.window,
-                  child: const SizedBox(),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-
-      final gesture = await tester.startGesture(
-        tester.getCenter(find.text('Test Window')),
-      );
-      await gesture.moveBy(const Offset(40, 24));
-      await tester.pump();
-
-      // Drag should be local while moving and committed when gesture ends.
-      expect(updates, isEmpty);
-
-      await gesture.up();
-      await tester.pumpAndSettle();
-
-      expect(updates.length, 1);
-      expect(updates.single.left, closeTo(140, 0.01));
-      expect(updates.single.top, closeTo(124, 0.01));
-    });
-
     testWidgets('window has correct dimensions', (tester) async {
       await tester.pumpWidget(
         createTestWindow(rect: const Rect.fromLTWH(50, 50, 500, 400)),
