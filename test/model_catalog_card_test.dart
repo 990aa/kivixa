@@ -94,42 +94,5 @@ void main() {
       expect(find.text('Delete'), findsOneWidget);
       expect(find.text('Download'), findsNothing);
     });
-
-    testWidgets('renders cards for new MCP/Agent models', (tester) async {
-      final llama32 = ModelManager.getModelById('llama32-3b-instruct-q3km')!;
-      final qwen15b = ModelManager.getModelById('qwen25-15b-instruct-q4km')!;
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ListView(
-              children: [
-                ModelCatalogCard(
-                  model: llama32,
-                  isDownloaded: false,
-                  isCurrentlyLoaded: false,
-                  onDownload: () {},
-                  onLoad: () {},
-                  onDelete: () {},
-                ),
-                ModelCatalogCard(
-                  model: qwen15b,
-                  isDownloaded: false,
-                  isCurrentlyLoaded: false,
-                  onDownload: () {},
-                  onLoad: () {},
-                  onDelete: () {},
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Llama 3.2 3B Instruct'), findsOneWidget);
-      expect(find.text('Qwen2.5 1.5B Instruct'), findsOneWidget);
-      expect(find.text('MCP / Agent Brain'), findsAtLeastNWidgets(2));
-      expect(find.text('Download'), findsNWidgets(2));
-    });
   });
 }

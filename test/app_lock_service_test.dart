@@ -3,12 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/data/flavor_config.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/app_lock_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  SharedPreferences.setMockInitialValues({});
-  FlavorConfig.setup();
 
   setUpAll(() {
     FlavorConfig.setup(
@@ -224,31 +221,35 @@ void main() {
       expect(writtenValue.startsWith('pbkdf2:sha256:10000:'), isTrue);
     });
 
-    test('verifyPin handles legacy SHA256 migration without changing enabled state', () async {
-      final service = AppLockService();
+    test(
+      'verifyPin handles legacy SHA256 migration without changing enabled state',
+      () async {
+        final service = AppLockService();
 
-      // '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4' is SHA256 for '1234'
-      final storedData = {
-        'app_lock_pin_hash': '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'
-      };
+        // '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4' is SHA256 for '1234'
+        final storedData = {
+          'app_lock_pin_hash':
+              '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4',
+        };
 
-      setupMockSecureStorage(channel, initialData: storedData);
+        setupMockSecureStorage(channel, initialData: storedData);
 
-      stows.appLockEnabled.value = false;
-      stows.appLockPinSet.value = true;
-      log.clear();
+        stows.appLockEnabled.value = false;
+        stows.appLockPinSet.value = true;
+        log.clear();
 
-      final isValid = await service.verifyPin('1234');
-      expect(isValid, isTrue);
+        final isValid = await service.verifyPin('1234');
+        expect(isValid, isTrue);
 
-      // Verify migration triggered a write
-      final writeCall = log.firstWhere((c) => c.method == 'write');
-      final writtenValue = writeCall.arguments['value'] as String;
-      expect(writtenValue.startsWith('pbkdf2:sha256:10000:'), isTrue);
+        // Verify migration triggered a write
+        final writeCall = log.firstWhere((c) => c.method == 'write');
+        final writtenValue = writeCall.arguments['value'] as String;
+        expect(writtenValue.startsWith('pbkdf2:sha256:10000:'), isTrue);
 
-      // Verify enabled state wasn't changed
-      expect(stows.appLockEnabled.value, isFalse);
-    });
+        // Verify enabled state wasn't changed
+        expect(stows.appLockEnabled.value, isFalse);
+      },
+    );
   });
 
   group('AppLockService UI controls', () {
