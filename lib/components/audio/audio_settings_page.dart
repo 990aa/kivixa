@@ -6,6 +6,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:kivixa/data/prefs.dart';
+import 'package:kivixa/services/audio/audio_neural_engine.dart';
+import 'package:kivixa/services/audio/audio_playback_service.dart';
+import 'package:kivixa/services/audio/voice_preference_utils.dart';
+
+typedef VoiceLoader = Future<List<VoiceStyle>> Function();
+typedef VoicePreviewHandler =
+    Future<void> Function(String text, String voiceId);
+typedef VoiceSelectionHandler = Future<void> Function(String voiceId);
 
 /// Model information for display
 class AudioModelInfo {
@@ -123,7 +132,22 @@ class AudioSettingsPage extends StatefulWidget {
   /// Callback when settings change
   final void Function(AudioSettings settings)? onSettingsChanged;
 
-  const AudioSettingsPage({super.key, this.onSettingsChanged});
+  /// Optional test hook to provide voices without booting the native backend.
+  final VoiceLoader? voiceLoader;
+
+  /// Optional test hook for voice previews.
+  final VoicePreviewHandler? voicePreviewHandler;
+
+  /// Optional test hook for persisting voice selections.
+  final VoiceSelectionHandler? voiceSelectionHandler;
+
+  const AudioSettingsPage({
+    super.key,
+    this.onSettingsChanged,
+    this.voiceLoader,
+    this.voicePreviewHandler,
+    this.voiceSelectionHandler,
+  });
 
   @override
   State<AudioSettingsPage> createState() => _AudioSettingsPageState();
@@ -132,6 +156,8 @@ class AudioSettingsPage extends StatefulWidget {
 class _AudioSettingsPageState extends State<AudioSettingsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final _audioEngine = AudioNeuralEngine();
+  final _playbackService = AudioPlaybackService();
 
   // Sample models (in production, fetch from backend)
   final _sttModels = <AudioModelInfo>[
@@ -194,8 +220,8 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
     ),
   ];
 
-  final _voices = <VoiceInfo>[
-    const VoiceInfo(
+  static const _fallbackVoices = <VoiceInfo>[
+    VoiceInfo(
       id: 'af_heart',
       name: 'Heart',
       description: 'Warm and friendly female voice.',
@@ -203,35 +229,35 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
       gender: 'female',
       isSelected: true,
     ),
-    const VoiceInfo(
+    VoiceInfo(
       id: 'af_sky',
       name: 'Sky',
       description: 'Clear and professional female voice.',
       language: 'en-US',
       gender: 'female',
     ),
-    const VoiceInfo(
+    VoiceInfo(
       id: 'am_adam',
       name: 'Adam',
       description: 'Calm and authoritative male voice.',
       language: 'en-US',
       gender: 'male',
     ),
-    const VoiceInfo(
+    VoiceInfo(
       id: 'am_michael',
       name: 'Michael',
       description: 'Energetic and engaging male voice.',
       language: 'en-US',
       gender: 'male',
     ),
-    const VoiceInfo(
+    VoiceInfo(
       id: 'bf_emma',
       name: 'Emma',
       description: 'Sophisticated British female voice.',
       language: 'en-GB',
       gender: 'female',
     ),
-    const VoiceInfo(
+    VoiceInfo(
       id: 'bm_george',
       name: 'George',
       description: 'Elegant British male voice.',
@@ -239,6 +265,10 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
       gender: 'male',
     ),
   ];
+
+  var _voices = <VoiceInfo>[];
+  var _isLoadingVoices = false;
+  String? _previewingVoiceId;
 
   var _selectedSttModel = 'whisper-tiny';
   var _selectedTtsModel = 'kokoro-v1';
@@ -251,12 +281,100 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _selectedVoice =
+        _readAudioPref(() => stows.audioCustomVoiceId.value, null) ??
+        _selectedVoice;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadVoices();
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  T _readAudioPref<T>(T Function() reader, T fallback) {
+    try {
+      return reader();
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  void _writeAudioPref(void Function() writer) {
+    try {
+      writer();
+    } catch (_) {
+      // Ignore when preferences are unavailable (for example in isolated tests).
+    }
+  }
+
+  Future<void> _loadVoices() async {
+    if (_isLoadingVoices) {
+      return;
+    }
+
+    setState(() {
+      _isLoadingVoices = true;
+    });
+
+    try {
+      final styles = widget.voiceLoader != null
+          ? await widget.voiceLoader!()
+          : await _loadVoicesFromEngine();
+
+      var nextVoices = styles.map(_voiceInfoFromStyle).toList(growable: false);
+      if (nextVoices.isEmpty) {
+        nextVoices = _fallbackVoices;
+      }
+
+      final preferred = selectPreferredVoiceId(
+        styles,
+        audioVoiceProfileFromPref(
+          _readAudioPref(() => stows.audioVoiceProfile.value, 0),
+        ),
+        customVoiceId: _readAudioPref(
+          () => stows.audioCustomVoiceId.value,
+          null,
+        ),
+      );
+
+      setState(() {
+        _voices = nextVoices;
+        _selectedVoice =
+            preferred ??
+            (nextVoices.any((voice) => voice.id == _selectedVoice)
+                ? _selectedVoice
+                : nextVoices.first.id);
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingVoices = false;
+        });
+      }
+    }
+  }
+
+  Future<List<VoiceStyle>> _loadVoicesFromEngine() async {
+    final initialized = await _audioEngine.initialize();
+    if (!initialized) {
+      return const <VoiceStyle>[];
+    }
+    return _audioEngine.getAvailableVoices();
+  }
+
+  VoiceInfo _voiceInfoFromStyle(VoiceStyle style) {
+    return VoiceInfo(
+      id: style.id,
+      name: style.name,
+      description: style.description,
+      language: inferVoiceLocaleFromId(style.id) ?? 'en-US',
+      gender: inferVoiceGenderLabel(style),
+      isSelected: style.id == _selectedVoice,
+    );
   }
 
   @override
@@ -550,20 +668,61 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Voice grid
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.85,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
+        _buildSectionHeader('Voice Catalog', Icons.record_voice_over),
+        const SizedBox(height: 8),
+        Text(
+          'Preview any voice and set one as your permanent TTS preference.',
+          style: TextStyle(
+            color: colorScheme.onSurface.withValues(alpha: 0.75),
           ),
-          itemCount: _voices.length,
-          itemBuilder: (context, index) {
-            return _buildVoiceCard(_voices[index], colorScheme);
-          },
+        ),
+        const SizedBox(height: 12),
+        if (_isLoadingVoices)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (_voices.isEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'No voices are available yet. Try downloading or initializing audio models first.',
+                style: TextStyle(
+                  color: colorScheme.onSurface.withValues(alpha: 0.8),
+                ),
+              ),
+            ),
+          )
+        else
+          SizedBox(
+            height: 280,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: _voices.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                return SizedBox(
+                  width: 280,
+                  child: _buildVoiceCard(_voices[index], colorScheme),
+                );
+              },
+            ),
+          ),
+        const SizedBox(height: 12),
+        if (_selectedVoice.isNotEmpty)
+          Text(
+            'Preferred voice: $_selectedVoice',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: colorScheme.primary,
+            ),
+          ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: _loadVoices,
+          icon: const Icon(Icons.refresh),
+          label: const Text('Refresh Voices'),
         ),
       ],
     );
@@ -571,6 +730,7 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
 
   Widget _buildVoiceCard(VoiceInfo voice, ColorScheme colorScheme) {
     final isSelected = voice.id == _selectedVoice;
+    final isPreviewing = _previewingVoiceId == voice.id;
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -584,65 +744,101 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
         onTap: () => _selectVoice(voice),
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Avatar circle
-              CircleAvatar(
-                radius: 36,
-                backgroundColor: voice.gender == 'female'
-                    ? Colors.pink.withValues(alpha: 0.2)
-                    : Colors.blue.withValues(alpha: 0.2),
-                child: Text(
-                  voice.name[0],
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: voice.gender == 'female' ? Colors.pink : Colors.blue,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              Text(
-                voice.name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-
-              const SizedBox(height: 4),
-
-              Text(
-                voice.language,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              // Preview button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    onPressed: () => _previewVoice(voice),
-                    icon: const Icon(Icons.play_circle_outline, size: 28),
-                    tooltip: 'Preview',
-                  ),
-                  if (isSelected)
-                    Icon(
-                      Icons.check_circle,
-                      color: colorScheme.primary,
-                      size: 24,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Avatar circle
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: voice.gender == 'female'
+                      ? Colors.pink.withValues(alpha: 0.2)
+                      : Colors.blue.withValues(alpha: 0.2),
+                  child: Text(
+                    voice.name[0],
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: voice.gender == 'female'
+                          ? Colors.pink
+                          : Colors.blue,
                     ),
-                ],
-              ),
-            ],
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                Text(
+                  voice.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                Text(
+                  voice.language,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  voice.description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSurface.withValues(alpha: 0.75),
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        key: Key('preview-voice-${voice.id}'),
+                        onPressed: isPreviewing
+                            ? null
+                            : () => _previewVoice(voice),
+                        icon: isPreviewing
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.play_arrow),
+                        label: const Text('Preview'),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 8),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    key: Key('set-voice-${voice.id}'),
+                    onPressed: () => _setPreferredVoice(voice),
+                    icon: Icon(
+                      isSelected ? Icons.check_circle : Icons.settings_voice,
+                    ),
+                    label: Text(isSelected ? 'Preferred' : 'Set Preferred'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -819,14 +1015,64 @@ class _AudioSettingsPageState extends State<AudioSettingsPage>
     _notifySettingsChanged();
   }
 
-  void _previewVoice(VoiceInfo voice) {
-    // In production, play preview audio
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Playing preview for ${voice.name}'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  Future<void> _setPreferredVoice(VoiceInfo voice) async {
+    _selectVoice(voice);
+
+    if (widget.voiceSelectionHandler != null) {
+      await widget.voiceSelectionHandler!(voice.id);
+    } else {
+      _writeAudioPref(() {
+        stows.audioCustomVoiceId.value = voice.id;
+        stows.audioVoiceProfile.value = AudioVoiceProfile.custom.index;
+      });
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Preferred voice set to ${voice.name}'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _previewVoice(VoiceInfo voice) async {
+    setState(() {
+      _previewingVoiceId = voice.id;
+    });
+
+    try {
+      const sample =
+          'Hello! I am your selected Kivixa voice. I can pause naturally, and respond to punctuation.';
+      if (widget.voicePreviewHandler != null) {
+        await widget.voicePreviewHandler!(sample, voice.id);
+      } else {
+        await _playbackService.speak(sample, voiceId: voice.id);
+        final startedAt = DateTime.now();
+        while (mounted &&
+            (_playbackService.state.value == PlaybackState.loading ||
+                _playbackService.state.value == PlaybackState.playing)) {
+          if (DateTime.now().difference(startedAt) >=
+              const Duration(seconds: 30)) {
+            break;
+          }
+          await Future.delayed(const Duration(milliseconds: 50));
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Voice preview failed: $e')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _previewingVoiceId = null;
+        });
+      }
+    }
   }
 
   void _clearUnusedModels() {

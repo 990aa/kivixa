@@ -35,6 +35,8 @@ void main() {
 
     test('includes the newly requested compact and strongest additions', () {
       expect(ModelManager.getModelById('phi4-mini-reasoning-q4km'), isNotNull);
+      expect(ModelManager.getModelById('llama32-3b-instruct-q3km'), isNotNull);
+      expect(ModelManager.getModelById('qwen25-15b-instruct-q4km'), isNotNull);
       expect(ModelManager.getModelById('gemma-3-4b-it-q4km'), isNotNull);
       expect(ModelManager.getModelById('gemma-4-e2b-it-q4km'), isNotNull);
       expect(
@@ -79,6 +81,8 @@ void main() {
       final phiReasoning = ModelManager.getModelById(
         'phi4-mini-reasoning-q4km',
       )!;
+      final llama32 = ModelManager.getModelById('llama32-3b-instruct-q3km')!;
+      final qwen15b = ModelManager.getModelById('qwen25-15b-instruct-q4km')!;
       final gemma3 = ModelManager.getModelById('gemma-3-4b-it-q4km')!;
       final gemma4 = ModelManager.getModelById('gemma-4-e2b-it-q4km')!;
       final deepseek = ModelManager.getModelById(
@@ -94,6 +98,18 @@ void main() {
         'https://huggingface.co/unsloth/Phi-4-mini-reasoning-GGUF/resolve/main/Phi-4-mini-reasoning-Q4_K_M.gguf',
       );
       expect(phiReasoning.fileName, 'Phi-4-mini-reasoning-Q4_K_M.gguf');
+
+      expect(
+        llama32.url,
+        'https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf',
+      );
+      expect(llama32.fileName, 'Llama-3.2-3B-Instruct-Q4_K_M.gguf');
+
+      expect(
+        qwen15b.url,
+        'https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf',
+      );
+      expect(qwen15b.fileName, 'qwen2.5-1.5b-instruct-q4_k_m.gguf');
 
       expect(
         gemma3.url,
@@ -307,6 +323,16 @@ void main() {
       final recommended = ModelManager.getRecommendedModel(ModelCategory.agent);
       expect(recommended.id, 'function-gemma-270m');
     });
+
+    test('agent category includes new Llama 3.2 and Qwen2.5 1.5B entries', () {
+      final agentModels = ModelManager.getModelsForCategory(
+        ModelCategory.agent,
+      );
+
+      expect(agentModels.any((m) => m.id == 'function-gemma-270m'), true);
+      expect(agentModels.any((m) => m.id == 'llama32-3b-instruct-q3km'), true);
+      expect(agentModels.any((m) => m.id == 'qwen25-15b-instruct-q4km'), true);
+    });
   });
 
   group('Download task construction (no network)', () {
@@ -356,6 +382,29 @@ void main() {
       );
       expect(task.filename, 'translategemma-4b-it.Q4_K_M.gguf');
       expect(task.metaData, 'translategemma-4b-it-q4km');
+    });
+
+    test('new Llama 3.2 and Qwen2.5 1.5B tasks map to exact links', () {
+      final manager = ModelManager();
+      final llama32 = ModelManager.getModelById('llama32-3b-instruct-q3km')!;
+      final qwen15b = ModelManager.getModelById('qwen25-15b-instruct-q4km')!;
+
+      final llamaTask = manager.createDownloadTask(llama32);
+      final qwenTask = manager.createDownloadTask(qwen15b);
+
+      expect(
+        llamaTask.url,
+        'https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf',
+      );
+      expect(llamaTask.filename, 'Llama-3.2-3B-Instruct-Q4_K_M.gguf');
+      expect(llamaTask.metaData, 'llama32-3b-instruct-q3km');
+
+      expect(
+        qwenTask.url,
+        'https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf',
+      );
+      expect(qwenTask.filename, 'qwen2.5-1.5b-instruct-q4_k_m.gguf');
+      expect(qwenTask.metaData, 'qwen25-15b-instruct-q4km');
     });
   });
 }

@@ -188,41 +188,30 @@ class MCPChatController extends ChangeNotifier {
       buffer.writeln();
     }
 
-    // Add MCP tools if enabled
-    if (_isMcpEnabled && _mcpService.isInitialized) {
-      buffer.writeln('## Available Tools');
-      buffer.writeln();
+    // Add MCP mode marker + minimal contract for backend tool-call mode.
+    if (_isMcpEnabled) {
+      buffer.writeln(kMcpModeSentinel);
       buffer.writeln(
-        'You have access to the following tools. When you need to use a tool, respond with a JSON object:',
+        'MCP mode is active. Prefer tool execution for actionable requests.',
       );
-      buffer.writeln('```json');
       buffer.writeln(
-        '{"tool": "tool_name", "parameters": {"param1": "value1", ...}}',
+        'When a tool is needed, respond with JSON only in this format:',
       );
-      buffer.writeln('```');
-      buffer.writeln();
+      buffer.writeln('{"tool": "tool_name", "args": { ... }}');
 
-      final tools = _mcpService.getAvailableTools();
-      for (final tool in tools) {
-        buffer.writeln('### ${tool.name}');
-        buffer.writeln(tool.description);
-        if (tool.parameters.isNotEmpty) {
-          buffer.writeln('Parameters:');
-          for (final param in tool.parameters) {
-            final required = param.required ? ' (required)' : ' (optional)';
-            buffer.writeln('- ${param.name}: ${param.description}$required');
-          }
+      if (_mcpService.isInitialized) {
+        final tools = _mcpService.getAvailableTools();
+        if (tools.isNotEmpty) {
+          buffer.writeln(
+            'Allowed tools: ${tools.map((tool) => tool.name).join(', ')}',
+          );
         }
-        buffer.writeln();
       }
 
-      buffer.writeln('Important:');
-      buffer.writeln('- Only use tools when necessary for the user\'s request');
-      buffer.writeln('- File operations are sandboxed to the browse/ folder');
-      buffer.writeln('- All tool executions require user confirmation');
+      buffer.writeln('Do not include markdown fences or extra prose.');
     }
 
-    return buffer.toString();
+    return buffer.toString().trim();
   }
 
   /// Classify user message and potentially switch models
