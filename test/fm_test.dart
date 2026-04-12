@@ -19,14 +19,17 @@ void main() {
     late String rootDir;
     setUpAll(() async {
       await FileManager.init(shouldWatchRootDirectory: false);
+      FileManager.shouldUseRawFilePath = false;
       rootDir = FileManager.documentsDirectory;
       await Directory(rootDir).create(recursive: true);
     });
 
     setUp(() async {
-      // Other suites may reinitialize FileManager during full runs.
-      // Refresh to the current path before each test to avoid stale roots.
-      rootDir = FileManager.documentsDirectory;
+      await FileManager.init(
+        documentsDirectory: rootDir,
+        shouldWatchRootDirectory: false,
+      );
+      FileManager.shouldUseRawFilePath = false;
       await Directory(rootDir).create(recursive: true);
     });
 
