@@ -76,6 +76,10 @@ class _NeuralDictationBarState extends State<NeuralDictationBar> {
   }
 
   void _onTranscription(SpeechRecognitionResult result) {
+    if (!_isListening) {
+      return;
+    }
+
     setState(() {
       _currentText = result.text;
       _confidence = result.confidence;
@@ -135,9 +139,26 @@ class _NeuralDictationBarState extends State<NeuralDictationBar> {
       await _engine.stopListening();
       setState(() => _isListening = false);
     } else {
-      await _engine.initialize();
+      final initialized = await _engine.initialize();
+      if (!initialized) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to initialize audio engine')),
+        );
+        return;
+      }
+
       await _engine.startListening();
-      await _recorder.startRecording();
+      final recordingStarted = await _recorder.startRecording();
+      if (!recordingStarted) {
+        await _engine.stopListening();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to start microphone capture')),
+        );
+        return;
+      }
+
       setState(() {
         _isListening = true;
         _currentText = '';
@@ -366,9 +387,26 @@ class _FloatingDictationButtonState extends State<FloatingDictationButton>
       }
       setState(() => _isListening = false);
     } else {
-      await _engine.initialize();
+      final initialized = await _engine.initialize();
+      if (!initialized) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to initialize audio engine')),
+        );
+        return;
+      }
+
       await _engine.startListening();
-      await _recorder.startRecording();
+      final recordingStarted = await _recorder.startRecording();
+      if (!recordingStarted) {
+        await _engine.stopListening();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to start microphone capture')),
+        );
+        return;
+      }
+
       _pulseController.repeat(reverse: true);
       setState(() => _isListening = true);
     }

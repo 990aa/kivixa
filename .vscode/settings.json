@@ -12,6 +12,9 @@
         "VERSION": "plaintext"
     },
     "problems.excludeGitIgnore": true,
+    "problems.exclude": {
+        "**/rust_builder/android/**": true
+    },
     "search.exclude": {
         "**/VERSION": true,
         "**/build.gradle.kts": true
