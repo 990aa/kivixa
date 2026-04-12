@@ -69,35 +69,12 @@ class FloatingWindow extends StatefulWidget {
 class _FloatingWindowState extends State<FloatingWindow> {
   var _isDragging = false;
   var _isResizing = false;
-  late Rect _interactiveRect;
-
-  bool get _isInteracting => _isDragging || _isResizing;
 
   /// Whether we're on a desktop platform with mouse support.
   bool get _isDesktop =>
       defaultTargetPlatform == TargetPlatform.windows ||
       defaultTargetPlatform == TargetPlatform.macOS ||
       defaultTargetPlatform == TargetPlatform.linux;
-
-  @override
-  void initState() {
-    super.initState();
-    _interactiveRect = widget.rect;
-  }
-
-  @override
-  void didUpdateWidget(covariant FloatingWindow oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!_isInteracting && _interactiveRect != widget.rect) {
-      _interactiveRect = widget.rect;
-    }
-  }
-
-  void _commitRectIfNeeded() {
-    if (_interactiveRect != widget.rect) {
-      widget.onRectChanged(_interactiveRect);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,8 +87,8 @@ class _FloatingWindowState extends State<FloatingWindow> {
       color: colorScheme.surface,
       clipBehavior: Clip.antiAlias,
       child: Container(
-        width: _interactiveRect.width,
-        height: _interactiveRect.height,
+        width: widget.rect.width,
+        height: widget.rect.height,
         decoration: BoxDecoration(
           border: Border.all(
             color: _isDragging || _isResizing
@@ -143,28 +120,21 @@ class _FloatingWindowState extends State<FloatingWindow> {
     // Wrap with resize handles if resizable
     if (widget.resizable) {
       windowContent = ResizableWindowContainer(
-        rect: _interactiveRect,
-        onRectChanged: (newRect) {
-          setState(() {
-            _interactiveRect = newRect;
-          });
-        },
+        rect: widget.rect,
+        onRectChanged: widget.onRectChanged,
         minWidth: widget.minWidth,
         minHeight: widget.minHeight,
         maxWidth: widget.maxWidth,
         maxHeight: widget.maxHeight,
         onResizeStart: () => setState(() => _isResizing = true),
-        onResizeEnd: () {
-          setState(() => _isResizing = false);
-          _commitRectIfNeeded();
-        },
+        onResizeEnd: () => setState(() => _isResizing = false),
         child: windowContent,
       );
     }
 
     return Positioned(
-      left: _interactiveRect.left,
-      top: _interactiveRect.top,
+      left: widget.rect.left,
+      top: widget.rect.top,
       child: windowContent,
     );
   }
@@ -181,20 +151,14 @@ class _FloatingWindowState extends State<FloatingWindow> {
           setState(() => _isDragging = true);
         },
         onPanUpdate: (details) {
-          setState(() {
-            _interactiveRect = _interactiveRect.translate(
-              details.delta.dx,
-              details.delta.dy,
-            );
-          });
+          final newRect = widget.rect.translate(
+            details.delta.dx,
+            details.delta.dy,
+          );
+          widget.onRectChanged(newRect);
         },
         onPanEnd: (details) {
           setState(() => _isDragging = false);
-          _commitRectIfNeeded();
-        },
-        onPanCancel: () {
-          setState(() => _isDragging = false);
-          _commitRectIfNeeded();
         },
         child: Container(
           height: _isDesktop ? 36 : 44,

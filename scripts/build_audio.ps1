@@ -29,7 +29,6 @@ $WinTarget = "x86_64-pc-windows-msvc"
 # Android targets
 $AndroidArm64Target = "aarch64-linux-android"
 $AndroidArmv7Target = "armv7-linux-androideabi"
-$AndroidX64Target = "x86_64-linux-android"
 
 # Destination directories for Windows
 $WinRunnerDebug = Join-Path $ProjectRoot "build/windows/x64/runner/Debug"
@@ -40,7 +39,6 @@ $WinRunnerProfile = Join-Path $ProjectRoot "build/windows/x64/runner/Profile"
 $JniBase = Join-Path $ProjectRoot "android/app/src/main/jniLibs"
 $JniArm64Dir = Join-Path $JniBase "arm64-v8a"
 $JniArmv7Dir = Join-Path $JniBase "armeabi-v7a"
-$JniX64Dir = Join-Path $JniBase "x86_64"
 
 # rust_builder plugin directories
 $RustBuilderBase = Join-Path $ProjectRoot "rust_builder"
@@ -291,64 +289,42 @@ if (-not $SkipAndroid) {
                 exit 1
             }
 
-            # x86_64
-            Write-Step "Building for Android x86_64 ($AndroidX64Target)..."
-            $env:CC_x86_64_linux_android = Join-Path $binDir "x86_64-linux-android$apiLevel-clang.cmd"
-            $env:AR_x86_64_linux_android = Join-Path $binDir "llvm-ar.exe"
-            $env:CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER = Join-Path $binDir "x86_64-linux-android$apiLevel-clang.cmd"
-
-            $args = $CargoArgs + @("--target", $AndroidX64Target)
-            cargo @args 2>&1 | ForEach-Object { Write-Host "    $_" }
-
-            if ($LASTEXITCODE -ne 0) {
-                Write-Err "Android x86_64 build failed"
-                exit 1
-            }
-
             Write-Success "Android builds completed successfully"
 
             # Copy to jniLibs
             $SourceArm64So = Join-Path $TargetDir "$AndroidArm64Target/$BuildMode/$AndroidSoName"
             $SourceArmv7So = Join-Path $TargetDir "$AndroidArmv7Target/$BuildMode/$AndroidSoName"
-            $SourceX64So = Join-Path $TargetDir "$AndroidX64Target/$BuildMode/$AndroidSoName"
 
-            if ((Test-Path $SourceArm64So) -and (Test-Path $SourceArmv7So) -and (Test-Path $SourceX64So)) {
+            if ((Test-Path $SourceArm64So) -and (Test-Path $SourceArmv7So)) {
                 # Create jniLibs directories
                 New-Item -ItemType Directory -Force -Path $JniArm64Dir | Out-Null
                 New-Item -ItemType Directory -Force -Path $JniArmv7Dir | Out-Null
-                New-Item -ItemType Directory -Force -Path $JniX64Dir | Out-Null
 
                 Write-Step "Copying Android .so files to jniLibs..."
                 Copy-Item $SourceArm64So -Destination $JniArm64Dir -Force
                 Copy-Item $SourceArmv7So -Destination $JniArmv7Dir -Force
-                Copy-Item $SourceX64So -Destination $JniX64Dir -Force
 
                 # Also copy to rust_builder plugin if it exists
                 $RustBuilderArm64 = Join-Path $RustBuilderAndroid "arm64-v8a"
                 $RustBuilderArmv7 = Join-Path $RustBuilderAndroid "armeabi-v7a"
-                $RustBuilderX64 = Join-Path $RustBuilderAndroid "x86_64"
                 
                 if (Test-Path (Split-Path $RustBuilderAndroid)) {
                     New-Item -ItemType Directory -Force -Path $RustBuilderArm64 | Out-Null
                     New-Item -ItemType Directory -Force -Path $RustBuilderArmv7 | Out-Null
-                    New-Item -ItemType Directory -Force -Path $RustBuilderX64 | Out-Null
                     
                     Write-Step "Copying to rust_builder plugin..."
                     Copy-Item $SourceArm64So -Destination $RustBuilderArm64 -Force
                     Copy-Item $SourceArmv7So -Destination $RustBuilderArmv7 -Force
-                    Copy-Item $SourceX64So -Destination $RustBuilderX64 -Force
                 }
 
                 Write-Success "Android SOs copied to:"
                 Write-Host "    $JniArm64Dir\$AndroidSoName" -ForegroundColor Gray
                 Write-Host "    $JniArmv7Dir\$AndroidSoName" -ForegroundColor Gray
-                Write-Host "    $JniX64Dir\$AndroidSoName" -ForegroundColor Gray
             }
             else {
                 Write-Err "Android .so files not found"
                 Write-VerboseMsg "Expected: $SourceArm64So"
                 Write-VerboseMsg "Expected: $SourceArmv7So"
-                Write-VerboseMsg "Expected: $SourceX64So"
                 exit 1
             }
         }
@@ -376,7 +352,6 @@ if (-not $SkipAndroid) {
     Write-Host "Android:" -ForegroundColor Cyan
     Write-Host "  ✓ $AndroidArm64Target (arm64-v8a)" -ForegroundColor Green
     Write-Host "  ✓ $AndroidArmv7Target (armeabi-v7a)" -ForegroundColor Green
-    Write-Host "  ✓ $AndroidX64Target (x86_64)" -ForegroundColor Green
 }
 
 Write-Host ""
