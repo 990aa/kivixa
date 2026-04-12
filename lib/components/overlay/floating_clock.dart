@@ -35,33 +35,20 @@ class _FloatingClockWindowState extends State<FloatingClockWindow> {
   @override
   Widget build(BuildContext context) {
     final controller = OverlayController.instance;
-    final storedRect =
+    final rect =
         controller.getToolWindowRect('clock') ??
         const Rect.fromLTWH(100, 100, 380, 520);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final screenSize = Size(constraints.maxWidth, constraints.maxHeight);
-        final clampedRect = controller.clampToScreen(storedRect, screenSize);
-
-        return Stack(
-          children: [
-            FloatingWindow(
-              rect: clampedRect,
-              onRectChanged: (newRect) => controller.updateToolWindowRect(
-                'clock',
-                controller.clampToScreen(newRect, screenSize),
-              ),
-              onClose: () => controller.closeToolWindow('clock'),
-              title: 'Productivity Timer',
-              icon: Icons.timer,
-              minWidth: 340,
-              minHeight: 450,
-              child: _FloatingClockContent(timerService: _timerService),
-            ),
-          ],
-        );
-      },
+    return FloatingWindow(
+      rect: rect,
+      onRectChanged: (newRect) =>
+          controller.updateToolWindowRect('clock', newRect),
+      onClose: () => controller.closeToolWindow('clock'),
+      title: 'Productivity Timer',
+      icon: Icons.timer,
+      minWidth: 340,
+      minHeight: 450,
+      child: _FloatingClockContent(timerService: _timerService),
     );
   }
 }

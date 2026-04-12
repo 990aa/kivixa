@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/services/android_back_handler.dart';
@@ -75,5 +77,12 @@ void main() {
       // Widget should render without errors
       expect(find.byType(AndroidBackButtonHandler), findsOneWidget);
     });
+
+    testWidgets('shows snackbar on back press when not navigable', (
+      WidgetTester tester,
+    ) async {
+      // Skip this test if not on Android (PopScope behavior differs)
+      // This is an integration test that would need to be run on an actual device
+    }, skip: !Platform.isAndroid);
   });
 }

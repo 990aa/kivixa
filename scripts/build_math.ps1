@@ -25,7 +25,6 @@ $WinTarget = "x86_64-pc-windows-msvc"
 # Android targets
 $AndroidArm64Target = "aarch64-linux-android"
 $AndroidArmv7Target = "armv7-linux-androideabi"
-$AndroidX64Target = "x86_64-linux-android"
 
 # Destination directories for Windows
 $WinRunnerDebug = Join-Path $ProjectRoot "build/windows/x64/runner/Debug"
@@ -36,7 +35,6 @@ $WinRunnerProfile = Join-Path $ProjectRoot "build/windows/x64/runner/Profile"
 $JniBase = Join-Path $ProjectRoot "android/app/src/main/jniLibs"
 $JniArm64Dir = Join-Path $JniBase "arm64-v8a"
 $JniArmv7Dir = Join-Path $JniBase "armeabi-v7a"
-$JniX64Dir = Join-Path $JniBase "x86_64"
 
 function Write-Header {
     param([string]$Message)
@@ -222,39 +220,23 @@ if (-not $SkipAndroid) {
                 exit 1
             }
 
-            # x86_64
-            Write-Step "Building for Android x86_64 ($AndroidX64Target)..."
-            $env:CC_x86_64_linux_android = Join-Path $binDir "x86_64-linux-android$apiLevel-clang.cmd"
-            $env:AR_x86_64_linux_android = Join-Path $binDir "llvm-ar.exe"
-            $env:CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER = Join-Path $binDir "x86_64-linux-android$apiLevel-clang.cmd"
-            cargo build --release --target $AndroidX64Target
-
-            if ($LASTEXITCODE -ne 0) {
-                Write-Err "Android x86_64 build failed"
-                exit 1
-            }
-
             Write-Success "Android builds completed successfully"
 
             # Copy to jniLibs
             $SourceArm64So = Join-Path $TargetDir "$AndroidArm64Target/release/$AndroidSoName"
             $SourceArmv7So = Join-Path $TargetDir "$AndroidArmv7Target/release/$AndroidSoName"
-            $SourceX64So = Join-Path $TargetDir "$AndroidX64Target/release/$AndroidSoName"
 
-            if ((Test-Path $SourceArm64So) -and (Test-Path $SourceArmv7So) -and (Test-Path $SourceX64So)) {
+            if ((Test-Path $SourceArm64So) -and (Test-Path $SourceArmv7So)) {
                 New-Item -ItemType Directory -Force -Path $JniArm64Dir | Out-Null
                 New-Item -ItemType Directory -Force -Path $JniArmv7Dir | Out-Null
-                New-Item -ItemType Directory -Force -Path $JniX64Dir | Out-Null
 
                 Write-Step "Copying Android .so files to jniLibs..."
                 Copy-Item $SourceArm64So -Destination $JniArm64Dir -Force
                 Copy-Item $SourceArmv7So -Destination $JniArmv7Dir -Force
-                Copy-Item $SourceX64So -Destination $JniX64Dir -Force
 
                 Write-Success "Android SOs copied to:"
                 Write-Host "    $JniArm64Dir\$AndroidSoName" -ForegroundColor Gray
                 Write-Host "    $JniArmv7Dir\$AndroidSoName" -ForegroundColor Gray
-                Write-Host "    $JniX64Dir\$AndroidSoName" -ForegroundColor Gray
             }
             else {
                 Write-Err "Android .so files not found"

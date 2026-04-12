@@ -687,7 +687,7 @@ jobs:
           path: release-artifacts
 
       - name: Download MSIX artifacts
-        continue-on-error: true 
+        continue-on-error: true # <--- PREVENTS RELEASE FAILURE IF MSIX WAS NOT BUILT
         uses: actions/download-artifact@v4
         with:
           name: windows-msix
