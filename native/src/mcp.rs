@@ -12,6 +12,85 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
+/// Sentinel inserted into MCP system prompts so the Rust backend can
+/// deterministically switch into tool-call-only generation mode.
+pub const MCP_MODE_SENTINEL: &str = "[[KIVIXA_MCP_MODE]]";
+
+/// Lean MCP schema optimized for small local models.
+pub const MCP_TOOL_SCHEMA_LEAN: &str = r#"AVAILABLE TOOLS:
+1. read_file: {"path": string}
+2. write_file: {"path": string, "content": string, "append": boolean}
+3. delete_file: {"path": string}
+4. create_folder: {"path": string}
+5. list_files: {"path": string, "recursive": boolean}
+6. calendar_lua: {"script": string, "description": string}
+7. timer_lua: {"script": string, "description": string}
+8. export_markdown: {"path": string, "content": string, "append": boolean}"#;
+
+/// Few-shot instruction block used only in MCP mode.
+pub const MCP_FEW_SHOT_SYSTEM_PROMPT: &str = r#"You are a sandboxed AI assistant.
+When the user makes a request, output ONLY one valid JSON tool call.
+Do not include conversational text, pleasantries, or explanations.
+
+Format: {"tool": "tool_name", "args": { ... }}
+
+EXAMPLES:
+
+User: Can you check what's in my notes folder?
+Model: {"tool": "list_files", "args": {"path": "", "recursive": false}}
+
+User: Set a timer for my 20 minute focus session.
+Model: {"tool": "timer_lua", "args": {"script": "return \"Start a 1200 second timer labeled focus session\"", "description": "Start a 20 minute focus session timer"}}
+
+User: Make a new note called ideas.md and write down app architecture.
+Model: {"tool": "write_file", "args": {"path": "ideas.md", "content": "app architecture", "append": false}}
+
+User: Trash that old schedule file.
+Model: {"tool": "delete_file", "args": {"path": "schedule.md"}}
+
+User: Schedule a meeting for tomorrow at 3 PM.
+Model: {"tool": "calendar_lua", "args": {"script": "return \"Schedule meeting tomorrow at 3 PM\"", "description": "Schedule a meeting for tomorrow at 3 PM"}}"#;
+
+/// Grammar guardrail forcing MCP output into a strict tool-call JSON shape.
+pub const MCP_TOOL_CALL_GBNF: &str = r#"root ::= "{" ws "\"tool\"" ws ":" ws tool_choice ws "," ws "\"args\"" ws ":" ws object ws "}" ws
+
+tool_choice ::= "\"read_file\"" | "\"write_file\"" | "\"delete_file\"" | "\"create_folder\"" | "\"list_files\"" | "\"calendar_lua\"" | "\"timer_lua\"" | "\"export_markdown\""
+
+object ::= "{" ws members ws "}"
+members ::= "" | member | member ws "," ws members
+member ::= string ws ":" ws value
+
+array ::= "[" ws elements ws "]"
+elements ::= "" | value | value ws "," ws elements
+
+value ::= string | number | object | array | "true" | "false" | "null"
+
+string ::= "\"" string_body "\""
+string_body ::= "" | string_char string_body
+string_char ::= [^"\\\n\r\t] | "\\" escape
+escape ::= ["\\/bfnrt] | "u" hex hex hex hex
+hex ::= [0-9a-fA-F]
+
+number ::= int frac exp
+int ::= "-" int_digits | int_digits
+int_digits ::= "0" | [1-9] digits
+digits ::= "" | digit digits
+digit ::= [0-9]
+frac ::= "" | "." digits1
+digits1 ::= digit | digit digits1
+exp ::= "" | [eE] sign digits1
+sign ::= "" | "+" | "-"
+
+ws ::= "" | [ \t\n\r] ws"#;
+
+/// Combined MCP prompt block injected into backend system messages.
+pub fn mcp_tool_prompt_block() -> String {
+    format!(
+        "{}\n\n{}\n\nRespond with JSON only.",
+        MCP_TOOL_SCHEMA_LEAN, MCP_FEW_SHOT_SYSTEM_PROMPT
+    )
+}
+
 // Tool Definitions
 
 /// Available MCP tools
@@ -669,7 +748,40 @@ pub fn get_tool_schemas() -> String {
 
 /// Parse a tool call from JSON
 pub fn parse_tool_call(json: &str) -> Result<MCPToolCall> {
-    serde_json::from_str(json).map_err(|e| anyhow!("Failed to parse tool call: {}", e))
+    if let Ok(parsed) = serde_json::from_str::<MCPToolCall>(json) {
+        return Ok(parsed);
+    }
+
+    let decoded: serde_json::Value =
+        serde_json::from_str(json).map_err(|e| anyhow!("Failed to parse tool call: {}", e))?;
+    let obj = decoded
+        .as_object()
+        .ok_or_else(|| anyhow!("Tool call must be a JSON object"))?;
+
+    let tool = obj
+        .get("tool")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| anyhow!("Tool call missing required string field 'tool'"))?
+        .to_string();
+
+    let args = obj
+        .get("args")
+        .cloned()
+        .or_else(|| obj.get("parameters").cloned())
+        .unwrap_or_else(|| serde_json::json!({}));
+
+    let description = obj
+        .get("description")
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string())
+        .unwrap_or_else(|| format!("Execute {}", tool));
+
+    Ok(MCPToolCall {
+        tool,
+        parameters_json: serde_json::to_string(&args)
+            .map_err(|e| anyhow!("Failed to serialize tool arguments: {}", e))?,
+        description,
+    })
 }
 
 /// Execute a tool call
@@ -1045,6 +1157,12 @@ mod tests {
             classify_task("List files in the notes folder"),
             TaskCategory::ToolUse
         );
+        assert_eq!(
+            classify_task(
+                "Use write_file to create sandbox/changes.md and write about a paragraph on changes around us"
+            ),
+            TaskCategory::ToolUse
+        );
 
         // Code generation
         assert_eq!(
@@ -1118,6 +1236,58 @@ mod tests {
         assert_eq!(call.tool, "write_file");
         let params = call.get_parameters();
         assert_eq!(params.get("path").and_then(|v| v.as_str()), Some("test.md"));
+    }
+
+    #[test]
+    fn test_tool_call_parsing_supports_args_format() {
+        let json = r#"{"tool":"create_folder","args":{"path":"sandbox/tmp"},"description":"Create folder"}"#;
+
+        let call = parse_tool_call(json).unwrap();
+        assert_eq!(call.tool, "create_folder");
+        let params = call.get_parameters();
+        assert_eq!(
+            params.get("path").and_then(|value| value.as_str()),
+            Some("sandbox/tmp")
+        );
+    }
+
+    #[test]
+    fn test_tool_call_parsing_handles_escaped_multiline_args() {
+        let json = r#"{"tool":"write_file","args":{"path":"sandbox/changes.md","content":"Line 1\nLine 2 with \"quoted\" text","append":false}}"#;
+
+        let call = parse_tool_call(json).unwrap();
+        assert_eq!(call.tool, "write_file");
+
+        let params = call.get_parameters();
+        assert_eq!(
+            params.get("path").and_then(|value| value.as_str()),
+            Some("sandbox/changes.md")
+        );
+        assert_eq!(
+            params.get("content").and_then(|value| value.as_str()),
+            Some("Line 1\nLine 2 with \"quoted\" text")
+        );
+        assert_eq!(
+            params.get("append").and_then(|value| value.as_bool()),
+            Some(false)
+        );
+    }
+
+    #[test]
+    fn test_mcp_prompt_block_and_grammar_constants() {
+        let prompt = mcp_tool_prompt_block();
+        assert!(prompt.contains("AVAILABLE TOOLS:"));
+        assert!(prompt.contains("read_file"));
+        assert!(prompt.contains("write_file"));
+        assert!(prompt.contains("delete_file"));
+        assert!(prompt.contains("create_folder"));
+        assert!(prompt.contains("list_files"));
+        assert!(prompt.contains("calendar_lua"));
+        assert!(prompt.contains("timer_lua"));
+        assert!(prompt.contains("export_markdown"));
+        assert!(MCP_TOOL_CALL_GBNF.contains("root ::= "));
+        assert!(MCP_TOOL_CALL_GBNF.contains("tool_choice"));
+        assert!(MCP_TOOL_CALL_GBNF.contains("timer_lua"));
     }
 
     #[test]

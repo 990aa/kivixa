@@ -2,7 +2,7 @@ name: kivixa
 description: A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
 publish_to: 'none' 
 
-version: 0.7.1+7001
+version: 0.8.7+8007
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
@@ -40,6 +40,9 @@ dependencies:
   flutter_svg: ^2.0.0+1
   defer_pointer: ^0.0.2
   permission_handler: ^12.0.0+1
+  record: ^6.1.2
+  speech_to_text: ^7.0.0
+  flutter_tts: ^4.2.2
   saver_gallery: ^4.0.0
   animations: ^2.0.7
   flutter_quill: ^11.1.0
