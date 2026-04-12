@@ -189,7 +189,7 @@ jobs:
           tool: cargo-audit,cargo-deny
 
       - name: Cargo audit
-        run: cargo audit --manifest-path ${{ matrix.crate }}/Cargo.toml
+        run: cargo audit --file ${{ matrix.crate }}/Cargo.lock
 
       - name: Cargo deny
         run: cargo deny check --manifest-path ${{ matrix.crate }}/Cargo.toml
