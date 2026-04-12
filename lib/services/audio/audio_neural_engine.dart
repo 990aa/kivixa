@@ -9,10 +9,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/src/rust_audio/api.dart' as audio_api;
 import 'package:kivixa/src/rust_audio/frb_generated.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 /// Audio engine state enum
 enum AudioEngineState {
@@ -161,26 +159,6 @@ class AudioVisualizerData {
   );
 }
 
-@visibleForTesting
-SpeechRecognitionResult? buildSpeechFallbackFinalResult(
-  String transcript, {
-  required double endTime,
-}) {
-  final trimmed = transcript.trim();
-  if (trimmed.isEmpty) {
-    return null;
-  }
-
-  return SpeechRecognitionResult(
-    text: trimmed,
-    confidence: 0.8,
-    isFinal: true,
-    startTime: 0.0,
-    endTime: endTime,
-    language: null,
-  );
-}
-
 /// Audio Neural Engine - Central service for audio intelligence
 class AudioNeuralEngine {
   // Singleton instance
@@ -209,14 +187,8 @@ class AudioNeuralEngine {
   var _isInitialized = false;
   var _initializationFailed = false;
   String? _initializationError;
-  var _rustAudioReady = false;
-  var _speechFallbackAvailable = false;
-  var _speechFallbackListening = false;
-  var _speechFallbackTranscript = '';
-  var _usedSpeechFallbackInCurrentSession = false;
   var _recordingStartTime = 0.0;
   Timer? _processingTimer;
-  final _speechToText = stt.SpeechToText();
 
   // Configuration
   var _vadThreshold = 0.5;
@@ -264,12 +236,6 @@ class AudioNeuralEngine {
   /// Current VAD threshold
   double get vadThreshold => _vadThreshold;
 
-  /// Whether Rust-backed audio processing is available.
-  bool get rustAudioReady => _rustAudioReady;
-
-  /// Whether platform speech recognition fallback is currently active.
-  bool get usesPlatformSpeechRecognition => _speechFallbackListening;
-
   /// Selected voice ID
   String get selectedVoiceId => _selectedVoiceId;
 
@@ -283,7 +249,6 @@ class AudioNeuralEngine {
 
     _stateNotifier.value = AudioEngineState.initializing;
 
-    Object? rustError;
     try {
       // Initialize the Rust audio library
       await _initializeRustLib();
@@ -291,61 +256,16 @@ class AudioNeuralEngine {
       // Initialize all audio subsystems
       await audio_api.audioInitializeAll();
 
-      _rustAudioReady = true;
+      _isInitialized = true;
+      _stateNotifier.value = AudioEngineState.idle;
+      debugPrint('AudioNeuralEngine: Initialized successfully');
+      return true;
     } catch (e, stack) {
+      _initializationFailed = true;
+      _initializationError = e.toString();
+      _stateNotifier.value = AudioEngineState.error;
       debugPrint('AudioNeuralEngine: Initialization failed: $e');
       debugPrint('Stack trace: $stack');
-      rustError = e;
-      _rustAudioReady = false;
-    }
-
-    if (_rustAudioReady) {
-      _speechFallbackAvailable = false;
-    } else {
-      _speechFallbackAvailable = await _initializeSpeechFallback();
-    }
-
-    final isUsable = _rustAudioReady || _speechFallbackAvailable;
-    if (isUsable) {
-      _isInitialized = true;
-      _initializationFailed = false;
-      _initializationError = null;
-      _stateNotifier.value = AudioEngineState.idle;
-      if (_rustAudioReady) {
-        debugPrint('AudioNeuralEngine: Rust audio backend initialized');
-      } else {
-        debugPrint(
-          'AudioNeuralEngine: Using platform speech recognition fallback',
-        );
-        if (rustError != null) {
-          debugPrint('AudioNeuralEngine: Rust backend unavailable: $rustError');
-        }
-      }
-      return true;
-    }
-
-    _initializationFailed = true;
-    _initializationError = rustError?.toString() ?? 'Audio backend unavailable';
-    _stateNotifier.value = AudioEngineState.error;
-    return false;
-  }
-
-  Future<bool> _initializeSpeechFallback() async {
-    try {
-      final available = await _speechToText.initialize(
-        onStatus: (status) {
-          if (status == 'done' || status == 'notListening') {
-            _speechFallbackListening = false;
-          }
-        },
-        onError: (error) {
-          _speechFallbackListening = false;
-          debugPrint('AudioNeuralEngine: Speech fallback error: $error');
-        },
-      );
-      return available;
-    } catch (e) {
-      debugPrint('AudioNeuralEngine: Speech fallback unavailable: $e');
       return false;
     }
   }
@@ -395,9 +315,7 @@ class AudioNeuralEngine {
 
   /// Process raw audio bytes (PCM 16-bit LE)
   Future<void> processAudioBytes(Uint8List bytes) async {
-    if (!_isInitialized || !_rustAudioReady || _speechFallbackListening) {
-      return;
-    }
+    if (!_isInitialized) return;
 
     try {
       final result = await audio_api.processStreamingAudio(
@@ -426,9 +344,7 @@ class AudioNeuralEngine {
 
   /// Process f32 audio samples
   Future<void> processAudioSamples(List<double> samples) async {
-    if (!_isInitialized || !_rustAudioReady || _speechFallbackListening) {
-      return;
-    }
+    if (!_isInitialized) return;
 
     try {
       // Write samples to buffer
@@ -455,40 +371,11 @@ class AudioNeuralEngine {
   /// Start listening for speech
   Future<void> startListening() async {
     if (!_isInitialized) {
-      final ready = await initialize();
-      if (!ready) {
-        return;
-      }
+      await initialize();
     }
 
     _stateNotifier.value = AudioEngineState.listening;
     _recordingStartTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
-    _speechFallbackTranscript = '';
-    _usedSpeechFallbackInCurrentSession = false;
-
-    final configuredThreshold = _readAudioPref(
-      () => stows.audioVadThreshold.value,
-      _vadThreshold,
-    );
-    setVadThreshold(configuredThreshold);
-
-    if (!_speechFallbackAvailable) {
-      _speechFallbackAvailable = await _initializeSpeechFallback();
-    }
-
-    if (_speechFallbackAvailable) {
-      final started = await _startSpeechFallback();
-      if (started) {
-        _usedSpeechFallbackInCurrentSession = true;
-        return;
-      }
-    }
-
-    if (!_rustAudioReady) {
-      _stateNotifier.value = AudioEngineState.error;
-      _initializationError = 'Speech recognition backend is unavailable.';
-      return;
-    }
 
     // Reset audio subsystems
     audio_api.audioBufferClear();
@@ -496,76 +383,11 @@ class AudioNeuralEngine {
     audio_api.sttReset();
   }
 
-  Future<bool> _startSpeechFallback() async {
-    try {
-      await _speechToText.listen(
-        onResult: (result) {
-          final recognizedText = result.recognizedWords.trim();
-          if (recognizedText.isEmpty) {
-            return;
-          }
-
-          _speechFallbackTranscript = recognizedText;
-          final elapsedSeconds = _currentRecordingElapsedSeconds();
-          _transcriptionController.add(
-            SpeechRecognitionResult(
-              text: recognizedText,
-              confidence: result.confidence > 0 ? result.confidence : 0.8,
-              isFinal: result.finalResult,
-              startTime: 0.0,
-              endTime: elapsedSeconds,
-              language: null,
-            ),
-          );
-        },
-        pauseFor: const Duration(seconds: 5),
-        listenFor: const Duration(minutes: 10),
-        listenOptions: stt.SpeechListenOptions(
-          listenMode: stt.ListenMode.dictation,
-          partialResults: true,
-          cancelOnError: true,
-        ),
-      );
-
-      _speechFallbackListening = true;
-      return true;
-    } catch (e) {
-      _speechFallbackListening = false;
-      debugPrint('AudioNeuralEngine: Failed to start speech fallback: $e');
-      return false;
-    }
-  }
-
   /// Stop listening
   Future<SpeechRecognitionResult?> stopListening() async {
     if (_stateNotifier.value != AudioEngineState.listening) return null;
 
     _stateNotifier.value = AudioEngineState.processing;
-
-    if (_usedSpeechFallbackInCurrentSession) {
-      if (_speechFallbackListening) {
-        try {
-          await _speechToText.stop();
-        } catch (e) {
-          debugPrint('AudioNeuralEngine: Failed to stop speech fallback: $e');
-        } finally {
-          _speechFallbackListening = false;
-        }
-      }
-
-      final fallbackResult = buildSpeechFallbackFinalResult(
-        _speechFallbackTranscript,
-        endTime: _currentRecordingElapsedSeconds(),
-      );
-      _usedSpeechFallbackInCurrentSession = false;
-      _stateNotifier.value = AudioEngineState.idle;
-      return fallbackResult;
-    }
-
-    if (!_rustAudioReady) {
-      _stateNotifier.value = AudioEngineState.idle;
-      return null;
-    }
 
     try {
       // Force final transcription
@@ -598,14 +420,7 @@ class AudioNeuralEngine {
   /// Synthesize text to speech
   Future<SynthesisResult?> synthesize(String text, {String? voiceId}) async {
     if (!_isInitialized) {
-      final ready = await initialize();
-      if (!ready) {
-        return null;
-      }
-    }
-
-    if (!_rustAudioReady) {
-      return null;
+      await initialize();
     }
 
     _stateNotifier.value = AudioEngineState.speaking;
@@ -639,14 +454,7 @@ class AudioNeuralEngine {
   /// Synthesize text to PCM bytes (16-bit LE)
   Future<Uint8List?> synthesizeToBytes(String text) async {
     if (!_isInitialized) {
-      final ready = await initialize();
-      if (!ready) {
-        return null;
-      }
-    }
-
-    if (!_rustAudioReady) {
-      return null;
+      await initialize();
     }
 
     _stateNotifier.value = AudioEngineState.speaking;
@@ -664,7 +472,7 @@ class AudioNeuralEngine {
 
   /// Get available voices
   List<VoiceStyle> getAvailableVoices() {
-    if (!_isInitialized || !_rustAudioReady) return [];
+    if (!_isInitialized) return [];
 
     try {
       return audio_api
@@ -680,7 +488,7 @@ class AudioNeuralEngine {
   /// Set VAD threshold
   void setVadThreshold(double threshold) {
     _vadThreshold = threshold.clamp(0.0, 1.0);
-    if (_isInitialized && _rustAudioReady) {
+    if (_isInitialized) {
       audio_api.vadSetThreshold(threshold: _vadThreshold);
     }
   }
@@ -697,26 +505,19 @@ class AudioNeuralEngine {
 
   /// Get engine version
   String getVersion() {
-    if (!_isInitialized || !_rustAudioReady) return 'Fallback mode';
+    if (!_isInitialized) return 'Not initialized';
     return audio_api.audioModuleVersion();
   }
 
   /// Health check
   bool healthCheck() {
     if (!_isInitialized) return false;
-    if (!_rustAudioReady) return _speechFallbackAvailable;
     return audio_api.audioModuleHealthCheck();
   }
 
   /// Reset all audio subsystems
   void reset() {
-    if (_speechFallbackListening) {
-      unawaited(_speechToText.stop());
-      _speechFallbackListening = false;
-    }
-    _usedSpeechFallbackInCurrentSession = false;
-
-    if (_isInitialized && _rustAudioReady) {
+    if (_isInitialized) {
       audio_api.audioResetAll();
     }
     _stateNotifier.value = AudioEngineState.idle;
@@ -745,39 +546,9 @@ class AudioNeuralEngine {
     _transcriptionController.close();
     _visualizerController.close();
     _speechProbabilityController.close();
-    _vadController.close();
     _stateNotifier.dispose();
     _vadStateNotifier.dispose();
     _visualizerNotifier.dispose();
-  }
-
-  double _currentRecordingElapsedSeconds() {
-    final nowSeconds = DateTime.now().millisecondsSinceEpoch / 1000.0;
-    return (nowSeconds - _recordingStartTime).clamp(0.0, double.infinity);
-  }
-
-  T _readAudioPref<T>(T Function() reader, T fallback) {
-    try {
-      return reader();
-    } catch (_) {
-      return fallback;
-    }
-  }
-
-  @visibleForTesting
-  void debugConfigureStopListeningForTest({
-    required bool useSpeechFallback,
-    required bool speechFallbackListening,
-    required String speechFallbackTranscript,
-    required bool rustAudioReady,
-  }) {
-    _isInitialized = true;
-    _rustAudioReady = rustAudioReady;
-    _usedSpeechFallbackInCurrentSession = useSpeechFallback;
-    _speechFallbackListening = speechFallbackListening;
-    _speechFallbackTranscript = speechFallbackTranscript;
-    _recordingStartTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
-    _stateNotifier.value = AudioEngineState.listening;
   }
 
   // Private helpers

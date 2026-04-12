@@ -200,96 +200,60 @@ void main() {
     });
 
     group('Initialization', () {
-      test('handles initialization failure correctly using injection', () async {
-        final engine = AudioNeuralEngine();
+      test(
+        'handles initialization failure correctly using injection',
+        () async {
+          final engine = AudioNeuralEngine();
 
-        // Inject a mocked failure directly into the initialization flow
-        engine.initializeRustLibOverride = () async {
-          throw Exception('Injected native library error');
-        };
+          // Inject a mocked failure directly into the initialization flow
+          engine.initializeRustLibOverride = () async {
+            throw Exception('Injected native library error');
+          };
 
-        // Ensure starting state
-        expect(engine.state.value, equals(AudioEngineState.uninitialized));
-        expect(engine.isInitialized, isFalse);
+          // Ensure starting state
+          expect(engine.state.value, equals(AudioEngineState.uninitialized));
+          expect(engine.isInitialized, isFalse);
 
-        // Call initialize
-        final result = await engine.initialize();
+          // Call initialize
+          final result = await engine.initialize();
 
-        // Assertions for error path
-        expect(result, isFalse, reason: 'Initialize should return false when failing to load library');
-        expect(engine.isInitialized, isFalse, reason: 'Engine should not be marked as initialized');
-        expect(engine.state.value, equals(AudioEngineState.error), reason: 'State should be updated to error');
-        expect(engine.initializationError, isNotNull, reason: 'Error message should be captured');
-        expect(engine.initializationError, contains('Injected native library error'));
+          // Assertions for error path
+          expect(
+            result,
+            isFalse,
+            reason:
+                'Initialize should return false when failing to load library',
+          );
+          expect(
+            engine.isInitialized,
+            isFalse,
+            reason: 'Engine should not be marked as initialized',
+          );
+          expect(
+            engine.state.value,
+            equals(AudioEngineState.error),
+            reason: 'State should be updated to error',
+          );
+          expect(
+            engine.initializationError,
+            isNotNull,
+            reason: 'Error message should be captured',
+          );
+          expect(
+            engine.initializationError,
+            contains('Injected native library error'),
+          );
 
-        // Ensure another call returns false directly without throwing
-        final secondResult = await engine.initialize();
-        expect(secondResult, isFalse, reason: 'Subsequent calls should return false immediately');
-        expect(engine.state.value, equals(AudioEngineState.error));
-      });
-    });
-  });
-
-  group('buildSpeechFallbackFinalResult', () {
-    test('returns null for empty transcript', () {
-      final result = buildSpeechFallbackFinalResult('   ', endTime: 2.0);
-
-      expect(result, isNull);
-    });
-
-    test('returns normalized final transcript result', () {
-      final result = buildSpeechFallbackFinalResult(
-        '  hello world  ',
-        endTime: 3.25,
+          // Ensure another call returns false directly without throwing
+          final secondResult = await engine.initialize();
+          expect(
+            secondResult,
+            isFalse,
+            reason: 'Subsequent calls should return false immediately',
+          );
+          expect(engine.state.value, equals(AudioEngineState.error));
+        },
       );
-
-      expect(result, isNotNull);
-      expect(result!.text, 'hello world');
-      expect(result.isFinal, isTrue);
-      expect(result.startTime, 0.0);
-      expect(result.endTime, 3.25);
-      expect(result.confidence, 0.8);
-    });
-  });
-
-  group('stopListening fallback session handling', () {
-    test(
-      'returns fallback transcript when fallback session ended before stop',
-      () async {
-        final engine = AudioNeuralEngine();
-        engine.debugConfigureStopListeningForTest(
-          useSpeechFallback: true,
-          speechFallbackListening: false,
-          speechFallbackTranscript: 'dictated transcript',
-          rustAudioReady: false,
-        );
-
-        final result = await engine.stopListening();
-
-        expect(result, isNotNull);
-        expect(result!.text, 'dictated transcript');
-        expect(result.isFinal, isTrue);
-        expect(engine.state.value, AudioEngineState.idle);
-
-        engine.reset();
-      },
-    );
-
-    test('returns null when fallback transcript is empty', () async {
-      final engine = AudioNeuralEngine();
-      engine.debugConfigureStopListeningForTest(
-        useSpeechFallback: true,
-        speechFallbackListening: false,
-        speechFallbackTranscript: '   ',
-        rustAudioReady: false,
-      );
-
-      final result = await engine.stopListening();
-
-      expect(result, isNull);
-      expect(engine.state.value, AudioEngineState.idle);
-
-      engine.reset();
     });
   });
 }
