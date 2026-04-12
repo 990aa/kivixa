@@ -9,9 +9,7 @@ use crate::stt::{SttConfig, SttEngine, Transcription, WhisperModel};
 use crate::tts::{TtsEngine, VoiceStyle};
 use crate::vad::{VadConfig, VadState, VoiceActivityDetector};
 
-
 // Audio Buffer Tests
-
 
 #[test]
 fn test_ring_buffer_circular_write() {
@@ -96,9 +94,7 @@ fn test_audio_chunk_creation() {
     assert!((chunk.end_time - 13.0).abs() < 0.001);
 }
 
-
 // VAD Tests
-
 
 #[test]
 fn test_vad_calibration() {
@@ -151,9 +147,7 @@ fn test_vad_config_customization() {
     assert_eq!(vad.config().threshold, 0.3);
 }
 
-
 // Phonemizer Tests
-
 
 #[test]
 fn test_phonemizer_common_words() {
@@ -181,7 +175,7 @@ fn test_phonemizer_sentence() {
     // Should have at least 2 word sequences (hello, world)
     let word_count = result
         .iter()
-        .filter(|s| !matches!(s.phonemes.get(0), Some(Phoneme::SPACE)))
+        .filter(|s| !matches!(s.phonemes.first(), Some(Phoneme::SPACE)))
         .count();
     assert!(word_count >= 2);
 }
@@ -227,9 +221,7 @@ fn test_phoneme_to_string() {
     assert!(repr.contains("S"));
 }
 
-
 // STT Tests
-
 
 #[test]
 fn test_stt_initialization() {
@@ -302,9 +294,7 @@ fn test_transcription_search() {
     assert!((results[0].start_time - 2.0).abs() < 0.01);
 }
 
-
 // TTS Tests
-
 
 #[test]
 fn test_tts_initialization() {
@@ -330,6 +320,8 @@ fn test_tts_voices() {
     assert!(has_neutral);
     assert!(has_female);
     assert!(has_male);
+    assert!(voices.iter().any(|v| v.id == "af_heart"));
+    assert!(voices.iter().any(|v| v.id == "am_adam"));
 }
 
 #[test]
@@ -367,6 +359,17 @@ fn test_tts_synthesize_with_unknown_voice_fails() {
 }
 
 #[test]
+fn test_tts_punctuation_adds_pause_duration() {
+    let mut engine = TtsEngine::new();
+    engine.initialize().unwrap();
+
+    let base = engine.synthesize("this is a test").unwrap();
+    let punctuated = engine.synthesize("this is a test?").unwrap();
+
+    assert!(punctuated.duration > base.duration);
+}
+
+#[test]
 fn test_voice_style_properties() {
     let neutral = VoiceStyle::default_neutral();
     let female = VoiceStyle::female();
@@ -396,9 +399,7 @@ fn test_tts_custom_voice() {
     assert!(voices.iter().any(|v| v.id == "robot"));
 }
 
-
 // Integration Tests
-
 
 #[test]
 fn test_audio_pipeline_integration() {
@@ -444,9 +445,7 @@ fn test_phonemizer_to_tts_pipeline() {
     assert!(audio.sample_rate > 0);
 }
 
-
 // Edge Case Tests
-
 
 #[test]
 fn test_empty_input_handling() {

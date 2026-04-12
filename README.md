@@ -12,13 +12,13 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.9.0+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
-[![Version](https://img.shields.io/badge/Version-0.7.1%2B7001--beta-orange)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-0.8.5%2B8005--beta-orange)](CHANGELOG.md)
 
-[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.7.1%2B7001/Kivixa-Setup-0.7.1.exe)
+[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.8.5%2B8005/Kivixa-Setup-0.8.5.exe)
 
-[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.7.1%2B7001/Kivixa-Android-0.7.1-arm64.apk)
-[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.7.1%2B7001/Kivixa-Android-0.7.1-armv7.apk)
-[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.7.1%2B7001/Kivixa-Android-0.7.1-x86_64.apk)
+[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.5%2B8005/Kivixa-Android-0.8.5-arm64.apk)
+[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.5%2B8005/Kivixa-Android-0.8.5-armv7.apk)
+[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.5%2B8005/Kivixa-Android-0.8.5-x86_64.apk)
 
 **F-Droid Repository:**
 
@@ -43,6 +43,8 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
   - **Phi-4 Mini** - Default model for reasoning, conversation, and general assistance
   - **Phi-4 Mini Reasoning** - Reasoning-tuned Phi model for math-heavy and logic-heavy tasks
   - **Qwen 2.5 3B** - Specialized for writing, notes, and code generation
+  - **Llama 3.2 3B Instruct** - Balanced compact model for MCP workflows, drafting, and general use
+  - **Qwen2.5 1.5B Instruct** - Lightweight model for MCP actions and low-memory assistant workflows
   - **Qwen3.5 4B Distilled** - Claude 4.6 Opus reasoning-distilled 4B variant (Qwopus v3 GGUF source) for strongest Qwen quality
   - **Qwen3.5 2B Distilled** - Balanced speed and quality for daily work
   - **Qwen3.5 0.8B Distilled** - Fast lightweight option for low-memory devices
@@ -55,7 +57,6 @@ Kivixa features a powerful on-device AI engine with multi-model support and Mode
   - **Gemma 3 4B IT** - Newer Gemma-family model with stronger balanced output quality
   - **Gemma 4 E2B IT** - Stronger Gemma-family instruct model for high-quality general, writing, and coding output
   - **TranslateGemma 4B IT** - Fast multilingual translation and rewriting model for notes
-  - Automatic model routing based on task classification
   - Seamless model switching for optimal performance
 
 - **Model Context Protocol (MCP)**
@@ -493,37 +494,106 @@ A fully-featured web browser built into Kivixa for seamless research and referen
 
 ### Prerequisites
 
-- [Flutter](https://flutter.dev/docs/get-started/install) 3.38.6 or higher
-- [Dart](https://dart.dev/get-dart) 3.11.1 or higher
-- [Rust](https://rustup.rs/) (for building native code)
+- [Flutter](https://flutter.dev/docs/get-started/install) 3.41.4 or higher
+- [Dart](https://dart.dev/get-dart) 3.9.0 or higher
+- [Git](https://git-scm.com)
+- [Rustup](https://rustup.rs/) (installs Rust + Cargo)
 - Platform-specific requirements:
-  - **Windows**: Visual Studio 2026 with C++ desktop development, Vulkan SDK
-  - **macOS**: Xcode 15+, Rust with aarch64-apple-darwin target
-  - **Linux**: Standard build tools (`clang`, `cmake`, `ninja-build`), Vulkan SDK
-  - **Android**: Android Studio / Android SDK, NDK for Rust cross-compilation
+  - **Windows**: Visual Studio 2026 with Desktop development with C++, CMake tools, Ninja, and Vulkan SDK
+  - **macOS**: Xcode 15+, CocoaPods, and command line tools
+  - **Linux**: `clang`, `cmake`, `ninja-build`, and Vulkan SDK
+  - **Android**: Android Studio, Android SDK, and Android NDK (scripts auto-detect latest NDK under Android SDK)
   - **iOS**: Xcode 15+ and CocoaPods
 
-### Installation
+### 1) Clone the repository
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/990aa/kivixa.git
-   cd kivixa
-   ```
+```bash
+git clone https://github.com/990aa/kivixa.git
+cd kivixa
+```
 
-2. **Install dependencies**
-   ```bash
-   flutter pub get
-   ```
+### 2) Install Flutter dependencies
 
-3. **Run the app**
-   ```bash
-   # For desktop (Windows/macOS/Linux)
-   flutter run -d windows  # or macos, linux
+```bash
+flutter pub get
+```
 
-   # For mobile (Android/iOS)
-   flutter run -d android  # or ios
-   ```
+### 3) Install Rust toolchain and targets
+
+Install stable Rust, required components, and platform targets.
+
+```bash
+rustup toolchain install stable
+rustup default stable
+rustup component add rustfmt clippy
+```
+
+Common targets:
+
+```bash
+# Windows
+rustup target add x86_64-pc-windows-msvc
+
+# Android (required for native Android builds in this repo)
+rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
+
+# Apple Silicon macOS (if building on macOS)
+rustup target add aarch64-apple-darwin
+```
+
+### 4) Install Flutter Rust Bridge codegen
+
+```bash
+cargo install flutter_rust_bridge_codegen --locked
+```
+
+If `flutter_rust_bridge_codegen` is not found after install, open a new terminal so Cargo bin path is reloaded.
+
+### 5) Build native Rust modules before first run
+
+From repository root, run the native build scripts before `flutter run`.
+
+Windows desktop-focused local setup:
+
+```powershell
+.\scripts\build_native.ps1 -SkipAndroid
+.\scripts\build_audio.ps1 -SkipAndroid
+.\scripts\build_math.ps1 -SkipAndroid
+```
+
+Android-focused local setup:
+
+```powershell
+.\scripts\build_native.ps1 -SkipWindows
+.\scripts\build_audio.ps1 -SkipWindows
+.\scripts\build_math.ps1 -SkipWindows
+```
+
+If PowerShell blocks script execution, run this once per terminal session:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+If Android NDK is not auto-detected, set one of these environment variables before running scripts:
+
+```powershell
+$env:ANDROID_NDK_HOME="<path-to-ndk>"
+# or
+$env:NDK_HOME="<path-to-ndk>"
+```
+
+### 6) Run the app
+
+```bash
+# Desktop
+flutter run -d windows   # or: macos, linux
+
+# Mobile
+flutter run -d android   # or: ios
+```
+
+When Rust code changes in `native/`, `native_audio/`, or `native_math/`, rerun the corresponding build script before launching Flutter again.
 
 ### Build for Production
 
@@ -549,7 +619,7 @@ flutter build ios --release
 
 ### Windows Installer (Inno Setup)
 
-For Windows distribution, we use [Inno Setup](https://jrsoftware.org/isinfo.php) to create a professional installer.
+For Windows distribution, use [Inno Setup](https://jrsoftware.org/isinfo.php) to create a professional installer.
 
 *   **Script:** `windows/installer/kivixa-installer.iss`
 *   **Output:** `build/windows/installer/`
@@ -580,7 +650,6 @@ The installer includes a custom uninstaller that allows users to optionally wipe
 |  **Linux** | - | Requires Linux |
 |  **Android** | Stable | Android 7.0 (API 24)+ |
 |  **iOS** | - | Requires iOS |
-|  **Web** | Experimental | Limited features |
 
 ---
 
@@ -637,7 +706,8 @@ To report a new issue, use [Bug Report Template](.github/ISSUE_TEMPLATE/bug_repo
 Kivixa's on-device AI support is built on top of model work from the following official organizations and distribution contributors:
 
 - **Microsoft** - Official creator of Phi model family used by **Phi-4 Mini** and **Phi-4 Mini Reasoning**
-- **Alibaba Cloud (Qwen Team)** - Official creator of Qwen model family used by **Qwen2.5 3B**, **Qwen3.5 Distilled** variants, and DeepSeek distill base architecture
+- **Alibaba Cloud (Qwen Team)** - Official creator of Qwen model family used by **Qwen2.5 3B**, **Qwen2.5 1.5B Instruct**, **Qwen3.5 Distilled** variants, and DeepSeek distill base architecture
+- **Meta AI (Llama Team)** - Official creator of the **Llama 3.2** model family used by **Llama 3.2 3B Instruct**
 - **Google (Gemma Team)** - Official creator of Gemma model family used by **Gemma 2B**, **Gemma 3 4B IT**, **Gemma 4 E2B IT**, **TranslateGemma 4B IT**, and **Function Gemma** family
 - **DeepSeek-AI** - Official creator of the **DeepSeek-R1** reasoning family used for distill checkpoints
 - **Hugging Face TB (SmolLM Team)** - Official creator of **SmolLM2**, **SmolLM3**, and **SmolVLM2** model families
@@ -646,7 +716,7 @@ Kivixa's on-device AI support is built on top of model work from the following o
   - Qwen3.5 2B Claude 4.6 Opus Reasoning Distilled
   - Qwen3.5 0.8B Claude 4.6 Opus Reasoning Distilled
 - **ggml-org (GGUF distribution credit)** - SmolLM3 3B and SmolVLM2 500M Video Instruct GGUF/mmproj distributions
-- **Unsloth (GGUF distribution credit)** - Function Gemma, Phi-4 Mini Reasoning, Gemma 4 E2B IT, and selected DeepSeek-R1-Distill GGUF distributions
+- **Unsloth (GGUF distribution credit)** - Function Gemma, Phi-4 Mini Reasoning, Gemma 4 E2B IT, Llama 3.2 3B Instruct, and selected DeepSeek-R1-Distill GGUF distributions
 - **bartowski (GGUF distribution credit)** - Phi-4 Mini, Gemma 3 4B IT, DeepSeek-R1-Distill-Qwen-1.5B, and SmolLM2-1.7B-Instruct GGUF distributions
 - **mradermacher (GGUF distribution credit)** - TranslateGemma 4B IT GGUF distribution
 
