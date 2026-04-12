@@ -15,17 +15,17 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-@visibleForTesting
+
 String browserWebViewKeyForTab(String tabId) => 'webview_tab_$tabId';
 
-@visibleForTesting
+
 bool browserShouldUseHybridComposition({required bool isAndroid}) => isAndroid;
 
 /// Creates an [InAppWebViewSettings] baseline with secure defaults to guard
 /// against MITM attacks and local file exfiltration. These settings are shared
 /// across all in-app browser WebViews so that security posture cannot drift
 /// between code paths.
-@visibleForTesting
+
 InAppWebViewSettings browserSecureWebViewSettings() {
   return InAppWebViewSettings(
     allowFileAccess: false,
