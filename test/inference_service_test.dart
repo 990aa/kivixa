@@ -58,7 +58,7 @@ void main() {
     });
   });
 
-  group('InferenceService', skip: 'Native dependencies unavailable', () {
+  group('InferenceService', () {
     test('should be a singleton', () {
       final instance1 = InferenceService();
       final instance2 = InferenceService();

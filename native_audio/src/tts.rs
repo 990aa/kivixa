@@ -49,51 +49,197 @@ pub struct VoiceStyle {
     pub embedding: Vec<f32>,
 }
 
+#[derive(Debug, Clone, Copy)]
+struct VoiceTimbre {
+    brightness: f32,
+    warmth: f32,
+    breathiness: f32,
+}
+
 impl VoiceStyle {
+    fn build_voice(
+        id: &str,
+        name: &str,
+        description: &str,
+        rate: f32,
+        pitch: f32,
+        timbre: VoiceTimbre,
+    ) -> Self {
+        let mut embedding = vec![0.0; 256];
+
+        for item in embedding.iter_mut().take(64) {
+            *item = timbre.brightness;
+        }
+        for item in embedding.iter_mut().skip(64).take(64) {
+            *item = timbre.warmth;
+        }
+        for item in embedding.iter_mut().skip(128).take(64) {
+            *item = timbre.breathiness;
+        }
+        for (index, item) in embedding.iter_mut().skip(192).enumerate() {
+            *item = ((index as f32 / 64.0) * std::f32::consts::PI).sin() * 0.1;
+        }
+
+        Self {
+            id: id.to_string(),
+            name: name.to_string(),
+            description: description.to_string(),
+            rate,
+            pitch,
+            embedding,
+        }
+    }
+
     /// Create a default neutral voice
     pub fn default_neutral() -> Self {
-        Self {
-            id: "neutral".to_string(),
-            name: "Neutral".to_string(),
-            description: "A balanced, neutral voice".to_string(),
-            rate: 1.0,
-            pitch: 0.0,
-            embedding: vec![0.0; 256],
-        }
+        Self::build_voice(
+            "neutral",
+            "Neutral",
+            "Balanced neutral narration voice.",
+            1.0,
+            0.0,
+            VoiceTimbre {
+                brightness: 0.5,
+                warmth: 0.5,
+                breathiness: 0.25,
+            },
+        )
     }
 
     /// Create a female voice style
     pub fn female() -> Self {
-        let mut embedding = vec![0.0; 256];
-        // Simple differentiating pattern
-        for item in embedding.iter_mut().take(128) {
-            *item = 0.5;
-        }
-        Self {
-            id: "female".to_string(),
-            name: "Female".to_string(),
-            description: "A female voice".to_string(),
-            rate: 1.0,
-            pitch: 2.0,
-            embedding,
-        }
+        Self::build_voice(
+            "female",
+            "Female",
+            "Female presentation voice.",
+            1.0,
+            2.0,
+            VoiceTimbre {
+                brightness: 0.74,
+                warmth: 0.44,
+                breathiness: 0.34,
+            },
+        )
     }
 
     /// Create a male voice style
     pub fn male() -> Self {
-        let mut embedding = vec![0.0; 256];
-        // Simple differentiating pattern
-        for item in embedding.iter_mut().skip(128) {
-            *item = 0.5;
-        }
-        Self {
-            id: "male".to_string(),
-            name: "Male".to_string(),
-            description: "A male voice".to_string(),
-            rate: 1.0,
-            pitch: -2.0,
-            embedding,
-        }
+        Self::build_voice(
+            "male",
+            "Male",
+            "Male presentation voice.",
+            0.98,
+            -2.0,
+            VoiceTimbre {
+                brightness: 0.42,
+                warmth: 0.72,
+                breathiness: 0.2,
+            },
+        )
+    }
+
+    pub fn heart() -> Self {
+        Self::build_voice(
+            "af_heart",
+            "Heart",
+            "Warm and expressive American female voice.",
+            1.0,
+            2.5,
+            VoiceTimbre {
+                brightness: 0.76,
+                warmth: 0.58,
+                breathiness: 0.28,
+            },
+        )
+    }
+
+    pub fn sky() -> Self {
+        Self::build_voice(
+            "af_sky",
+            "Sky",
+            "Clear and professional American female voice.",
+            1.02,
+            2.2,
+            VoiceTimbre {
+                brightness: 0.82,
+                warmth: 0.38,
+                breathiness: 0.22,
+            },
+        )
+    }
+
+    pub fn adam() -> Self {
+        Self::build_voice(
+            "am_adam",
+            "Adam",
+            "Calm and authoritative American male voice.",
+            0.96,
+            -2.8,
+            VoiceTimbre {
+                brightness: 0.44,
+                warmth: 0.74,
+                breathiness: 0.18,
+            },
+        )
+    }
+
+    pub fn michael() -> Self {
+        Self::build_voice(
+            "am_michael",
+            "Michael",
+            "Energetic and engaging American male voice.",
+            1.05,
+            -1.8,
+            VoiceTimbre {
+                brightness: 0.52,
+                warmth: 0.64,
+                breathiness: 0.16,
+            },
+        )
+    }
+
+    pub fn emma() -> Self {
+        Self::build_voice(
+            "bf_emma",
+            "Emma",
+            "Sophisticated British female voice.",
+            0.99,
+            2.0,
+            VoiceTimbre {
+                brightness: 0.71,
+                warmth: 0.54,
+                breathiness: 0.2,
+            },
+        )
+    }
+
+    pub fn george() -> Self {
+        Self::build_voice(
+            "bm_george",
+            "George",
+            "Elegant British male voice.",
+            0.97,
+            -2.2,
+            VoiceTimbre {
+                brightness: 0.46,
+                warmth: 0.71,
+                breathiness: 0.16,
+            },
+        )
+    }
+
+    pub fn catalog() -> Vec<Self> {
+        vec![
+            Self::heart(),
+            Self::sky(),
+            Self::adam(),
+            Self::michael(),
+            Self::emma(),
+            Self::george(),
+            Self::female(),
+            Self::male(),
+            Self::default_neutral(),
+        ]
     }
 }
 
@@ -233,9 +379,9 @@ impl TtsEngine {
     /// Create with custom configuration
     pub fn with_config(config: TtsConfig) -> Self {
         let mut voices = HashMap::new();
-        voices.insert("neutral".to_string(), VoiceStyle::default_neutral());
-        voices.insert("female".to_string(), VoiceStyle::female());
-        voices.insert("male".to_string(), VoiceStyle::male());
+        for voice in VoiceStyle::catalog() {
+            voices.insert(voice.id.clone(), voice);
+        }
 
         Self {
             config,
@@ -273,23 +419,17 @@ impl TtsEngine {
         // Step 1: Phonemize the text
         let phoneme_sequences = self.phonemizer.phonemize(text)?;
 
-        // Step 2: Convert phonemes to model input
-        let phoneme_ids = self.encode_phonemes(&phoneme_sequences);
+        // Step 2: Generate waveform with voice-aware prosody and punctuation pauses.
+        let samples = self.synthesize_waveform(&phoneme_sequences);
 
-        // Step 3: Generate mel spectrogram (placeholder - would use actual model)
-        let mel_spec = self.generate_mel_spectrogram(&phoneme_ids)?;
-
-        // Step 4: Vocoder to generate audio (placeholder)
-        let samples = self.vocode(&mel_spec)?;
-
-        // Step 5: Post-process if enabled
+        // Step 3: Post-process for smoother playback.
         let final_samples = if self.config.post_process {
             self.post_process(&samples)
         } else {
             samples
         };
 
-        // Step 6: Calculate word boundaries and duration before moving samples
+        // Step 4: Calculate word boundaries and duration before moving samples.
         let word_boundaries =
             self.calculate_word_boundaries(&phoneme_sequences, final_samples.len());
         let duration = final_samples.len() as f32 / self.config.sample_rate as f32;
@@ -322,6 +462,7 @@ impl TtsEngine {
     }
 
     /// Encode phonemes to model input IDs
+    #[cfg(test)]
     fn encode_phonemes(&self, sequences: &[PhonemeSequence]) -> Vec<i64> {
         let mut ids = Vec::new();
 
@@ -379,36 +520,229 @@ impl TtsEngine {
         ids
     }
 
-    /// Generate mel spectrogram from phoneme IDs (placeholder)
-    fn generate_mel_spectrogram(&self, phoneme_ids: &[i64]) -> Result<Vec<f32>> {
-        // In full implementation, this would:
-        // 1. Create phoneme embedding tensor
-        // 2. Add voice style embedding
-        // 3. Run through encoder-decoder
-        // 4. Output mel spectrogram
+    fn synthesize_waveform(&self, sequences: &[PhonemeSequence]) -> Vec<f32> {
+        if sequences.is_empty() {
+            return Vec::new();
+        }
 
-        // Placeholder: generate dummy mel frames
-        let n_mels = 80;
-        let frames_per_phoneme = 10; // ~100ms per phoneme at 100 frames/sec
-        let n_frames = phoneme_ids.len() * frames_per_phoneme;
+        let sample_rate = self.config.sample_rate as f32;
+        let utterance_ends_with_question = sequences.iter().rev().any(|s| s.text == "?");
+        let utterance_ends_with_exclamation = sequences.iter().rev().any(|s| s.text == "!");
 
-        let mel_spec = vec![0.0_f32; n_frames * n_mels];
-        Ok(mel_spec)
+        let estimated_seconds: f32 = sequences
+            .iter()
+            .flat_map(|seq| {
+                seq.phonemes
+                    .iter()
+                    .map(move |phoneme| self.phoneme_duration_seconds(&seq.text, *phoneme))
+            })
+            .sum();
+        let estimated_total_samples =
+            (estimated_seconds * sample_rate).max(sample_rate * 0.25) as usize;
+
+        let mut output = Vec::with_capacity(estimated_total_samples);
+        let mut global_index: usize = 0;
+
+        for (seq_index, sequence) in sequences.iter().enumerate() {
+            for (phoneme_index, phoneme) in sequence.phonemes.iter().enumerate() {
+                let duration_seconds = self.phoneme_duration_seconds(&sequence.text, *phoneme);
+                let sample_count = (duration_seconds * sample_rate).max(1.0).round() as usize;
+
+                if matches!(phoneme, Phoneme::SIL | Phoneme::SP | Phoneme::SPACE) {
+                    output.extend((0..sample_count).map(|_| 0.0_f32));
+                    global_index += sample_count;
+                    continue;
+                }
+
+                let voiced = phoneme.is_vowel() || Self::is_voiced_consonant(*phoneme);
+                let mut local_phase = 0.0_f32;
+
+                for i in 0..sample_count {
+                    let utterance_progress =
+                        (global_index + i) as f32 / estimated_total_samples as f32;
+                    let relative_progress = i as f32 / sample_count as f32;
+
+                    let envelope = if relative_progress < 0.08 {
+                        relative_progress / 0.08
+                    } else if relative_progress > 0.88 {
+                        (1.0 - relative_progress) / 0.12
+                    } else {
+                        1.0
+                    }
+                    .clamp(0.0, 1.0);
+
+                    let mut frequency = self.voice_base_frequency();
+                    if utterance_ends_with_question && utterance_progress > 0.65 {
+                        let rise = (utterance_progress - 0.65) / 0.35;
+                        frequency *= 1.0 + 0.25 * rise;
+                    } else if utterance_ends_with_exclamation && utterance_progress > 0.75 {
+                        let lift = (utterance_progress - 0.75) / 0.25;
+                        frequency *= 1.0 + 0.12 * lift;
+                    }
+
+                    let vibrato =
+                        1.0 + 0.012 * (2.0 * std::f32::consts::PI * 5.2 * relative_progress).sin();
+                    let step = 2.0 * std::f32::consts::PI * frequency * vibrato / sample_rate;
+                    local_phase += step;
+
+                    let seed = ((global_index + i) as u64)
+                        .wrapping_mul(6364136223846793005)
+                        .wrapping_add((seq_index as u64) * 8191)
+                        .wrapping_add((phoneme_index as u64) * 131);
+                    let noise = Self::pseudo_noise(seed);
+
+                    let tonal = if voiced {
+                        let (h2, h3) = Self::phoneme_harmonics(*phoneme);
+                        let fundamental = local_phase.sin();
+                        let second = (2.0 * local_phase + 0.15).sin() * h2;
+                        let third = (3.0 * local_phase + 0.23).sin() * h3;
+                        (fundamental * 0.7 + second + third) * 0.26
+                    } else {
+                        0.0
+                    };
+
+                    let unvoiced = if voiced {
+                        0.0
+                    } else {
+                        noise * Self::unvoiced_gain(*phoneme)
+                    };
+
+                    let breath = noise * self.voice_breathiness() * 0.06 * (1.0 - envelope);
+                    let sample = (tonal + unvoiced + breath) * envelope;
+                    output.push(sample);
+                }
+
+                global_index += sample_count;
+            }
+        }
+
+        Self::smooth_samples(&mut output);
+        output
     }
 
-    /// Convert mel spectrogram to audio samples (vocoder)
-    fn vocode(&self, mel_spec: &[f32]) -> Result<Vec<f32>> {
-        // In full implementation, this would run HiFi-GAN or similar vocoder
-        // to convert mel spectrogram to waveform
+    fn phoneme_duration_seconds(&self, token: &str, phoneme: Phoneme) -> f32 {
+        let base = match phoneme {
+            Phoneme::SIL => match token {
+                "?" => 0.32,
+                "!" => 0.28,
+                "." => 0.24,
+                _ => 0.20,
+            },
+            Phoneme::SP => 0.12,
+            Phoneme::SPACE => 0.03,
+            _ if phoneme.is_vowel() => 0.105,
+            Phoneme::M | Phoneme::N | Phoneme::NG | Phoneme::L | Phoneme::R => 0.09,
+            Phoneme::S | Phoneme::SH | Phoneme::F | Phoneme::TH | Phoneme::CH => 0.075,
+            _ => 0.065,
+        };
 
-        // Placeholder: generate silence of appropriate length
-        let n_mels = 80;
-        let n_frames = mel_spec.len() / n_mels;
-        let hop_length = 256; // Typical vocoder hop length
-        let n_samples = n_frames * hop_length;
+        (base / self.config.voice.rate.clamp(0.5, 2.0)).max(0.02)
+    }
 
-        let samples = vec![0.0_f32; n_samples];
-        Ok(samples)
+    fn voice_base_frequency(&self) -> f32 {
+        let mut base = if self.config.voice.id.starts_with("af_") {
+            210.0
+        } else if self.config.voice.id.starts_with("am_") {
+            128.0
+        } else if self.config.voice.id.starts_with("bf_") {
+            198.0
+        } else if self.config.voice.id.starts_with("bm_") {
+            122.0
+        } else {
+            170.0
+        };
+
+        let pitch_ratio = (2.0_f32).powf(self.config.voice.pitch / 12.0);
+        base *= pitch_ratio;
+        base.clamp(85.0, 320.0)
+    }
+
+    fn voice_breathiness(&self) -> f32 {
+        self.config
+            .voice
+            .embedding
+            .get(128)
+            .copied()
+            .unwrap_or(0.2)
+            .clamp(0.0, 1.0)
+    }
+
+    fn is_voiced_consonant(phoneme: Phoneme) -> bool {
+        matches!(
+            phoneme,
+            Phoneme::B
+                | Phoneme::D
+                | Phoneme::DH
+                | Phoneme::G
+                | Phoneme::JH
+                | Phoneme::L
+                | Phoneme::M
+                | Phoneme::N
+                | Phoneme::NG
+                | Phoneme::R
+                | Phoneme::V
+                | Phoneme::W
+                | Phoneme::Y
+                | Phoneme::Z
+                | Phoneme::ZH
+        )
+    }
+
+    fn phoneme_harmonics(phoneme: Phoneme) -> (f32, f32) {
+        match phoneme {
+            Phoneme::IY | Phoneme::IH | Phoneme::EH | Phoneme::EY => (0.44, 0.28),
+            Phoneme::UW | Phoneme::UH | Phoneme::OW | Phoneme::AO => (0.26, 0.14),
+            Phoneme::AA | Phoneme::AH | Phoneme::AE | Phoneme::AW | Phoneme::AY => (0.34, 0.2),
+            _ => (0.22, 0.12),
+        }
+    }
+
+    fn unvoiced_gain(phoneme: Phoneme) -> f32 {
+        match phoneme {
+            Phoneme::S | Phoneme::SH | Phoneme::F | Phoneme::TH => 0.22,
+            Phoneme::CH | Phoneme::T | Phoneme::K | Phoneme::P => 0.18,
+            _ => 0.12,
+        }
+    }
+
+    fn smooth_samples(samples: &mut [f32]) {
+        if samples.len() < 3 {
+            return;
+        }
+
+        let mut previous = samples[0];
+        for sample in samples.iter_mut().skip(1) {
+            let current = *sample;
+            *sample = previous * 0.22 + current * 0.78;
+            previous = *sample;
+        }
+    }
+
+    fn pseudo_noise(seed: u64) -> f32 {
+        let mut value = seed;
+        value ^= value >> 13;
+        value = value.wrapping_mul(0xff51afd7ed558ccd);
+        value ^= value >> 33;
+        value = value.wrapping_mul(0xc4ceb9fe1a85ec53);
+        value ^= value >> 33;
+
+        let normalized = (value as f64 / u64::MAX as f64) as f32;
+        normalized * 2.0 - 1.0
+    }
+
+    fn voice_sort_rank(id: &str) -> usize {
+        match id {
+            "af_heart" => 0,
+            "af_sky" => 1,
+            "am_adam" => 2,
+            "am_michael" => 3,
+            "bf_emma" => 4,
+            "bm_george" => 5,
+            "female" => 6,
+            "male" => 7,
+            "neutral" => 8,
+            _ => 100,
+        }
     }
 
     /// Post-process audio (denoising, normalization)
@@ -499,7 +833,9 @@ impl TtsEngine {
 
     /// Get available voices
     pub fn available_voices(&self) -> Vec<&VoiceStyle> {
-        self.voices.values().collect()
+        let mut voices: Vec<&VoiceStyle> = self.voices.values().collect();
+        voices.sort_by_key(|voice| Self::voice_sort_rank(&voice.id));
+        voices
     }
 
     /// Add a custom voice
@@ -582,7 +918,12 @@ impl SharedTtsEngine {
 
     /// Get available voices (thread-safe)
     pub fn available_voices(&self) -> Vec<VoiceStyle> {
-        self.inner.read().voices.values().cloned().collect()
+        self.inner
+            .read()
+            .available_voices()
+            .into_iter()
+            .cloned()
+            .collect()
     }
 
     /// Add voice (thread-safe)
@@ -688,6 +1029,12 @@ mod tests {
         let voices = engine.available_voices();
         assert!(!voices.is_empty());
         assert!(voices.iter().any(|v| v.id == "neutral"));
+        assert!(voices.iter().any(|v| v.id == "af_heart"));
+        assert!(voices.iter().any(|v| v.id == "af_sky"));
+        assert!(voices.iter().any(|v| v.id == "am_adam"));
+        assert!(voices.iter().any(|v| v.id == "am_michael"));
+        assert!(voices.iter().any(|v| v.id == "bf_emma"));
+        assert!(voices.iter().any(|v| v.id == "bm_george"));
     }
 
     #[test]
@@ -717,6 +1064,57 @@ mod tests {
 
         let audio = result.unwrap();
         assert!(audio.sample_rate > 0);
+        assert!(audio.duration > 0.05);
+        let peak = audio
+            .samples
+            .iter()
+            .map(|s| s.abs())
+            .fold(0.0_f32, f32::max);
+        assert!(peak > 0.01, "synthesized waveform should be audible");
+    }
+
+    #[test]
+    fn test_tts_punctuation_changes_duration() {
+        let mut engine = TtsEngine::new();
+        engine.initialize().unwrap();
+
+        let plain = engine.synthesize("hello world").unwrap();
+        let punctuated = engine.synthesize("hello world!").unwrap();
+
+        assert!(
+            punctuated.duration > plain.duration,
+            "punctuation should add expressive pause duration"
+        );
+    }
+
+    #[test]
+    fn test_tts_voice_profiles_generate_distinct_waveforms() {
+        let mut engine = TtsEngine::new();
+        engine.initialize().unwrap();
+
+        let heart = engine
+            .synthesize_with_voice("kivixa voice test", "af_heart")
+            .unwrap();
+        let adam = engine
+            .synthesize_with_voice("kivixa voice test", "am_adam")
+            .unwrap();
+
+        let compare_len = heart.samples.len().min(adam.samples.len()).min(4096);
+        assert!(compare_len > 0);
+
+        let difference: f32 = heart
+            .samples
+            .iter()
+            .zip(adam.samples.iter())
+            .take(compare_len)
+            .map(|(a, b)| (a - b).abs())
+            .sum::<f32>()
+            / compare_len as f32;
+
+        assert!(
+            difference > 0.005,
+            "different voice styles should produce distinct waveforms"
+        );
     }
 
     #[test]

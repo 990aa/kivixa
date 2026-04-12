@@ -12,6 +12,7 @@ import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/ai/chat_attachment_service.dart';
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
 import 'package:kivixa/services/audio/audio_recording_service.dart';
+import 'package:kivixa/services/audio/live_transcription_buffer.dart';
 
 class MCPChatInterface extends StatefulWidget {
   final MCPChatController controller;
@@ -20,6 +21,7 @@ class MCPChatInterface extends StatefulWidget {
   final bool showHeader;
   final String title;
   final ValueListenable<String?>? promptPrefillListenable;
+  final ModelSwitcherController? modelSwitcherController;
   final VoidCallback? onClear;
   final Future<void> Function(String jsonPayload)? onExportChat;
   final Future<List<ChatAttachment>> Function()? onPickAttachments;
@@ -32,6 +34,7 @@ class MCPChatInterface extends StatefulWidget {
     this.showHeader = true,
     this.title = 'Kivixa MCP Assistant',
     this.promptPrefillListenable,
+    this.modelSwitcherController,
     this.onClear,
     this.onExportChat,
     this.onPickAttachments,
@@ -54,6 +57,7 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
   var _isListening = false;
   var _showReadAloudPlayer = false;
   DateTime? _lastAutoPlayedAssistantMessage;
+  final _liveTranscription = LiveTranscriptionBuffer();
 
   int? _historyCursor;
   var _draftBeforeHistory = '';
@@ -211,33 +215,53 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
   }
 
   void _onTranscription(SpeechRecognitionResult result) {
-    if (!_isListening || !result.isFinal || result.text.trim().isEmpty) {
+    if (!_isListening) {
       return;
     }
-    _insertComposerText('${result.text.trim()} ');
+    _applyLiveTranscription(result.text, isFinal: result.isFinal);
   }
 
-  void _insertComposerText(String text) {
+  int _currentComposerOffset() {
     final selection = _textController.selection;
-    final currentText = _textController.text;
+    final textLength = _textController.text.length;
 
     if (!selection.isValid) {
-      _textController
-        ..text = currentText + text
-        ..selection = TextSelection.collapsed(
-          offset: (currentText + text).length,
-        );
+      return textLength;
+    }
+
+    if (selection.start < 0) {
+      return 0;
+    }
+
+    if (selection.start > textLength) {
+      return textLength;
+    }
+
+    return selection.start;
+  }
+
+  void _applyLiveTranscription(String text, {required bool isFinal}) {
+    final edit = _liveTranscription.buildEdit(
+      text: text,
+      isFinal: isFinal,
+      currentTextLength: _textController.text.length,
+      fallbackAnchorOffset: _currentComposerOffset(),
+    );
+
+    if (edit == null) {
       return;
     }
 
-    final start = selection.start;
-    final end = selection.end;
-    final updatedText =
-        currentText.substring(0, start) + text + currentText.substring(end);
+    final currentText = _textController.text;
+    final updatedText = currentText.replaceRange(
+      edit.startOffset,
+      edit.endOffset,
+      edit.replacementText,
+    );
 
     _textController.value = TextEditingValue(
       text: updatedText,
-      selection: TextSelection.collapsed(offset: start + text.length),
+      selection: TextSelection.collapsed(offset: edit.caretOffset),
     );
     _focusNode.requestFocus();
   }
@@ -264,13 +288,14 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
         await _audioRecorder.stopRecording();
         final finalResult = await _audioEngine.stopListening();
         if (finalResult != null && finalResult.text.trim().isNotEmpty) {
-          _insertComposerText('${finalResult.text.trim()} ');
+          _applyLiveTranscription(finalResult.text, isFinal: true);
         }
         if (mounted) {
           setState(() {
             _isListening = false;
           });
         }
+        _liveTranscription.reset();
         return;
       }
 
@@ -287,7 +312,16 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
         _readAudioPref(() => stows.audioVadThreshold.value, 0.5),
       );
       await _audioEngine.startListening();
-      await _audioRecorder.startRecording();
+      final recordingStarted = await _audioRecorder.startRecording();
+      if (!recordingStarted) {
+        await _audioEngine.stopListening();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to start microphone capture')),
+        );
+        return;
+      }
+      _liveTranscription.startSession(anchorOffset: _currentComposerOffset());
       if (mounted) {
         setState(() {
           _isListening = true;
@@ -496,13 +530,24 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
               children: [
                 Icon(Icons.smart_toy, color: colorScheme.primary, size: 20),
                 const SizedBox(width: 8),
-                Text(
-                  widget.title,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                const Spacer(),
+                if (widget.modelSwitcherController != null) ...[
+                  const SizedBox(width: 8),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 170),
+                    child: _buildHeaderModelSwitcher(colorScheme),
+                  ),
+                ],
+                const SizedBox(width: 4),
                 if (messages.isNotEmpty)
                   IconButton(
                     icon: const Icon(Icons.file_download_outlined),
@@ -656,6 +701,35 @@ class _MCPChatInterfaceState extends State<MCPChatInterface> {
           ),
       ],
     );
+  }
+
+  Widget _buildHeaderModelSwitcher(ColorScheme colorScheme) {
+    final switcher = widget.modelSwitcherController;
+    if (switcher == null) {
+      return const SizedBox.shrink();
+    }
+
+    if (switcher.isInitializing || switcher.isLoadingModel) {
+      return Chip(
+        label: Text(switcher.isLoadingModel ? 'Switching...' : 'Loading...'),
+        backgroundColor: colorScheme.secondaryContainer,
+        labelStyle: TextStyle(color: colorScheme.onSecondaryContainer),
+        avatar: SizedBox(
+          width: 14,
+          height: 14,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: colorScheme.onSecondaryContainer,
+          ),
+        ),
+      );
+    }
+
+    if (!switcher.isModelLoaded) {
+      return const SizedBox.shrink();
+    }
+
+    return ModelSwitcherChip(controller: switcher, isCompact: true);
   }
 
   Widget _buildMessageBubble(
