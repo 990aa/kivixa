@@ -33,21 +33,26 @@ $rustBuilderWin = Join-Path $projectRoot "rust_builder\target\$winTarget\release
 # Android targets & output
 $androidArm64Target = "aarch64-linux-android"
 $androidArmv7Target = "armv7-linux-androideabi"
+$androidX64Target = "x86_64-linux-android"
 
 $androidArm64SoName = "lib$rustLibName.so"
 $androidArmv7SoName = "lib$rustLibName.so"
+$androidX64SoName = "lib$rustLibName.so"
 
 $androidArm64SoPath = Join-Path $nativeDir "target\$androidArm64Target\release\$androidArm64SoName"
 $androidArmv7SoPath = Join-Path $nativeDir "target\$androidArmv7Target\release\$androidArmv7SoName"
+$androidX64SoPath = Join-Path $nativeDir "target\$androidX64Target\release\$androidX64SoName"
 
 # Flutter Android jniLibs dirs (multiple locations)
 $jniBase = Join-Path $projectRoot "android\app\src\main\jniLibs"
 $jniArm64Dir = Join-Path $jniBase "arm64-v8a"
 $jniArmv7Dir = Join-Path $jniBase "armeabi-v7a"
+$jniX64Dir = Join-Path $jniBase "x86_64"
 # rust_builder plugin jniLibs directory
 $rustBuilderJniBase = Join-Path $projectRoot "rust_builder\android\src\main\jniLibs"
 $rustBuilderJniArm64 = Join-Path $rustBuilderJniBase "arm64-v8a"
 $rustBuilderJniArmv7 = Join-Path $rustBuilderJniBase "armeabi-v7a"
+$rustBuilderJniX64 = Join-Path $rustBuilderJniBase "x86_64"
 
 # 3. Go to native/ and optionally clean
 if (-not $SkipClean) {
@@ -162,25 +167,43 @@ if (-not $SkipAndroid) {
         throw "Android armeabi-v7a .so not found at $androidArmv7SoPath. Check build errors / target name."
     }
 
+    # x86_64
+    Write-Host "-> Building for $androidX64Target"
+    $env:CC_x86_64_linux_android = Join-Path $binDir "x86_64-linux-android$apiLevel-clang.cmd"
+    $env:AR_x86_64_linux_android = Join-Path $binDir "llvm-ar.exe"
+    $env:CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER = Join-Path $binDir "x86_64-linux-android$apiLevel-clang.cmd"
+    # Note: We do NOT set CFLAGS here - the CMake Android toolchain file handles sysroot configuration
+    cargo build --release --target $androidX64Target
+
+    if (-not (Test-Path $androidX64SoPath)) {
+        throw "Android x86_64 .so not found at $androidX64SoPath. Check build errors / target name."
+    }
+
     # Ensure all jniLibs dirs exist
     New-Item -ItemType Directory -Force -Path $jniArm64Dir | Out-Null
     New-Item -ItemType Directory -Force -Path $jniArmv7Dir | Out-Null
+    New-Item -ItemType Directory -Force -Path $jniX64Dir | Out-Null
     New-Item -ItemType Directory -Force -Path $rustBuilderJniArm64 | Out-Null
     New-Item -ItemType Directory -Force -Path $rustBuilderJniArmv7 | Out-Null
+    New-Item -ItemType Directory -Force -Path $rustBuilderJniX64 | Out-Null
 
     Write-Host "Copying Android .so files to all jniLibs locations..."
     # Main app jniLibs
     Copy-Item $androidArm64SoPath $jniArm64Dir -Force
     Copy-Item $androidArmv7SoPath $jniArmv7Dir -Force
+    Copy-Item $androidX64SoPath $jniX64Dir -Force
     # rust_builder plugin jniLibs
     Copy-Item $androidArm64SoPath $rustBuilderJniArm64 -Force
     Copy-Item $androidArmv7SoPath $rustBuilderJniArmv7 -Force
+    Copy-Item $androidX64SoPath $rustBuilderJniX64 -Force
 
     Write-Host "Android SOs copied to:"
     Write-Host "  $jniArm64Dir\$androidArm64SoName"
     Write-Host "  $jniArmv7Dir\$androidArmv7SoName"
+    Write-Host "  $jniX64Dir\$androidX64SoName"
     Write-Host "  $rustBuilderJniArm64\$androidArm64SoName"
     Write-Host "  $rustBuilderJniArmv7\$androidArmv7SoName"
+    Write-Host "  $rustBuilderJniX64\$androidX64SoName"
 } else {
     Write-Host "Skipping Android build (SkipAndroid flag set)" -ForegroundColor DarkYellow
 }

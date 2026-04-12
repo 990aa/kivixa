@@ -62,6 +62,18 @@ void main() {
         true,
       );
       expect(
+        ModelManager.availableModels.any(
+          (m) => m.id == 'llama32-3b-instruct-q3km',
+        ),
+        true,
+      );
+      expect(
+        ModelManager.availableModels.any(
+          (m) => m.id == 'qwen25-15b-instruct-q4km',
+        ),
+        true,
+      );
+      expect(
         ModelManager.availableModels.any((m) => m.id == 'gemma-3-4b-it-q4km'),
         true,
       );
@@ -128,15 +140,12 @@ void main() {
       },
     );
 
-    test('agent category still routes to Function Gemma only', () {
+    test('agent category includes dedicated MCP models', () {
       final models = ModelManager.getModelsForCategory(ModelCategory.agent);
 
       expect(models.any((m) => m.id == 'function-gemma-270m'), true);
-      expect(models.any((m) => m.id == 'phi4-mini-q4km'), false);
-      expect(
-        models.any((m) => m.id == 'qwen35-4b-claude46-distilled-v2-q4km'),
-        false,
-      );
+      expect(models.any((m) => m.id == 'llama32-3b-instruct-q3km'), true);
+      expect(models.any((m) => m.id == 'qwen25-15b-instruct-q4km'), true);
     });
 
     test('math category includes Phi-4 and Qwen3.5 4B', () {

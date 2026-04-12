@@ -182,12 +182,7 @@ class _FloatingQuickNotesState extends State<FloatingQuickNotes>
       borderRadius: BorderRadius.circular(16),
       elevation: 8,
       child: Container(
-        constraints: const BoxConstraints(
-          minWidth: 320,
-          maxWidth: 400,
-          minHeight: 300,
-          maxHeight: 500,
-        ),
+        constraints: const BoxConstraints(minWidth: 320, minHeight: 300),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
