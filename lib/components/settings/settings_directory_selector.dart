@@ -49,16 +49,7 @@ class SettingsDirectorySelector extends StatelessWidget {
           duration: const Duration(milliseconds: 100),
           child: Icon(icon, key: ValueKey(icon)),
         ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontSize: 18,
-            fontStyle:
-                stows.customDataDir.value != stows.customDataDir.defaultValue
-                ? FontStyle.italic
-                : null,
-          ),
-        ),
+        title: Text(title, style: const TextStyle(fontSize: 18)),
         subtitle: ValueListenableBuilder(
           valueListenable: stows.customDataDir,
           builder: (context, _, _) => Text(

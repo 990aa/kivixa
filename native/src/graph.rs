@@ -282,9 +282,19 @@ pub fn get_or_create_topic_hub(topic: String) -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::{Mutex, OnceLock};
+
+    fn graph_test_lock() -> std::sync::MutexGuard<'static, ()> {
+        static TEST_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+        TEST_LOCK
+            .get_or_init(|| Mutex::new(()))
+            .lock()
+            .expect("graph test mutex poisoned")
+    }
 
     #[test]
     fn test_init_graph() {
+        let _lock = graph_test_lock();
         init_graph();
         let state = get_graph_state().unwrap();
         assert!(state.nodes.is_empty());
@@ -293,6 +303,7 @@ mod tests {
 
     #[test]
     fn test_add_node() {
+        let _lock = graph_test_lock();
         init_graph();
         add_node(GraphNode {
             id: "test1".to_string(),
@@ -311,6 +322,7 @@ mod tests {
 
     #[test]
     fn test_add_edge() {
+        let _lock = graph_test_lock();
         init_graph();
 
         add_node(GraphNode {
@@ -349,6 +361,7 @@ mod tests {
 
     #[test]
     fn test_compute_layout() {
+        let _lock = graph_test_lock();
         init_graph();
 
         for i in 0..5 {
