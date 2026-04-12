@@ -540,29 +540,37 @@ class _BrowserWindowState extends State<BrowserWindow> {
     return InAppWebView(
       key: ValueKey(tab.id),
       initialUrlRequest: URLRequest(url: WebUri(tab.url)),
-      initialSettings: browserSecureWebViewSettings()
-        ..javaScriptEnabled = true
-        ..domStorageEnabled = true
-        ..supportZoom = true
-        ..builtInZoomControls = !_isDesktop
-        ..displayZoomControls = false
+      initialSettings: InAppWebViewSettings(
+        javaScriptEnabled: true,
+        domStorageEnabled: true,
+        supportZoom: true,
+        builtInZoomControls: !_isDesktop,
+        displayZoomControls: false,
         // On Android, use hybrid composition for better touch handling
         // but also set specific gesture options
-        ..useHybridComposition = isAndroid
-        ..allowsInlineMediaPlayback = true
-        ..mediaPlaybackRequiresUserGesture = false
-        ..transparentBackground = false
-        ..useShouldOverrideUrlLoading = true
+        useHybridComposition: isAndroid,
+        allowsInlineMediaPlayback: true,
+        mediaPlaybackRequiresUserGesture: false,
+        transparentBackground: false,
+        useShouldOverrideUrlLoading: true,
         // Android-specific settings to prevent gesture conflicts
         // This prevents the WebView from intercepting gestures meant for parent widgets
-        ..overScrollMode = isAndroid ? OverScrollMode.NEVER : null
+        overScrollMode: isAndroid ? OverScrollMode.NEVER : null,
         // Disable pull-to-refresh which can conflict with taps on Android
-        ..disallowOverScroll = isAndroid
+        disallowOverScroll: isAndroid,
         // Enable smooth scrolling
-        ..scrollBarStyle = ScrollBarStyle.SCROLLBARS_OUTSIDE_OVERLAY
+        scrollBarStyle: ScrollBarStyle.SCROLLBARS_OUTSIDE_OVERLAY,
         // Ensure touch events are handled correctly on Android
-        ..verticalScrollBarEnabled = true
-        ..horizontalScrollBarEnabled = true,
+        verticalScrollBarEnabled: true,
+        horizontalScrollBarEnabled: true,
+        // Security Settings
+        allowFileAccess: false,
+        allowContentAccess: false,
+        mixedContentMode: MixedContentMode.MIXED_CONTENT_NEVER_ALLOW,
+        javaScriptCanOpenWindowsAutomatically: false,
+        allowUniversalAccessFromFileURLs: false,
+        allowFileAccessFromFileURLs: false,
+      ),
       // Use a gesture recognizer factory on Android to prevent conflicts
       gestureRecognizers: isAndroid
           ? <Factory<OneSequenceGestureRecognizer>>{

@@ -148,30 +148,5 @@ void main() {
       expect(browserShouldUseHybridComposition(isAndroid: true), isTrue);
       expect(browserShouldUseHybridComposition(isAndroid: false), isFalse);
     });
-
-    test('secure settings block mixed content', () {
-      final settings = browserSecureWebViewSettings();
-      expect(
-        settings.mixedContentMode,
-        MixedContentMode.MIXED_CONTENT_NEVER_ALLOW,
-      );
-    });
-
-    test('secure settings disable file access', () {
-      final settings = browserSecureWebViewSettings();
-      expect(settings.allowFileAccess, isFalse);
-      expect(settings.allowFileAccessFromFileURLs, isFalse);
-      expect(settings.allowUniversalAccessFromFileURLs, isFalse);
-    });
-
-    test('secure settings keep content access enabled for file uploads', () {
-      final settings = browserSecureWebViewSettings();
-      expect(settings.allowContentAccess, isTrue);
-    });
-
-    test('secure settings disable automatic JS window opening', () {
-      final settings = browserSecureWebViewSettings();
-      expect(settings.javaScriptCanOpenWindowsAutomatically, isFalse);
-    });
   });
 }

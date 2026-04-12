@@ -15,9 +15,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
 String browserWebViewKeyForTab(String tabId) => 'webview_tab_$tabId';
-
 
 bool browserShouldUseHybridComposition({required bool isAndroid}) => isAndroid;
 
