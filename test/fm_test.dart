@@ -18,7 +18,7 @@ void main() {
 
     late String rootDir;
 
-    Future<void> _resetFileManagerRoot(String root) async {
+    Future<void> resetFileManagerRoot(String root) async {
       await FileManager.init(
         documentsDirectory: root,
         shouldWatchRootDirectory: false,
@@ -35,7 +35,7 @@ void main() {
     });
 
     setUp(() async {
-      await _resetFileManagerRoot(rootDir);
+      await resetFileManagerRoot(rootDir);
     });
 
     test('readFile', () async {
@@ -60,7 +60,7 @@ void main() {
       const filePath = '/test_writeFile.kvx';
       const content = 'test content for $filePath';
 
-      await _resetFileManagerRoot(rootDir);
+      await resetFileManagerRoot(rootDir);
 
       // write file
       await FileManager.writeFile(
@@ -72,7 +72,7 @@ void main() {
       // Wait to ensure file is written and handles are released
       await Future.delayed(const Duration(milliseconds: 200));
 
-      await _resetFileManagerRoot(rootDir);
+      await resetFileManagerRoot(rootDir);
 
       // read file
       final readBytes = await FileManager.readFile(filePath);
@@ -82,7 +82,7 @@ void main() {
       // Wait before deleting to avoid file locking issues on Windows
       await Future.delayed(const Duration(milliseconds: 200));
 
-      await _resetFileManagerRoot(rootDir);
+      await resetFileManagerRoot(rootDir);
 
       // delete file - use FileManager.deleteFile instead
       try {
@@ -97,7 +97,7 @@ void main() {
         const filePath = '/test_readWriteFile.kvx';
         const content = 'test content for $filePath';
 
-        await _resetFileManagerRoot(rootDir);
+        await resetFileManagerRoot(rootDir);
 
         // write file
         await FileManager.writeFile(
@@ -109,7 +109,7 @@ void main() {
         // Wait to ensure file is written and handles are released
         await Future.delayed(const Duration(milliseconds: 200));
 
-        await _resetFileManagerRoot(rootDir);
+        await resetFileManagerRoot(rootDir);
 
         // read file
         final readBytes = await FileManager.readFile(filePath);
@@ -119,7 +119,7 @@ void main() {
         // Wait before deleting to avoid file locking issues on Windows
         await Future.delayed(const Duration(milliseconds: 200));
 
-        await _resetFileManagerRoot(rootDir);
+        await resetFileManagerRoot(rootDir);
 
         // delete file
         try {
@@ -142,7 +142,7 @@ void main() {
       const contentA = 'test content for $filePathBefore.0';
       const contentP = 'test content for $filePathBefore.p';
 
-      await _resetFileManagerRoot(rootDir);
+      await resetFileManagerRoot(rootDir);
 
       // write files
       await FileManager.writeFile(
@@ -164,7 +164,7 @@ void main() {
       // Wait to ensure files are written and handles are released
       await Future.delayed(const Duration(milliseconds: 300));
 
-      await _resetFileManagerRoot(rootDir);
+      await resetFileManagerRoot(rootDir);
 
       // ensure file does not exist (in case of previous test failure)
       try {
@@ -175,7 +175,7 @@ void main() {
 
       await Future.delayed(const Duration(milliseconds: 200));
 
-      await _resetFileManagerRoot(rootDir);
+      await resetFileManagerRoot(rootDir);
 
       // move file
       final filePathActual = await FileManager.moveFile(
@@ -184,7 +184,7 @@ void main() {
       );
       expect(filePathActual, filePathAfter);
 
-      await _resetFileManagerRoot(rootDir);
+      await resetFileManagerRoot(rootDir);
 
       // verify filePathBefore does not exist, but filePathAfter does
       final fileBefore = FileManager.getFile(filePathBefore);
@@ -217,7 +217,7 @@ void main() {
       // Wait before deleting to avoid file locking issues on Windows
       await Future.delayed(const Duration(milliseconds: 300));
 
-      await _resetFileManagerRoot(rootDir);
+      await resetFileManagerRoot(rootDir);
 
       // delete files using FileManager
       try {
@@ -233,7 +233,7 @@ void main() {
       const filePathP = '/test_deleteFile.kvx.p';
       const content = 'test content for $filePath';
 
-      await _resetFileManagerRoot(rootDir);
+      await resetFileManagerRoot(rootDir);
 
       // write files
       await FileManager.writeFile(
@@ -252,7 +252,7 @@ void main() {
         awaitWrite: true,
       );
 
-      await _resetFileManagerRoot(rootDir);
+      await resetFileManagerRoot(rootDir);
 
       // delete file
       await FileManager.deleteFile(filePath);
