@@ -19,6 +19,7 @@ import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
 import 'package:kivixa/services/audio/audio_recording_service.dart';
+import 'package:kivixa/services/audio/live_transcription_buffer.dart';
 import 'package:kivixa/services/life_git/life_git.dart';
 import 'package:logging/logging.dart';
 import 'package:media_kit/media_kit.dart';
@@ -908,6 +909,7 @@ class _TextFileEditorState extends State<TextFileEditor> {
   StreamSubscription<SpeechRecognitionResult>? _dictationSub;
   var _isDictating = false;
   var _showReadAloudPlayer = false;
+  final _liveTranscription = LiveTranscriptionBuffer();
 
   static const _tripleTapWindow = Duration(milliseconds: 450);
 
@@ -1048,19 +1050,56 @@ class _TextFileEditorState extends State<TextFileEditor> {
   }
 
   void _onDictationResult(SpeechRecognitionResult result) {
-    if (!_isDictating || !result.isFinal || result.text.trim().isEmpty) {
+    if (!_isDictating) {
       return;
     }
-    _insertDictationText('${result.text.trim()} ');
+    _applyLiveDictation(result.text, isFinal: result.isFinal);
   }
 
-  void _insertDictationText(String text) {
-    var index = _controller.selection.baseOffset;
-    if (index < 0) index = _controller.document.length - 1;
+  int _currentDictationOffset() {
+    final editableLength = (_controller.document.length - 1) < 0
+        ? 0
+        : _controller.document.length - 1;
+    final selection = _controller.selection;
 
-    _controller.document.insert(index, text);
+    if (!selection.isValid || selection.baseOffset < 0) {
+      return editableLength;
+    }
+
+    if (selection.baseOffset > editableLength) {
+      return editableLength;
+    }
+
+    return selection.baseOffset;
+  }
+
+  void _applyLiveDictation(String text, {required bool isFinal}) {
+    final editableLength = (_controller.document.length - 1) < 0
+        ? 0
+        : _controller.document.length - 1;
+    final edit = _liveTranscription.buildEdit(
+      text: text,
+      isFinal: isFinal,
+      currentTextLength: editableLength,
+      fallbackAnchorOffset: _currentDictationOffset(),
+    );
+
+    if (edit == null) {
+      return;
+    }
+
+    final maxDelete = editableLength - edit.startOffset;
+    final safeDeleteLength = edit.replacedLength > maxDelete
+        ? maxDelete
+        : edit.replacedLength;
+
+    if (safeDeleteLength > 0) {
+      _controller.document.delete(edit.startOffset, safeDeleteLength);
+    }
+
+    _controller.document.insert(edit.startOffset, edit.replacementText);
     _controller.updateSelection(
-      TextSelection.collapsed(offset: index + text.length),
+      TextSelection.collapsed(offset: edit.caretOffset),
       ChangeSource.local,
     );
   }
@@ -1087,13 +1126,14 @@ class _TextFileEditorState extends State<TextFileEditor> {
         await _audioRecorder.stopRecording();
         final result = await _audioEngine.stopListening();
         if (result != null && result.text.trim().isNotEmpty) {
-          _insertDictationText('${result.text.trim()} ');
+          _applyLiveDictation(result.text, isFinal: true);
         }
         if (mounted) {
           setState(() {
             _isDictating = false;
           });
         }
+        _liveTranscription.reset();
         return;
       }
 
@@ -1110,7 +1150,16 @@ class _TextFileEditorState extends State<TextFileEditor> {
         _readAudioPref(() => stows.audioVadThreshold.value, 0.5),
       );
       await _audioEngine.startListening();
-      await _audioRecorder.startRecording();
+      final recordingStarted = await _audioRecorder.startRecording();
+      if (!recordingStarted) {
+        await _audioEngine.stopListening();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to start microphone capture')),
+        );
+        return;
+      }
+      _liveTranscription.startSession(anchorOffset: _currentDictationOffset());
       if (mounted) {
         setState(() {
           _isDictating = true;

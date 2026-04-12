@@ -143,7 +143,7 @@ void main() {
     });
   });
 
-  group('AudioNeuralEngine', skip: 'Native dependencies unavailable', () {
+  group('AudioNeuralEngine', () {
     test('should be a singleton', () {
       final instance1 = AudioNeuralEngine();
       final instance2 = AudioNeuralEngine();
@@ -193,6 +193,69 @@ void main() {
     test('should have default voice ID', () {
       final engine = AudioNeuralEngine();
       expect(engine.selectedVoiceId, isA<String>());
+    });
+  });
+
+  group('buildSpeechFallbackFinalResult', () {
+    test('returns null for empty transcript', () {
+      final result = buildSpeechFallbackFinalResult('   ', endTime: 2.0);
+
+      expect(result, isNull);
+    });
+
+    test('returns normalized final transcript result', () {
+      final result = buildSpeechFallbackFinalResult(
+        '  hello world  ',
+        endTime: 3.25,
+      );
+
+      expect(result, isNotNull);
+      expect(result!.text, 'hello world');
+      expect(result.isFinal, isTrue);
+      expect(result.startTime, 0.0);
+      expect(result.endTime, 3.25);
+      expect(result.confidence, 0.8);
+    });
+  });
+
+  group('stopListening fallback session handling', () {
+    test(
+      'returns fallback transcript when fallback session ended before stop',
+      () async {
+        final engine = AudioNeuralEngine();
+        engine.debugConfigureStopListeningForTest(
+          useSpeechFallback: true,
+          speechFallbackListening: false,
+          speechFallbackTranscript: 'dictated transcript',
+          rustAudioReady: false,
+        );
+
+        final result = await engine.stopListening();
+
+        expect(result, isNotNull);
+        expect(result!.text, 'dictated transcript');
+        expect(result.isFinal, isTrue);
+        expect(engine.state.value, AudioEngineState.idle);
+
+        engine.reset();
+      },
+    );
+
+    test('returns null when fallback transcript is empty', () async {
+      final engine = AudioNeuralEngine();
+      engine.debugConfigureStopListeningForTest(
+        useSpeechFallback: true,
+        speechFallbackListening: false,
+        speechFallbackTranscript: '   ',
+        rustAudioReady: false,
+      );
+
+      final result = await engine.stopListening();
+
+      expect(result, isNull);
+      expect(engine.state.value, AudioEngineState.idle);
+
+      engine.reset();
     });
   });
 }
