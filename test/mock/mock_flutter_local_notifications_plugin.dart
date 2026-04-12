@@ -1,7 +1,8 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-class MockFlutterLocalNotificationsPlugin implements FlutterLocalNotificationsPlugin {
+class MockFlutterLocalNotificationsPlugin
+    implements FlutterLocalNotificationsPlugin {
   bool initialized = false;
   int cancelAllCount = 0;
   List<int> cancelledIds = [];
@@ -11,7 +12,8 @@ class MockFlutterLocalNotificationsPlugin implements FlutterLocalNotificationsPl
   Future<bool?> initialize(
     InitializationSettings initializationSettings, {
     DidReceiveNotificationResponseCallback? onDidReceiveNotificationResponse,
-    DidReceiveBackgroundNotificationResponseCallback? onDidReceiveBackgroundNotificationResponse,
+    DidReceiveBackgroundNotificationResponseCallback?
+    onDidReceiveBackgroundNotificationResponse,
   }) async {
     initialized = true;
     return true;
@@ -61,22 +63,44 @@ class MockFlutterLocalNotificationsPlugin implements FlutterLocalNotificationsPl
   }
 
   @override
-  Future<NotificationAppLaunchDetails?> getNotificationAppLaunchDetails() async {
+  Future<NotificationAppLaunchDetails?>
+  getNotificationAppLaunchDetails() async {
     return null;
   }
 
   @override
-  Future<void> periodicallyShow(int id, String? title, String? body, RepeatInterval repeatInterval, NotificationDetails notificationDetails, {String? payload, AndroidScheduleMode? androidScheduleMode}) async {}
+  Future<void> periodicallyShow(
+    int id,
+    String? title,
+    String? body,
+    RepeatInterval repeatInterval,
+    NotificationDetails notificationDetails, {
+    String? payload,
+    AndroidScheduleMode? androidScheduleMode,
+  }) async {}
 
   @override
-  Future<void> periodicallyShowWithDuration(int id, String? title, String? body, Duration repeatDurationInterval, NotificationDetails notificationDetails, {String? payload, AndroidScheduleMode? androidScheduleMode}) async {}
+  Future<void> periodicallyShowWithDuration(
+    int id,
+    String? title,
+    String? body,
+    Duration repeatDurationInterval,
+    NotificationDetails notificationDetails, {
+    String? payload,
+    AndroidScheduleMode? androidScheduleMode,
+  }) async {}
 
   @override
-  T? resolvePlatformSpecificImplementation<T extends FlutterLocalNotificationsPlatform>() => null;
+  T? resolvePlatformSpecificImplementation<
+    T extends FlutterLocalNotificationsPlatform
+  >() => null;
 
   @override
-  Future<void> show(int id, String? title, String? body, NotificationDetails? notificationDetails, {String? payload}) async {}
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  Future<void> show(
+    int id,
+    String? title,
+    String? body,
+    NotificationDetails? notificationDetails, {
+    String? payload,
+  }) async {}
 }

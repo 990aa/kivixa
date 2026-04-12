@@ -188,30 +188,41 @@ class MCPChatController extends ChangeNotifier {
       buffer.writeln();
     }
 
-    // Add MCP mode marker + minimal contract for backend tool-call mode.
-    if (_isMcpEnabled) {
-      buffer.writeln(kMcpModeSentinel);
+    // Add MCP tools if enabled
+    if (_isMcpEnabled && _mcpService.isInitialized) {
+      buffer.writeln('## Available Tools');
+      buffer.writeln();
       buffer.writeln(
-        'MCP mode is active. Prefer tool execution for actionable requests.',
+        'You have access to the following tools. When you need to use a tool, respond with a JSON object:',
       );
+      buffer.writeln('```json');
       buffer.writeln(
-        'When a tool is needed, respond with JSON only in this format:',
+        '{"tool": "tool_name", "parameters": {"param1": "value1", ...}}',
       );
-      buffer.writeln('{"tool": "tool_name", "args": { ... }}');
+      buffer.writeln('```');
+      buffer.writeln();
 
-      if (_mcpService.isInitialized) {
-        final tools = _mcpService.getAvailableTools();
-        if (tools.isNotEmpty) {
-          buffer.writeln(
-            'Allowed tools: ${tools.map((tool) => tool.name).join(', ')}',
-          );
+      final tools = _mcpService.getAvailableTools();
+      for (final tool in tools) {
+        buffer.writeln('### ${tool.name}');
+        buffer.writeln(tool.description);
+        if (tool.parameters.isNotEmpty) {
+          buffer.writeln('Parameters:');
+          for (final param in tool.parameters) {
+            final required = param.required ? ' (required)' : ' (optional)';
+            buffer.writeln('- ${param.name}: ${param.description}$required');
+          }
         }
+        buffer.writeln();
       }
 
-      buffer.writeln('Do not include markdown fences or extra prose.');
+      buffer.writeln('Important:');
+      buffer.writeln('- Only use tools when necessary for the user\'s request');
+      buffer.writeln('- File operations are sandboxed to the browse/ folder');
+      buffer.writeln('- All tool executions require user confirmation');
     }
 
-    return buffer.toString().trim();
+    return buffer.toString();
   }
 
   /// Classify user message and potentially switch models

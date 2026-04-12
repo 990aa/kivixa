@@ -27,10 +27,6 @@ void main() {
     NotificationService.forceIsSupported = true; // Force support for testing
   });
 
-  tearDown(() {
-    NotificationService.forceIsSupported = null;
-  });
-
   group('NotificationService tests', () {
     test('initializes correctly', () async {
       await notificationService.initialize();
@@ -51,7 +47,10 @@ void main() {
 
       // Save valid notification settings
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('notification_settings', NotificationSettings().toJsonString());
+      await prefs.setString(
+        'notification_settings',
+        NotificationSettings().toJsonString(),
+      );
 
       await notificationService.scheduleEventNotification(event);
 
@@ -62,73 +61,91 @@ void main() {
       expect(scheduled['id'], event.id.hashCode);
     });
 
-    test('scheduleEventNotification schedules an all-day event at 9 AM', () async {
-      final eventDate = DateTime.now().add(const Duration(days: 1));
-      final event = CalendarEvent(
-        id: '2',
-        title: 'All Day Event',
-        date: eventDate,
-        type: EventType.event,
-        isAllDay: true,
-      );
+    test(
+      'scheduleEventNotification schedules an all-day event at 9 AM',
+      () async {
+        final eventDate = DateTime.now().add(const Duration(days: 1));
+        final event = CalendarEvent(
+          id: '2',
+          title: 'All Day Event',
+          date: eventDate,
+          type: EventType.event,
+          isAllDay: true,
+        );
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('notification_settings', NotificationSettings().toJsonString());
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+          'notification_settings',
+          NotificationSettings().toJsonString(),
+        );
 
-      await notificationService.scheduleEventNotification(event);
+        await notificationService.scheduleEventNotification(event);
 
-      expect(mockPlugin.scheduledNotifications.length, 1);
-      final scheduled = mockPlugin.scheduledNotifications.first;
-      expect(scheduled['title'], 'Event: All Day Event');
-      expect(scheduled['scheduledDate'].hour, 9);
-      expect(scheduled['scheduledDate'].minute, 0);
-    });
+        expect(mockPlugin.scheduledNotifications.length, 1);
+        final scheduled = mockPlugin.scheduledNotifications.first;
+        expect(scheduled['title'], 'Event: All Day Event');
+        expect(scheduled['scheduledDate'].hour, 9);
+        expect(scheduled['scheduledDate'].minute, 0);
+      },
+    );
 
-    test('scheduleEventNotification does not schedule if notifications are disabled', () async {
-      final eventDate = DateTime.now().add(const Duration(days: 1));
-      final event = CalendarEvent(
-        id: '3',
-        title: 'Disabled Event',
-        date: eventDate,
-        type: EventType.event,
-      );
+    test(
+      'scheduleEventNotification does not schedule if notifications are disabled',
+      () async {
+        final eventDate = DateTime.now().add(const Duration(days: 1));
+        final event = CalendarEvent(
+          id: '3',
+          title: 'Disabled Event',
+          date: eventDate,
+          type: EventType.event,
+        );
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('notification_settings', NotificationSettings(notificationsEnabled: false).toJsonString());
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+          'notification_settings',
+          NotificationSettings(notificationsEnabled: false).toJsonString(),
+        );
 
-      await notificationService.scheduleEventNotification(event);
+        await notificationService.scheduleEventNotification(event);
 
-      expect(mockPlugin.scheduledNotifications.isEmpty, isTrue);
-    });
+        expect(mockPlugin.scheduledNotifications.isEmpty, isTrue);
+      },
+    );
 
-    test('scheduleEventNotification schedules overdue notification for task', () async {
-      final taskDate = DateTime.now().add(const Duration(days: 1));
-      final task = CalendarEvent(
-        id: '4',
-        title: 'Test Task',
-        date: taskDate,
-        type: EventType.task,
-        startTime: const TimeOfDay(hour: 14, minute: 0),
-        endTime: const TimeOfDay(hour: 15, minute: 0),
-        isCompleted: false,
-      );
+    test(
+      'scheduleEventNotification schedules overdue notification for task',
+      () async {
+        final taskDate = DateTime.now().add(const Duration(days: 1));
+        final task = CalendarEvent(
+          id: '4',
+          title: 'Test Task',
+          date: taskDate,
+          type: EventType.task,
+          startTime: const TimeOfDay(hour: 14, minute: 0),
+          endTime: const TimeOfDay(hour: 15, minute: 0),
+          isCompleted: false,
+        );
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('notification_settings', NotificationSettings().toJsonString());
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+          'notification_settings',
+          NotificationSettings().toJsonString(),
+        );
 
-      await notificationService.scheduleEventNotification(task);
+        await notificationService.scheduleEventNotification(task);
 
-      // Should schedule 1 for the start time, 1 for 1hr overdue, and 7 daily reminders
-      expect(mockPlugin.scheduledNotifications.length, 1 + 1 + 7);
+        // Should schedule 1 for the start time, 1 for 1hr overdue, and 7 daily reminders
+        expect(mockPlugin.scheduledNotifications.length, 1 + 1 + 7);
 
-      final firstScheduled = mockPlugin.scheduledNotifications.first;
-      expect(firstScheduled['title'], 'Task: Test Task');
+        final firstScheduled = mockPlugin.scheduledNotifications.first;
+        expect(firstScheduled['title'], 'Task: Test Task');
 
-      final overdueScheduled = mockPlugin.scheduledNotifications.firstWhere(
-        (n) => n['title'] == 'Overdue Task: Test Task'
-      );
-      expect(overdueScheduled, isNotNull);
-    });
+        final overdueScheduled = mockPlugin.scheduledNotifications.firstWhere(
+          (n) => n['title'] == 'Overdue Task: Test Task',
+        );
+        expect(overdueScheduled, isNotNull);
+      },
+    );
 
     test('cancelNotification cancels correctly', () async {
       await notificationService.cancelNotification(123);
@@ -156,33 +173,45 @@ void main() {
       expect(mockPlugin.cancelledIds.length, 1 + 7 * 2);
     });
 
-    test('rescheduleAllNotifications reads storage and schedules future events', () async {
-      final now = DateTime.now();
-      final futureEvent = CalendarEvent(
-        id: 'future',
-        title: 'Future Event',
-        date: now.add(const Duration(days: 1)),
-        type: EventType.event,
-        startTime: const TimeOfDay(hour: 10, minute: 0),
-      );
+    test(
+      'rescheduleAllNotifications reads storage and schedules future events',
+      () async {
+        final now = DateTime.now();
+        final futureEvent = CalendarEvent(
+          id: 'future',
+          title: 'Future Event',
+          date: now.add(const Duration(days: 1)),
+          type: EventType.event,
+          startTime: const TimeOfDay(hour: 10, minute: 0),
+        );
 
-      final pastEvent = CalendarEvent(
-        id: 'past',
-        title: 'Past Event',
-        date: now.subtract(const Duration(days: 1)),
-        type: EventType.event,
-        startTime: const TimeOfDay(hour: 10, minute: 0),
-      );
+        final pastEvent = CalendarEvent(
+          id: 'past',
+          title: 'Past Event',
+          date: now.subtract(const Duration(days: 1)),
+          type: EventType.event,
+          startTime: const TimeOfDay(hour: 10, minute: 0),
+        );
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('notification_settings', NotificationSettings().toJsonString());
-      await prefs.setString('calendar_events', json.encode([futureEvent.toJson(), pastEvent.toJson()]));
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+          'notification_settings',
+          NotificationSettings().toJsonString(),
+        );
+        await prefs.setString(
+          'calendar_events',
+          json.encode([futureEvent.toJson(), pastEvent.toJson()]),
+        );
 
-      await notificationService.rescheduleAllNotifications();
+        await notificationService.rescheduleAllNotifications();
 
-      // Should only schedule the future event
-      expect(mockPlugin.scheduledNotifications.length, 1);
-      expect(mockPlugin.scheduledNotifications.first['title'], 'Event: Future Event');
-    });
+        // Should only schedule the future event
+        expect(mockPlugin.scheduledNotifications.length, 1);
+        expect(
+          mockPlugin.scheduledNotifications.first['title'],
+          'Event: Future Event',
+        );
+      },
+    );
   });
 }

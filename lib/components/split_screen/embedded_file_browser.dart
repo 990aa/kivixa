@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
+import 'package:kivixa/pages/editor/editor.dart';
+import 'package:kivixa/pages/textfile/text_file_editor.dart';
 
 /// An embedded file browser for selecting files in split screen view
 class EmbeddedFileBrowser extends StatefulWidget {
@@ -72,17 +74,17 @@ class _EmbeddedFileBrowserState extends State<EmbeddedFileBrowser> {
   }
 
   String _getFileTypeIcon(String filePath) {
-    final fileType = children?.getFileType(filePath);
-    switch (fileType) {
-      case KivixaFileType.handwritten:
-        return 'handwritten';
-      case KivixaFileType.markdown:
-        return 'markdown';
-      case KivixaFileType.text:
-        return 'text';
-      default:
-        return 'unknown';
+    final fullPath = "${currentPath ?? ''}/$filePath";
+    if (FileManager.doesFileExist('$fullPath${Editor.extension}')) {
+      return 'handwritten';
+    } else if (FileManager.doesFileExist('$fullPath.md')) {
+      return 'markdown';
+    } else if (FileManager.doesFileExist(
+      '$fullPath${TextFileEditor.internalExtension}',
+    )) {
+      return 'text';
     }
+    return 'unknown';
   }
 
   IconData _getFileIcon(String fileType) {
@@ -219,45 +221,33 @@ class _EmbeddedFileBrowserState extends State<EmbeddedFileBrowser> {
                       ],
                     ),
                   )
-                : ListView.builder(
+                : ListView(
                     padding: const EdgeInsets.symmetric(vertical: 4),
-                    itemCount: (currentPath != null ? 1 : 0) + children!.directories.length + children!.files.length,
-                    itemBuilder: (context, index) {
-                      int currentIndex = index;
-
-                      // Back button
-                      if (currentPath != null) {
-                        if (currentIndex == 0) {
-                          return _buildListTile(
-                            icon: Icons.arrow_back,
-                            iconColor: colorScheme.onSurfaceVariant,
-                            title: '..',
-                            subtitle: 'Go back',
-                            onTap: () => _navigateToFolder('..'),
-                            colorScheme: colorScheme,
-                          );
-                        }
-                        currentIndex--;
-                      }
-
+                    children: [
+                      // Back button if not at root
+                      if (currentPath != null)
+                        _buildListTile(
+                          icon: Icons.arrow_back,
+                          iconColor: colorScheme.onSurfaceVariant,
+                          title: '..',
+                          subtitle: 'Go back',
+                          onTap: () => _navigateToFolder('..'),
+                          colorScheme: colorScheme,
+                        ),
                       // Folders
-                      if (currentIndex < children!.directories.length) {
-                        final folder = children!.directories[currentIndex];
-                        return _buildListTile(
+                      for (final folder in children!.directories)
+                        _buildListTile(
                           icon: Icons.folder,
                           iconColor: colorScheme.primary,
                           title: folder,
                           subtitle: 'Folder',
                           onTap: () => _navigateToFolder(folder),
                           colorScheme: colorScheme,
-                        );
-                      }
-                      currentIndex -= children!.directories.length;
-
+                        ),
                       // Files
-                      final file = children!.files[currentIndex];
-                      return _buildFileTile(file, colorScheme);
-                    },
+                      for (final file in children!.files)
+                        _buildFileTile(file, colorScheme),
+                    ],
                   ),
           ),
         ],

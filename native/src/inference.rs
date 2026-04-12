@@ -11,15 +11,12 @@ use llama_cpp_2::llama_backend::LlamaBackend;
 use llama_cpp_2::llama_batch::LlamaBatch;
 use llama_cpp_2::model::params::LlamaModelParams;
 use llama_cpp_2::model::{AddBos, LlamaChatMessage, LlamaModel, Special};
-use llama_cpp_2::sampling::LlamaSampler;
 use llama_cpp_2::token::data_array::LlamaTokenDataArray;
 use parking_lot::Mutex;
 use std::fs;
 use std::num::NonZeroU32;
 use std::path::Path;
 use std::sync::Arc;
-
-use crate::mcp;
 
 #[cfg(feature = "mtmd")]
 use llama_cpp_2::mtmd::{mtmd_default_marker, MtmdBitmap, MtmdContext, MtmdInputText};
@@ -80,75 +77,6 @@ struct ModelState {
 
 /// Global AI state (singleton pattern)
 static AI_STATE: Mutex<Option<Arc<ModelState>>> = Mutex::new(None);
-
-#[derive(Debug)]
-struct ChatModePreparation {
-    messages: Vec<(String, String)>,
-    mcp_mode: bool,
-}
-
-fn prepare_messages_for_chat(messages: &[(String, String)]) -> ChatModePreparation {
-    let mut prepared = Vec::with_capacity(messages.len() + 2);
-    let mut mcp_mode = false;
-
-    for (role, content) in messages {
-        let mut normalized = content.clone();
-
-        if role == "system" && normalized.contains(mcp::MCP_MODE_SENTINEL) {
-            mcp_mode = true;
-            normalized = normalized.replace(mcp::MCP_MODE_SENTINEL, "");
-        }
-
-        let normalized = normalized.trim().to_string();
-        if role == "system" && normalized.is_empty() {
-            continue;
-        }
-
-        prepared.push((role.clone(), normalized));
-    }
-
-    if mcp_mode {
-        prepared.insert(
-            0,
-            (
-                "system".to_string(),
-                "MCP mode is enabled. Tool calls are sandboxed and require explicit user approval in the UI."
-                    .to_string(),
-            ),
-        );
-        prepared.insert(1, ("system".to_string(), mcp::mcp_tool_prompt_block()));
-    }
-
-    ChatModePreparation {
-        messages: prepared,
-        mcp_mode,
-    }
-}
-
-fn build_sampler(state: &ModelState, grammar: Option<&str>, seed: u32) -> Result<LlamaSampler> {
-    let mut samplers = Vec::new();
-
-    if let Some(grammar_str) = grammar {
-        match LlamaSampler::grammar(&state.model, grammar_str, "root") {
-            Ok(grammar_sampler) => samplers.push(grammar_sampler),
-            Err(e) => {
-                log::warn!(
-                    "Failed to initialize grammar sampler: {}. Falling back to unconstrained sampling.",
-                    e
-                );
-            }
-        }
-    }
-
-    samplers.push(LlamaSampler::temp(state.config.temperature.max(0.0)));
-
-    if (0.0..1.0).contains(&state.config.top_p) {
-        samplers.push(LlamaSampler::top_p(state.config.top_p, 1));
-    }
-
-    samplers.push(LlamaSampler::dist(seed));
-    Ok(LlamaSampler::chain_simple(samplers))
-}
 
 /// Detect model type from the model filename
 fn detect_model_type(model_path: &str) -> ModelType {
@@ -343,14 +271,6 @@ pub fn get_embedding_dimension() -> Result<usize> {
 /// # Returns
 /// * Generated text completion
 pub fn generate_text(prompt: String, max_tokens: Option<u32>) -> Result<String> {
-    generate_text_with_options(prompt, max_tokens, None)
-}
-
-fn generate_text_with_options(
-    prompt: String,
-    max_tokens: Option<u32>,
-    grammar: Option<&str>,
-) -> Result<String> {
     let guard = AI_STATE.lock();
     let state = guard.as_ref().ok_or_else(|| anyhow!("Model not loaded"))?;
 
@@ -388,16 +308,22 @@ fn generate_text_with_options(
 
     // Generate tokens
     let mut output_tokens = Vec::new();
+    let mut n_cur = tokens.len();
 
-    let seed: u32 = std::time::SystemTime::now()
+    // Use a simple random seed for sampling
+    let mut rng_seed: u32 = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap_or_default()
         .as_secs() as u32;
 
-    let mut sampler = build_sampler(state, grammar, seed)?;
+    for _ in 0..max_tokens {
+        // Sample next token
+        let candidates = ctx.candidates_ith(batch.n_tokens() - 1);
+        let mut candidates_array = LlamaTokenDataArray::from_iter(candidates, false);
 
-    for n_cur in (tokens.len()..).take(max_tokens as usize) {
-        let new_token = sampler.sample(&ctx, batch.n_tokens() - 1);
+        // Sample with random seed
+        rng_seed = rng_seed.wrapping_mul(1103515245).wrapping_add(12345);
+        let new_token = candidates_array.sample_token(rng_seed);
 
         // Check for end of generation
         if state.model.is_eog_token(new_token) {
@@ -405,11 +331,11 @@ fn generate_text_with_options(
         }
 
         output_tokens.push(new_token);
-        sampler.accept(new_token);
 
         // Prepare next batch
         batch.clear();
         batch.add(new_token, n_cur as i32, &[0], true)?;
+        n_cur += 1;
 
         ctx.decode(&mut batch)
             .map_err(|e| anyhow!("Failed to decode: {:?}", e))?;
@@ -510,19 +436,16 @@ pub fn get_embedding(text: String) -> Result<Vec<f32>> {
 pub fn chat_completion(messages: Vec<(String, String)>, max_tokens: Option<u32>) -> Result<String> {
     let guard = AI_STATE.lock();
     let state = guard.as_ref().ok_or_else(|| anyhow!("Model not loaded"))?;
-    let prepared = prepare_messages_for_chat(&messages);
-    let mcp_mode = prepared.mcp_mode;
-    let prepared_messages = prepared.messages;
     let model_type = state.config.model_type;
     let model_hint = state.model_hint.as_str();
     let max_tokens = max_tokens.unwrap_or(state.config.max_tokens);
 
-    if !mcp_mode && state.vision_capable {
-        if let Some(image_path) = find_image_attachment_path(&prepared_messages) {
+    if state.vision_capable {
+        if let Some(image_path) = find_image_attachment_path(&messages) {
             if let Some(mmproj_path) = state.mmproj_path.as_deref() {
                 match chat_completion_with_vision(
                     state,
-                    &prepared_messages,
+                    &messages,
                     &image_path,
                     mmproj_path,
                     max_tokens,
@@ -547,24 +470,19 @@ pub fn chat_completion(messages: Vec<(String, String)>, max_tokens: Option<u32>)
     // Prefer the model's own chat template (llama.cpp apply_chat_template path).
     // This gives much better compatibility for newer reasoning families and
     // template-specific token conventions.
-    let prompt = match format_with_model_template(state, &prepared_messages) {
+    let prompt = match format_with_model_template(state, &messages) {
         Ok(prompt) => prompt,
         Err(error) => {
             log::warn!(
                 "Falling back to legacy prompt formatter after template failure: {}",
                 error
             );
-            format_chat_prompt_fallback(&prepared_messages, model_type, model_hint)
+            format_chat_prompt_fallback(&messages, model_type, model_hint)
         }
     };
 
     drop(guard); // Release lock before generation
-    let grammar = if mcp_mode {
-        Some(mcp::MCP_TOOL_CALL_GBNF)
-    } else {
-        None
-    };
-    generate_text_with_options(prompt, Some(max_tokens), grammar)
+    generate_text(prompt, Some(max_tokens))
 }
 
 fn find_image_attachment_path(messages: &[(String, String)]) -> Option<String> {
@@ -1166,66 +1084,11 @@ mod tests {
     #[test]
     fn test_fallback_uses_gemma_formatter_for_gemma4() {
         let messages = vec![("user".to_string(), "Test".to_string())];
-        let prompt =
-            format_chat_prompt_fallback(&messages, ModelType::Phi4, "gemma-4-e2b-it-q4_k_m.gguf");
-        assert!(prompt.contains("<start_of_turn>user\nTest<end_of_turn>"));
-    }
-
-    #[test]
-    fn test_prepare_messages_for_chat_keeps_normal_mode_without_sentinel() {
-        let messages = vec![
-            (
-                "system".to_string(),
-                "You are a helpful general assistant".to_string(),
-            ),
-            (
-                "user".to_string(),
-                "Write an essay on climate change".to_string(),
-            ),
-        ];
-
-        let prepared = prepare_messages_for_chat(&messages);
-
-        assert!(!prepared.mcp_mode);
-        assert_eq!(prepared.messages, messages);
-        assert_eq!(
-            prepared
-                .messages
-                .iter()
-                .filter(|(role, _)| role == "system")
-                .count(),
-            1
+        let prompt = format_chat_prompt_fallback(
+            &messages,
+            ModelType::Phi4,
+            "gemma-4-e2b-it-q4_k_m.gguf",
         );
-    }
-
-    #[test]
-    fn test_prepare_messages_for_chat_enables_mcp_mode_and_injects_contract() {
-        let messages = vec![
-            (
-                "system".to_string(),
-                format!(
-                    "{}\nRoute actionable requests to MCP tools.",
-                    crate::mcp::MCP_MODE_SENTINEL
-                ),
-            ),
-            (
-                "user".to_string(),
-                "Create a file called todo.md".to_string(),
-            ),
-        ];
-
-        let prepared = prepare_messages_for_chat(&messages);
-
-        assert!(prepared.mcp_mode);
-        assert!(prepared.messages.len() >= 3);
-        assert_eq!(prepared.messages[0].0, "system");
-        assert!(prepared.messages[1].1.contains("AVAILABLE TOOLS:"));
-        assert!(prepared.messages[1]
-            .1
-            .contains("Format: {\"tool\": \"tool_name\", \"args\": { ... }}"));
-        assert!(prepared
-            .messages
-            .iter()
-            .all(|(_, content)| !content.contains(crate::mcp::MCP_MODE_SENTINEL)));
+        assert!(prompt.contains("<start_of_turn>user\nTest<end_of_turn>"));
     }
 }
