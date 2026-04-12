@@ -6,6 +6,9 @@ ignore = [
   # Transitive from simba/nalgebra/statrs in native_math; no safe upgrade path
   # available at this time according to RustSec advisory details.
   "RUSTSEC-2024-0436",
+  # Transitive from rand in native_audio/native; unsoundness condition requires
+  # a custom logger accessing rand::rng(), which we don't do.
+  "RUSTSEC-2026-0097",
 ]
 
 [bans]
