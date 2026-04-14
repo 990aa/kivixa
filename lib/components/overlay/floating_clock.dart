@@ -108,7 +108,9 @@ class _FloatingClockContentState extends State<_FloatingClockContent>
     });
   }
 
-  Future<void> _updateNotificationSettings(NotificationSettings settings) async {
+  Future<void> _updateNotificationSettings(
+    NotificationSettings settings,
+  ) async {
     await NotificationSettingsStorage.saveSettings(settings);
     if (!mounted) return;
     setState(() {

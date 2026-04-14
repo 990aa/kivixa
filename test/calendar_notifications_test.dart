@@ -230,6 +230,14 @@ void main() {
       expect(settings.eventNotificationsEnabled, true);
       expect(settings.taskNotificationsEnabled, true);
       expect(settings.overdueNotificationsEnabled, true);
+      expect(settings.projectDeadlineNotificationsEnabled, true);
+      expect(settings.exactTimeNotificationsEnabled, true);
+      expect(
+        settings.soundProfile,
+        NotificationSoundProfile.defaultTone,
+      );
+      expect(settings.vibrateOnlyOnAndroid, false);
+      expect(settings.leadTimesInMinutes, [10, 60, 1440]);
     });
 
     test('Notification settings can be disabled', () {
@@ -256,6 +264,11 @@ void main() {
         eventNotificationsEnabled: true,
         taskNotificationsEnabled: false,
         overdueNotificationsEnabled: true,
+        projectDeadlineNotificationsEnabled: false,
+        exactTimeNotificationsEnabled: false,
+        soundProfile: NotificationSoundProfile.alarm,
+        vibrateOnlyOnAndroid: true,
+        leadTimesInMinutes: const [15, 120],
       );
 
       final json = settings.toJson();
@@ -264,6 +277,11 @@ void main() {
       expect(json['eventNotificationsEnabled'], true);
       expect(json['taskNotificationsEnabled'], false);
       expect(json['overdueNotificationsEnabled'], true);
+      expect(json['projectDeadlineNotificationsEnabled'], false);
+      expect(json['exactTimeNotificationsEnabled'], false);
+      expect(json['soundProfile'], 'alarm');
+      expect(json['vibrateOnlyOnAndroid'], true);
+      expect(json['leadTimesInMinutes'], [15, 120]);
     });
 
     test('Notification settings deserialization works', () {
@@ -272,6 +290,11 @@ void main() {
         'eventNotificationsEnabled': true,
         'taskNotificationsEnabled': false,
         'overdueNotificationsEnabled': true,
+        'projectDeadlineNotificationsEnabled': false,
+        'exactTimeNotificationsEnabled': false,
+        'soundProfile': 'ringtone',
+        'vibrateOnlyOnAndroid': true,
+        'leadTimesInMinutes': [5, 30, 120],
       };
 
       final settings = NotificationSettings.fromJson(json);
@@ -280,6 +303,11 @@ void main() {
       expect(settings.eventNotificationsEnabled, true);
       expect(settings.taskNotificationsEnabled, false);
       expect(settings.overdueNotificationsEnabled, true);
+      expect(settings.projectDeadlineNotificationsEnabled, false);
+      expect(settings.exactTimeNotificationsEnabled, false);
+      expect(settings.soundProfile, NotificationSoundProfile.ringtone);
+      expect(settings.vibrateOnlyOnAndroid, true);
+      expect(settings.leadTimesInMinutes, [5, 30, 120]);
     });
 
     test('Notification settings copyWith works', () {
@@ -288,12 +316,22 @@ void main() {
       final updated = settings.copyWith(
         eventNotificationsEnabled: false,
         overdueNotificationsEnabled: false,
+        projectDeadlineNotificationsEnabled: false,
+        exactTimeNotificationsEnabled: false,
+        soundProfile: NotificationSoundProfile.silent,
+        vibrateOnlyOnAndroid: true,
+        leadTimesInMinutes: const [30],
       );
 
       expect(updated.notificationsEnabled, true); // Unchanged
       expect(updated.eventNotificationsEnabled, false); // Changed
       expect(updated.taskNotificationsEnabled, true); // Unchanged
       expect(updated.overdueNotificationsEnabled, false); // Changed
+      expect(updated.projectDeadlineNotificationsEnabled, false);
+      expect(updated.exactTimeNotificationsEnabled, false);
+      expect(updated.soundProfile, NotificationSoundProfile.silent);
+      expect(updated.vibrateOnlyOnAndroid, true);
+      expect(updated.leadTimesInMinutes, [30]);
     });
 
     test('Notification settings JSON string conversion works', () {
@@ -315,6 +353,25 @@ void main() {
         restored.overdueNotificationsEnabled,
         settings.overdueNotificationsEnabled,
       );
+      expect(
+        restored.projectDeadlineNotificationsEnabled,
+        settings.projectDeadlineNotificationsEnabled,
+      );
+      expect(
+        restored.exactTimeNotificationsEnabled,
+        settings.exactTimeNotificationsEnabled,
+      );
+      expect(restored.soundProfile, settings.soundProfile);
+      expect(restored.vibrateOnlyOnAndroid, settings.vibrateOnlyOnAndroid);
+      expect(restored.leadTimesInMinutes, settings.leadTimesInMinutes);
+    });
+
+    test('Lead times are sanitized and fallback to defaults when invalid', () {
+      final settings = NotificationSettings.fromJson({
+        'leadTimesInMinutes': [-10, 0, 'bad'],
+      });
+
+      expect(settings.leadTimesInMinutes, [10, 60, 1440]);
     });
   });
 

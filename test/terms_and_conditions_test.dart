@@ -80,8 +80,8 @@ void main() {
       expect(await TermsAndConditionsService.getAcceptedDate(), null);
     });
 
-    test('hasAcceptedTerms returns false if terms version changed', () async {
-      // Simulate accepting an old version
+    test('hasAcceptedTerms remains true when terms version changed', () async {
+      // Simulate acceptance from a previous version
       SharedPreferences.setMockInitialValues({
         'termsAccepted': true,
         'termsAcceptedVersion': '0.9.0', // Old version
@@ -89,9 +89,11 @@ void main() {
       });
 
       final result = await TermsAndConditionsService.hasAcceptedTerms();
+      final prefs = await SharedPreferences.getInstance();
+      final upgradedVersion = prefs.getString('termsAcceptedVersion');
 
-      // Should return false because version doesn't match current
-      expect(result, false);
+      expect(result, true);
+      expect(upgradedVersion, TermsAndConditionsService.currentTermsVersion);
     });
 
     test('hasAcceptedTerms returns true if terms version matches', () async {

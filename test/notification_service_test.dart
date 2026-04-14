@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/data/models/calendar_event.dart';
 import 'package:kivixa/data/models/notification_settings.dart';
+import 'package:kivixa/data/models/project.dart';
 import 'package:kivixa/services/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -58,7 +59,7 @@ void main() {
 
       await notificationService.scheduleEventNotification(event);
 
-      expect(mockPlugin.scheduledNotifications.length, 1);
+      expect(mockPlugin.scheduledNotifications.length, 4);
       final scheduled = mockPlugin.scheduledNotifications.first;
       expect(scheduled['title'], 'Event: Test Event');
       expect(scheduled['body'], 'Test Description');
@@ -85,7 +86,7 @@ void main() {
 
         await notificationService.scheduleEventNotification(event);
 
-        expect(mockPlugin.scheduledNotifications.length, 1);
+        expect(mockPlugin.scheduledNotifications.length, 4);
         final scheduled = mockPlugin.scheduledNotifications.first;
         expect(scheduled['title'], 'Event: All Day Event');
         final scheduledDateUtc = (scheduled['scheduledDate'] as DateTime)
@@ -147,8 +148,8 @@ void main() {
 
         await notificationService.scheduleEventNotification(task);
 
-        // Should schedule 1 for the start time, 1 for 1hr overdue, and 7 daily reminders
-        expect(mockPlugin.scheduledNotifications.length, 1 + 1 + 7);
+        // 1 main + 3 lead reminders + 1 first overdue + 7 daily overdue reminders
+        expect(mockPlugin.scheduledNotifications.length, 1 + 3 + 1 + 7);
 
         final firstScheduled = mockPlugin.scheduledNotifications.first;
         expect(firstScheduled['title'], 'Task: Test Task');
@@ -182,8 +183,8 @@ void main() {
 
       // Should cancel the main event ID
       expect(mockPlugin.cancelledIds, contains(event.id.hashCode));
-      // And the 7 overdue days + 7 first overdue hours
-      expect(mockPlugin.cancelledIds.length, 1 + 7 * 2);
+      // And lead-time + overdue IDs
+      expect(mockPlugin.cancelledIds.length, 23);
     });
 
     test(
@@ -219,12 +220,83 @@ void main() {
         await notificationService.rescheduleAllNotifications();
 
         // Should only schedule the future event
-        expect(mockPlugin.scheduledNotifications.length, 1);
+        expect(mockPlugin.scheduledNotifications.length, 4);
         expect(
           mockPlugin.scheduledNotifications.first['title'],
           'Event: Future Event',
         );
       },
     );
+
+    test('exact-time setting disabled schedules at 9 AM', () async {
+      final eventDate = DateTime.now().add(const Duration(days: 1));
+      final event = CalendarEvent(
+        id: 'exact-off',
+        title: 'Exact Off Event',
+        description: 'Will be normalized to 9 AM',
+        date: eventDate,
+        type: EventType.event,
+        startTime: const TimeOfDay(hour: 17, minute: 30),
+      );
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        'notification_settings',
+        NotificationSettings(exactTimeNotificationsEnabled: false)
+            .toJsonString(),
+      );
+
+      await notificationService.scheduleEventNotification(event);
+
+      final scheduled = mockPlugin.scheduledNotifications.first;
+      final scheduledDateUtc = (scheduled['scheduledDate'] as DateTime)
+          .toUtc();
+      expect(scheduledDateUtc.hour, 9);
+      expect(scheduledDateUtc.minute, 0);
+    });
+
+    test('scheduleProjectDeadlineNotification schedules main and lead reminders', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        'notification_settings',
+        NotificationSettings().toJsonString(),
+      );
+
+      final project = Project(
+        id: 'project-1',
+        title: 'Launch Website',
+        description: 'Prepare release checklist',
+        createdAt: DateTime.now(),
+        deadline: DateTime.now().add(const Duration(days: 2)),
+      );
+
+      await notificationService.scheduleProjectDeadlineNotification(project);
+
+      expect(mockPlugin.scheduledNotifications.length, 4);
+      expect(
+        mockPlugin.scheduledNotifications.first['title'],
+        'Project Deadline: Launch Website',
+      );
+    });
+
+    test('cancelProjectDeadlineNotifications cancels known IDs', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        'notification_settings',
+        NotificationSettings().toJsonString(),
+      );
+
+      final project = Project(
+        id: 'project-2',
+        title: 'Roadmap',
+        createdAt: DateTime.now(),
+        deadline: DateTime.now().add(const Duration(days: 3)),
+      );
+
+      await notificationService.cancelProjectDeadlineNotifications(project);
+
+      // main + 8 lead-time slots from cancellation compatibility set
+      expect(mockPlugin.cancelledIds.length, 9);
+    });
   });
 }

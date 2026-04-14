@@ -79,6 +79,7 @@ void main() {
         taskIds: ['t1', 't2'],
         createdAt: DateTime(2024, 1, 1),
         completedAt: null,
+        deadline: DateTime(2024, 1, 31, 18, 0),
         color: Colors.blue,
       );
 
@@ -90,6 +91,7 @@ void main() {
       expect(project.taskIds, ['t1', 't2']);
       expect(project.createdAt, DateTime(2024, 1, 1));
       expect(project.completedAt, isNull);
+      expect(project.deadline, DateTime(2024, 1, 31, 18, 0));
       expect(project.color, Colors.blue);
     });
 
@@ -268,6 +270,7 @@ void main() {
         taskIds: ['t1', 't2'],
         createdAt: DateTime(2024, 1, 1),
         completedAt: DateTime(2024, 2, 1),
+        deadline: DateTime(2024, 1, 31, 9, 30),
         color: Colors.red,
       );
 
@@ -281,6 +284,7 @@ void main() {
       expect(json['taskIds'], ['t1', 't2']);
       expect(json['createdAt'], DateTime(2024, 1, 1).toIso8601String());
       expect(json['completedAt'], DateTime(2024, 2, 1).toIso8601String());
+      expect(json['deadline'], DateTime(2024, 1, 31, 9, 30).toIso8601String());
       expect(json['color'], Colors.red.toARGB32());
     });
 
@@ -301,6 +305,7 @@ void main() {
         'taskIds': ['t1'],
         'createdAt': DateTime(2024, 1, 1).toIso8601String(),
         'completedAt': DateTime(2024, 2, 1).toIso8601String(),
+        'deadline': DateTime(2024, 1, 30, 16, 0).toIso8601String(),
         'color': Colors.green.toARGB32(),
       };
 
@@ -314,6 +319,7 @@ void main() {
       expect(project.taskIds, ['t1']);
       expect(project.createdAt, DateTime(2024, 1, 1));
       expect(project.completedAt, DateTime(2024, 2, 1));
+      expect(project.deadline, DateTime(2024, 1, 30, 16, 0));
       expect(project.color?.toARGB32(), Colors.green.toARGB32());
     });
 
@@ -340,6 +346,7 @@ void main() {
         taskIds: ['task1', 'task2', 'task3'],
         createdAt: DateTime(2024, 1, 1, 10, 30),
         completedAt: null,
+        deadline: DateTime(2024, 3, 1, 12, 0),
         color: Colors.purple,
       );
 
@@ -354,6 +361,7 @@ void main() {
       expect(deserialized.taskIds, original.taskIds);
       expect(deserialized.createdAt, original.createdAt);
       expect(deserialized.completedAt, original.completedAt);
+      expect(deserialized.deadline, original.deadline);
       expect(deserialized.color?.toARGB32(), original.color?.toARGB32());
     });
 
