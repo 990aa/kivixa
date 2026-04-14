@@ -14,8 +14,7 @@ class NotificationService {
 
   static final instance = NotificationService._();
 
-  final FlutterLocalNotificationsPlugin _defaultNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  final _defaultNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   @visibleForTesting
   FlutterLocalNotificationsPlugin? notificationsPluginOverride;
@@ -35,7 +34,8 @@ class NotificationService {
   static bool? forceIsSupported;
 
   /// Returns true if notifications are supported on the current platform
-  static bool get isSupported => forceIsSupported ?? (Platform.isAndroid || Platform.isIOS);
+  static bool get isSupported =>
+      forceIsSupported ?? (Platform.isAndroid || Platform.isIOS);
 
   Future<void> initialize() async {
     if (_initialized) return;

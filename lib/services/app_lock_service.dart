@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
@@ -101,8 +100,10 @@ class AppLockService {
       } else {
         // Fallback to legacy SHA256 format
         final storedHashBytes = Uint8List.fromList(
-          List.generate(storedHash.length ~/ 2,
-              (i) => int.parse(storedHash.substring(i * 2, i * 2 + 2), radix: 16)),
+          List.generate(
+            storedHash.length ~/ 2,
+            (i) => int.parse(storedHash.substring(i * 2, i * 2 + 2), radix: 16),
+          ),
         );
         final inputHashBytes = _hashPinLegacy(pin);
         final isValid = _constantTimeEquals(inputHashBytes, storedHashBytes);
