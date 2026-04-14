@@ -520,9 +520,7 @@ class ProductivityTimerService extends ChangeNotifier {
   }
 
   String _buildProductivityContextSummary() {
-    final summary = <String>[
-      'Current: ${_sessionType.label} ($formattedTime)',
-    ];
+    final summary = <String>['Current: ${_sessionType.label} ($formattedTime)'];
 
     final routineService = ChainedRoutineService.instance;
     final currentBlock = routineService.currentBlock;
@@ -537,9 +535,7 @@ class ProductivityTimerService extends ChangeNotifier {
 
     final parallelTimers = MultiTimerService.instance.activeCount;
     if (parallelTimers > 0) {
-      summary.add(
-        'Parallel timers: $parallelTimers',
-      );
+      summary.add('Parallel timers: $parallelTimers');
     }
 
     return summary.join(' | ');
@@ -638,9 +634,9 @@ class ProductivityTimerService extends ChangeNotifier {
         : '';
     unawaited(
       _showNotification(
-      title: '${_sessionType.label} Started$tagInfo',
-      body:
-          'Focus time: ${_totalDuration.inMinutes} minutes\n${_buildProductivityContextSummary()}',
+        title: '${_sessionType.label} Started$tagInfo',
+        body:
+            'Focus time: ${_totalDuration.inMinutes} minutes\n${_buildProductivityContextSummary()}',
       ),
     );
     unawaited(_showTimerStatusNotification());
@@ -667,9 +663,9 @@ class ProductivityTimerService extends ChangeNotifier {
         _remainingTime.inSeconds % 60 == 0) {
       unawaited(
         _showNotification(
-        title: '$_preEndWarningMinutes minutes left',
-        body:
-            '${_state == TimerState.breakTime ? 'Break ending soon' : 'Session ending soon'}\n${_buildProductivityContextSummary()}',
+          title: '$_preEndWarningMinutes minutes left',
+          body:
+              '${_state == TimerState.breakTime ? 'Break ending soon' : 'Session ending soon'}\n${_buildProductivityContextSummary()}',
         ),
       );
     }
@@ -687,8 +683,9 @@ class ProductivityTimerService extends ChangeNotifier {
       // Break completed
       unawaited(
         _showNotification(
-        title: 'Break Complete!',
-        body: 'Ready for the next session?\n${_buildProductivityContextSummary()}',
+          title: 'Break Complete!',
+          body:
+              'Ready for the next session?\n${_buildProductivityContextSummary()}',
         ),
       );
       onBreakComplete?.call();
@@ -705,9 +702,9 @@ class ProductivityTimerService extends ChangeNotifier {
         _state = TimerState.completed;
         unawaited(
           _showNotification(
-          title: 'All Sessions Complete! 🎉',
-          body:
-              'Great job! You completed $_totalCycles sessions.\n${_buildProductivityContextSummary()}',
+            title: 'All Sessions Complete! 🎉',
+            body:
+                'Great job! You completed $_totalCycles sessions.\n${_buildProductivityContextSummary()}',
           ),
         );
       }
