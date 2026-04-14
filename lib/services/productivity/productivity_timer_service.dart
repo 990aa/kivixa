@@ -397,13 +397,10 @@ class ProductivityTimerService extends ChangeNotifier {
     switch (response.actionId) {
       case _actionPause:
         pause();
-        break;
       case _actionResume:
         resume();
-        break;
       case _actionStop:
         stop();
-        break;
       default:
         break;
     }

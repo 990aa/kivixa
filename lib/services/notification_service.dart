@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -113,13 +112,11 @@ class NotificationService {
           final url = parts[1];
           launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
         }
-        break;
       case 'complete_task':
         if (parts.length > 1) {
           final eventId = parts[1];
           _completeTask(eventId);
         }
-        break;
     }
   }
 
@@ -335,7 +332,7 @@ class NotificationService {
     await _scheduleNotification(
       id: _projectDeadlineNotificationId(project.id),
       title: 'Project Deadline: ${project.title}',
-      body: project.description?.trim().isNotEmpty == true
+        body: (project.description?.trim().isNotEmpty ?? false)
           ? project.description!
           : 'Deadline reached for this project.',
       scheduledDate: scheduledDate,

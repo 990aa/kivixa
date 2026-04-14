@@ -81,7 +81,7 @@ class _FloatingClockContentState extends State<_FloatingClockContent>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   var _showTemplates = false;
-  NotificationSettings _notificationSettings = NotificationSettings();
+  var _notificationSettings = NotificationSettings();
   var _notificationSettingsLoading = true;
 
   ProductivityTimerService get _timer => widget.timerService;

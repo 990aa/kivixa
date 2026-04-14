@@ -517,6 +517,11 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
     return 'Due soon';
   }
 
+  String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} '
+        '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+
   Widget _buildStatusChip(ProjectStatus status) {
     Color color;
     IconData icon;
