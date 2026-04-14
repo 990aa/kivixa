@@ -875,6 +875,7 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
       text: project?.description ?? '',
     );
     ProjectStatus selectedStatus = project?.status ?? ProjectStatus.upcoming;
+    DateTime? selectedDeadline = project?.deadline;
     // Auto-generate random color for new projects
     Color selectedColor = project?.color ?? generateRandomProjectColor();
 
@@ -922,6 +923,41 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
                     maxLines: 3,
                   ),
                   const SizedBox(height: 16),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.flag),
+                    title: const Text('Deadline (optional)'),
+                    subtitle: Text(
+                      selectedDeadline == null
+                          ? 'No deadline set'
+                          : _formatDateTime(selectedDeadline!),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.schedule),
+                          tooltip: 'Pick deadline',
+                          onPressed: () async {
+                            final picked = await _pickProjectDeadline(
+                              selectedDeadline,
+                            );
+                            if (picked == null) return;
+                            setState(() => selectedDeadline = picked);
+                          },
+                        ),
+                        if (selectedDeadline != null)
+                          IconButton(
+                            icon: const Icon(Icons.clear),
+                            tooltip: 'Clear deadline',
+                            onPressed: () {
+                              setState(() => selectedDeadline = null);
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   DropdownButtonFormField<ProjectStatus>(
                     initialValue: selectedStatus,
                     decoration: const InputDecoration(
@@ -1035,7 +1071,7 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
               child: const Text('Cancel'),
             ),
             FilledButton.icon(
-              onPressed: () {
+              onPressed: () async {
                 if (titleController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Project name is required')),
@@ -1060,15 +1096,25 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
                   completedAt: selectedStatus == ProjectStatus.completed
                       ? DateTime.now()
                       : null,
+                  deadline: selectedDeadline,
                   color: selectedColor,
                   readme: project?.readme,
                   starCount: project?.starCount ?? 0,
                 );
 
                 if (project == null) {
-                  ProjectStorage.addProject(newProject);
+                  await ProjectStorage.addProject(newProject);
                 } else {
-                  ProjectStorage.updateProject(newProject);
+                  await NotificationService.instance
+                      .cancelProjectDeadlineNotifications(project);
+                  await ProjectStorage.updateProject(newProject);
+                }
+
+                await NotificationService.instance
+                    .scheduleProjectDeadlineNotification(newProject);
+
+                if (!context.mounted) {
+                  return;
                 }
 
                 _loadProjects();
@@ -1156,6 +1202,39 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
       await ProjectStorage.deleteProject(projectId);
       _loadProjects();
     }
+  }
+
+  Future<DateTime?> _pickProjectDeadline(DateTime? currentDeadline) async {
+    final now = DateTime.now();
+    final initialDate = currentDeadline ?? now.add(const Duration(days: 1));
+
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(now.year - 5),
+      lastDate: DateTime(now.year + 20),
+    );
+    if (pickedDate == null) return currentDeadline;
+    if (!mounted) return currentDeadline;
+
+    final initialTime = TimeOfDay.fromDateTime(
+      currentDeadline ??
+          DateTime(pickedDate.year, pickedDate.month, pickedDate.day, 9, 0),
+    );
+
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: initialTime,
+    );
+
+    final effectiveTime = pickedTime ?? initialTime;
+    return DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      effectiveTime.hour,
+      effectiveTime.minute,
+    );
   }
 
   void _showProjectDetails(Project project) async {
