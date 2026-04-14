@@ -9,6 +9,7 @@ import 'package:kivixa/data/models/calendar_event.dart';
 import 'package:kivixa/data/models/project.dart';
 import 'package:kivixa/data/project_storage.dart';
 import 'package:kivixa/data/routes.dart';
+import 'package:kivixa/services/notification_service.dart';
 
 /// Generates a random unique color for projects using HSL for vibrant colors
 Color generateRandomProjectColor() {
@@ -430,6 +431,11 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
                         Icons.access_time,
                         _formatRelativeTime(lastActivity),
                       ),
+                      if (project.deadline != null)
+                        _buildProjectStat(
+                          Icons.flag,
+                          _formatDeadlineLabel(project.deadline!),
+                        ),
                     ],
                   ),
                 ],
@@ -493,6 +499,22 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
     } else {
       return 'Just now';
     }
+  }
+
+  String _formatDeadlineLabel(DateTime deadline) {
+    final now = DateTime.now();
+    final difference = deadline.difference(now);
+
+    if (difference.isNegative) {
+      return 'Past due';
+    }
+    if (difference.inDays >= 1) {
+      return 'Due in ${difference.inDays}d';
+    }
+    if (difference.inHours >= 1) {
+      return 'Due in ${difference.inHours}h';
+    }
+    return 'Due soon';
   }
 
   Widget _buildStatusChip(ProjectStatus status) {
@@ -1125,6 +1147,12 @@ class _ProjectManagerPageState extends State<ProjectManagerPage>
     );
 
     if (confirmed ?? false) {
+      final projectToDelete = _allProjects.where((p) => p.id == projectId);
+      if (projectToDelete.isNotEmpty) {
+        await NotificationService.instance.cancelProjectDeadlineNotifications(
+          projectToDelete.first,
+        );
+      }
       await ProjectStorage.deleteProject(projectId);
       _loadProjects();
     }
