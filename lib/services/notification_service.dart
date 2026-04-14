@@ -317,6 +317,68 @@ class NotificationService {
     return actions;
   }
 
+  Future<void> scheduleProjectDeadlineNotification(Project project) async {
+    final deadline = project.deadline;
+    if (deadline == null) return;
+    if (project.status == ProjectStatus.completed) return;
+
+    final settings = await NotificationSettingsStorage.loadSettings();
+    if (!settings.notificationsEnabled ||
+        !settings.projectDeadlineNotificationsEnabled) {
+      return;
+    }
+
+    final scheduledDate = settings.exactTimeNotificationsEnabled
+        ? deadline
+        : DateTime(deadline.year, deadline.month, deadline.day, 9, 0);
+
+    await _scheduleNotification(
+      id: _projectDeadlineNotificationId(project.id),
+      title: 'Project Deadline: ${project.title}',
+      body: project.description?.trim().isNotEmpty == true
+          ? project.description!
+          : 'Deadline reached for this project.',
+      scheduledDate: scheduledDate,
+      settings: settings,
+      channelIdPrefix: 'project_notifications',
+      channelName: 'Project Deadlines',
+      channelDescription: 'Notifications for project deadlines and reminders',
+    );
+
+    for (final leadMinutes in settings.leadTimesInMinutes) {
+      final leadDate = scheduledDate.subtract(Duration(minutes: leadMinutes));
+      await _scheduleNotification(
+        id: _projectLeadNotificationId(project.id, leadMinutes),
+        title: 'Upcoming Deadline: ${project.title}',
+        body: 'Project deadline ${_formatLeadTime(leadMinutes)}.',
+        scheduledDate: leadDate,
+        settings: settings,
+        channelIdPrefix: 'project_notifications',
+        channelName: 'Project Deadlines',
+        channelDescription:
+            'Notifications for project deadlines and reminders',
+      );
+    }
+  }
+
+  Future<void> cancelProjectDeadlineNotifications(Project project) async {
+    if (!isSupported) return;
+
+    await cancelNotification(_projectDeadlineNotificationId(project.id));
+
+    final settings = await NotificationSettingsStorage.loadSettings();
+    final leadTimes = <int>{
+      ..._legacyLeadTimesInMinutes,
+      ...settings.leadTimesInMinutes,
+    };
+
+    for (final leadMinutes in leadTimes) {
+      await cancelNotification(
+        _projectLeadNotificationId(project.id, leadMinutes),
+      );
+    }
+  }
+
   Future<void> scheduleOverdueNotification(CalendarEvent event) async {
     if (event.type != EventType.task) return;
     if (event.isCompleted) return;
@@ -402,6 +464,10 @@ class NotificationService {
     required String title,
     required String body,
     required DateTime scheduledDate,
+    required NotificationSettings settings,
+    required String channelIdPrefix,
+    required String channelName,
+    required String channelDescription,
     String? payload,
     List<AndroidNotificationAction>? actions,
   }) async {
@@ -411,12 +477,20 @@ class NotificationService {
     // Don't schedule notifications in the past
     if (scheduledDate.isBefore(DateTime.now())) return;
 
+    final playSound = _shouldPlaySound(settings);
+    final sound = _resolveAndroidSound(settings);
+    final vibrationPattern = _resolveVibrationPattern(settings);
+
     final androidDetails = AndroidNotificationDetails(
-      'calendar_notifications',
-      'Calendar Notifications',
-      channelDescription: 'Notifications for calendar events and tasks',
+      _channelIdForSettings(channelIdPrefix, settings),
+      channelName,
+      channelDescription: channelDescription,
       importance: Importance.high,
       priority: Priority.high,
+      playSound: playSound,
+      sound: sound,
+      enableVibration: true,
+      vibrationPattern: vibrationPattern,
       actions: actions,
     );
 
@@ -442,6 +516,16 @@ class NotificationService {
     if (!isSupported) return;
     await cancelNotification(event.id.hashCode);
 
+    final settings = await NotificationSettingsStorage.loadSettings();
+    final leadTimes = <int>{
+      ..._legacyLeadTimesInMinutes,
+      ...settings.leadTimesInMinutes,
+    };
+
+    for (final leadMinutes in leadTimes) {
+      await cancelNotification('${event.id}_lead_$leadMinutes'.hashCode);
+    }
+
     // Cancel overdue notifications
     for (int i = 1; i <= 7; i++) {
       await cancelNotification('${event.id}_overdue_$i'.hashCode);
@@ -451,19 +535,13 @@ class NotificationService {
 
   Future<void> rescheduleAllNotifications() async {
     final events = await CalendarStorage.loadEvents();
+    final projects = await ProjectStorage.loadProjects();
     final now = DateTime.now();
+    final settings = await NotificationSettingsStorage.loadSettings();
 
     for (final event in events) {
       // Only schedule future events/tasks
-      final eventDateTime = event.isAllDay
-          ? DateTime(event.date.year, event.date.month, event.date.day, 9, 0)
-          : DateTime(
-              event.date.year,
-              event.date.month,
-              event.date.day,
-              event.startTime?.hour ?? 9,
-              event.startTime?.minute ?? 0,
-            );
+      final eventDateTime = _resolveEventNotificationDate(event, settings);
 
       if (eventDateTime.isAfter(now)) {
         await scheduleEventNotification(event);
@@ -483,6 +561,10 @@ class NotificationService {
           await scheduleOverdueNotification(event);
         }
       }
+    }
+
+    for (final project in projects) {
+      await scheduleProjectDeadlineNotification(project);
     }
   }
 
