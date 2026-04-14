@@ -250,8 +250,7 @@ void main() {
       await notificationService.scheduleEventNotification(event);
 
       final scheduled = mockPlugin.scheduledNotifications.first;
-      final scheduledDateUtc = (scheduled['scheduledDate'] as DateTime)
-          .toUtc();
+      final scheduledDateUtc = (scheduled['scheduledDate'] as DateTime).toUtc();
       final expectedDateUtc = DateTime(
         event.date.year,
         event.date.month,

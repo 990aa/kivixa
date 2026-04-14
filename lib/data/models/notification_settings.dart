@@ -69,7 +69,9 @@ class NotificationSettings {
         json['soundProfile'] as String?,
       ),
       vibrateOnlyOnAndroid: json['vibrateOnlyOnAndroid'] as bool? ?? false,
-      leadTimesInMinutes: _sanitizeLeadTimes(json['leadTimesInMinutes'] as List?),
+      leadTimesInMinutes: _sanitizeLeadTimes(
+        json['leadTimesInMinutes'] as List?,
+      ),
     );
   }
 
@@ -89,7 +91,8 @@ class NotificationSettings {
       'eventNotificationsEnabled': eventNotificationsEnabled,
       'taskNotificationsEnabled': taskNotificationsEnabled,
       'overdueNotificationsEnabled': overdueNotificationsEnabled,
-      'projectDeadlineNotificationsEnabled': projectDeadlineNotificationsEnabled,
+      'projectDeadlineNotificationsEnabled':
+          projectDeadlineNotificationsEnabled,
       'exactTimeNotificationsEnabled': exactTimeNotificationsEnabled,
       'soundProfile': soundProfile.storageKey,
       'vibrateOnlyOnAndroid': vibrateOnlyOnAndroid,
@@ -122,8 +125,7 @@ class NotificationSettings {
       exactTimeNotificationsEnabled:
           exactTimeNotificationsEnabled ?? this.exactTimeNotificationsEnabled,
       soundProfile: soundProfile ?? this.soundProfile,
-      vibrateOnlyOnAndroid:
-          vibrateOnlyOnAndroid ?? this.vibrateOnlyOnAndroid,
+      vibrateOnlyOnAndroid: vibrateOnlyOnAndroid ?? this.vibrateOnlyOnAndroid,
       leadTimesInMinutes: leadTimesInMinutes ?? this.leadTimesInMinutes,
     );
   }

@@ -332,7 +332,7 @@ class NotificationService {
     await _scheduleNotification(
       id: _projectDeadlineNotificationId(project.id),
       title: 'Project Deadline: ${project.title}',
-        body: (project.description?.trim().isNotEmpty ?? false)
+      body: (project.description?.trim().isNotEmpty ?? false)
           ? project.description!
           : 'Deadline reached for this project.',
       scheduledDate: scheduledDate,
