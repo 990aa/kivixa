@@ -630,7 +630,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed flaky native graph unit-test ordering by serializing access to shared global graph state during tests.
 
 ---
-## [0.8.7] - 2026-04-14
+## [0.8.8] - 2026-04-14
 
 ### Added
 - Added regression coverage for `NotificationService`, `AppLockService` edge cases, folder color service failure paths, and drag-end selection behavior.
@@ -649,9 +649,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced string-based MAC selection with explicit `HMac(SHA256Digest(), 64)` configuration.
 - Applied constant-time comparison and related crypto review fixes for PIN verification.
 
-
 ---
-## [0.8.8] - 2026-04-14
+## [0.8.9] - 2026-04-14
 
 ### Added
 - Added configurable lead-time reminders for calendar events, tasks, and project deadlines.
@@ -669,9 +668,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Tests
 - Added and updated tests for notification settings serialization/sanitization, exact-time scheduling behavior, project deadline notifications, deadline model serialization, and non-blocking terms version migration behavior.
-
----
-## [0.8.9] - 2026-04-14
-
-
 ---
