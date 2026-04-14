@@ -232,10 +232,7 @@ void main() {
       expect(settings.overdueNotificationsEnabled, true);
       expect(settings.projectDeadlineNotificationsEnabled, true);
       expect(settings.exactTimeNotificationsEnabled, true);
-      expect(
-        settings.soundProfile,
-        NotificationSoundProfile.defaultTone,
-      );
+      expect(settings.soundProfile, NotificationSoundProfile.defaultTone);
       expect(settings.vibrateOnlyOnAndroid, false);
       expect(settings.leadTimesInMinutes, [10, 60, 1440]);
     });

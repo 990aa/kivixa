@@ -632,9 +632,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.8.7] - 2026-04-14
 
+### Added
+- Added regression coverage for `NotificationService`, `AppLockService` edge cases, folder color service failure paths, and drag-end selection behavior.
+
+### Changed
+- Improved interactive canvas ergonomics with explicit `rotateEnabled` control.
+- Stabilized integrated PR follow-ups with additional lint and test hardening.
+
+### Fixed
+- Fixed path validation hardening in MCP file access flows to block traversal attempts.
+- Fixed tolerant URL decoding for file names containing bare `%` characters.
+- Fixed Windows webview file-access behavior that could cause infinite loading loops.
+
+### Security
+- Migrated app lock PIN hashing to PBKDF2 for stronger credential protection.
+- Replaced string-based MAC selection with explicit `HMac(SHA256Digest(), 64)` configuration.
+- Applied constant-time comparison and related crypto review fixes for PIN verification.
+
 
 ---
 ## [0.8.8] - 2026-04-14
 
+### Added
+- Added configurable lead-time reminders for calendar events, tasks, and project deadlines.
+- Added exact-time notification scheduling support for both calendar items and project deadlines.
+- Added optional project deadline date-time metadata in the project manager create/edit flow.
+- Added productivity timer notification actions (pause, resume, stop) directly from Android notifications.
+
+### Changed
+- Expanded notification settings with sound profiles (`Default`, `Alarm`, `Ringtone`, `Silent`) and Android vibrate-only mode.
+- Updated productivity notification messaging to include richer runtime context: current timer state, active subroutine, upcoming chained block, and active parallel timer count.
+- Changed terms/privacy acceptance behavior so version bumps no longer force blocking re-acceptance popups for existing accepted users.
+
+### Fixed
+- Fixed project deadline reminder lifecycle handling so updates/deletes cancel stale project notification IDs before rescheduling.
+
+### Tests
+- Added and updated tests for notification settings serialization/sanitization, exact-time scheduling behavior, project deadline notifications, deadline model serialization, and non-blocking terms version migration behavior.
 
 ---

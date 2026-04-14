@@ -242,42 +242,45 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(
         'notification_settings',
-        NotificationSettings(exactTimeNotificationsEnabled: false)
-            .toJsonString(),
+        NotificationSettings(
+          exactTimeNotificationsEnabled: false,
+        ).toJsonString(),
       );
 
       await notificationService.scheduleEventNotification(event);
 
       final scheduled = mockPlugin.scheduledNotifications.first;
-      final scheduledDateUtc = (scheduled['scheduledDate'] as DateTime)
-          .toUtc();
+      final scheduledDateUtc = (scheduled['scheduledDate'] as DateTime).toUtc();
       expect(scheduledDateUtc.hour, 9);
       expect(scheduledDateUtc.minute, 0);
     });
 
-    test('scheduleProjectDeadlineNotification schedules main and lead reminders', () async {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-        'notification_settings',
-        NotificationSettings().toJsonString(),
-      );
+    test(
+      'scheduleProjectDeadlineNotification schedules main and lead reminders',
+      () async {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+          'notification_settings',
+          NotificationSettings().toJsonString(),
+        );
 
-      final project = Project(
-        id: 'project-1',
-        title: 'Launch Website',
-        description: 'Prepare release checklist',
-        createdAt: DateTime.now(),
-        deadline: DateTime.now().add(const Duration(days: 2)),
-      );
+        final project = Project(
+          id: 'project-1',
+          title: 'Launch Website',
+          description: 'Prepare release checklist',
+          createdAt: DateTime.now(),
+          deadline: DateTime.now().add(const Duration(days: 2)),
+        );
 
-      await notificationService.scheduleProjectDeadlineNotification(project);
+        await notificationService.scheduleProjectDeadlineNotification(project);
 
-      expect(mockPlugin.scheduledNotifications.length, 4);
-      expect(
-        mockPlugin.scheduledNotifications.first['title'],
-        'Project Deadline: Launch Website',
-      );
-    });
+        expect(mockPlugin.scheduledNotifications.length, 4);
+        expect(
+          mockPlugin.scheduledNotifications.first['title'],
+          'Project Deadline: Launch Website',
+        );
+      },
+    );
 
     test('cancelProjectDeadlineNotifications cancels known IDs', () async {
       final prefs = await SharedPreferences.getInstance();
