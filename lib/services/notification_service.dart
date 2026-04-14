@@ -355,8 +355,7 @@ class NotificationService {
         settings: settings,
         channelIdPrefix: 'project_notifications',
         channelName: 'Project Deadlines',
-        channelDescription:
-            'Notifications for project deadlines and reminders',
+        channelDescription: 'Notifications for project deadlines and reminders',
       );
     }
   }

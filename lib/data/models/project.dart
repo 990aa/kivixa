@@ -123,7 +123,7 @@ class Project {
       lastActivityAt: json['lastActivityAt'] != null
           ? DateTime.parse(json['lastActivityAt'] as String)
           : null,
-        deadline: json['deadline'] != null
+      deadline: json['deadline'] != null
           ? DateTime.parse(json['deadline'] as String)
           : null,
       color: json['color'] != null ? Color(json['color'] as int) : null,
