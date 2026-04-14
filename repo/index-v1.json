@@ -1,6 +1,6 @@
 {
   "repo": {
-    "timestamp": 1776140610000,
+    "timestamp": 1776146361000,
     "version": 20002,
     "name": "Kivixa",
     "icon": "icon.png",
@@ -16,13 +16,13 @@
       "categories": [
         "Productivity"
       ],
-      "suggestedVersionCode": "80083",
+      "suggestedVersionCode": "80093",
       "license": "Unknown",
       "name": "Kivixa",
       "summary": "A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.",
       "added": 1775272744000,
       "packageName": "com.a990aa.kivixa",
-      "lastUpdated": 1776140594000,
+      "lastUpdated": 1776146343000,
       "localized": {
         "en-US": {
           "description": "Kivixa is a privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.\n\nFeatures:\n- Rich markdown and text editing for fast note-taking\n- Digital canvas for handwriting, drawing, and mixed media notes\n- On-device AI with multi-model MCP workflows (no cloud required)\n- Knowledge graph view to connect ideas and topics visually\n- PDF reading and annotation inside the same workspace\n- Focus tools including Pomodoro and custom productivity timers\n- High-performance math tools powered by a Rust backend\n",
@@ -35,9 +35,9 @@
   "packages": {
     "com.a990aa.kivixa": [
       {
-        "added": 1776140594000,
-        "apkName": "Kivixa-Android-0.8.8-x86_64.apk",
-        "hash": "e0eb74a71262e0b84dbf1474fbffcf8a120ac790a0595ff55fe77548934c44fa",
+        "added": 1776146343000,
+        "apkName": "Kivixa-Android-0.8.9-x86_64.apk",
+        "hash": "eea4818b9a04532b1b94921c7e0b6ae661f55bba5056599f5e83281f70d52a81",
         "hashType": "sha256",
         "minSdkVersion": 24,
         "nativecode": [
@@ -94,13 +94,13 @@
             null
           ]
         ],
-        "versionCode": 80083,
-        "versionName": "0.8.8"
+        "versionCode": 80093,
+        "versionName": "0.8.9"
       },
       {
-        "added": 1776140593000,
-        "apkName": "Kivixa-Android-0.8.8-arm64.apk",
-        "hash": "c3346c94ef1522885b1f7f95313b5b40d5c50b3df8e7cc7b00de1f9ec8219f54",
+        "added": 1776146342000,
+        "apkName": "Kivixa-Android-0.8.9-arm64.apk",
+        "hash": "edf9a6c1d64a07740a000a6ab3c09dc74f622c7066b1769f082a9ab1bd91921b",
         "hashType": "sha256",
         "minSdkVersion": 24,
         "nativecode": [
@@ -157,13 +157,13 @@
             null
           ]
         ],
-        "versionCode": 80082,
-        "versionName": "0.8.8"
+        "versionCode": 80092,
+        "versionName": "0.8.9"
       },
       {
-        "added": 1776140593000,
-        "apkName": "Kivixa-Android-0.8.8-armv7.apk",
-        "hash": "1dc68721a363c1aec4f07f510af1c8f4252ae7ea0230bfe058a062c41219fc3e",
+        "added": 1776146342000,
+        "apkName": "Kivixa-Android-0.8.9-armv7.apk",
+        "hash": "40d45a19fb1df2f1d6d0725c44f81218b06e44b52924a643fe705ecf52404d79",
         "hashType": "sha256",
         "minSdkVersion": 24,
         "nativecode": [
@@ -220,8 +220,8 @@
             null
           ]
         ],
-        "versionCode": 80081,
-        "versionName": "0.8.8"
+        "versionCode": 80091,
+        "versionName": "0.8.9"
       }
     ]
   }
