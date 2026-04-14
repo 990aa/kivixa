@@ -636,7 +636,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.8.8] - 2026-04-14
 
-### Changed
-- Version bump to 0.8.8
 
 ---

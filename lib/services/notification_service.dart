@@ -1,10 +1,14 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kivixa/data/calendar_storage.dart';
 import 'package:kivixa/data/models/calendar_event.dart';
+import 'package:kivixa/data/models/notification_settings.dart';
+import 'package:kivixa/data/models/project.dart';
 import 'package:kivixa/data/notification_settings_storage.dart';
+import 'package:kivixa/data/project_storage.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:url_launcher/url_launcher.dart';
@@ -15,6 +19,16 @@ class NotificationService {
   static final instance = NotificationService._();
 
   final _defaultNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  static const _legacyLeadTimesInMinutes = <int>[
+    5,
+    10,
+    15,
+    30,
+    60,
+    120,
+    1440,
+    2880,
+  ];
 
   @visibleForTesting
   FlutterLocalNotificationsPlugin? notificationsPluginOverride;
@@ -99,19 +113,129 @@ class NotificationService {
           final url = parts[1];
           launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
         }
+        break;
       case 'complete_task':
         if (parts.length > 1) {
           final eventId = parts[1];
           _completeTask(eventId);
         }
+        break;
     }
   }
 
   static Future<void> _completeTask(String eventId) async {
     final events = await CalendarStorage.loadEvents();
-    final event = events.firstWhere((e) => e.id == eventId);
+    final index = events.indexWhere((e) => e.id == eventId);
+    if (index == -1) {
+      return;
+    }
+    final event = events[index];
     final updated = event.copyWith(isCompleted: true);
     await CalendarStorage.updateEvent(updated);
+  }
+
+  DateTime _resolveEventNotificationDate(
+    CalendarEvent event,
+    NotificationSettings settings,
+  ) {
+    if (!settings.exactTimeNotificationsEnabled || event.isAllDay) {
+      return DateTime(event.date.year, event.date.month, event.date.day, 9, 0);
+    }
+
+    final eventTime = event.type == EventType.task
+        ? (event.endTime ?? event.startTime)
+        : event.startTime;
+
+    return DateTime(
+      event.date.year,
+      event.date.month,
+      event.date.day,
+      eventTime?.hour ?? 9,
+      eventTime?.minute ?? 0,
+    );
+  }
+
+  String _formatLeadTime(int leadMinutes) {
+    if (leadMinutes % 1440 == 0) {
+      final days = leadMinutes ~/ 1440;
+      return days == 1 ? 'in 1 day' : 'in $days days';
+    }
+    if (leadMinutes % 60 == 0) {
+      final hours = leadMinutes ~/ 60;
+      return hours == 1 ? 'in 1 hour' : 'in $hours hours';
+    }
+    return 'in $leadMinutes minutes';
+  }
+
+  String _channelIdForSettings(
+    String channelPrefix,
+    NotificationSettings settings,
+  ) {
+    final vibrationMode = settings.vibrateOnlyOnAndroid
+        ? 'vibrate_only'
+        : 'normal';
+    return '${channelPrefix}_${settings.soundProfile.storageKey}_$vibrationMode';
+  }
+
+  bool _shouldPlaySound(NotificationSettings settings) {
+    if (settings.vibrateOnlyOnAndroid) {
+      return false;
+    }
+    return settings.soundProfile != NotificationSoundProfile.silent;
+  }
+
+  AndroidNotificationSound? _resolveAndroidSound(
+    NotificationSettings settings,
+  ) {
+    if (!_shouldPlaySound(settings)) {
+      return null;
+    }
+
+    switch (settings.soundProfile) {
+      case NotificationSoundProfile.defaultTone:
+        return null;
+      case NotificationSoundProfile.alarm:
+        return const UriAndroidNotificationSound(
+          'content://settings/system/alarm_alert',
+        );
+      case NotificationSoundProfile.ringtone:
+        return const UriAndroidNotificationSound(
+          'content://settings/system/ringtone',
+        );
+      case NotificationSoundProfile.silent:
+        return null;
+    }
+  }
+
+  Int64List? _resolveVibrationPattern(NotificationSettings settings) {
+    if (!settings.vibrateOnlyOnAndroid) {
+      return null;
+    }
+    return Int64List.fromList([0, 280, 180, 280]);
+  }
+
+  String _eventNotificationTitle(CalendarEvent event) {
+    return event.type == EventType.event
+        ? 'Event: ${event.title}'
+        : 'Task: ${event.title}';
+  }
+
+  String? _eventPayload(CalendarEvent event) {
+    if (event.meetingLink != null) {
+      return 'open_link|${event.meetingLink}';
+    }
+    if (event.type == EventType.task) {
+      return 'complete_task|${event.id}';
+    }
+    return null;
+  }
+
+  int _projectDeadlineNotificationId(String projectId) {
+    return 'project_${projectId}_deadline'.hashCode;
+  }
+
+  int _projectLeadNotificationId(String projectId, int leadMinutes) {
+    return 'project_${projectId}_lead_$leadMinutes'.hashCode;
   }
 
   Future<void> scheduleEventNotification(CalendarEvent event) async {
@@ -125,51 +249,37 @@ class NotificationService {
       return;
     }
 
-    if (event.isAllDay) {
-      // Schedule for 9 AM on the day
-      await _scheduleNotification(
-        id: event.id.hashCode,
-        title: event.type == EventType.event
-            ? 'Event: ${event.title}'
-            : 'Task: ${event.title}',
-        body: event.description ?? '',
-        scheduledDate: DateTime(
-          event.date.year,
-          event.date.month,
-          event.date.day,
-          9,
-          0,
-        ),
-        payload: event.meetingLink != null
-            ? 'open_link|${event.meetingLink}'
-            : (event.type == EventType.task
-                  ? 'complete_task|${event.id}'
-                  : null),
-        actions: _buildNotificationActions(event),
-      );
-    } else {
-      // Schedule for exact start time
-      final scheduledDate = DateTime(
-        event.date.year,
-        event.date.month,
-        event.date.day,
-        event.startTime!.hour,
-        event.startTime!.minute,
-      );
+    final scheduledDate = _resolveEventNotificationDate(event, settings);
 
+    await _scheduleNotification(
+      id: event.id.hashCode,
+      title: _eventNotificationTitle(event),
+      body: event.description ?? '',
+      scheduledDate: scheduledDate,
+      payload: _eventPayload(event),
+      actions: _buildNotificationActions(event),
+      settings: settings,
+      channelIdPrefix: 'calendar_notifications',
+      channelName: 'Calendar Notifications',
+      channelDescription: 'Notifications for calendar events and tasks',
+    );
+
+    for (final leadMinutes in settings.leadTimesInMinutes) {
+      final leadDate = scheduledDate.subtract(Duration(minutes: leadMinutes));
       await _scheduleNotification(
-        id: event.id.hashCode,
-        title: event.type == EventType.event
-            ? 'Event: ${event.title}'
-            : 'Task: ${event.title}',
-        body: event.description ?? '',
-        scheduledDate: scheduledDate,
-        payload: event.meetingLink != null
-            ? 'open_link|${event.meetingLink}'
-            : (event.type == EventType.task
-                  ? 'complete_task|${event.id}'
-                  : null),
+        id: '${event.id}_lead_$leadMinutes'.hashCode,
+        title: event.type == EventType.task
+            ? 'Task Due Soon: ${event.title}'
+            : 'Upcoming Event: ${event.title}',
+        body:
+            'Reminder ${_formatLeadTime(leadMinutes)}${event.description == null || event.description!.isEmpty ? '' : '\n${event.description}'}',
+        scheduledDate: leadDate,
+        payload: _eventPayload(event),
         actions: _buildNotificationActions(event),
+        settings: settings,
+        channelIdPrefix: 'calendar_notifications',
+        channelName: 'Calendar Notifications',
+        channelDescription: 'Notifications for calendar events and tasks',
       );
     }
 
@@ -241,15 +351,20 @@ class NotificationService {
           showsUserInterface: false,
         ),
       ],
+      settings: settings,
+      channelIdPrefix: 'calendar_overdue',
+      channelName: 'Overdue Task Notifications',
+      channelDescription: 'Daily reminders for overdue tasks',
     );
 
     // Schedule daily reminder at 9 AM until completed
-    await _scheduleDailyOverdueReminder(event, overdueDate);
+    await _scheduleDailyOverdueReminder(event, overdueDate, settings);
   }
 
   Future<void> _scheduleDailyOverdueReminder(
     CalendarEvent event,
     DateTime overdueDate,
+    NotificationSettings settings,
   ) async {
     // Schedule for next 7 days
     for (int i = 1; i <= 7; i++) {
@@ -274,6 +389,10 @@ class NotificationService {
             showsUserInterface: false,
           ),
         ],
+        settings: settings,
+        channelIdPrefix: 'calendar_overdue',
+        channelName: 'Overdue Task Notifications',
+        channelDescription: 'Daily reminders for overdue tasks',
       );
     }
   }

@@ -14,6 +14,8 @@ class NotificationSettingsWidget extends StatefulWidget {
 
 class _NotificationSettingsWidgetState
     extends State<NotificationSettingsWidget> {
+  static const _leadTimeOptions = <int>[5, 10, 15, 30, 60, 120, 1440, 2880];
+
   late NotificationSettings _settings;
   var _loading = true;
 
@@ -43,6 +45,31 @@ class _NotificationSettingsWidgetState
     } else {
       await NotificationService.instance.cancelAllNotifications();
     }
+  }
+
+  String _formatLeadTime(int minutes) {
+    if (minutes % 1440 == 0) {
+      final days = minutes ~/ 1440;
+      return days == 1 ? '1 day before' : '$days days before';
+    }
+    if (minutes % 60 == 0) {
+      final hours = minutes ~/ 60;
+      return hours == 1 ? '1 hour before' : '$hours hours before';
+    }
+    return '$minutes min before';
+  }
+
+  Future<void> _toggleLeadTime(int minutes) async {
+    final nextLeadTimes = [..._settings.leadTimesInMinutes];
+    if (nextLeadTimes.contains(minutes)) {
+      nextLeadTimes.remove(minutes);
+    } else {
+      nextLeadTimes.add(minutes);
+    }
+    nextLeadTimes.sort();
+    await _updateSettings(
+      _settings.copyWith(leadTimesInMinutes: nextLeadTimes),
+    );
   }
 
   @override
@@ -94,6 +121,17 @@ class _NotificationSettingsWidgetState
             secondary: const Icon(Icons.task_alt),
           ),
           SwitchListTile(
+            title: const Text('Project Deadline Notifications'),
+            subtitle: const Text('Get reminders for project deadlines'),
+            value: _settings.projectDeadlineNotificationsEnabled,
+            onChanged: (value) {
+              _updateSettings(
+                _settings.copyWith(projectDeadlineNotificationsEnabled: value),
+              );
+            },
+            secondary: const Icon(Icons.flag_circle),
+          ),
+          SwitchListTile(
             title: const Text('Overdue Task Reminders'),
             subtitle: const Text(
               'Receive daily reminders for overdue tasks until completed',
@@ -105,6 +143,78 @@ class _NotificationSettingsWidgetState
               );
             },
             secondary: const Icon(Icons.alarm),
+          ),
+          SwitchListTile(
+            title: const Text('Exact-Time Notifications'),
+            subtitle: const Text(
+              'Schedule reminders at the exact task/event/deadline time',
+            ),
+            value: _settings.exactTimeNotificationsEnabled,
+            onChanged: (value) {
+              _updateSettings(
+                _settings.copyWith(exactTimeNotificationsEnabled: value),
+              );
+            },
+            secondary: const Icon(Icons.schedule_send),
+          ),
+          SwitchListTile(
+            title: const Text('Vibrate-Only on Android'),
+            subtitle: const Text(
+              'Use vibration without audio for calendar and productivity alerts',
+            ),
+            value: _settings.vibrateOnlyOnAndroid,
+            onChanged: (value) {
+              _updateSettings(_settings.copyWith(vibrateOnlyOnAndroid: value));
+            },
+            secondary: const Icon(Icons.vibration),
+          ),
+          ListTile(
+            leading: const Icon(Icons.music_note),
+            title: const Text('Notification Sound'),
+            subtitle: Text(_settings.soundProfile.label),
+            trailing: DropdownButton<NotificationSoundProfile>(
+              value: _settings.soundProfile,
+              onChanged: (profile) {
+                if (profile == null) return;
+                _updateSettings(_settings.copyWith(soundProfile: profile));
+              },
+              items: NotificationSoundProfile.values
+                  .map(
+                    (profile) => DropdownMenuItem(
+                      value: profile,
+                      child: Text(profile.label),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          ListTile(
+            leading: const Icon(Icons.notification_important),
+            title: const Text('Lead Time Reminders'),
+            subtitle: Text(
+              _settings.leadTimesInMinutes
+                      .map(_formatLeadTime)
+                      .join(', ')
+                      .trim()
+                      .isEmpty
+                  ? 'No lead reminders selected'
+                  : _settings.leadTimesInMinutes
+                        .map(_formatLeadTime)
+                        .join(', '),
+            ),
+          ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _leadTimeOptions.map((minutes) {
+              final selected = _settings.leadTimesInMinutes.contains(minutes);
+              return FilterChip(
+                label: Text(_formatLeadTime(minutes)),
+                selected: selected,
+                onSelected: (_) => _toggleLeadTime(minutes),
+              );
+            }).toList(),
           ),
         ],
       ],
