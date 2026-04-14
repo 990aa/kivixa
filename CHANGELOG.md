@@ -671,3 +671,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added and updated tests for notification settings serialization/sanitization, exact-time scheduling behavior, project deadline notifications, deadline model serialization, and non-blocking terms version migration behavior.
 
 ---
+## [0.8.9] - 2026-04-14
+
+
+---
