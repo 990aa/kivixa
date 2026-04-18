@@ -7,6 +7,7 @@ class MockFlutterLocalNotificationsPlugin
   var cancelAllCount = 0;
   List<int> cancelledIds = [];
   List<Map<String, dynamic>> scheduledNotifications = [];
+  List<Map<String, dynamic>> shownNotifications = [];
 
   @override
   Future<bool?> initialize(
@@ -36,6 +37,7 @@ class MockFlutterLocalNotificationsPlugin
       'body': body,
       'scheduledDate': scheduledDate,
       'payload': payload,
+      'notificationDetails': notificationDetails,
     });
   }
 
@@ -102,7 +104,15 @@ class MockFlutterLocalNotificationsPlugin
     String? body,
     NotificationDetails? notificationDetails, {
     String? payload,
-  }) async {}
+  }) async {
+    shownNotifications.add({
+      'id': id,
+      'title': title,
+      'body': body,
+      'payload': payload,
+      'notificationDetails': notificationDetails,
+    });
+  }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

@@ -1,0 +1,84 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:kivixa/components/settings/notification_settings_widget.dart';
+import 'package:kivixa/data/models/notification_settings.dart';
+import 'package:kivixa/data/notification_settings_storage.dart';
+import 'package:kivixa/services/productivity/productivity_timer_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({
+      'notification_settings': NotificationSettings().toJsonString(),
+    });
+  });
+
+  Future<void> pumpWidgetUnderTest(WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(child: NotificationSettingsWidget()),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets(
+    'shows unified notifications sections and dropdown lead selector',
+    (tester) async {
+      await pumpWidgetUnderTest(tester);
+
+      expect(find.text('App Notifications'), findsOneWidget);
+      expect(find.text('Calendar Notifications'), findsOneWidget);
+      expect(find.text('Sound & Vibration'), findsOneWidget);
+      expect(find.text('Productivity Timer Notifications'), findsOneWidget);
+
+      // Lead-time selection is now dropdown-style menu, not horizontal chips.
+      expect(find.byType(FilterChip), findsNothing);
+      expect(find.byTooltip('Select lead-time reminders'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'lead time popup toggles reminder options and persists settings',
+    (tester) async {
+      await pumpWidgetUnderTest(tester);
+
+      await tester.tap(find.byTooltip('Select lead-time reminders'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('5 min before').last);
+      await tester.pumpAndSettle();
+
+      var settings = await NotificationSettingsStorage.loadSettings();
+      expect(settings.leadTimesInMinutes, contains(5));
+
+      await tester.tap(find.byTooltip('Select lead-time reminders'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('5 min before').last);
+      await tester.pumpAndSettle();
+
+      settings = await NotificationSettingsStorage.loadSettings();
+      expect(settings.leadTimesInMinutes, isNot(contains(5)));
+    },
+  );
+
+  testWidgets('timer sound toggle updates productivity timer service', (
+    tester,
+  ) async {
+    final timerService = ProductivityTimerService.instance;
+    timerService.setSoundEnabled(true);
+
+    await pumpWidgetUnderTest(tester);
+
+    await tester.tap(find.widgetWithText(SwitchListTile, 'Timer Sound Alerts'));
+    await tester.pumpAndSettle();
+
+    expect(timerService.soundEnabled, isFalse);
+
+    // Restore for test isolation.
+    timerService.setSoundEnabled(true);
+  });
+}
