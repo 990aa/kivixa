@@ -671,5 +671,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.8.10] - 2026-04-14
 
+### Added
+- Added a compact settings search bar with section filtering by query text, category, description, and keywords.
+- Added bundled Android raw notification sounds for profile-backed playback: `kivixa_default`, `kivixa_alarm`, and `kivixa_ringtone`.
+- Added focused regression coverage for productivity clock tab layout, unified notification settings interactions, and settings-search matching behavior.
+
+### Changed
+- Removed the redundant `Chains` tab from the productivity clock while keeping routine creation in the `Routines` tab (`+` action) unchanged.
+- Unified notification management into a single settings surface that includes app-level notifications, calendar reminders, sound/vibration behavior, and productivity timer notification controls.
+- Replaced lead-time reminder chips with a dropdown-style multi-select picker using checked menu options.
+- Removed duplicate timer notification permission and timer sound controls from the productivity timer section after centralizing them in notification settings.
+
+### Fixed
+- Fixed Android notification sound delivery by mapping sound profiles to bundled raw resources and profile-specific audio usage attributes.
+- Fixed notification vibration behavior to apply explicit vibration enable/disable settings consistently.
+- Fixed productivity timer notifications ignoring the global app notification master toggle; timer notifications are now gated by the same app-level notifications setting.
+
+### Tests
+- Added widget coverage to verify the productivity clock no longer renders a `Chains` tab and still exposes routine creation in `Routines`.
+- Added widget coverage for lead-time reminder multi-select dropdown behavior and productivity timer sound toggle wiring.
+- Added search matcher and source-regression tests for settings search/filter integration.
+- Expanded notification service tests for sound profile resource mapping, vibration behavior, and audio usage configuration.
+
 
 ---
