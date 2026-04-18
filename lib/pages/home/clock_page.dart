@@ -52,7 +52,7 @@ class _ClockPageState extends State<ClockPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _initializeServices();
     _timerService.addListener(_onUpdate);
     _multiTimerService.addListener(_onUpdate);
@@ -105,7 +105,6 @@ class _ClockPageState extends State<ClockPage>
             Tab(icon: Icon(Icons.timer), text: 'Focus'),
             Tab(icon: Icon(Icons.flash_on), text: 'Presets'),
             Tab(icon: Icon(Icons.playlist_play), text: 'Routines'),
-            Tab(icon: Icon(Icons.account_tree_outlined), text: 'Chains'),
             Tab(icon: Icon(Icons.bar_chart), text: 'Stats'),
           ],
         ),
@@ -116,7 +115,6 @@ class _ClockPageState extends State<ClockPage>
           _buildFocusTab(context),
           _buildPresetsTab(context),
           _buildRoutinesTab(context),
-          _buildCustomChainsTab(context),
           _buildStatsTab(context),
         ],
       ),
@@ -925,54 +923,6 @@ class _ClockPageState extends State<ClockPage>
         ..._routineService.allRoutines.map((routine) {
           return _buildRoutineCard(context, routine);
         }),
-      ],
-    );
-  }
-
-  Widget _buildCustomChainsTab(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final customRoutines = _routineService.customRoutines;
-
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Custom Chains',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            IconButton.filled(
-              onPressed: () => _showRoutineEditorDialog(context),
-              icon: const Icon(Icons.add),
-              tooltip: 'Create custom chain',
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Create fully custom timer chains and manage every block in your sequence.',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 16),
-        if (customRoutines.isEmpty)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                'No custom chains yet. Tap + to build your first routine.',
-                style: theme.textTheme.bodyMedium,
-              ),
-            ),
-          ),
-        ...customRoutines.map((routine) => _buildRoutineCard(context, routine)),
       ],
     );
   }

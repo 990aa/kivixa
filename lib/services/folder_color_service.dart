@@ -90,4 +90,10 @@ class FolderColorService {
       debugPrint('Failed to save folder colors: $e');
     }
   }
+
+  @visibleForTesting
+  void resetForTesting() {
+    _initialized = false;
+    _folderColors.clear();
+  }
 }

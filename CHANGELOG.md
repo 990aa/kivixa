@@ -516,5 +516,182 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed stale/default F-Droid repository presentation by normalizing app/repo metadata and branding to Kivixa.
 - Fixed legacy artifact accumulation in F-Droid outputs by removing temporary artifact caches and pruning APKs older than `0.4.0` from both `repo/` and `archive/`.
 
+---
+## [0.8.0] - 2026-04-09
+
+### Added
+- Added two new downloadable on-device AI models to Model Manager:
+  - **Llama 3.2 3B Instruct** (`Llama-3.2-3B-Instruct-Q4_K_M.gguf`)
+  - **Qwen2.5 1.5B Instruct** (`qwen2.5-1.5b-instruct-q4_k_m.gguf`)
+- Added both new models to the **MCP / Agent Brain** category so they are available in agent-focused filtering.
+- Added shared model-picker support directly in MCP chat surfaces using the same `ModelSwitcherChip` UI/interaction pattern used in standard AI chat.
+- Added regression tests covering:
+  - exact Hugging Face links and filenames for the new models,
+  - download task/url wiring (downloadable task construction),
+  - MCP/Agent category presence,
+  - frontend catalog card rendering for the new model entries.
+
+### Changed
+- Updated README model list to include Llama 3.2 3B Instruct and Qwen2.5 1.5B Instruct.
+- Updated AI model credits/attributions in README for the new model sources.
+- MCP mode is now isolated in native backend inference using a dedicated mode sentinel so strict tool-calling guidance is only applied in MCP sessions.
+- MCP backend now injects a lean tool schema + few-shot tool-call examples and enforces an MCP-only grammar-constrained JSON output path for supported local models.
+- Main AI chat system prompting is now explicitly unrestricted for general-purpose requests (including essays, writing, coding, and non-note prompts) while still using note context when relevant.
+- MCP tool-call parsing now supports both `{"tool": ..., "parameters": ...}` and `{"tool": ..., "args": ...}` payload variants while rejecting unknown tool names.
+
+### Fixed
+- Floating assistant MCP initialization no longer fails in test/runtime contexts where `FileManager.documentsDirectory` has not been initialized yet (safe fallback handling).
+
+---
+## [0.8.2] - 2026-04-09
+
+
+### Added
+- Added platform speech fallback dependencies for dictation/read-aloud (`speech_to_text`, `flutter_tts`, and `record`) plus required Android/iOS microphone and speech permission metadata.
+- Added MCP regression tests for escaped multiline `args` payload parsing and Function Gemma-style direct `write_file` paragraph prompts.
+
+### Changed
+- Audio dictation now uses real microphone streaming via `AudioRecordingService` and forwards PCM chunks to `AudioNeuralEngine` instead of simulated timer-based samples.
+- Read-aloud playback now uses native synthesis-to-WAV playback first, with automatic platform TTS fallback when native synthesis is unavailable or silent.
+- `AudioNeuralEngine` initialization now supports fallback-only mode when native Rust audio is unavailable, with lazy speech recognizer setup and safer teardown.
+- Read-aloud sentence playback in editors now routes through the shared playback service so fallback TTS is consistently applied.
+- MCP direct prompt handling now materializes implicit content for natural-language write-file requests (for example, paragraph-style prompts) before tool execution.
+- Native MCP grammar was upgraded to a more robust JSON-safe grammar for escaped strings, nested objects/arrays, and whitespace variations.
+
+### Fixed
+- MCP grammar sampler initialization failures no longer abort response generation; inference now logs a warning and falls back to unconstrained sampling.
+- Resolved strict clippy findings in native/native_audio Rust code paths so `cargo check`, `cargo clippy`, `cargo fmt`, `cargo test`, and `cargo audit` pass in both crates.
+
+---
+## [0.8.3] - 2026-04-11
+
+### Added
+- Added a shared voice-preference utility path (`voice_preference_utils`) used by playback/read-aloud selection logic for female, male, and custom profiles.
+- Added new Flutter regression tests for advanced audio voice settings UI interactions and voice preference utility coverage.
+- Added expanded Rust TTS/API tests validating character-voice availability, audible synthesis output, punctuation-driven duration changes, and per-voice waveform differentiation.
+
+### Changed
+- Reworked native Rust TTS to provide a full built-in voice catalog (`af_heart`, `af_sky`, `am_adam`, `am_michael`, `bf_emma`, `bm_george`, plus compatibility aliases), with deterministic ordering for stable frontend selection.
+- Replaced silent placeholder TTS waveform generation with voice-conditioned procedural synthesis including smoother envelopes, harmonic shaping, breath/noise blending, and punctuation-aware prosody/pause behavior.
+- Updated Advanced Audio Models -> Voices UI to a horizontal voice catalog layout with direct preview and explicit `Set Preferred` actions per voice.
+- Wired advanced voice selection to persistent global settings so chosen custom voice becomes the default for all TTS/read-aloud paths.
+- Improved fallback platform-TTS voice mapping to respect selected profile/voice intent via locale/gender-aware matching when native synthesis is unavailable.
+
+### Fixed
+- Fixed profile switching issues where female/custom preferences could still sound unchanged by ensuring shared voice resolution logic is used end-to-end.
+- Fixed settings-page custom voice behavior that previously exposed only generic male/female choices by exposing backend character voices in selection surfaces.
+- Fixed Advanced Audio Models voice preview actions that previously produced no audio by routing previews through the playback service with real synthesis.
+- Fixed Rust quality gate instability by adding explicit native crate license metadata and a repository `deny.toml`, enabling `cargo deny` to pass alongside check/clippy/fmt/test/audit.
+
+---
+## [0.8.4] - 2026-04-11
+
+### Added
+- Added a shared live dictation buffer utility to support in-place partial transcription updates and safe final-result deduplication.
+- Added regression coverage for live transcription buffering behavior and floating assistant merged action-bar controls.
+
+### Changed
+- Aligned main AI chat top bar sizing and spacing with MCP mode by using a unified page-level status bar pattern.
+- Aligned AI composer/input bar visuals and controls with MCP composer styling, including floating assistant usage.
+- Simplified floating assistant controls into a single merged action row and removed quick-action chips/labels (`Summarize`, `Code`, `Ideas`, `MCP Mode`).
+
+### Fixed
+- Fixed dictation insertion lag by enabling real-time partial speech-to-text insertion in AI chat, MCP chat, text editor, and markdown editor.
+- Fixed duplicate final transcript commits that could occur when stopping dictation after a streamed final update.
+
+---
+## [0.8.5] - 2026-04-11
+
+### Added
+- Added regression coverage for floating window drag commit behavior, quick notes responsive resizing, and settings title style stability.
+
+### Changed
+- Reworked shared floating window interaction flow to use local per-frame drag/resize rect updates with commit-on-end persistence for smoother movement and resize behavior.
+- Updated floating Math and Productivity Timer windows to use the same clamped layout and positioning model as browser and assistant overlays.
+- Enabled quick notes window resizing from all sides while preserving its existing local drag behavior.
+
+### Fixed
+- Removed dynamic italic styling from settings titles for switch, dropdown, selection, color, and directory controls so labels remain visually stable when values differ from defaults.
+- Kept quality gates clean for this update with passing Flutter analyze and passing Rust checks in native, native_audio, and native_math.
+
+---
+## [0.8.6] - 2026-04-11
+
+### Changed
+- Added Flutter regression coverage for media-kit playback completion heuristics, speech-fallback final transcript handling, and voice-preview busy-state lifecycle behavior.
+
+### Added
+- Updated media-kit playback state handling to finalize on explicit completion signals instead of transient startup `playing=false` stream events.
+- Updated dictation start flow in AI chat, MCP chat, markdown editor, text editor, and shared dictation widgets to require successful microphone-capture startup before entering active listening state.
+
+### Fixed
+- Fixed read-aloud and advanced voice-preview sessions that could flash and stop early due to premature playback-state transitions.
+- Fixed fallback speech-to-text sessions dropping final transcript insertion when recognizer auto-stop occurred before the UI stop action.
+- Fixed flaky native graph unit-test ordering by serializing access to shared global graph state during tests.
+
+---
+## [0.8.8] - 2026-04-14
+
+### Added
+- Added regression coverage for `NotificationService`, `AppLockService` edge cases, folder color service failure paths, and drag-end selection behavior.
+
+### Changed
+- Improved interactive canvas ergonomics with explicit `rotateEnabled` control.
+- Stabilized integrated PR follow-ups with additional lint and test hardening.
+
+### Fixed
+- Fixed path validation hardening in MCP file access flows to block traversal attempts.
+- Fixed tolerant URL decoding for file names containing bare `%` characters.
+- Fixed Windows webview file-access behavior that could cause infinite loading loops.
+
+### Security
+- Migrated app lock PIN hashing to PBKDF2 for stronger credential protection.
+- Replaced string-based MAC selection with explicit `HMac(SHA256Digest(), 64)` configuration.
+- Applied constant-time comparison and related crypto review fixes for PIN verification.
+
+---
+## [0.8.9] - 2026-04-14
+
+### Added
+- Added configurable lead-time reminders for calendar events, tasks, and project deadlines.
+- Added exact-time notification scheduling support for both calendar items and project deadlines.
+- Added optional project deadline date-time metadata in the project manager create/edit flow.
+- Added productivity timer notification actions (pause, resume, stop) directly from Android notifications.
+
+### Changed
+- Expanded notification settings with sound profiles (`Default`, `Alarm`, `Ringtone`, `Silent`) and Android vibrate-only mode.
+- Updated productivity notification messaging to include richer runtime context: current timer state, active subroutine, upcoming chained block, and active parallel timer count.
+- Changed terms/privacy acceptance behavior so version bumps no longer force blocking re-acceptance popups for existing accepted users.
+
+### Fixed
+- Fixed project deadline reminder lifecycle handling so updates/deletes cancel stale project notification IDs before rescheduling.
+
+### Tests
+- Added and updated tests for notification settings serialization/sanitization, exact-time scheduling behavior, project deadline notifications, deadline model serialization, and non-blocking terms version migration behavior.
+---
+## [0.8.10] - 2026-04-14
+
+### Added
+- Added a compact settings search bar with section filtering by query text, category, description, and keywords.
+- Added bundled Android raw notification sounds for profile-backed playback: `kivixa_default`, `kivixa_alarm`, and `kivixa_ringtone`.
+- Added focused regression coverage for productivity clock tab layout, unified notification settings interactions, and settings-search matching behavior.
+
+### Changed
+- Removed the redundant `Chains` tab from the productivity clock while keeping routine creation in the `Routines` tab (`+` action) unchanged.
+- Unified notification management into a single settings surface that includes app-level notifications, calendar reminders, sound/vibration behavior, and productivity timer notification controls.
+- Replaced lead-time reminder chips with a dropdown-style multi-select picker using checked menu options.
+- Removed duplicate timer notification permission and timer sound controls from the productivity timer section after centralizing them in notification settings.
+
+### Fixed
+- Fixed Android notification sound delivery by mapping sound profiles to bundled raw resources and profile-specific audio usage attributes.
+- Fixed notification vibration behavior to apply explicit vibration enable/disable settings consistently.
+- Fixed productivity timer notifications ignoring the global app notification master toggle; timer notifications are now gated by the same app-level notifications setting.
+
+### Tests
+- Added widget coverage to verify the productivity clock no longer renders a `Chains` tab and still exposes routine creation in `Routines`.
+- Added widget coverage for lead-time reminder multi-select dropdown behavior and productivity timer sound toggle wiring.
+- Added search matcher and source-regression tests for settings search/filter integration.
+- Expanded notification service tests for sound profile resource mapping, vibration behavior, and audio usage configuration.
+
 
 ---

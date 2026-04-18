@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 description = "Native Rust math engine for Kivixa - isolated from AI inference"
 authors = ["990aa"]
+license = "MIT"
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }

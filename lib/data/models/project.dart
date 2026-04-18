@@ -59,6 +59,7 @@ class Project {
   final DateTime createdAt;
   final DateTime? completedAt;
   final DateTime? lastActivityAt;
+  final DateTime? deadline;
   final Color? color;
   final String? readme; // Project README content
   final int starCount; // For pinned/starred projects
@@ -74,6 +75,7 @@ class Project {
     required this.createdAt,
     this.completedAt,
     this.lastActivityAt,
+    this.deadline,
     this.color,
     this.readme,
     this.starCount = 0,
@@ -91,6 +93,7 @@ class Project {
       'createdAt': createdAt.toIso8601String(),
       'completedAt': completedAt?.toIso8601String(),
       'lastActivityAt': lastActivityAt?.toIso8601String(),
+      'deadline': deadline?.toIso8601String(),
       'color': color?.toARGB32(),
       'readme': readme,
       'starCount': starCount,
@@ -120,6 +123,9 @@ class Project {
       lastActivityAt: json['lastActivityAt'] != null
           ? DateTime.parse(json['lastActivityAt'] as String)
           : null,
+      deadline: json['deadline'] != null
+          ? DateTime.parse(json['deadline'] as String)
+          : null,
       color: json['color'] != null ? Color(json['color'] as int) : null,
       readme: json['readme'] as String?,
       starCount: json['starCount'] as int? ?? 0,
@@ -137,6 +143,7 @@ class Project {
     DateTime? createdAt,
     DateTime? completedAt,
     DateTime? lastActivityAt,
+    DateTime? deadline,
     Color? color,
     String? readme,
     int? starCount,
@@ -152,6 +159,7 @@ class Project {
       createdAt: createdAt ?? this.createdAt,
       completedAt: completedAt ?? this.completedAt,
       lastActivityAt: lastActivityAt ?? this.lastActivityAt,
+      deadline: deadline ?? this.deadline,
       color: color ?? this.color,
       readme: readme ?? this.readme,
       starCount: starCount ?? this.starCount,

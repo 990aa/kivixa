@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:kivixa/data/models/notification_settings.dart';
+import 'package:kivixa/data/notification_settings_storage.dart';
 import 'package:kivixa/services/productivity/material_icon_codec.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -546,10 +548,14 @@ class ChainedRoutineService extends ChangeNotifier {
     _timer?.cancel();
     final block = currentBlock;
     if (block != null) {
+      final hasNextBlock = _currentBlockIndex < totalBlocks - 1;
+      final nextBlock = hasNextBlock
+          ? _currentRoutine!.blocks[_currentBlockIndex + 1]
+          : null;
       _showNotification(
         title: '${block.name} Complete!',
-        body: _currentBlockIndex < totalBlocks - 1
-            ? 'Next: ${_currentRoutine!.blocks[_currentBlockIndex + 1].name}'
+        body: nextBlock != null
+            ? 'Up next: ${nextBlock.name} (${nextBlock.durationMinutes} min)'
             : 'Routine complete!',
       );
     }
@@ -776,22 +782,73 @@ class ChainedRoutineService extends ChangeNotifier {
   }) async {
     if (!_soundEnabled) return;
 
-    const androidDetails = AndroidNotificationDetails(
-      'chained_routines',
+    final settings = await NotificationSettingsStorage.loadSettings();
+    final playSound = _shouldPlaySound(settings);
+
+    final androidDetails = AndroidNotificationDetails(
+      _channelIdForSettings(settings),
       'Chained Routines',
       channelDescription: 'Notifications for chained routine blocks',
       importance: Importance.high,
       priority: Priority.high,
-      playSound: true,
+      playSound: playSound,
+      sound: _resolveAndroidSound(settings, playSound),
+      enableVibration: true,
+      vibrationPattern: _resolveVibrationPattern(settings),
     );
 
-    const details = NotificationDetails(android: androidDetails);
+    final details = NotificationDetails(android: androidDetails);
 
     try {
       await _notifications?.show(2, title, body, details);
     } catch (e) {
       debugPrint('Failed to show notification: $e');
     }
+  }
+
+  String _channelIdForSettings(NotificationSettings settings) {
+    final vibrationMode = settings.vibrateOnlyOnAndroid
+        ? 'vibrate_only'
+        : 'normal';
+    return 'chained_routines_${settings.soundProfile.storageKey}_$vibrationMode';
+  }
+
+  bool _shouldPlaySound(NotificationSettings settings) {
+    if (settings.vibrateOnlyOnAndroid) {
+      return false;
+    }
+    return settings.soundProfile != NotificationSoundProfile.silent;
+  }
+
+  AndroidNotificationSound? _resolveAndroidSound(
+    NotificationSettings settings,
+    bool shouldPlaySound,
+  ) {
+    if (!shouldPlaySound) {
+      return null;
+    }
+
+    switch (settings.soundProfile) {
+      case NotificationSoundProfile.defaultTone:
+        return null;
+      case NotificationSoundProfile.alarm:
+        return const UriAndroidNotificationSound(
+          'content://settings/system/alarm_alert',
+        );
+      case NotificationSoundProfile.ringtone:
+        return const UriAndroidNotificationSound(
+          'content://settings/system/ringtone',
+        );
+      case NotificationSoundProfile.silent:
+        return null;
+    }
+  }
+
+  Int64List? _resolveVibrationPattern(NotificationSettings settings) {
+    if (!settings.vibrateOnlyOnAndroid) {
+      return null;
+    }
+    return Int64List.fromList([0, 280, 160, 280]);
   }
 
   // Persistence

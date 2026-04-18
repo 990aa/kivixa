@@ -553,6 +553,10 @@ class _BrowserWindowState extends State<BrowserWindow> {
         mediaPlaybackRequiresUserGesture: false,
         transparentBackground: false,
         useShouldOverrideUrlLoading: true,
+        // Keep file-URL access disabled to avoid the Windows/WebView2
+        // infinite-loading issue and to stay aligned with the main browser settings.
+        allowUniversalAccessFromFileURLs: false,
+        allowFileAccessFromFileURLs: false,
         // Android-specific settings to prevent gesture conflicts
         // This prevents the WebView from intercepting gestures meant for parent widgets
         overScrollMode: isAndroid ? OverScrollMode.NEVER : null,

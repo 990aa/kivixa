@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kivixa/components/ai/chat_interface.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
 import 'package:kivixa/components/ai/mcp_chat_interface.dart';
 import 'package:kivixa/services/ai/chat_attachment_service.dart';
+import 'package:kivixa/services/ai/model_manager.dart';
 
 class _FakeMcpChatController extends Fake implements MCPChatController {
   _FakeMcpChatController(List<MCPChatMessage> initialMessages)
@@ -52,6 +54,38 @@ class _FakeMcpChatController extends Fake implements MCPChatController {
   @override
   String exportConversationAsJson({String sessionType = 'mcp-chat'}) {
     return '{"sessionType":"$sessionType"}';
+  }
+}
+
+class _FakeModelSwitcherController extends ChangeNotifier
+    implements ModelSwitcherController {
+  _FakeModelSwitcherController(this._activeModel);
+
+  AIModel _activeModel;
+
+  @override
+  bool get isInitializing => false;
+
+  @override
+  bool get isLoadingModel => false;
+
+  @override
+  bool get isModelLoaded => true;
+
+  @override
+  String? get loadedModelName => _activeModel.name;
+
+  @override
+  String? get loadedModelId => _activeModel.id;
+
+  @override
+  Future<List<AIModel>> getAvailableModels() async => [_activeModel];
+
+  @override
+  Future<bool> switchModel(AIModel model) async {
+    _activeModel = model;
+    notifyListeners();
+    return true;
   }
 }
 
@@ -222,5 +256,35 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Kivixa MCP Assistant'), findsNothing);
+  });
+
+  testWidgets('MCP header shows shared model switcher chip when provided', (
+    tester,
+  ) async {
+    final controller = _FakeMcpChatController(const []);
+    final model = ModelManager.getModelById('phi4-mini-q4km')!;
+    final switcher = _FakeModelSwitcherController(model);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: MCPChatInterface(
+              controller: controller,
+              context: context,
+              modelSwitcherController: switcher,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(model.name), findsOneWidget);
+
+    await tester.tap(find.text(model.name));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Switch Model'), findsOneWidget);
   });
 }
