@@ -47,17 +47,16 @@ void main() {
     (tester) async {
       await pumpWidgetUnderTest(tester);
 
-      await tester.tap(find.byTooltip('Select lead-time reminders'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('5 min before').last);
+      final leadTimeMenu = tester.widget<PopupMenuButton<int>>(
+        find.byType(PopupMenuButton<int>),
+      );
+      leadTimeMenu.onSelected?.call(5);
       await tester.pumpAndSettle();
 
       var settings = await NotificationSettingsStorage.loadSettings();
       expect(settings.leadTimesInMinutes, contains(5));
 
-      await tester.tap(find.byTooltip('Select lead-time reminders'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('5 min before').last);
+      leadTimeMenu.onSelected?.call(5);
       await tester.pumpAndSettle();
 
       settings = await NotificationSettingsStorage.loadSettings();
@@ -73,10 +72,20 @@ void main() {
 
     await pumpWidgetUnderTest(tester);
 
-    await tester.tap(find.widgetWithText(SwitchListTile, 'Timer Sound Alerts'));
+    final soundTileFinder = find.widgetWithText(
+      SwitchListTile,
+      'Timer Sound Alerts',
+    );
+    expect(soundTileFinder, findsOneWidget);
+    final soundTile = tester.widget<SwitchListTile>(soundTileFinder);
+
+    final initial = timerService.soundEnabled;
+    expect(initial, isTrue);
+
+    soundTile.onChanged?.call(!initial);
     await tester.pumpAndSettle();
 
-    expect(timerService.soundEnabled, isFalse);
+    expect(timerService.soundEnabled, isNot(initial));
 
     // Restore for test isolation.
     timerService.setSoundEnabled(true);

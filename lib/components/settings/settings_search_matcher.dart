@@ -11,7 +11,7 @@ bool matchesSettingsQuery({
 
   final haystack = <String>[
     category,
-    if (description != null) description,
+    ?description,
     ...keywords,
   ].join(' ').toLowerCase();
 

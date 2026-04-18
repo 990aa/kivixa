@@ -17,10 +17,22 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(Tab), findsNWidgets(4));
-    expect(find.text('Focus'), findsOneWidget);
-    expect(find.text('Presets'), findsOneWidget);
-    expect(find.text('Routines'), findsOneWidget);
-    expect(find.text('Stats'), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(TabBar), matching: find.text('Focus')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: find.byType(TabBar), matching: find.text('Presets')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: find.byType(TabBar), matching: find.text('Routines')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: find.byType(TabBar), matching: find.text('Stats')),
+      findsOneWidget,
+    );
     expect(find.text('Chains'), findsNothing);
 
     await tester.tap(find.text('Routines'));
