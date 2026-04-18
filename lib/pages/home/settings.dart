@@ -15,6 +15,7 @@ import 'package:kivixa/components/settings/release_notes_dialog.dart';
 import 'package:kivixa/components/settings/settings_button.dart';
 import 'package:kivixa/components/settings/settings_color.dart';
 import 'package:kivixa/components/settings/settings_directory_selector.dart';
+import 'package:kivixa/components/settings/settings_search_matcher.dart';
 import 'package:kivixa/components/settings/settings_selection.dart';
 import 'package:kivixa/components/settings/settings_subtitle.dart';
 import 'package:kivixa/components/settings/settings_switch.dart';
@@ -139,17 +140,12 @@ class _SettingsPageState extends State<SettingsPage> {
     String? description,
     List<String> keywords = const <String>[],
   }) {
-    final query = _settingsSearchQuery.trim().toLowerCase();
-    if (query.isEmpty) {
-      return true;
-    }
-
-    final haystack = <String>[
-      category,
-      if (description != null) description,
-      ...keywords,
-    ].join(' ').toLowerCase();
-    return haystack.contains(query);
+    return matchesSettingsQuery(
+      query: _settingsSearchQuery,
+      category: category,
+      description: description,
+      keywords: keywords,
+    );
   }
 
   Widget _buildSettingsSearchBar(BuildContext context) {
@@ -633,335 +629,349 @@ class _SettingsPageState extends State<SettingsPage> {
                   const NotificationSettingsWidget(),
                 ],
                 if (showHandwritten) ...[
-                const SettingsSubtitle(subtitle: 'Handwritten Note'),
-                SettingsSelection(
-                  title: t.settings.prefLabels.editorToolbarAlignment,
-                  subtitle:
-                      t.settings.axisDirections[_SettingsStows
-                          .editorToolbarAlignment
-                          .value],
-                  iconBuilder: (num i) {
-                    if (i is! int || i >= materialDirectionIcons.length)
-                      return null;
-                    return materialDirectionIcons[i];
-                  },
-                  pref: _SettingsStows.editorToolbarAlignment,
-                  optionsWidth: 60,
-                  options: [
-                    for (final AxisDirection direction in AxisDirection.values)
-                      ToggleButtonsOption(
-                        direction.index,
-                        Icon(
-                          materialDirectionIcons[direction.index],
-                          semanticLabel:
-                              t.settings.axisDirections[direction.index],
+                  const SettingsSubtitle(subtitle: 'Handwritten Note'),
+                  SettingsSelection(
+                    title: t.settings.prefLabels.editorToolbarAlignment,
+                    subtitle:
+                        t.settings.axisDirections[_SettingsStows
+                            .editorToolbarAlignment
+                            .value],
+                    iconBuilder: (num i) {
+                      if (i is! int || i >= materialDirectionIcons.length)
+                        return null;
+                      return materialDirectionIcons[i];
+                    },
+                    pref: _SettingsStows.editorToolbarAlignment,
+                    optionsWidth: 60,
+                    options: [
+                      for (final AxisDirection direction
+                          in AxisDirection.values)
+                        ToggleButtonsOption(
+                          direction.index,
+                          Icon(
+                            materialDirectionIcons[direction.index],
+                            semanticLabel:
+                                t.settings.axisDirections[direction.index],
+                          ),
                         ),
-                      ),
-                  ],
-                  afterChange: (_) => setState(() {}),
-                ),
-                SettingsSwitch(
-                  title: t.settings.prefLabels.editorToolbarShowInFullscreen,
-                  icon: Icons.fullscreen,
-                  pref: stows.editorToolbarShowInFullscreen,
-                ),
-                SettingsSwitch(
-                  title: t.settings.prefLabels.editorAutoInvert,
-                  iconBuilder: (b) {
-                    return b ? Icons.invert_colors_on : Icons.invert_colors_off;
-                  },
-                  pref: stows.editorAutoInvert,
-                ),
-                SettingsSwitch(
-                  title: t.settings.prefLabels.editorPromptRename,
-                  subtitle: t.settings.prefDescriptions.editorPromptRename,
-                  iconBuilder: (b) {
-                    if (b) return Icons.keyboard;
-                    return Icons.keyboard_hide;
-                  },
-                  pref: stows.editorPromptRename,
-                ),
-                SettingsSwitch(
-                  title: t.settings.prefLabels.recentColorsDontSavePresets,
-                  icon: Icons.palette,
-                  pref: stows.recentColorsDontSavePresets,
-                ),
-                SettingsSelection(
-                  title: t.settings.prefLabels.recentColorsLength,
-                  icon: Icons.history,
-                  pref: stows.recentColorsLength,
-                  options: const [
-                    ToggleButtonsOption(5, Text('5')),
-                    ToggleButtonsOption(10, Text('10')),
-                  ],
-                ),
-                SettingsSwitch(
-                  title: t.settings.prefLabels.printPageIndicators,
-                  subtitle: t.settings.prefDescriptions.printPageIndicators,
-                  icon: Icons.numbers,
-                  pref: stows.printPageIndicators,
-                ),
-                // Pencil sound removed
-                // SettingsSelection(
-                //   title: t.settings.prefLabels.pencilSoundSetting,
-                //   subtitle: stows.pencilSound.value.description,
-                //   icon: stows.pencilSound.value.icon,
-                //   pref: _SettingsStows.pencilSound,
-                //   optionsWidth: 60,
-                //   options: [
-                //     for (final setting in PencilSoundSetting.values)
-                //       ToggleButtonsOption(
-                //         setting.index,
-                //         Icon(setting.icon, semanticLabel: setting.description),
-                //       ),
-                //   ],
-                //   afterChange: (_) {
-                //     PencilSound.setAudioContext();
-                //     setState(() {});
-                //   },
-                // ),
+                    ],
+                    afterChange: (_) => setState(() {}),
+                  ),
+                  SettingsSwitch(
+                    title: t.settings.prefLabels.editorToolbarShowInFullscreen,
+                    icon: Icons.fullscreen,
+                    pref: stows.editorToolbarShowInFullscreen,
+                  ),
+                  SettingsSwitch(
+                    title: t.settings.prefLabels.editorAutoInvert,
+                    iconBuilder: (b) {
+                      return b
+                          ? Icons.invert_colors_on
+                          : Icons.invert_colors_off;
+                    },
+                    pref: stows.editorAutoInvert,
+                  ),
+                  SettingsSwitch(
+                    title: t.settings.prefLabels.editorPromptRename,
+                    subtitle: t.settings.prefDescriptions.editorPromptRename,
+                    iconBuilder: (b) {
+                      if (b) return Icons.keyboard;
+                      return Icons.keyboard_hide;
+                    },
+                    pref: stows.editorPromptRename,
+                  ),
+                  SettingsSwitch(
+                    title: t.settings.prefLabels.recentColorsDontSavePresets,
+                    icon: Icons.palette,
+                    pref: stows.recentColorsDontSavePresets,
+                  ),
+                  SettingsSelection(
+                    title: t.settings.prefLabels.recentColorsLength,
+                    icon: Icons.history,
+                    pref: stows.recentColorsLength,
+                    options: const [
+                      ToggleButtonsOption(5, Text('5')),
+                      ToggleButtonsOption(10, Text('10')),
+                    ],
+                  ),
+                  SettingsSwitch(
+                    title: t.settings.prefLabels.printPageIndicators,
+                    subtitle: t.settings.prefDescriptions.printPageIndicators,
+                    icon: Icons.numbers,
+                    pref: stows.printPageIndicators,
+                  ),
+                  // Pencil sound removed
+                  // SettingsSelection(
+                  //   title: t.settings.prefLabels.pencilSoundSetting,
+                  //   subtitle: stows.pencilSound.value.description,
+                  //   icon: stows.pencilSound.value.icon,
+                  //   pref: _SettingsStows.pencilSound,
+                  //   optionsWidth: 60,
+                  //   options: [
+                  //     for (final setting in PencilSoundSetting.values)
+                  //       ToggleButtonsOption(
+                  //         setting.index,
+                  //         Icon(setting.icon, semanticLabel: setting.description),
+                  //       ),
+                  //   ],
+                  //   afterChange: (_) {
+                  //     PencilSound.setAudioContext();
+                  //     setState(() {});
+                  //   },
+                  // ),
                 ],
                 if (showPerformance) ...[
-                SettingsSubtitle(
-                  subtitle: t.settings.prefCategories.performance,
-                ),
-                SettingsSelection(
-                  title: t.settings.prefLabels.maxImageSize,
-                  subtitle: t.settings.prefDescriptions.maxImageSize,
-                  icon: Icons.photo_size_select_large,
-                  pref: stows.maxImageSize,
-                  options: const <ToggleButtonsOption<double>>[
-                    ToggleButtonsOption(500, Text('500')),
-                    ToggleButtonsOption(1000, Text('1000')),
-                    ToggleButtonsOption(2000, Text('2000')),
-                  ],
-                ),
-                SettingsSelection(
-                  title: t.settings.prefLabels.autosave,
-                  subtitle: t.settings.prefDescriptions.autosave,
-                  icon: Icons.save,
-                  pref: stows.autosaveDelay,
-                  options: [
-                    const ToggleButtonsOption(5000, Text('5s')),
-                    const ToggleButtonsOption(10000, Text('10s')),
-                    ToggleButtonsOption(-1, Text(t.settings.autosaveDisabled)),
-                  ],
-                ),
-                SettingsSelection(
-                  title: t.settings.prefLabels.shapeRecognitionDelay,
-                  subtitle: t.settings.prefDescriptions.shapeRecognitionDelay,
-                  icon: Icons.category,
-                  pref: stows.shapeRecognitionDelay,
-                  options: [
-                    const ToggleButtonsOption(500, Text('0.5s')),
-                    const ToggleButtonsOption(1000, Text('1s')),
-                    ToggleButtonsOption(
-                      -1,
-                      Text(t.settings.shapeRecognitionDisabled),
-                    ),
-                  ],
-                  afterChange: (ms) {
-                    ShapePen.debounceDuration = ShapePen.getDebounceFromPref();
-                  },
-                ),
-                SettingsSwitch(
-                  title: t.settings.prefLabels.autoStraightenLines,
-                  subtitle: t.settings.prefDescriptions.autoStraightenLines,
-                  icon: Icons.straighten,
-                  pref: stows.autoStraightenLines,
-                ),
-                SettingsSwitch(
-                  title: t.settings.prefLabels.simplifiedHomeLayout,
-                  subtitle: t.settings.prefDescriptions.simplifiedHomeLayout,
-                  iconBuilder: (simplified) =>
-                      simplified ? Icons.grid_view : Symbols.browse,
-                  pref: stows.simplifiedHomeLayout,
-                ),
+                  SettingsSubtitle(
+                    subtitle: t.settings.prefCategories.performance,
+                  ),
+                  SettingsSelection(
+                    title: t.settings.prefLabels.maxImageSize,
+                    subtitle: t.settings.prefDescriptions.maxImageSize,
+                    icon: Icons.photo_size_select_large,
+                    pref: stows.maxImageSize,
+                    options: const <ToggleButtonsOption<double>>[
+                      ToggleButtonsOption(500, Text('500')),
+                      ToggleButtonsOption(1000, Text('1000')),
+                      ToggleButtonsOption(2000, Text('2000')),
+                    ],
+                  ),
+                  SettingsSelection(
+                    title: t.settings.prefLabels.autosave,
+                    subtitle: t.settings.prefDescriptions.autosave,
+                    icon: Icons.save,
+                    pref: stows.autosaveDelay,
+                    options: [
+                      const ToggleButtonsOption(5000, Text('5s')),
+                      const ToggleButtonsOption(10000, Text('10s')),
+                      ToggleButtonsOption(
+                        -1,
+                        Text(t.settings.autosaveDisabled),
+                      ),
+                    ],
+                  ),
+                  SettingsSelection(
+                    title: t.settings.prefLabels.shapeRecognitionDelay,
+                    subtitle: t.settings.prefDescriptions.shapeRecognitionDelay,
+                    icon: Icons.category,
+                    pref: stows.shapeRecognitionDelay,
+                    options: [
+                      const ToggleButtonsOption(500, Text('0.5s')),
+                      const ToggleButtonsOption(1000, Text('1s')),
+                      ToggleButtonsOption(
+                        -1,
+                        Text(t.settings.shapeRecognitionDisabled),
+                      ),
+                    ],
+                    afterChange: (ms) {
+                      ShapePen.debounceDuration =
+                          ShapePen.getDebounceFromPref();
+                    },
+                  ),
+                  SettingsSwitch(
+                    title: t.settings.prefLabels.autoStraightenLines,
+                    subtitle: t.settings.prefDescriptions.autoStraightenLines,
+                    icon: Icons.straighten,
+                    pref: stows.autoStraightenLines,
+                  ),
+                  SettingsSwitch(
+                    title: t.settings.prefLabels.simplifiedHomeLayout,
+                    subtitle: t.settings.prefDescriptions.simplifiedHomeLayout,
+                    iconBuilder: (simplified) =>
+                        simplified ? Icons.grid_view : Symbols.browse,
+                    pref: stows.simplifiedHomeLayout,
+                  ),
                 ],
                 if (showFloatingHub) ...[
-                const SettingsSubtitle(subtitle: 'Floating Hub'),
-                SettingsSwitch(
-                  title: 'Enable Floating Hub',
-                  subtitle: 'Show floating menu for quick access to tools',
-                  icon: Icons.blur_circular,
-                  pref: stows.floatingHubEnabled,
-                ),
-                SettingsSelection(
-                  title: 'Hub Size',
-                  subtitle: switch (stows.floatingHubSize.value) {
-                    0 => 'Small',
-                    1 => 'Medium',
-                    _ => 'Large',
-                  },
-                  icon: Icons.format_size,
-                  pref: stows.floatingHubSize,
-                  afterChange: (_) => setState(() {}),
-                  options: const [
-                    ToggleButtonsOption(0, Text('S')),
-                    ToggleButtonsOption(1, Text('M')),
-                    ToggleButtonsOption(2, Text('L')),
-                  ],
-                ),
-                SettingsSelection(
-                  title: 'Hub Transparency',
-                  subtitle: switch (stows.floatingHubTransparency.value) {
-                    0 => 'More transparent',
-                    1 => 'Balanced',
-                    _ => 'Less transparent',
-                  },
-                  icon: Icons.opacity,
-                  pref: stows.floatingHubTransparency,
-                  afterChange: (_) => setState(() {}),
-                  options: const [
-                    ToggleButtonsOption(0, Icon(Icons.lens_blur)),
-                    ToggleButtonsOption(1, Icon(Icons.blur_on)),
-                    ToggleButtonsOption(2, Icon(Icons.blur_off)),
-                  ],
-                ),
+                  const SettingsSubtitle(subtitle: 'Floating Hub'),
+                  SettingsSwitch(
+                    title: 'Enable Floating Hub',
+                    subtitle: 'Show floating menu for quick access to tools',
+                    icon: Icons.blur_circular,
+                    pref: stows.floatingHubEnabled,
+                  ),
+                  SettingsSelection(
+                    title: 'Hub Size',
+                    subtitle: switch (stows.floatingHubSize.value) {
+                      0 => 'Small',
+                      1 => 'Medium',
+                      _ => 'Large',
+                    },
+                    icon: Icons.format_size,
+                    pref: stows.floatingHubSize,
+                    afterChange: (_) => setState(() {}),
+                    options: const [
+                      ToggleButtonsOption(0, Text('S')),
+                      ToggleButtonsOption(1, Text('M')),
+                      ToggleButtonsOption(2, Text('L')),
+                    ],
+                  ),
+                  SettingsSelection(
+                    title: 'Hub Transparency',
+                    subtitle: switch (stows.floatingHubTransparency.value) {
+                      0 => 'More transparent',
+                      1 => 'Balanced',
+                      _ => 'Less transparent',
+                    },
+                    icon: Icons.opacity,
+                    pref: stows.floatingHubTransparency,
+                    afterChange: (_) => setState(() {}),
+                    options: const [
+                      ToggleButtonsOption(0, Icon(Icons.lens_blur)),
+                      ToggleButtonsOption(1, Icon(Icons.blur_on)),
+                      ToggleButtonsOption(2, Icon(Icons.blur_off)),
+                    ],
+                  ),
                 ],
                 if (showAudio) ...[
-                const SettingsSubtitle(subtitle: 'Audio Intelligence'),
-                SettingsSwitch(
-                  title: 'Enable Audio Intelligence',
-                  subtitle:
-                      'Turn on speech-to-text and text-to-speech features',
-                  icon: Icons.hearing,
-                  pref: stows.audioIntelligenceEnabled,
-                ),
-                SettingsSelection(
-                  title: 'Voice Profile',
-                  subtitle: _voiceProfileLabel(),
-                  icon: Icons.record_voice_over,
-                  pref: stows.audioVoiceProfile,
-                  afterChange: (_) => setState(() {}),
-                  options: const [
-                    ToggleButtonsOption(0, Text('F')),
-                    ToggleButtonsOption(1, Text('M')),
-                    ToggleButtonsOption(2, Text('C')),
-                  ],
-                ),
-                SettingsButton(
-                  title: 'Custom Voice',
-                  subtitle: _selectedVoiceLabel(),
-                  icon: Icons.settings_voice,
-                  onPressed: _showVoiceSelectionDialog,
-                ),
-                SettingsSelection(
-                  title: 'Speech Speed',
-                  subtitle: '${stows.audioTtsSpeed.value.toStringAsFixed(2)}x',
-                  icon: Icons.speed,
-                  pref: stows.audioTtsSpeed,
-                  afterChange: (_) => setState(() {}),
-                  optionsWidth: 60,
-                  options: const [
-                    ToggleButtonsOption(0.5, Text('0.5x')),
-                    ToggleButtonsOption(1.0, Text('1x')),
-                    ToggleButtonsOption(1.5, Text('1.5x')),
-                    ToggleButtonsOption(2.0, Text('2x')),
-                  ],
-                ),
-                SettingsSelection(
-                  title: 'Speech Detection Sensitivity',
-                  subtitle: stows.audioVadThreshold.value.toStringAsFixed(1),
-                  icon: Icons.graphic_eq,
-                  pref: stows.audioVadThreshold,
-                  afterChange: (_) => setState(() {}),
-                  optionsWidth: 68,
-                  options: const [
-                    ToggleButtonsOption(0.3, Text('Low')),
-                    ToggleButtonsOption(0.5, Text('Med')),
-                    ToggleButtonsOption(0.7, Text('High')),
-                  ],
-                ),
-                SettingsSwitch(
-                  title: 'Auto-play AI responses',
-                  subtitle: 'Read out new assistant responses automatically',
-                  icon: Icons.play_circle_outline,
-                  pref: stows.audioAutoPlayResponses,
-                ),
-                SettingsSwitch(
-                  title: 'Show Read-Aloud FAB',
-                  subtitle: 'Display floating read-aloud button in editors',
-                  icon: Icons.speaker,
-                  pref: stows.audioShowReadAloudFab,
-                ),
-                SettingsButton(
-                  title: 'Advanced Audio Models',
-                  subtitle: 'Manage STT/TTS models and inspect all voices',
-                  icon: Icons.tune,
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const AudioSettingsPage(),
-                      ),
-                    );
-                  },
-                ),
-                ],
-                if (showProductivity) ...[
-                const SettingsSubtitle(subtitle: 'Productivity Timer'),
-                const _ProductivityTimerSettingsSection(),
-                ],
-                if (showQuickNotes) ...[
-                const SettingsSubtitle(subtitle: 'Quick Notes'),
-                const _QuickNotesSettingsSection(),
-                ],
-                if (showSecurity) ...[
-                SettingsSubtitle(subtitle: t.settings.prefCategories.security),
-                _AppLockSettingsSection(onChanged: () => setState(() {})),
-                ],
-                if (showAdvanced) ...[
-                SettingsSubtitle(subtitle: t.settings.prefCategories.advanced),
-                if (Platform.isAndroid)
-                  SettingsDirectorySelector(
-                    title: t.settings.prefLabels.customDataDir,
-                    icon: Icons.folder,
+                  const SettingsSubtitle(subtitle: 'Audio Intelligence'),
+                  SettingsSwitch(
+                    title: 'Enable Audio Intelligence',
+                    subtitle:
+                        'Turn on speech-to-text and text-to-speech features',
+                    icon: Icons.hearing,
+                    pref: stows.audioIntelligenceEnabled,
                   ),
-                if (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
+                  SettingsSelection(
+                    title: 'Voice Profile',
+                    subtitle: _voiceProfileLabel(),
+                    icon: Icons.record_voice_over,
+                    pref: stows.audioVoiceProfile,
+                    afterChange: (_) => setState(() {}),
+                    options: const [
+                      ToggleButtonsOption(0, Text('F')),
+                      ToggleButtonsOption(1, Text('M')),
+                      ToggleButtonsOption(2, Text('C')),
+                    ],
+                  ),
                   SettingsButton(
-                    title: t.settings.openDataDir,
-                    icon: Icons.folder_open,
+                    title: 'Custom Voice',
+                    subtitle: _selectedVoiceLabel(),
+                    icon: Icons.settings_voice,
+                    onPressed: _showVoiceSelectionDialog,
+                  ),
+                  SettingsSelection(
+                    title: 'Speech Speed',
+                    subtitle:
+                        '${stows.audioTtsSpeed.value.toStringAsFixed(2)}x',
+                    icon: Icons.speed,
+                    pref: stows.audioTtsSpeed,
+                    afterChange: (_) => setState(() {}),
+                    optionsWidth: 60,
+                    options: const [
+                      ToggleButtonsOption(0.5, Text('0.5x')),
+                      ToggleButtonsOption(1.0, Text('1x')),
+                      ToggleButtonsOption(1.5, Text('1.5x')),
+                      ToggleButtonsOption(2.0, Text('2x')),
+                    ],
+                  ),
+                  SettingsSelection(
+                    title: 'Speech Detection Sensitivity',
+                    subtitle: stows.audioVadThreshold.value.toStringAsFixed(1),
+                    icon: Icons.graphic_eq,
+                    pref: stows.audioVadThreshold,
+                    afterChange: (_) => setState(() {}),
+                    optionsWidth: 68,
+                    options: const [
+                      ToggleButtonsOption(0.3, Text('Low')),
+                      ToggleButtonsOption(0.5, Text('Med')),
+                      ToggleButtonsOption(0.7, Text('High')),
+                    ],
+                  ),
+                  SettingsSwitch(
+                    title: 'Auto-play AI responses',
+                    subtitle: 'Read out new assistant responses automatically',
+                    icon: Icons.play_circle_outline,
+                    pref: stows.audioAutoPlayResponses,
+                  ),
+                  SettingsSwitch(
+                    title: 'Show Read-Aloud FAB',
+                    subtitle: 'Display floating read-aloud button in editors',
+                    icon: Icons.speaker,
+                    pref: stows.audioShowReadAloudFab,
+                  ),
+                  SettingsButton(
+                    title: 'Advanced Audio Models',
+                    subtitle: 'Manage STT/TTS models and inspect all voices',
+                    icon: Icons.tune,
                     onPressed: () {
-                      if (Platform.isWindows) {
-                        Process.run('explorer', [
-                          FileManager.documentsDirectory,
-                        ]);
-                      } else if (Platform.isLinux) {
-                        Process.run('xdg-open', [
-                          FileManager.documentsDirectory,
-                        ]);
-                      } else if (Platform.isMacOS) {
-                        Process.run('open', [FileManager.documentsDirectory]);
-                      }
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const AudioSettingsPage(),
+                        ),
+                      );
                     },
                   ),
                 ],
+                if (showProductivity) ...[
+                  const SettingsSubtitle(subtitle: 'Productivity Timer'),
+                  const _ProductivityTimerSettingsSection(),
+                ],
+                if (showQuickNotes) ...[
+                  const SettingsSubtitle(subtitle: 'Quick Notes'),
+                  const _QuickNotesSettingsSection(),
+                ],
+                if (showSecurity) ...[
+                  SettingsSubtitle(
+                    subtitle: t.settings.prefCategories.security,
+                  ),
+                  _AppLockSettingsSection(onChanged: () => setState(() {})),
+                ],
+                if (showAdvanced) ...[
+                  SettingsSubtitle(
+                    subtitle: t.settings.prefCategories.advanced,
+                  ),
+                  if (Platform.isAndroid)
+                    SettingsDirectorySelector(
+                      title: t.settings.prefLabels.customDataDir,
+                      icon: Icons.folder,
+                    ),
+                  if (Platform.isWindows ||
+                      Platform.isLinux ||
+                      Platform.isMacOS)
+                    SettingsButton(
+                      title: t.settings.openDataDir,
+                      icon: Icons.folder_open,
+                      onPressed: () {
+                        if (Platform.isWindows) {
+                          Process.run('explorer', [
+                            FileManager.documentsDirectory,
+                          ]);
+                        } else if (Platform.isLinux) {
+                          Process.run('xdg-open', [
+                            FileManager.documentsDirectory,
+                          ]);
+                        } else if (Platform.isMacOS) {
+                          Process.run('open', [FileManager.documentsDirectory]);
+                        }
+                      },
+                    ),
+                ],
                 if (showExtensions) ...[
-                const SettingsSubtitle(subtitle: 'Extensions'),
-                SettingsButton(
-                  title: 'Lua Plugins',
-                  subtitle: 'Automate tasks with Lua scripts',
-                  icon: Icons.extension,
-                  onPressed: () => context.push(RoutePaths.plugins),
-                ),
-                SettingsButton(
-                  title: 'Version History',
-                  subtitle: 'View file snapshots and commits',
-                  icon: Icons.history,
-                  onPressed: () => context.push(RoutePaths.lifeGitHistory),
-                ),
-                const _LifeGitAutoCleanupSetting(),
-                _LifeGitStatsWidget(),
+                  const SettingsSubtitle(subtitle: 'Extensions'),
+                  SettingsButton(
+                    title: 'Lua Plugins',
+                    subtitle: 'Automate tasks with Lua scripts',
+                    icon: Icons.extension,
+                    onPressed: () => context.push(RoutePaths.plugins),
+                  ),
+                  SettingsButton(
+                    title: 'Version History',
+                    subtitle: 'View file snapshots and commits',
+                    icon: Icons.history,
+                    onPressed: () => context.push(RoutePaths.lifeGitHistory),
+                  ),
+                  const _LifeGitAutoCleanupSetting(),
+                  _LifeGitStatsWidget(),
                 ],
                 if (showBrowser) ...[
-                const SettingsSubtitle(subtitle: 'Browser'),
-                const _BrowserSettingsSection(),
+                  const SettingsSubtitle(subtitle: 'Browser'),
+                  const _BrowserSettingsSection(),
                 ],
                 if (showDataManagement) ...[
-                const SettingsSubtitle(subtitle: 'Data Management'),
-                const _DeleteDataOnUninstallWidget(),
-                const ClearAppDataWidget(),
-                const _ResetAllSettingsWidget(),
+                  const SettingsSubtitle(subtitle: 'Data Management'),
+                  const _DeleteDataOnUninstallWidget(),
+                  const ClearAppDataWidget(),
+                  const _ResetAllSettingsWidget(),
                 ],
               ],
             ),
