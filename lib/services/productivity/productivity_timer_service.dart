@@ -419,6 +419,9 @@ class ProductivityTimerService extends ChangeNotifier {
     if (!_notificationsInitialized) return;
 
     final globalSettings = await NotificationSettingsStorage.loadSettings();
+    if (!globalSettings.notificationsEnabled) {
+      return;
+    }
     final effectivePlaySound =
         playSound && _soundEnabled && _shouldPlaySound(globalSettings);
 
@@ -430,7 +433,8 @@ class ProductivityTimerService extends ChangeNotifier {
       priority: Priority.high,
       playSound: effectivePlaySound,
       sound: _resolveAndroidSound(globalSettings, effectivePlaySound),
-      enableVibration: true,
+      audioAttributesUsage: _resolveAudioAttributesUsage(globalSettings),
+      enableVibration: globalSettings.vibrateOnlyOnAndroid,
       vibrationPattern: _resolveVibrationPattern(globalSettings),
       ongoing: ongoing,
       autoCancel: !ongoing,
@@ -461,9 +465,6 @@ class ProductivityTimerService extends ChangeNotifier {
   }
 
   bool _shouldPlaySound(NotificationSettings settings) {
-    if (settings.vibrateOnlyOnAndroid) {
-      return false;
-    }
     return settings.soundProfile != NotificationSoundProfile.silent;
   }
 
@@ -477,18 +478,26 @@ class ProductivityTimerService extends ChangeNotifier {
 
     switch (settings.soundProfile) {
       case NotificationSoundProfile.defaultTone:
-        return null;
+        return const RawResourceAndroidNotificationSound('kivixa_default');
       case NotificationSoundProfile.alarm:
-        return const UriAndroidNotificationSound(
-          'content://settings/system/alarm_alert',
-        );
+        return const RawResourceAndroidNotificationSound('kivixa_alarm');
       case NotificationSoundProfile.ringtone:
-        return const UriAndroidNotificationSound(
-          'content://settings/system/ringtone',
-        );
+        return const RawResourceAndroidNotificationSound('kivixa_ringtone');
       case NotificationSoundProfile.silent:
         return null;
     }
+  }
+
+  AudioAttributesUsage _resolveAudioAttributesUsage(
+    NotificationSettings settings,
+  ) {
+    return switch (settings.soundProfile) {
+      NotificationSoundProfile.alarm => AudioAttributesUsage.alarm,
+      NotificationSoundProfile.ringtone =>
+        AudioAttributesUsage.notificationRingtone,
+      NotificationSoundProfile.defaultTone => AudioAttributesUsage.notification,
+      NotificationSoundProfile.silent => AudioAttributesUsage.notification,
+    };
   }
 
   Int64List? _resolveVibrationPattern(NotificationSettings settings) {

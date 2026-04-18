@@ -300,6 +300,107 @@ class _SettingsPageState extends State<SettingsPage> {
       TargetPlatform.windows => Icons.desktop_windows,
       _ => Icons.android,
     };
+    final showLegal = _matchesSettingsSection(
+      category: 'Legal',
+      description: 'Terms, privacy policy and updates',
+      keywords: const ['legal', 'privacy', 'terms', 'updates'],
+    );
+    final showGeneral = _matchesSettingsSection(
+      category: t.settings.prefCategories.general,
+      description: 'Theme, platform, layout and accent color',
+      keywords: const ['theme', 'platform', 'layout', 'accent'],
+    );
+    final showWriting = _matchesSettingsSection(
+      category: t.settings.prefCategories.writing,
+      description: 'Writing preferences and editor behavior',
+      keywords: const ['writing', 'whiteboard', 'eraser', 'finger'],
+    );
+    final showNotifications = _matchesSettingsSection(
+      category: 'Notifications & Sound',
+      description:
+          'Calendar reminders, lead times, notification permissions, sound and vibration',
+      keywords: const [
+        'notifications',
+        'calendar',
+        'reminders',
+        'lead time',
+        'sound',
+        'vibration',
+        'permission',
+        'timer',
+      ],
+    );
+    final showHandwritten = _matchesSettingsSection(
+      category: 'Handwritten Note',
+      description: 'Handwritten editor toolbar and behavior',
+      keywords: const ['handwritten', 'toolbar', 'recent colors', 'print'],
+    );
+    final showPerformance = _matchesSettingsSection(
+      category: t.settings.prefCategories.performance,
+      description: 'Autosave, image size and performance settings',
+      keywords: const ['performance', 'autosave', 'shape', 'image'],
+    );
+    final showFloatingHub = _matchesSettingsSection(
+      category: 'Floating Hub',
+      description: 'Floating hub visibility, size and transparency',
+      keywords: const ['hub', 'floating', 'transparency', 'size'],
+    );
+    final showAudio = _matchesSettingsSection(
+      category: 'Audio Intelligence',
+      description: 'Speech to text and text to speech settings',
+      keywords: const ['audio', 'voice', 'speech', 'stt', 'tts'],
+    );
+    final showProductivity = _matchesSettingsSection(
+      category: 'Productivity Timer',
+      description: 'Timer warnings, auto-start and productivity goals',
+      keywords: const ['timer', 'focus', 'break', 'goal', 'routine'],
+    );
+    final showQuickNotes = _matchesSettingsSection(
+      category: 'Quick Notes',
+      description: 'Quick notes auto-delete and cleanup controls',
+      keywords: const ['quick notes', 'auto-delete', 'notes'],
+    );
+    final showSecurity = _matchesSettingsSection(
+      category: t.settings.prefCategories.security,
+      description: 'App lock and PIN security',
+      keywords: const ['security', 'app lock', 'pin'],
+    );
+    final showAdvanced = _matchesSettingsSection(
+      category: t.settings.prefCategories.advanced,
+      description: 'Data directory and advanced configuration',
+      keywords: const ['advanced', 'data directory', 'storage'],
+    );
+    final showExtensions = _matchesSettingsSection(
+      category: 'Extensions',
+      description: 'Plugins and version history',
+      keywords: const ['extensions', 'plugins', 'version history', 'life git'],
+    );
+    final showBrowser = _matchesSettingsSection(
+      category: 'Browser',
+      description: 'Browser history, tabs, bookmarks and cache',
+      keywords: const ['browser', 'tabs', 'bookmarks', 'cache'],
+    );
+    final showDataManagement = _matchesSettingsSection(
+      category: 'Data Management',
+      description: 'Clear app data and reset settings',
+      keywords: const ['data management', 'clear data', 'reset'],
+    );
+    final hasSearchMatch =
+        showLegal ||
+        showGeneral ||
+        showWriting ||
+        showNotifications ||
+        showHandwritten ||
+        showPerformance ||
+        showFloatingHub ||
+        showAudio ||
+        showProductivity ||
+        showQuickNotes ||
+        showSecurity ||
+        showAdvanced ||
+        showExtensions ||
+        showBrowser ||
+        showDataManagement;
 
     return Scaffold(
       body: CustomScrollView(
@@ -316,202 +417,222 @@ class _SettingsPageState extends State<SettingsPage> {
           SliverSafeArea(
             sliver: SliverList.list(
               children: [
-                // Legal documents section
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
+                _buildSettingsSearchBar(context),
+                if (_settingsSearchQuery.trim().isNotEmpty && !hasSearchMatch)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: ListTile(
+                      leading: Icon(Icons.search_off),
+                      title: Text('No settings matched your search'),
+                      subtitle: Text(
+                        'Try another keyword, category, or setting description.',
+                      ),
+                    ),
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () =>
-                              LegalDocumentsViewer.showTerms(context),
-                          icon: const Icon(Icons.gavel, size: 18),
-                          label: const Text('Terms & Conditions'),
+                if (showLegal)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () =>
+                                LegalDocumentsViewer.showTerms(context),
+                            icon: const Icon(Icons.gavel, size: 18),
+                            label: const Text('Terms & Conditions'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () =>
+                                LegalDocumentsViewer.showPrivacyPolicy(context),
+                            icon: const Icon(
+                              Icons.privacy_tip_outlined,
+                              size: 18,
+                            ),
+                            label: const Text('Privacy Policy'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () => showDialog(
+                              context: context,
+                              builder: (context) => const UpdatesDialog(),
+                            ),
+                            icon: const Icon(
+                              Icons.system_update_outlined,
+                              size: 18,
+                            ),
+                            label: const Text('Updates'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (showGeneral) ...[
+                  SettingsSubtitle(subtitle: t.settings.prefCategories.general),
+                  SettingsSelection(
+                    title: t.settings.prefLabels.appTheme,
+                    iconBuilder: (i) {
+                      if (i == ThemeMode.system.index)
+                        return Icons.brightness_auto;
+                      if (i == ThemeMode.light.index) return Icons.light_mode;
+                      if (i == ThemeMode.dark.index) return Icons.dark_mode;
+                      return null;
+                    },
+                    pref: _SettingsStows.appTheme,
+                    optionsWidth: 60,
+                    options: [
+                      ToggleButtonsOption(
+                        ThemeMode.system.index,
+                        Icon(
+                          Icons.brightness_auto,
+                          semanticLabel: t.settings.themeModes.system,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () =>
-                              LegalDocumentsViewer.showPrivacyPolicy(context),
-                          icon: const Icon(
-                            Icons.privacy_tip_outlined,
-                            size: 18,
-                          ),
-                          label: const Text('Privacy Policy'),
+                      ToggleButtonsOption(
+                        ThemeMode.light.index,
+                        Icon(
+                          Icons.light_mode,
+                          semanticLabel: t.settings.themeModes.light,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => showDialog(
-                            context: context,
-                            builder: (context) => const UpdatesDialog(),
-                          ),
-                          icon: const Icon(
-                            Icons.system_update_outlined,
-                            size: 18,
-                          ),
-                          label: const Text('Updates'),
+                      ToggleButtonsOption(
+                        ThemeMode.dark.index,
+                        Icon(
+                          Icons.dark_mode,
+                          semanticLabel: t.settings.themeModes.dark,
                         ),
                       ),
                     ],
                   ),
-                ),
-                SettingsSubtitle(subtitle: t.settings.prefCategories.general),
-                SettingsSelection(
-                  title: t.settings.prefLabels.appTheme,
-                  iconBuilder: (i) {
-                    if (i == ThemeMode.system.index)
-                      return Icons.brightness_auto;
-                    if (i == ThemeMode.light.index) return Icons.light_mode;
-                    if (i == ThemeMode.dark.index) return Icons.dark_mode;
-                    return null;
-                  },
-                  pref: _SettingsStows.appTheme,
-                  optionsWidth: 60,
-                  options: [
-                    ToggleButtonsOption(
-                      ThemeMode.system.index,
-                      Icon(
-                        Icons.brightness_auto,
-                        semanticLabel: t.settings.themeModes.system,
+                  SettingsSelection(
+                    title: t.settings.prefLabels.platform,
+                    iconBuilder: (i) => materialIcon,
+                    pref: _SettingsStows.platform,
+                    optionsWidth: 60,
+                    options: [
+                      ToggleButtonsOption(
+                        TargetPlatform.android.index,
+                        const Icon(Icons.android, semanticLabel: 'Android'),
                       ),
-                    ),
-                    ToggleButtonsOption(
-                      ThemeMode.light.index,
-                      Icon(
-                        Icons.light_mode,
-                        semanticLabel: t.settings.themeModes.light,
+                      ToggleButtonsOption(
+                        TargetPlatform.windows.index,
+                        const Icon(
+                          Icons.desktop_windows,
+                          semanticLabel: 'Windows',
+                        ),
                       ),
-                    ),
-                    ToggleButtonsOption(
-                      ThemeMode.dark.index,
-                      Icon(
-                        Icons.dark_mode,
-                        semanticLabel: t.settings.themeModes.dark,
+                    ],
+                  ),
+                  SettingsSelection(
+                    title: t.settings.prefLabels.layoutSize,
+                    subtitle: switch (stows.layoutSize.value) {
+                      LayoutSize.auto => t.settings.layoutSizes.auto,
+                      LayoutSize.phone => t.settings.layoutSizes.phone,
+                      LayoutSize.tablet => t.settings.layoutSizes.tablet,
+                    },
+                    afterChange: (_) => setState(() {}),
+                    iconBuilder: (i) => switch (LayoutSize.values[i]) {
+                      LayoutSize.auto => Icons.aspect_ratio,
+                      LayoutSize.phone => Icons.smartphone,
+                      LayoutSize.tablet => Icons.tablet,
+                    },
+                    pref: _SettingsStows.layoutSize,
+                    optionsWidth: 60,
+                    options: [
+                      ToggleButtonsOption(
+                        LayoutSize.auto.index,
+                        Icon(
+                          Icons.aspect_ratio,
+                          semanticLabel: t.settings.layoutSizes.auto,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                SettingsSelection(
-                  title: t.settings.prefLabels.platform,
-                  iconBuilder: (i) => materialIcon,
-                  pref: _SettingsStows.platform,
-                  optionsWidth: 60,
-                  options: [
-                    ToggleButtonsOption(
-                      TargetPlatform.android.index,
-                      const Icon(Icons.android, semanticLabel: 'Android'),
-                    ),
-                    ToggleButtonsOption(
-                      TargetPlatform.windows.index,
-                      const Icon(
-                        Icons.desktop_windows,
-                        semanticLabel: 'Windows',
+                      ToggleButtonsOption(
+                        LayoutSize.phone.index,
+                        Icon(
+                          Icons.smartphone,
+                          semanticLabel: t.settings.layoutSizes.phone,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                SettingsSelection(
-                  title: t.settings.prefLabels.layoutSize,
-                  subtitle: switch (stows.layoutSize.value) {
-                    LayoutSize.auto => t.settings.layoutSizes.auto,
-                    LayoutSize.phone => t.settings.layoutSizes.phone,
-                    LayoutSize.tablet => t.settings.layoutSizes.tablet,
-                  },
-                  afterChange: (_) => setState(() {}),
-                  iconBuilder: (i) => switch (LayoutSize.values[i]) {
-                    LayoutSize.auto => Icons.aspect_ratio,
-                    LayoutSize.phone => Icons.smartphone,
-                    LayoutSize.tablet => Icons.tablet,
-                  },
-                  pref: _SettingsStows.layoutSize,
-                  optionsWidth: 60,
-                  options: [
-                    ToggleButtonsOption(
-                      LayoutSize.auto.index,
-                      Icon(
-                        Icons.aspect_ratio,
-                        semanticLabel: t.settings.layoutSizes.auto,
+                      ToggleButtonsOption(
+                        LayoutSize.tablet.index,
+                        Icon(
+                          Icons.tablet,
+                          semanticLabel: t.settings.layoutSizes.tablet,
+                        ),
                       ),
-                    ),
-                    ToggleButtonsOption(
-                      LayoutSize.phone.index,
-                      Icon(
-                        Icons.smartphone,
-                        semanticLabel: t.settings.layoutSizes.phone,
-                      ),
-                    ),
-                    ToggleButtonsOption(
-                      LayoutSize.tablet.index,
-                      Icon(
-                        Icons.tablet,
-                        semanticLabel: t.settings.layoutSizes.tablet,
-                      ),
-                    ),
-                  ],
-                ),
-                SettingsColor(
-                  title: t.settings.prefLabels.customAccentColor,
-                  icon: Icons.colorize,
-                  pref: stows.accentColor,
-                ),
-                SettingsSubtitle(subtitle: t.settings.prefCategories.writing),
-                SettingsSwitch(
-                  title: t.settings.prefLabels.preferGreyscale,
-                  subtitle: t.settings.prefDescriptions.preferGreyscale,
-                  iconBuilder: (b) {
-                    return b
-                        ? Icons.monochrome_photos
-                        : Icons.enhance_photo_translate;
-                  },
-                  pref: stows.preferGreyscale,
-                ),
-                SettingsSwitch(
-                  title: t.settings.prefLabels.autoClearWhiteboardOnExit,
-                  subtitle:
-                      t.settings.prefDescriptions.autoClearWhiteboardOnExit,
-                  icon: Icons.layers_clear,
-                  pref: stows.autoClearWhiteboardOnExit,
-                ),
-                SettingsSwitch(
-                  title: t.settings.prefLabels.disableEraserAfterUse,
-                  subtitle: t.settings.prefDescriptions.disableEraserAfterUse,
-                  icon: Icons.backspace,
-                  pref: stows.disableEraserAfterUse,
-                ),
-                SettingsSwitch(
-                  title: t.settings.prefLabels.hideFingerDrawingToggle,
-                  subtitle: () {
-                    if (!stows.hideFingerDrawingToggle.value) {
-                      return t
-                          .settings
-                          .prefDescriptions
-                          .hideFingerDrawing
-                          .shown;
-                    } else if (stows.editorFingerDrawing.value) {
-                      return t
-                          .settings
-                          .prefDescriptions
-                          .hideFingerDrawing
-                          .fixedOn;
-                    } else {
-                      return t
-                          .settings
-                          .prefDescriptions
-                          .hideFingerDrawing
-                          .fixedOff;
-                    }
-                  }(),
-                  icon: CupertinoIcons.hand_draw,
-                  pref: stows.hideFingerDrawingToggle,
-                  afterChange: (_) => setState(() {}),
-                ),
-                const NotificationSettingsWidget(),
+                    ],
+                  ),
+                  SettingsColor(
+                    title: t.settings.prefLabels.customAccentColor,
+                    icon: Icons.colorize,
+                    pref: stows.accentColor,
+                  ),
+                ],
+                if (showWriting) ...[
+                  SettingsSubtitle(subtitle: t.settings.prefCategories.writing),
+                  SettingsSwitch(
+                    title: t.settings.prefLabels.preferGreyscale,
+                    subtitle: t.settings.prefDescriptions.preferGreyscale,
+                    iconBuilder: (b) {
+                      return b
+                          ? Icons.monochrome_photos
+                          : Icons.enhance_photo_translate;
+                    },
+                    pref: stows.preferGreyscale,
+                  ),
+                  SettingsSwitch(
+                    title: t.settings.prefLabels.autoClearWhiteboardOnExit,
+                    subtitle:
+                        t.settings.prefDescriptions.autoClearWhiteboardOnExit,
+                    icon: Icons.layers_clear,
+                    pref: stows.autoClearWhiteboardOnExit,
+                  ),
+                  SettingsSwitch(
+                    title: t.settings.prefLabels.disableEraserAfterUse,
+                    subtitle: t.settings.prefDescriptions.disableEraserAfterUse,
+                    icon: Icons.backspace,
+                    pref: stows.disableEraserAfterUse,
+                  ),
+                  SettingsSwitch(
+                    title: t.settings.prefLabels.hideFingerDrawingToggle,
+                    subtitle: () {
+                      if (!stows.hideFingerDrawingToggle.value) {
+                        return t
+                            .settings
+                            .prefDescriptions
+                            .hideFingerDrawing
+                            .shown;
+                      } else if (stows.editorFingerDrawing.value) {
+                        return t
+                            .settings
+                            .prefDescriptions
+                            .hideFingerDrawing
+                            .fixedOn;
+                      } else {
+                        return t
+                            .settings
+                            .prefDescriptions
+                            .hideFingerDrawing
+                            .fixedOff;
+                      }
+                    }(),
+                    icon: CupertinoIcons.hand_draw,
+                    pref: stows.hideFingerDrawingToggle,
+                    afterChange: (_) => setState(() {}),
+                  ),
+                ],
+                if (showNotifications) ...[
+                  const SettingsSubtitle(subtitle: 'Notifications & Sound'),
+                  const NotificationSettingsWidget(),
+                ],
+                if (showHandwritten) ...[
                 const SettingsSubtitle(subtitle: 'Handwritten Note'),
                 SettingsSelection(
                   title: t.settings.prefLabels.editorToolbarAlignment,
@@ -599,6 +720,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 //     setState(() {});
                 //   },
                 // ),
+                ],
+                if (showPerformance) ...[
                 SettingsSubtitle(
                   subtitle: t.settings.prefCategories.performance,
                 ),
@@ -654,6 +777,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       simplified ? Icons.grid_view : Symbols.browse,
                   pref: stows.simplifiedHomeLayout,
                 ),
+                ],
+                if (showFloatingHub) ...[
                 const SettingsSubtitle(subtitle: 'Floating Hub'),
                 SettingsSwitch(
                   title: 'Enable Floating Hub',
@@ -693,6 +818,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     ToggleButtonsOption(2, Icon(Icons.blur_off)),
                   ],
                 ),
+                ],
+                if (showAudio) ...[
                 const SettingsSubtitle(subtitle: 'Audio Intelligence'),
                 SettingsSwitch(
                   title: 'Enable Audio Intelligence',
@@ -770,12 +897,20 @@ class _SettingsPageState extends State<SettingsPage> {
                     );
                   },
                 ),
+                ],
+                if (showProductivity) ...[
                 const SettingsSubtitle(subtitle: 'Productivity Timer'),
                 const _ProductivityTimerSettingsSection(),
+                ],
+                if (showQuickNotes) ...[
                 const SettingsSubtitle(subtitle: 'Quick Notes'),
                 const _QuickNotesSettingsSection(),
+                ],
+                if (showSecurity) ...[
                 SettingsSubtitle(subtitle: t.settings.prefCategories.security),
                 _AppLockSettingsSection(onChanged: () => setState(() {})),
+                ],
+                if (showAdvanced) ...[
                 SettingsSubtitle(subtitle: t.settings.prefCategories.advanced),
                 if (Platform.isAndroid)
                   SettingsDirectorySelector(
@@ -800,6 +935,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       }
                     },
                   ),
+                ],
+                if (showExtensions) ...[
                 const SettingsSubtitle(subtitle: 'Extensions'),
                 SettingsButton(
                   title: 'Lua Plugins',
@@ -815,12 +952,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 const _LifeGitAutoCleanupSetting(),
                 _LifeGitStatsWidget(),
+                ],
+                if (showBrowser) ...[
                 const SettingsSubtitle(subtitle: 'Browser'),
                 const _BrowserSettingsSection(),
+                ],
+                if (showDataManagement) ...[
                 const SettingsSubtitle(subtitle: 'Data Management'),
                 const _DeleteDataOnUninstallWidget(),
                 const ClearAppDataWidget(),
                 const _ResetAllSettingsWidget(),
+                ],
               ],
             ),
           ),

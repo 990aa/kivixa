@@ -175,9 +175,6 @@ class NotificationService {
   }
 
   bool _shouldPlaySound(NotificationSettings settings) {
-    if (settings.vibrateOnlyOnAndroid) {
-      return false;
-    }
     return settings.soundProfile != NotificationSoundProfile.silent;
   }
 
@@ -190,18 +187,26 @@ class NotificationService {
 
     switch (settings.soundProfile) {
       case NotificationSoundProfile.defaultTone:
-        return null;
+        return const RawResourceAndroidNotificationSound('kivixa_default');
       case NotificationSoundProfile.alarm:
-        return const UriAndroidNotificationSound(
-          'content://settings/system/alarm_alert',
-        );
+        return const RawResourceAndroidNotificationSound('kivixa_alarm');
       case NotificationSoundProfile.ringtone:
-        return const UriAndroidNotificationSound(
-          'content://settings/system/ringtone',
-        );
+        return const RawResourceAndroidNotificationSound('kivixa_ringtone');
       case NotificationSoundProfile.silent:
         return null;
     }
+  }
+
+  AudioAttributesUsage _resolveAudioAttributesUsage(
+    NotificationSettings settings,
+  ) {
+    return switch (settings.soundProfile) {
+      NotificationSoundProfile.alarm => AudioAttributesUsage.alarm,
+      NotificationSoundProfile.ringtone =>
+        AudioAttributesUsage.notificationRingtone,
+      NotificationSoundProfile.defaultTone => AudioAttributesUsage.notification,
+      NotificationSoundProfile.silent => AudioAttributesUsage.notification,
+    };
   }
 
   Int64List? _resolveVibrationPattern(NotificationSettings settings) {
@@ -485,7 +490,8 @@ class NotificationService {
       priority: Priority.high,
       playSound: playSound,
       sound: sound,
-      enableVibration: true,
+      audioAttributesUsage: _resolveAudioAttributesUsage(settings),
+      enableVibration: settings.vibrateOnlyOnAndroid,
       vibrationPattern: vibrationPattern,
       actions: actions,
     );
