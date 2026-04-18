@@ -14,7 +14,7 @@
       }
     },
     "address": "https://990aa.github.io/kivixa/repo",
-    "timestamp": 1776146361000,
+    "timestamp": 1776486477000,
     "categories": {
       "Productivity": {
         "name": {
@@ -30,7 +30,7 @@
         "categories": [
           "Productivity"
         ],
-        "lastUpdated": 1776146343000,
+        "lastUpdated": 1776486455000,
         "name": {
           "en-US": "Kivixa"
         },
@@ -43,19 +43,19 @@
         "preferredSigner": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512"
       },
       "versions": {
-        "eea4818b9a04532b1b94921c7e0b6ae661f55bba5056599f5e83281f70d52a81": {
-          "added": 1776146343000,
+        "4799cce18f8ce74db42939549a8234e3a3fef2a704a8699f4334151814c262d4": {
+          "added": 1776486455000,
           "file": {
-            "name": "/Kivixa-Android-0.8.9-x86_64.apk",
-            "sha256": "eea4818b9a04532b1b94921c7e0b6ae661f55bba5056599f5e83281f70d52a81",
-            "size": 73613129
+            "name": "/Kivixa-Android-0.8.10-x86_64.apk",
+            "sha256": "4799cce18f8ce74db42939549a8234e3a3fef2a704a8699f4334151814c262d4",
+            "size": 73659081
           },
           "manifest": {
             "nativecode": [
               "x86_64"
             ],
-            "versionName": "0.8.9",
-            "versionCode": 80093,
+            "versionName": "0.8.10",
+            "versionCode": 80103,
             "usesSdk": {
               "minSdkVersion": 24,
               "targetSdkVersion": 36
@@ -73,13 +73,22 @@
                 "name": "android.permission.RECORD_AUDIO"
               },
               {
+                "name": "android.permission.POST_NOTIFICATIONS"
+              },
+              {
+                "name": "android.permission.VIBRATE"
+              },
+              {
+                "name": "android.permission.RECEIVE_BOOT_COMPLETED"
+              },
+              {
+                "name": "android.permission.SCHEDULE_EXACT_ALARM"
+              },
+              {
                 "name": "android.permission.WRITE_EXTERNAL_STORAGE"
               },
               {
                 "name": "android.permission.READ_EXTERNAL_STORAGE"
-              },
-              {
-                "name": "android.permission.POST_NOTIFICATIONS"
               },
               {
                 "name": "android.permission.WAKE_LOCK"
@@ -88,13 +97,7 @@
                 "name": "android.permission.ACCESS_NETWORK_STATE"
               },
               {
-                "name": "android.permission.RECEIVE_BOOT_COMPLETED"
-              },
-              {
                 "name": "android.permission.FOREGROUND_SERVICE"
-              },
-              {
-                "name": "android.permission.VIBRATE"
               },
               {
                 "name": "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
@@ -102,19 +105,19 @@
             ]
           }
         },
-        "edf9a6c1d64a07740a000a6ab3c09dc74f622c7066b1769f082a9ab1bd91921b": {
-          "added": 1776146342000,
+        "2b93337b400460fb0ab92b99b594b312d211a4ce4736976daea012d88099dfd4": {
+          "added": 1776486454000,
           "file": {
-            "name": "/Kivixa-Android-0.8.9-arm64.apk",
-            "sha256": "edf9a6c1d64a07740a000a6ab3c09dc74f622c7066b1769f082a9ab1bd91921b",
-            "size": 67284107
+            "name": "/Kivixa-Android-0.8.10-arm64.apk",
+            "sha256": "2b93337b400460fb0ab92b99b594b312d211a4ce4736976daea012d88099dfd4",
+            "size": 67270123
           },
           "manifest": {
             "nativecode": [
               "arm64-v8a"
             ],
-            "versionName": "0.8.9",
-            "versionCode": 80092,
+            "versionName": "0.8.10",
+            "versionCode": 80102,
             "usesSdk": {
               "minSdkVersion": 24,
               "targetSdkVersion": 36
@@ -132,13 +135,22 @@
                 "name": "android.permission.RECORD_AUDIO"
               },
               {
+                "name": "android.permission.POST_NOTIFICATIONS"
+              },
+              {
+                "name": "android.permission.VIBRATE"
+              },
+              {
+                "name": "android.permission.RECEIVE_BOOT_COMPLETED"
+              },
+              {
+                "name": "android.permission.SCHEDULE_EXACT_ALARM"
+              },
+              {
                 "name": "android.permission.WRITE_EXTERNAL_STORAGE"
               },
               {
                 "name": "android.permission.READ_EXTERNAL_STORAGE"
-              },
-              {
-                "name": "android.permission.POST_NOTIFICATIONS"
               },
               {
                 "name": "android.permission.WAKE_LOCK"
@@ -147,13 +159,7 @@
                 "name": "android.permission.ACCESS_NETWORK_STATE"
               },
               {
-                "name": "android.permission.RECEIVE_BOOT_COMPLETED"
-              },
-              {
                 "name": "android.permission.FOREGROUND_SERVICE"
-              },
-              {
-                "name": "android.permission.VIBRATE"
               },
               {
                 "name": "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
@@ -161,19 +167,19 @@
             ]
           }
         },
-        "40d45a19fb1df2f1d6d0725c44f81218b06e44b52924a643fe705ecf52404d79": {
-          "added": 1776146342000,
+        "5b189c9c33c1935711ab4ae50e6a12507c68682c022bcde0cdaca2638664b4fb": {
+          "added": 1776486455000,
           "file": {
-            "name": "/Kivixa-Android-0.8.9-armv7.apk",
-            "sha256": "40d45a19fb1df2f1d6d0725c44f81218b06e44b52924a643fe705ecf52404d79",
-            "size": 60202015
+            "name": "/Kivixa-Android-0.8.10-armv7.apk",
+            "sha256": "5b189c9c33c1935711ab4ae50e6a12507c68682c022bcde0cdaca2638664b4fb",
+            "size": 60186475
           },
           "manifest": {
             "nativecode": [
               "armeabi-v7a"
             ],
-            "versionName": "0.8.9",
-            "versionCode": 80091,
+            "versionName": "0.8.10",
+            "versionCode": 80101,
             "usesSdk": {
               "minSdkVersion": 24,
               "targetSdkVersion": 36
@@ -191,13 +197,22 @@
                 "name": "android.permission.RECORD_AUDIO"
               },
               {
+                "name": "android.permission.POST_NOTIFICATIONS"
+              },
+              {
+                "name": "android.permission.VIBRATE"
+              },
+              {
+                "name": "android.permission.RECEIVE_BOOT_COMPLETED"
+              },
+              {
+                "name": "android.permission.SCHEDULE_EXACT_ALARM"
+              },
+              {
                 "name": "android.permission.WRITE_EXTERNAL_STORAGE"
               },
               {
                 "name": "android.permission.READ_EXTERNAL_STORAGE"
-              },
-              {
-                "name": "android.permission.POST_NOTIFICATIONS"
               },
               {
                 "name": "android.permission.WAKE_LOCK"
@@ -206,13 +221,7 @@
                 "name": "android.permission.ACCESS_NETWORK_STATE"
               },
               {
-                "name": "android.permission.RECEIVE_BOOT_COMPLETED"
-              },
-              {
                 "name": "android.permission.FOREGROUND_SERVICE"
-              },
-              {
-                "name": "android.permission.VIBRATE"
               },
               {
                 "name": "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
