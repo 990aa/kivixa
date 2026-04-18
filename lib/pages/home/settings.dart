@@ -110,7 +110,9 @@ abstract class _SettingsStows {
 
 class _SettingsPageState extends State<SettingsPage> {
   final _audioEngine = AudioNeuralEngine();
+  final _settingsSearchController = TextEditingController();
   var _availableVoices = const <VoiceStyle>[];
+  var _settingsSearchQuery = '';
 
   @override
   void initState() {
@@ -131,6 +133,62 @@ class _SettingsPageState extends State<SettingsPage> {
     Icons.south,
     Icons.west,
   ];
+
+  bool _matchesSettingsSection({
+    required String category,
+    String? description,
+    List<String> keywords = const <String>[],
+  }) {
+    final query = _settingsSearchQuery.trim().toLowerCase();
+    if (query.isEmpty) {
+      return true;
+    }
+
+    final haystack = <String>[
+      category,
+      if (description != null) description,
+      ...keywords,
+    ].join(' ').toLowerCase();
+    return haystack.contains(query);
+  }
+
+  Widget _buildSettingsSearchBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: SizedBox(
+          width: 320,
+          child: TextField(
+            controller: _settingsSearchController,
+            onChanged: (value) {
+              setState(() {
+                _settingsSearchQuery = value;
+              });
+            },
+            decoration: InputDecoration(
+              isDense: true,
+              prefixIcon: const Icon(Icons.search, size: 18),
+              hintText: 'Search settings',
+              border: const OutlineInputBorder(),
+              suffixIcon: _settingsSearchQuery.isEmpty
+                  ? null
+                  : IconButton(
+                      tooltip: 'Clear search',
+                      icon: const Icon(Icons.clear, size: 18),
+                      onPressed: () {
+                        _settingsSearchController.clear();
+                        setState(() {
+                          _settingsSearchQuery = '';
+                        });
+                      },
+                    ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   String _voiceProfileLabel() {
     return switch (stows.audioVoiceProfile.value) {
@@ -773,6 +831,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void dispose() {
+    _settingsSearchController.dispose();
     UpdateManager.status.removeListener(onChanged);
     super.dispose();
   }
@@ -1694,33 +1753,6 @@ class _ProductivityTimerSettingsSectionState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Notification permission
-        ListTile(
-          leading: const Icon(Icons.notifications),
-          title: const Text('Notification Permission'),
-          subtitle: Text(
-            _timerService.notificationsPermissionGranted
-                ? 'Granted - Timer notifications enabled'
-                : 'Not granted - Tap to enable timer notifications',
-          ),
-          trailing: _timerService.notificationsPermissionGranted
-              ? Icon(Icons.check_circle, color: Colors.green[700])
-              : TextButton(
-                  onPressed: () async {
-                    await _timerService.requestNotificationPermission();
-                    if (mounted) setState(() {});
-                  },
-                  child: const Text('Enable'),
-                ),
-        ),
-        // Sound enabled
-        SwitchListTile(
-          secondary: const Icon(Icons.volume_up),
-          title: const Text('Sound Notifications'),
-          subtitle: const Text('Play sound when timer completes'),
-          value: _timerService.soundEnabled,
-          onChanged: (value) => _timerService.setSoundEnabled(value),
-        ),
         // Pre-end warning
         SwitchListTile(
           secondary: const Icon(Icons.warning_amber),
