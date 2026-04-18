@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 import LenisProvider from "@/components/landing/LenisProvider";
+import GlobalCurtain from "@/components/landing/GlobalCurtain";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -48,7 +49,10 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${ibmPlexMono.variable}`}
     >
       <body>
-        <LenisProvider>{children}</LenisProvider>
+        <LenisProvider>
+          <GlobalCurtain />
+          {children}
+        </LenisProvider>
       </body>
     </html>
   );

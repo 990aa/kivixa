@@ -19,8 +19,6 @@ export default function FooterCTA({ release }: FooterCTAProps) {
       const section = sectionRef.current;
       if (!section) return;
 
-      const leftPanel = section.querySelector<HTMLElement>("[data-footer-curtain-left]");
-      const rightPanel = section.querySelector<HTMLElement>("[data-footer-curtain-right]");
       const centerPanel = section.querySelector<HTMLElement>("[data-footer-center]");
 
       const timeline = gsap.timeline({
@@ -32,15 +30,12 @@ export default function FooterCTA({ release }: FooterCTAProps) {
         },
       });
 
-      timeline
-        .fromTo(leftPanel, { xPercent: -104, autoAlpha: 0.9 }, { xPercent: 0, autoAlpha: 1, duration: 1.02 }, 0)
-        .fromTo(rightPanel, { xPercent: 104, autoAlpha: 0.9 }, { xPercent: 0, autoAlpha: 1, duration: 1.02 }, 0)
-        .fromTo(
-          centerPanel,
-          { autoAlpha: 0, y: 26, scale: 0.97 },
-          { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: "power2.out" },
-          0.56
-        );
+      timeline.fromTo(
+        centerPanel,
+        { autoAlpha: 0, y: 26, scale: 0.97 },
+        { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: "power2.out" },
+        0.08
+      );
     },
     []
   );
@@ -49,9 +44,6 @@ export default function FooterCTA({ release }: FooterCTAProps) {
     <footer ref={sectionRef} className="footer-cta-section relative overflow-hidden px-6 pt-24">
       <ParticleCanvas density="dense" count={90} />
       <div className="footer-aurora" aria-hidden="true" />
-
-      <div data-footer-curtain-left className="footer-curtain-panel footer-curtain-left" aria-hidden="true" />
-      <div data-footer-curtain-right className="footer-curtain-panel footer-curtain-right" aria-hidden="true" />
 
       <div data-footer-center className="relative z-20 mx-auto flex min-h-[56vh] max-w-4xl flex-col items-center justify-center text-center">
         <h2 className="footer-cta-heading">Build your private workspace with Kivixa.</h2>

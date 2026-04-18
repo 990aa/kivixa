@@ -2,7 +2,6 @@
 
 import { useRef } from "react";
 import { gsap } from "gsap";
-import ScreenshotImage from "@/components/ScreenshotImage";
 import { useScrollAnimations } from "@/hooks/useScrollAnimations";
 
 const badges = [
@@ -10,6 +9,19 @@ const badges = [
   { label: "OFFLINE", x: 150, y: 0, className: "badge-right" },
   { label: "AI", x: 0, y: 110, className: "badge-bottom-left" },
   { label: "SPEED", x: 0, y: 110, className: "badge-bottom-right" },
+];
+
+const workspaceCapabilities = [
+  "Unified notes, markdown, and handwriting workflow",
+  "Project and calendar planning with reminders",
+  "Local file operations and version history",
+  "Cross-device layout tuned for desktop and mobile",
+];
+
+const assistantCapabilities = [
+  "On-device model switching and private prompts",
+  "Tool-enabled assistance for structured tasks",
+  "Offline-first responses and context retention",
 ];
 
 export default function AppMockupSection() {
@@ -136,22 +148,29 @@ export default function AppMockupSection() {
 
         <div className="mockup-stage" data-mockup-shell>
           <div className="mockup-glass-frame mockup-desktop">
-            <ScreenshotImage
-              src="/assets/screenshots/workspace-notes.png"
-              alt="Kivixa desktop layout with file browser and notes view"
-              width={1919}
-              height={1002}
-              loading="eager"
-            />
+            <div className="mockup-surface">
+              <p className="mockup-surface-kicker">Workspace Engine</p>
+              <h3 className="mockup-surface-title">
+                Organize notes, planning, and focus workflows in a single local cockpit.
+              </h3>
+              <ul className="mockup-surface-list">
+                {workspaceCapabilities.map((capability) => (
+                  <li key={capability}>{capability}</li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           <div className="mockup-glass-frame mockup-phone">
-            <ScreenshotImage
-              src="/assets/screenshots/ai-chat.png"
-              alt="Kivixa local AI chat view"
-              width={1919}
-              height={1006}
-            />
+            <div className="mockup-surface mockup-surface-compact">
+              <p className="mockup-surface-kicker">Local Assistant</p>
+              <h3 className="mockup-surface-title">Private AI support for writing, reasoning, and tool actions.</h3>
+              <ul className="mockup-surface-list">
+                {assistantCapabilities.map((capability) => (
+                  <li key={capability}>{capability}</li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           <div data-mockup-reflection className="mockup-reflection" aria-hidden="true" />

@@ -14,8 +14,8 @@ type FeatureCardItem = {
 const cards: FeatureCardItem[] = [
   {
     title: "On-Device AI",
-    body: "Run Phi-4, Qwen3.5, Gemma 4, and 12 other models entirely on your hardware. No API keys. No internet after download. Full reasoning, writing, and tool use - offline.",
-    tag: "15 models",
+    body: "Run Phi-4, Qwen3.5, Llama 3.2, Gemma 4, and 13 other models entirely on your hardware. No API keys. No internet after download. Full reasoning, writing, and tool use - offline.",
+    tag: "17 models",
     icon: "brain",
   },
   {

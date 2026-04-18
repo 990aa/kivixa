@@ -17,6 +17,8 @@ const modelEntries: ModelEntry[] = [
   { name: "Phi-4 Mini", tag: "REASONING", tone: "silver" },
   { name: "Phi-4 Mini Reasoning", tag: "REASONING", tone: "silver" },
   { name: "Qwen 2.5 3B", tag: "WRITING", tone: "gold" },
+  { name: "Llama 3.2 3B Instruct", tag: "CHAT", tone: "silver" },
+  { name: "Qwen2.5 1.5B Instruct", tag: "EFFICIENCY", tone: "muted" },
   { name: "Qwen3.5 4B Distilled", tag: "REASONING+", tone: "bright" },
   { name: "Qwen3.5 2B Distilled", tag: "BALANCED", tone: "muted" },
   { name: "Qwen3.5 0.8B Distilled", tag: "FAST", tone: "muted" },
@@ -121,7 +123,7 @@ export default function AIModelsSection() {
     <section className="ai-models-section px-6 py-24 sm:py-28" ref={sectionRef}>
       <div className="mx-auto max-w-6xl">
         <h2 className="models-heading text-center">
-          15 models. Zero internet. All yours.
+          17 models. Zero internet. All yours.
         </h2>
         <p className="models-subhead text-center">
           Kivixa loads local AI like a system boot - private, instant,
@@ -155,14 +157,9 @@ export default function AIModelsSection() {
             ))}
 
             <div data-terminal-final className="terminal-final-line">
-              [✓] 15 models loaded · 0 bytes sent to cloud · GPU: Vulkan / Metal
+              [✓] 17 models loaded · 0 bytes sent to cloud · GPU: Vulkan / Metal
             </div>
           </div>
-        </div>
-
-        <div className="models-pill-row">
-          <span className="models-stat-pill">Automatic model routing</span>
-          <span className="models-stat-pill">Background downloading</span>
         </div>
       </div>
     </section>

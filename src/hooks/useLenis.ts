@@ -15,9 +15,15 @@ export function useLenis() {
     if (reducedMotion) return;
 
     const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      duration: 0.82,
+      easing: (t: number) => 1 - Math.pow(1 - t, 3),
     });
+
+    const onLenisScroll = () => {
+      ScrollTrigger.update();
+    };
+
+    lenis.on("scroll", onLenisScroll);
 
     const onTick = (time: number) => {
       lenis.raf(time * 1000);
@@ -32,6 +38,7 @@ export function useLenis() {
     return () => {
       window.removeEventListener("resize", onResize);
       gsap.ticker.remove(onTick);
+      lenis.off("scroll", onLenisScroll);
       lenis.destroy();
     };
   }, []);

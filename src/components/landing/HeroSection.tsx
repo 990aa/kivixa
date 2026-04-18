@@ -14,8 +14,6 @@ interface HeroSectionProps {
 
 export default function HeroSection({ release }: HeroSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
-  const leftCurtainRef = useRef<HTMLDivElement>(null);
-  const rightCurtainRef = useRef<HTMLDivElement>(null);
   const typedLineRef = useRef<HTMLParagraphElement>(null);
   const [copied, setCopied] = useState(false);
 
@@ -34,23 +32,20 @@ export default function HeroSection({ release }: HeroSectionProps) {
       }
 
       if (reducedMotion) {
-        gsap.set([leftCurtainRef.current, rightCurtainRef.current], { autoAlpha: 0 });
         gsap.set(heroItems, { autoAlpha: 1, y: 0 });
         return;
       }
 
-      gsap.set([leftCurtainRef.current, rightCurtainRef.current], { xPercent: 0, autoAlpha: 1 });
+      gsap.set(heroItems, { y: 30, autoAlpha: 0 });
 
       const timeline = gsap.timeline({ defaults: { ease: "power3.inOut" } });
 
       timeline
-        .fromTo(leftCurtainRef.current, { xPercent: 0 }, { xPercent: -100, duration: 1.1 }, 0)
-        .fromTo(rightCurtainRef.current, { xPercent: 0 }, { xPercent: 100, duration: 1.1 }, 0)
         .fromTo(
           heroItems,
           { y: 30, autoAlpha: 0 },
           { y: 0, autoAlpha: 1, duration: 0.65, stagger: 0.12, ease: "power2.out" },
-          1.05
+          0.16
         )
         .to(
           typedLineRef.current,
@@ -59,7 +54,7 @@ export default function HeroSection({ release }: HeroSectionProps) {
             text: typedMessage,
             ease: "none",
           },
-          1.38
+          0.56
         );
     }, sectionRef);
 
@@ -84,9 +79,6 @@ export default function HeroSection({ release }: HeroSectionProps) {
     >
       <ParticleCanvas count={80} />
       <div className="hero-radial-glow" aria-hidden="true" />
-
-      <div ref={leftCurtainRef} className="hero-curtain-panel hero-curtain-left" aria-hidden="true" />
-      <div ref={rightCurtainRef} className="hero-curtain-panel hero-curtain-right" aria-hidden="true" />
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center justify-center text-center">
         <p data-hero-item className="hero-overline">

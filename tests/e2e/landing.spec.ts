@@ -1,11 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const expectedScreenshotAssets = [
-  "/assets/screenshots/ai-chat.png",
-  "/assets/screenshots/workspace-notes.png",
-];
-
 type LatestRelease = {
   version: string;
   windowsUrl: string | null;
@@ -99,6 +94,30 @@ test.describe("Kivixa landing page", () => {
     await expect(page.getByTestId("download-section")).toBeVisible();
   });
 
+  test("global curtain opens and closes from boundary intent", async ({ page }) => {
+    await page.goto("/");
+
+    const curtain = page.getByTestId("global-curtain");
+    await expect(curtain).toHaveAttribute("data-state", "closed");
+
+    await page.mouse.click(14, 14);
+    await expect(curtain).toHaveAttribute("data-state", "open", { timeout: 2200 });
+
+    await page.evaluate(() => window.scrollTo({ top: 0 }));
+    await page.mouse.wheel(0, -1200);
+    await expect(curtain).toHaveAttribute("data-state", "closed", { timeout: 2200 });
+
+    await page.mouse.wheel(0, 1200);
+    await expect(curtain).toHaveAttribute("data-state", "open", { timeout: 2200 });
+
+    await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight }));
+    await page.mouse.wheel(0, 1200);
+    await expect(curtain).toHaveAttribute("data-state", "closed", { timeout: 2200 });
+
+    await page.mouse.wheel(0, -1200);
+    await expect(curtain).toHaveAttribute("data-state", "open", { timeout: 2200 });
+  });
+
   test("prioritizes winget for Windows install and keeps manual exe download", async ({
     page,
   }) => {
@@ -171,39 +190,15 @@ test.describe("Kivixa landing page", () => {
     expect(androidHref).toBe(github.androidArm64Url);
   });
 
-  test("renders cinematic mockup screenshots without crop-oriented image styles", async ({
+  test("renders image-free mockup content panels", async ({
     page,
   }) => {
     await page.goto("/");
 
     const screenshotImages = page.locator('img[data-screenshot="true"]');
-    await expect(screenshotImages).toHaveCount(2);
-
-    const screenshotSrcList = await screenshotImages.evaluateAll((images) =>
-      images.map((image) => image.getAttribute("src") ?? "")
-    );
-
-    for (const expectedSrc of expectedScreenshotAssets) {
-      expect(screenshotSrcList).toContain(expectedSrc);
-    }
-
-    const screenshotSizing = await screenshotImages.evaluateAll((images) =>
-      images.map((image) => {
-        const htmlImage = image as HTMLImageElement;
-        const computed = getComputedStyle(htmlImage);
-        return {
-          widthAttr: Number(htmlImage.getAttribute("width") ?? 0),
-          heightAttr: Number(htmlImage.getAttribute("height") ?? 0),
-          objectFit: computed.objectFit,
-        };
-      })
-    );
-
-    for (const shot of screenshotSizing) {
-      expect(shot.widthAttr).toBeGreaterThan(0);
-      expect(shot.heightAttr).toBeGreaterThan(0);
-      expect(shot.objectFit).toBe("contain");
-    }
+    await expect(screenshotImages).toHaveCount(0);
+    await expect(page.getByText("Workspace Engine")).toBeVisible();
+    await expect(page.getByText("Local Assistant")).toBeVisible();
   });
 
   test("download URLs remain valid release links", async ({ page }) => {
@@ -238,7 +233,6 @@ test.describe("Kivixa landing page", () => {
 
     const images = page.locator("img");
     const imageCount = await images.count();
-    expect(imageCount).toBeGreaterThan(0);
 
     for (let index = 0; index < imageCount; index += 1) {
       const alt = await images.nth(index).getAttribute("alt");
