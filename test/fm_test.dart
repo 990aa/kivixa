@@ -18,14 +18,19 @@ void main() {
     FlavorConfig.setup();
 
     late final Directory tempDocumentsDir;
-    late final String rootDir;
     setUpAll(() async {
       tempDocumentsDir = await Directory.systemTemp.createTemp('kivixa_fm_');
       await FileManager.init(
         documentsDirectory: tempDocumentsDir.path,
         shouldWatchRootDirectory: false,
       );
-      rootDir = FileManager.documentsDirectory;
+      stows.customDataDir.value = tempDocumentsDir.path;
+    });
+
+    setUp(() {
+      // Keep FileManager globals deterministic across the suite.
+      FileManager.documentsDirectory = tempDocumentsDir.path;
+      FileManager.shouldUseRawFilePath = false;
     });
 
     tearDownAll(() async {
@@ -39,7 +44,7 @@ void main() {
       const content = 'test content for $filePath';
 
       // write test data manually
-      final file = File('$rootDir$filePath');
+      final file = File('${FileManager.documentsDirectory}$filePath');
       await file.create(recursive: true);
       await file.writeAsString(content);
 
@@ -67,7 +72,7 @@ void main() {
       await Future.delayed(const Duration(milliseconds: 200));
 
       // read file
-      final file = File('$rootDir$filePath');
+      final file = File('${FileManager.documentsDirectory}$filePath');
       final readContent = await file.readAsString();
       expect(readContent, content);
 
@@ -159,8 +164,8 @@ void main() {
       expect(filePathActual, filePathAfter);
 
       // verify filePathBefore does not exist, but filePathAfter does
-      final fileBefore = File('$rootDir$filePathBefore');
-      final fileAfter = File('$rootDir$filePathAfter');
+      final fileBefore = File('${FileManager.documentsDirectory}$filePathBefore');
+      final fileAfter = File('${FileManager.documentsDirectory}$filePathAfter');
       expect(fileBefore.existsSync(), false);
       expect(fileAfter.existsSync(), true);
       // read file
@@ -168,8 +173,12 @@ void main() {
       final readContent = utf8.decode(readBytes!);
       expect(readContent, content);
 
-      final fileBeforeA = File('$rootDir$filePathBeforeA');
-      final fileAfterA = File('$rootDir$filePathAfterA');
+      final fileBeforeA = File(
+        '${FileManager.documentsDirectory}$filePathBeforeA',
+      );
+      final fileAfterA = File(
+        '${FileManager.documentsDirectory}$filePathAfterA',
+      );
       expect(fileBeforeA.existsSync(), false);
       expect(fileAfterA.existsSync(), true);
       // read file
@@ -177,8 +186,12 @@ void main() {
       final readContentA = utf8.decode(readBytesA!);
       expect(readContentA, contentA);
 
-      final fileBeforeP = File('$rootDir$filePathBeforeP');
-      final fileAfterP = File('$rootDir$filePathAfterP');
+      final fileBeforeP = File(
+        '${FileManager.documentsDirectory}$filePathBeforeP',
+      );
+      final fileAfterP = File(
+        '${FileManager.documentsDirectory}$filePathAfterP',
+      );
       expect(fileBeforeP.existsSync(), false);
       expect(fileAfterP.existsSync(), true);
       // read file
@@ -224,9 +237,18 @@ void main() {
       await FileManager.deleteFile(filePath);
 
       // verify files do not exist
-      expect(File('$rootDir$filePath').existsSync(), false);
-      expect(File('$rootDir$filePathA').existsSync(), false);
-      expect(File('$rootDir$filePathP').existsSync(), false);
+      expect(
+        File('${FileManager.documentsDirectory}$filePath').existsSync(),
+        false,
+      );
+      expect(
+        File('${FileManager.documentsDirectory}$filePathA').existsSync(),
+        false,
+      );
+      expect(
+        File('${FileManager.documentsDirectory}$filePathP').existsSync(),
+        false,
+      );
     });
 
     group('getChildrenOfDirectory', () {
@@ -241,17 +263,23 @@ void main() {
       setUp(() async {
         // create files
         for (final fileName in fileNames) {
-          final file = File('$rootDir$dirPath/$fileName.kvx');
+          final file = File(
+            '${FileManager.documentsDirectory}$dirPath/$fileName.kvx',
+          );
           await file.create(recursive: true);
-          final asset = File('$rootDir$dirPath/$fileName.kvx.0');
+          final asset = File(
+            '${FileManager.documentsDirectory}$dirPath/$fileName.kvx.0',
+          );
           await asset.create(recursive: true);
-          final preview = File('$rootDir$dirPath/$fileName.kvx.p');
+          final preview = File(
+            '${FileManager.documentsDirectory}$dirPath/$fileName.kvx.p',
+          );
           await preview.create(recursive: true);
         }
       });
       tearDown(() async {
         // delete files
-        final dir = Directory('$rootDir$dirPath');
+        final dir = Directory('${FileManager.documentsDirectory}$dirPath');
         await dir.delete(recursive: true);
       });
 
@@ -327,7 +355,7 @@ void main() {
 
       test('correctly detects .kvx handwritten files', () async {
         const dirPath = '/test_file_type_kvx';
-        final file = File('$rootDir$dirPath/note1.kvx');
+        final file = File('${FileManager.documentsDirectory}$dirPath/note1.kvx');
         await file.create(recursive: true);
 
         final children = await FileManager.getChildrenOfDirectory(dirPath);
@@ -338,12 +366,14 @@ void main() {
           isTrue,
         );
 
-        await Directory('$rootDir$dirPath').delete(recursive: true);
+        await Directory(
+          '${FileManager.documentsDirectory}$dirPath',
+        ).delete(recursive: true);
       });
 
       test('correctly detects .md markdown files', () async {
         const dirPath = '/test_file_type_md';
-        final file = File('$rootDir$dirPath/doc.md');
+        final file = File('${FileManager.documentsDirectory}$dirPath/doc.md');
         await file.create(recursive: true);
 
         final children = await FileManager.getChildrenOfDirectory(dirPath);
@@ -351,12 +381,14 @@ void main() {
         expect(children!.files, contains('doc'));
         expect(children.isFileType('doc', KivixaFileType.markdown), isTrue);
 
-        await Directory('$rootDir$dirPath').delete(recursive: true);
+        await Directory(
+          '${FileManager.documentsDirectory}$dirPath',
+        ).delete(recursive: true);
       });
 
       test('correctly detects .kvtx text files', () async {
         const dirPath = '/test_file_type_kvtx';
-        final file = File('$rootDir$dirPath/text.kvtx');
+        final file = File('${FileManager.documentsDirectory}$dirPath/text.kvtx');
         await file.create(recursive: true);
 
         final children = await FileManager.getChildrenOfDirectory(dirPath);
@@ -364,14 +396,22 @@ void main() {
         expect(children!.files, contains('text'));
         expect(children.isFileType('text', KivixaFileType.text), isTrue);
 
-        await Directory('$rootDir$dirPath').delete(recursive: true);
+        await Directory(
+          '${FileManager.documentsDirectory}$dirPath',
+        ).delete(recursive: true);
       });
 
       test('handles mixed file types in same directory', () async {
         const dirPath = '/test_mixed_types';
-        await File('$rootDir$dirPath/handwritten.kvx').create(recursive: true);
-        await File('$rootDir$dirPath/markdown.md').create(recursive: true);
-        await File('$rootDir$dirPath/textfile.kvtx').create(recursive: true);
+        await File(
+          '${FileManager.documentsDirectory}$dirPath/handwritten.kvx',
+        ).create(recursive: true);
+        await File(
+          '${FileManager.documentsDirectory}$dirPath/markdown.md',
+        ).create(recursive: true);
+        await File(
+          '${FileManager.documentsDirectory}$dirPath/textfile.kvtx',
+        ).create(recursive: true);
 
         final children = await FileManager.getChildrenOfDirectory(dirPath);
         expect(children, isNotNull);
@@ -387,20 +427,28 @@ void main() {
         );
         expect(children.isFileType('textfile', KivixaFileType.text), isTrue);
 
-        await Directory('$rootDir$dirPath').delete(recursive: true);
+        await Directory(
+          '${FileManager.documentsDirectory}$dirPath',
+        ).delete(recursive: true);
       });
 
       test('handles files with spaces in names', () async {
         const dirPath = '/test_spaces';
-        await File('$rootDir$dirPath/my note.kvx').create(recursive: true);
-        await File('$rootDir$dirPath/my document.md').create(recursive: true);
+        await File(
+          '${FileManager.documentsDirectory}$dirPath/my note.kvx',
+        ).create(recursive: true);
+        await File(
+          '${FileManager.documentsDirectory}$dirPath/my document.md',
+        ).create(recursive: true);
 
         final children = await FileManager.getChildrenOfDirectory(dirPath);
         expect(children, isNotNull);
         expect(children!.files, contains('my note'));
         expect(children.files, contains('my document'));
 
-        await Directory('$rootDir$dirPath').delete(recursive: true);
+        await Directory(
+          '${FileManager.documentsDirectory}$dirPath',
+        ).delete(recursive: true);
       });
     });
 
@@ -410,9 +458,9 @@ void main() {
       const nonExistentPath = '/test_nonExistentPath.kvx';
 
       // create directory and file
-      final dir = Directory('$rootDir$dirPath');
+      final dir = Directory('${FileManager.documentsDirectory}$dirPath');
       await dir.create(recursive: true);
-      final file = File('$rootDir$filePath');
+      final file = File('${FileManager.documentsDirectory}$filePath');
       await file.create(recursive: true);
 
       // verify isDirectory

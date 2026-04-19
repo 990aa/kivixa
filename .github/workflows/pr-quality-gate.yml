@@ -207,4 +207,5 @@ jobs:
         run: cargo audit
 
       - name: Cargo deny
-        run: cargo deny --manifest-path ${{ matrix.crate }}/Cargo.toml check
+        working-directory: ${{ matrix.crate }}
+        run: cargo deny check
