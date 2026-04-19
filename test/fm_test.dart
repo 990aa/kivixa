@@ -19,6 +19,7 @@ void main() {
 
     late final Directory tempDocumentsDir;
     setUpAll(() async {
+      stows.customDataDir.removeListener(FileManager.migrateDataDir);
       tempDocumentsDir = await Directory.systemTemp.createTemp('kivixa_fm_');
       await FileManager.init(
         documentsDirectory: tempDocumentsDir.path,
@@ -27,11 +28,15 @@ void main() {
       stows.customDataDir.value = tempDocumentsDir.path;
     });
 
-    setUp(() async {
-      // Keep FileManager globals deterministic across the suite.
+    void resetFileManagerState() {
       FileManager.documentsDirectory = tempDocumentsDir.path;
       FileManager.shouldUseRawFilePath = false;
       stows.customDataDir.value = tempDocumentsDir.path;
+    }
+
+    setUp(() async {
+      // Keep FileManager globals deterministic across the suite.
+      resetFileManagerState();
 
       final rootDir = Directory(tempDocumentsDir.path);
       if (rootDir.existsSync()) {
@@ -74,6 +79,7 @@ void main() {
       const content = 'test content for $filePath';
 
       // write file
+      resetFileManagerState();
       await FileManager.writeFile(
         filePath,
         utf8.encode(content),
@@ -81,6 +87,7 @@ void main() {
       );
 
       // read file
+      resetFileManagerState();
       final readBytes = await FileManager.readFile(filePath, retries: 20);
       expect(readBytes, isNotNull);
       final readContent = utf8.decode(readBytes!);
@@ -88,6 +95,7 @@ void main() {
 
       // delete file - use FileManager.deleteFile instead
       try {
+        resetFileManagerState();
         await FileManager.deleteFile(filePath);
       } catch (e) {
         // Ignore deletion errors on Windows
@@ -98,6 +106,7 @@ void main() {
       const content = 'test content for $filePath';
 
       // write file
+      resetFileManagerState();
       await FileManager.writeFile(
         filePath,
         utf8.encode(content),
@@ -105,6 +114,7 @@ void main() {
       );
 
       // read file
+      resetFileManagerState();
       final readBytes = await FileManager.readFile(filePath, retries: 20);
       expect(readBytes, isNotNull);
       final readContent = utf8.decode(readBytes!);
@@ -112,6 +122,7 @@ void main() {
 
       // delete file
       try {
+        resetFileManagerState();
         await FileManager.deleteFile(filePath);
       } catch (e) {
         // Ignore deletion errors on Windows
@@ -130,16 +141,19 @@ void main() {
       const contentP = 'test content for $filePathBefore.p';
 
       // write files
+      resetFileManagerState();
       await FileManager.writeFile(
         filePathBefore,
         utf8.encode(content),
         awaitWrite: true,
       );
+      resetFileManagerState();
       await FileManager.writeFile(
         filePathBeforeA,
         utf8.encode(contentA),
         awaitWrite: true,
       );
+      resetFileManagerState();
       await FileManager.writeFile(
         filePathBeforeP,
         utf8.encode(contentP),
@@ -148,12 +162,14 @@ void main() {
 
       // ensure file does not exist (in case of previous test failure)
       try {
+        resetFileManagerState();
         await FileManager.deleteFile(filePathAfter);
       } catch (e) {
         // Ignore if file doesn't exist
       }
 
       // move file
+      resetFileManagerState();
       final filePathActual = await FileManager.moveFile(
         filePathBefore,
         filePathAfter,
@@ -161,17 +177,23 @@ void main() {
       expect(filePathActual, filePathAfter);
 
       // verify filePathBefore does not exist, but filePathAfter does
+      resetFileManagerState();
       expect(FileManager.doesFileExist(filePathBefore), false);
+      resetFileManagerState();
       expect(FileManager.doesFileExist(filePathAfter), true);
       // read file
+      resetFileManagerState();
       final readBytes = await FileManager.readFile(filePathAfter, retries: 20);
       expect(readBytes, isNotNull);
       final readContent = utf8.decode(readBytes!);
       expect(readContent, content);
 
+      resetFileManagerState();
       expect(FileManager.doesFileExist(filePathBeforeA), false);
+      resetFileManagerState();
       expect(FileManager.doesFileExist(filePathAfterA), true);
       // read file
+      resetFileManagerState();
       final readBytesA = await FileManager.readFile(
         filePathAfterA,
         retries: 20,
@@ -180,9 +202,12 @@ void main() {
       final readContentA = utf8.decode(readBytesA!);
       expect(readContentA, contentA);
 
+      resetFileManagerState();
       expect(FileManager.doesFileExist(filePathBeforeP), false);
+      resetFileManagerState();
       expect(FileManager.doesFileExist(filePathAfterP), true);
       // read file
+      resetFileManagerState();
       final readBytesP = await FileManager.readFile(
         filePathAfterP,
         retries: 20,
@@ -193,6 +218,7 @@ void main() {
 
       // delete files using FileManager
       try {
+        resetFileManagerState();
         await FileManager.deleteFile(filePathAfter);
       } catch (e) {
         // Ignore deletion errors on Windows
@@ -206,16 +232,19 @@ void main() {
       const content = 'test content for $filePath';
 
       // write files
+      resetFileManagerState();
       await FileManager.writeFile(
         filePath,
         utf8.encode(content),
         awaitWrite: true,
       );
+      resetFileManagerState();
       await FileManager.writeFile(
         filePathA,
         utf8.encode(content),
         awaitWrite: true,
       );
+      resetFileManagerState();
       await FileManager.writeFile(
         filePathP,
         utf8.encode(content),
@@ -223,11 +252,15 @@ void main() {
       );
 
       // delete file
+      resetFileManagerState();
       await FileManager.deleteFile(filePath);
 
       // verify files do not exist
+      resetFileManagerState();
       expect(FileManager.doesFileExist(filePath), false);
+      resetFileManagerState();
       expect(FileManager.doesFileExist(filePathA), false);
+      resetFileManagerState();
       expect(FileManager.doesFileExist(filePathP), false);
     });
 
@@ -305,6 +338,7 @@ void main() {
 
       await stows.recentFiles.waitUntilRead();
 
+      resetFileManagerState();
       await FileManager.writeFile(
         existingFilePath,
         utf8.encode('recent note'),
@@ -313,12 +347,14 @@ void main() {
 
       stows.recentFiles.value = [existingFilePath, deletedFilePath];
 
+      resetFileManagerState();
       final recentFiles = await FileManager.getRecentlyAccessed();
       expect(recentFiles, contains('/test_recently_accessed_existing'));
       expect(recentFiles, isNot(contains('/test_recently_accessed_deleted')));
       expect(stows.recentFiles.value, isNot(contains(deletedFilePath)));
 
       try {
+        resetFileManagerState();
         await FileManager.deleteFile(existingFilePath);
       } catch (_) {
         // Ignore cleanup issues on Windows file handles.
