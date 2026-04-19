@@ -863,9 +863,10 @@ class FileManager {
   static Future _createFileDirectory(String filePath) async {
     assert(filePath.contains('/'), 'filePath must be a path, not a file name');
     final parentDirectory = filePath.substring(0, filePath.lastIndexOf('/'));
-    await Directory(
-      documentsDirectory + parentDirectory,
-    ).create(recursive: true);
+    final targetDirectory = shouldUseRawFilePath
+        ? parentDirectory
+        : documentsDirectory + parentDirectory;
+    await Directory(targetDirectory).create(recursive: true);
   }
 
   static Future _renameReferences(String fromPath, String toPath) async {
