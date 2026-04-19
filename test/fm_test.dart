@@ -27,10 +27,22 @@ void main() {
       stows.customDataDir.value = tempDocumentsDir.path;
     });
 
-    setUp(() {
+    setUp(() async {
       // Keep FileManager globals deterministic across the suite.
       FileManager.documentsDirectory = tempDocumentsDir.path;
       FileManager.shouldUseRawFilePath = false;
+      stows.customDataDir.value = tempDocumentsDir.path;
+
+      final rootDir = Directory(tempDocumentsDir.path);
+      if (rootDir.existsSync()) {
+        await for (final entity in rootDir.list()) {
+          await entity.delete(recursive: true);
+        }
+      } else {
+        await rootDir.create(recursive: true);
+      }
+
+      stows.recentFiles.value = <String>[];
     });
 
     tearDownAll(() async {
@@ -68,16 +80,11 @@ void main() {
         awaitWrite: true,
       );
 
-      // Wait to ensure file is written and handles are released
-      await Future.delayed(const Duration(milliseconds: 200));
-
       // read file
-      final file = File('${FileManager.documentsDirectory}$filePath');
-      final readContent = await file.readAsString();
+      final readBytes = await FileManager.readFile(filePath, retries: 20);
+      expect(readBytes, isNotNull);
+      final readContent = utf8.decode(readBytes!);
       expect(readContent, content);
-
-      // Wait before deleting to avoid file locking issues on Windows
-      await Future.delayed(const Duration(milliseconds: 200));
 
       // delete file - use FileManager.deleteFile instead
       try {
@@ -97,16 +104,11 @@ void main() {
         awaitWrite: true,
       );
 
-      // Wait to ensure file is written and handles are released
-      await Future.delayed(const Duration(milliseconds: 200));
-
       // read file
-      final readBytes = await FileManager.readFile(filePath);
+      final readBytes = await FileManager.readFile(filePath, retries: 20);
+      expect(readBytes, isNotNull);
       final readContent = utf8.decode(readBytes!);
       expect(readContent, content);
-
-      // Wait before deleting to avoid file locking issues on Windows
-      await Future.delayed(const Duration(milliseconds: 200));
 
       // delete file
       try {
@@ -144,17 +146,12 @@ void main() {
         awaitWrite: true,
       );
 
-      // Wait to ensure files are written and handles are released
-      await Future.delayed(const Duration(milliseconds: 300));
-
       // ensure file does not exist (in case of previous test failure)
       try {
         await FileManager.deleteFile(filePathAfter);
       } catch (e) {
         // Ignore if file doesn't exist
       }
-
-      await Future.delayed(const Duration(milliseconds: 200));
 
       // move file
       final filePathActual = await FileManager.moveFile(
@@ -164,45 +161,35 @@ void main() {
       expect(filePathActual, filePathAfter);
 
       // verify filePathBefore does not exist, but filePathAfter does
-      final fileBefore = File(
-        '${FileManager.documentsDirectory}$filePathBefore',
-      );
-      final fileAfter = File('${FileManager.documentsDirectory}$filePathAfter');
-      expect(fileBefore.existsSync(), false);
-      expect(fileAfter.existsSync(), true);
+      expect(FileManager.doesFileExist(filePathBefore), false);
+      expect(FileManager.doesFileExist(filePathAfter), true);
       // read file
-      final readBytes = await FileManager.readFile(filePathAfter);
+      final readBytes = await FileManager.readFile(filePathAfter, retries: 20);
+      expect(readBytes, isNotNull);
       final readContent = utf8.decode(readBytes!);
       expect(readContent, content);
 
-      final fileBeforeA = File(
-        '${FileManager.documentsDirectory}$filePathBeforeA',
-      );
-      final fileAfterA = File(
-        '${FileManager.documentsDirectory}$filePathAfterA',
-      );
-      expect(fileBeforeA.existsSync(), false);
-      expect(fileAfterA.existsSync(), true);
+      expect(FileManager.doesFileExist(filePathBeforeA), false);
+      expect(FileManager.doesFileExist(filePathAfterA), true);
       // read file
-      final readBytesA = await FileManager.readFile(filePathAfterA);
+      final readBytesA = await FileManager.readFile(
+        filePathAfterA,
+        retries: 20,
+      );
+      expect(readBytesA, isNotNull);
       final readContentA = utf8.decode(readBytesA!);
       expect(readContentA, contentA);
 
-      final fileBeforeP = File(
-        '${FileManager.documentsDirectory}$filePathBeforeP',
-      );
-      final fileAfterP = File(
-        '${FileManager.documentsDirectory}$filePathAfterP',
-      );
-      expect(fileBeforeP.existsSync(), false);
-      expect(fileAfterP.existsSync(), true);
+      expect(FileManager.doesFileExist(filePathBeforeP), false);
+      expect(FileManager.doesFileExist(filePathAfterP), true);
       // read file
-      final readBytesP = await FileManager.readFile(filePathAfterP);
+      final readBytesP = await FileManager.readFile(
+        filePathAfterP,
+        retries: 20,
+      );
+      expect(readBytesP, isNotNull);
       final readContentP = utf8.decode(readBytesP!);
       expect(readContentP, contentP);
-
-      // Wait before deleting to avoid file locking issues on Windows
-      await Future.delayed(const Duration(milliseconds: 300));
 
       // delete files using FileManager
       try {
@@ -239,18 +226,9 @@ void main() {
       await FileManager.deleteFile(filePath);
 
       // verify files do not exist
-      expect(
-        File('${FileManager.documentsDirectory}$filePath').existsSync(),
-        false,
-      );
-      expect(
-        File('${FileManager.documentsDirectory}$filePathA').existsSync(),
-        false,
-      );
-      expect(
-        File('${FileManager.documentsDirectory}$filePathP').existsSync(),
-        false,
-      );
+      expect(FileManager.doesFileExist(filePath), false);
+      expect(FileManager.doesFileExist(filePathA), false);
+      expect(FileManager.doesFileExist(filePathP), false);
     });
 
     group('getChildrenOfDirectory', () {
@@ -333,8 +311,6 @@ void main() {
         awaitWrite: true,
       );
 
-      await Future.delayed(const Duration(milliseconds: 150));
-
       stows.recentFiles.value = [existingFilePath, deletedFilePath];
 
       final recentFiles = await FileManager.getRecentlyAccessed();
@@ -342,7 +318,6 @@ void main() {
       expect(recentFiles, isNot(contains('/test_recently_accessed_deleted')));
       expect(stows.recentFiles.value, isNot(contains(deletedFilePath)));
 
-      await Future.delayed(const Duration(milliseconds: 150));
       try {
         await FileManager.deleteFile(existingFilePath);
       } catch (_) {
