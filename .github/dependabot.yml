@@ -1,0 +1,16 @@
+version: 2
+
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    target-branch: "website"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      website-npm-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
