@@ -164,7 +164,9 @@ void main() {
       expect(filePathActual, filePathAfter);
 
       // verify filePathBefore does not exist, but filePathAfter does
-      final fileBefore = File('${FileManager.documentsDirectory}$filePathBefore');
+      final fileBefore = File(
+        '${FileManager.documentsDirectory}$filePathBefore',
+      );
       final fileAfter = File('${FileManager.documentsDirectory}$filePathAfter');
       expect(fileBefore.existsSync(), false);
       expect(fileAfter.existsSync(), true);
@@ -355,7 +357,9 @@ void main() {
 
       test('correctly detects .kvx handwritten files', () async {
         const dirPath = '/test_file_type_kvx';
-        final file = File('${FileManager.documentsDirectory}$dirPath/note1.kvx');
+        final file = File(
+          '${FileManager.documentsDirectory}$dirPath/note1.kvx',
+        );
         await file.create(recursive: true);
 
         final children = await FileManager.getChildrenOfDirectory(dirPath);
@@ -388,7 +392,9 @@ void main() {
 
       test('correctly detects .kvtx text files', () async {
         const dirPath = '/test_file_type_kvtx';
-        final file = File('${FileManager.documentsDirectory}$dirPath/text.kvtx');
+        final file = File(
+          '${FileManager.documentsDirectory}$dirPath/text.kvtx',
+        );
         await file.create(recursive: true);
 
         final children = await FileManager.getChildrenOfDirectory(dirPath);
