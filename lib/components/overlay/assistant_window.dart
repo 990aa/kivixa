@@ -14,9 +14,14 @@ import 'package:kivixa/services/overlay/overlay_controller.dart';
 /// This window floats above the main app content and can be moved/resized.
 /// It uses the same chat interface as the full AI chat page.
 class AssistantWindow extends StatefulWidget {
-  const AssistantWindow({super.key, this.chatController});
+  const AssistantWindow({
+    super.key,
+    this.chatController,
+    this.mcpChatController,
+  });
 
   final AIChatController? chatController;
+  final MCPChatController? mcpChatController;
 
   @override
   State<AssistantWindow> createState() => _AssistantWindowState();
@@ -25,6 +30,7 @@ class AssistantWindow extends StatefulWidget {
 class _AssistantWindowState extends State<AssistantWindow> {
   late final AIChatController _chatController;
   late final bool _ownsChatController;
+  late final bool _ownsMcpChatController;
   MCPChatController? _mcpChatController;
   var _isMcpMode = false;
 
@@ -33,11 +39,17 @@ class _AssistantWindowState extends State<AssistantWindow> {
     super.initState();
     _ownsChatController = widget.chatController == null;
     _chatController = widget.chatController ?? AIChatController();
+    _ownsMcpChatController = widget.mcpChatController == null;
+    _mcpChatController = widget.mcpChatController;
     OverlayController.instance.addListener(_onOverlayChanged);
-    _initializeMcpController();
+    if (_mcpChatController == null) {
+      _initializeMcpController();
+    }
   }
 
   Future<void> _initializeMcpController() async {
+    if (_mcpChatController != null) return;
+
     try {
       String? browseDirectory;
       try {
@@ -75,7 +87,9 @@ class _AssistantWindowState extends State<AssistantWindow> {
     if (_ownsChatController) {
       _chatController.dispose();
     }
-    _mcpChatController?.dispose();
+    if (_ownsMcpChatController) {
+      _mcpChatController?.dispose();
+    }
     super.dispose();
   }
 
