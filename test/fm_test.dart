@@ -17,40 +17,28 @@ void main() {
 
     FlavorConfig.setup();
 
-    late final Directory tempDocumentsDir;
-    setUpAll(() async {
+    late Directory tempDocumentsDir;
+    setUpAll(() {
       stows.customDataDir.removeListener(FileManager.migrateDataDir);
-      tempDocumentsDir = await Directory.systemTemp.createTemp('kivixa_fm_');
-      await FileManager.init(
-        documentsDirectory: tempDocumentsDir.path,
-        shouldWatchRootDirectory: false,
-      );
-      stows.customDataDir.value = tempDocumentsDir.path;
     });
 
     void resetFileManagerState() {
       FileManager.documentsDirectory = tempDocumentsDir.path;
       FileManager.shouldUseRawFilePath = false;
-      stows.customDataDir.value = tempDocumentsDir.path;
     }
 
     setUp(() async {
-      // Keep FileManager globals deterministic across the suite.
+      tempDocumentsDir = await Directory.systemTemp.createTemp('kivixa_fm_');
+      await FileManager.init(
+        documentsDirectory: tempDocumentsDir.path,
+        shouldWatchRootDirectory: false,
+      );
       resetFileManagerState();
-
-      final rootDir = Directory(tempDocumentsDir.path);
-      if (rootDir.existsSync()) {
-        await for (final entity in rootDir.list()) {
-          await entity.delete(recursive: true);
-        }
-      } else {
-        await rootDir.create(recursive: true);
-      }
 
       stows.recentFiles.value = <String>[];
     });
 
-    tearDownAll(() async {
+    tearDown(() async {
       if (tempDocumentsDir.existsSync()) {
         await tempDocumentsDir.delete(recursive: true);
       }
