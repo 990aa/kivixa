@@ -17,10 +17,21 @@ void main() {
 
     FlavorConfig.setup();
 
+    late final Directory tempDocumentsDir;
     late final String rootDir;
     setUpAll(() async {
-      await FileManager.init();
+      tempDocumentsDir = await Directory.systemTemp.createTemp('kivixa_fm_');
+      await FileManager.init(
+        documentsDirectory: tempDocumentsDir.path,
+        shouldWatchRootDirectory: false,
+      );
       rootDir = FileManager.documentsDirectory;
+    });
+
+    tearDownAll(() async {
+      if (tempDocumentsDir.existsSync()) {
+        await tempDocumentsDir.delete(recursive: true);
+      }
     });
 
     test('readFile', () async {
