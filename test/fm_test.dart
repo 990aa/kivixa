@@ -27,22 +27,8 @@ void main() {
       FileManager.shouldUseRawFilePath = false;
     }
 
-    String toRawPath(String relativePath) =>
-        '${tempDocumentsDir.path}$relativePath';
-
     String normalizePathForComparison(String path) =>
         path.replaceAll('\\', '/');
-
-    Future<void> withRawPaths(Future<void> Function() action) async {
-      final previousRawMode = FileManager.shouldUseRawFilePath;
-      FileManager.shouldUseRawFilePath = true;
-      try {
-        await action();
-      } finally {
-        FileManager.shouldUseRawFilePath = previousRawMode;
-        FileManager.documentsDirectory = tempDocumentsDir.path;
-      }
-    }
 
     setUp(() async {
       tempDocumentsDir = await Directory.systemTemp.createTemp('kivixa_fm_');
@@ -83,51 +69,43 @@ void main() {
       const filePath = '/test_writeFile.kvx';
       const content = 'test content for $filePath';
 
-      await withRawPaths(() async {
-        final rawFilePath = toRawPath(filePath);
+      await FileManager.writeFile(
+        filePath,
+        utf8.encode(content),
+        awaitWrite: true,
+      );
 
-        await FileManager.writeFile(
-          rawFilePath,
-          utf8.encode(content),
-          awaitWrite: true,
-        );
+      final readBytes = await FileManager.readFile(filePath, retries: 20);
+      expect(readBytes, isNotNull);
+      final readContent = utf8.decode(readBytes!);
+      expect(readContent, content);
 
-        final readBytes = await FileManager.readFile(rawFilePath, retries: 20);
-        expect(readBytes, isNotNull);
-        final readContent = utf8.decode(readBytes!);
-        expect(readContent, content);
-
-        try {
-          await FileManager.deleteFile(rawFilePath);
-        } catch (e) {
-          // Ignore deletion errors on Windows
-        }
-      });
+      try {
+        await FileManager.deleteFile(filePath);
+      } catch (e) {
+        // Ignore deletion errors on Windows
+      }
     });
     test('writeFile and readFile', () async {
       const filePath = '/test_readWriteFile.kvx';
       const content = 'test content for $filePath';
 
-      await withRawPaths(() async {
-        final rawFilePath = toRawPath(filePath);
+      await FileManager.writeFile(
+        filePath,
+        utf8.encode(content),
+        awaitWrite: true,
+      );
 
-        await FileManager.writeFile(
-          rawFilePath,
-          utf8.encode(content),
-          awaitWrite: true,
-        );
+      final readBytes = await FileManager.readFile(filePath, retries: 20);
+      expect(readBytes, isNotNull);
+      final readContent = utf8.decode(readBytes!);
+      expect(readContent, content);
 
-        final readBytes = await FileManager.readFile(rawFilePath, retries: 20);
-        expect(readBytes, isNotNull);
-        final readContent = utf8.decode(readBytes!);
-        expect(readContent, content);
-
-        try {
-          await FileManager.deleteFile(rawFilePath);
-        } catch (e) {
-          // Ignore deletion errors on Windows
-        }
-      });
+      try {
+        await FileManager.deleteFile(filePath);
+      } catch (e) {
+        // Ignore deletion errors on Windows
+      }
     });
 
     test('moveFile', () async {
@@ -141,78 +119,88 @@ void main() {
       const contentA = 'test content for $filePathBefore.0';
       const contentP = 'test content for $filePathBefore.p';
 
-      await withRawPaths(() async {
-        final rawBefore = toRawPath(filePathBefore);
-        final rawBeforeA = toRawPath(filePathBeforeA);
-        final rawBeforeP = toRawPath(filePathBeforeP);
-        final rawAfter = toRawPath(filePathAfter);
-        final rawAfterA = toRawPath(filePathAfterA);
-        final rawAfterP = toRawPath(filePathAfterP);
+      await FileManager.writeFile(
+        filePathBefore,
+        utf8.encode(content),
+        awaitWrite: true,
+      );
+      await FileManager.writeFile(
+        filePathBeforeA,
+        utf8.encode(contentA),
+        awaitWrite: true,
+      );
+      await FileManager.writeFile(
+        filePathBeforeP,
+        utf8.encode(contentP),
+        awaitWrite: true,
+      );
 
-        await FileManager.writeFile(
-          rawBefore,
-          utf8.encode(content),
-          awaitWrite: true,
-        );
-        await FileManager.writeFile(
-          rawBeforeA,
-          utf8.encode(contentA),
-          awaitWrite: true,
-        );
-        await FileManager.writeFile(
-          rawBeforeP,
-          utf8.encode(contentP),
-          awaitWrite: true,
-        );
+      try {
+        await FileManager.deleteFile(filePathAfter);
+      } catch (e) {
+        // Ignore if file doesn't exist
+      }
 
-        try {
-          await FileManager.deleteFile(rawAfter);
-        } catch (e) {
-          // Ignore if file doesn't exist
-        }
+      final filePathActual = await FileManager.moveFile(
+        filePathBefore,
+        filePathAfter,
+      );
+      expect(
+        normalizePathForComparison(filePathActual),
+        normalizePathForComparison(filePathAfter),
+      );
 
-        final filePathActual = await FileManager.moveFile(rawBefore, rawAfter);
-        expect(
-          normalizePathForComparison(filePathActual),
-          normalizePathForComparison(rawAfter),
-        );
+      final fileBefore = File(
+        '${FileManager.documentsDirectory}$filePathBefore',
+      );
+      final fileAfter = File('${FileManager.documentsDirectory}$filePathAfter');
+      expect(fileBefore.existsSync(), false);
+      expect(fileAfter.existsSync(), true);
 
-        final fileBefore = File(rawBefore);
-        final fileAfter = File(rawAfter);
-        expect(fileBefore.existsSync(), false);
-        expect(fileAfter.existsSync(), true);
+      final readBytes = await FileManager.readFile(filePathAfter, retries: 20);
+      expect(readBytes, isNotNull);
+      final readContent = utf8.decode(readBytes!);
+      expect(readContent, content);
 
-        final readBytes = await FileManager.readFile(rawAfter, retries: 20);
-        expect(readBytes, isNotNull);
-        final readContent = utf8.decode(readBytes!);
-        expect(readContent, content);
+      final fileBeforeA = File(
+        '${FileManager.documentsDirectory}$filePathBeforeA',
+      );
+      final fileAfterA = File(
+        '${FileManager.documentsDirectory}$filePathAfterA',
+      );
+      expect(fileBeforeA.existsSync(), false);
+      expect(fileAfterA.existsSync(), true);
 
-        final fileBeforeA = File(rawBeforeA);
-        final fileAfterA = File(rawAfterA);
-        expect(fileBeforeA.existsSync(), false);
-        expect(fileAfterA.existsSync(), true);
+      final readBytesA = await FileManager.readFile(
+        filePathAfterA,
+        retries: 20,
+      );
+      expect(readBytesA, isNotNull);
+      final readContentA = utf8.decode(readBytesA!);
+      expect(readContentA, contentA);
 
-        final readBytesA = await FileManager.readFile(rawAfterA, retries: 20);
-        expect(readBytesA, isNotNull);
-        final readContentA = utf8.decode(readBytesA!);
-        expect(readContentA, contentA);
+      final fileBeforeP = File(
+        '${FileManager.documentsDirectory}$filePathBeforeP',
+      );
+      final fileAfterP = File(
+        '${FileManager.documentsDirectory}$filePathAfterP',
+      );
+      expect(fileBeforeP.existsSync(), false);
+      expect(fileAfterP.existsSync(), true);
 
-        final fileBeforeP = File(rawBeforeP);
-        final fileAfterP = File(rawAfterP);
-        expect(fileBeforeP.existsSync(), false);
-        expect(fileAfterP.existsSync(), true);
+      final readBytesP = await FileManager.readFile(
+        filePathAfterP,
+        retries: 20,
+      );
+      expect(readBytesP, isNotNull);
+      final readContentP = utf8.decode(readBytesP!);
+      expect(readContentP, contentP);
 
-        final readBytesP = await FileManager.readFile(rawAfterP, retries: 20);
-        expect(readBytesP, isNotNull);
-        final readContentP = utf8.decode(readBytesP!);
-        expect(readContentP, contentP);
-
-        try {
-          await FileManager.deleteFile(rawAfter);
-        } catch (e) {
-          // Ignore deletion errors on Windows
-        }
-      });
+      try {
+        await FileManager.deleteFile(filePathAfter);
+      } catch (e) {
+        // Ignore deletion errors on Windows
+      }
     });
 
     test('deleteFile', () async {
@@ -221,33 +209,36 @@ void main() {
       const filePathP = '/test_deleteFile.kvx.p';
       const content = 'test content for $filePath';
 
-      await withRawPaths(() async {
-        final rawPath = toRawPath(filePath);
-        final rawPathA = toRawPath(filePathA);
-        final rawPathP = toRawPath(filePathP);
+      await FileManager.writeFile(
+        filePath,
+        utf8.encode(content),
+        awaitWrite: true,
+      );
+      await FileManager.writeFile(
+        filePathA,
+        utf8.encode(content),
+        awaitWrite: true,
+      );
+      await FileManager.writeFile(
+        filePathP,
+        utf8.encode(content),
+        awaitWrite: true,
+      );
 
-        await FileManager.writeFile(
-          rawPath,
-          utf8.encode(content),
-          awaitWrite: true,
-        );
-        await FileManager.writeFile(
-          rawPathA,
-          utf8.encode(content),
-          awaitWrite: true,
-        );
-        await FileManager.writeFile(
-          rawPathP,
-          utf8.encode(content),
-          awaitWrite: true,
-        );
+      await FileManager.deleteFile(filePath);
 
-        await FileManager.deleteFile(rawPath);
-
-        expect(File(rawPath).existsSync(), false);
-        expect(File(rawPathA).existsSync(), false);
-        expect(File(rawPathP).existsSync(), false);
-      });
+      expect(
+        File('${FileManager.documentsDirectory}$filePath').existsSync(),
+        false,
+      );
+      expect(
+        File('${FileManager.documentsDirectory}$filePathA').existsSync(),
+        false,
+      );
+      expect(
+        File('${FileManager.documentsDirectory}$filePathP').existsSync(),
+        false,
+      );
     });
 
     group('getChildrenOfDirectory', () {
@@ -322,37 +313,28 @@ void main() {
       const existingFilePath = '/test_recently_accessed_existing.kvx';
       const deletedFilePath = '/test_recently_accessed_deleted.kvx';
 
-      await withRawPaths(() async {
-        final rawExistingPath = toRawPath(existingFilePath);
-        final rawDeletedPath = toRawPath(deletedFilePath);
-        final expectedNormalizedPath = toRawPath(
-          '/test_recently_accessed_existing',
-        );
+      const expectedNormalizedPath = '/test_recently_accessed_existing';
 
-        await stows.recentFiles.waitUntilRead();
+      await stows.recentFiles.waitUntilRead();
 
-        await FileManager.writeFile(
-          rawExistingPath,
-          utf8.encode('recent note'),
-          awaitWrite: true,
-        );
+      await FileManager.writeFile(
+        existingFilePath,
+        utf8.encode('recent note'),
+        awaitWrite: true,
+      );
 
-        stows.recentFiles.value = [rawExistingPath, rawDeletedPath];
+      stows.recentFiles.value = [existingFilePath, deletedFilePath];
 
-        final recentFiles = await FileManager.getRecentlyAccessed();
-        expect(recentFiles, contains(expectedNormalizedPath));
-        expect(
-          recentFiles,
-          isNot(contains(toRawPath('/test_recently_accessed_deleted'))),
-        );
-        expect(stows.recentFiles.value, isNot(contains(rawDeletedPath)));
+      final recentFiles = await FileManager.getRecentlyAccessed();
+      expect(recentFiles, contains(expectedNormalizedPath));
+      expect(recentFiles, isNot(contains('/test_recently_accessed_deleted')));
+      expect(stows.recentFiles.value, isNot(contains(deletedFilePath)));
 
-        try {
-          await FileManager.deleteFile(rawExistingPath);
-        } catch (_) {
-          // Ignore cleanup issues on Windows file handles.
-        }
-      });
+      try {
+        await FileManager.deleteFile(existingFilePath);
+      } catch (_) {
+        // Ignore cleanup issues on Windows file handles.
+      }
     });
 
     group('getChildrenOfDirectory file type detection', () {
