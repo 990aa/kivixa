@@ -171,15 +171,26 @@ class FileManager {
   static var shouldUseRawFilePath = false;
 
   static File getFile(String filePath) {
+    filePath = _sanitisePath(filePath);
+
     if (shouldUseRawFilePath) {
       return File(filePath);
-    } else {
-      assert(
-        filePath.startsWith('/'),
-        'Expected filePath to start with a slash, got $filePath',
-      );
-      return File(documentsDirectory + filePath);
     }
+
+    final normalizedDocumentsDirectory = _sanitisePath(documentsDirectory);
+    final isAbsolutePathInDocumentsDirectory =
+        filePath == normalizedDocumentsDirectory ||
+        filePath.startsWith('$normalizedDocumentsDirectory/');
+
+    if (isAbsolutePathInDocumentsDirectory) {
+      return File(filePath);
+    }
+
+    assert(
+      filePath.startsWith('/'),
+      'Expected filePath to start with a slash, got $filePath',
+    );
+    return File(normalizedDocumentsDirectory + filePath);
   }
 
   static Directory getRootDirectory() => Directory(documentsDirectory);
