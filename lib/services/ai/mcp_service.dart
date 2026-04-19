@@ -509,11 +509,6 @@ class MCPService {
     final trimmed = responseText.trim();
     if (trimmed.isEmpty) return null;
 
-    final direct = parseToolCall(trimmed);
-    if (direct != null) {
-      return direct;
-    }
-
     final fencedJsonMatches = RegExp(
       r'```(?:json)?\s*([\s\S]*?)```',
       caseSensitive: false,
@@ -522,6 +517,26 @@ class MCPService {
     for (final match in fencedJsonMatches) {
       final candidate = match.group(1)?.trim();
       if (candidate == null || candidate.isEmpty) continue;
+      final parsed = parseToolCall(candidate);
+      if (parsed != null) {
+        return parsed;
+      }
+    }
+
+    // If no fenced payload exists, try parsing the whole response only when it
+    // already looks like JSON.
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      final direct = parseToolCall(trimmed);
+      if (direct != null) {
+        return direct;
+      }
+    }
+
+    // Fallback for assistant responses that include prose plus a JSON payload.
+    final start = trimmed.indexOf('{');
+    final end = trimmed.lastIndexOf('}');
+    if (start >= 0 && end > start) {
+      final candidate = trimmed.substring(start, end + 1).trim();
       final parsed = parseToolCall(candidate);
       if (parsed != null) {
         return parsed;

@@ -5,9 +5,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/services/productivity/chained_routine_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    ChainedRoutineService.instance.resetForTests();
+  });
+
+  tearDown(() {
+    ChainedRoutineService.instance.resetForTests();
+  });
 
   group('RoutineBlock', () {
     test('creates with required properties', () {

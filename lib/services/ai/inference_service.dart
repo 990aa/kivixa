@@ -160,10 +160,11 @@ class InferenceService {
 
     // Check if initialization failed
     if (_initializationFailed) {
-      throw StateError(
-        'Native library failed to load: $_initializationError\n'
-        'AI features are not available.',
+      debugPrint(
+        'Skipping model load because native inference is unavailable: '
+        '$_initializationError',
       );
+      return;
     }
 
     // Skip if model is already loaded to prevent BackendAlreadyInitialized error
@@ -201,6 +202,12 @@ class InferenceService {
 
   /// Unload the model and free resources
   void unloadModel() {
+    if (_initializationFailed || !_isModelLoaded) {
+      _isModelLoaded = false;
+      _embeddingDimension = null;
+      return;
+    }
+
     native.unloadModel();
     _isModelLoaded = false;
     _embeddingDimension = null;

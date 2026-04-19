@@ -946,6 +946,27 @@ class ChainedRoutineService extends ChangeNotifier {
     });
   }
 
+  @visibleForTesting
+  void resetForTests() {
+    _timer?.cancel();
+    _saveRoutinesDebounce?.cancel();
+    _saveSettingsDebounce?.cancel();
+
+    _currentRoutine = null;
+    _currentBlockIndex = 0;
+    _state = RoutineState.idle;
+    _remainingTime = Duration.zero;
+
+    _defaultRoutines
+      ..clear()
+      ..addAll(ChainedRoutine.defaultRoutines);
+    _customRoutines.clear();
+
+    _soundEnabled = true;
+    _prefs = null;
+    _initialized = false;
+  }
+
   @override
   void dispose() {
     _timer?.cancel();

@@ -171,15 +171,26 @@ class FileManager {
   static var shouldUseRawFilePath = false;
 
   static File getFile(String filePath) {
+    filePath = _sanitisePath(filePath);
+
     if (shouldUseRawFilePath) {
       return File(filePath);
-    } else {
-      assert(
-        filePath.startsWith('/'),
-        'Expected filePath to start with a slash, got $filePath',
-      );
-      return File(documentsDirectory + filePath);
     }
+
+    final normalizedDocumentsDirectory = _sanitisePath(documentsDirectory);
+    final isAbsolutePathInDocumentsDirectory =
+        filePath == normalizedDocumentsDirectory ||
+        filePath.startsWith('$normalizedDocumentsDirectory/');
+
+    if (isAbsolutePathInDocumentsDirectory) {
+      return File(filePath);
+    }
+
+    assert(
+      filePath.startsWith('/'),
+      'Expected filePath to start with a slash, got $filePath',
+    );
+    return File(normalizedDocumentsDirectory + filePath);
   }
 
   static Directory getRootDirectory() => Directory(documentsDirectory);
@@ -863,9 +874,10 @@ class FileManager {
   static Future _createFileDirectory(String filePath) async {
     assert(filePath.contains('/'), 'filePath must be a path, not a file name');
     final parentDirectory = filePath.substring(0, filePath.lastIndexOf('/'));
-    await Directory(
-      documentsDirectory + parentDirectory,
-    ).create(recursive: true);
+    final targetDirectory = shouldUseRawFilePath
+        ? parentDirectory
+        : documentsDirectory + parentDirectory;
+    await Directory(targetDirectory).create(recursive: true);
   }
 
   static Future _renameReferences(String fromPath, String toPath) async {
