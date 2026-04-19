@@ -42,7 +42,7 @@ void main() {
     });
 
     test('scheduleEventNotification schedules an event notification', () async {
-      final eventDate = DateTime.now().add(const Duration(days: 1));
+      final eventDate = DateTime.now().add(const Duration(days: 2));
       final event = CalendarEvent(
         id: '1',
         title: 'Test Event',
@@ -72,7 +72,7 @@ void main() {
     test(
       'scheduleEventNotification schedules an all-day event at 9 AM',
       () async {
-        final eventDate = DateTime.now().add(const Duration(days: 1));
+        final eventDate = DateTime.now().add(const Duration(days: 2));
         final event = CalendarEvent(
           id: '2',
           title: 'All Day Event',
@@ -132,7 +132,7 @@ void main() {
     test(
       'scheduleEventNotification schedules overdue notification for task',
       () async {
-        final taskDate = DateTime.now().add(const Duration(days: 1));
+        final taskDate = DateTime.now().add(const Duration(days: 2));
         final task = CalendarEvent(
           id: '4',
           title: 'Test Task',
@@ -197,7 +197,7 @@ void main() {
         final futureEvent = CalendarEvent(
           id: 'future',
           title: 'Future Event',
-          date: now.add(const Duration(days: 1)),
+          date: now.add(const Duration(days: 2)),
           type: EventType.event,
           startTime: const TimeOfDay(hour: 10, minute: 0),
         );
