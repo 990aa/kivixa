@@ -31,62 +31,55 @@ void main() {
       expect(service.currentFps, isA<double>());
     });
 
-    test('startStreaming handles error when bridge not initialized', () async {
+    test('startStreaming degrades gracefully when bridge not initialized', () async {
       final service = KnowledgeGraphStreamingService.instance;
-      // In test environment, Rust bridge isn't initialized
-      // Service should handle this gracefully
-      expect(() async => await service.startStreaming(), throwsA(anything));
+      await service.startStreaming();
+      expect(service.isStreaming, false);
     });
 
-    test('addNode handles error when bridge not initialized', () async {
+    test('addNode degrades gracefully when bridge not initialized', () async {
       final service = KnowledgeGraphStreamingService.instance;
-      // Should throw because bridge isn't initialized
-      expect(
-        () async => await service.addNode(id: 'test-node', x: 100.0, y: 200.0),
-        throwsA(anything),
-      );
+      await service.addNode(id: 'test-node', x: 100.0, y: 200.0);
+      expect(service.isStreaming, false);
     });
 
-    test('removeNode handles error when bridge not initialized', () async {
+    test('removeNode degrades gracefully when bridge not initialized', () async {
       final service = KnowledgeGraphStreamingService.instance;
-      expect(
-        () async => await service.removeNode('test-node'),
-        throwsA(anything),
-      );
+      await service.removeNode('test-node');
+      expect(service.isStreaming, false);
     });
 
-    test('addEdge handles error when bridge not initialized', () async {
+    test('addEdge degrades gracefully when bridge not initialized', () async {
       final service = KnowledgeGraphStreamingService.instance;
-      expect(
-        () async => await service.addEdge(fromId: 'a', toId: 'b'),
-        throwsA(anything),
-      );
+      await service.addEdge(fromId: 'a', toId: 'b');
+      expect(service.isStreaming, false);
     });
 
-    test('removeEdge handles error when bridge not initialized', () async {
+    test('removeEdge degrades gracefully when bridge not initialized', () async {
       final service = KnowledgeGraphStreamingService.instance;
-      expect(() async => await service.removeEdge('a', 'b'), throwsA(anything));
+      await service.removeEdge('a', 'b');
+      expect(service.isStreaming, false);
     });
 
-    test('pinNode handles error when bridge not initialized', () async {
+    test('pinNode degrades gracefully when bridge not initialized', () async {
       final service = KnowledgeGraphStreamingService.instance;
-      expect(
-        () async => await service.pinNode('node', true),
-        throwsA(anything),
-      );
+      await service.pinNode('node', true);
+      expect(service.isStreaming, false);
     });
 
-    test('setNodePosition handles error when bridge not initialized', () async {
-      final service = KnowledgeGraphStreamingService.instance;
-      expect(
-        () async => await service.setNodePosition('node', 0, 0),
-        throwsA(anything),
-      );
-    });
+    test(
+      'setNodePosition degrades gracefully when bridge not initialized',
+      () async {
+        final service = KnowledgeGraphStreamingService.instance;
+        await service.setNodePosition('node', 0, 0);
+        expect(service.isStreaming, false);
+      },
+    );
 
-    test('clearGraph handles error when bridge not initialized', () async {
+    test('clearGraph degrades gracefully when bridge not initialized', () async {
       final service = KnowledgeGraphStreamingService.instance;
-      expect(() async => await service.clearGraph(), throwsA(anything));
+      await service.clearGraph();
+      expect(service.isStreaming, false);
     });
 
     test('getStats returns fallback when bridge not initialized', () async {

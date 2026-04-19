@@ -71,10 +71,19 @@ class FolderColorService {
       final file = File(_filePath);
       if (file.existsSync()) {
         final jsonString = await file.readAsString();
-        final Map<String, dynamic> data = jsonDecode(jsonString);
+        final decoded = jsonDecode(jsonString);
+        if (decoded is! Map) {
+          return;
+        }
+        final data = Map<String, dynamic>.from(decoded);
         _folderColors.clear();
         for (final entry in data.entries) {
-          _folderColors[entry.key] = entry.value as int;
+          final value = entry.value;
+          if (value is int) {
+            _folderColors[entry.key] = value;
+          } else if (value is num) {
+            _folderColors[entry.key] = value.toInt();
+          }
         }
       }
     } catch (e) {
