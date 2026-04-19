@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
 import 'package:kivixa/components/ai/mcp_chat_controller.dart';
 import 'package:kivixa/components/overlay/assistant_window.dart';
-import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/chat_attachment_service.dart';
+import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/model_manager.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
 

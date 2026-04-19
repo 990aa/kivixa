@@ -39,6 +39,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             if [[ -z "${{ inputs.pr_number }}" ]]; then
               echo "::error::Input 'pr_number' is required for workflow_dispatch runs."
@@ -46,6 +47,10 @@ jobs:
             fi
             base_sha=$(gh api "repos/${{ github.repository }}/pulls/${{ inputs.pr_number }}" --jq '.base.sha')
             head_sha=$(gh api "repos/${{ github.repository }}/pulls/${{ inputs.pr_number }}" --jq '.head.sha')
+            if [[ -z "$base_sha" || -z "$head_sha" || "$base_sha" == "null" || "$head_sha" == "null" ]]; then
+              echo "::error::Unable to resolve base/head SHA for PR #${{ inputs.pr_number }}."
+              exit 1
+            fi
             echo "checkout_ref=refs/pull/${{ inputs.pr_number }}/head" >> "$GITHUB_OUTPUT"
             echo "target_label=PR ${{ inputs.pr_number }}" >> "$GITHUB_OUTPUT"
             echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
@@ -90,7 +95,7 @@ jobs:
           fi
 
           git fetch --no-tags --depth=1 origin "${{ github.base_ref || 'main' }}" || true
-          git diff --name-only "${{ needs.resolve-target.outputs.base_sha }}...${{ needs.resolve-target.outputs.head_sha }}" -- '*.dart' \
+          git diff --diff-filter=ACMR --name-only "${{ needs.resolve-target.outputs.base_sha }}...${{ needs.resolve-target.outputs.head_sha }}" -- '*.dart' \
             | grep -vE '\.(g|freezed)\.dart$' > changed_dart_files.txt || true
 
           if [[ -s changed_dart_files.txt ]]; then
