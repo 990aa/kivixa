@@ -62,4 +62,5 @@ analyze*
 {tempDir.path}
 
 manifests/
-
+*.json
+*.txt
