@@ -221,11 +221,15 @@ pub fn cluster_embeddings_kmeans(
     }
 
     // Determine optimal K
-    let k = k.unwrap_or_else(|| {
-        // Rule of thumb: sqrt(n/2), clamped to reasonable range
-        let auto_k = ((entries.len() as f64 / 2.0).sqrt().ceil() as usize).max(2);
-        auto_k.min(entries.len()).min(16) // Max 16 clusters
-    });
+    let k = match k {
+        Some(0) => anyhow::bail!("k must be at least 1"),
+        Some(requested_k) => requested_k.min(entries.len()).min(16), // Max 16 clusters
+        None => {
+            // Rule of thumb: sqrt(n/2), clamped to reasonable range
+            let auto_k = ((entries.len() as f64 / 2.0).sqrt().ceil() as usize).max(2);
+            auto_k.min(entries.len()).min(16) // Max 16 clusters
+        }
+    };
 
     let max_iter = max_iterations.unwrap_or(100).max(1);
 
