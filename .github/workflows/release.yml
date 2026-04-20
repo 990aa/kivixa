@@ -712,7 +712,7 @@ jobs:
 
       - name: Create GitHub Release
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           name: Kivixa v${{ needs.build-android.outputs.version }}
           tag_name: ${{ needs.build-android.outputs.tag_name }}
