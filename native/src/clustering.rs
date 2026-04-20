@@ -8,7 +8,7 @@
 //! - Color assignment for visual grouping
 //! - Semantic edge detection for hidden connections
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 
 use crate::embeddings::{cosine_similarity, EmbeddingEntry};
@@ -143,8 +143,19 @@ fn recompute_centroids(
     assignments: &[usize],
     previous_centroids: &[Vec<f32>],
     k: usize,
-) -> Vec<Vec<f32>> {
+) -> Result<Vec<Vec<f32>>> {
     let dim = entries[0].vector.len();
+    for entry in entries.iter() {
+        if entry.vector.len() != dim {
+            return Err(anyhow!(
+                "inconsistent embedding dimensions: expected {}, got {} for entry {}",
+                dim,
+                entry.vector.len(),
+                entry.id
+            ));
+        }
+    }
+
     let mut sums = vec![vec![0.0f32; dim]; k];
     let mut counts = vec![0usize; k];
 
@@ -170,7 +181,7 @@ fn recompute_centroids(
         centroids.push(sums[cluster_id].clone());
     }
 
-    centroids
+    Ok(centroids)
 }
 
 fn max_centroid_shift(previous: &[Vec<f32>], current: &[Vec<f32>]) -> f32 {
