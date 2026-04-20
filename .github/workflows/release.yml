@@ -38,6 +38,9 @@ on:
         type: boolean
         default: true
 
+permissions:
+  contents: read
+
 env:
   FLUTTER_VERSION: '3.41.7'
 
