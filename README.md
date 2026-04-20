@@ -14,20 +14,33 @@
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
 [![Version](https://img.shields.io/badge/Version-0.8.10%2B8010--beta-orange)](CHANGELOG.md)
 
+**Install on Windows with winget (recommended):**
+
+```powershell
+winget install Kivixa
+```
+
 [![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.8.10%2B8010/Kivixa-Setup-0.8.10.exe)
 
 [![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.10%2B8010/Kivixa-Android-0.8.10-arm64.apk)
 [![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.10%2B8010/Kivixa-Android-0.8.10-armv7.apk)
 [![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.10%2B8010/Kivixa-Android-0.8.10-x86_64.apk)
 
-**F-Droid Repository:**
+**F-Droid Repository (step-by-step):**
+
+1. Install F-Droid from https://f-droid.org/.
+2. Open the F-Droid app.
+3. Go to **Settings**.
+4. Tap **Repositories**.
+5. Tap the **+** icon at the bottom.
+6. Choose one method:
+  - **Scan QR code** and scan the QR code below.
+  - **Enter repository URL manually** and enter: `https://990aa.github.io/kivixa/repo/`
 
 [![F-Droid Repo](https://img.shields.io/badge/F--Droid-Add%20Repo-F5BB00?logo=fdroid)](https://990aa.github.io/kivixa/repo/)
 <details>
-<summary>Scan QR Code to add F-Droid repo</summary>
+<summary>F-Droid repository QR code</summary>
 <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://990aa.github.io/kivixa/repo" alt="F-Droid Repo QR Code" width="200">
-
-*Scan with F-Droid app to auto-add the repository*
 </details>
 
 </div>
