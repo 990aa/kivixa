@@ -103,15 +103,6 @@ class NotificationService {
   }
 
   static void _processNotificationAction(NotificationResponse response) {
-    if (response.notificationResponseType ==
-        NotificationResponseType.dismissed) {
-      final notificationId = response.id;
-      if (notificationId != null) {
-        unawaited(instance.cancelNotification(notificationId));
-      }
-      return;
-    }
-
     if (response.actionId == _dismissActionId) {
       final notificationId = response.id;
       if (notificationId != null) {

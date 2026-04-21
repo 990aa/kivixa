@@ -395,9 +395,7 @@ class ProductivityTimerService extends ChangeNotifier {
   }
 
   void _handleNotificationResponse(NotificationResponse response) {
-    if (response.notificationResponseType ==
-            NotificationResponseType.dismissed ||
-        response.actionId == _actionDismiss) {
+    if (response.actionId == _actionDismiss) {
       unawaited(_notifications?.cancel(response.id ?? _statusNotificationId));
       return;
     }
