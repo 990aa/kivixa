@@ -35,7 +35,6 @@ import 'package:kivixa/services/life_git/life_git_service.dart';
 import 'package:kivixa/services/productivity/chained_routine_service.dart';
 import 'package:kivixa/services/productivity/productivity_timer_service.dart';
 import 'package:kivixa/services/quick_notes/quick_notes_service.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:stow/stow.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -773,13 +772,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     icon: Icons.straighten,
                     pref: stows.autoStraightenLines,
                   ),
-                  SettingsSwitch(
-                    title: t.settings.prefLabels.simplifiedHomeLayout,
-                    subtitle: t.settings.prefDescriptions.simplifiedHomeLayout,
-                    iconBuilder: (simplified) =>
-                        simplified ? Icons.grid_view : Symbols.browse,
-                    pref: stows.simplifiedHomeLayout,
-                  ),
                 ],
                 if (showFloatingHub) ...[
                   const SettingsSubtitle(subtitle: 'Floating Hub'),
@@ -1440,7 +1432,6 @@ class _ResetAllSettingsWidget extends StatelessWidget {
     stows.shapeRecognitionDelay.value =
         stows.shapeRecognitionDelay.defaultValue;
     stows.autoStraightenLines.value = stows.autoStraightenLines.defaultValue;
-    stows.simplifiedHomeLayout.value = stows.simplifiedHomeLayout.defaultValue;
     stows.printPageIndicators.value = stows.printPageIndicators.defaultValue;
     stows.maxImageSize.value = stows.maxImageSize.defaultValue;
     stows.autoClearWhiteboardOnExit.value =

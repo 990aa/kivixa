@@ -697,5 +697,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.8.11] - 2026-04-18
 
+### Fixed
+- Applied PR quality/security branch updates from open Dependabot PRs into the integration flow.
+- Addressed security automation feedback by adding explicit workflow token permissions and remediating Rust dependency risk paths tied to alert findings.
+
+### Tests
+- Added regression and migration tests for simplified-home-layout cleanup, including persisted preference removal and source-level UI/backend assertions.
+
 
 ---
