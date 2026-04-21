@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kivixa/data/models/notification_settings.dart';
 import 'package:kivixa/data/notification_settings_storage.dart';
+import 'package:kivixa/services/notification_sound_catalog_service.dart';
 import 'package:kivixa/services/productivity/chained_routine_service.dart';
 import 'package:kivixa/services/productivity/multi_timer_service.dart';
 import 'package:kivixa/services/productivity/timer_context_tag.dart';
@@ -223,6 +225,7 @@ class ProductivityTimerService extends ChangeNotifier {
   static const _actionPause = 'productivity_pause';
   static const _actionResume = 'productivity_resume';
   static const _actionStop = 'productivity_stop';
+  static const _actionDismiss = 'productivity_dismiss';
 
   // Timer state
   Timer? _timer;
@@ -256,7 +259,6 @@ class ProductivityTimerService extends ChangeNotifier {
   var _soundEnabled = true;
   var _showPreEndWarning = true;
   var _preEndWarningMinutes = 5;
-  var _notificationsPermissionGranted = false;
 
   // Settings
   var _autoStartBreak = true;
@@ -297,7 +299,6 @@ class ProductivityTimerService extends ChangeNotifier {
   int get preEndWarningMinutes => _preEndWarningMinutes;
   bool get autoStartBreak => _autoStartBreak;
   bool get autoStartNextSession => _autoStartNextSession;
-  bool get notificationsPermissionGranted => _notificationsPermissionGranted;
   bool get microBreaksEnabled => _microBreaksEnabled;
   int get microBreakIntervalMinutes => _microBreakIntervalMinutes;
   bool get initialized => _initialized;
@@ -394,6 +395,12 @@ class ProductivityTimerService extends ChangeNotifier {
   }
 
   void _handleNotificationResponse(NotificationResponse response) {
+    if (response.notificationResponseType == NotificationResponseType.dismissed ||
+        response.actionId == _actionDismiss) {
+      unawaited(_notifications?.cancel(response.id ?? _statusNotificationId));
+      return;
+    }
+
     switch (response.actionId) {
       case _actionPause:
         pause();
@@ -413,33 +420,57 @@ class ProductivityTimerService extends ChangeNotifier {
     bool playSound = true,
     int? notificationId,
     bool ongoing = false,
+    bool longVibrationAlert = true,
     String? payload,
     List<AndroidNotificationAction>? actions,
   }) async {
     if (!_notificationsInitialized) return;
 
     final globalSettings = await NotificationSettingsStorage.loadSettings();
-    if (!globalSettings.notificationsEnabled) {
-      return;
-    }
     final effectivePlaySound =
         playSound && _soundEnabled && _shouldPlaySound(globalSettings);
+    final resolvedSound = await _resolveAndroidSound(
+      globalSettings,
+      effectivePlaySound,
+    );
+    final vibrationPattern = longVibrationAlert
+        ? _longReminderVibrationPattern()
+        : _shortNotificationVibrationPattern();
+
+    final effectiveActions = <AndroidNotificationAction>[
+      ...?actions,
+    ];
+    if (!ongoing &&
+        !effectiveActions.any((action) => action.id == _actionDismiss)) {
+      effectiveActions.add(
+        const AndroidNotificationAction(
+          _actionDismiss,
+          'Dismiss',
+          showsUserInterface: false,
+        ),
+      );
+    }
+
+    final soundIdentity = effectivePlaySound
+        ? globalSettings.reminderSoundId
+        : 'vibrate_only';
 
     final androidDetails = AndroidNotificationDetails(
-      _channelIdForSettings(globalSettings),
+      _channelIdForSettings(globalSettings, soundIdentity),
       'Productivity Timer',
       channelDescription: 'Notifications for productivity timer',
       importance: Importance.high,
       priority: Priority.high,
       playSound: effectivePlaySound,
-      sound: _resolveAndroidSound(globalSettings, effectivePlaySound),
-      audioAttributesUsage: _resolveAudioAttributesUsage(globalSettings),
-      enableVibration: globalSettings.vibrateOnlyOnAndroid,
-      vibrationPattern: _resolveVibrationPattern(globalSettings),
+      sound: resolvedSound,
+      audioAttributesUsage: _resolveAudioAttributesUsage(effectivePlaySound),
+      enableVibration: true,
+      vibrationPattern: vibrationPattern,
+      timeoutAfter: longVibrationAlert ? 60000 : null,
       ongoing: ongoing,
       autoCancel: !ongoing,
       onlyAlertOnce: true,
-      actions: actions,
+      actions: effectiveActions,
     );
 
     final details = NotificationDetails(android: androidDetails);
@@ -457,54 +488,61 @@ class ProductivityTimerService extends ChangeNotifier {
     }
   }
 
-  String _channelIdForSettings(NotificationSettings settings) {
-    final vibrationMode = settings.vibrateOnlyOnAndroid
-        ? 'vibrate_only'
-        : 'normal';
-    return 'productivity_timer_${settings.soundProfile.storageKey}_$vibrationMode';
+  String _channelIdForSettings(NotificationSettings settings, String soundId) {
+    return 'productivity_timer_${settings.notificationFeedbackMode.storageKey}_$soundId';
   }
 
   bool _shouldPlaySound(NotificationSettings settings) {
-    return settings.soundProfile != NotificationSoundProfile.silent;
+    return settings.notificationFeedbackMode ==
+        NotificationFeedbackMode.vibrateWithSound;
   }
 
-  AndroidNotificationSound? _resolveAndroidSound(
+  Future<AndroidNotificationSound?> _resolveAndroidSound(
     NotificationSettings settings,
     bool shouldPlaySound,
-  ) {
+  ) async {
     if (!shouldPlaySound) {
       return null;
     }
 
-    switch (settings.soundProfile) {
-      case NotificationSoundProfile.defaultTone:
-        return const RawResourceAndroidNotificationSound('kivixa_default');
-      case NotificationSoundProfile.alarm:
-        return const RawResourceAndroidNotificationSound('kivixa_alarm');
-      case NotificationSoundProfile.ringtone:
-        return const RawResourceAndroidNotificationSound('kivixa_ringtone');
-      case NotificationSoundProfile.silent:
-        return null;
+    final path = await NotificationSoundCatalogService.instance
+        .localPathForReminderSound(settings.reminderSoundId);
+    if (path.trim().isEmpty) {
+      return const RawResourceAndroidNotificationSound('kivixa_notification');
     }
+
+    return UriAndroidNotificationSound(Uri.file(path).toString());
   }
 
-  AudioAttributesUsage _resolveAudioAttributesUsage(
-    NotificationSettings settings,
-  ) {
-    return switch (settings.soundProfile) {
-      NotificationSoundProfile.alarm => AudioAttributesUsage.alarm,
-      NotificationSoundProfile.ringtone =>
-        AudioAttributesUsage.notificationRingtone,
-      NotificationSoundProfile.defaultTone => AudioAttributesUsage.notification,
-      NotificationSoundProfile.silent => AudioAttributesUsage.notification,
-    };
+  AudioAttributesUsage _resolveAudioAttributesUsage(bool playSound) {
+    return playSound
+        ? AudioAttributesUsage.alarm
+        : AudioAttributesUsage.notification;
   }
 
-  Int64List? _resolveVibrationPattern(NotificationSettings settings) {
-    if (!settings.vibrateOnlyOnAndroid) {
-      return null;
+  Int64List _shortNotificationVibrationPattern() {
+    return Int64List.fromList([0, 180]);
+  }
+
+  Int64List _longReminderVibrationPattern() {
+    final pattern = <int>[0];
+    var elapsedMs = 0;
+
+    while (elapsedMs < 60000) {
+      final vibrate = min(450, 60000 - elapsedMs);
+      pattern.add(vibrate);
+      elapsedMs += vibrate;
+
+      if (elapsedMs >= 60000) {
+        break;
+      }
+
+      final pause = min(350, 60000 - elapsedMs);
+      pattern.add(pause);
+      elapsedMs += pause;
     }
-    return Int64List.fromList([0, 280, 160, 280]);
+
+    return Int64List.fromList(pattern);
   }
 
   List<AndroidNotificationAction> _buildStatusActions() {
@@ -1074,23 +1112,6 @@ class ProductivityTimerService extends ChangeNotifier {
   /// Start a session with a quick preset
   void startWithPreset(QuickPreset preset, {TimerContextTag? contextTag}) {
     startSession(preset: preset, contextTag: contextTag);
-  }
-
-  /// Request notification permission
-  Future<bool> requestNotificationPermission() async {
-    try {
-      final result = await _notifications
-          ?.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin
-          >()
-          ?.requestNotificationsPermission();
-      _notificationsPermissionGranted = result ?? false;
-      notifyListeners();
-      return _notificationsPermissionGranted;
-    } catch (e) {
-      debugPrint('Failed to request notification permission: $e');
-      return false;
-    }
   }
 
   // ============================================================
