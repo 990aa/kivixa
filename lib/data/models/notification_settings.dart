@@ -183,9 +183,9 @@ class NotificationSettings {
           exactTimeNotificationsEnabled ?? this.exactTimeNotificationsEnabled,
       soundProfile: soundProfile ?? this.soundProfile,
       vibrateOnlyOnAndroid: vibrateOnlyOnAndroid ?? this.vibrateOnlyOnAndroid,
-        notificationFeedbackMode:
+      notificationFeedbackMode:
           notificationFeedbackMode ?? this.notificationFeedbackMode,
-        reminderSoundId: (reminderSoundId ?? this.reminderSoundId).trim().isEmpty
+      reminderSoundId: (reminderSoundId ?? this.reminderSoundId).trim().isEmpty
           ? defaultReminderSoundId
           : (reminderSoundId ?? this.reminderSoundId).trim(),
       leadTimesInMinutes: leadTimesInMinutes ?? this.leadTimesInMinutes,
