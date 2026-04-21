@@ -64,3 +64,4 @@ analyze*
 manifests/
 *.json
 *.txt
+notification_sounds/

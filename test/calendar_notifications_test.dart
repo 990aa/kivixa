@@ -258,7 +258,7 @@ void main() {
         projectDeadlineNotificationsEnabled: false,
         exactTimeNotificationsEnabled: false,
         soundProfile: NotificationSoundProfile.alarm,
-        vibrateOnlyOnAndroid: true,
+        notificationFeedbackMode: NotificationFeedbackMode.vibrateOnly,
         leadTimesInMinutes: const [15, 120],
       );
 
@@ -268,8 +268,9 @@ void main() {
       expect(json['overdueNotificationsEnabled'], true);
       expect(json['projectDeadlineNotificationsEnabled'], false);
       expect(json['exactTimeNotificationsEnabled'], false);
-      expect(json['soundProfile'], 'alarm');
+      expect(json['soundProfile'], 'silent'); // vibrateOnly forces legacy soundProfile to silent
       expect(json['vibrateOnlyOnAndroid'], true);
+      expect(json['notificationFeedbackMode'], 'vibrate_only');
       expect(json['leadTimesInMinutes'], [15, 120]);
     });
 
@@ -578,3 +579,4 @@ void main() {
     });
   });
 }
+
