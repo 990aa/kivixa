@@ -20,28 +20,36 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # All three languages added back to the matrix
         language: [ 'actions', 'java-kotlin', 'rust' ]
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         submodules: recursive 
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v4
+      uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
-        # MAGIC FIX: Use 'manual' for Java/Kotlin, but 'none' for Rust and Actions!
-        build-mode: ${{ matrix.language == 'java-kotlin' && 'manual' || 'none' }}
+
+    # --------------------------------------------------------
+    # RUST BUILD
+    # Uses the default CodeQL autobuilder since your screenshot 
+    # shows it already knows how to compile your Rust code.
+    # --------------------------------------------------------
+    - name: Autobuild (Rust)
+      if: matrix.language == 'rust'
+      uses: github/codeql-action/autobuild@v3
 
     # --------------------------------------------------------
     # JAVA-KOTLIN BUILD (FLUTTER)
-    # This remains because Android compilation still requires tracing
+    # Uses your custom Flutter toolchain to compile the Android app.
     # --------------------------------------------------------
     - name: Setup Java (Java-Kotlin)
       if: matrix.language == 'java-kotlin'
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
         java-version: '17'
@@ -64,10 +72,11 @@ jobs:
       run: flutter build apk --debug
 
     # --------------------------------------------------------
-    # FINAL ANALYSIS
-    # (Rust and Actions skip straight here without needing to build)
+    # GITHUB ACTIONS
+    # (No build step required. CodeQL skips straight to analysis)
     # --------------------------------------------------------
+
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v4
+      uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
