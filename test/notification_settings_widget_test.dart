@@ -6,10 +6,19 @@ import 'package:kivixa/data/notification_settings_storage.dart';
 import 'package:kivixa/services/productivity/productivity_timer_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
+class MockPathProviderPlatform extends Fake with MockPlatformInterfaceMixin implements PathProviderPlatform {
+  @override
+  Future<String?> getApplicationSupportPath() async => '.';
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
+    PathProviderPlatform.instance = MockPathProviderPlatform();
     SharedPreferences.setMockInitialValues({
       'notification_settings': NotificationSettings().toJsonString(),
     });
@@ -90,3 +99,4 @@ void main() {
     timerService.setSoundEnabled(true);
   });
 }
+
