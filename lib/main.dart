@@ -109,6 +109,7 @@ Future<void> appRunner(List<String> args) async {
   // LocaleSettings.setLocaleSync(AppLocale.en);
 
   await Future.wait([
+    Stows.removeDeprecatedPreferences(),
     stows.customDataDir.waitUntilRead().then((_) async {
       await FileManager.init();
       await FolderColorService.instance.initialize();

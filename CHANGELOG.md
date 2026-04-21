@@ -697,5 +697,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.8.11] - 2026-04-18
 
+### Added
+- Added a Windows winget install option to README downloads: `winget install Kivixa`.
+- Added step-by-step F-Droid onboarding instructions in README, including install link, repository navigation flow, QR scan option, and manual URL entry.
+
+### Changed
+- Removed the `Simplified home layout` setting from the Settings UI and preference model.
+- Standardized home note rendering to always use the masonry layout (equivalent to the previous setting being OFF).
+- Added startup cleanup for deprecated settings keys so legacy `simplifiedHomeLayout` values are automatically removed on upgrade.
+
+### Fixed
+- Applied PR quality/security branch updates from open Dependabot PRs into the integration flow.
+- Addressed security automation feedback by adding explicit workflow token permissions and remediating Rust dependency risk paths tied to alert findings.
+
+### Tests
+- Added regression and migration tests for simplified-home-layout cleanup, including persisted preference removal and source-level UI/backend assertions.
+
 
 ---
