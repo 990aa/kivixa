@@ -245,9 +245,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(
         'notification_settings',
-        NotificationSettings(
-          exactTime,
-        ).toJsonString(),
+NotificationSettings(        ).toJsonString(),
       );
 
       await notificationService.scheduleEventNotification(event);
@@ -280,8 +278,7 @@ void main() {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
           'notification_settings',
-          NotificationSettings(
-            soundProfile: NotificationSoundProfile.ringtone,
+NotificationSettings(            soundProfile: NotificationSoundProfile.ringtone,
             vibrateOnlyOnAndroid: true,
           ).toJsonString(),
         );
@@ -318,8 +315,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(
         'notification_settings',
-        NotificationSettings(
-          soundProfile: NotificationSoundProfile.silent,
+NotificationSettings(          soundProfile: NotificationSoundProfile.silent,
           vibrateOnlyOnAndroid: true,
         ).toJsonString(),
       );
@@ -348,8 +344,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(
         'notification_settings',
-        NotificationSettings(
-          soundProfile: NotificationSoundProfile.defaultTone,
+NotificationSettings(          soundProfile: NotificationSoundProfile.defaultTone,
           vibrateOnlyOnAndroid: false,
         ).toJsonString(),
       );
