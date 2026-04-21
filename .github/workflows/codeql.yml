@@ -20,7 +20,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # All three languages added back to the matrix
         language: [ 'actions', 'java-kotlin', 'rust' ]
 
     steps:
@@ -33,19 +32,25 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
+        build-mode: manual
 
     # --------------------------------------------------------
-    # RUST BUILD
-    # Uses the default CodeQL autobuilder since your screenshot 
-    # shows it already knows how to compile your Rust code.
+    # 1. RUST BUILD
+    # Manually compiling all three native libraries so CodeQL
+    # doesn't accidentally skip any of them.
     # --------------------------------------------------------
-    - name: Autobuild (Rust)
+    - name: Manual Build for CodeQL (Rust)
       if: matrix.language == 'rust'
-      uses: github/codeql-action/autobuild@v3
+      run: |
+        echo "Building native..."
+        cd native && cargo build
+        echo "Building native_math..."
+        cd ../native_math && cargo build
+        echo "Building native_audio..."
+        cd ../native_audio && cargo build
 
     # --------------------------------------------------------
-    # JAVA-KOTLIN BUILD (FLUTTER)
-    # Uses your custom Flutter toolchain to compile the Android app.
+    # 2. JAVA-KOTLIN BUILD (FLUTTER)
     # --------------------------------------------------------
     - name: Setup Java (Java-Kotlin)
       if: matrix.language == 'java-kotlin'
@@ -72,10 +77,16 @@ jobs:
       run: flutter build apk --debug
 
     # --------------------------------------------------------
-    # GITHUB ACTIONS
+    # 3. GITHUB ACTIONS
     # (No build step required. CodeQL skips straight to analysis)
     # --------------------------------------------------------
+    - name: Autobuild (Actions)
+      if: matrix.language == 'actions'
+      uses: github/codeql-action/autobuild@v3
 
+    # --------------------------------------------------------
+    # FINAL ANALYSIS
+    # --------------------------------------------------------
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
