@@ -395,7 +395,8 @@ class ProductivityTimerService extends ChangeNotifier {
   }
 
   void _handleNotificationResponse(NotificationResponse response) {
-    if (response.notificationResponseType == NotificationResponseType.dismissed ||
+    if (response.notificationResponseType ==
+            NotificationResponseType.dismissed ||
         response.actionId == _actionDismiss) {
       unawaited(_notifications?.cancel(response.id ?? _statusNotificationId));
       return;
@@ -437,9 +438,7 @@ class ProductivityTimerService extends ChangeNotifier {
         ? _longReminderVibrationPattern()
         : _shortNotificationVibrationPattern();
 
-    final effectiveActions = <AndroidNotificationAction>[
-      ...?actions,
-    ];
+    final effectiveActions = <AndroidNotificationAction>[...?actions];
     if (!ongoing &&
         !effectiveActions.any((action) => action.id == _actionDismiss)) {
       effectiveActions.add(
