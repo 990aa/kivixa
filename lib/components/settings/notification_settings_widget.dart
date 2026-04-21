@@ -24,7 +24,7 @@ class _NotificationSettingsWidgetState
 
   late NotificationSettings _settings;
   var _loading = true;
-  final Set<String> _downloadingSoundIds = <String>{};
+  final _downloadingSoundIds = <String>{};
   Map<String, bool> _soundDownloadStates = const {};
 
   @override
