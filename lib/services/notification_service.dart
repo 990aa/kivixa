@@ -103,7 +103,8 @@ class NotificationService {
   }
 
   static void _processNotificationAction(NotificationResponse response) {
-    if (response.notificationResponseType == NotificationResponseType.dismissed) {
+    if (response.notificationResponseType ==
+        NotificationResponseType.dismissed) {
       final notificationId = response.id;
       if (notificationId != null) {
         unawaited(instance.cancelNotification(notificationId));
@@ -512,9 +513,7 @@ class NotificationService {
         ? _longReminderVibrationPattern()
         : _shortNotificationVibrationPattern();
 
-    final effectiveActions = <AndroidNotificationAction>[
-      ...?actions,
-    ];
+    final effectiveActions = <AndroidNotificationAction>[...?actions];
     if (!effectiveActions.any((action) => action.id == _dismissActionId)) {
       effectiveActions.add(
         const AndroidNotificationAction(
