@@ -693,12 +693,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added search matcher and source-regression tests for settings search/filter integration.
 - Expanded notification service tests for sound profile resource mapping, vibration behavior, and audio usage configuration.
 
-
 ---
-## [0.8.11] - 2026-04-18
+## [0.8.12] - 2026-04-21
 
-### Fixed
-- Applied PR quality/security branch updates from open Dependabot PRs into the integration flow.
-- Addressed security automation feedback by adding explicit workflow token permissions and remediating Rust dependency risk paths tied to alert findings.
+
 
 ---
