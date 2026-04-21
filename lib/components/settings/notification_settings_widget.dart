@@ -155,172 +155,168 @@ class _NotificationSettingsWidgetState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SettingsSubtitle(subtitle: 'App Notifications'),
+        const SettingsSubtitle(subtitle: 'Calendar Notifications'),
         SwitchListTile(
-          title: const Text('Enable Notifications'),
-          subtitle: const Text(
-            'Enable or disable notifications across calendar and productivity timer features',
-          ),
-          value: _settings.notificationsEnabled,
+          title: const Text('Event Notifications'),
+          subtitle: const Text('Get notified when events start'),
+          value: _settings.eventNotificationsEnabled,
           onChanged: (value) {
-            _updateSettings(_settings.copyWith(notificationsEnabled: value));
+            _updateSettings(
+              _settings.copyWith(eventNotificationsEnabled: value),
+            );
           },
-          secondary: Icon(
-            _settings.notificationsEnabled
-                ? Icons.notifications_active
-                : Icons.notifications_off,
+          secondary: const Icon(Icons.event),
+        ),
+        SwitchListTile(
+          title: const Text('Task Notifications'),
+          subtitle: const Text('Get notified when tasks are due'),
+          value: _settings.taskNotificationsEnabled,
+          onChanged: (value) {
+            _updateSettings(
+              _settings.copyWith(taskNotificationsEnabled: value),
+            );
+          },
+          secondary: const Icon(Icons.task_alt),
+        ),
+        SwitchListTile(
+          title: const Text('Project Deadline Notifications'),
+          subtitle: const Text('Get reminders for project deadlines'),
+          value: _settings.projectDeadlineNotificationsEnabled,
+          onChanged: (value) {
+            _updateSettings(
+              _settings.copyWith(projectDeadlineNotificationsEnabled: value),
+            );
+          },
+          secondary: const Icon(Icons.flag_circle),
+        ),
+        SwitchListTile(
+          title: const Text('Overdue Task Reminders'),
+          subtitle: const Text(
+            'Receive daily reminders for overdue tasks until completed',
+          ),
+          value: _settings.overdueNotificationsEnabled,
+          onChanged: (value) {
+            _updateSettings(
+              _settings.copyWith(overdueNotificationsEnabled: value),
+            );
+          },
+          secondary: const Icon(Icons.alarm),
+        ),
+        SwitchListTile(
+          title: const Text('Exact-Time Notifications'),
+          subtitle: const Text(
+            'Schedule reminders at the exact task/event/deadline time',
+          ),
+          value: _settings.exactTimeNotificationsEnabled,
+          onChanged: (value) {
+            _updateSettings(
+              _settings.copyWith(exactTimeNotificationsEnabled: value),
+            );
+          },
+          secondary: const Icon(Icons.schedule_send),
+        ),
+        ListTile(
+          leading: const Icon(Icons.notification_important),
+          title: const Text('Lead Time Reminders'),
+          subtitle: Text(_leadTimeSummary()),
+          trailing: PopupMenuButton<int>(
+            tooltip: 'Select lead-time reminders',
+            icon: const Icon(Icons.arrow_drop_down_circle_outlined),
+            onSelected: (minutes) {
+              _toggleLeadTime(minutes);
+            },
+            itemBuilder: (context) {
+              return _leadTimeOptions
+                  .map((minutes) {
+                    return CheckedPopupMenuItem<int>(
+                      value: minutes,
+                      checked: _settings.leadTimesInMinutes.contains(minutes),
+                      child: Text(_formatLeadTime(minutes)),
+                    );
+                  })
+                  .toList(growable: false);
+            },
           ),
         ),
 
-        const SettingsSubtitle(subtitle: 'Calendar Notifications'),
-        if (_settings.notificationsEnabled) ...[
-          SwitchListTile(
-            title: const Text('Event Notifications'),
-            subtitle: const Text('Get notified when events start'),
-            value: _settings.eventNotificationsEnabled,
-            onChanged: (value) {
-              _updateSettings(
-                _settings.copyWith(eventNotificationsEnabled: value),
-              );
-            },
-            secondary: const Icon(Icons.event),
-          ),
-          SwitchListTile(
-            title: const Text('Task Notifications'),
-            subtitle: const Text('Get notified when tasks are due'),
-            value: _settings.taskNotificationsEnabled,
-            onChanged: (value) {
-              _updateSettings(
-                _settings.copyWith(taskNotificationsEnabled: value),
-              );
-            },
-            secondary: const Icon(Icons.task_alt),
-          ),
-          SwitchListTile(
-            title: const Text('Project Deadline Notifications'),
-            subtitle: const Text('Get reminders for project deadlines'),
-            value: _settings.projectDeadlineNotificationsEnabled,
-            onChanged: (value) {
-              _updateSettings(
-                _settings.copyWith(projectDeadlineNotificationsEnabled: value),
-              );
-            },
-            secondary: const Icon(Icons.flag_circle),
-          ),
-          SwitchListTile(
-            title: const Text('Overdue Task Reminders'),
-            subtitle: const Text(
-              'Receive daily reminders for overdue tasks until completed',
-            ),
-            value: _settings.overdueNotificationsEnabled,
-            onChanged: (value) {
-              _updateSettings(
-                _settings.copyWith(overdueNotificationsEnabled: value),
-              );
-            },
-            secondary: const Icon(Icons.alarm),
-          ),
-          SwitchListTile(
-            title: const Text('Exact-Time Notifications'),
-            subtitle: const Text(
-              'Schedule reminders at the exact task/event/deadline time',
-            ),
-            value: _settings.exactTimeNotificationsEnabled,
-            onChanged: (value) {
-              _updateSettings(
-                _settings.copyWith(exactTimeNotificationsEnabled: value),
-              );
-            },
-            secondary: const Icon(Icons.schedule_send),
-          ),
-          ListTile(
-            leading: const Icon(Icons.notification_important),
-            title: const Text('Lead Time Reminders'),
-            subtitle: Text(_leadTimeSummary()),
-            trailing: PopupMenuButton<int>(
-              tooltip: 'Select lead-time reminders',
-              icon: const Icon(Icons.arrow_drop_down_circle_outlined),
-              onSelected: (minutes) {
-                _toggleLeadTime(minutes);
-              },
-              itemBuilder: (context) {
-                return _leadTimeOptions
-                    .map((minutes) {
-                      return CheckedPopupMenuItem<int>(
-                        value: minutes,
-                        checked: _settings.leadTimesInMinutes.contains(minutes),
-                        child: Text(_formatLeadTime(minutes)),
-                      );
-                    })
-                    .toList(growable: false);
-              },
-            ),
-          ),
-        ] else ...[
-          const ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text('Calendar notifications are disabled'),
-            subtitle: Text(
-              'Enable app notifications to configure calendar reminders.',
-            ),
-          ),
-        ],
-
         const SettingsSubtitle(subtitle: 'Sound & Vibration'),
         ListTile(
-          leading: const Icon(Icons.music_note),
+          leading: const Icon(Icons.vibration),
           title: const Text('Notification Sound'),
-          subtitle: Text(_settings.soundProfile.label),
-          trailing: DropdownButton<NotificationSoundProfile>(
-            value: _settings.soundProfile,
-            onChanged: _settings.notificationsEnabled
-                ? (profile) {
-                    if (profile == null) return;
-                    _updateSettings(_settings.copyWith(soundProfile: profile));
-                  }
-                : null,
-            items: NotificationSoundProfile.values
+          subtitle: const Text(
+            'Choose vibration only, or vibration with reminder/timer sound',
+          ),
+          trailing: DropdownButton<NotificationFeedbackMode>(
+            value: _settings.notificationFeedbackMode,
+            onChanged: (mode) {
+              if (mode == null) return;
+              _updateSettings(
+                _settings.copyWith(notificationFeedbackMode: mode),
+              );
+            },
+            items: NotificationFeedbackMode.values
                 .map(
-                  (profile) => DropdownMenuItem(
-                    value: profile,
-                    child: Text(profile.label),
-                  ),
+                  (mode) =>
+                      DropdownMenuItem(value: mode, child: Text(mode.label)),
                 )
                 .toList(growable: false),
           ),
         ),
-        SwitchListTile(
-          title: const Text('Vibrate on Android'),
-          subtitle: const Text(
-            'Use vibration for notifications on supported Android devices',
+        ListTile(
+          leading: const Icon(Icons.music_note),
+          title: const Text('Reminder & Timer Alert Sound'),
+          subtitle: Text(
+            _soundCatalog.optionById(_settings.reminderSoundId).label,
           ),
-          value: _settings.vibrateOnlyOnAndroid,
-          onChanged: _settings.notificationsEnabled
-              ? (value) {
-                  _updateSettings(
-                    _settings.copyWith(vibrateOnlyOnAndroid: value),
-                  );
-                }
-              : null,
-          secondary: const Icon(Icons.vibration),
         ),
+        ...NotificationSoundCatalogService.reminderSoundOptions.map((option) {
+          final isSelected = option.id == _settings.reminderSoundId;
+          final isReady = _isSoundReady(option.id);
+          final isDownloading = _downloadingSoundIds.contains(option.id);
+
+          Widget trailing;
+          if (isDownloading) {
+            trailing = const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            );
+          } else if (isReady && !isSelected) {
+            trailing = TextButton(
+              onPressed: () {
+                _updateSettings(_settings.copyWith(reminderSoundId: option.id));
+              },
+              child: const Text('Use'),
+            );
+          } else if (isReady && isSelected) {
+            trailing = const Icon(Icons.check_circle, color: Colors.green);
+          } else {
+            trailing = OutlinedButton(
+              onPressed: () => _downloadReminderSound(option.id),
+              child: const Text('Download'),
+            );
+          }
+
+          return ListTile(
+            leading: Icon(
+              isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+            ),
+            title: Text(option.label),
+            subtitle: Text(
+              isReady
+                  ? 'Ready to use'
+                  : 'Download from GitHub to enable this sound',
+            ),
+            trailing: trailing,
+            onTap: isReady
+                ? () => _updateSettings(
+                    _settings.copyWith(reminderSoundId: option.id),
+                  )
+                : null,
+          );
+        }),
 
         const SettingsSubtitle(subtitle: 'Productivity Timer Notifications'),
-        ListTile(
-          leading: const Icon(Icons.notifications),
-          title: const Text('Notification Permission'),
-          subtitle: Text(
-            _timerService.notificationsPermissionGranted
-                ? 'Granted - timer notifications are allowed by the system'
-                : 'Not granted - tap Enable to allow timer notifications',
-          ),
-          trailing: _timerService.notificationsPermissionGranted
-              ? Icon(Icons.check_circle, color: Colors.green[700])
-              : TextButton(
-                  onPressed: _requestTimerPermission,
-                  child: const Text('Enable'),
-                ),
-        ),
         SwitchListTile(
           secondary: const Icon(Icons.volume_up),
           title: const Text('Timer Sound Alerts'),
