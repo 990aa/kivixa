@@ -5,6 +5,7 @@ import 'package:kivixa/components/settings/settings_subtitle.dart';
 import 'package:kivixa/data/models/notification_settings.dart';
 import 'package:kivixa/data/notification_settings_storage.dart';
 import 'package:kivixa/services/notification_service.dart';
+import 'package:kivixa/services/notification_sound_catalog_service.dart';
 import 'package:kivixa/services/productivity/productivity_timer_service.dart';
 
 class NotificationSettingsWidget extends StatefulWidget {
@@ -19,9 +20,12 @@ class _NotificationSettingsWidgetState
     extends State<NotificationSettingsWidget> {
   static const _leadTimeOptions = <int>[5, 10, 15, 30, 60, 120, 1440, 2880];
   final _timerService = ProductivityTimerService.instance;
+  final _soundCatalog = NotificationSoundCatalogService.instance;
 
   late NotificationSettings _settings;
   var _loading = true;
+  final Set<String> _downloadingSoundIds = <String>{};
+  Map<String, bool> _soundDownloadStates = const {};
 
   @override
   void initState() {
@@ -52,8 +56,10 @@ class _NotificationSettingsWidgetState
 
   Future<void> _loadSettings() async {
     final settings = await NotificationSettingsStorage.loadSettings();
+    final states = await _soundCatalog.downloadStates();
     setState(() {
       _settings = settings;
+      _soundDownloadStates = states;
       _loading = false;
     });
   }
@@ -64,12 +70,9 @@ class _NotificationSettingsWidgetState
       _settings = settings;
     });
 
-    // Reschedule notifications based on new settings
-    if (settings.notificationsEnabled) {
-      await NotificationService.instance.rescheduleAllNotifications();
-    } else {
-      await NotificationService.instance.cancelAllNotifications();
-    }
+    // Apply changed settings to all future schedules.
+    await NotificationService.instance.cancelAllNotifications();
+    await NotificationService.instance.rescheduleAllNotifications();
   }
 
   String _formatLeadTime(int minutes) {
@@ -97,11 +100,42 @@ class _NotificationSettingsWidgetState
     );
   }
 
-  Future<void> _requestTimerPermission() async {
-    await _timerService.requestNotificationPermission();
-    if (mounted) {
-      setState(() {});
+  Future<void> _downloadReminderSound(String soundId) async {
+    if (_downloadingSoundIds.contains(soundId)) {
+      return;
     }
+
+    setState(() {
+      _downloadingSoundIds.add(soundId);
+    });
+
+    try {
+      await _soundCatalog.downloadReminderSound(soundId);
+      final updatedStates = await _soundCatalog.downloadStates();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _soundDownloadStates = updatedStates;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to download sound: $error')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _downloadingSoundIds.remove(soundId);
+        });
+      }
+    }
+  }
+
+  bool _isSoundReady(String soundId) {
+    return _soundDownloadStates[soundId] ?? false;
   }
 
   String _leadTimeSummary() {
