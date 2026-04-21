@@ -60,7 +60,6 @@ List<int> _sanitizeLeadTimes(List<dynamic>? rawLeadTimes) {
 
 class NotificationSettings {
   NotificationSettings({
-    this.notificationsEnabled = true,
     this.eventNotificationsEnabled = true,
     this.taskNotificationsEnabled = true,
     this.overdueNotificationsEnabled = true,
@@ -94,7 +93,6 @@ class NotificationSettings {
         : defaultReminderSoundId;
 
     return NotificationSettings(
-      notificationsEnabled: json['notificationsEnabled'] as bool? ?? true,
       eventNotificationsEnabled:
           json['eventNotificationsEnabled'] as bool? ?? true,
       taskNotificationsEnabled:
@@ -115,7 +113,6 @@ class NotificationSettings {
     );
   }
 
-  final bool notificationsEnabled;
   final bool eventNotificationsEnabled;
   final bool taskNotificationsEnabled;
   final bool overdueNotificationsEnabled;
