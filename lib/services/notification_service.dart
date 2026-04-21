@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:math';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -8,6 +10,7 @@ import 'package:kivixa/data/models/notification_settings.dart';
 import 'package:kivixa/data/models/project.dart';
 import 'package:kivixa/data/notification_settings_storage.dart';
 import 'package:kivixa/data/project_storage.dart';
+import 'package:kivixa/services/notification_sound_catalog_service.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:url_launcher/url_launcher.dart';
@@ -34,6 +37,8 @@ class NotificationService {
 
   FlutterLocalNotificationsPlugin get _notifications =>
       notificationsPluginOverride ?? _defaultNotificationsPlugin;
+
+  static const _dismissActionId = 'dismiss_notification';
 
   var _initialized = false;
 
@@ -98,6 +103,22 @@ class NotificationService {
   }
 
   static void _processNotificationAction(NotificationResponse response) {
+    if (response.notificationResponseType == NotificationResponseType.dismissed) {
+      final notificationId = response.id;
+      if (notificationId != null) {
+        unawaited(instance.cancelNotification(notificationId));
+      }
+      return;
+    }
+
+    if (response.actionId == _dismissActionId) {
+      final notificationId = response.id;
+      if (notificationId != null) {
+        unawaited(instance.cancelNotification(notificationId));
+      }
+      return;
+    }
+
     final payload = response.payload;
     if (payload == null) return;
 
@@ -167,53 +188,62 @@ class NotificationService {
   String _channelIdForSettings(
     String channelPrefix,
     NotificationSettings settings,
+    String soundIdentity,
   ) {
-    final vibrationMode = settings.vibrateOnlyOnAndroid
-        ? 'vibrate_only'
-        : 'normal';
-    return '${channelPrefix}_${settings.soundProfile.storageKey}_$vibrationMode';
+    return '${channelPrefix}_${settings.notificationFeedbackMode.storageKey}_$soundIdentity';
   }
 
   bool _shouldPlaySound(NotificationSettings settings) {
-    return settings.soundProfile != NotificationSoundProfile.silent;
+    return settings.notificationFeedbackMode ==
+        NotificationFeedbackMode.vibrateWithSound;
   }
 
-  AndroidNotificationSound? _resolveAndroidSound(
+  Future<AndroidNotificationSound?> _resolveAndroidReminderSound(
     NotificationSettings settings,
-  ) {
-    if (!_shouldPlaySound(settings)) {
+    bool shouldPlaySound,
+  ) async {
+    if (!shouldPlaySound) {
       return null;
     }
 
-    switch (settings.soundProfile) {
-      case NotificationSoundProfile.defaultTone:
-        return const RawResourceAndroidNotificationSound('kivixa_default');
-      case NotificationSoundProfile.alarm:
-        return const RawResourceAndroidNotificationSound('kivixa_alarm');
-      case NotificationSoundProfile.ringtone:
-        return const RawResourceAndroidNotificationSound('kivixa_ringtone');
-      case NotificationSoundProfile.silent:
-        return null;
+    final path = await NotificationSoundCatalogService.instance
+        .localPathForReminderSound(settings.reminderSoundId);
+    if (path.trim().isEmpty) {
+      return const RawResourceAndroidNotificationSound('kivixa_notification');
     }
+
+    return UriAndroidNotificationSound(Uri.file(path).toString());
   }
 
-  AudioAttributesUsage _resolveAudioAttributesUsage(
-    NotificationSettings settings,
-  ) {
-    return switch (settings.soundProfile) {
-      NotificationSoundProfile.alarm => AudioAttributesUsage.alarm,
-      NotificationSoundProfile.ringtone =>
-        AudioAttributesUsage.notificationRingtone,
-      NotificationSoundProfile.defaultTone => AudioAttributesUsage.notification,
-      NotificationSoundProfile.silent => AudioAttributesUsage.notification,
-    };
+  AudioAttributesUsage _resolveAudioAttributesUsage(bool playSound) {
+    return playSound
+        ? AudioAttributesUsage.alarm
+        : AudioAttributesUsage.notification;
   }
 
-  Int64List? _resolveVibrationPattern(NotificationSettings settings) {
-    if (!settings.vibrateOnlyOnAndroid) {
-      return null;
+  Int64List _shortNotificationVibrationPattern() {
+    return Int64List.fromList([0, 180]);
+  }
+
+  Int64List _longReminderVibrationPattern() {
+    final pattern = <int>[0];
+    var elapsedMs = 0;
+
+    while (elapsedMs < 60000) {
+      final vibrate = min(450, 60000 - elapsedMs);
+      pattern.add(vibrate);
+      elapsedMs += vibrate;
+
+      if (elapsedMs >= 60000) {
+        break;
+      }
+
+      final pause = min(350, 60000 - elapsedMs);
+      pattern.add(pause);
+      elapsedMs += pause;
     }
-    return Int64List.fromList([0, 280, 180, 280]);
+
+    return Int64List.fromList(pattern);
   }
 
   String _eventNotificationTitle(CalendarEvent event) {
@@ -243,7 +273,6 @@ class NotificationService {
   Future<void> scheduleEventNotification(CalendarEvent event) async {
     final settings = await NotificationSettingsStorage.loadSettings();
 
-    if (!settings.notificationsEnabled) return;
     if (event.type == EventType.event && !settings.eventNotificationsEnabled) {
       return;
     }
@@ -325,8 +354,7 @@ class NotificationService {
     if (project.status == ProjectStatus.completed) return;
 
     final settings = await NotificationSettingsStorage.loadSettings();
-    if (!settings.notificationsEnabled ||
-        !settings.projectDeadlineNotificationsEnabled) {
+    if (!settings.projectDeadlineNotificationsEnabled) {
       return;
     }
 
@@ -385,8 +413,7 @@ class NotificationService {
     if (event.isCompleted) return;
 
     final settings = await NotificationSettingsStorage.loadSettings();
-    if (!settings.notificationsEnabled ||
-        !settings.overdueNotificationsEnabled) {
+    if (!settings.overdueNotificationsEnabled) {
       return;
     }
 
@@ -469,6 +496,7 @@ class NotificationService {
     required String channelIdPrefix,
     required String channelName,
     required String channelDescription,
+    bool longVibrationAlert = true,
     String? payload,
     List<AndroidNotificationAction>? actions,
   }) async {
@@ -479,21 +507,39 @@ class NotificationService {
     if (scheduledDate.isBefore(DateTime.now())) return;
 
     final playSound = _shouldPlaySound(settings);
-    final sound = _resolveAndroidSound(settings);
-    final vibrationPattern = _resolveVibrationPattern(settings);
+    final sound = await _resolveAndroidReminderSound(settings, playSound);
+    final vibrationPattern = longVibrationAlert
+        ? _longReminderVibrationPattern()
+        : _shortNotificationVibrationPattern();
+
+    final effectiveActions = <AndroidNotificationAction>[
+      ...?actions,
+    ];
+    if (!effectiveActions.any((action) => action.id == _dismissActionId)) {
+      effectiveActions.add(
+        const AndroidNotificationAction(
+          _dismissActionId,
+          'Dismiss',
+          showsUserInterface: false,
+        ),
+      );
+    }
+
+    final soundIdentity = playSound ? settings.reminderSoundId : 'vibrate_only';
 
     final androidDetails = AndroidNotificationDetails(
-      _channelIdForSettings(channelIdPrefix, settings),
+      _channelIdForSettings(channelIdPrefix, settings, soundIdentity),
       channelName,
       channelDescription: channelDescription,
       importance: Importance.high,
       priority: Priority.high,
       playSound: playSound,
       sound: sound,
-      audioAttributesUsage: _resolveAudioAttributesUsage(settings),
-      enableVibration: settings.vibrateOnlyOnAndroid,
+      audioAttributesUsage: _resolveAudioAttributesUsage(playSound),
+      enableVibration: true,
       vibrationPattern: vibrationPattern,
-      actions: actions,
+      timeoutAfter: longVibrationAlert ? 60000 : null,
+      actions: effectiveActions,
     );
 
     final notificationDetails = NotificationDetails(android: androidDetails);
