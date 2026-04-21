@@ -1,0 +1,82 @@
+name: "CodeQL Analysis"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '30 1 * * 0'
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # All three languages added back to the matrix
+        language: [ 'actions', 'java-kotlin', 'rust' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        submodules: recursive 
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+
+    # --------------------------------------------------------
+    # RUST BUILD
+    # Uses the default CodeQL autobuilder since your screenshot 
+    # shows it already knows how to compile your Rust code.
+    # --------------------------------------------------------
+    - name: Autobuild (Rust)
+      if: matrix.language == 'rust'
+      uses: github/codeql-action/autobuild@v3
+
+    # --------------------------------------------------------
+    # JAVA-KOTLIN BUILD (FLUTTER)
+    # Uses your custom Flutter toolchain to compile the Android app.
+    # --------------------------------------------------------
+    - name: Setup Java (Java-Kotlin)
+      if: matrix.language == 'java-kotlin'
+      uses: actions/setup-java@v5
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Setup Flutter (Java-Kotlin)
+      if: matrix.language == 'java-kotlin'
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.41.7'
+        channel: 'stable'
+        cache: true
+
+    - name: Get Flutter dependencies (Java-Kotlin)
+      if: matrix.language == 'java-kotlin'
+      run: flutter pub get
+
+    - name: Manual Build for CodeQL (Java-Kotlin)
+      if: matrix.language == 'java-kotlin'
+      continue-on-error: true 
+      run: flutter build apk --debug
+
+    # --------------------------------------------------------
+    # GITHUB ACTIONS
+    # (No build step required. CodeQL skips straight to analysis)
+    # --------------------------------------------------------
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
