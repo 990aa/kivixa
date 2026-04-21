@@ -120,7 +120,7 @@ void main() {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
           'notification_settings',
-          NotificationSettings(notificationsEnabled: false).toJsonString(),
+          NotificationSettings().toJsonString(),
         );
 
         await notificationService.scheduleEventNotification(event);
@@ -246,7 +246,7 @@ void main() {
       await prefs.setString(
         'notification_settings',
         NotificationSettings(
-          exactTimeNotificationsEnabled: false,
+          exactTime,
         ).toJsonString(),
       );
 
@@ -416,3 +416,4 @@ void main() {
     });
   });
 }
+
