@@ -224,7 +224,6 @@ void main() {
 
   group('Notification Settings Tests', () {
     test('Default notification settings are all enabled', () {
-      final settings = NotificationSettings();
       expect(settings.eventNotificationsEnabled, true);
       expect(settings.taskNotificationsEnabled, true);
       expect(settings.overdueNotificationsEnabled, true);
@@ -236,7 +235,6 @@ void main() {
     });
 
     test('Notification settings can be disabled', () {
-      final settings = NotificationSettings(notificationsEnabled: false);
     });
 
     test('Individual notification types can be toggled', () {
@@ -299,7 +297,6 @@ void main() {
 
     test('Notification settings copyWith works', () {
       final settings = NotificationSettings();
-
       final updated = settings.copyWith(
         eventNotificationsEnabled: false,
         overdueNotificationsEnabled: false,
@@ -320,7 +317,7 @@ void main() {
     });
 
     test('Notification settings JSON string conversion works', () {
-      final settings = NotificationSettings(notificationsEnabled: false);
+      final settings = NotificationSettings();
 
       final jsonString = settings.toJsonString();
       final restored = NotificationSettings.fromJsonString(jsonString);
