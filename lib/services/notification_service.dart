@@ -532,7 +532,27 @@ class NotificationService {
       actions: effectiveActions,
     );
 
-    final notificationDetails = NotificationDetails(android: androidDetails);
+    final soundFileName = playSound
+        ? NotificationSoundCatalogService.instance
+            .optionById(settings.reminderSoundId)
+            .fileName
+        : null;
+
+    final iosDetails = DarwinNotificationDetails(
+      sound: playSound ? (soundFileName ?? 'kivixa_notification.mp3') : null,
+      presentSound: playSound,
+    );
+
+    final macosDetails = DarwinNotificationDetails(
+      sound: playSound ? (soundFileName ?? 'kivixa_notification.mp3') : null,
+      presentSound: playSound,
+    );
+
+    final notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+      macOS: macosDetails,
+    );
 
     await _notifications.zonedSchedule(
       id,

@@ -470,13 +470,19 @@ class ProductivityTimerService extends ChangeNotifier {
       actions: effectiveActions,
     );
 
+    final soundFileName = effectivePlaySound
+        ? NotificationSoundCatalogService.instance
+            .optionById(globalSettings.reminderSoundId)
+            .fileName
+        : null;
+
     final iosDetails = DarwinNotificationDetails(
-      sound: effectivePlaySound ? (resolvedSound != null ? resolvedSound.sound : 'kivixa_notification.mp3') : null,
+      sound: effectivePlaySound ? (soundFileName ?? 'kivixa_notification.mp3') : null,
       presentSound: effectivePlaySound,
     );
 
     final macosDetails = DarwinNotificationDetails(
-      sound: effectivePlaySound ? (resolvedSound != null ? resolvedSound.sound : 'kivixa_notification.mp3') : null,
+      sound: effectivePlaySound ? (soundFileName ?? 'kivixa_notification.mp3') : null,
       presentSound: effectivePlaySound,
     );
 
