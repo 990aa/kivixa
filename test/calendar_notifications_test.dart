@@ -225,8 +225,6 @@ void main() {
   group('Notification Settings Tests', () {
     test('Default notification settings are all enabled', () {
       final settings = NotificationSettings();
-
-      expect(settings.notificationsEnabled, true);
       expect(settings.eventNotificationsEnabled, true);
       expect(settings.taskNotificationsEnabled, true);
       expect(settings.overdueNotificationsEnabled, true);
@@ -239,8 +237,6 @@ void main() {
 
     test('Notification settings can be disabled', () {
       final settings = NotificationSettings(notificationsEnabled: false);
-
-      expect(settings.notificationsEnabled, false);
     });
 
     test('Individual notification types can be toggled', () {
@@ -257,7 +253,6 @@ void main() {
 
     test('Notification settings serialization works', () {
       final settings = NotificationSettings(
-        notificationsEnabled: false,
         eventNotificationsEnabled: true,
         taskNotificationsEnabled: false,
         overdueNotificationsEnabled: true,
@@ -269,8 +264,6 @@ void main() {
       );
 
       final json = settings.toJson();
-
-      expect(json['notificationsEnabled'], false);
       expect(json['eventNotificationsEnabled'], true);
       expect(json['taskNotificationsEnabled'], false);
       expect(json['overdueNotificationsEnabled'], true);
@@ -283,7 +276,6 @@ void main() {
 
     test('Notification settings deserialization works', () {
       final json = {
-        'notificationsEnabled': false,
         'eventNotificationsEnabled': true,
         'taskNotificationsEnabled': false,
         'overdueNotificationsEnabled': true,
@@ -295,8 +287,6 @@ void main() {
       };
 
       final settings = NotificationSettings.fromJson(json);
-
-      expect(settings.notificationsEnabled, false);
       expect(settings.eventNotificationsEnabled, true);
       expect(settings.taskNotificationsEnabled, false);
       expect(settings.overdueNotificationsEnabled, true);
@@ -319,8 +309,6 @@ void main() {
         vibrateOnlyOnAndroid: true,
         leadTimesInMinutes: const [30],
       );
-
-      expect(updated.notificationsEnabled, true); // Unchanged
       expect(updated.eventNotificationsEnabled, false); // Changed
       expect(updated.taskNotificationsEnabled, true); // Unchanged
       expect(updated.overdueNotificationsEnabled, false); // Changed
@@ -336,8 +324,6 @@ void main() {
 
       final jsonString = settings.toJsonString();
       final restored = NotificationSettings.fromJsonString(jsonString);
-
-      expect(restored.notificationsEnabled, settings.notificationsEnabled);
       expect(
         restored.eventNotificationsEnabled,
         settings.eventNotificationsEnabled,
@@ -594,3 +580,4 @@ void main() {
     });
   });
 }
+

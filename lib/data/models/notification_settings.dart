@@ -132,10 +132,6 @@ class NotificationSettings {
   final List<int> leadTimesInMinutes;
 
   Map<String, dynamic> toJson() {
-    final legacySoundProfile =
-        notificationFeedbackMode == NotificationFeedbackMode.vibrateOnly
-        ? NotificationSoundProfile.silent
-        : NotificationSoundProfile.defaultTone;
     final legacyVibrateOnly =
         notificationFeedbackMode == NotificationFeedbackMode.vibrateOnly;
 
@@ -146,7 +142,7 @@ class NotificationSettings {
       'projectDeadlineNotificationsEnabled':
           projectDeadlineNotificationsEnabled,
       'exactTimeNotificationsEnabled': exactTimeNotificationsEnabled,
-      'soundProfile': legacySoundProfile.storageKey,
+      'soundProfile': soundProfile.storageKey,
       'vibrateOnlyOnAndroid': legacyVibrateOnly,
       'notificationFeedbackMode': notificationFeedbackMode.storageKey,
       'reminderSoundId': reminderSoundId,
