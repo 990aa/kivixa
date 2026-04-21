@@ -89,7 +89,7 @@ class NotificationSettings {
               : NotificationFeedbackMode.vibrateWithSound);
 
     final reminderSoundId =
-        (json['reminderSoundId'] as String?)?.trim().isNotEmpty == true
+        (json['reminderSoundId'] as String?)?.trim().isNotEmpty ?? false
         ? (json['reminderSoundId'] as String).trim()
         : defaultReminderSoundId;
 

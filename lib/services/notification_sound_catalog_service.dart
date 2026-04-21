@@ -28,15 +28,15 @@ class NotificationSoundCatalogService {
 
   static final instance = NotificationSoundCatalogService._();
 
-  static const String officialNotificationAssetPath =
+  static const officialNotificationAssetPath =
       'assets/audio/NOTIFICATION_dragon-studio-notification-sound-effect-372475.mp3';
 
-  static const String defaultReminderSoundId = 'alarm_star_dust';
+  static const defaultReminderSoundId = 'alarm_star_dust';
 
-  static const String _repoAudioBaseUrl =
+  static const _repoAudioBaseUrl =
       'https://raw.githubusercontent.com/990aa/kivixa/main/audio';
 
-  static const List<ReminderSoundOption> reminderSoundOptions = [
+  static const reminderSoundOptions = <ReminderSoundOption>[
     ReminderSoundOption(
       id: 'alarm_star_dust',
       label: 'Star Dust (Default)',
