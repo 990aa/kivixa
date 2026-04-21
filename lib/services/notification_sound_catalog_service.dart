@@ -77,6 +77,12 @@ class NotificationSoundCatalogService {
   }
 
   Future<Directory> _soundsDirectory() async {
+    if (Platform.isIOS || Platform.isMacOS) {
+      final libraryDir = await getLibraryDirectory();
+      final dir = Directory(p.join(libraryDir.path, 'Sounds'));
+      await dir.create(recursive: true);
+      return dir;
+    }
     final supportDir = await getApplicationSupportDirectory();
     final dir = Directory(p.join(supportDir.path, 'notification_sounds'));
     await dir.create(recursive: true);

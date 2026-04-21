@@ -470,7 +470,21 @@ class ProductivityTimerService extends ChangeNotifier {
       actions: effectiveActions,
     );
 
-    final details = NotificationDetails(android: androidDetails);
+    final iosDetails = DarwinNotificationDetails(
+      sound: effectivePlaySound ? (resolvedSound != null ? resolvedSound.sound : 'kivixa_notification.mp3') : null,
+      presentSound: effectivePlaySound,
+    );
+
+    final macosDetails = DarwinNotificationDetails(
+      sound: effectivePlaySound ? (resolvedSound != null ? resolvedSound.sound : 'kivixa_notification.mp3') : null,
+      presentSound: effectivePlaySound,
+    );
+
+    final details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+      macOS: macosDetails,
+    );
 
     try {
       await _notifications?.show(
