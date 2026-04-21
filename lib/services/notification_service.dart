@@ -530,6 +530,7 @@ class NotificationService {
       vibrationPattern: vibrationPattern,
       timeoutAfter: longVibrationAlert ? 60000 : null,
       actions: effectiveActions,
+      additionalFlags: longVibrationAlert ? Int32List.fromList([4]) : null, // FLAG_INSISTENT
     );
 
     final soundFileName = playSound
