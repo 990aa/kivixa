@@ -249,7 +249,8 @@ pub fn cluster_embeddings_kmeans(
     let mut assignments = assign_to_centroids(entries, &centroids);
 
     for _ in 0..max_iter {
-        let updated_centroids = recompute_centroids(entries, &assignments, &centroids, k);
+        let updated_centroids =
+            recompute_centroids(entries, &assignments, &centroids, k)?;
         let updated_assignments = assign_to_centroids(entries, &updated_centroids);
         let shift = max_centroid_shift(&centroids, &updated_centroids);
 
