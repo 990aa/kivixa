@@ -224,6 +224,7 @@ void main() {
 
   group('Notification Settings Tests', () {
     test('Default notification settings are all enabled', () {
+      final settings = NotificationSettings();
       expect(settings.eventNotificationsEnabled, true);
       expect(settings.taskNotificationsEnabled, true);
       expect(settings.overdueNotificationsEnabled, true);
