@@ -140,7 +140,6 @@ class NotificationSettings {
         notificationFeedbackMode == NotificationFeedbackMode.vibrateOnly;
 
     return {
-      'notificationsEnabled': notificationsEnabled,
       'eventNotificationsEnabled': eventNotificationsEnabled,
       'taskNotificationsEnabled': taskNotificationsEnabled,
       'overdueNotificationsEnabled': overdueNotificationsEnabled,
@@ -156,7 +155,6 @@ class NotificationSettings {
   }
 
   NotificationSettings copyWith({
-    bool? notificationsEnabled,
     bool? eventNotificationsEnabled,
     bool? taskNotificationsEnabled,
     bool? overdueNotificationsEnabled,
@@ -169,7 +167,6 @@ class NotificationSettings {
     List<int>? leadTimesInMinutes,
   }) {
     return NotificationSettings(
-      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       eventNotificationsEnabled:
           eventNotificationsEnabled ?? this.eventNotificationsEnabled,
       taskNotificationsEnabled:

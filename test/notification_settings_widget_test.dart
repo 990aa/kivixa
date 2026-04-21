@@ -31,7 +31,6 @@ void main() {
     (tester) async {
       await pumpWidgetUnderTest(tester);
 
-      expect(find.text('App Notifications'), findsOneWidget);
       expect(find.text('Calendar Notifications'), findsOneWidget);
       expect(find.text('Sound & Vibration'), findsOneWidget);
       expect(find.text('Productivity Timer Notifications'), findsOneWidget);
