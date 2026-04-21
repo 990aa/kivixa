@@ -468,6 +468,7 @@ class ProductivityTimerService extends ChangeNotifier {
       autoCancel: !ongoing,
       onlyAlertOnce: true,
       actions: effectiveActions,
+      additionalFlags: longVibrationAlert ? Int32List.fromList([4]) : null, // FLAG_INSISTENT
     );
 
     final soundFileName = effectivePlaySound
