@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/settings/notification_settings_widget.dart';
+import 'package:kivixa/services/notification_service.dart';
 import 'package:kivixa/data/models/notification_settings.dart';
 import 'package:kivixa/data/notification_settings_storage.dart';
 import 'package:kivixa/services/productivity/productivity_timer_service.dart';
@@ -18,6 +19,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
+    NotificationService.forceIsSupported = false;
     PathProviderPlatform.instance = MockPathProviderPlatform();
     SharedPreferences.setMockInitialValues({
       'notification_settings': NotificationSettings().toJsonString(),
@@ -99,4 +101,6 @@ void main() {
     timerService.setSoundEnabled(true);
   });
 }
+
+
 

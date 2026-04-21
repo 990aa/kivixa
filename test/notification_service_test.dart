@@ -29,6 +29,7 @@ void main() {
   late MockFlutterLocalNotificationsPlugin mockPlugin;
 
   setUp(() async {
+    PathProviderPlatform.instance = MockPathProviderPlatform();
     SharedPreferences.setMockInitialValues({});
 
     mockPlugin = MockFlutterLocalNotificationsPlugin();
@@ -419,4 +420,5 @@ NotificationSettings(          soundProfile: NotificationSoundProfile.defaultTon
     });
   });
 }
+
 

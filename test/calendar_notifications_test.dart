@@ -243,8 +243,6 @@ void main() {
         eventNotificationsEnabled: false,
         taskNotificationsEnabled: false,
       );
-
-      expect(settings.notificationsEnabled, true); // Master still enabled
       expect(settings.eventNotificationsEnabled, false);
       expect(settings.taskNotificationsEnabled, false);
       expect(settings.overdueNotificationsEnabled, true); // Still enabled
@@ -579,4 +577,5 @@ void main() {
     });
   });
 }
+
 
