@@ -694,7 +694,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Expanded notification service tests for sound profile resource mapping, vibration behavior, and audio usage configuration.
 
 ---
-## [0.8.14] - 2026-04-22
+## [0.8.15] - 2026-04-22
 
 ### Added
 - Centralized `kivixa_notification.mp3` as the single official notification sound on all devices, replacing `kivixa_alarm.wav`, `kivixa_default.wav`, and `kivixa_ringtone.wav`.
