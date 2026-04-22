@@ -10,12 +10,10 @@ plugins {
 val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = Properties()
 
-// Try loading from key.properties file first (local builds)
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
-// Override with environment variables if present (CI builds)
 System.getenv("ANDROID_KEYSTORE_PATH")?.let { keystoreProperties["storeFile"] = it }
 System.getenv("ANDROID_STORE_PASSWORD")?.let { keystoreProperties["storePassword"] = it }
 System.getenv("ANDROID_KEY_ALIAS")?.let { keystoreProperties["keyAlias"] = it }
@@ -26,7 +24,6 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "28.2.13676358"
 
-    // IZYY'S FIX: Strip out the Google Play dependency tracker blob
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
@@ -70,7 +67,6 @@ android {
                 signingConfig = releaseSigningConfig
             }
             
-            // SIZE FIX: Turn on ProGuard/R8 minification and resource shrinking
             isMinifyEnabled = true  
             isShrinkResources = true
         }
