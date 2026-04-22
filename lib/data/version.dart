@@ -4,10 +4,10 @@
 import 'package:kivixa/data/kivixa_version.dart';
 
 /// The current app version as an ordinal number.
-const buildNumber = 8014;
+const buildNumber = 8015;
 
 /// The current app version as a string.
-const buildName = '0.8.14';
+const buildName = '0.8.15';
 
 /// The year in which the current version was released.
 const buildYear = 2026;
