@@ -1,6 +1,6 @@
 {
   "repo": {
-    "timestamp": 1776486477000,
+    "timestamp": 1776876173000,
     "version": 20002,
     "name": "Kivixa",
     "icon": "icon.png",
@@ -22,7 +22,7 @@
       "summary": "A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.",
       "added": 1775272744000,
       "packageName": "com.a990aa.kivixa",
-      "lastUpdated": 1776486455000,
+      "lastUpdated": 1776876150000,
       "localized": {
         "en-US": {
           "description": "Kivixa is a privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.\n\nFeatures:\n- Rich markdown and text editing for fast note-taking\n- Digital canvas for handwriting, drawing, and mixed media notes\n- On-device AI with multi-model MCP workflows (no cloud required)\n- Knowledge graph view to connect ideas and topics visually\n- PDF reading and annotation inside the same workspace\n- Focus tools including Pomodoro and custom productivity timers\n- High-performance math tools powered by a Rust backend\n",

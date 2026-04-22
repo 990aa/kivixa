@@ -1,6 +1,6 @@
 {
   "repo": {
-    "timestamp": 1776486473000,
+    "timestamp": 1776876169000,
     "version": 20002,
     "name": "Kivixa Archive",
     "icon": "icon.png",
@@ -22,7 +22,7 @@
       "summary": "A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.",
       "added": 1775272744000,
       "packageName": "com.a990aa.kivixa",
-      "lastUpdated": 1776486455000
+      "lastUpdated": 1776876150000
     }
   ],
   "packages": {
@@ -2045,6 +2045,207 @@
         ],
         "versionCode": 40001,
         "versionName": "0.4.0"
+      },
+      {
+        "added": 1776876150000,
+        "apkName": "Kivixa-Android-0.8.21-x86_64.apk",
+        "hash": "196d0a1a886457a32d31ddb9f2cfee1d5f022171f25a116674422a76cb5e46ea",
+        "hashType": "sha256",
+        "minSdkVersion": 24,
+        "nativecode": [
+          "x86_64"
+        ],
+        "packageName": "com.a990aa.kivixa",
+        "sig": "4afe97afa2b0ea3f4a207c205fea0960",
+        "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
+        "size": 75426037,
+        "targetSdkVersion": 36,
+        "uses-permission": [
+          [
+            "android.permission.INTERNET",
+            null
+          ],
+          [
+            "android.permission.RECORD_AUDIO",
+            null
+          ],
+          [
+            "android.permission.POST_NOTIFICATIONS",
+            null
+          ],
+          [
+            "android.permission.VIBRATE",
+            null
+          ],
+          [
+            "android.permission.RECEIVE_BOOT_COMPLETED",
+            null
+          ],
+          [
+            "android.permission.SCHEDULE_EXACT_ALARM",
+            null
+          ],
+          [
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            null
+          ],
+          [
+            "android.permission.READ_EXTERNAL_STORAGE",
+            null
+          ],
+          [
+            "android.permission.WAKE_LOCK",
+            null
+          ],
+          [
+            "android.permission.ACCESS_NETWORK_STATE",
+            null
+          ],
+          [
+            "android.permission.FOREGROUND_SERVICE",
+            null
+          ],
+          [
+            "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+            null
+          ]
+        ],
+        "versionCode": 12021,
+        "versionName": "0.8.21"
+      },
+      {
+        "added": 1776876149000,
+        "apkName": "Kivixa-Android-0.8.21-arm64.apk",
+        "hash": "f9159bd50d4fa2d41ac9c43b4148391cbe9b1ea516e8462d10fc2e2eb2e51b21",
+        "hashType": "sha256",
+        "minSdkVersion": 24,
+        "nativecode": [
+          "arm64-v8a"
+        ],
+        "packageName": "com.a990aa.kivixa",
+        "sig": "4afe97afa2b0ea3f4a207c205fea0960",
+        "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
+        "size": 69053463,
+        "targetSdkVersion": 36,
+        "uses-permission": [
+          [
+            "android.permission.INTERNET",
+            null
+          ],
+          [
+            "android.permission.RECORD_AUDIO",
+            null
+          ],
+          [
+            "android.permission.POST_NOTIFICATIONS",
+            null
+          ],
+          [
+            "android.permission.VIBRATE",
+            null
+          ],
+          [
+            "android.permission.RECEIVE_BOOT_COMPLETED",
+            null
+          ],
+          [
+            "android.permission.SCHEDULE_EXACT_ALARM",
+            null
+          ],
+          [
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            null
+          ],
+          [
+            "android.permission.READ_EXTERNAL_STORAGE",
+            null
+          ],
+          [
+            "android.permission.WAKE_LOCK",
+            null
+          ],
+          [
+            "android.permission.ACCESS_NETWORK_STATE",
+            null
+          ],
+          [
+            "android.permission.FOREGROUND_SERVICE",
+            null
+          ],
+          [
+            "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+            null
+          ]
+        ],
+        "versionCode": 10021,
+        "versionName": "0.8.21"
+      },
+      {
+        "added": 1776876150000,
+        "apkName": "Kivixa-Android-0.8.21-armv7.apk",
+        "hash": "7ff11aa685d45ca432b4a80d86da71995be56556c28a3ddb8a76ca059916b061",
+        "hashType": "sha256",
+        "minSdkVersion": 24,
+        "nativecode": [
+          "armeabi-v7a"
+        ],
+        "packageName": "com.a990aa.kivixa",
+        "sig": "4afe97afa2b0ea3f4a207c205fea0960",
+        "signer": "20b2bd109c112cff87ae904de0521597eaeadaa54b71a18ab4d1f71b61d89512",
+        "size": 62068123,
+        "targetSdkVersion": 36,
+        "uses-permission": [
+          [
+            "android.permission.INTERNET",
+            null
+          ],
+          [
+            "android.permission.RECORD_AUDIO",
+            null
+          ],
+          [
+            "android.permission.POST_NOTIFICATIONS",
+            null
+          ],
+          [
+            "android.permission.VIBRATE",
+            null
+          ],
+          [
+            "android.permission.RECEIVE_BOOT_COMPLETED",
+            null
+          ],
+          [
+            "android.permission.SCHEDULE_EXACT_ALARM",
+            null
+          ],
+          [
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            null
+          ],
+          [
+            "android.permission.READ_EXTERNAL_STORAGE",
+            null
+          ],
+          [
+            "android.permission.WAKE_LOCK",
+            null
+          ],
+          [
+            "android.permission.ACCESS_NETWORK_STATE",
+            null
+          ],
+          [
+            "android.permission.FOREGROUND_SERVICE",
+            null
+          ],
+          [
+            "com.a990aa.kivixa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+            null
+          ]
+        ],
+        "versionCode": 9021,
+        "versionName": "0.8.21"
       }
     ]
   }
