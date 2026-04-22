@@ -1,0 +1,93 @@
+name: "CodeQL Analysis"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '30 1 * * 0'
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'actions', 'java-kotlin', 'rust' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        submodules: recursive 
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        build-mode: manual
+
+    # --------------------------------------------------------
+    # 1. RUST BUILD
+    # Manually compiling all three native libraries so CodeQL
+    # doesn't accidentally skip any of them.
+    # --------------------------------------------------------
+    - name: Manual Build for CodeQL (Rust)
+      if: matrix.language == 'rust'
+      run: |
+        echo "Building native..."
+        cd native && cargo build
+        echo "Building native_math..."
+        cd ../native_math && cargo build
+        echo "Building native_audio..."
+        cd ../native_audio && cargo build
+
+    # --------------------------------------------------------
+    # 2. JAVA-KOTLIN BUILD (FLUTTER)
+    # --------------------------------------------------------
+    - name: Setup Java (Java-Kotlin)
+      if: matrix.language == 'java-kotlin'
+      uses: actions/setup-java@v5
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Setup Flutter (Java-Kotlin)
+      if: matrix.language == 'java-kotlin'
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.41.7'
+        channel: 'stable'
+        cache: true
+
+    - name: Get Flutter dependencies (Java-Kotlin)
+      if: matrix.language == 'java-kotlin'
+      run: flutter pub get
+
+    - name: Manual Build for CodeQL (Java-Kotlin)
+      if: matrix.language == 'java-kotlin'
+      continue-on-error: true 
+      run: flutter build apk --debug
+
+    # --------------------------------------------------------
+    # 3. GITHUB ACTIONS
+    # (No build step required. CodeQL skips straight to analysis)
+    # --------------------------------------------------------
+    - name: Autobuild (Actions)
+      if: matrix.language == 'actions'
+      uses: github/codeql-action/autobuild@v3
+
+    # --------------------------------------------------------
+    # FINAL ANALYSIS
+    # --------------------------------------------------------
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
