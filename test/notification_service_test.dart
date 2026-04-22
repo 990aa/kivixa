@@ -8,13 +8,12 @@ import 'package:kivixa/data/models/calendar_event.dart';
 import 'package:kivixa/data/models/notification_settings.dart';
 import 'package:kivixa/data/models/project.dart';
 import 'package:kivixa/services/notification_service.dart';
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
 import 'mock/mock_flutter_local_notifications_plugin.dart';
-
-import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class MockPathProviderPlatform extends Fake with MockPlatformInterfaceMixin implements PathProviderPlatform {
   @override
@@ -420,5 +419,3 @@ NotificationSettings(          soundProfile: NotificationSoundProfile.defaultTon
     });
   });
 }
-
-
