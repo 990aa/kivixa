@@ -12,7 +12,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.9.0+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
-[![Version](https://img.shields.io/badge/Version-0.8.17%2B8017--beta-orange)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-0.8.18%2B8018--beta-orange)](CHANGELOG.md)
 
 **Install on Windows with winget (recommended):**
 
@@ -20,11 +20,11 @@
 winget install Kivixa
 ```
 
-[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.8.17%2B8017/Kivixa-Setup-0.8.17.exe)
+[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.8.18%2B8018/Kivixa-Setup-0.8.18.exe)
 
-[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.17%2B8017/Kivixa-Android-0.8.17-arm64.apk)
-[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.17%2B8017/Kivixa-Android-0.8.17-armv7.apk)
-[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.17%2B8017/Kivixa-Android-0.8.17-x86_64.apk)
+[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.18%2B8018/Kivixa-Android-0.8.18-arm64.apk)
+[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.18%2B8018/Kivixa-Android-0.8.18-armv7.apk)
+[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.18%2B8018/Kivixa-Android-0.8.18-x86_64.apk)
 
 **F-Droid Repository (step-by-step):**
 
