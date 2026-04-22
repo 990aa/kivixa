@@ -708,4 +708,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Timer sound alerts are now fully integrated with the newly implemented custom downloaded sounds.
 
 ---
+## [0.8.22] - 2026-04-22
 
+
+
+---
