@@ -3,6 +3,7 @@ import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
+    id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -33,6 +34,10 @@ android {
         isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     signingConfigs {
@@ -99,7 +104,7 @@ val sanitizeGeneratedPluginRegistrant by tasks.registering {
         )
         content = content.replace(
             "flutterEngine.getPlugins().add(new io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin());",
-            "final Class<?> pluginClass = Class.forName(\"io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin\");\n      flutterEngine.getPlugins().add((io.flutter.embedding.engine.plugins.FlutterPlugin) pluginClass.getDeclaredConstructor().newInstance());",
+            "final Class<?> pluginClass = Class.forName(\"io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin\");\n      flutterEngine.getPlugins().add((io.flutter.embedding.engine.plugins.FlutterPlugin) plugin itClass.getDeclaredConstructor().newInstance());",
         )
         registrant.writeText(content)
     }
