@@ -92,6 +92,14 @@ dependencies {
     implementation("com.google.android.material:material:1.13.0")
 }
 
+configurations.all {
+    resolutionStrategy {
+        force("androidx.core:core:1.13.1")
+        force("androidx.core:core-ktx:1.13.1")
+        force("androidx.browser:browser:1.8.0")
+    }
+}
+
 val sanitizeGeneratedPluginRegistrant by tasks.registering {
     doLast {
         val registrant = file("src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java")
