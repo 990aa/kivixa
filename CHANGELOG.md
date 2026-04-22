@@ -694,7 +694,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Expanded notification service tests for sound profile resource mapping, vibration behavior, and audio usage configuration.
 
 ---
-## [0.8.18] - 2026-04-22
+## [0.8.19] - 2026-04-22
 
 ### Added
 - Centralized `kivixa_notification.mp3` as the single official notification sound on all devices, replacing `kivixa_alarm.wav`, `kivixa_default.wav`, and `kivixa_ringtone.wav`.
@@ -706,11 +706,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unified the "App Notifications" master toggle by removing `notificationsEnabled`, deferring entirely to individual feature-level toggles (e.g., calendar, timer).
 - Removed redundant "Notification Permission" and "Enable Notifications" toggles from the UI and backend logic to simplify notification settings.
 - Timer sound alerts are now fully integrated with the newly implemented custom downloaded sounds.
-
----
-## [0.8.19] - 2026-04-22
-
-### Changed
-- Version bump to 0.8.19
 
 ---
