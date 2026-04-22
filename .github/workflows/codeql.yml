@@ -1,0 +1,48 @@
+name: "CodeQL Analysis (Website)"
+
+on:
+  push:
+    branches: [ "website" ]
+  pull_request:
+    branches: [ "website" ]
+  schedule:
+    - cron: '30 2 * * 0' # Runs automatically every Sunday at 2:30 AM
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript-typescript' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+
+    # --------------------------------------------------------
+    # AUTOBUILD
+    # For Next.js/TypeScript, this step doesn't compile code. 
+    # It simply maps the dependency tree and moves on.
+    # --------------------------------------------------------
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+
+    # --------------------------------------------------------
+    # FINAL ANALYSIS
+    # --------------------------------------------------------
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
