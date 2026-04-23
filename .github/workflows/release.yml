@@ -1,7 +1,7 @@
 
 # Kivixa Release Workflow
 
-# Triggered by pushing a version tag (e.g., v0.1.7+1007) or manually
+# Triggered by pushing a version tag or manually
 #
 # This workflow:
 # 1. Builds Rust native libraries for Android and Windows
@@ -802,12 +802,12 @@ jobs:
           # Keep the published repo clean by dropping temporary artifact cache.
           rm -rf fdroid-apks tmp
 
-          # Remove legacy APKs older than 0.4.0 from both repo and archive.
+          # Remove legacy APKs older than 0.8.9 from both repo and archive.
           for dir in repo archive; do
             find "$dir" -maxdepth 1 -type f -name 'Kivixa-Android-*.apk' | while IFS= read -r apk; do
               base_name=$(basename "$apk")
               version=$(echo "$base_name" | sed -E 's/^Kivixa-Android-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
-              if [ -n "$version" ] && [ "$(printf '%s\n0.4.0\n' "$version" | sort -V | head -n1)" != "0.4.0" ]; then
+              if [ -n "$version" ] && [ "$(printf '%s\n0.8.9\n' "$version" | sort -V | head -n1)" != "0.8.9" ]; then
                 rm -f "$apk"
               fi
             done
