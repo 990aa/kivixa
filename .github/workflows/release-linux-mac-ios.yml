@@ -24,10 +24,10 @@ on:
 
   workflow_dispatch:
     inputs:
-      test_version:
-        description: 'Test version (e.g., 0.0.1-test)'
+      tag_name:
+        description: 'Full tag name (e.g., v0.8.23+80230)'
         required: true
-        default: '0.0.1-test'
+        default: '0.0.1'
 
 permissions:
   contents: read
@@ -57,7 +57,7 @@ jobs:
         id: version
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${{ github.event.inputs.test_version }}"
+            VERSION="${{ github.event.inputs.tag_name }}"
             BUILD_NUMBER=""
             TAG_NAME="v${VERSION}"
           else
