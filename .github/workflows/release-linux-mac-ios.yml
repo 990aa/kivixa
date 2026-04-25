@@ -24,10 +24,10 @@ on:
 
   workflow_dispatch:
     inputs:
-      test_version:
-        description: 'Test version (e.g., 0.0.1-test)'
+      tag_name:
+        description: 'Full tag name (e.g., v0.8.24+80240)'
         required: true
-        default: '0.0.1-test'
+        default: '0.0.1'
 
 permissions:
   contents: read
@@ -56,19 +56,25 @@ jobs:
       - name: Extract version from tag
         id: version
         run: |
+          # 1. Grab the raw tag name based on how the workflow was triggered
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${{ github.event.inputs.test_version }}"
-            BUILD_NUMBER=""
-            TAG_NAME="v${VERSION}"
+            TAG_NAME="${{ github.event.inputs.tag_name }}"
           else
-            TAG="${GITHUB_REF#refs/tags/v}"
-            VERSION="$(echo "$TAG" | cut -d'+' -f1)"
-            BUILD_NUMBER="$(echo "$TAG" | grep -oP '\+\K\d+' || true)"
             TAG_NAME="${GITHUB_REF#refs/tags/}"
           fi
+          
+          # 2. Strip the leading 'v' if it exists (e.g., v0.8.24+80240 -> 0.8.24+80240)
+          CLEAN_TAG="${TAG_NAME#v}"
+          
+          # 3. Separate the semantic version from the build number
+          VERSION="$(echo "$CLEAN_TAG" | cut -d'+' -f1)"
+          BUILD_NUMBER="$(echo "$CLEAN_TAG" | grep -oP '\+\K\d+' || true)"
+          
+          # 4. Output the results
           echo "version=$VERSION"           >> "$GITHUB_OUTPUT"
           echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
           echo "tag_name=$TAG_NAME"         >> "$GITHUB_OUTPUT"
+          
           echo "Extracted version=$VERSION  build=$BUILD_NUMBER  tag=$TAG_NAME"
 
   # =========================================================================
@@ -99,12 +105,24 @@ jobs:
           echo "Updated pubspec.yaml → version: $FULL_VERSION"
           grep "^version:" pubspec.yaml
 
-      # ---- Rust setup -------------------------------------------------------
+      # ---- Setup Rust -------------------------------------------------------
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-unknown-linux-gnu
 
+      # ---- Setup Flutter ---------------------------------------------------
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      # ---- Build Rust ------------------------------------------------------
       - name: Build kivixa_native for Linux
         run: |
           echo "=== Building kivixa_native for Linux ==="
@@ -155,24 +173,14 @@ jobs:
             libgtk-3-dev liblzma-dev libstdc++-12-dev \
             libblkid-dev libjpeg-dev libpng-dev \
             libglib2.0-dev libpango1.0-dev libcairo2-dev \
-            libatk1.0-dev libgdk-pixbuf2.0-dev
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
-          cache: true
-
-      - name: Get dependencies
-        run: flutter pub get
+            libatk1.0-dev libgdk-pixbuf2.0-dev \
+            libwebkit2gtk-4.1-dev \
+            libsecret-1-dev 
 
       - name: Build Linux
         run: flutter build linux --release
 
       # ---- Post-build: copy Rust libs into Flutter bundle ------------------
-      # Flutter places its own output under build/linux/x64/release/bundle/
-      # but may overwrite lib/ during the build.  Re-copy after the build.
       - name: Re-copy Rust libs into Flutter Linux bundle
         run: |
           BUNDLE="build/linux/x64/release/bundle/lib"
@@ -244,12 +252,24 @@ jobs:
           echo "Updated pubspec.yaml → version: $FULL_VERSION"
           grep "^version:" pubspec.yaml
 
-      # ---- Rust setup (both macOS arches) -----------------------------------
+      # ---- Setup Rust (both macOS arches) -----------------------------------
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-apple-darwin,aarch64-apple-darwin
 
+      # ---- Setup Flutter ---------------------------------------------------
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      # ---- Build Rust (cargo build for both arches) -----------------------
       - name: Build kivixa_native for macOS (universal)
         run: |
           echo "=== Building kivixa_native for macOS (x86_64 + arm64) ==="
@@ -303,33 +323,19 @@ jobs:
       # ---- Copy libs so Flutter can find them at build time ----------------
       - name: Stage Rust dylibs for Flutter macOS build
         run: |
-          # Flutter macOS looks for native dylibs in the Runner bundle at link
-          # time via the rust_builder plugin path and the build output dirs.
           RELEASE_DIR="build/macos/Build/Products/Release"
           mkdir -p "$RELEASE_DIR"
           cp macos_libs/*.dylib "$RELEASE_DIR/" || true
 
-          # Also place next to pubspec so the plugin can locate them
           mkdir -p rust_builder/target/x86_64-apple-darwin/release
           cp macos_libs/libkivixa_native.dylib  rust_builder/target/x86_64-apple-darwin/release/
           cp macos_libs/libkivixa_math.dylib    rust_builder/target/x86_64-apple-darwin/release/
           cp macos_libs/libkivixa_audio.dylib   rust_builder/target/x86_64-apple-darwin/release/
 
       # ---- Flutter build ---------------------------------------------------
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
-          cache: true
-
-      - name: Get dependencies
-        run: flutter pub get
-
       - name: Build macOS (no code signing)
         run: |
-          flutter build macos --release \
-            --no-codesign
+          flutter build macos --release
 
       # ---- Post-build: embed universal dylibs into .app --------------------
       - name: Embed Rust dylibs into .app bundle
@@ -373,7 +379,6 @@ jobs:
           ARCHIVE_NAME="Kivixa-macOS-${VERSION}-universal.zip"
 
           mkdir -p artifacts
-          # ditto preserves macOS bundle structure better than zip
           ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "artifacts/${ARCHIVE_NAME}"
 
           echo "=== Artifacts ==="
@@ -393,7 +398,9 @@ jobs:
   build-ios:
     runs-on: macos-latest
     needs: extract-version
-
+    env:
+      IPHONEOS_DEPLOYMENT_TARGET: '14.0'
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -414,23 +421,34 @@ jobs:
           echo "Updated pubspec.yaml → version: $FULL_VERSION"
           grep "^version:" pubspec.yaml
 
-      # ---- Rust setup for iOS device target --------------------------------
+      # ---- Setup Rust for iOS device target --------------------------------
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-ios
 
+      # ---- Setup Flutter ---------------------------------------------------
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      # ---- Build Rust (cargo build for iOS) --------------------------------
       - name: Build kivixa_native for iOS (arm64)
         run: |
           echo "=== Building kivixa_native for iOS arm64 ==="
           cd native
-          cargo build --release --target aarch64-apple-ios
+          RUSTFLAGS="-C link-arg=-Wl,-undefined,dynamic_lookup" cargo build --release --target aarch64-apple-ios
           cd ..
 
           mkdir -p ios_libs
 
           cp native/target/aarch64-apple-ios/release/libkivixa_native.a ios_libs/
-          # Also accept .dylib output if the crate type is cdylib
           [ -f native/target/aarch64-apple-ios/release/libkivixa_native.dylib ] && \
             cp native/target/aarch64-apple-ios/release/libkivixa_native.dylib ios_libs/ || true
 
@@ -441,7 +459,7 @@ jobs:
         run: |
           echo "=== Building kivixa_math for iOS arm64 ==="
           cd native_math
-          cargo build --release --target aarch64-apple-ios
+          RUSTFLAGS="-C link-arg=-Wl,-undefined,dynamic_lookup" cargo build --release --target aarch64-apple-ios
           cd ..
 
           [ -f native_math/target/aarch64-apple-ios/release/libkivixa_math.a ] && \
@@ -456,7 +474,7 @@ jobs:
         run: |
           echo "=== Building kivixa_audio for iOS arm64 ==="
           cd native_audio
-          cargo build --release --target aarch64-apple-ios
+          RUSTFLAGS="-C link-arg=-Wl,-undefined,dynamic_lookup" cargo build --release --target aarch64-apple-ios
           cd ..
 
           [ -f native_audio/target/aarch64-apple-ios/release/libkivixa_audio.a ] && \
@@ -470,13 +488,10 @@ jobs:
       # ---- Stage libs for the iOS Xcode project ----------------------------
       - name: Stage Rust libs for Flutter iOS build
         run: |
-          # Place static/dylib files where the rust_builder Flutter plugin
-          # and any custom build phases expect to find them.
           DEST="ios/Frameworks"
           mkdir -p "$DEST"
           cp ios_libs/* "$DEST/" || true
 
-          # Also copy to rust_builder plugin target dir
           mkdir -p rust_builder/target/aarch64-apple-ios/release
           cp ios_libs/* rust_builder/target/aarch64-apple-ios/release/ || true
 
@@ -484,16 +499,6 @@ jobs:
           ls -lh "$DEST/"
 
       # ---- Flutter build ---------------------------------------------------
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
-          cache: true
-
-      - name: Get dependencies
-        run: flutter pub get
-
       - name: Build iOS (unsigned IPA)
         run: |
           flutter build ipa --release --no-codesign
@@ -506,8 +511,6 @@ jobs:
           if [ -z "$IPA_SRC" ]; then
             echo "[ERROR] No .ipa found. Checking build/ios/ipa/:"
             ls -la build/ios/ipa/ || true
-            # Flutter with --no-codesign may produce a Runner.ipa or place it
-            # in a slightly different path — do a broader search.
             IPA_SRC="$(find build/ios -name '*.ipa' | head -1)"
           fi
 
@@ -532,15 +535,12 @@ jobs:
   # =========================================================================
   # JOB 4: Wait for the Android+Windows workflow to finish creating the
   #         GitHub Release, then append Linux / macOS / iOS artefacts to it.
-  #
-  # The Android+Windows workflow creates the release.  If it finishes *after*
-  # this workflow, the polling loop below will wait up to ~30 min.
-  # If it finishes *before*, the loop exits on the first iteration.
   # =========================================================================
 
   wait-for-release:
     runs-on: ubuntu-latest
     needs: [extract-version, build-linux, build-macos, build-ios]
+    # SKIPS THIS JOB IF RUN MANUALLY (workflow_dispatch)
     if: github.event_name != 'workflow_dispatch'
     outputs:
       release_exists: ${{ steps.poll.outputs.release_exists }}
@@ -587,7 +587,8 @@ jobs:
   upload-to-release:
     runs-on: ubuntu-latest
     needs: [extract-version, wait-for-release]
-    if: needs.wait-for-release.outputs.release_exists == 'true'
+    # SKIPS THIS JOB IF RUN MANUALLY OR IF RELEASE WASN'T FOUND
+    if: github.event_name != 'workflow_dispatch' && needs.wait-for-release.outputs.release_exists == 'true'
     permissions:
       contents: write
 
@@ -616,11 +617,8 @@ jobs:
       - name: Append artefacts to existing GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          # Pointing at the same tag causes softprops to UPDATE (append) the
-          # existing release rather than creating a new one.
           tag_name: ${{ needs.extract-version.outputs.tag_name }}
           files: release-artifacts/*
-          # Do not overwrite release name / body set by the primary workflow
           append_body: true
           body: |
 
