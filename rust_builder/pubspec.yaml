@@ -16,13 +16,18 @@ flutter:
   plugin:
     platforms:
       android:
+        package: com.kivixa.rust_lib_kivixa
+        pluginClass: RustLibKivixaPlugin
         ffiPlugin: true
       ios:
+        pluginClass: RustLibKivixaPlugin
         ffiPlugin: true
       linux:
+        pluginClass: RustLibKivixaPlugin
         ffiPlugin: true
       macos:
+        pluginClass: RustLibKivixaPlugin
         ffiPlugin: true
       windows:
+        pluginClass: RustLibKivixaPlugin
         ffiPlugin: true
-
