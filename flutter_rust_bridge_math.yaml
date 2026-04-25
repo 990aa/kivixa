@@ -1,5 +1,4 @@
 # Flutter Rust Bridge configuration for kivixa_math
-# Isolated from the main native/ AI inference module
 
 rust_input: crate::api
 
