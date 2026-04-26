@@ -43,7 +43,7 @@ rayon = "1.10"
 
 # Thread-safe primitives
 parking_lot = "0.12"
-once_cell = "1.19"
+once_cell = "1.21"
 crossbeam-channel = "0.5"
 
 # Logging
