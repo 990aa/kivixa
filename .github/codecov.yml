@@ -1,38 +1,31 @@
+# codecov.yml
 codecov:
   notify:
-    wait_for_ci: yes  # Ensures all coverage reports (Flutter + Rust) are uploaded before commenting
+    wait_for_ci: yes  # Wait for both Flutter and Rust tests to finish
 
 coverage:
   status:
     project:
       default:
         target: auto
-        threshold: 1% # Allow 1% drop before failing the check
+        threshold: 1%  # Allow 1% drop before failing
     patch:
       default:
         target: auto
-        threshold: 0% # Ensure new code is always tested
+        threshold: 0%
 
-# Use flags to distinguish between Flutter and multiple Rust modules
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false  # Post a comment even if coverage didn't change
+
+# Categorize reports so you can see Rust vs Flutter coverage
 flags:
+  rust:
+    paths:
+      - native/
+      - native_math/
+      - native_audio/
   flutter:
     paths:
       - lib/
-    carryforward: true
-  native_core:
-    paths:
-      - native/
-    carryforward: true
-  native_math:
-    paths:
-      - native_math/
-    carryforward: true
-  native_audio:
-    paths:
-      - native_audio/
-    carryforward: true
-
-comment:
-  layout: "header, diff, flags, files"
-  behavior: default
-  require_changes: no  # Comment on every PR even if coverage doesn't change
