@@ -1,10 +1,38 @@
+codecov:
+  notify:
+    wait_for_ci: yes  # Ensures all coverage reports (Flutter + Rust) are uploaded before commenting
+
 coverage:
   status:
-    patch: false
     project:
-      kivixa:
-        threshold: "5.0"
+      default:
+        target: auto
+        threshold: 1% # Allow 1% drop before failing the check
+    patch:
+      default:
+        target: auto
+        threshold: 0% # Ensure new code is always tested
 
-ignore:
-  - "packages"
-  - "lib/i18n"
+# Use flags to distinguish between Flutter and multiple Rust modules
+flags:
+  flutter:
+    paths:
+      - lib/
+    carryforward: true
+  native_core:
+    paths:
+      - native/
+    carryforward: true
+  native_math:
+    paths:
+      - native_math/
+    carryforward: true
+  native_audio:
+    paths:
+      - native_audio/
+    carryforward: true
+
+comment:
+  layout: "header, diff, flags, files"
+  behavior: default
+  require_changes: no  # Comment on every PR even if coverage doesn't change
