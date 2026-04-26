@@ -1,31 +1,38 @@
-# codecov.yml
+# .codecov.yml
 codecov:
   notify:
-    wait_for_ci: yes  # Wait for both Flutter and Rust tests to finish
+    after_n_builds: 4 # Wait for Flutter + 3 Rust modules to finish
 
 coverage:
   status:
     project:
       default:
         target: auto
-        threshold: 1%  # Allow 1% drop before failing
+        threshold: 1%
     patch:
       default:
         target: auto
         threshold: 0%
 
-comment:
-  layout: "reach, diff, flags, files"
-  behavior: default
-  require_changes: false  # Post a comment even if coverage didn't change
+# Organizes reports by module so you can see which part of the app is missing tests
+flag_management:
+  default_rules:
+    carryforward: true
+  individual_flags:
+    - name: flutter_app
+      paths:
+        - lib/
+    - name: rust_native
+      paths:
+        - native/
+    - name: rust_math
+      paths:
+        - native_math/
+    - name: rust_audio
+      paths:
+        - native_audio/
 
-# Categorize reports so you can see Rust vs Flutter coverage
-flags:
-  rust:
-    paths:
-      - native/
-      - native_math/
-      - native_audio/
-  flutter:
-    paths:
-      - lib/
+comment:
+  layout: "reach,diff,flags,files"
+  behavior: default
+  require_changes: false
