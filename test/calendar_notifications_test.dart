@@ -225,8 +225,6 @@ void main() {
   group('Notification Settings Tests', () {
     test('Default notification settings are all enabled', () {
       final settings = NotificationSettings();
-
-      expect(settings.notificationsEnabled, true);
       expect(settings.eventNotificationsEnabled, true);
       expect(settings.taskNotificationsEnabled, true);
       expect(settings.overdueNotificationsEnabled, true);
@@ -237,10 +235,20 @@ void main() {
       expect(settings.leadTimesInMinutes, [10, 60, 1440]);
     });
 
-    test('Notification settings can be disabled', () {
-      final settings = NotificationSettings(notificationsEnabled: false);
+    test('Notification settings can be disabled', () async {
+      final settings = NotificationSettings(
+        eventNotificationsEnabled: false,
+        taskNotificationsEnabled: false,
+        overdueNotificationsEnabled: false,
+        projectDeadlineNotificationsEnabled: false,
+        exactTimeNotificationsEnabled: false,
+      );
 
-      expect(settings.notificationsEnabled, false);
+      expect(settings.eventNotificationsEnabled, false);
+      expect(settings.taskNotificationsEnabled, false);
+      expect(settings.overdueNotificationsEnabled, false);
+      expect(settings.projectDeadlineNotificationsEnabled, false);
+      expect(settings.exactTimeNotificationsEnabled, false);
     });
 
     test('Individual notification types can be toggled', () {
@@ -248,8 +256,6 @@ void main() {
         eventNotificationsEnabled: false,
         taskNotificationsEnabled: false,
       );
-
-      expect(settings.notificationsEnabled, true); // Master still enabled
       expect(settings.eventNotificationsEnabled, false);
       expect(settings.taskNotificationsEnabled, false);
       expect(settings.overdueNotificationsEnabled, true); // Still enabled
@@ -257,33 +263,35 @@ void main() {
 
     test('Notification settings serialization works', () {
       final settings = NotificationSettings(
-        notificationsEnabled: false,
         eventNotificationsEnabled: true,
         taskNotificationsEnabled: false,
         overdueNotificationsEnabled: true,
         projectDeadlineNotificationsEnabled: false,
         exactTimeNotificationsEnabled: false,
         soundProfile: NotificationSoundProfile.alarm,
-        vibrateOnlyOnAndroid: true,
+        notificationFeedbackMode: NotificationFeedbackMode.vibrationOnly,
         leadTimesInMinutes: const [15, 120],
       );
 
       final json = settings.toJson();
-
-      expect(json['notificationsEnabled'], false);
       expect(json['eventNotificationsEnabled'], true);
       expect(json['taskNotificationsEnabled'], false);
       expect(json['overdueNotificationsEnabled'], true);
       expect(json['projectDeadlineNotificationsEnabled'], false);
       expect(json['exactTimeNotificationsEnabled'], false);
-      expect(json['soundProfile'], 'alarm');
+      expect(
+        json['soundProfile'],
+        'silent',
+      ); // vibrateOnly forces legacy soundProfile to silent
       expect(json['vibrateOnlyOnAndroid'], true);
+      expect(json['notificationFeedbackMode'], 'vibration_only');
+      expect(json['notificationSoundEnabled'], false);
+      expect(json['notificationVibrationEnabled'], true);
       expect(json['leadTimesInMinutes'], [15, 120]);
     });
 
     test('Notification settings deserialization works', () {
       final json = {
-        'notificationsEnabled': false,
         'eventNotificationsEnabled': true,
         'taskNotificationsEnabled': false,
         'overdueNotificationsEnabled': true,
@@ -295,8 +303,6 @@ void main() {
       };
 
       final settings = NotificationSettings.fromJson(json);
-
-      expect(settings.notificationsEnabled, false);
       expect(settings.eventNotificationsEnabled, true);
       expect(settings.taskNotificationsEnabled, false);
       expect(settings.overdueNotificationsEnabled, true);
@@ -309,7 +315,6 @@ void main() {
 
     test('Notification settings copyWith works', () {
       final settings = NotificationSettings();
-
       final updated = settings.copyWith(
         eventNotificationsEnabled: false,
         overdueNotificationsEnabled: false,
@@ -319,8 +324,6 @@ void main() {
         vibrateOnlyOnAndroid: true,
         leadTimesInMinutes: const [30],
       );
-
-      expect(updated.notificationsEnabled, true); // Unchanged
       expect(updated.eventNotificationsEnabled, false); // Changed
       expect(updated.taskNotificationsEnabled, true); // Unchanged
       expect(updated.overdueNotificationsEnabled, false); // Changed
@@ -332,12 +335,10 @@ void main() {
     });
 
     test('Notification settings JSON string conversion works', () {
-      final settings = NotificationSettings(notificationsEnabled: false);
+      final settings = NotificationSettings();
 
       final jsonString = settings.toJsonString();
       final restored = NotificationSettings.fromJsonString(jsonString);
-
-      expect(restored.notificationsEnabled, settings.notificationsEnabled);
       expect(
         restored.eventNotificationsEnabled,
         settings.eventNotificationsEnabled,
@@ -369,6 +370,55 @@ void main() {
       });
 
       expect(settings.leadTimesInMinutes, [10, 60, 1440]);
+    });
+
+    test(
+      'Legacy feedback mode keys migrate to modern sound/vibration flags',
+      () {
+        final settings = NotificationSettings.fromJson({
+          'notificationFeedbackMode': 'vibrate_only',
+        });
+
+        expect(settings.notificationSoundEnabled, false);
+        expect(settings.notificationVibrationEnabled, true);
+        expect(
+          settings.notificationFeedbackMode,
+          NotificationFeedbackMode.vibrationOnly,
+        );
+      },
+    );
+
+    test('Sound and vibration flags deserialize to all combinations', () {
+      final soundAndVibration = NotificationSettings.fromJson({
+        'notificationSoundEnabled': true,
+        'notificationVibrationEnabled': true,
+      });
+      final soundOnly = NotificationSettings.fromJson({
+        'notificationSoundEnabled': true,
+        'notificationVibrationEnabled': false,
+      });
+      final vibrationOnly = NotificationSettings.fromJson({
+        'notificationSoundEnabled': false,
+        'notificationVibrationEnabled': true,
+      });
+      final silent = NotificationSettings.fromJson({
+        'notificationSoundEnabled': false,
+        'notificationVibrationEnabled': false,
+      });
+
+      expect(
+        soundAndVibration.notificationFeedbackMode,
+        NotificationFeedbackMode.soundAndVibration,
+      );
+      expect(
+        soundOnly.notificationFeedbackMode,
+        NotificationFeedbackMode.soundOnly,
+      );
+      expect(
+        vibrationOnly.notificationFeedbackMode,
+        NotificationFeedbackMode.vibrationOnly,
+      );
+      expect(silent.notificationFeedbackMode, NotificationFeedbackMode.silent);
     });
   });
 
