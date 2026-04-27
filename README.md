@@ -658,11 +658,11 @@ The installer includes a custom uninstaller that allows users to optionally wipe
 
 | Platform | Status | Notes |
 |----------|--------|-------|
-|  **Windows** | Stable | Fully tested and optimized |
-|  **macOS** | - | Requires macOS |
-|  **Linux** | - | Requires Linux |
-|  **Android** | Stable | Android 7.0 (API 24)+ |
-|  **iOS** | - | Requires iOS |
+|  **Windows** | Stable | Builds and releases are fully stable, tested and downloadable |
+|  **Android** | Stable | Builds and releases are fully stable, tested and downloadable |
+|  **Linux** | Distributed | Builds work and are distributed, can be installed directly |
+|  **macOS** | Distributed | Builds work and are distributed, but cannot be installed directly due to strict Apple Store rules |
+|  **iOS** | Distributed | Builds work and are distributed, but cannot be installed directly due to strict Apple Store rules |
 
 ---
 
