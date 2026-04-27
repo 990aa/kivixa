@@ -305,7 +305,7 @@ class _NotificationSettingsWidgetState
             subtitle: Text(
               isReady
                   ? 'Ready to use'
-                  : 'Download from GitHub to enable this sound',
+                  : 'Download to enable this sound',
             ),
             trailing: trailing,
             onTap: isReady
