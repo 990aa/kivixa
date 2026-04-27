@@ -131,6 +131,7 @@ jobs:
         with:
           files: coverage/lcov.info
           flags: flutter_app
+          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           verbose: true
 
@@ -195,10 +196,33 @@ jobs:
           set -euo pipefail
           xargs -r cargo fmt -- --check < changed_rs_files.txt
 
-      - name: Run full Rust test suite
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+
+      - name: Run full Rust test suite with coverage
         env:
           RUST_TEST_THREADS: "1"
-        run: cargo test --manifest-path ${{ matrix.crate }}/Cargo.toml --all-targets --all-features
+        run: |
+          cargo llvm-cov --manifest-path ${{ matrix.crate }}/Cargo.toml --all-features --lcov --output-path lcov-${{ matrix.crate }}.info --ignore-filename-regex '.*\.g\.rs|.*\.freezed\.rs'
+
+      - name: Upload Rust coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-coverage-${{ matrix.crate }}
+          path: lcov-${{ matrix.crate }}.info
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Upload Rust coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: lcov-${{ matrix.crate }}.info
+          flags: ${{ matrix.crate }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          verbose: true
 
   rust-security:
     name: Rust Security & Policy (${{ matrix.crate }})
