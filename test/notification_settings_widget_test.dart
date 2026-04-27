@@ -12,7 +12,9 @@ import 'package:path_provider_platform_interface/path_provider_platform_interfac
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MockPathProviderPlatform extends Fake with MockPlatformInterfaceMixin implements PathProviderPlatform {
+class MockPathProviderPlatform extends Fake
+    with MockPlatformInterfaceMixin
+    implements PathProviderPlatform {
   @override
   Future<String?> getApplicationSupportPath() async => '.';
 }
@@ -82,7 +84,10 @@ void main() {
     var settings = await NotificationSettingsStorage.loadSettings();
     expect(settings.notificationSoundEnabled, isFalse);
     expect(settings.notificationVibrationEnabled, isTrue);
-    expect(settings.notificationFeedbackMode, NotificationFeedbackMode.vibrationOnly);
+    expect(
+      settings.notificationFeedbackMode,
+      NotificationFeedbackMode.vibrationOnly,
+    );
 
     final updatedSoundTile = tester.widget<SwitchListTile>(
       find.widgetWithText(SwitchListTile, 'Sound'),
@@ -93,7 +98,10 @@ void main() {
     settings = await NotificationSettingsStorage.loadSettings();
     expect(settings.notificationSoundEnabled, isTrue);
     expect(settings.notificationVibrationEnabled, isTrue);
-    expect(settings.notificationFeedbackMode, NotificationFeedbackMode.soundAndVibration);
+    expect(
+      settings.notificationFeedbackMode,
+      NotificationFeedbackMode.soundAndVibration,
+    );
   });
 
   testWidgets(
@@ -145,33 +153,44 @@ void main() {
     timerService.setSoundEnabled(true);
   });
 
-  testWidgets('deleting downloaded selected sound falls back to default and refreshes UI', (
-    tester,
-  ) async {
-    final option = NotificationSoundCatalogService.reminderSoundOptions
-        .firstWhere((it) => it.id == 'alarm_wind_chimes');
-    final soundsDir = Directory('notification_sounds')..createSync(recursive: true);
-    File('${soundsDir.path}${Platform.pathSeparator}${option.fileName}')
-        .writeAsBytesSync([1, 2, 3, 4]);
+  testWidgets(
+    'deleting downloaded selected sound falls back to default and refreshes UI',
+    (tester) async {
+      final option = NotificationSoundCatalogService.reminderSoundOptions
+          .firstWhere((it) => it.id == 'alarm_wind_chimes');
+      final soundsDir = Directory('notification_sounds')
+        ..createSync(recursive: true);
+      File(
+        '${soundsDir.path}${Platform.pathSeparator}${option.fileName}',
+      ).writeAsBytesSync([1, 2, 3, 4]);
 
-    await NotificationSettingsStorage.saveSettings(
-      NotificationSettings(reminderSoundId: option.id),
-    );
+      await NotificationSettingsStorage.saveSettings(
+        NotificationSettings(reminderSoundId: option.id),
+      );
 
-    await pumpWidgetUnderTest(tester);
+      await pumpWidgetUnderTest(tester);
 
-    final windChimesTile = find.widgetWithText(ListTile, 'Wind Chimes');
-    expect(windChimesTile, findsOneWidget);
-    expect(find.descendant(of: windChimesTile, matching: find.text('Delete')), findsOneWidget);
+      final windChimesTile = find.widgetWithText(ListTile, 'Wind Chimes');
+      expect(windChimesTile, findsOneWidget);
+      expect(
+        find.descendant(of: windChimesTile, matching: find.text('Delete')),
+        findsOneWidget,
+      );
 
-    await tester.tap(find.descendant(of: windChimesTile, matching: find.text('Delete')));
-    await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(of: windChimesTile, matching: find.text('Delete')),
+      );
+      await tester.pumpAndSettle();
 
-    final settings = await NotificationSettingsStorage.loadSettings();
-    expect(
-      settings.reminderSoundId,
-      NotificationSoundCatalogService.defaultReminderSoundId,
-    );
-    expect(find.descendant(of: windChimesTile, matching: find.text('Download')), findsOneWidget);
-  });
+      final settings = await NotificationSettingsStorage.loadSettings();
+      expect(
+        settings.reminderSoundId,
+        NotificationSoundCatalogService.defaultReminderSoundId,
+      );
+      expect(
+        find.descendant(of: windChimesTile, matching: find.text('Download')),
+        findsOneWidget,
+      );
+    },
+  );
 }
