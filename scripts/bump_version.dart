@@ -113,14 +113,14 @@ class Version {
   String get fullVersionString => '$major.$minor.$patch+$buildNumber';
 
   /// Calculate build number from version
-  int get calculatedBuildNumber => major * 100000 + minor * 1000 + patch;
+  int get calculatedBuildNumber => major * 1000000 + minor * 10000 + patch *10;
 
   /// Bump major version
   Version bumpMajor() => Version(
     major: major + 1,
     minor: 0,
     patch: 0,
-    buildNumber: (major + 1) * 100000,
+    buildNumber: (major + 1) * 1000000,
   );
 
   /// Bump minor version
@@ -128,7 +128,7 @@ class Version {
     major: major,
     minor: minor + 1,
     patch: 0,
-    buildNumber: major * 100000 + (minor + 1) * 1000,
+    buildNumber: major * 1000000 + (minor + 1) * 10000,
   );
 
   /// Bump patch version
@@ -136,7 +136,7 @@ class Version {
     major: major,
     minor: minor,
     patch: patch + 1,
-    buildNumber: major * 100000 + minor * 1000 + (patch + 1),
+    buildNumber: major * 1000000 + minor * 10000 + (patch + 1) * 10,
   );
 
   /// Bump build number only
