@@ -27,7 +27,7 @@ rubato = "0.16"        # High-quality resampling
 dasp_sample = "0.11"   # Audio sample type conversions
 
 # Phonemization for TTS (lightweight)
-regex = "1.10"
+regex = "1.12"
 unicode-normalization = "0.1"
 
 # Math operations for audio processing
