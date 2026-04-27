@@ -47,7 +47,7 @@ serde_json = "1.0"
 
 # Async runtime and parallelism
 tokio = { version = "1", features = ["rt-multi-thread", "sync", "macros"] }
-rayon = "1.10"
+rayon = "1.12"
 
 # Logging
 log = "0.4"
