@@ -154,7 +154,8 @@ class _NotificationSettingsWidgetState
       if (_settings.reminderSoundId == soundId) {
         await _updateSettings(
           _settings.copyWith(
-            reminderSoundId: NotificationSoundCatalogService.defaultReminderSoundId,
+            reminderSoundId:
+                NotificationSoundCatalogService.defaultReminderSoundId,
           ),
         );
       }
@@ -172,9 +173,9 @@ class _NotificationSettingsWidgetState
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete sound: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to delete sound: $error')));
     } finally {
       if (mounted) {
         setState(() {
@@ -381,9 +382,7 @@ class _NotificationSettingsWidgetState
             ),
             title: Text(option.label),
             subtitle: Text(
-              isReady
-                  ? 'Ready to use'
-                  : 'Download to enable this sound',
+              isReady ? 'Ready to use' : 'Download to enable this sound',
             ),
             trailing: trailing,
             onTap: isReady
