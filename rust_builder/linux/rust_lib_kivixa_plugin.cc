@@ -1,0 +1,80 @@
+#include "include/rust_lib_kivixa/rust_lib_kivixa_plugin.h"
+
+#include <flutter_linux/flutter_linux.h>
+#include <gtk/gtk.h>
+#include <sys/utsname.h>
+
+#include <cstring>
+
+#include "rust_lib_kivixa_plugin_private.h"
+
+#define RUST_LIB_KIVIXA_PLUGIN(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj), rust_lib_kivixa_plugin_get_type(), \
+                              RustLibKivixaPlugin))
+
+struct _RustLibKivixaPlugin {
+  GObject parent_instance;
+};
+
+G_DEFINE_TYPE(RustLibKivixaPlugin, rust_lib_kivixa_plugin, g_object_get_type())
+
+// Called when a method call is received from Flutter.
+static void rust_lib_kivixa_plugin_handle_method_call(
+    RustLibKivixaPlugin* self,
+    FlMethodCall* method_call) {
+  g_autoptr(FlMethodResponse) response = nullptr;
+
+  const gchar* method = fl_method_call_get_name(method_call);
+
+  if (strcmp(method, "getPlatformVersion") == 0) {
+    response = get_platform_version();
+  } else {
+    response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
+  }
+
+  fl_method_call_respond(method_call, response, nullptr);
+}
+
+FlMethodResponse* get_platform_version() {
+  struct utsname uname_data = {};
+  if (uname(&uname_data) == -1) {
+    return FL_METHOD_RESPONSE(fl_method_error_response_new(
+        "platform_version_error", "Failed to read Linux platform version",
+        nullptr));
+  }
+  g_autofree gchar *version = g_strdup_printf("Linux %s", uname_data.version);
+  g_autoptr(FlValue) result = fl_value_new_string(version);
+  return FL_METHOD_RESPONSE(fl_method_success_response_new(result));
+}
+
+static void rust_lib_kivixa_plugin_dispose(GObject* object) {
+  G_OBJECT_CLASS(rust_lib_kivixa_plugin_parent_class)->dispose(object);
+}
+
+static void rust_lib_kivixa_plugin_class_init(RustLibKivixaPluginClass* klass) {
+  G_OBJECT_CLASS(klass)->dispose = rust_lib_kivixa_plugin_dispose;
+}
+
+static void rust_lib_kivixa_plugin_init(RustLibKivixaPlugin* self) {}
+
+static void method_call_cb(FlMethodChannel* channel, FlMethodCall* method_call,
+                           gpointer user_data) {
+  RustLibKivixaPlugin* plugin = RUST_LIB_KIVIXA_PLUGIN(user_data);
+  rust_lib_kivixa_plugin_handle_method_call(plugin, method_call);
+}
+
+void rust_lib_kivixa_plugin_register_with_registrar(FlPluginRegistrar* registrar) {
+  RustLibKivixaPlugin* plugin = RUST_LIB_KIVIXA_PLUGIN(
+      g_object_new(rust_lib_kivixa_plugin_get_type(), nullptr));
+
+  g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
+  g_autoptr(FlMethodChannel) channel =
+      fl_method_channel_new(fl_plugin_registrar_get_messenger(registrar),
+                            "rust_lib_kivixa",
+                            FL_METHOD_CODEC(codec));
+  fl_method_channel_set_method_call_handler(channel, method_call_cb,
+                                            g_object_ref(plugin),
+                                            g_object_unref);
+
+  g_object_unref(plugin);
+}
