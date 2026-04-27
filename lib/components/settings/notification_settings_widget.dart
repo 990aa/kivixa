@@ -25,6 +25,7 @@ class _NotificationSettingsWidgetState
   late NotificationSettings _settings;
   var _loading = true;
   final _downloadingSoundIds = <String>{};
+  final _deletingSoundIds = <String>{};
   Map<String, bool> _soundDownloadStates = const {};
 
   @override
@@ -129,6 +130,55 @@ class _NotificationSettingsWidgetState
       if (mounted) {
         setState(() {
           _downloadingSoundIds.remove(soundId);
+        });
+      }
+    }
+  }
+
+  Future<void> _deleteReminderSound(String soundId) async {
+    if (_deletingSoundIds.contains(soundId)) {
+      return;
+    }
+
+    setState(() {
+      _deletingSoundIds.add(soundId);
+    });
+
+    try {
+      final deleted = await _soundCatalog.deleteReminderSound(soundId);
+      final updatedStates = await _soundCatalog.downloadStates();
+      if (!mounted) {
+        return;
+      }
+
+      if (_settings.reminderSoundId == soundId) {
+        await _updateSettings(
+          _settings.copyWith(
+            reminderSoundId: NotificationSoundCatalogService.defaultReminderSoundId,
+          ),
+        );
+      }
+
+      setState(() {
+        _soundDownloadStates = updatedStates;
+      });
+
+      if (deleted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sound deleted successfully')),
+        );
+      }
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete sound: $error')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _deletingSoundIds.remove(soundId);
         });
       }
     }
@@ -240,27 +290,39 @@ class _NotificationSettingsWidgetState
         ),
 
         const SettingsSubtitle(subtitle: 'Sound & Vibration'),
-        ListTile(
-          leading: const Icon(Icons.vibration),
-          title: const Text('Notification Sound'),
+        SwitchListTile(
+          secondary: const Icon(Icons.volume_up),
+          title: const Text('Sound'),
           subtitle: const Text(
-            'Choose vibration only, or vibration with reminder/timer sound',
+            'Play selected reminder/timer sound for notifications and alerts',
           ),
-          trailing: DropdownButton<NotificationFeedbackMode>(
-            value: _settings.notificationFeedbackMode,
-            onChanged: (mode) {
-              if (mode == null) return;
-              _updateSettings(
-                _settings.copyWith(notificationFeedbackMode: mode),
-              );
-            },
-            items: NotificationFeedbackMode.values
-                .map(
-                  (mode) =>
-                      DropdownMenuItem(value: mode, child: Text(mode.label)),
-                )
-                .toList(growable: false),
-          ),
+          value: _settings.notificationSoundEnabled,
+          onChanged: (value) {
+            _updateSettings(
+              _settings.copyWith(
+                notificationFeedbackMode: NotificationFeedbackMode.fromFlags(
+                  soundEnabled: value,
+                  vibrationEnabled: _settings.notificationVibrationEnabled,
+                ),
+              ),
+            );
+          },
+        ),
+        SwitchListTile(
+          secondary: const Icon(Icons.vibration),
+          title: const Text('Vibration'),
+          subtitle: const Text('Vibrate on reminder/timer alerts'),
+          value: _settings.notificationVibrationEnabled,
+          onChanged: (value) {
+            _updateSettings(
+              _settings.copyWith(
+                notificationFeedbackMode: NotificationFeedbackMode.fromFlags(
+                  soundEnabled: _settings.notificationSoundEnabled,
+                  vibrationEnabled: value,
+                ),
+              ),
+            );
+          },
         ),
         ListTile(
           leading: const Icon(Icons.music_note),
@@ -273,23 +335,39 @@ class _NotificationSettingsWidgetState
           final isSelected = option.id == _settings.reminderSoundId;
           final isReady = _isSoundReady(option.id);
           final isDownloading = _downloadingSoundIds.contains(option.id);
+          final isDeleting = _deletingSoundIds.contains(option.id);
+          final canDelete = !option.isDefault && isReady;
 
           Widget trailing;
-          if (isDownloading) {
+          if (isDownloading || isDeleting) {
             trailing = const SizedBox(
               width: 20,
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             );
-          } else if (isReady && !isSelected) {
-            trailing = TextButton(
-              onPressed: () {
-                _updateSettings(_settings.copyWith(reminderSoundId: option.id));
-              },
-              child: const Text('Use'),
+          } else if (isReady) {
+            trailing = Wrap(
+              spacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                if (!isSelected)
+                  TextButton(
+                    onPressed: () {
+                      _updateSettings(
+                        _settings.copyWith(reminderSoundId: option.id),
+                      );
+                    },
+                    child: const Text('Use'),
+                  ),
+                if (isSelected)
+                  const Icon(Icons.check_circle, color: Colors.green),
+                if (canDelete)
+                  OutlinedButton(
+                    onPressed: () => _deleteReminderSound(option.id),
+                    child: const Text('Delete'),
+                  ),
+              ],
             );
-          } else if (isReady && isSelected) {
-            trailing = const Icon(Icons.check_circle, color: Colors.green);
           } else {
             trailing = OutlinedButton(
               onPressed: () => _downloadReminderSound(option.id),
