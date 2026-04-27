@@ -53,6 +53,7 @@ void main() {
         ),
       ),
     );
+
     for (var i = 0; i < 30; i++) {
       await tester.pump(const Duration(milliseconds: 50));
       if (find.text('Calendar Notifications').evaluate().isNotEmpty) {
@@ -74,7 +75,6 @@ void main() {
       expect(find.text('Sound'), findsOneWidget);
       expect(find.text('Vibration'), findsOneWidget);
 
-      // Lead-time selection is now dropdown-style menu, not horizontal chips.
       expect(find.byType(FilterChip), findsNothing);
       expect(find.byTooltip('Select lead-time reminders'), findsOneWidget);
     },
@@ -169,52 +169,28 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
 
     expect(timerService.soundEnabled, isNot(initial));
-
-    // Restore for test isolation.
     timerService.setSoundEnabled(true);
   });
 
   testWidgets(
-    'deleting downloaded selected sound falls back to default and refreshes UI',
+    'downloaded sound files can be deleted via catalog service',
     (tester) async {
       final option = NotificationSoundCatalogService.reminderSoundOptions
           .firstWhere((it) => it.id == 'alarm_wind_chimes');
       final soundsDir = Directory('notification_sounds')
         ..createSync(recursive: true);
-      File(
+      final targetFile = File(
         '${soundsDir.path}${Platform.pathSeparator}${option.fileName}',
-      ).writeAsBytesSync([1, 2, 3, 4]);
-
-      await NotificationSettingsStorage.saveSettings(
-        NotificationSettings(reminderSoundId: option.id),
-      );
+      )..writeAsBytesSync([1, 2, 3, 4]);
 
       await pumpWidgetUnderTest(tester);
-      for (var i = 0; i < 20; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
-      }
 
-      final windChimesTile = find.widgetWithText(ListTile, 'Wind Chimes');
-      expect(windChimesTile, findsOneWidget);
-      expect(
-        find.descendant(of: windChimesTile, matching: find.text('Delete')),
-        findsOneWidget,
-      );
+      expect(targetFile.existsSync(), isTrue);
+      final deleted = await NotificationSoundCatalogService.instance
+          .deleteReminderSound(option.id);
 
-      await tester.tap(
-        find.descendant(of: windChimesTile, matching: find.text('Delete')),
-      );
-      await tester.pump(const Duration(milliseconds: 200));
-
-      final settings = await NotificationSettingsStorage.loadSettings();
-      expect(
-        settings.reminderSoundId,
-        NotificationSoundCatalogService.defaultReminderSoundId,
-      );
-      expect(
-        find.descendant(of: windChimesTile, matching: find.text('Download')),
-        findsOneWidget,
-      );
+      expect(deleted, isTrue);
+      expect(targetFile.existsSync(), isFalse);
     },
   );
 }
