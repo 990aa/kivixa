@@ -124,7 +124,15 @@ jobs:
             echo "::error::No test files found to run."
             exit 1
           fi
-          flutter test --no-pub --reporter expanded "${test_files[@]}"
+          flutter test --no-pub --coverage --reporter expanded "${test_files[@]}"
+
+      - name: Upload Flutter coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage/lcov.info
+          flags: flutter_app
+          fail_ci_if_error: true
+          verbose: true
 
   rust-quality:
     name: Rust Quality Suite (${{ matrix.crate }})
@@ -170,7 +178,7 @@ jobs:
 
           crate="${{ matrix.crate }}"
           git diff --name-only "${{ needs.resolve-target.outputs.base_sha }}...${{ needs.resolve-target.outputs.head_sha }}" -- "$crate" \
-            | grep -E "^${crate}/.*\\.rs$" \
+            | grep -E "^${crate}/.*\.rs$" \
             | sed "s#^${crate}/##" > "${crate}/changed_rs_files.txt" || true
 
           if [[ -s "${crate}/changed_rs_files.txt" ]]; then
@@ -223,3 +231,179 @@ jobs:
       - name: Cargo deny
         working-directory: ${{ matrix.crate }}
         run: cargo deny check
+
+  path-filter:
+    name: Filter Changed Paths
+    runs-on: ubuntu-latest
+    needs: resolve-target
+    outputs:
+      native: ${{ steps.filter.outputs.native }}
+      native_audio: ${{ steps.filter.outputs.native_audio }}
+      native_math: ${{ steps.filter.outputs.native_math }}
+      dart_other: ${{ steps.filter.outputs.dart_other }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.resolve-target.outputs.checkout_ref }}
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            native:
+              - 'native/**'
+            native_audio:
+              - 'native_audio/**'
+            native_math:
+              - 'native_math/**'
+            dart_other:
+              - '**'
+              - '!native/**'
+              - '!native_audio/**'
+              - '!native_math/**'
+              - '!.github/**'
+              - '!docs/**'
+              - '!*.md'
+
+  build-android-arm64:
+    name: Build Android ARM64
+    runs-on: ubuntu-latest
+    needs: [resolve-target, path-filter]
+    if: ${{ needs.path-filter.outputs.dart_other == 'true' || needs.path-filter.outputs.native == 'true' || needs.path-filter.outputs.native_audio == 'true' || needs.path-filter.outputs.native_math == 'true' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.resolve-target.outputs.checkout_ref }}
+          submodules: recursive
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r26b
+          add-to-path: true
+      - name: Build native (Android)
+        if: ${{ needs.path-filter.outputs.native == 'true' || needs.path-filter.outputs.dart_other == 'true' }}
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          cd native
+          NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          API_LEVEL=23
+          export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
+          export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
+          export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
+          cargo build --release --target aarch64-linux-android
+          cd ..
+          mkdir -p android/app/src/main/jniLibs/arm64-v8a
+          cp native/target/aarch64-linux-android/release/libkivixa_native.so android/app/src/main/jniLibs/arm64-v8a/
+          NDK_LIBCPP_ARM64="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so"
+          if [ -f "$NDK_LIBCPP_ARM64" ]; then
+            cp "$NDK_LIBCPP_ARM64" android/app/src/main/jniLibs/arm64-v8a/
+          fi
+      - name: Build native_audio (Android)
+        if: ${{ needs.path-filter.outputs.native_audio == 'true' || needs.path-filter.outputs.dart_other == 'true' }}
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          cd native_audio
+          NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          API_LEVEL=23
+          export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
+          export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
+          export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
+          cargo build --release --target aarch64-linux-android
+          cd ..
+          mkdir -p android/app/src/main/jniLibs/arm64-v8a
+          cp native_audio/target/aarch64-linux-android/release/libkivixa_audio.so android/app/src/main/jniLibs/arm64-v8a/
+      - name: Build native_math (Android)
+        if: ${{ needs.path-filter.outputs.native_math == 'true' || needs.path-filter.outputs.dart_other == 'true' }}
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          cd native_math
+          NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          API_LEVEL=23
+          export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
+          export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
+          export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
+          cargo build --release --target aarch64-linux-android
+          cd ..
+          mkdir -p android/app/src/main/jniLibs/arm64-v8a
+          cp native_math/target/aarch64-linux-android/release/libkivixa_math.so android/app/src/main/jniLibs/arm64-v8a/
+      - name: Build Android APK
+        if: ${{ needs.path-filter.outputs.dart_other == 'true' }}
+        run: |
+          flutter pub get
+          flutter build apk --release --target-platform android-arm64
+
+  build-windows-exe:
+    name: Build Windows EXE
+    runs-on: windows-latest
+    needs: [resolve-target, path-filter]
+    if: ${{ needs.path-filter.outputs.dart_other == 'true' || needs.path-filter.outputs.native == 'true' || needs.path-filter.outputs.native_audio == 'true' || needs.path-filter.outputs.native_math == 'true' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.resolve-target.outputs.checkout_ref }}
+          submodules: recursive
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+      - name: Build native (Windows)
+        if: ${{ needs.path-filter.outputs.native == 'true' || needs.path-filter.outputs.dart_other == 'true' }}
+        shell: pwsh
+        run: |
+          Set-Location native
+          cargo build --release --target x86_64-pc-windows-msvc
+          Set-Location ..
+          New-Item -ItemType Directory -Force -Path "build/windows/x64/runner/Release" | Out-Null
+          Copy-Item "native/target/x86_64-pc-windows-msvc/release/kivixa_native.dll" "build/windows/x64/runner/Release/" -Force
+      - name: Build native_audio (Windows)
+        if: ${{ needs.path-filter.outputs.native_audio == 'true' || needs.path-filter.outputs.dart_other == 'true' }}
+        shell: pwsh
+        run: |
+          Set-Location native_audio
+          cargo build --release --target x86_64-pc-windows-msvc
+          Set-Location ..
+          New-Item -ItemType Directory -Force -Path "build/windows/x64/runner/Release" | Out-Null
+          Copy-Item "native_audio/target/x86_64-pc-windows-msvc/release/kivixa_audio.dll" "build/windows/x64/runner/Release/" -Force
+      - name: Build native_math (Windows)
+        if: ${{ needs.path-filter.outputs.native_math == 'true' || needs.path-filter.outputs.dart_other == 'true' }}
+        shell: pwsh
+        run: |
+          Set-Location native_math
+          cargo build --release --target x86_64-pc-windows-msvc
+          Set-Location ..
+          New-Item -ItemType Directory -Force -Path "build/windows/x64/runner/Release" | Out-Null
+          Copy-Item "native_math/target/x86_64-pc-windows-msvc/release/kivixa_math.dll" "build/windows/x64/runner/Release/" -Force
+      - name: Build Windows app
+        if: ${{ needs.path-filter.outputs.dart_other == 'true' }}
+        run: |
+          flutter pub get
+          flutter build windows --release
