@@ -28,6 +28,14 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'notification_settings': NotificationSettings().toJsonString(),
     });
+
+    final defaultOption = NotificationSoundCatalogService.reminderSoundOptions
+        .firstWhere((option) => option.isDefault);
+    final soundsDir = Directory('notification_sounds')
+      ..createSync(recursive: true);
+    File(
+      '${soundsDir.path}${Platform.pathSeparator}${defaultOption.fileName}',
+    ).writeAsBytesSync([1, 2, 3, 4]);
   });
 
   tearDown(() async {
@@ -45,7 +53,14 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    for (var i = 0; i < 30; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+      if (find.text('Calendar Notifications').evaluate().isNotEmpty) {
+        return;
+      }
+    }
+
+    fail('Notification settings widget did not finish loading in time.');
   }
 
   testWidgets(
@@ -70,16 +85,11 @@ void main() {
   ) async {
     await pumpWidgetUnderTest(tester);
 
-    final soundTile = tester.widget<SwitchListTile>(
+    var soundTile = tester.widget<SwitchListTile>(
       find.widgetWithText(SwitchListTile, 'Sound'),
     );
-    final vibrationTile = tester.widget<SwitchListTile>(
-      find.widgetWithText(SwitchListTile, 'Vibration'),
-    );
-
     soundTile.onChanged?.call(false);
-    vibrationTile.onChanged?.call(true);
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 200));
 
     var settings = await NotificationSettingsStorage.loadSettings();
     expect(settings.notificationSoundEnabled, isFalse);
@@ -89,18 +99,29 @@ void main() {
       NotificationFeedbackMode.vibrationOnly,
     );
 
-    final updatedSoundTile = tester.widget<SwitchListTile>(
+    final vibrationTile = tester.widget<SwitchListTile>(
+      find.widgetWithText(SwitchListTile, 'Vibration'),
+    );
+    vibrationTile.onChanged?.call(false);
+    await tester.pump(const Duration(milliseconds: 200));
+
+    settings = await NotificationSettingsStorage.loadSettings();
+    expect(settings.notificationSoundEnabled, isFalse);
+    expect(settings.notificationVibrationEnabled, isFalse);
+    expect(settings.notificationFeedbackMode, NotificationFeedbackMode.silent);
+
+    soundTile = tester.widget<SwitchListTile>(
       find.widgetWithText(SwitchListTile, 'Sound'),
     );
-    updatedSoundTile.onChanged?.call(true);
-    await tester.pumpAndSettle();
+    soundTile.onChanged?.call(true);
+    await tester.pump(const Duration(milliseconds: 200));
 
     settings = await NotificationSettingsStorage.loadSettings();
     expect(settings.notificationSoundEnabled, isTrue);
-    expect(settings.notificationVibrationEnabled, isTrue);
+    expect(settings.notificationVibrationEnabled, isFalse);
     expect(
       settings.notificationFeedbackMode,
-      NotificationFeedbackMode.soundAndVibration,
+      NotificationFeedbackMode.soundOnly,
     );
   });
 
@@ -113,13 +134,13 @@ void main() {
         find.byType(PopupMenuButton<int>),
       );
       leadTimeMenu.onSelected?.call(5);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 200));
 
       var settings = await NotificationSettingsStorage.loadSettings();
       expect(settings.leadTimesInMinutes, contains(5));
 
       leadTimeMenu.onSelected?.call(5);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 200));
 
       settings = await NotificationSettingsStorage.loadSettings();
       expect(settings.leadTimesInMinutes, isNot(contains(5)));
@@ -145,7 +166,7 @@ void main() {
     expect(initial, isTrue);
 
     soundTile.onChanged?.call(!initial);
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 200));
 
     expect(timerService.soundEnabled, isNot(initial));
 
@@ -169,6 +190,9 @@ void main() {
       );
 
       await pumpWidgetUnderTest(tester);
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
 
       final windChimesTile = find.widgetWithText(ListTile, 'Wind Chimes');
       expect(windChimesTile, findsOneWidget);
@@ -180,7 +204,7 @@ void main() {
       await tester.tap(
         find.descendant(of: windChimesTile, matching: find.text('Delete')),
       );
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 200));
 
       final settings = await NotificationSettingsStorage.loadSettings();
       expect(

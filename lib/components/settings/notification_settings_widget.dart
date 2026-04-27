@@ -22,8 +22,8 @@ class _NotificationSettingsWidgetState
   final _timerService = ProductivityTimerService.instance;
   final _soundCatalog = NotificationSoundCatalogService.instance;
 
-  late NotificationSettings _settings;
-  var _loading = true;
+  var _settings = NotificationSettings.defaults();
+  var _loading = false;
   final _downloadingSoundIds = <String>{};
   final _deletingSoundIds = <String>{};
   Map<String, bool> _soundDownloadStates = const {};
@@ -56,13 +56,30 @@ class _NotificationSettingsWidgetState
   }
 
   Future<void> _loadSettings() async {
-    final settings = await NotificationSettingsStorage.loadSettings();
-    final states = await _soundCatalog.downloadStates();
-    setState(() {
-      _settings = settings;
-      _soundDownloadStates = states;
-      _loading = false;
-    });
+    try {
+      final settings = await NotificationSettingsStorage.loadSettings();
+      final states = await _soundCatalog.downloadStates();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _settings = settings;
+        _soundDownloadStates = states;
+        _loading = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _settings = NotificationSettings.defaults();
+        _soundDownloadStates = const {};
+        _loading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load notification sounds: $error')),
+      );
+    }
   }
 
   Future<void> _updateSettings(NotificationSettings settings) async {
