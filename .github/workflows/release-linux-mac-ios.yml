@@ -175,7 +175,8 @@ jobs:
             libglib2.0-dev libpango1.0-dev libcairo2-dev \
             libatk1.0-dev libgdk-pixbuf2.0-dev \
             libwebkit2gtk-4.1-dev \
-            libsecret-1-dev 
+            libsecret-1-dev \
+            libmpv-dev
 
       - name: Build Linux
         run: flutter build linux --release
@@ -335,6 +336,21 @@ jobs:
       # ---- Flutter build ---------------------------------------------------
       - name: Build macOS (no code signing)
         run: |
+          echo "=== 1. Generating Podfile (Expect failure) ==="
+          # This runs pod install, drops the Podfile, and crashes. We catch the crash with || true.
+          flutter build macos --release || true
+          
+          echo "=== 2. Patching macOS Podfile deployment target ==="
+          if [ -f "macos/Podfile" ]; then
+            sed -i '' "s/^# platform :osx.*/platform :osx, '11.0'/g" macos/Podfile
+            sed -i '' "s/^platform :osx.*/platform :osx, '11.0'/g" macos/Podfile
+            echo "Patch successful!"
+          else
+            echo "[ERROR] macos/Podfile was not generated!"
+            exit 1
+          fi
+          
+          echo "=== 3. Building macOS (Final attempt) ==="
           flutter build macos --release
 
       # ---- Post-build: embed universal dylibs into .app --------------------
@@ -501,27 +517,42 @@ jobs:
       # ---- Flutter build ---------------------------------------------------
       - name: Build iOS (unsigned IPA)
         run: |
+          echo "=== 1. Generating Podfile (Expect failure) ==="
+          flutter build ipa --release --no-codesign || true
+          
+          echo "=== 2. Patching iOS Podfile deployment target ==="
+          if [ -f "ios/Podfile" ]; then
+            sed -i '' "s/^# platform :ios.*/platform :ios, '15.0'/g" ios/Podfile
+            sed -i '' "s/^platform :ios.*/platform :ios, '15.0'/g" ios/Podfile
+            echo "Patch successful!"
+          else
+            echo "[ERROR] ios/Podfile was not generated!"
+            exit 1
+          fi
+          
+          echo "=== 3. Building iOS (Final attempt) ==="
           flutter build ipa --release --no-codesign
 
-      - name: Rename IPA
+      - name: Create Unsigned IPA
         run: |
           VERSION="${{ needs.extract-version.outputs.version }}"
-          IPA_SRC="$(find build/ios/ipa -name '*.ipa' | head -1)"
+          APP_PATH="build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app"
 
-          if [ -z "$IPA_SRC" ]; then
-            echo "[ERROR] No .ipa found. Checking build/ios/ipa/:"
-            ls -la build/ios/ipa/ || true
-            IPA_SRC="$(find build/ios -name '*.ipa' | head -1)"
-          fi
-
-          if [ -z "$IPA_SRC" ]; then
-            echo "[ERROR] IPA not found after broad search."
-            find build/ios -type f | head -30
+          if [ ! -d "$APP_PATH" ]; then
+            echo "[ERROR] Runner.app not found at $APP_PATH."
+            find build/ios -name "*.app" -type d || true
             exit 1
           fi
 
+          echo "Found Runner.app! Manually packaging into unsigned .ipa..."
+          
+          # Standard IPA structure: a 'Payload' folder containing the .app
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          
           mkdir -p artifacts
-          cp "$IPA_SRC" "artifacts/Kivixa-iOS-${VERSION}-arm64.ipa"
+          zip -qr "artifacts/Kivixa-iOS-${VERSION}-arm64.ipa" Payload
+          
           echo "=== Artifacts ==="
           ls -lh artifacts/
 
