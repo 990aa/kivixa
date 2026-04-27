@@ -235,7 +235,21 @@ void main() {
       expect(settings.leadTimesInMinutes, [10, 60, 1440]);
     });
 
-    test('Notification settings can be disabled', () {});
+    test('Notification settings can be disabled', () async {
+      final settings = NotificationSettings(
+        eventNotificationsEnabled: false,
+        taskNotificationsEnabled: false,
+        overdueNotificationsEnabled: false,
+        projectDeadlineNotificationsEnabled: false,
+        exactTimeNotificationsEnabled: false,
+      );
+
+      expect(settings.eventNotificationsEnabled, false);
+      expect(settings.taskNotificationsEnabled, false);
+      expect(settings.overdueNotificationsEnabled, false);
+      expect(settings.projectDeadlineNotificationsEnabled, false);
+      expect(settings.exactTimeNotificationsEnabled, false);
+    });
 
     test('Individual notification types can be toggled', () {
       final settings = NotificationSettings(
@@ -375,6 +389,10 @@ void main() {
     );
 
     test('Sound and vibration flags deserialize to all combinations', () {
+      final soundAndVibration = NotificationSettings.fromJson({
+        'notificationSoundEnabled': true,
+        'notificationVibrationEnabled': true,
+      });
       final soundOnly = NotificationSettings.fromJson({
         'notificationSoundEnabled': true,
         'notificationVibrationEnabled': false,
@@ -388,6 +406,10 @@ void main() {
         'notificationVibrationEnabled': false,
       });
 
+      expect(
+        soundAndVibration.notificationFeedbackMode,
+        NotificationFeedbackMode.soundAndVibration,
+      );
       expect(
         soundOnly.notificationFeedbackMode,
         NotificationFeedbackMode.soundOnly,

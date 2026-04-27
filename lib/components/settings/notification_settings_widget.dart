@@ -23,7 +23,7 @@ class _NotificationSettingsWidgetState
   final _soundCatalog = NotificationSoundCatalogService.instance;
 
   var _settings = NotificationSettings.defaults();
-  var _loading = false;
+  var _loading = true;
   final _downloadingSoundIds = <String>{};
   final _deletingSoundIds = <String>{};
   Map<String, bool> _soundDownloadStates = const {};

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -81,14 +82,6 @@ class NotificationSoundCatalogService {
       }
     }
 
-    if (Platform.isWindows || Platform.isLinux) {
-      final dir = Directory(
-        p.join(Directory.current.path, 'notification_sounds'),
-      );
-      await dir.create(recursive: true);
-      return dir;
-    }
-
     if (Platform.isIOS || Platform.isMacOS) {
       final libraryDir = await getLibraryDirectory();
       final dir = Directory(p.join(libraryDir.path, 'Sounds'));
@@ -109,6 +102,7 @@ class NotificationSoundCatalogService {
   Future<void> ensureDefaultReminderSoundInstalled() async {
     final defaultOption = reminderSoundOptions.firstWhere(
       (option) => option.isDefault,
+      orElse: () => reminderSoundOptions.first,
     );
 
     final targetFile = await _fileForOption(defaultOption);
@@ -160,7 +154,9 @@ class NotificationSoundCatalogService {
     final option = optionById(soundId);
     final target = await _fileForOption(option);
 
-    final response = await http.get(Uri.parse(option.downloadUrl));
+    final response = await http
+        .get(Uri.parse(option.downloadUrl))
+        .timeout(const Duration(seconds: 30));
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw HttpException(
         'Failed to download reminder sound (${response.statusCode})',

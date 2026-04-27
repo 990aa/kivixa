@@ -472,7 +472,7 @@ class ProductivityTimerService extends ChangeNotifier {
       onlyAlertOnce: true,
       actions: effectiveActions,
       additionalFlags: longVibrationAlert
-          ? Int32List.fromList([4])
+          ? Int32List.fromList([_androidFlagInsistent])
           : null, // FLAG_INSISTENT
     );
 
@@ -482,14 +482,7 @@ class ProductivityTimerService extends ChangeNotifier {
               .fileName
         : null;
 
-    final iosDetails = DarwinNotificationDetails(
-      sound: effectivePlaySound
-          ? (soundFileName ?? 'kivixa_notification.mp3')
-          : null,
-      presentSound: effectivePlaySound,
-    );
-
-    final macosDetails = DarwinNotificationDetails(
+    final darwinDetails = DarwinNotificationDetails(
       sound: effectivePlaySound
           ? (soundFileName ?? 'kivixa_notification.mp3')
           : null,
@@ -498,8 +491,8 @@ class ProductivityTimerService extends ChangeNotifier {
 
     final details = NotificationDetails(
       android: androidDetails,
-      iOS: iosDetails,
-      macOS: macosDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
     );
 
     try {
@@ -549,6 +542,10 @@ class ProductivityTimerService extends ChangeNotifier {
         ? AudioAttributesUsage.alarm
         : AudioAttributesUsage.notification;
   }
+
+  // Android Notification.FLAG_INSISTENT = 4
+  // Causes the notification sound/vibration to repeat until cancelled
+  static const _androidFlagInsistent = 4;
 
   Int64List _shortNotificationVibrationPattern() {
     return Int64List.fromList([0, 180]);

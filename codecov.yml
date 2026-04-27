@@ -22,13 +22,13 @@ flag_management:
     - name: flutter_app
       paths:
         - lib/
-    - name: rust_native
+    - name: native
       paths:
         - native/
-    - name: rust_math
+    - name: native_math
       paths:
         - native_math/
-    - name: rust_audio
+    - name: native_audio
       paths:
         - native_audio/
 

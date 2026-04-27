@@ -37,7 +37,11 @@ static void rust_lib_kivixa_plugin_handle_method_call(
 
 FlMethodResponse* get_platform_version() {
   struct utsname uname_data = {};
-  uname(&uname_data);
+  if (uname(&uname_data) == -1) {
+    return FL_METHOD_RESPONSE(fl_method_error_response_new(
+        "platform_version_error", "Failed to read Linux platform version",
+        nullptr));
+  }
   g_autofree gchar *version = g_strdup_printf("Linux %s", uname_data.version);
   g_autoptr(FlValue) result = fl_value_new_string(version);
   return FL_METHOD_RESPONSE(fl_method_success_response_new(result));

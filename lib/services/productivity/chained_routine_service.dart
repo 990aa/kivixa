@@ -790,7 +790,13 @@ class ChainedRoutineService extends ChangeNotifier {
     final playSound = _shouldPlaySound(settings);
     final enableVibration = _shouldVibrate(settings);
     final sound = await _resolveAndroidSound(settings, playSound);
-    final soundIdentity = playSound ? settings.reminderSoundId : 'sound_off';
+    final soundIdentity = !playSound
+        ? 'sound_off'
+        : (sound is RawResourceAndroidNotificationSound
+              ? 'kivixa_notification'
+              : sound is UriAndroidNotificationSound
+              ? settings.reminderSoundId
+              : 'sound_off');
 
     final androidDetails = AndroidNotificationDetails(
       _channelIdForSettings(settings, soundIdentity),

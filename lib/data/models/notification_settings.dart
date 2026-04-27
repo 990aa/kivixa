@@ -101,9 +101,12 @@ class NotificationSettings {
     this.soundProfile = NotificationSoundProfile.defaultTone,
     this.vibrateOnlyOnAndroid = false,
     this.notificationFeedbackMode = NotificationFeedbackMode.soundAndVibration,
-    this.reminderSoundId = defaultReminderSoundId,
+    String reminderSoundId = defaultReminderSoundId,
     List<int> leadTimesInMinutes = const [10, 60, 1440],
-  }) : leadTimesInMinutes = _sanitizeLeadTimes(leadTimesInMinutes);
+  }) : reminderSoundId = reminderSoundId.trim().isEmpty
+           ? defaultReminderSoundId
+           : reminderSoundId.trim(),
+       leadTimesInMinutes = _sanitizeLeadTimes(leadTimesInMinutes);
 
   factory NotificationSettings.defaults() => NotificationSettings();
 
@@ -128,6 +131,8 @@ class NotificationSettings {
                 )
               : (legacyVibrateOnly
                     ? NotificationFeedbackMode.vibrationOnly
+                    : legacySoundProfile == NotificationSoundProfile.silent
+                    ? NotificationFeedbackMode.silent
                     : NotificationFeedbackMode.soundAndVibration));
 
     final reminderSoundId =

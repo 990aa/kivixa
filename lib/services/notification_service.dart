@@ -40,6 +40,10 @@ class NotificationService {
 
   static const _dismissActionId = 'dismiss_notification';
 
+  // Android Notification.FLAG_INSISTENT = 4
+  // Causes the notification sound/vibration to repeat until cancelled
+  static const _androidFlagInsistent = 4;
+
   var _initialized = false;
 
   @visibleForTesting
@@ -537,7 +541,7 @@ class NotificationService {
       timeoutAfter: longVibrationAlert ? 60000 : null,
       actions: effectiveActions,
       additionalFlags: longVibrationAlert
-          ? Int32List.fromList([4])
+          ? Int32List.fromList([_androidFlagInsistent])
           : null, // FLAG_INSISTENT
     );
 
@@ -547,20 +551,15 @@ class NotificationService {
               .fileName
         : null;
 
-    final iosDetails = DarwinNotificationDetails(
-      sound: playSound ? (soundFileName ?? 'kivixa_notification.mp3') : null,
-      presentSound: playSound,
-    );
-
-    final macosDetails = DarwinNotificationDetails(
+    final darwinDetails = DarwinNotificationDetails(
       sound: playSound ? (soundFileName ?? 'kivixa_notification.mp3') : null,
       presentSound: playSound,
     );
 
     final notificationDetails = NotificationDetails(
       android: androidDetails,
-      iOS: iosDetails,
-      macOS: macosDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
     );
 
     await _notifications.zonedSchedule(
