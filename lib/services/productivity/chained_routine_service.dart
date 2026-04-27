@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kivixa/data/models/notification_settings.dart';
 import 'package:kivixa/data/notification_settings_storage.dart';
+import 'package:kivixa/services/notification_sound_catalog_service.dart';
 import 'package:kivixa/services/productivity/material_icon_codec.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -359,6 +361,8 @@ enum RoutineState { idle, running, paused, betweenBlocks, completed }
 /// PERFORMANCE: Uses cached SharedPreferences and debounced saves
 class ChainedRoutineService extends ChangeNotifier {
   ChainedRoutineService._();
+
+  static const _dismissActionId = 'chained_routine_dismiss';
 
   static final _instance = ChainedRoutineService._();
   static ChainedRoutineService get instance => _instance;
@@ -784,17 +788,36 @@ class ChainedRoutineService extends ChangeNotifier {
 
     final settings = await NotificationSettingsStorage.loadSettings();
     final playSound = _shouldPlaySound(settings);
+    final enableVibration = _shouldVibrate(settings);
+    final sound = await _resolveAndroidSound(settings, playSound);
+    final soundIdentity = !playSound
+        ? 'sound_off'
+        : (sound is RawResourceAndroidNotificationSound
+              ? 'kivixa_notification'
+              : sound is UriAndroidNotificationSound
+              ? settings.reminderSoundId
+              : 'sound_off');
 
     final androidDetails = AndroidNotificationDetails(
-      _channelIdForSettings(settings),
+      _channelIdForSettings(settings, soundIdentity),
       'Chained Routines',
       channelDescription: 'Notifications for chained routine blocks',
       importance: Importance.high,
       priority: Priority.high,
       playSound: playSound,
-      sound: _resolveAndroidSound(settings, playSound),
-      enableVibration: true,
-      vibrationPattern: _resolveVibrationPattern(settings),
+      sound: sound,
+      enableVibration: enableVibration,
+      vibrationPattern: enableVibration
+          ? _longReminderVibrationPattern()
+          : null,
+      timeoutAfter: 60000,
+      actions: const [
+        AndroidNotificationAction(
+          _dismissActionId,
+          'Dismiss',
+          showsUserInterface: false,
+        ),
+      ],
     );
 
     final details = NotificationDetails(android: androidDetails);
@@ -806,49 +829,54 @@ class ChainedRoutineService extends ChangeNotifier {
     }
   }
 
-  String _channelIdForSettings(NotificationSettings settings) {
-    final vibrationMode = settings.vibrateOnlyOnAndroid
-        ? 'vibrate_only'
-        : 'normal';
-    return 'chained_routines_${settings.soundProfile.storageKey}_$vibrationMode';
+  String _channelIdForSettings(NotificationSettings settings, String soundId) {
+    return 'chained_routines_${settings.notificationFeedbackMode.storageKey}_$soundId';
   }
 
   bool _shouldPlaySound(NotificationSettings settings) {
-    if (settings.vibrateOnlyOnAndroid) {
-      return false;
-    }
-    return settings.soundProfile != NotificationSoundProfile.silent;
+    return settings.notificationSoundEnabled;
   }
 
-  AndroidNotificationSound? _resolveAndroidSound(
+  bool _shouldVibrate(NotificationSettings settings) {
+    return settings.notificationVibrationEnabled;
+  }
+
+  Future<AndroidNotificationSound?> _resolveAndroidSound(
     NotificationSettings settings,
     bool shouldPlaySound,
-  ) {
+  ) async {
     if (!shouldPlaySound) {
       return null;
     }
 
-    switch (settings.soundProfile) {
-      case NotificationSoundProfile.defaultTone:
-        return null;
-      case NotificationSoundProfile.alarm:
-        return const UriAndroidNotificationSound(
-          'content://settings/system/alarm_alert',
-        );
-      case NotificationSoundProfile.ringtone:
-        return const UriAndroidNotificationSound(
-          'content://settings/system/ringtone',
-        );
-      case NotificationSoundProfile.silent:
-        return null;
+    final path = await NotificationSoundCatalogService.instance
+        .localPathForReminderSound(settings.reminderSoundId);
+    if (path == null || path.trim().isEmpty) {
+      return const RawResourceAndroidNotificationSound('kivixa_notification');
     }
+
+    return UriAndroidNotificationSound(Uri.file(path).toString());
   }
 
-  Int64List? _resolveVibrationPattern(NotificationSettings settings) {
-    if (!settings.vibrateOnlyOnAndroid) {
-      return null;
+  Int64List _longReminderVibrationPattern() {
+    final pattern = <int>[0];
+    var elapsedMs = 0;
+
+    while (elapsedMs < 60000) {
+      final vibrate = min(450, 60000 - elapsedMs);
+      pattern.add(vibrate);
+      elapsedMs += vibrate;
+
+      if (elapsedMs >= 60000) {
+        break;
+      }
+
+      final pause = min(350, 60000 - elapsedMs);
+      pattern.add(pause);
+      elapsedMs += pause;
     }
-    return Int64List.fromList([0, 280, 160, 280]);
+
+    return Int64List.fromList(pattern);
   }
 
   // Persistence

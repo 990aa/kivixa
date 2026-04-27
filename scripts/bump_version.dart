@@ -92,7 +92,7 @@ class Version {
 
     if (major == null || minor == null || patch == null) return null;
 
-    int buildNumber = major * 100000 + minor * 1000 + patch;
+    int buildNumber = major * 1000000 + minor * 10000 + patch * 10;
     if (parts.length > 1) {
       final parsedBuild = int.tryParse(parts[1]);
       if (parsedBuild != null) buildNumber = parsedBuild;
