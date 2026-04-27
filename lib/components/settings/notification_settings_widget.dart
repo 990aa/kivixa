@@ -62,10 +62,22 @@ class _NotificationSettingsWidgetState
         _initialLoadTimeout,
         onTimeout: NotificationSettings.defaults,
       );
-      final states = await _soundCatalog.downloadStates().timeout(
-        _initialLoadTimeout,
-        onTimeout: () => const <String, bool>{},
-      );
+      Map<String, bool> states;
+      try {
+        states = await _soundCatalog.downloadStates().timeout(
+          _initialLoadTimeout,
+          onTimeout: () => const <String, bool>{},
+        );
+      } catch (error) {
+        states = const <String, bool>{};
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to load notification sounds: $error'),
+            ),
+          );
+        }
+      }
       if (!mounted) {
         return;
       }
@@ -79,18 +91,20 @@ class _NotificationSettingsWidgetState
         return;
       }
       setState(() {
-        _settings = NotificationSettings.defaults();
         _soundDownloadStates = const {};
         _loading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load notification sounds: $error')),
+        SnackBar(content: Text('Failed to load notification settings: $error')),
       );
     }
   }
 
   Future<void> _updateSettings(NotificationSettings settings) async {
     await NotificationSettingsStorage.saveSettings(settings);
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _settings = settings;
     });
