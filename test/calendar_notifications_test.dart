@@ -235,8 +235,7 @@ void main() {
       expect(settings.leadTimesInMinutes, [10, 60, 1440]);
     });
 
-    test('Notification settings can be disabled', () {
-    });
+    test('Notification settings can be disabled', () {});
 
     test('Individual notification types can be toggled', () {
       final settings = NotificationSettings(
@@ -256,7 +255,7 @@ void main() {
         projectDeadlineNotificationsEnabled: false,
         exactTimeNotificationsEnabled: false,
         soundProfile: NotificationSoundProfile.alarm,
-        notificationFeedbackMode: NotificationFeedbackMode.vibrateOnly,
+        notificationFeedbackMode: NotificationFeedbackMode.vibrationOnly,
         leadTimesInMinutes: const [15, 120],
       );
 
@@ -266,9 +265,14 @@ void main() {
       expect(json['overdueNotificationsEnabled'], true);
       expect(json['projectDeadlineNotificationsEnabled'], false);
       expect(json['exactTimeNotificationsEnabled'], false);
-      expect(json['soundProfile'], 'silent'); // vibrateOnly forces legacy soundProfile to silent
+      expect(
+        json['soundProfile'],
+        'silent',
+      ); // vibrateOnly forces legacy soundProfile to silent
       expect(json['vibrateOnlyOnAndroid'], true);
-      expect(json['notificationFeedbackMode'], 'vibrate_only');
+      expect(json['notificationFeedbackMode'], 'vibration_only');
+      expect(json['notificationSoundEnabled'], false);
+      expect(json['notificationVibrationEnabled'], true);
       expect(json['leadTimesInMinutes'], [15, 120]);
     });
 
@@ -352,6 +356,47 @@ void main() {
       });
 
       expect(settings.leadTimesInMinutes, [10, 60, 1440]);
+    });
+
+    test(
+      'Legacy feedback mode keys migrate to modern sound/vibration flags',
+      () {
+        final settings = NotificationSettings.fromJson({
+          'notificationFeedbackMode': 'vibrate_only',
+        });
+
+        expect(settings.notificationSoundEnabled, false);
+        expect(settings.notificationVibrationEnabled, true);
+        expect(
+          settings.notificationFeedbackMode,
+          NotificationFeedbackMode.vibrationOnly,
+        );
+      },
+    );
+
+    test('Sound and vibration flags deserialize to all combinations', () {
+      final soundOnly = NotificationSettings.fromJson({
+        'notificationSoundEnabled': true,
+        'notificationVibrationEnabled': false,
+      });
+      final vibrationOnly = NotificationSettings.fromJson({
+        'notificationSoundEnabled': false,
+        'notificationVibrationEnabled': true,
+      });
+      final silent = NotificationSettings.fromJson({
+        'notificationSoundEnabled': false,
+        'notificationVibrationEnabled': false,
+      });
+
+      expect(
+        soundOnly.notificationFeedbackMode,
+        NotificationFeedbackMode.soundOnly,
+      );
+      expect(
+        vibrationOnly.notificationFeedbackMode,
+        NotificationFeedbackMode.vibrationOnly,
+      );
+      expect(silent.notificationFeedbackMode, NotificationFeedbackMode.silent);
     });
   });
 

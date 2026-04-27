@@ -15,7 +15,9 @@ import 'package:timezone/data/latest_all.dart' as tz;
 
 import 'mock/mock_flutter_local_notifications_plugin.dart';
 
-class MockPathProviderPlatform extends Fake with MockPlatformInterfaceMixin implements PathProviderPlatform {
+class MockPathProviderPlatform extends Fake
+    with MockPlatformInterfaceMixin
+    implements PathProviderPlatform {
   @override
   Future<String?> getApplicationSupportPath() async => '.';
 }
@@ -128,7 +130,7 @@ void main() {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
           'notification_settings',
-          NotificationSettings().toJsonString(),
+          NotificationSettings(eventNotificationsEnabled: false).toJsonString(),
         );
 
         await notificationService.scheduleEventNotification(event);
@@ -253,7 +255,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(
         'notification_settings',
-NotificationSettings(        ).toJsonString(),
+        NotificationSettings().toJsonString(),
       );
 
       await notificationService.scheduleEventNotification(event);
@@ -271,50 +273,48 @@ NotificationSettings(        ).toJsonString(),
       expect(scheduledDateUtc.minute, expectedDateUtc.minute);
     });
 
-    test(
-      'ringtone profile uses bundled ringtone sound and vibration',
-      () async {
-        final eventDate = DateTime.now().add(const Duration(days: 1));
-        final event = CalendarEvent(
-          id: 'ringtone-event',
-          title: 'Ringtone Event',
-          date: eventDate,
-          type: EventType.event,
-          startTime: const TimeOfDay(hour: 11, minute: 30),
-        );
-
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(
-          'notification_settings',
-NotificationSettings(            soundProfile: NotificationSoundProfile.ringtone,
-            vibrateOnlyOnAndroid: true,
-          ).toJsonString(),
-        );
-
-        await notificationService.scheduleEventNotification(event);
-
-        final scheduled = mockPlugin.scheduledNotifications.first;
-        final details = scheduled['notificationDetails'] as NotificationDetails;
-        final android = details.android!;
-
-        expect(android.playSound, isTrue);
-        expect(android.enableVibration, isTrue);
-        expect(android.vibrationPattern, isA<Int64List>());
-        expect(
-          android.audioAttributesUsage,
-          AudioAttributesUsage.notificationRingtone,
-        );
-        expect(android.sound, isA<RawResourceAndroidNotificationSound>());
-        final sound = android.sound! as RawResourceAndroidNotificationSound;
-        expect(sound.sound, 'kivixa_ringtone');
-      },
-    );
-
-    test('silent profile keeps vibration but disables sound', () async {
+    test('sound + vibration mode enables both behaviors', () async {
       final eventDate = DateTime.now().add(const Duration(days: 1));
       final event = CalendarEvent(
-        id: 'silent-event',
-        title: 'Silent Event',
+        id: 'sound-vibration-event',
+        title: 'Sound Vibration Event',
+        date: eventDate,
+        type: EventType.event,
+        startTime: const TimeOfDay(hour: 11, minute: 30),
+      );
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        'notification_settings',
+        NotificationSettings(
+          notificationFeedbackMode: NotificationFeedbackMode.soundAndVibration,
+        ).toJsonString(),
+      );
+
+      await notificationService.scheduleEventNotification(event);
+
+      final scheduled = mockPlugin.scheduledNotifications.first;
+      final details = scheduled['notificationDetails'] as NotificationDetails;
+      final android = details.android!;
+
+      expect(android.playSound, isTrue);
+      expect(android.enableVibration, isTrue);
+      expect(android.vibrationPattern, isA<Int64List>());
+      expect(android.audioAttributesUsage, AudioAttributesUsage.alarm);
+      expect(
+        android.sound,
+        anyOf(
+          isA<RawResourceAndroidNotificationSound>(),
+          isA<UriAndroidNotificationSound>(),
+        ),
+      );
+    });
+
+    test('vibration-only mode disables sound but keeps vibration', () async {
+      final eventDate = DateTime.now().add(const Duration(days: 1));
+      final event = CalendarEvent(
+        id: 'vibration-only-event',
+        title: 'Vibration Only Event',
         date: eventDate,
         type: EventType.event,
         startTime: const TimeOfDay(hour: 9, minute: 0),
@@ -323,8 +323,8 @@ NotificationSettings(            soundProfile: NotificationSoundProfile.ringtone
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(
         'notification_settings',
-NotificationSettings(          soundProfile: NotificationSoundProfile.silent,
-          vibrateOnlyOnAndroid: true,
+        NotificationSettings(
+          notificationFeedbackMode: NotificationFeedbackMode.vibrationOnly,
         ).toJsonString(),
       );
 
@@ -340,36 +340,43 @@ NotificationSettings(          soundProfile: NotificationSoundProfile.silent,
       expect(android.vibrationPattern, isA<Int64List>());
     });
 
-    test('vibration disabled keeps pattern null', () async {
-      final eventDate = DateTime.now().add(const Duration(days: 1));
-      final event = CalendarEvent(
-        id: 'no-vibration-event',
-        title: 'No Vibration Event',
-        date: eventDate,
-        type: EventType.event,
-      );
+    test(
+      'sound-only mode keeps sound but disables vibration pattern',
+      () async {
+        final eventDate = DateTime.now().add(const Duration(days: 1));
+        final event = CalendarEvent(
+          id: 'sound-only-event',
+          title: 'Sound Only Event',
+          date: eventDate,
+          type: EventType.event,
+        );
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-        'notification_settings',
-NotificationSettings(          soundProfile: NotificationSoundProfile.defaultTone,
-          vibrateOnlyOnAndroid: false,
-        ).toJsonString(),
-      );
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+          'notification_settings',
+          NotificationSettings(
+            notificationFeedbackMode: NotificationFeedbackMode.soundOnly,
+          ).toJsonString(),
+        );
 
-      await notificationService.scheduleEventNotification(event);
+        await notificationService.scheduleEventNotification(event);
 
-      final scheduled = mockPlugin.scheduledNotifications.first;
-      final details = scheduled['notificationDetails'] as NotificationDetails;
-      final android = details.android!;
+        final scheduled = mockPlugin.scheduledNotifications.first;
+        final details = scheduled['notificationDetails'] as NotificationDetails;
+        final android = details.android!;
 
-      expect(android.enableVibration, isFalse);
-      expect(android.vibrationPattern, isNull);
-      expect(android.playSound, isTrue);
-      expect(android.sound, isA<RawResourceAndroidNotificationSound>());
-      final sound = android.sound! as RawResourceAndroidNotificationSound;
-      expect(sound.sound, 'kivixa_default');
-    });
+        expect(android.enableVibration, isFalse);
+        expect(android.vibrationPattern, isNull);
+        expect(android.playSound, isTrue);
+        expect(
+          android.sound,
+          anyOf(
+            isA<RawResourceAndroidNotificationSound>(),
+            isA<UriAndroidNotificationSound>(),
+          ),
+        );
+      },
+    );
 
     test(
       'scheduleProjectDeadlineNotification schedules main and lead reminders',
