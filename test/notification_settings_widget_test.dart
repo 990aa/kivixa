@@ -172,25 +172,24 @@ void main() {
     timerService.setSoundEnabled(true);
   });
 
-  testWidgets(
-    'downloaded sound files can be deleted via catalog service',
-    (tester) async {
-      final option = NotificationSoundCatalogService.reminderSoundOptions
-          .firstWhere((it) => it.id == 'alarm_wind_chimes');
-      final soundsDir = Directory('notification_sounds')
-        ..createSync(recursive: true);
-      final targetFile = File(
-        '${soundsDir.path}${Platform.pathSeparator}${option.fileName}',
-      )..writeAsBytesSync([1, 2, 3, 4]);
+  testWidgets('downloaded sound files can be deleted via catalog service', (
+    tester,
+  ) async {
+    final option = NotificationSoundCatalogService.reminderSoundOptions
+        .firstWhere((it) => it.id == 'alarm_wind_chimes');
+    final soundsDir = Directory('notification_sounds')
+      ..createSync(recursive: true);
+    final targetFile = File(
+      '${soundsDir.path}${Platform.pathSeparator}${option.fileName}',
+    )..writeAsBytesSync([1, 2, 3, 4]);
 
-      await pumpWidgetUnderTest(tester);
+    await pumpWidgetUnderTest(tester);
 
-      expect(targetFile.existsSync(), isTrue);
-      final deleted = await NotificationSoundCatalogService.instance
-          .deleteReminderSound(option.id);
+    expect(targetFile.existsSync(), isTrue);
+    final deleted = await NotificationSoundCatalogService.instance
+        .deleteReminderSound(option.id);
 
-      expect(deleted, isTrue);
-      expect(targetFile.existsSync(), isFalse);
-    },
-  );
+    expect(deleted, isTrue);
+    expect(targetFile.existsSync(), isFalse);
+  });
 }
