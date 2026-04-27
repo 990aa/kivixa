@@ -5,6 +5,7 @@ import 'package:kivixa/components/settings/settings_subtitle.dart';
 import 'package:kivixa/data/models/notification_settings.dart';
 import 'package:kivixa/data/notification_settings_storage.dart';
 import 'package:kivixa/services/notification_service.dart';
+import 'package:kivixa/services/notification_sound_catalog_service.dart';
 import 'package:kivixa/services/productivity/productivity_timer_service.dart';
 
 class NotificationSettingsWidget extends StatefulWidget {
@@ -19,9 +20,13 @@ class _NotificationSettingsWidgetState
     extends State<NotificationSettingsWidget> {
   static const _leadTimeOptions = <int>[5, 10, 15, 30, 60, 120, 1440, 2880];
   final _timerService = ProductivityTimerService.instance;
+  final _soundCatalog = NotificationSoundCatalogService.instance;
 
-  late NotificationSettings _settings;
+  var _settings = NotificationSettings.defaults();
   var _loading = true;
+  final _downloadingSoundIds = <String>{};
+  final _deletingSoundIds = <String>{};
+  Map<String, bool> _soundDownloadStates = const {};
 
   @override
   void initState() {
@@ -51,11 +56,30 @@ class _NotificationSettingsWidgetState
   }
 
   Future<void> _loadSettings() async {
-    final settings = await NotificationSettingsStorage.loadSettings();
-    setState(() {
-      _settings = settings;
-      _loading = false;
-    });
+    try {
+      final settings = await NotificationSettingsStorage.loadSettings();
+      final states = await _soundCatalog.downloadStates();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _settings = settings;
+        _soundDownloadStates = states;
+        _loading = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _settings = NotificationSettings.defaults();
+        _soundDownloadStates = const {};
+        _loading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load notification sounds: $error')),
+      );
+    }
   }
 
   Future<void> _updateSettings(NotificationSettings settings) async {
@@ -64,12 +88,9 @@ class _NotificationSettingsWidgetState
       _settings = settings;
     });
 
-    // Reschedule notifications based on new settings
-    if (settings.notificationsEnabled) {
-      await NotificationService.instance.rescheduleAllNotifications();
-    } else {
-      await NotificationService.instance.cancelAllNotifications();
-    }
+    // Apply changed settings to all future schedules.
+    await NotificationService.instance.cancelAllNotifications();
+    await NotificationService.instance.rescheduleAllNotifications();
   }
 
   String _formatLeadTime(int minutes) {
@@ -97,11 +118,95 @@ class _NotificationSettingsWidgetState
     );
   }
 
-  Future<void> _requestTimerPermission() async {
-    await _timerService.requestNotificationPermission();
-    if (mounted) {
-      setState(() {});
+  Future<void> _downloadReminderSound(String soundId) async {
+    if (_downloadingSoundIds.contains(soundId)) {
+      return;
     }
+
+    setState(() {
+      _downloadingSoundIds.add(soundId);
+    });
+
+    try {
+      await _soundCatalog.downloadReminderSound(soundId);
+      final updatedStates = await _soundCatalog.downloadStates();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _soundDownloadStates = updatedStates;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to download sound: $error')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _downloadingSoundIds.remove(soundId);
+        });
+      }
+    }
+  }
+
+  Future<void> _deleteReminderSound(String soundId) async {
+    if (_deletingSoundIds.contains(soundId)) {
+      return;
+    }
+
+    setState(() {
+      _deletingSoundIds.add(soundId);
+    });
+
+    try {
+      final deleted = await _soundCatalog.deleteReminderSound(soundId);
+      final updatedStates = await _soundCatalog.downloadStates();
+      if (!mounted) {
+        return;
+      }
+
+      if (_settings.reminderSoundId == soundId) {
+        await _updateSettings(
+          _settings.copyWith(
+            reminderSoundId:
+                NotificationSoundCatalogService.defaultReminderSoundId,
+          ),
+        );
+        if (!mounted) {
+          return;
+        }
+      }
+
+      setState(() {
+        _soundDownloadStates = updatedStates;
+      });
+
+      if (deleted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sound deleted successfully')),
+        );
+      }
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to delete sound: $error')));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _deletingSoundIds.remove(soundId);
+        });
+      }
+    }
+  }
+
+  bool _isSoundReady(String soundId) {
+    return _soundDownloadStates[soundId] ?? false;
   }
 
   String _leadTimeSummary() {
@@ -121,172 +226,194 @@ class _NotificationSettingsWidgetState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SettingsSubtitle(subtitle: 'App Notifications'),
+        const SettingsSubtitle(subtitle: 'Calendar Notifications'),
         SwitchListTile(
-          title: const Text('Enable Notifications'),
-          subtitle: const Text(
-            'Enable or disable notifications across calendar and productivity timer features',
-          ),
-          value: _settings.notificationsEnabled,
+          title: const Text('Event Notifications'),
+          subtitle: const Text('Get notified when events start'),
+          value: _settings.eventNotificationsEnabled,
           onChanged: (value) {
-            _updateSettings(_settings.copyWith(notificationsEnabled: value));
+            _updateSettings(
+              _settings.copyWith(eventNotificationsEnabled: value),
+            );
           },
-          secondary: Icon(
-            _settings.notificationsEnabled
-                ? Icons.notifications_active
-                : Icons.notifications_off,
+          secondary: const Icon(Icons.event),
+        ),
+        SwitchListTile(
+          title: const Text('Task Notifications'),
+          subtitle: const Text('Get notified when tasks are due'),
+          value: _settings.taskNotificationsEnabled,
+          onChanged: (value) {
+            _updateSettings(
+              _settings.copyWith(taskNotificationsEnabled: value),
+            );
+          },
+          secondary: const Icon(Icons.task_alt),
+        ),
+        SwitchListTile(
+          title: const Text('Project Deadline Notifications'),
+          subtitle: const Text('Get reminders for project deadlines'),
+          value: _settings.projectDeadlineNotificationsEnabled,
+          onChanged: (value) {
+            _updateSettings(
+              _settings.copyWith(projectDeadlineNotificationsEnabled: value),
+            );
+          },
+          secondary: const Icon(Icons.flag_circle),
+        ),
+        SwitchListTile(
+          title: const Text('Overdue Task Reminders'),
+          subtitle: const Text(
+            'Receive daily reminders for overdue tasks until completed',
+          ),
+          value: _settings.overdueNotificationsEnabled,
+          onChanged: (value) {
+            _updateSettings(
+              _settings.copyWith(overdueNotificationsEnabled: value),
+            );
+          },
+          secondary: const Icon(Icons.alarm),
+        ),
+        SwitchListTile(
+          title: const Text('Exact-Time Notifications'),
+          subtitle: const Text(
+            'Schedule reminders at the exact task/event/deadline time',
+          ),
+          value: _settings.exactTimeNotificationsEnabled,
+          onChanged: (value) {
+            _updateSettings(
+              _settings.copyWith(exactTimeNotificationsEnabled: value),
+            );
+          },
+          secondary: const Icon(Icons.schedule_send),
+        ),
+        ListTile(
+          leading: const Icon(Icons.notification_important),
+          title: const Text('Lead Time Reminders'),
+          subtitle: Text(_leadTimeSummary()),
+          trailing: PopupMenuButton<int>(
+            tooltip: 'Select lead-time reminders',
+            icon: const Icon(Icons.arrow_drop_down_circle_outlined),
+            onSelected: (minutes) {
+              _toggleLeadTime(minutes);
+            },
+            itemBuilder: (context) {
+              return _leadTimeOptions
+                  .map((minutes) {
+                    return CheckedPopupMenuItem<int>(
+                      value: minutes,
+                      checked: _settings.leadTimesInMinutes.contains(minutes),
+                      child: Text(_formatLeadTime(minutes)),
+                    );
+                  })
+                  .toList(growable: false);
+            },
           ),
         ),
-
-        const SettingsSubtitle(subtitle: 'Calendar Notifications'),
-        if (_settings.notificationsEnabled) ...[
-          SwitchListTile(
-            title: const Text('Event Notifications'),
-            subtitle: const Text('Get notified when events start'),
-            value: _settings.eventNotificationsEnabled,
-            onChanged: (value) {
-              _updateSettings(
-                _settings.copyWith(eventNotificationsEnabled: value),
-              );
-            },
-            secondary: const Icon(Icons.event),
-          ),
-          SwitchListTile(
-            title: const Text('Task Notifications'),
-            subtitle: const Text('Get notified when tasks are due'),
-            value: _settings.taskNotificationsEnabled,
-            onChanged: (value) {
-              _updateSettings(
-                _settings.copyWith(taskNotificationsEnabled: value),
-              );
-            },
-            secondary: const Icon(Icons.task_alt),
-          ),
-          SwitchListTile(
-            title: const Text('Project Deadline Notifications'),
-            subtitle: const Text('Get reminders for project deadlines'),
-            value: _settings.projectDeadlineNotificationsEnabled,
-            onChanged: (value) {
-              _updateSettings(
-                _settings.copyWith(projectDeadlineNotificationsEnabled: value),
-              );
-            },
-            secondary: const Icon(Icons.flag_circle),
-          ),
-          SwitchListTile(
-            title: const Text('Overdue Task Reminders'),
-            subtitle: const Text(
-              'Receive daily reminders for overdue tasks until completed',
-            ),
-            value: _settings.overdueNotificationsEnabled,
-            onChanged: (value) {
-              _updateSettings(
-                _settings.copyWith(overdueNotificationsEnabled: value),
-              );
-            },
-            secondary: const Icon(Icons.alarm),
-          ),
-          SwitchListTile(
-            title: const Text('Exact-Time Notifications'),
-            subtitle: const Text(
-              'Schedule reminders at the exact task/event/deadline time',
-            ),
-            value: _settings.exactTimeNotificationsEnabled,
-            onChanged: (value) {
-              _updateSettings(
-                _settings.copyWith(exactTimeNotificationsEnabled: value),
-              );
-            },
-            secondary: const Icon(Icons.schedule_send),
-          ),
-          ListTile(
-            leading: const Icon(Icons.notification_important),
-            title: const Text('Lead Time Reminders'),
-            subtitle: Text(_leadTimeSummary()),
-            trailing: PopupMenuButton<int>(
-              tooltip: 'Select lead-time reminders',
-              icon: const Icon(Icons.arrow_drop_down_circle_outlined),
-              onSelected: (minutes) {
-                _toggleLeadTime(minutes);
-              },
-              itemBuilder: (context) {
-                return _leadTimeOptions
-                    .map((minutes) {
-                      return CheckedPopupMenuItem<int>(
-                        value: minutes,
-                        checked: _settings.leadTimesInMinutes.contains(minutes),
-                        child: Text(_formatLeadTime(minutes)),
-                      );
-                    })
-                    .toList(growable: false);
-              },
-            ),
-          ),
-        ] else ...[
-          const ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text('Calendar notifications are disabled'),
-            subtitle: Text(
-              'Enable app notifications to configure calendar reminders.',
-            ),
-          ),
-        ],
 
         const SettingsSubtitle(subtitle: 'Sound & Vibration'),
-        ListTile(
-          leading: const Icon(Icons.music_note),
-          title: const Text('Notification Sound'),
-          subtitle: Text(_settings.soundProfile.label),
-          trailing: DropdownButton<NotificationSoundProfile>(
-            value: _settings.soundProfile,
-            onChanged: _settings.notificationsEnabled
-                ? (profile) {
-                    if (profile == null) return;
-                    _updateSettings(_settings.copyWith(soundProfile: profile));
-                  }
-                : null,
-            items: NotificationSoundProfile.values
-                .map(
-                  (profile) => DropdownMenuItem(
-                    value: profile,
-                    child: Text(profile.label),
-                  ),
-                )
-                .toList(growable: false),
+        SwitchListTile(
+          secondary: const Icon(Icons.volume_up),
+          title: const Text('Sound'),
+          subtitle: const Text(
+            'Play selected reminder/timer sound for notifications and alerts',
           ),
+          value: _settings.notificationSoundEnabled,
+          onChanged: (value) {
+            _updateSettings(
+              _settings.copyWith(
+                notificationFeedbackMode: NotificationFeedbackMode.fromFlags(
+                  soundEnabled: value,
+                  vibrationEnabled: _settings.notificationVibrationEnabled,
+                ),
+              ),
+            );
+          },
         ),
         SwitchListTile(
-          title: const Text('Vibrate on Android'),
-          subtitle: const Text(
-            'Use vibration for notifications on supported Android devices',
-          ),
-          value: _settings.vibrateOnlyOnAndroid,
-          onChanged: _settings.notificationsEnabled
-              ? (value) {
-                  _updateSettings(
-                    _settings.copyWith(vibrateOnlyOnAndroid: value),
-                  );
-                }
-              : null,
           secondary: const Icon(Icons.vibration),
+          title: const Text('Vibration'),
+          subtitle: const Text('Vibrate on reminder/timer alerts'),
+          value: _settings.notificationVibrationEnabled,
+          onChanged: (value) {
+            _updateSettings(
+              _settings.copyWith(
+                notificationFeedbackMode: NotificationFeedbackMode.fromFlags(
+                  soundEnabled: _settings.notificationSoundEnabled,
+                  vibrationEnabled: value,
+                ),
+              ),
+            );
+          },
         ),
+        ListTile(
+          leading: const Icon(Icons.music_note),
+          title: const Text('Reminder & Timer Alert Sound'),
+          subtitle: Text(
+            _soundCatalog.optionById(_settings.reminderSoundId).label,
+          ),
+        ),
+        ...NotificationSoundCatalogService.reminderSoundOptions.map((option) {
+          final isSelected = option.id == _settings.reminderSoundId;
+          final isReady = _isSoundReady(option.id);
+          final isDownloading = _downloadingSoundIds.contains(option.id);
+          final isDeleting = _deletingSoundIds.contains(option.id);
+          final canDelete = !option.isDefault && isReady;
+
+          Widget trailing;
+          if (isDownloading || isDeleting) {
+            trailing = const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            );
+          } else if (isReady) {
+            trailing = Wrap(
+              spacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                if (!isSelected)
+                  TextButton(
+                    onPressed: () {
+                      _updateSettings(
+                        _settings.copyWith(reminderSoundId: option.id),
+                      );
+                    },
+                    child: const Text('Use'),
+                  ),
+                if (isSelected)
+                  const Icon(Icons.check_circle, color: Colors.green),
+                if (canDelete)
+                  OutlinedButton(
+                    onPressed: () => _deleteReminderSound(option.id),
+                    child: const Text('Delete'),
+                  ),
+              ],
+            );
+          } else {
+            trailing = OutlinedButton(
+              onPressed: () => _downloadReminderSound(option.id),
+              child: const Text('Download'),
+            );
+          }
+
+          return ListTile(
+            leading: Icon(
+              isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+            ),
+            title: Text(option.label),
+            subtitle: Text(
+              isReady ? 'Ready to use' : 'Download to enable this sound',
+            ),
+            trailing: trailing,
+            onTap: isReady
+                ? () => _updateSettings(
+                    _settings.copyWith(reminderSoundId: option.id),
+                  )
+                : null,
+          );
+        }),
 
         const SettingsSubtitle(subtitle: 'Productivity Timer Notifications'),
-        ListTile(
-          leading: const Icon(Icons.notifications),
-          title: const Text('Notification Permission'),
-          subtitle: Text(
-            _timerService.notificationsPermissionGranted
-                ? 'Granted - timer notifications are allowed by the system'
-                : 'Not granted - tap Enable to allow timer notifications',
-          ),
-          trailing: _timerService.notificationsPermissionGranted
-              ? Icon(Icons.check_circle, color: Colors.green[700])
-              : TextButton(
-                  onPressed: _requestTimerPermission,
-                  child: const Text('Enable'),
-                ),
-        ),
         SwitchListTile(
           secondary: const Icon(Icons.volume_up),
           title: const Text('Timer Sound Alerts'),
