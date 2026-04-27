@@ -1,9 +1,9 @@
-import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import java.util.Properties
 import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
+    id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -11,12 +11,10 @@ plugins {
 val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = Properties()
 
-// Try loading from key.properties file first (local builds)
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
-// Override with environment variables if present (CI builds)
 System.getenv("ANDROID_KEYSTORE_PATH")?.let { keystoreProperties["storeFile"] = it }
 System.getenv("ANDROID_STORE_PASSWORD")?.let { keystoreProperties["storePassword"] = it }
 System.getenv("ANDROID_KEY_ALIAS")?.let { keystoreProperties["keyAlias"] = it }
@@ -27,7 +25,6 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "28.2.13676358"
 
-    // IZYY'S FIX: Strip out the Google Play dependency tracker blob
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
@@ -75,7 +72,6 @@ android {
                 signingConfig = releaseSigningConfig
             }
             
-            // SIZE FIX: Turn on ProGuard/R8 minification and resource shrinking
             isMinifyEnabled = true  
             isShrinkResources = true
         }
@@ -92,8 +88,15 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.3.20")
     implementation("com.google.android.material:material:1.13.0")
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("androidx.core:core:1.13.1")
+        force("androidx.core:core-ktx:1.13.1")
+        force("androidx.browser:browser:1.8.0")
+    }
 }
 
 val sanitizeGeneratedPluginRegistrant by tasks.registering {
@@ -124,15 +127,4 @@ tasks.matching {
     it.name == "sanitizeGeneratedPluginRegistrant"
 }.configureEach {
     mustRunAfter("compileFlutterBuildRelease")
-}
-
-val abiCodes = mapOf("armeabi-v7a" to 1, "arm64-v8a" to 2, "x86_64" to 3)
-android.applicationVariants.configureEach {
-    val variant = this
-    variant.outputs.forEach { output ->
-        val abiVersionCode = abiCodes[output.filters.find { it.filterType == "ABI" }?.identifier]
-        if (abiVersionCode != null) {
-            (output as ApkVariantOutputImpl).versionCodeOverride = variant.versionCode * 10 + abiVersionCode
-        }
-    }
 }

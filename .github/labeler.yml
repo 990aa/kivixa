@@ -1,0 +1,26 @@
+rust:
+  - native/**/*
+  - native_math/**/*
+  - native_audio/**/*
+  - rust_builder/**/*
+
+flutter:
+  - lib/**/*
+  - assets/**/*
+  - pubspec.yaml
+
+android:
+  - android/**/*
+
+ios:
+  - ios/**/*
+
+windows:
+  - windows/**/*
+
+linux:
+  - linux/**/*
+
+ci:
+  - .github/workflows/**/*
+  

@@ -313,7 +313,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final showNotifications = _matchesSettingsSection(
       category: 'Notifications & Sound',
       description:
-          'Calendar reminders, lead times, notification permissions, sound and vibration',
+          'Calendar reminders, lead times, timer alerts, sound and vibration',
       keywords: const [
         'notifications',
         'calendar',
@@ -321,8 +321,8 @@ class _SettingsPageState extends State<SettingsPage> {
         'lead time',
         'sound',
         'vibration',
-        'permission',
         'timer',
+        'download',
       ],
     );
     final showHandwritten = _matchesSettingsSection(
