@@ -77,6 +77,17 @@ class NotificationSoundCatalogService {
   }
 
   Future<Directory> _soundsDirectory() async {
+    if (Platform.isAndroid) {
+      final externalDir = await getExternalStorageDirectory();
+      if (externalDir != null) {
+        final dir = Directory(
+          p.join(externalDir.path, 'notification_sounds'),
+        );
+        await dir.create(recursive: true);
+        return dir;
+      }
+    }
+
     if (Platform.isIOS || Platform.isMacOS) {
       final libraryDir = await getLibraryDirectory();
       final dir = Directory(p.join(libraryDir.path, 'Sounds'));
@@ -127,7 +138,7 @@ class NotificationSoundCatalogService {
     return states;
   }
 
-  Future<String> localPathForReminderSound(String soundId) async {
+  Future<String?> localPathForReminderSound(String soundId) async {
     await ensureDefaultReminderSoundInstalled();
 
     final option = optionById(soundId);
@@ -141,7 +152,7 @@ class NotificationSoundCatalogService {
       return fallback.path;
     }
 
-    return file.path;
+    return null;
   }
 
   Future<void> downloadReminderSound(String soundId) async {
@@ -156,5 +167,20 @@ class NotificationSoundCatalogService {
     }
 
     await target.writeAsBytes(response.bodyBytes, flush: true);
+  }
+
+  Future<bool> deleteReminderSound(String soundId) async {
+    final option = optionById(soundId);
+    if (option.isDefault) {
+      return false;
+    }
+
+    final target = await _fileForOption(option);
+    if (!target.existsSync()) {
+      return false;
+    }
+
+    await target.delete();
+    return true;
   }
 }

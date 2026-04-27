@@ -428,13 +428,16 @@ class ProductivityTimerService extends ChangeNotifier {
     final globalSettings = await NotificationSettingsStorage.loadSettings();
     final effectivePlaySound =
         playSound && _soundEnabled && _shouldPlaySound(globalSettings);
+    final enableVibration = _shouldVibrate(globalSettings);
     final resolvedSound = await _resolveAndroidSound(
       globalSettings,
       effectivePlaySound,
     );
-    final vibrationPattern = longVibrationAlert
-        ? _longReminderVibrationPattern()
-        : _shortNotificationVibrationPattern();
+    final vibrationPattern = enableVibration
+      ? (longVibrationAlert
+          ? _longReminderVibrationPattern()
+          : _shortNotificationVibrationPattern())
+      : null;
 
     final effectiveActions = <AndroidNotificationAction>[...?actions];
     if (!ongoing &&
@@ -449,8 +452,8 @@ class ProductivityTimerService extends ChangeNotifier {
     }
 
     final soundIdentity = effectivePlaySound
-        ? globalSettings.reminderSoundId
-        : 'vibrate_only';
+      ? globalSettings.reminderSoundId
+      : 'sound_off';
 
     final androidDetails = AndroidNotificationDetails(
       _channelIdForSettings(globalSettings, soundIdentity),
@@ -461,7 +464,7 @@ class ProductivityTimerService extends ChangeNotifier {
       playSound: effectivePlaySound,
       sound: resolvedSound,
       audioAttributesUsage: _resolveAudioAttributesUsage(effectivePlaySound),
-      enableVibration: true,
+      enableVibration: enableVibration,
       vibrationPattern: vibrationPattern,
       timeoutAfter: longVibrationAlert ? 60000 : null,
       ongoing: ongoing,
@@ -511,8 +514,11 @@ class ProductivityTimerService extends ChangeNotifier {
   }
 
   bool _shouldPlaySound(NotificationSettings settings) {
-    return settings.notificationFeedbackMode ==
-        NotificationFeedbackMode.vibrateWithSound;
+    return settings.notificationSoundEnabled;
+  }
+
+  bool _shouldVibrate(NotificationSettings settings) {
+    return settings.notificationVibrationEnabled;
   }
 
   Future<AndroidNotificationSound?> _resolveAndroidSound(
@@ -525,7 +531,7 @@ class ProductivityTimerService extends ChangeNotifier {
 
     final path = await NotificationSoundCatalogService.instance
         .localPathForReminderSound(settings.reminderSoundId);
-    if (path.trim().isEmpty) {
+    if (path == null || path.trim().isEmpty) {
       return const RawResourceAndroidNotificationSound('kivixa_notification');
     }
 

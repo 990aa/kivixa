@@ -186,8 +186,11 @@ class NotificationService {
   }
 
   bool _shouldPlaySound(NotificationSettings settings) {
-    return settings.notificationFeedbackMode ==
-        NotificationFeedbackMode.vibrateWithSound;
+    return settings.notificationSoundEnabled;
+  }
+
+  bool _shouldVibrate(NotificationSettings settings) {
+    return settings.notificationVibrationEnabled;
   }
 
   Future<AndroidNotificationSound?> _resolveAndroidReminderSound(
@@ -200,7 +203,7 @@ class NotificationService {
 
     final path = await NotificationSoundCatalogService.instance
         .localPathForReminderSound(settings.reminderSoundId);
-    if (path.trim().isEmpty) {
+    if (path == null || path.trim().isEmpty) {
       return const RawResourceAndroidNotificationSound('kivixa_notification');
     }
 
@@ -499,10 +502,13 @@ class NotificationService {
     if (scheduledDate.isBefore(DateTime.now())) return;
 
     final playSound = _shouldPlaySound(settings);
+    final enableVibration = _shouldVibrate(settings);
     final sound = await _resolveAndroidReminderSound(settings, playSound);
-    final vibrationPattern = longVibrationAlert
-        ? _longReminderVibrationPattern()
-        : _shortNotificationVibrationPattern();
+    final vibrationPattern = enableVibration
+      ? (longVibrationAlert
+          ? _longReminderVibrationPattern()
+          : _shortNotificationVibrationPattern())
+      : null;
 
     final effectiveActions = <AndroidNotificationAction>[...?actions];
     if (!effectiveActions.any((action) => action.id == _dismissActionId)) {
@@ -515,7 +521,7 @@ class NotificationService {
       );
     }
 
-    final soundIdentity = playSound ? settings.reminderSoundId : 'vibrate_only';
+    final soundIdentity = playSound ? settings.reminderSoundId : 'sound_off';
 
     final androidDetails = AndroidNotificationDetails(
       _channelIdForSettings(channelIdPrefix, settings, soundIdentity),
@@ -526,7 +532,7 @@ class NotificationService {
       playSound: playSound,
       sound: sound,
       audioAttributesUsage: _resolveAudioAttributesUsage(playSound),
-      enableVibration: true,
+      enableVibration: enableVibration,
       vibrationPattern: vibrationPattern,
       timeoutAfter: longVibrationAlert ? 60000 : null,
       actions: effectiveActions,

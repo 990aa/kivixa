@@ -24,21 +24,54 @@ enum NotificationSoundProfile {
 }
 
 enum NotificationFeedbackMode {
-  vibrateOnly('vibrate_only', 'Vibrate only'),
-  vibrateWithSound('vibrate_with_sound', 'Vibrate + Sound');
+  soundOnly('sound_only', 'Sound only'),
+  vibrationOnly('vibration_only', 'Vibration only'),
+  soundAndVibration('sound_vibration', 'Sound + Vibration'),
+  silent('silent', 'Silent');
 
   const NotificationFeedbackMode(this.storageKey, this.label);
 
   final String storageKey;
   final String label;
 
+  bool get soundEnabled =>
+      this == NotificationFeedbackMode.soundOnly ||
+      this == NotificationFeedbackMode.soundAndVibration;
+
+  bool get vibrationEnabled =>
+      this == NotificationFeedbackMode.vibrationOnly ||
+      this == NotificationFeedbackMode.soundAndVibration;
+
+  static NotificationFeedbackMode fromFlags({
+    required bool soundEnabled,
+    required bool vibrationEnabled,
+  }) {
+    if (soundEnabled && vibrationEnabled) {
+      return NotificationFeedbackMode.soundAndVibration;
+    }
+    if (soundEnabled) {
+      return NotificationFeedbackMode.soundOnly;
+    }
+    if (vibrationEnabled) {
+      return NotificationFeedbackMode.vibrationOnly;
+    }
+    return NotificationFeedbackMode.silent;
+  }
+
   static NotificationFeedbackMode fromStorageKey(String? key) {
+    if (key == 'vibrate_only') {
+      return NotificationFeedbackMode.vibrationOnly;
+    }
+    if (key == 'vibrate_with_sound') {
+      return NotificationFeedbackMode.soundAndVibration;
+    }
+
     for (final mode in NotificationFeedbackMode.values) {
       if (mode.storageKey == key) {
         return mode;
       }
     }
-    return NotificationFeedbackMode.vibrateWithSound;
+    return NotificationFeedbackMode.soundAndVibration;
   }
 }
 
@@ -67,7 +100,7 @@ class NotificationSettings {
     this.exactTimeNotificationsEnabled = true,
     this.soundProfile = NotificationSoundProfile.defaultTone,
     this.vibrateOnlyOnAndroid = false,
-    this.notificationFeedbackMode = NotificationFeedbackMode.vibrateWithSound,
+    this.notificationFeedbackMode = NotificationFeedbackMode.soundAndVibration,
     this.reminderSoundId = defaultReminderSoundId,
     List<int> leadTimesInMinutes = const [10, 60, 1440],
   }) : leadTimesInMinutes = _sanitizeLeadTimes(leadTimesInMinutes);
@@ -79,13 +112,22 @@ class NotificationSettings {
       json['soundProfile'] as String?,
     );
     final legacyVibrateOnly = json['vibrateOnlyOnAndroid'] as bool? ?? false;
-    final feedbackMode = json['notificationFeedbackMode'] != null
-        ? NotificationFeedbackMode.fromStorageKey(
-            json['notificationFeedbackMode'] as String?,
+    final storedSoundEnabled = json['notificationSoundEnabled'] as bool?;
+    final storedVibrationEnabled = json['notificationVibrationEnabled'] as bool?;
+
+    final feedbackMode =
+        storedSoundEnabled != null || storedVibrationEnabled != null
+        ? NotificationFeedbackMode.fromFlags(
+            soundEnabled: storedSoundEnabled ?? true,
+            vibrationEnabled: storedVibrationEnabled ?? true,
           )
-        : (legacyVibrateOnly
-              ? NotificationFeedbackMode.vibrateOnly
-              : NotificationFeedbackMode.vibrateWithSound);
+        : (json['notificationFeedbackMode'] != null
+              ? NotificationFeedbackMode.fromStorageKey(
+                  json['notificationFeedbackMode'] as String?,
+                )
+              : (legacyVibrateOnly
+                    ? NotificationFeedbackMode.vibrationOnly
+                    : NotificationFeedbackMode.soundAndVibration));
 
     final reminderSoundId =
         (json['reminderSoundId'] as String?)?.trim().isNotEmpty ?? false
@@ -128,9 +170,16 @@ class NotificationSettings {
   final String reminderSoundId;
   final List<int> leadTimesInMinutes;
 
+  bool get notificationSoundEnabled => notificationFeedbackMode.soundEnabled;
+  bool get notificationVibrationEnabled =>
+      notificationFeedbackMode.vibrationEnabled;
+
   Map<String, dynamic> toJson() {
-    final legacyVibrateOnly =
-        notificationFeedbackMode == NotificationFeedbackMode.vibrateOnly;
+    final legacyVibrateOnly = notificationFeedbackMode.vibrationEnabled &&
+        !notificationFeedbackMode.soundEnabled;
+    final effectiveLegacySoundProfile = notificationFeedbackMode.soundEnabled
+        ? soundProfile
+        : NotificationSoundProfile.silent;
 
     return {
       'eventNotificationsEnabled': eventNotificationsEnabled,
@@ -139,9 +188,11 @@ class NotificationSettings {
       'projectDeadlineNotificationsEnabled':
           projectDeadlineNotificationsEnabled,
       'exactTimeNotificationsEnabled': exactTimeNotificationsEnabled,
-      'soundProfile': soundProfile.storageKey,
+      'soundProfile': effectiveLegacySoundProfile.storageKey,
       'vibrateOnlyOnAndroid': legacyVibrateOnly,
       'notificationFeedbackMode': notificationFeedbackMode.storageKey,
+      'notificationSoundEnabled': notificationFeedbackMode.soundEnabled,
+      'notificationVibrationEnabled': notificationFeedbackMode.vibrationEnabled,
       'reminderSoundId': reminderSoundId,
       'leadTimesInMinutes': leadTimesInMinutes,
     };
