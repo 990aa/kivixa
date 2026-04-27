@@ -172,9 +172,7 @@ void main() {
     timerService.setSoundEnabled(true);
   });
 
-  testWidgets('downloaded sound files can be deleted via catalog service', (
-    tester,
-  ) async {
+  test('downloaded sound files can be deleted via catalog service', () async {
     final option = NotificationSoundCatalogService.reminderSoundOptions
         .firstWhere((it) => it.id == 'alarm_wind_chimes');
     final soundsDir = Directory('notification_sounds')
