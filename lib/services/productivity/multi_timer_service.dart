@@ -439,7 +439,9 @@ class MultiTimerService extends ChangeNotifier {
       playSound: playSound,
       sound: sound,
       enableVibration: enableVibration,
-      vibrationPattern: enableVibration ? _longReminderVibrationPattern() : null,
+      vibrationPattern: enableVibration
+          ? _longReminderVibrationPattern()
+          : null,
       timeoutAfter: 60000,
       actions: const [
         AndroidNotificationAction(
