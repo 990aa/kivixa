@@ -86,6 +86,12 @@ class NotificationSoundCatalogService {
       }
     }
 
+    if (Platform.isWindows || Platform.isLinux) {
+      final dir = Directory(p.join(Directory.current.path, 'notification_sounds'));
+      await dir.create(recursive: true);
+      return dir;
+    }
+
     if (Platform.isIOS || Platform.isMacOS) {
       final libraryDir = await getLibraryDirectory();
       final dir = Directory(p.join(libraryDir.path, 'Sounds'));
