@@ -15,14 +15,12 @@ dependencies:
 flutter:
   plugin:
     platforms:
-      android:
-        ffiPlugin: true
       ios:
+        pluginClass: RustLibKivixaPlugin
         ffiPlugin: true
       linux:
+        pluginClass: RustLibKivixaPlugin
         ffiPlugin: true
       macos:
+        pluginClass: RustLibKivixaPlugin
         ffiPlugin: true
-      windows:
-        ffiPlugin: true
-

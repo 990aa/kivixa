@@ -12,7 +12,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.9.0+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
-[![Version](https://img.shields.io/badge/Version-0.8.24%2B80240--beta-orange)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-0.8.25%2B80250--beta-orange)](CHANGELOG.md)
 
 **Install on Windows with winget (recommended):**
 
@@ -20,11 +20,11 @@
   <code>winget install Kivixa</code>
 </p>
 
-[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.8.24%2B80240/Kivixa-Setup-0.8.24.exe)
+[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.8.25%2B80250/Kivixa-Setup-0.8.25.exe)
 
-[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.24%2B80240/Kivixa-Android-0.8.24-arm64.apk)
-[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.24%2B80240/Kivixa-Android-0.8.24-armv7.apk)
-[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.24%2B80240/Kivixa-Android-0.8.24-x86_64.apk)
+[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.25%2B80250/Kivixa-Android-0.8.25-arm64.apk)
+[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.25%2B80250/Kivixa-Android-0.8.25-armv7.apk)
+[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.25%2B80250/Kivixa-Android-0.8.25-x86_64.apk)
 
 **F-Droid Repository (step-by-step):**
 
@@ -658,11 +658,11 @@ The installer includes a custom uninstaller that allows users to optionally wipe
 
 | Platform | Status | Notes |
 |----------|--------|-------|
-|  **Windows** | Stable | Fully tested and optimized |
-|  **macOS** | - | Requires macOS |
-|  **Linux** | - | Requires Linux |
-|  **Android** | Stable | Android 7.0 (API 24)+ |
-|  **iOS** | - | Requires iOS |
+|  **Windows** | Stable | Builds and releases are fully stable, tested and downloadable |
+|  **Android** | Stable | Builds and releases are fully stable, tested and downloadable |
+|  **Linux** | Distributed | Builds work and are distributed, can be installed directly |
+|  **macOS** | Distributed | Builds work and are distributed, but cannot be installed directly due to strict Apple Store rules |
+|  **iOS** | Distributed | Builds work and are distributed, but cannot be installed directly due to strict Apple Store rules |
 
 ---
 
