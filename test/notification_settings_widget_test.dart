@@ -183,8 +183,6 @@ void main() {
       '${soundsDir.path}${Platform.pathSeparator}${option.fileName}',
     )..writeAsBytesSync([1, 2, 3, 4]);
 
-    await pumpWidgetUnderTest(tester);
-
     expect(targetFile.existsSync(), isTrue);
     final deleted = await NotificationSoundCatalogService.instance
         .deleteReminderSound(option.id);
