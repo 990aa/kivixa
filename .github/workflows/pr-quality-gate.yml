@@ -197,7 +197,9 @@ jobs:
           xargs -r cargo fmt -- --check < changed_rs_files.txt
 
       - name: Install cargo-llvm-cov
-        uses: taiki-e/install-action@cargo-llvm-cov
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
 
       - name: Run full Rust test suite with coverage
         env:
