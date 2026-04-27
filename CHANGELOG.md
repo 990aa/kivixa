@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0] - 2025-11-25
 
-### Initial Release
+- Initial Release
 ---
 
 ## [0.1.1] - 2025-12-16
@@ -694,7 +694,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Expanded notification service tests for sound profile resource mapping, vibration behavior, and audio usage configuration.
 
 ---
-## [0.8.12] - 2026-04-21
+## [0.8.24] - 2026-04-23
 
+### Added
+- Centralized `kivixa_notification.mp3` as the single official notification sound on all devices, replacing `kivixa_alarm.wav`, `kivixa_default.wav`, and `kivixa_ringtone.wav`.
+- Added downloadable custom sound options for timer, calendar, and project reminders (`Wind Chimes`, `Chiming Out`, `Soft Plucks`), with `Star Dust` as the default bundled asset.
+- Introduced `NotificationFeedbackMode` allowing users to choose between "Vibrate only" and "Vibrate + Sound" options, merging legacy notification sound and vibration controls.
+- Added an explicit "Dismiss" action to productivity timer and reminder notifications to allow users to manually stop long-playing sounds and vibrations.
+
+### Changed
+- Unified the "App Notifications" master toggle by removing `notificationsEnabled`, deferring entirely to individual feature-level toggles (e.g., calendar, timer).
+- Removed redundant "Notification Permission" and "Enable Notifications" toggles from the UI and backend logic to simplify notification settings.
+- Timer sound alerts are now fully integrated with the newly implemented custom downloaded sounds.
+
+---
+## [0.8.25] - 2026-04-27
+
+### Changed
+- Updated `.github/workflows/pr-quality-gate.yml` to support selective, path-filtered compilation of Rust modules (`native`, `native_audio`, `native_math`) and Flutter apps based on modified files.
+- Ensured consistency of audio filenames (`SOUND_star-dust`, `NOTIFICATION`, etc.) across the codebase and audio assets directory.
+- Refined README.md to accurately document platform support and fix code block alignment for the winget installation command.
 
 ---
