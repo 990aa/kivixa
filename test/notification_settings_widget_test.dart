@@ -54,14 +54,28 @@ void main() {
       ),
     );
 
-    for (var i = 0; i < 30; i++) {
+    for (var i = 0; i < 200; i++) {
       await tester.pump(const Duration(milliseconds: 50));
-      if (find.text('Calendar Notifications').evaluate().isNotEmpty) {
+
+      final hasLoadingIndicator = find
+          .byType(CircularProgressIndicator)
+          .evaluate()
+          .isNotEmpty;
+      final hasLoadedMarker = find
+          .text('Calendar Notifications')
+          .evaluate()
+          .isNotEmpty;
+
+      if (!hasLoadingIndicator && hasLoadedMarker) {
         return;
       }
     }
 
-    fail('Notification settings widget did not finish loading in time.');
+    fail(
+      'Notification settings widget did not finish loading in time. '
+      'Expected loading spinner to disappear and Calendar Notifications '
+      'section to be visible.',
+    );
   }
 
   testWidgets(

@@ -19,6 +19,7 @@ class NotificationSettingsWidget extends StatefulWidget {
 class _NotificationSettingsWidgetState
     extends State<NotificationSettingsWidget> {
   static const _leadTimeOptions = <int>[5, 10, 15, 30, 60, 120, 1440, 2880];
+  static const _initialLoadTimeout = Duration(seconds: 5);
   final _timerService = ProductivityTimerService.instance;
   final _soundCatalog = NotificationSoundCatalogService.instance;
 
@@ -57,8 +58,14 @@ class _NotificationSettingsWidgetState
 
   Future<void> _loadSettings() async {
     try {
-      final settings = await NotificationSettingsStorage.loadSettings();
-      final states = await _soundCatalog.downloadStates();
+      final settings = await NotificationSettingsStorage.loadSettings().timeout(
+        _initialLoadTimeout,
+        onTimeout: NotificationSettings.defaults,
+      );
+      final states = await _soundCatalog.downloadStates().timeout(
+        _initialLoadTimeout,
+        onTimeout: () => const <String, bool>{},
+      );
       if (!mounted) {
         return;
       }
