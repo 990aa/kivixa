@@ -308,7 +308,7 @@ pub struct MCPParameter {
 pub struct MCPToolCall {
     /// The tool to execute
     pub tool: String,
-    /// Parameters for the tool as JSON string (HashMap<String, Value> serialized)
+    /// Parameters for the tool as JSON string (`HashMap<String, Value>` serialized)
     pub parameters_json: String,
     /// Human-readable description of what this call does
     pub description: String,
