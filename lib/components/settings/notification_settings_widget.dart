@@ -175,6 +175,9 @@ class _NotificationSettingsWidgetState
                 NotificationSoundCatalogService.defaultReminderSoundId,
           ),
         );
+        if (!mounted) {
+          return;
+        }
       }
 
       setState(() {
