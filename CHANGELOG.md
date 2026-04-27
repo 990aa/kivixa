@@ -716,3 +716,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refined README.md to accurately document platform support and fix code block alignment for the winget installation command.
 
 ---
+## [0.8.26] - 2026-04-27
+
+### Changed
+- Version bump to 0.8.26
+
+---
