@@ -80,9 +80,7 @@ class NotificationSoundCatalogService {
     if (Platform.isAndroid) {
       final externalDir = await getExternalStorageDirectory();
       if (externalDir != null) {
-        final dir = Directory(
-          p.join(externalDir.path, 'notification_sounds'),
-        );
+        final dir = Directory(p.join(externalDir.path, 'notification_sounds'));
         await dir.create(recursive: true);
         return dir;
       }

@@ -434,10 +434,10 @@ class ProductivityTimerService extends ChangeNotifier {
       effectivePlaySound,
     );
     final vibrationPattern = enableVibration
-      ? (longVibrationAlert
-          ? _longReminderVibrationPattern()
-          : _shortNotificationVibrationPattern())
-      : null;
+        ? (longVibrationAlert
+              ? _longReminderVibrationPattern()
+              : _shortNotificationVibrationPattern())
+        : null;
 
     final effectiveActions = <AndroidNotificationAction>[...?actions];
     if (!ongoing &&
@@ -452,8 +452,8 @@ class ProductivityTimerService extends ChangeNotifier {
     }
 
     final soundIdentity = effectivePlaySound
-      ? globalSettings.reminderSoundId
-      : 'sound_off';
+        ? globalSettings.reminderSoundId
+        : 'sound_off';
 
     final androidDetails = AndroidNotificationDetails(
       _channelIdForSettings(globalSettings, soundIdentity),
@@ -471,22 +471,28 @@ class ProductivityTimerService extends ChangeNotifier {
       autoCancel: !ongoing,
       onlyAlertOnce: true,
       actions: effectiveActions,
-      additionalFlags: longVibrationAlert ? Int32List.fromList([4]) : null, // FLAG_INSISTENT
+      additionalFlags: longVibrationAlert
+          ? Int32List.fromList([4])
+          : null, // FLAG_INSISTENT
     );
 
     final soundFileName = effectivePlaySound
         ? NotificationSoundCatalogService.instance
-            .optionById(globalSettings.reminderSoundId)
-            .fileName
+              .optionById(globalSettings.reminderSoundId)
+              .fileName
         : null;
 
     final iosDetails = DarwinNotificationDetails(
-      sound: effectivePlaySound ? (soundFileName ?? 'kivixa_notification.mp3') : null,
+      sound: effectivePlaySound
+          ? (soundFileName ?? 'kivixa_notification.mp3')
+          : null,
       presentSound: effectivePlaySound,
     );
 
     final macosDetails = DarwinNotificationDetails(
-      sound: effectivePlaySound ? (soundFileName ?? 'kivixa_notification.mp3') : null,
+      sound: effectivePlaySound
+          ? (soundFileName ?? 'kivixa_notification.mp3')
+          : null,
       presentSound: effectivePlaySound,
     );
 

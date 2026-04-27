@@ -505,10 +505,10 @@ class NotificationService {
     final enableVibration = _shouldVibrate(settings);
     final sound = await _resolveAndroidReminderSound(settings, playSound);
     final vibrationPattern = enableVibration
-      ? (longVibrationAlert
-          ? _longReminderVibrationPattern()
-          : _shortNotificationVibrationPattern())
-      : null;
+        ? (longVibrationAlert
+              ? _longReminderVibrationPattern()
+              : _shortNotificationVibrationPattern())
+        : null;
 
     final effectiveActions = <AndroidNotificationAction>[...?actions];
     if (!effectiveActions.any((action) => action.id == _dismissActionId)) {
@@ -536,13 +536,15 @@ class NotificationService {
       vibrationPattern: vibrationPattern,
       timeoutAfter: longVibrationAlert ? 60000 : null,
       actions: effectiveActions,
-      additionalFlags: longVibrationAlert ? Int32List.fromList([4]) : null, // FLAG_INSISTENT
+      additionalFlags: longVibrationAlert
+          ? Int32List.fromList([4])
+          : null, // FLAG_INSISTENT
     );
 
     final soundFileName = playSound
         ? NotificationSoundCatalogService.instance
-            .optionById(settings.reminderSoundId)
-            .fileName
+              .optionById(settings.reminderSoundId)
+              .fileName
         : null;
 
     final iosDetails = DarwinNotificationDetails(

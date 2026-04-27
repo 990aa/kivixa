@@ -113,7 +113,8 @@ class NotificationSettings {
     );
     final legacyVibrateOnly = json['vibrateOnlyOnAndroid'] as bool? ?? false;
     final storedSoundEnabled = json['notificationSoundEnabled'] as bool?;
-    final storedVibrationEnabled = json['notificationVibrationEnabled'] as bool?;
+    final storedVibrationEnabled =
+        json['notificationVibrationEnabled'] as bool?;
 
     final feedbackMode =
         storedSoundEnabled != null || storedVibrationEnabled != null
@@ -175,7 +176,8 @@ class NotificationSettings {
       notificationFeedbackMode.vibrationEnabled;
 
   Map<String, dynamic> toJson() {
-    final legacyVibrateOnly = notificationFeedbackMode.vibrationEnabled &&
+    final legacyVibrateOnly =
+        notificationFeedbackMode.vibrationEnabled &&
         !notificationFeedbackMode.soundEnabled;
     final effectiveLegacySoundProfile = notificationFeedbackMode.soundEnabled
         ? soundProfile

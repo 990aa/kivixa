@@ -426,8 +426,9 @@ class MultiTimerService extends ChangeNotifier {
   }) async {
     final settings = await NotificationSettingsStorage.loadSettings();
     final playSound = _shouldPlaySound(settings);
+    final enableVibration = _shouldVibrate(settings);
     final sound = await _resolveAndroidSound(settings, playSound);
-    final soundIdentity = playSound ? settings.reminderSoundId : 'vibrate_only';
+    final soundIdentity = playSound ? settings.reminderSoundId : 'sound_off';
 
     final androidDetails = AndroidNotificationDetails(
       _channelIdForSettings(settings, soundIdentity),
@@ -437,8 +438,8 @@ class MultiTimerService extends ChangeNotifier {
       priority: Priority.high,
       playSound: playSound,
       sound: sound,
-      enableVibration: true,
-      vibrationPattern: _longReminderVibrationPattern(),
+      enableVibration: enableVibration,
+      vibrationPattern: enableVibration ? _longReminderVibrationPattern() : null,
       timeoutAfter: 60000,
       actions: const [
         AndroidNotificationAction(
@@ -469,8 +470,11 @@ class MultiTimerService extends ChangeNotifier {
   }
 
   bool _shouldPlaySound(NotificationSettings settings) {
-    return settings.notificationFeedbackMode ==
-        NotificationFeedbackMode.vibrateWithSound;
+    return settings.notificationSoundEnabled;
+  }
+
+  bool _shouldVibrate(NotificationSettings settings) {
+    return settings.notificationVibrationEnabled;
   }
 
   Future<AndroidNotificationSound?> _resolveAndroidSound(
@@ -483,7 +487,7 @@ class MultiTimerService extends ChangeNotifier {
 
     final path = await NotificationSoundCatalogService.instance
         .localPathForReminderSound(settings.reminderSoundId);
-    if (path.trim().isEmpty) {
+    if (path == null || path.trim().isEmpty) {
       return const RawResourceAndroidNotificationSound('kivixa_notification');
     }
 
