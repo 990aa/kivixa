@@ -28,8 +28,7 @@ class NotificationSoundCatalogService {
 
   static final instance = NotificationSoundCatalogService._();
 
-  static const officialNotificationAssetPath =
-      'assets/audio/NOTIFICATION_dragon-studio-notification-sound-effect-372475.mp3';
+  static const officialNotificationAssetPath = 'assets/audio/NOTIFICATION.mp3';
 
   static const defaultReminderSoundId = 'alarm_star_dust';
 
@@ -40,32 +39,28 @@ class NotificationSoundCatalogService {
     ReminderSoundOption(
       id: 'alarm_star_dust',
       label: 'Star Dust (Default)',
-      fileName: 'ALARM_lesiakower-star-dust-alarm-clock-114194.mp3',
-      downloadUrl:
-          '$_repoAudioBaseUrl/ALARM_lesiakower-star-dust-alarm-clock-114194.mp3',
-      bundledAssetPath:
-          'assets/audio/ALARM_lesiakower-star-dust-alarm-clock-114194.mp3',
+      fileName: 'SOUND_star-dust.mp3',
+      downloadUrl: '$_repoAudioBaseUrl/SOUND_star-dust.mp3',
+      bundledAssetPath: 'assets/audio/SOUND_star-dust.mp3',
       isDefault: true,
     ),
     ReminderSoundOption(
       id: 'alarm_wind_chimes',
       label: 'Wind Chimes',
-      fileName: 'ALARM_35722__offthesky__wind-chimes.wav',
-      downloadUrl: '$_repoAudioBaseUrl/ALARM_35722__offthesky__wind-chimes.wav',
+      fileName: 'SOUND_wind-chimes.wav',
+      downloadUrl: '$_repoAudioBaseUrl/SOUND_wind-chimes.wav',
     ),
     ReminderSoundOption(
       id: 'alarm_chiming_out',
       label: 'Chiming Out',
-      fileName: 'ALARM_246390__foolboymedia__chiming-out.mp3',
-      downloadUrl:
-          '$_repoAudioBaseUrl/ALARM_246390__foolboymedia__chiming-out.mp3',
+      fileName: 'SOUND_chiming-out.mp3',
+      downloadUrl: '$_repoAudioBaseUrl/SOUND_chiming-out.mp3',
     ),
     ReminderSoundOption(
       id: 'alarm_soft_plucks',
       label: 'Soft Plucks',
-      fileName: 'ALARM_lesiakower-soft-plucks-alarm-clock-120696.mp3',
-      downloadUrl:
-          '$_repoAudioBaseUrl/ALARM_lesiakower-soft-plucks-alarm-clock-120696.mp3',
+      fileName: 'SOUND_soft-plucks.mp3',
+      downloadUrl: '$_repoAudioBaseUrl/SOUND_soft-plucks.mp3',
     ),
   ];
 
