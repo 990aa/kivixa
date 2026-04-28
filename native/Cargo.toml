@@ -27,7 +27,7 @@ anyhow = "1.0"
 
 # Llama.cpp bindings for Phi-4 inference
 # Default: CPU mode (no GPU features) - safe for all platforms
-llama-cpp-2 = { version = "0.1.145", default-features = false, features = ["mtmd"] }
+llama-cpp-2 = { version = "0.1.130", default-features = false, features = ["mtmd"] }
 
 # Force-directed graph simulation for knowledge graph
 fdg-sim = "0.9"
