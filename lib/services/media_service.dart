@@ -53,6 +53,22 @@ class MediaService {
     _log.info('MediaService initialized');
   }
 
+  /// Initialize with explicit directories – for use in tests only.
+  @visibleForTesting
+  Future<void> initWithDirectories({
+    required Directory mediaDir,
+    required Directory thumbnailDir,
+    required Directory webCacheDir,
+  }) async {
+    _mediaDir = mediaDir;
+    _thumbnailDir = thumbnailDir;
+    _webCacheDir = webCacheDir;
+
+    await _mediaDir!.create(recursive: true);
+    await _thumbnailDir!.create(recursive: true);
+    await _webCacheDir!.create(recursive: true);
+  }
+
   /// Get the media directory path
   String get mediaPath => _mediaDir?.path ?? '';
 
@@ -251,9 +267,16 @@ class MediaService {
     try {
       if (_webCacheDir!.existsSync()) {
         final entities = await _webCacheDir!.list().toList();
-        await Future.wait(
-          entities.whereType<File>().map((entity) => entity.delete()),
-        );
+        final files = entities.whereType<File>().toList();
+        // Batch deletions to avoid exhausting OS file-descriptor limits on
+        // large caches; 50 concurrent deletes balances parallelism with
+        // resource usage.
+        const batchSize = 50;
+        for (var i = 0; i < files.length; i += batchSize) {
+          await Future.wait(
+            files.skip(i).take(batchSize).map((f) => f.delete()),
+          );
+        }
         _log.info('Web cache cleared');
       }
     } catch (e) {
@@ -270,7 +293,14 @@ class MediaService {
     try {
       final entities = await _webCacheDir!.list().toList();
       final sizes = await Future.wait(
-        entities.whereType<File>().map((entity) => entity.length()),
+        entities.whereType<File>().map((entity) async {
+          try {
+            return await entity.length();
+          } catch (e) {
+            _log.warning('Error getting size of ${entity.path}: $e');
+            return 0;
+          }
+        }),
       );
       return sizes.fold(0, (sum, size) => sum + size);
     } catch (e) {
@@ -284,32 +314,45 @@ class MediaService {
   Future<void> deleteOrphanedMedia(List<String> mediaPaths) async {
     if (!stows.deleteMediaWithNote.value) return;
 
-    for (final mediaPath in mediaPaths) {
-      try {
-        // Only delete files within our media directory
-        if (mediaPath.startsWith(_mediaDir?.path ?? '')) {
-          final file = File(mediaPath);
-          if (file.existsSync()) {
-            await file.delete();
-            _log.info('Orphaned media deleted: $mediaPath');
-          }
-        }
+    // List thumbnails once to avoid repeated directory scans per media item.
+    final List<FileSystemEntity> thumbnailEntities;
+    if (_thumbnailDir != null && _thumbnailDir!.existsSync()) {
+      thumbnailEntities = await _thumbnailDir!.list().toList();
+    } else {
+      // Use an unmodifiable empty list; no allocation needed on every call.
+      thumbnailEntities = const [];
+    }
 
-        // Also delete thumbnail if exists
-        final thumbName = '${mediaPath.hashCode.toRadixString(16)}*.thumb';
-        if (_thumbnailDir != null && _thumbnailDir!.existsSync()) {
-          final entities = await _thumbnailDir!.list().toList();
+    await Future.wait(
+      mediaPaths.map((mediaPath) async {
+        try {
+          // Only delete files within our media directory
+          if (mediaPath.startsWith(_mediaDir?.path ?? '')) {
+            final file = File(mediaPath);
+            if (file.existsSync()) {
+              await file.delete();
+              _log.info('Orphaned media deleted: $mediaPath');
+            }
+          }
+
+          // Delete all thumbnails for this media (any size variant).
+          // Thumbnail names are formatted as "<hash>_<w>x<h>.thumb".
+          final thumbPrefix = '${mediaPath.hashCode.toRadixString(16)}_';
           await Future.wait(
-            entities
+            thumbnailEntities
                 .whereType<File>()
-                .where((entity) => entity.path.contains(thumbName))
+                .where((entity) {
+                  final name = path.basename(entity.path);
+                  return name.startsWith(thumbPrefix) &&
+                      name.endsWith('.thumb');
+                })
                 .map((entity) => entity.delete()),
           );
+        } catch (e) {
+          _log.warning('Error deleting orphaned media: $e');
         }
-      } catch (e) {
-        _log.warning('Error deleting orphaned media: $e');
-      }
-    }
+      }),
+    );
   }
 
   /// Clear memory caches
