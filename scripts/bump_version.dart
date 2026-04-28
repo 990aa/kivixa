@@ -92,7 +92,7 @@ class Version {
 
     if (major == null || minor == null || patch == null) return null;
 
-    final revision = 0;
+    const revision = 0;
     int buildNumber = major * 100000 + minor * 1000 + patch * 10 + revision;
     if (parts.length > 1) {
       final parsedBuild = int.tryParse(parts[1]);
