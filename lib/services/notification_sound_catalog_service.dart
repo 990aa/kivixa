@@ -77,21 +77,74 @@ class NotificationSoundCatalogService {
       final externalDir = await getExternalStorageDirectory();
       if (externalDir != null) {
         final dir = Directory(p.join(externalDir.path, 'notification_sounds'));
-        await dir.create(recursive: true);
-        return dir;
+        try {
+          await dir.create(recursive: true);
+          return dir;
+        } catch (e) {
+          // If creation fails (permissions, mounted drive, etc.), fall back
+          // to the user's documents directory or system temp directory.
+          try {
+            final docs = await getApplicationDocumentsDirectory();
+            final fallback = Directory(
+              p.join(docs.path, 'kivixa', 'notification_sounds'),
+            );
+            await fallback.create(recursive: true);
+            return fallback;
+          } catch (e) {
+            final temp = Directory(
+              p.join(Directory.systemTemp.path, 'kivixa_notification_sounds'),
+            );
+            await temp.create(recursive: true);
+            return temp;
+          }
+        }
       }
     }
 
     if (Platform.isIOS || Platform.isMacOS) {
       final libraryDir = await getLibraryDirectory();
       final dir = Directory(p.join(libraryDir.path, 'Sounds'));
-      await dir.create(recursive: true);
-      return dir;
+      try {
+        await dir.create(recursive: true);
+        return dir;
+      } catch (e) {
+        try {
+          final docs = await getApplicationDocumentsDirectory();
+          final fallback = Directory(
+            p.join(docs.path, 'kivixa', 'notification_sounds'),
+          );
+          await fallback.create(recursive: true);
+          return fallback;
+        } catch (e) {
+          final temp = Directory(
+            p.join(Directory.systemTemp.path, 'kivixa_notification_sounds'),
+          );
+          await temp.create(recursive: true);
+          return temp;
+        }
+      }
     }
     final supportDir = await getApplicationSupportDirectory();
     final dir = Directory(p.join(supportDir.path, 'notification_sounds'));
-    await dir.create(recursive: true);
-    return dir;
+    try {
+      await dir.create(recursive: true);
+      return dir;
+    } catch (e) {
+      try {
+        final docs = await getApplicationDocumentsDirectory();
+        final fallback = Directory(
+          p.join(docs.path, 'kivixa', 'notification_sounds'),
+        );
+        await fallback.create(recursive: true);
+        return fallback;
+      } catch (e) {
+        final temp = Directory(
+          p.join(Directory.systemTemp.path, 'kivixa_notification_sounds'),
+        );
+        await temp.create(recursive: true);
+        return temp;
+      }
+    }
   }
 
   Future<File> _fileForOption(ReminderSoundOption option) async {
@@ -150,20 +203,30 @@ class NotificationSoundCatalogService {
     return null;
   }
 
-  Future<void> downloadReminderSound(String soundId) async {
+  Future<void> downloadReminderSound(
+    String soundId, {
+    http.Client? client,
+  }) async {
     final option = optionById(soundId);
     final target = await _fileForOption(option);
 
-    final response = await http
-        .get(Uri.parse(option.downloadUrl))
-        .timeout(const Duration(seconds: 30));
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw HttpException(
-        'Failed to download reminder sound (${response.statusCode})',
-      );
-    }
+    final httpClient = client ?? http.Client();
+    try {
+      final response = await httpClient
+          .get(Uri.parse(option.downloadUrl))
+          .timeout(const Duration(seconds: 30));
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw HttpException(
+          'Failed to download reminder sound (${response.statusCode})',
+        );
+      }
 
-    await target.writeAsBytes(response.bodyBytes, flush: true);
+      await target.writeAsBytes(response.bodyBytes, flush: true);
+    } finally {
+      if (client == null) {
+        httpClient.close();
+      }
+    }
   }
 
   Future<bool> deleteReminderSound(String soundId) async {
