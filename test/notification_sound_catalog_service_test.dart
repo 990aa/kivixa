@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:kivixa/services/notification_sound_catalog_service.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:http/testing.dart';
-import 'package:http/http.dart' as http;
 
 class MockPathProviderPlatform extends Fake
     with MockPlatformInterfaceMixin
