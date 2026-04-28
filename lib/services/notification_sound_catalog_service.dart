@@ -124,27 +124,37 @@ class NotificationSoundCatalogService {
         }
       }
     }
-    final supportDir = await getApplicationSupportDirectory();
-    final dir = Directory(p.join(supportDir.path, 'notification_sounds'));
+
+    // Windows and Linux: Use AppData\Roaming (Windows) or ~/.local/share
+    // (Linux) via getApplicationSupportDirectory. On Windows this is always
+    // under the current user's profile — never in Program Files — so it is
+    // always writable without elevation.
+    //
+    // Fallback chain:
+    //   1. getApplicationSupportDirectory  → %APPDATA%\kivixa\notification_sounds
+    //   2. getApplicationDocumentsDirectory → Documents\Kivixa\notification_sounds
+    //   3. systemTemp                       → Temp\kivixa_notification_sounds
     try {
+      final supportDir = await getApplicationSupportDirectory();
+      final dir = Directory(p.join(supportDir.path, 'notification_sounds'));
       await dir.create(recursive: true);
       return dir;
-    } catch (e) {
-      try {
-        final docs = await getApplicationDocumentsDirectory();
-        final fallback = Directory(
-          p.join(docs.path, 'kivixa', 'notification_sounds'),
-        );
-        await fallback.create(recursive: true);
-        return fallback;
-      } catch (e) {
-        final temp = Directory(
-          p.join(Directory.systemTemp.path, 'kivixa_notification_sounds'),
-        );
-        await temp.create(recursive: true);
-        return temp;
-      }
-    }
+    } catch (_) {}
+
+    try {
+      final docs = await getApplicationDocumentsDirectory();
+      final fallback = Directory(
+        p.join(docs.path, 'Kivixa', 'notification_sounds'),
+      );
+      await fallback.create(recursive: true);
+      return fallback;
+    } catch (_) {}
+
+    final temp = Directory(
+      p.join(Directory.systemTemp.path, 'kivixa_notification_sounds'),
+    );
+    await temp.create(recursive: true);
+    return temp;
   }
 
   Future<File> _fileForOption(ReminderSoundOption option) async {
