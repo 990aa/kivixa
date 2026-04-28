@@ -1,0 +1,37 @@
+# .github/labeler.yml
+
+dart:
+  - changed-files:
+      - any-glob-to-any-file: 'lib/**/*.dart'
+      - any-glob-to-any-file: 'test/**/*.dart'
+
+rust:
+  - changed-files:
+      - any-glob-to-any-file: 'native/**/*.rs'
+      - any-glob-to-any-file: 'native_audio/**/*.rs'
+      - any-glob-to-any-file: 'native_math/**/*.rs'
+      - any-glob-to-any-file: 'rust_builder/**/*.rs'
+
+android:
+  - changed-files:
+      - any-glob-to-any-file: 'android/**/*'
+
+ios:
+  - changed-files:
+      - any-glob-to-any-file: 'ios/**/*'
+
+windows:
+  - changed-files:
+      - any-glob-to-any-file: 'windows/**/*'
+
+macos:
+  - changed-files:
+      - any-glob-to-any-file: 'macos/**/*'
+
+linux:
+  - changed-files:
+      - any-glob-to-any-file: 'linux/**/*'
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file: '.github/workflows/**/*'
