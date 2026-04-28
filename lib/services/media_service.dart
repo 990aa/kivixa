@@ -250,11 +250,10 @@ class MediaService {
 
     try {
       if (_webCacheDir!.existsSync()) {
-        await for (final entity in _webCacheDir!.list()) {
-          if (entity is File) {
-            await entity.delete();
-          }
-        }
+        final entities = await _webCacheDir!.list().toList();
+        await Future.wait(
+          entities.whereType<File>().map((entity) => entity.delete()),
+        );
         _log.info('Web cache cleared');
       }
     } catch (e) {
@@ -268,13 +267,16 @@ class MediaService {
   Future<int> getWebCacheSize() async {
     if (_webCacheDir == null || !_webCacheDir!.existsSync()) return 0;
 
-    var size = 0;
-    await for (final entity in _webCacheDir!.list()) {
-      if (entity is File) {
-        size += await entity.length();
-      }
+    try {
+      final entities = await _webCacheDir!.list().toList();
+      final sizes = await Future.wait(
+        entities.whereType<File>().map((entity) => entity.length()),
+      );
+      return sizes.fold(0, (sum, size) => sum + size);
+    } catch (e) {
+      _log.warning('Error getting web cache size: $e');
+      return 0;
     }
-    return size;
   }
 
   /// Delete media associated with a deleted note
@@ -296,11 +298,13 @@ class MediaService {
         // Also delete thumbnail if exists
         final thumbName = '${mediaPath.hashCode.toRadixString(16)}*.thumb';
         if (_thumbnailDir != null && _thumbnailDir!.existsSync()) {
-          await for (final entity in _thumbnailDir!.list()) {
-            if (entity is File && entity.path.contains(thumbName)) {
-              await entity.delete();
-            }
-          }
+          final entities = await _thumbnailDir!.list().toList();
+          await Future.wait(
+            entities
+                .whereType<File>()
+                .where((entity) => entity.path.contains(thumbName))
+                .map((entity) => entity.delete()),
+          );
         }
       } catch (e) {
         _log.warning('Error deleting orphaned media: $e');
