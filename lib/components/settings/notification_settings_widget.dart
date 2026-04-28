@@ -19,6 +19,7 @@ class NotificationSettingsWidget extends StatefulWidget {
 class _NotificationSettingsWidgetState
     extends State<NotificationSettingsWidget> {
   static const _leadTimeOptions = <int>[5, 10, 15, 30, 60, 120, 1440, 2880];
+  static const _initialLoadTimeout = Duration(seconds: 5);
   final _timerService = ProductivityTimerService.instance;
   final _soundCatalog = NotificationSoundCatalogService.instance;
 
@@ -57,8 +58,26 @@ class _NotificationSettingsWidgetState
 
   Future<void> _loadSettings() async {
     try {
-      final settings = await NotificationSettingsStorage.loadSettings();
-      final states = await _soundCatalog.downloadStates();
+      final settings = await NotificationSettingsStorage.loadSettings().timeout(
+        _initialLoadTimeout,
+        onTimeout: NotificationSettings.defaults,
+      );
+      Map<String, bool> states;
+      try {
+        states = await _soundCatalog.downloadStates().timeout(
+          _initialLoadTimeout,
+          onTimeout: () => const <String, bool>{},
+        );
+      } catch (error) {
+        states = const <String, bool>{};
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to load notification sounds: $error'),
+            ),
+          );
+        }
+      }
       if (!mounted) {
         return;
       }
@@ -72,18 +91,20 @@ class _NotificationSettingsWidgetState
         return;
       }
       setState(() {
-        _settings = NotificationSettings.defaults();
         _soundDownloadStates = const {};
         _loading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load notification sounds: $error')),
+        SnackBar(content: Text('Failed to load notification settings: $error')),
       );
     }
   }
 
   Future<void> _updateSettings(NotificationSettings settings) async {
     await NotificationSettingsStorage.saveSettings(settings);
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _settings = settings;
     });

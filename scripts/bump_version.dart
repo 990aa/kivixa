@@ -92,7 +92,8 @@ class Version {
 
     if (major == null || minor == null || patch == null) return null;
 
-    int buildNumber = major * 1000000 + minor * 10000 + patch * 10;
+    final revision = 0;
+    int buildNumber = major * 100000 + minor * 1000 + patch * 10 + revision;
     if (parts.length > 1) {
       final parsedBuild = int.tryParse(parts[1]);
       if (parsedBuild != null) buildNumber = parsedBuild;
@@ -113,14 +114,14 @@ class Version {
   String get fullVersionString => '$major.$minor.$patch+$buildNumber';
 
   /// Calculate build number from version
-  int get calculatedBuildNumber => major * 1000000 + minor * 10000 + patch *10;
+  int get calculatedBuildNumber => major * 100000 + minor * 1000 + patch * 10;
 
   /// Bump major version
   Version bumpMajor() => Version(
     major: major + 1,
     minor: 0,
     patch: 0,
-    buildNumber: (major + 1) * 1000000,
+    buildNumber: (major + 1) * 100000,
   );
 
   /// Bump minor version
@@ -128,7 +129,7 @@ class Version {
     major: major,
     minor: minor + 1,
     patch: 0,
-    buildNumber: major * 1000000 + (minor + 1) * 10000,
+    buildNumber: major * 100000 + (minor + 1) * 1000,
   );
 
   /// Bump patch version
@@ -136,7 +137,7 @@ class Version {
     major: major,
     minor: minor,
     patch: patch + 1,
-    buildNumber: major * 1000000 + minor * 10000 + (patch + 1) * 10,
+    buildNumber: major * 100000 + minor * 1000 + (patch + 1) * 10,
   );
 
   /// Bump build number only
