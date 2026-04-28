@@ -324,15 +324,21 @@ class MediaService {
     if (!stows.deleteMediaWithNote.value) return;
 
     // List thumbnails once to avoid repeated directory scans per media item.
+    // Wrapped in try/catch so a listing failure (e.g. permission denied) does
+    // not abort the whole cleanup; per-media errors are still handled below.
     final List<FileSystemEntity> thumbnailEntities;
-    if (_thumbnailDir != null && _thumbnailDir!.existsSync()) {
-      thumbnailEntities = await _thumbnailDir!.list().toList();
-    } else {
-      // Use an unmodifiable empty list; no allocation needed on every call.
+    try {
+      if (_thumbnailDir != null && _thumbnailDir!.existsSync()) {
+        thumbnailEntities = await _thumbnailDir!.list().toList();
+      } else {
+        thumbnailEntities = const [];
+      }
+    } catch (e) {
+      _log.warning('Failed to list thumbnail directory, skipping thumbnail cleanup: $e');
       thumbnailEntities = const [];
     }
 
-    for (final mediaPath in mediaPaths) {
+
       try {
         // Only delete files within our media directory
         if (mediaPath.startsWith(_mediaDir?.path ?? '')) {
