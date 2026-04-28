@@ -326,7 +326,7 @@ class MediaService {
     // List thumbnails once to avoid repeated directory scans per media item.
     // Wrapped in try/catch so a listing failure (e.g. permission denied) does
     // not abort the whole cleanup; per-media errors are still handled below.
-    final List<FileSystemEntity> thumbnailEntities;
+    List<FileSystemEntity> thumbnailEntities = const [];
     try {
       if (_thumbnailDir != null && _thumbnailDir!.existsSync()) {
         thumbnailEntities = await _thumbnailDir!.list().toList();
@@ -334,11 +334,13 @@ class MediaService {
         thumbnailEntities = const [];
       }
     } catch (e) {
-      _log.warning('Failed to list thumbnail directory, skipping thumbnail cleanup: $e');
+      _log.warning(
+        'Failed to list thumbnail directory, skipping thumbnail cleanup: $e',
+      );
       thumbnailEntities = const [];
     }
 
-
+    for (final mediaPath in mediaPaths) {
       try {
         // Only delete files within our media directory
         if (mediaPath.startsWith(_mediaDir?.path ?? '')) {
@@ -357,12 +359,13 @@ class MediaService {
                 .whereType<File>()
                 .where((entity) {
                   final name = path.basename(entity.path);
-                  return name.startsWith(thumbPrefix) && name.endsWith('.thumb');
+                  return name.startsWith(thumbPrefix) &&
+                      name.endsWith('.thumb');
                 })
                 .map((entity) async {
                   try {
-                    // Check existence to avoid exceptions if already deleted (e.g. duplicates)
-                    if (await entity.exists()) {
+                    // Check existence synchronously to avoid slow async IO here
+                    if (entity.existsSync()) {
                       await entity.delete();
                     }
                   } catch (e) {
