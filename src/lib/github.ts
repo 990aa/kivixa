@@ -20,6 +20,9 @@ export interface ReleaseData {
   windowsUrl: string | null;
   windowsMsixUrl: string | null;
   androidArm64Url: string | null;
+  macOSUrl: string | null;
+  linuxUrl: string | null;
+  iOSUrl: string | null;
 }
 
 const FALLBACK: ReleaseData = {
@@ -33,6 +36,9 @@ const FALLBACK: ReleaseData = {
     "https://github.com/990aa/kivixa/releases/download/v0.7.1%2B7001/kivixa.msix",
   androidArm64Url:
     "https://github.com/990aa/kivixa/releases/download/v0.7.1%2B7001/Kivixa-Android-0.7.1-arm64.apk",
+  macOSUrl: null,
+  linuxUrl: null,
+  iOSUrl: null,
 };
 
 export async function getLatestRelease(): Promise<ReleaseData> {
@@ -68,6 +74,14 @@ export async function getLatestRelease(): Promise<ReleaseData> {
     const version =
       data.tag_name.replace(/^v/, "").split("+")[0] || data.tag_name;
 
+    const encodedTag = encodeURIComponent(data.tag_name);
+    const baseUrl = `https://github.com/990aa/kivixa/releases/download/${encodedTag}`;
+
+    // Construct URLs for macOS, Linux, iOS using naming convention
+    const macOSUrl = `${baseUrl}/Kivixa-macOS-${version}-universal.zip`;
+    const linuxUrl = `${baseUrl}/Kivixa-Linux-${version}-x86_64.tar.gz`;
+    const iOSUrl = `${baseUrl}/Kivixa-iOS-${version}-arm64.ipa`;
+
     return {
       version,
       tagName: data.tag_name,
@@ -78,6 +92,9 @@ export async function getLatestRelease(): Promise<ReleaseData> {
         windowsMsixAsset?.browser_download_url ?? derivedMsixUrl,
       androidArm64Url:
         androidArm64Asset?.browser_download_url ?? FALLBACK.androidArm64Url,
+      macOSUrl,
+      linuxUrl,
+      iOSUrl,
     };
   } catch {
     return FALLBACK;

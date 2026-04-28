@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { TextPlugin } from "gsap/TextPlugin";
 import type { ReleaseData } from "@/lib/github";
-import ParticleCanvas from "./ParticleCanvas";
 
 gsap.registerPlugin(TextPlugin);
 
@@ -15,7 +14,6 @@ interface HeroSectionProps {
 export default function HeroSection({ release }: HeroSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const typedLineRef = useRef<HTMLParagraphElement>(null);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const scope = sectionRef.current;
@@ -25,7 +23,7 @@ export default function HeroSection({ release }: HeroSectionProps) {
 
     const ctx = gsap.context(() => {
       const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const heroItems = scope.querySelectorAll("[data-hero-item]");
+      const heroItems = scope.querySelectorAll("[data-hero-item");
 
       if (typedLineRef.current) {
         typedLineRef.current.textContent = reducedMotion ? typedMessage : "";
@@ -61,13 +59,10 @@ export default function HeroSection({ release }: HeroSectionProps) {
     return () => ctx.revert();
   }, []);
 
-  const handleWingetCopy = async () => {
-    try {
-      await navigator.clipboard.writeText("winget install Kivixa");
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1400);
-    } catch {
-      setCopied(false);
+  const scrollToDownloads = () => {
+    const downloadsSection = document.getElementById("platforms");
+    if (downloadsSection) {
+      downloadsSection.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -77,7 +72,6 @@ export default function HeroSection({ release }: HeroSectionProps) {
       data-testid="hero-section"
       className="hero-section relative min-h-screen overflow-hidden px-6"
     >
-      <ParticleCanvas count={80} />
       <div className="hero-radial-glow" aria-hidden="true" />
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center justify-center text-center">
@@ -86,7 +80,8 @@ export default function HeroSection({ release }: HeroSectionProps) {
         </p>
 
         <h1 data-hero-item className="hero-wordmark">
-          Kivixa
+          <img src="/assets/icon.png" alt="" className="hero-logo" aria-hidden="true" />
+          ivixa
         </h1>
 
         <p data-hero-item className="hero-primary-copy">
@@ -97,41 +92,15 @@ export default function HeroSection({ release }: HeroSectionProps) {
 
         <p ref={typedLineRef} data-hero-item className="hero-typed-line" />
 
-        <div data-hero-item className="hero-cta-row">
+        <div data-hero-item>
           <button
             type="button"
-            data-testid="cta-winget"
-            onClick={handleWingetCopy}
+            onClick={scrollToDownloads}
             className="silver-button silver-button-primary"
           >
-            Install with winget
+            Download for your device
           </button>
-          <a
-            data-testid="download-windows-exe-hero"
-            href={release.windowsUrl ?? release.releasesPageUrl}
-            className="silver-button silver-button-secondary"
-          >
-            Download .exe
-          </a>
-          <a
-            href="https://github.com/990aa/kivixa"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="silver-button silver-button-secondary"
-          >
-            View on GitHub
-          </a>
         </div>
-
-        <p data-hero-item className="hero-release-note">
-          Latest release v{release.version} · Available for Windows and Android.
-        </p>
-
-        {copied ? (
-          <p role="status" aria-live="polite" className="hero-copy-toast">
-            Copied!
-          </p>
-        ) : null}
       </div>
     </section>
   );

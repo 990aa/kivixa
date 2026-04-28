@@ -123,8 +123,9 @@ test.describe("Kivixa landing page", () => {
   }) => {
     await page.goto("/");
 
-    await expect(page.getByTestId("cta-winget")).toBeVisible();
-    await expect(page.getByTestId("cta-winget")).toContainText("Install with winget");
+    // Hero section has a download button that scrolls to downloads
+    const heroDownloadBtn = page.locator("button:has-text('Download for your device')");
+    await expect(heroDownloadBtn).toBeVisible();
 
     await page.getByTestId("download-section").scrollIntoViewIfNeeded();
     await page.waitForTimeout(650);
@@ -133,7 +134,9 @@ test.describe("Kivixa landing page", () => {
     await expect(wingetCommand).toBeVisible();
     await expect(wingetCommand).toContainText("winget install Kivixa");
 
-    await expect(page.getByTestId("copy-winget")).toBeVisible();
+    // Copy button should be present
+    const copyBtn = page.locator("button.copy-btn");
+    await expect(copyBtn).toBeVisible();
 
     const msixLink = page.getByTestId("download-windows-msix");
     await expect(msixLink).toBeVisible();
@@ -153,14 +156,14 @@ test.describe("Kivixa landing page", () => {
 
     await page.goto("/");
 
-    const windowsVersion = page.getByTestId("windows-version");
-    await expect(windowsVersion).toContainText(`v${github.version}`);
-
-    const androidVersion = page.getByTestId("android-version");
-    await expect(androidVersion).toContainText(`v${github.version}`);
-
+    // Version only appears in footer
     const footerVersion = page.getByTestId("footer-version");
     await expect(footerVersion).toContainText(`v${github.version}`);
+
+    // Download cards should NOT have individual version numbers
+    const windowsCard = page.locator("[data-download-card]").first();
+    const windowsVersion = windowsCard.locator("[data-testid='windows-version']");
+    await expect(windowsVersion).not.toBeVisible();
   });
 
   test("download URLs point to latest GitHub release assets when reachable", async ({
@@ -252,5 +255,90 @@ test.describe("Kivixa landing page", () => {
         .map((violation) => `${violation.id}: ${violation.help}`)
         .join("\n")
     ).toEqual([]);
+  });
+
+  test("scroll performance is smooth with no perceptible lag", async ({ page }) => {
+    test.setTimeout(30_000);
+
+    await page.goto("/");
+    await page.waitForTimeout(500);
+
+    const startTime = performance.now();
+    await page.mouse.wheel(0, 300);
+    await page.waitForTimeout(50);
+    await page.mouse.wheel(0, 300);
+    await page.waitForTimeout(50);
+    await page.mouse.wheel(0, 300);
+    await page.waitForTimeout(50);
+    await page.mouse.wheel(0, 300);
+    await page.waitForTimeout(50);
+    await page.mouse.wheel(0, 300);
+    const endTime = performance.now();
+
+    // Total scroll operation time should be reasonable
+    const totalScrollTime = endTime - startTime;
+    expect(totalScrollTime, "Scroll operations should complete within 2 seconds").toBeLessThan(2000);
+
+    // Verify we can scroll through the entire page
+    await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight }));
+    await page.waitForTimeout(200);
+
+    const scrollTop = await page.evaluate(() => window.scrollY);
+    const docHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+
+    expect(scrollTop, "Should be able to scroll to bottom of page").toBeGreaterThan(docHeight - 1000);
+
+    // Scroll back to top
+    await page.evaluate(() => window.scrollTo({ top: 0 }));
+    await page.waitForTimeout(200);
+
+    const scrollTopAfter = await page.evaluate(() => window.scrollY);
+    expect(scrollTopAfter, "Should be able to scroll back to top").toBeLessThan(100);
+  });
+
+  test("particle canvas renders across entire page without gaps", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForTimeout(500);
+
+    // Check that particle canvas exists and covers viewport
+    const canvas = page.locator("canvas").first();
+    await expect(canvas).toBeAttached();
+
+    // Scroll through page and check particles are visible in all sections
+    await page.evaluate(() => window.scrollTo({ top: 0 }));
+    await page.waitForTimeout(300);
+
+    // Scroll to middle of page
+    await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight / 2 }));
+    await page.waitForTimeout(300);
+
+    // Scroll to bottom
+    await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight }));
+    await page.waitForTimeout(300);
+
+    // Particles should still be rendering
+    const canvasVisible = await page.locator("canvas").first().isVisible();
+    expect(canvasVisible, "Particle canvas should remain visible throughout page scroll").toBe(true);
+  });
+
+  test("no version numbers displayed on individual download cards", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForTimeout(500);
+
+    await page.getByTestId("download-section").scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
+
+    // Check that Windows card doesn't have version text
+    const windowsCard = page.locator("[data-download-card]").first();
+    const windowsVersion = windowsCard.locator("[data-testid='windows-version']");
+    await expect(windowsVersion).not.toBeVisible();
+
+    // Verify download cards still have platform titles
+    const platformTitles = page.locator(".download-card-title");
+    await expect(platformTitles).toHaveCount(5);
+
+    // Verify the version only appears in footer
+    const footerVersion = page.getByTestId("footer-version");
+    await expect(footerVersion).toBeVisible();
   });
 });

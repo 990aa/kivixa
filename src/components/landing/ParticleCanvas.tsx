@@ -16,12 +16,14 @@ interface ParticleCanvasProps {
   className?: string;
   count?: number;
   density?: "normal" | "dense";
+  position?: "absolute" | "fixed";
 }
 
 export default function ParticleCanvas({
   className = "",
   count = 80,
   density = "normal",
+  position = "absolute",
 }: ParticleCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -111,5 +113,7 @@ export default function ParticleCanvas({
     };
   }, [count, density]);
 
-  return <canvas ref={canvasRef} className={`particle-canvas ${className}`} aria-hidden="true" />;
+  const positionClass = position === "fixed" ? "particle-canvas-fixed" : "";
+
+  return <canvas ref={canvasRef} className={`particle-canvas ${positionClass} ${className}`} aria-hidden="true" />;
 }

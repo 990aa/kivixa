@@ -168,6 +168,10 @@ button:focus-visible {
   z-index: 0;
 }
 
+.particle-canvas-fixed {
+  position: fixed;
+}
+
 .silver-button {
   position: relative;
   display: inline-flex;
@@ -224,9 +228,7 @@ button:focus-visible {
 }
 
 .hero-section {
-  background:
-    radial-gradient(circle at center, rgba(232, 237, 242, 0.09), transparent 55%),
-    linear-gradient(180deg, rgba(26, 29, 35, 0.97), rgba(13, 15, 16, 1));
+  /* Uses body background - no section-specific override needed */
 }
 
 .hero-radial-glow {
@@ -252,6 +254,17 @@ button:focus-visible {
   line-height: 1.02;
   font-weight: 650;
   letter-spacing: -0.03em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.hero-logo {
+  height: 1em;
+  width: auto;
+  margin-bottom: 0.05em;
+  vertical-align: middle;
 }
 
 .hero-primary-copy {
@@ -762,35 +775,6 @@ button:focus-visible {
   color: var(--text-secondary);
 }
 
-.status-grid {
-  margin-top: 1.6rem;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.8rem;
-}
-
-.status-tile {
-  border-radius: 12px;
-  border: 1px solid rgba(192, 200, 212, 0.12);
-  background: var(--s-deep);
-  padding: 0.95rem 1rem;
-}
-
-.status-platform {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 630;
-}
-
-.status-label {
-  margin: 0.26rem 0 0;
-  font-size: 0.68rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-family: var(--font-mono);
-  color: var(--text-secondary);
-}
-
 .download-cards-grid {
   margin-top: 1.2rem;
   display: grid;
@@ -831,6 +815,35 @@ button:focus-visible {
   font-weight: 630;
 }
 
+.download-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.download-status-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.status-stable {
+  color: var(--s-accent);
+  background: rgba(184, 168, 130, 0.15);
+  border: 1px solid rgba(184, 168, 130, 0.3);
+}
+
+.status-distributed {
+  color: var(--text-secondary);
+  background: rgba(192, 200, 212, 0.1);
+  border: 1px solid rgba(192, 200, 212, 0.2);
+}
+
 .download-version-text {
   margin-top: 0.35rem;
   color: var(--text-secondary);
@@ -839,7 +852,6 @@ button:focus-visible {
 
 .winget-code-block {
   display: block;
-  margin-top: 0.75rem;
   border-radius: 10px;
   border: 1px solid rgba(232, 237, 242, 0.18);
   background: rgba(13, 15, 16, 0.72);
@@ -847,6 +859,39 @@ button:focus-visible {
   font-size: 0.86rem;
   font-family: var(--font-mono);
   color: var(--s-shine);
+}
+
+.winget-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.winget-row .winget-code-block {
+  margin-top: 0;
+  flex: 1;
+}
+
+.copy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(232, 237, 242, 0.18);
+  background: rgba(13, 15, 16, 0.72);
+  color: var(--text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 220ms ease, border-color 220ms ease, background 220ms ease;
+}
+
+.copy-btn:hover {
+  color: var(--s-shine);
+  border-color: rgba(232, 237, 242, 0.4);
+  background: rgba(26, 29, 35, 0.72);
 }
 
 .download-footnote {
@@ -875,6 +920,68 @@ button:focus-visible {
   font-size: 0.82rem;
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+.fdroid-steps {
+  margin-top: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.fdroid-steps-summary {
+  cursor: pointer;
+  color: var(--s-shine);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.fdroid-steps-summary:hover {
+  opacity: 0.8;
+}
+
+.fdroid-steps-list {
+  margin: 0;
+  padding-left: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.fdroid-steps-list li {
+  line-height: 1.5;
+}
+
+.fdroid-method-list {
+  margin: 0.3rem 0 0.3rem 1rem;
+  padding-left: 1rem;
+}
+
+.fdroid-method-list li {
+  list-style-type: disc;
+}
+
+.qr-code-wrapper {
+  margin: 0.5rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.qr-code-wrapper img {
+  border-radius: 8px;
+  border: 1px solid rgba(192, 200, 212, 0.15);
+}
+
+.repo-url-code {
+  display: block;
+  margin-top: 0.2rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(13, 15, 16, 0.72);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--s-shine);
+  overflow-wrap: break-word;
+  word-break: break-all;
 }
 
 .downloads-global-footnote {
@@ -951,8 +1058,7 @@ button:focus-visible {
   }
 
   .privacy-pillars-grid,
-  .download-cards-grid,
-  .status-grid {
+  .download-cards-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -970,7 +1076,6 @@ button:focus-visible {
     width: 100%;
   }
 
-  .status-grid,
   .download-cards-grid,
   .privacy-pillars-grid {
     grid-template-columns: 1fr;

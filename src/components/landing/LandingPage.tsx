@@ -6,6 +6,7 @@ import AIModelsSection from "./AIModelsSection";
 import PrivacySection from "./PrivacySection";
 import DownloadsSection from "./DownloadsSection";
 import FooterCTA from "./FooterCTA";
+import ParticleCanvas from "./ParticleCanvas";
 
 interface LandingPageProps {
   release: ReleaseData;
@@ -13,14 +14,17 @@ interface LandingPageProps {
 
 export default function LandingPage({ release }: LandingPageProps) {
   return (
-    <main className="landing-journey">
-      <HeroSection release={release} />
-      <AppMockupSection />
-      <FeatureGridSection />
-      <AIModelsSection />
-      <PrivacySection />
-      <DownloadsSection release={release} />
-      <FooterCTA release={release} />
-    </main>
+    <>
+      <ParticleCanvas className="fixed inset-0" count={100} />
+      <main className="landing-journey relative z-10">
+        <HeroSection release={release} />
+        <AppMockupSection />
+        <FeatureGridSection />
+        <AIModelsSection />
+        <PrivacySection />
+        <DownloadsSection release={release} />
+        <FooterCTA release={release} />
+      </main>
+    </>
   );
 }

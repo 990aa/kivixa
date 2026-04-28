@@ -14,32 +14,32 @@ export function useLenis() {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reducedMotion) return;
 
+    // Immediately sync scroll position to avoid lag
+    document.documentElement.style.scrollBehavior = "auto";
+
     const lenis = new Lenis({
-      duration: 0.82,
+      duration: 1.2,
       easing: (t: number) => 1 - Math.pow(1 - t, 3),
+      syncTouch: true,
     });
 
-    const onLenisScroll = () => {
-      ScrollTrigger.update();
+    lenis.on("scroll", ScrollTrigger.update);
+
+    const raf = (time: number) => {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
     };
 
-    lenis.on("scroll", onLenisScroll);
-
-    const onTick = (time: number) => {
-      lenis.raf(time * 1000);
-    };
-
-    gsap.ticker.add(onTick);
-    gsap.ticker.lagSmoothing(0);
+    const rafId = requestAnimationFrame(raf);
 
     const onResize = () => lenis.resize();
     window.addEventListener("resize", onResize, { passive: true });
 
     return () => {
       window.removeEventListener("resize", onResize);
-      gsap.ticker.remove(onTick);
-      lenis.off("scroll", onLenisScroll);
+      cancelAnimationFrame(rafId);
       lenis.destroy();
+      document.documentElement.style.scrollBehavior = "";
     };
   }, []);
 }

@@ -4,7 +4,6 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import type { ReleaseData } from "@/lib/github";
 import { useScrollAnimations } from "@/hooks/useScrollAnimations";
-import ParticleCanvas from "./ParticleCanvas";
 
 interface FooterCTAProps {
   release: ReleaseData;
@@ -42,7 +41,6 @@ export default function FooterCTA({ release }: FooterCTAProps) {
 
   return (
     <footer ref={sectionRef} className="footer-cta-section relative overflow-hidden px-6 pt-24">
-      <ParticleCanvas density="dense" count={90} />
       <div className="footer-aurora" aria-hidden="true" />
 
       <div data-footer-center className="relative z-20 mx-auto flex min-h-[56vh] max-w-4xl flex-col items-center justify-center text-center">
