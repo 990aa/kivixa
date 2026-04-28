@@ -62,4 +62,6 @@ analyze*
 {tempDir.path}
 
 manifests/
-
+*.json
+*.txt
+notification_sounds/

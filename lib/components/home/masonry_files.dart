@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:kivixa/components/home/preview_card.dart';
-import 'package:kivixa/data/prefs.dart';
 
 class MasonryFiles extends StatefulWidget {
   const MasonryFiles({
@@ -66,26 +65,13 @@ class _MasonryFilesState extends State<MasonryFiles> {
 
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      sliver: stows.simplifiedHomeLayout.value
-          ? SliverGrid.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: widget.crossAxisCount,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-                // This aspect ratio was chosen to fit an A4 page and
-                // two lines for the title.
-                childAspectRatio: 0.60,
-              ),
-              itemCount: widget.files.length,
-              itemBuilder: itemBuilder,
-            )
-          : SliverMasonryGrid.count(
-              crossAxisCount: widget.crossAxisCount,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-              childCount: widget.files.length,
-              itemBuilder: itemBuilder,
-            ),
+      sliver: SliverMasonryGrid.count(
+        crossAxisCount: widget.crossAxisCount,
+        mainAxisSpacing: 8,
+        crossAxisSpacing: 8,
+        childCount: widget.files.length,
+        itemBuilder: itemBuilder,
+      ),
     );
   }
 }

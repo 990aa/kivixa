@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/overlay/floating_window.dart';
+import 'package:kivixa/data/models/notification_settings.dart';
+import 'package:kivixa/data/notification_settings_storage.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
 import 'package:kivixa/services/productivity/productivity_timer_service.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -35,20 +37,33 @@ class _FloatingClockWindowState extends State<FloatingClockWindow> {
   @override
   Widget build(BuildContext context) {
     final controller = OverlayController.instance;
-    final rect =
+    final storedRect =
         controller.getToolWindowRect('clock') ??
         const Rect.fromLTWH(100, 100, 380, 520);
 
-    return FloatingWindow(
-      rect: rect,
-      onRectChanged: (newRect) =>
-          controller.updateToolWindowRect('clock', newRect),
-      onClose: () => controller.closeToolWindow('clock'),
-      title: 'Productivity Timer',
-      icon: Icons.timer,
-      minWidth: 340,
-      minHeight: 450,
-      child: _FloatingClockContent(timerService: _timerService),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenSize = Size(constraints.maxWidth, constraints.maxHeight);
+        final clampedRect = controller.clampToScreen(storedRect, screenSize);
+
+        return Stack(
+          children: [
+            FloatingWindow(
+              rect: clampedRect,
+              onRectChanged: (newRect) => controller.updateToolWindowRect(
+                'clock',
+                controller.clampToScreen(newRect, screenSize),
+              ),
+              onClose: () => controller.closeToolWindow('clock'),
+              title: 'Productivity Timer',
+              icon: Icons.timer,
+              minWidth: 340,
+              minHeight: 450,
+              child: _FloatingClockContent(timerService: _timerService),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -66,6 +81,8 @@ class _FloatingClockContentState extends State<_FloatingClockContent>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   var _showTemplates = false;
+  var _notificationSettings = NotificationSettings();
+  var _notificationSettingsLoading = true;
 
   ProductivityTimerService get _timer => widget.timerService;
 
@@ -73,12 +90,32 @@ class _FloatingClockContentState extends State<_FloatingClockContent>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _loadNotificationSettings();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadNotificationSettings() async {
+    final settings = await NotificationSettingsStorage.loadSettings();
+    if (!mounted) return;
+    setState(() {
+      _notificationSettings = settings;
+      _notificationSettingsLoading = false;
+    });
+  }
+
+  Future<void> _updateNotificationSettings(
+    NotificationSettings settings,
+  ) async {
+    await NotificationSettingsStorage.saveSettings(settings);
+    if (!mounted) return;
+    setState(() {
+      _notificationSettings = settings;
+    });
   }
 
   @override
@@ -854,6 +891,47 @@ class _FloatingClockContentState extends State<_FloatingClockContent>
           _timer.showPreEndWarning,
           (v) => _timer.setPreEndWarning(v),
         ),
+        if (_notificationSettingsLoading)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: LinearProgressIndicator(minHeight: 2),
+          )
+        else ...[
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.music_note),
+            title: const Text('Notification Sound Profile'),
+            subtitle: Text(_notificationSettings.soundProfile.label),
+            trailing: DropdownButton<NotificationSoundProfile>(
+              value: _notificationSettings.soundProfile,
+              onChanged: (profile) {
+                if (profile == null) return;
+                _updateNotificationSettings(
+                  _notificationSettings.copyWith(soundProfile: profile),
+                );
+              },
+              items: NotificationSoundProfile.values
+                  .map(
+                    (profile) => DropdownMenuItem(
+                      value: profile,
+                      child: Text(profile.label),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+          _buildSettingSwitch(
+            context,
+            'Vibrate-only on Android',
+            'Mute sounds and use vibration for timer notifications',
+            _notificationSettings.vibrateOnlyOnAndroid,
+            (value) {
+              _updateNotificationSettings(
+                _notificationSettings.copyWith(vibrateOnlyOnAndroid: value),
+              );
+            },
+          ),
+        ],
         const Divider(height: 24),
 
         // Goals

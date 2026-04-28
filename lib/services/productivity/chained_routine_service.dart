@@ -1,10 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:kivixa/data/models/notification_settings.dart';
+import 'package:kivixa/data/notification_settings_storage.dart';
+import 'package:kivixa/services/notification_sound_catalog_service.dart';
 import 'package:kivixa/services/productivity/material_icon_codec.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -358,6 +363,8 @@ enum RoutineState { idle, running, paused, betweenBlocks, completed }
 class ChainedRoutineService extends ChangeNotifier {
   ChainedRoutineService._();
 
+  static const _dismissActionId = 'chained_routine_dismiss';
+
   static final _instance = ChainedRoutineService._();
   static ChainedRoutineService get instance => _instance;
 
@@ -546,10 +553,14 @@ class ChainedRoutineService extends ChangeNotifier {
     _timer?.cancel();
     final block = currentBlock;
     if (block != null) {
+      final hasNextBlock = _currentBlockIndex < totalBlocks - 1;
+      final nextBlock = hasNextBlock
+          ? _currentRoutine!.blocks[_currentBlockIndex + 1]
+          : null;
       _showNotification(
         title: '${block.name} Complete!',
-        body: _currentBlockIndex < totalBlocks - 1
-            ? 'Next: ${_currentRoutine!.blocks[_currentBlockIndex + 1].name}'
+        body: nextBlock != null
+            ? 'Up next: ${nextBlock.name} (${nextBlock.durationMinutes} min)'
             : 'Routine complete!',
       );
     }
@@ -776,22 +787,97 @@ class ChainedRoutineService extends ChangeNotifier {
   }) async {
     if (!_soundEnabled) return;
 
-    const androidDetails = AndroidNotificationDetails(
-      'chained_routines',
+    final settings = await NotificationSettingsStorage.loadSettings();
+    final playSound = _shouldPlaySound(settings);
+    final enableVibration = _shouldVibrate(settings);
+    final sound = await _resolveAndroidSound(settings, playSound);
+    final soundIdentity = !playSound
+        ? 'sound_off'
+        : (sound is RawResourceAndroidNotificationSound
+              ? 'kivixa_notification'
+              : sound is UriAndroidNotificationSound
+              ? settings.reminderSoundId
+              : 'sound_off');
+
+    final androidDetails = AndroidNotificationDetails(
+      _channelIdForSettings(settings, soundIdentity),
       'Chained Routines',
       channelDescription: 'Notifications for chained routine blocks',
       importance: Importance.high,
       priority: Priority.high,
-      playSound: true,
+      playSound: playSound,
+      sound: sound,
+      enableVibration: enableVibration,
+      vibrationPattern: enableVibration
+          ? _longReminderVibrationPattern()
+          : null,
+      timeoutAfter: 60000,
+      actions: const [
+        AndroidNotificationAction(
+          _dismissActionId,
+          'Dismiss',
+          showsUserInterface: false,
+        ),
+      ],
     );
 
-    const details = NotificationDetails(android: androidDetails);
+    final details = NotificationDetails(android: androidDetails);
 
     try {
       await _notifications?.show(2, title, body, details);
     } catch (e) {
       debugPrint('Failed to show notification: $e');
     }
+  }
+
+  String _channelIdForSettings(NotificationSettings settings, String soundId) {
+    return 'chained_routines_${settings.notificationFeedbackMode.storageKey}_$soundId';
+  }
+
+  bool _shouldPlaySound(NotificationSettings settings) {
+    return settings.notificationSoundEnabled;
+  }
+
+  bool _shouldVibrate(NotificationSettings settings) {
+    return settings.notificationVibrationEnabled;
+  }
+
+  Future<AndroidNotificationSound?> _resolveAndroidSound(
+    NotificationSettings settings,
+    bool shouldPlaySound,
+  ) async {
+    if (!shouldPlaySound) {
+      return null;
+    }
+
+    final path = await NotificationSoundCatalogService.instance
+        .localPathForReminderSound(settings.reminderSoundId);
+    if (path == null || path.trim().isEmpty) {
+      return const RawResourceAndroidNotificationSound('kivixa_notification');
+    }
+
+    return UriAndroidNotificationSound(Uri.file(path).toString());
+  }
+
+  Int64List _longReminderVibrationPattern() {
+    final pattern = <int>[0];
+    var elapsedMs = 0;
+
+    while (elapsedMs < 60000) {
+      final vibrate = min(450, 60000 - elapsedMs);
+      pattern.add(vibrate);
+      elapsedMs += vibrate;
+
+      if (elapsedMs >= 60000) {
+        break;
+      }
+
+      final pause = min(350, 60000 - elapsedMs);
+      pattern.add(pause);
+      elapsedMs += pause;
+    }
+
+    return Int64List.fromList(pattern);
   }
 
   // Persistence
@@ -887,6 +973,27 @@ class ChainedRoutineService extends ChangeNotifier {
         debugPrint('Failed to save routine settings: $e');
       }
     });
+  }
+
+  @visibleForTesting
+  void resetForTests() {
+    _timer?.cancel();
+    _saveRoutinesDebounce?.cancel();
+    _saveSettingsDebounce?.cancel();
+
+    _currentRoutine = null;
+    _currentBlockIndex = 0;
+    _state = RoutineState.idle;
+    _remainingTime = Duration.zero;
+
+    _defaultRoutines
+      ..clear()
+      ..addAll(ChainedRoutine.defaultRoutines);
+    _customRoutines.clear();
+
+    _soundEnabled = true;
+    _prefs = null;
+    _initialized = false;
   }
 
   @override

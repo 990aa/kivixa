@@ -9,118 +9,196 @@ import 'package:perfect_freehand/perfect_freehand.dart';
 
 void main() {
   group('Select tool', () {
-    test('selects the right strokes', () async {
-      final select = Select.currentSelect;
-      final options = StrokeOptions(size: 9);
+    group('onDragEnd', () {
+      test('selects the right strokes', () async {
+        final select = Select.currentSelect;
+        final options = StrokeOptions(size: 9);
 
-      // Drag gesture in a 10x10 square shape, on page 0
-      select.onDragStart(Offset.zero, 0);
-      select.onDragUpdate(const Offset(0, 10));
-      select.onDragUpdate(const Offset(10, 10));
-      select.onDragUpdate(const Offset(10, 0));
+        // Drag gesture in a 10x10 square shape, on page 0
+        select.onDragStart(Offset.zero, 0);
+        select.onDragUpdate(const Offset(0, 10));
+        select.onDragUpdate(const Offset(10, 10));
+        select.onDragUpdate(const Offset(10, 0));
 
-      expect(
-        select.selectResult.pageIndex,
-        0,
-        reason: 'The page index should be 0',
-      );
+        expect(
+          select.selectResult.pageIndex,
+          0,
+          reason: 'The page index should be 0',
+        );
 
-      const page = HasSize(Size(100, 100));
+        const page = HasSize(Size(100, 100));
 
-      final strokes = <Stroke>[
-        // index 0 is inside
-        Stroke(
-          color: Stroke.defaultColor,
-          pressureEnabled: Stroke.defaultPressureEnabled,
-          options: options,
-          pageIndex: 0,
-          page: page,
-          penType: 'testing pen',
-        )..addPoint(const Offset(5, 5)),
-        // index > 0 is outside
-        Stroke(
-          color: Stroke.defaultColor,
-          pressureEnabled: Stroke.defaultPressureEnabled,
-          options: options,
-          pageIndex: 0,
-          page: page,
-          penType: 'testing pen',
-        )..addPoint(const Offset(10, 10)),
-        Stroke(
-          color: Stroke.defaultColor,
-          pressureEnabled: Stroke.defaultPressureEnabled,
-          options: options,
-          pageIndex: 0,
-          page: page,
-          penType: 'testing pen',
-        )..addPoint(const Offset(15, 15)),
-      ];
+        final strokes = <Stroke>[
+          // index 0 is inside
+          Stroke(
+            color: Stroke.defaultColor,
+            pressureEnabled: Stroke.defaultPressureEnabled,
+            options: options,
+            pageIndex: 0,
+            page: page,
+            penType: 'testing pen',
+          )..addPoint(const Offset(5, 5)),
+          // index > 0 is outside
+          Stroke(
+            color: Stroke.defaultColor,
+            pressureEnabled: Stroke.defaultPressureEnabled,
+            options: options,
+            pageIndex: 0,
+            page: page,
+            penType: 'testing pen',
+          )..addPoint(const Offset(10, 10)),
+          Stroke(
+            color: Stroke.defaultColor,
+            pressureEnabled: Stroke.defaultPressureEnabled,
+            options: options,
+            pageIndex: 0,
+            page: page,
+            penType: 'testing pen',
+          )..addPoint(const Offset(15, 15)),
+        ];
 
-      select.onDragEnd(strokes, const []);
+        select.onDragEnd(strokes, const []);
 
-      expect(
-        select.selectResult.strokes.length,
-        1,
-        reason: 'Only one stroke should be selected',
-      );
-      expect(
-        select.selectResult.strokes.first,
-        strokes[0],
-        reason: 'The first stroke should be selected',
-      );
-      expect(
-        select.selectResult.images.isEmpty,
-        true,
-        reason: 'No images should be selected',
-      );
-    });
+        expect(
+          select.doneSelecting,
+          true,
+          reason: 'doneSelecting should be true after onDragEnd',
+        );
 
-    test('selects the right images', () async {
-      final select = Select.currentSelect;
+        expect(
+          select.selectResult.strokes.length,
+          1,
+          reason: 'Only one stroke should be selected',
+        );
+        expect(
+          select.selectResult.strokes.first,
+          strokes[0],
+          reason: 'The first stroke should be selected',
+        );
+        expect(
+          select.selectResult.images.isEmpty,
+          true,
+          reason: 'No images should be selected',
+        );
+      });
 
-      // Drag gesture in a 10x10 square shape, on page 0
-      select.onDragStart(Offset.zero, 0);
-      select.onDragUpdate(const Offset(0, 10));
-      select.onDragUpdate(const Offset(10, 10));
-      select.onDragUpdate(const Offset(10, 0));
+      test('selects the right images', () async {
+        final select = Select.currentSelect;
 
-      expect(
-        select.selectResult.pageIndex,
-        0,
-        reason: 'The page index should be 0',
-      );
+        // Drag gesture in a 10x10 square shape, on page 0
+        select.onDragStart(Offset.zero, 0);
+        select.onDragUpdate(const Offset(0, 10));
+        select.onDragUpdate(const Offset(10, 10));
+        select.onDragUpdate(const Offset(10, 0));
 
-      final List<EditorImage> images = [
-        // index 0 is inside (100% in the selection)
-        TestImage(dstRect: const Rect.fromLTWH(0, 0, 10, 10)),
-        // index 1 is inside (> 70% in the selection)
-        TestImage(dstRect: const Rect.fromLTWH(0, 0, 10 / 0.75, 10 / 0.75)),
-        // index 2 is outside (< 70% in the selection)
-        TestImage(dstRect: const Rect.fromLTWH(0, 0, 10 / 0.6, 10 / 0.6)),
-      ];
+        expect(
+          select.selectResult.pageIndex,
+          0,
+          reason: 'The page index should be 0',
+        );
 
-      select.onDragEnd(const [], images);
+        final List<EditorImage> images = [
+          // index 0 is inside (100% in the selection)
+          TestImage(dstRect: const Rect.fromLTWH(0, 0, 10, 10)),
+          // index 1 is inside (> 70% in the selection)
+          TestImage(dstRect: const Rect.fromLTWH(0, 0, 10 / 0.75, 10 / 0.75)),
+          // index 2 is outside (< 70% in the selection)
+          TestImage(dstRect: const Rect.fromLTWH(0, 0, 10 / 0.6, 10 / 0.6)),
+        ];
 
-      expect(
-        select.selectResult.images.length,
-        2,
-        reason: 'Two images should be selected',
-      );
-      expect(
-        select.selectResult.images.contains(images[0]),
-        true,
-        reason: 'The first image should be selected',
-      );
-      expect(
-        select.selectResult.images.contains(images[1]),
-        true,
-        reason: 'The second image should be selected',
-      );
-      expect(
-        select.selectResult.strokes.length,
-        0,
-        reason: 'No strokes should be selected',
-      );
+        select.onDragEnd(const [], images);
+
+        expect(
+          select.doneSelecting,
+          true,
+          reason: 'doneSelecting should be true after onDragEnd',
+        );
+
+        expect(
+          select.selectResult.images.length,
+          2,
+          reason: 'Two images should be selected',
+        );
+        expect(
+          select.selectResult.images.contains(images[0]),
+          true,
+          reason: 'The first image should be selected',
+        );
+        expect(
+          select.selectResult.images.contains(images[1]),
+          true,
+          reason: 'The second image should be selected',
+        );
+        expect(
+          select.selectResult.strokes.length,
+          0,
+          reason: 'No strokes should be selected',
+        );
+      });
+
+      test('sets doneSelecting and handles empty lists', () async {
+        final select = Select.currentSelect;
+        select.onDragStart(Offset.zero, 0);
+        select.onDragUpdate(const Offset(0, 10));
+
+        expect(select.doneSelecting, false);
+
+        select.onDragEnd(const [], const []);
+
+        expect(select.doneSelecting, true);
+        expect(select.selectResult.strokes.isEmpty, true);
+        expect(select.selectResult.images.isEmpty, true);
+      });
+
+      test('selects both strokes and images simultaneously', () async {
+        final select = Select.currentSelect;
+        final options = StrokeOptions(size: 9);
+        const page = HasSize(Size(100, 100));
+
+        // Drag gesture in a 10x10 square shape, on page 0
+        select.onDragStart(Offset.zero, 0);
+        select.onDragUpdate(const Offset(0, 10));
+        select.onDragUpdate(const Offset(10, 10));
+        select.onDragUpdate(const Offset(10, 0));
+
+        final strokes = <Stroke>[
+          // Inside
+          Stroke(
+            color: Stroke.defaultColor,
+            pressureEnabled: Stroke.defaultPressureEnabled,
+            options: options,
+            pageIndex: 0,
+            page: page,
+            penType: 'testing pen',
+          )..addPoint(const Offset(5, 5)),
+          // Outside
+          Stroke(
+            color: Stroke.defaultColor,
+            pressureEnabled: Stroke.defaultPressureEnabled,
+            options: options,
+            pageIndex: 0,
+            page: page,
+            penType: 'testing pen',
+          )..addPoint(const Offset(20, 20)),
+        ];
+
+        final List<EditorImage> images = [
+          // Inside
+          TestImage(dstRect: const Rect.fromLTWH(0, 0, 10, 10)),
+          // Outside
+          TestImage(dstRect: const Rect.fromLTWH(20, 20, 10, 10)),
+        ];
+
+        select.onDragEnd(strokes, images);
+
+        expect(select.doneSelecting, true);
+
+        expect(select.selectResult.strokes.length, 1);
+        expect(select.selectResult.strokes.first, strokes[0]);
+
+        expect(select.selectResult.images.length, 1);
+        expect(select.selectResult.images.first, images[0]);
+      });
     });
 
     group('getDominantStrokeColor', () {

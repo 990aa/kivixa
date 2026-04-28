@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
+import 'package:kivixa/components/ai/mcp_chat_controller.dart';
 import 'package:kivixa/components/overlay/assistant_window.dart';
 import 'package:kivixa/components/overlay/floating_hub.dart';
+import 'package:kivixa/services/ai/chat_attachment_service.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/model_manager.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
@@ -89,13 +91,60 @@ class _FakeModelGateway implements ChatModelGateway {
   }
 }
 
-Widget _buildFloatingAssistantHarness(AIChatController chatController) {
+class _FakeMcpChatController extends Fake implements MCPChatController {
+  _FakeMcpChatController(List<MCPChatMessage> initialMessages)
+    : _messages = List<MCPChatMessage>.from(initialMessages);
+
+  final List<MCPChatMessage> _messages;
+
+  @override
+  List<MCPChatMessage> get messages => List.unmodifiable(_messages);
+
+  @override
+  bool get isGenerating => false;
+
+  @override
+  void addListener(VoidCallback listener) {}
+
+  @override
+  void removeListener(VoidCallback listener) {}
+
+  @override
+  Future<void> sendMessage(
+    String content, {
+    BuildContext? context,
+    List<ChatAttachment> attachments = const <ChatAttachment>[],
+  }) async {}
+
+  @override
+  void clearMessages() {
+    _messages.clear();
+  }
+
+  @override
+  Future<void> retryLastMessage({BuildContext? context}) async {}
+
+  @override
+  String exportConversationAsJson({String sessionType = 'mcp-chat'}) {
+    return '{"sessionType":"$sessionType"}';
+  }
+}
+
+Widget _buildFloatingAssistantHarness(
+  AIChatController chatController,
+  MCPChatController mcpChatController,
+) {
   return MaterialApp(
     home: Scaffold(
       body: FloatingHubOverlay(
         child: Stack(
           fit: StackFit.expand,
-          children: [AssistantWindow(chatController: chatController)],
+          children: [
+            AssistantWindow(
+              chatController: chatController,
+              mcpChatController: mcpChatController,
+            ),
+          ],
         ),
       ),
     ),
@@ -139,13 +188,18 @@ void main() {
         modelGateway: fakeModelGateway,
         autoInitialize: false,
       );
+      final mcpChatController = _FakeMcpChatController(
+        const <MCPChatMessage>[],
+      );
 
       final switched = await chatController.switchModel(primaryModel);
       expect(switched, isTrue);
 
       OverlayController.instance.openAssistant();
 
-      await tester.pumpWidget(_buildFloatingAssistantHarness(chatController));
+      await tester.pumpWidget(
+        _buildFloatingAssistantHarness(chatController, mcpChatController),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text(primaryModel.name), findsOneWidget);
@@ -182,13 +236,18 @@ void main() {
         modelGateway: fakeModelGateway,
         autoInitialize: false,
       );
+      final mcpChatController = _FakeMcpChatController(
+        const <MCPChatMessage>[],
+      );
 
       final switched = await chatController.switchModel(primaryModel);
       expect(switched, isTrue);
 
       OverlayController.instance.openAssistant();
 
-      await tester.pumpWidget(_buildFloatingAssistantHarness(chatController));
+      await tester.pumpWidget(
+        _buildFloatingAssistantHarness(chatController, mcpChatController),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.text(primaryModel.name));

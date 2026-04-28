@@ -1,9 +1,16 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kivixa/data/calendar_storage.dart';
 import 'package:kivixa/data/models/calendar_event.dart';
+import 'package:kivixa/data/models/notification_settings.dart';
+import 'package:kivixa/data/models/project.dart';
 import 'package:kivixa/data/notification_settings_storage.dart';
+import 'package:kivixa/data/project_storage.dart';
+import 'package:kivixa/services/notification_sound_catalog_service.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:url_launcher/url_launcher.dart';
@@ -13,12 +20,44 @@ class NotificationService {
 
   static final instance = NotificationService._();
 
-  final _notifications = FlutterLocalNotificationsPlugin();
+  final _defaultNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  static const _legacyLeadTimesInMinutes = <int>[
+    5,
+    10,
+    15,
+    30,
+    60,
+    120,
+    1440,
+    2880,
+  ];
+
+  @visibleForTesting
+  FlutterLocalNotificationsPlugin? notificationsPluginOverride;
+
+  FlutterLocalNotificationsPlugin get _notifications =>
+      notificationsPluginOverride ?? _defaultNotificationsPlugin;
+
+  static const _dismissActionId = 'dismiss_notification';
+
+  // Android Notification.FLAG_INSISTENT = 4
+  // Causes the notification sound/vibration to repeat until cancelled
+  static const _androidFlagInsistent = 4;
 
   var _initialized = false;
 
+  @visibleForTesting
+  void resetForTesting() {
+    _initialized = false;
+    notificationsPluginOverride = null;
+  }
+
+  @visibleForTesting
+  static bool? forceIsSupported;
+
   /// Returns true if notifications are supported on the current platform
-  static bool get isSupported => Platform.isAndroid || Platform.isIOS;
+  static bool get isSupported =>
+      forceIsSupported ?? (Platform.isAndroid || Platform.isIOS);
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -68,6 +107,14 @@ class NotificationService {
   }
 
   static void _processNotificationAction(NotificationResponse response) {
+    if (response.actionId == _dismissActionId) {
+      final notificationId = response.id;
+      if (notificationId != null) {
+        unawaited(instance.cancelNotification(notificationId));
+      }
+      return;
+    }
+
     final payload = response.payload;
     if (payload == null) return;
 
@@ -92,15 +139,139 @@ class NotificationService {
 
   static Future<void> _completeTask(String eventId) async {
     final events = await CalendarStorage.loadEvents();
-    final event = events.firstWhere((e) => e.id == eventId);
+    final index = events.indexWhere((e) => e.id == eventId);
+    if (index == -1) {
+      return;
+    }
+    final event = events[index];
     final updated = event.copyWith(isCompleted: true);
     await CalendarStorage.updateEvent(updated);
+  }
+
+  DateTime _resolveEventNotificationDate(
+    CalendarEvent event,
+    NotificationSettings settings,
+  ) {
+    if (!settings.exactTimeNotificationsEnabled || event.isAllDay) {
+      return DateTime(event.date.year, event.date.month, event.date.day, 9, 0);
+    }
+
+    final eventTime = event.type == EventType.task
+        ? (event.endTime ?? event.startTime)
+        : event.startTime;
+
+    return DateTime(
+      event.date.year,
+      event.date.month,
+      event.date.day,
+      eventTime?.hour ?? 9,
+      eventTime?.minute ?? 0,
+    );
+  }
+
+  String _formatLeadTime(int leadMinutes) {
+    if (leadMinutes % 1440 == 0) {
+      final days = leadMinutes ~/ 1440;
+      return days == 1 ? 'in 1 day' : 'in $days days';
+    }
+    if (leadMinutes % 60 == 0) {
+      final hours = leadMinutes ~/ 60;
+      return hours == 1 ? 'in 1 hour' : 'in $hours hours';
+    }
+    return 'in $leadMinutes minutes';
+  }
+
+  String _channelIdForSettings(
+    String channelPrefix,
+    NotificationSettings settings,
+    String soundIdentity,
+  ) {
+    return '${channelPrefix}_${settings.notificationFeedbackMode.storageKey}_$soundIdentity';
+  }
+
+  bool _shouldPlaySound(NotificationSettings settings) {
+    return settings.notificationSoundEnabled;
+  }
+
+  bool _shouldVibrate(NotificationSettings settings) {
+    return settings.notificationVibrationEnabled;
+  }
+
+  Future<AndroidNotificationSound?> _resolveAndroidReminderSound(
+    NotificationSettings settings,
+    bool shouldPlaySound,
+  ) async {
+    if (!shouldPlaySound) {
+      return null;
+    }
+
+    final path = await NotificationSoundCatalogService.instance
+        .localPathForReminderSound(settings.reminderSoundId);
+    if (path == null || path.trim().isEmpty) {
+      return const RawResourceAndroidNotificationSound('kivixa_notification');
+    }
+
+    return UriAndroidNotificationSound(Uri.file(path).toString());
+  }
+
+  AudioAttributesUsage _resolveAudioAttributesUsage(bool playSound) {
+    return playSound
+        ? AudioAttributesUsage.alarm
+        : AudioAttributesUsage.notification;
+  }
+
+  Int64List _shortNotificationVibrationPattern() {
+    return Int64List.fromList([0, 180]);
+  }
+
+  Int64List _longReminderVibrationPattern() {
+    final pattern = <int>[0];
+    var elapsedMs = 0;
+
+    while (elapsedMs < 60000) {
+      final vibrate = min(450, 60000 - elapsedMs);
+      pattern.add(vibrate);
+      elapsedMs += vibrate;
+
+      if (elapsedMs >= 60000) {
+        break;
+      }
+
+      final pause = min(350, 60000 - elapsedMs);
+      pattern.add(pause);
+      elapsedMs += pause;
+    }
+
+    return Int64List.fromList(pattern);
+  }
+
+  String _eventNotificationTitle(CalendarEvent event) {
+    return event.type == EventType.event
+        ? 'Event: ${event.title}'
+        : 'Task: ${event.title}';
+  }
+
+  String? _eventPayload(CalendarEvent event) {
+    if (event.meetingLink != null) {
+      return 'open_link|${event.meetingLink}';
+    }
+    if (event.type == EventType.task) {
+      return 'complete_task|${event.id}';
+    }
+    return null;
+  }
+
+  int _projectDeadlineNotificationId(String projectId) {
+    return 'project_${projectId}_deadline'.hashCode;
+  }
+
+  int _projectLeadNotificationId(String projectId, int leadMinutes) {
+    return 'project_${projectId}_lead_$leadMinutes'.hashCode;
   }
 
   Future<void> scheduleEventNotification(CalendarEvent event) async {
     final settings = await NotificationSettingsStorage.loadSettings();
 
-    if (!settings.notificationsEnabled) return;
     if (event.type == EventType.event && !settings.eventNotificationsEnabled) {
       return;
     }
@@ -108,51 +279,37 @@ class NotificationService {
       return;
     }
 
-    if (event.isAllDay) {
-      // Schedule for 9 AM on the day
-      await _scheduleNotification(
-        id: event.id.hashCode,
-        title: event.type == EventType.event
-            ? 'Event: ${event.title}'
-            : 'Task: ${event.title}',
-        body: event.description ?? '',
-        scheduledDate: DateTime(
-          event.date.year,
-          event.date.month,
-          event.date.day,
-          9,
-          0,
-        ),
-        payload: event.meetingLink != null
-            ? 'open_link|${event.meetingLink}'
-            : (event.type == EventType.task
-                  ? 'complete_task|${event.id}'
-                  : null),
-        actions: _buildNotificationActions(event),
-      );
-    } else {
-      // Schedule for exact start time
-      final scheduledDate = DateTime(
-        event.date.year,
-        event.date.month,
-        event.date.day,
-        event.startTime!.hour,
-        event.startTime!.minute,
-      );
+    final scheduledDate = _resolveEventNotificationDate(event, settings);
 
+    await _scheduleNotification(
+      id: event.id.hashCode,
+      title: _eventNotificationTitle(event),
+      body: event.description ?? '',
+      scheduledDate: scheduledDate,
+      payload: _eventPayload(event),
+      actions: _buildNotificationActions(event),
+      settings: settings,
+      channelIdPrefix: 'calendar_notifications',
+      channelName: 'Calendar Notifications',
+      channelDescription: 'Notifications for calendar events and tasks',
+    );
+
+    for (final leadMinutes in settings.leadTimesInMinutes) {
+      final leadDate = scheduledDate.subtract(Duration(minutes: leadMinutes));
       await _scheduleNotification(
-        id: event.id.hashCode,
-        title: event.type == EventType.event
-            ? 'Event: ${event.title}'
-            : 'Task: ${event.title}',
-        body: event.description ?? '',
-        scheduledDate: scheduledDate,
-        payload: event.meetingLink != null
-            ? 'open_link|${event.meetingLink}'
-            : (event.type == EventType.task
-                  ? 'complete_task|${event.id}'
-                  : null),
+        id: '${event.id}_lead_$leadMinutes'.hashCode,
+        title: event.type == EventType.task
+            ? 'Task Due Soon: ${event.title}'
+            : 'Upcoming Event: ${event.title}',
+        body:
+            'Reminder ${_formatLeadTime(leadMinutes)}${event.description == null || event.description!.isEmpty ? '' : '\n${event.description}'}',
+        scheduledDate: leadDate,
+        payload: _eventPayload(event),
         actions: _buildNotificationActions(event),
+        settings: settings,
+        channelIdPrefix: 'calendar_notifications',
+        channelName: 'Calendar Notifications',
+        channelDescription: 'Notifications for calendar events and tasks',
       );
     }
 
@@ -190,13 +347,72 @@ class NotificationService {
     return actions;
   }
 
+  Future<void> scheduleProjectDeadlineNotification(Project project) async {
+    final deadline = project.deadline;
+    if (deadline == null) return;
+    if (project.status == ProjectStatus.completed) return;
+
+    final settings = await NotificationSettingsStorage.loadSettings();
+    if (!settings.projectDeadlineNotificationsEnabled) {
+      return;
+    }
+
+    final scheduledDate = settings.exactTimeNotificationsEnabled
+        ? deadline
+        : DateTime(deadline.year, deadline.month, deadline.day, 9, 0);
+
+    await _scheduleNotification(
+      id: _projectDeadlineNotificationId(project.id),
+      title: 'Project Deadline: ${project.title}',
+      body: (project.description?.trim().isNotEmpty ?? false)
+          ? project.description!
+          : 'Deadline reached for this project.',
+      scheduledDate: scheduledDate,
+      settings: settings,
+      channelIdPrefix: 'project_notifications',
+      channelName: 'Project Deadlines',
+      channelDescription: 'Notifications for project deadlines and reminders',
+    );
+
+    for (final leadMinutes in settings.leadTimesInMinutes) {
+      final leadDate = scheduledDate.subtract(Duration(minutes: leadMinutes));
+      await _scheduleNotification(
+        id: _projectLeadNotificationId(project.id, leadMinutes),
+        title: 'Upcoming Deadline: ${project.title}',
+        body: 'Project deadline ${_formatLeadTime(leadMinutes)}.',
+        scheduledDate: leadDate,
+        settings: settings,
+        channelIdPrefix: 'project_notifications',
+        channelName: 'Project Deadlines',
+        channelDescription: 'Notifications for project deadlines and reminders',
+      );
+    }
+  }
+
+  Future<void> cancelProjectDeadlineNotifications(Project project) async {
+    if (!isSupported) return;
+
+    await cancelNotification(_projectDeadlineNotificationId(project.id));
+
+    final settings = await NotificationSettingsStorage.loadSettings();
+    final leadTimes = <int>{
+      ..._legacyLeadTimesInMinutes,
+      ...settings.leadTimesInMinutes,
+    };
+
+    for (final leadMinutes in leadTimes) {
+      await cancelNotification(
+        _projectLeadNotificationId(project.id, leadMinutes),
+      );
+    }
+  }
+
   Future<void> scheduleOverdueNotification(CalendarEvent event) async {
     if (event.type != EventType.task) return;
     if (event.isCompleted) return;
 
     final settings = await NotificationSettingsStorage.loadSettings();
-    if (!settings.notificationsEnabled ||
-        !settings.overdueNotificationsEnabled) {
+    if (!settings.overdueNotificationsEnabled) {
       return;
     }
 
@@ -224,15 +440,20 @@ class NotificationService {
           showsUserInterface: false,
         ),
       ],
+      settings: settings,
+      channelIdPrefix: 'calendar_overdue',
+      channelName: 'Overdue Task Notifications',
+      channelDescription: 'Daily reminders for overdue tasks',
     );
 
     // Schedule daily reminder at 9 AM until completed
-    await _scheduleDailyOverdueReminder(event, overdueDate);
+    await _scheduleDailyOverdueReminder(event, overdueDate, settings);
   }
 
   Future<void> _scheduleDailyOverdueReminder(
     CalendarEvent event,
     DateTime overdueDate,
+    NotificationSettings settings,
   ) async {
     // Schedule for next 7 days
     for (int i = 1; i <= 7; i++) {
@@ -257,6 +478,10 @@ class NotificationService {
             showsUserInterface: false,
           ),
         ],
+        settings: settings,
+        channelIdPrefix: 'calendar_overdue',
+        channelName: 'Overdue Task Notifications',
+        channelDescription: 'Daily reminders for overdue tasks',
       );
     }
   }
@@ -266,6 +491,11 @@ class NotificationService {
     required String title,
     required String body,
     required DateTime scheduledDate,
+    required NotificationSettings settings,
+    required String channelIdPrefix,
+    required String channelName,
+    required String channelDescription,
+    bool longVibrationAlert = true,
     String? payload,
     List<AndroidNotificationAction>? actions,
   }) async {
@@ -275,16 +505,62 @@ class NotificationService {
     // Don't schedule notifications in the past
     if (scheduledDate.isBefore(DateTime.now())) return;
 
+    final playSound = _shouldPlaySound(settings);
+    final enableVibration = _shouldVibrate(settings);
+    final sound = await _resolveAndroidReminderSound(settings, playSound);
+    final vibrationPattern = enableVibration
+        ? (longVibrationAlert
+              ? _longReminderVibrationPattern()
+              : _shortNotificationVibrationPattern())
+        : null;
+
+    final effectiveActions = <AndroidNotificationAction>[...?actions];
+    if (!effectiveActions.any((action) => action.id == _dismissActionId)) {
+      effectiveActions.add(
+        const AndroidNotificationAction(
+          _dismissActionId,
+          'Dismiss',
+          showsUserInterface: false,
+        ),
+      );
+    }
+
+    final soundIdentity = playSound ? settings.reminderSoundId : 'sound_off';
+
     final androidDetails = AndroidNotificationDetails(
-      'calendar_notifications',
-      'Calendar Notifications',
-      channelDescription: 'Notifications for calendar events and tasks',
+      _channelIdForSettings(channelIdPrefix, settings, soundIdentity),
+      channelName,
+      channelDescription: channelDescription,
       importance: Importance.high,
       priority: Priority.high,
-      actions: actions,
+      playSound: playSound,
+      sound: sound,
+      audioAttributesUsage: _resolveAudioAttributesUsage(playSound),
+      enableVibration: enableVibration,
+      vibrationPattern: vibrationPattern,
+      timeoutAfter: longVibrationAlert ? 60000 : null,
+      actions: effectiveActions,
+      additionalFlags: longVibrationAlert
+          ? Int32List.fromList([_androidFlagInsistent])
+          : null, // FLAG_INSISTENT
     );
 
-    final notificationDetails = NotificationDetails(android: androidDetails);
+    final soundFileName = playSound
+        ? NotificationSoundCatalogService.instance
+              .optionById(settings.reminderSoundId)
+              .fileName
+        : null;
+
+    final darwinDetails = DarwinNotificationDetails(
+      sound: playSound ? (soundFileName ?? 'kivixa_notification.mp3') : null,
+      presentSound: playSound,
+    );
+
+    final notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
+    );
 
     await _notifications.zonedSchedule(
       id,
@@ -306,6 +582,16 @@ class NotificationService {
     if (!isSupported) return;
     await cancelNotification(event.id.hashCode);
 
+    final settings = await NotificationSettingsStorage.loadSettings();
+    final leadTimes = <int>{
+      ..._legacyLeadTimesInMinutes,
+      ...settings.leadTimesInMinutes,
+    };
+
+    for (final leadMinutes in leadTimes) {
+      await cancelNotification('${event.id}_lead_$leadMinutes'.hashCode);
+    }
+
     // Cancel overdue notifications
     for (int i = 1; i <= 7; i++) {
       await cancelNotification('${event.id}_overdue_$i'.hashCode);
@@ -315,19 +601,13 @@ class NotificationService {
 
   Future<void> rescheduleAllNotifications() async {
     final events = await CalendarStorage.loadEvents();
+    final projects = await ProjectStorage.loadProjects();
     final now = DateTime.now();
+    final settings = await NotificationSettingsStorage.loadSettings();
 
     for (final event in events) {
       // Only schedule future events/tasks
-      final eventDateTime = event.isAllDay
-          ? DateTime(event.date.year, event.date.month, event.date.day, 9, 0)
-          : DateTime(
-              event.date.year,
-              event.date.month,
-              event.date.day,
-              event.startTime?.hour ?? 9,
-              event.startTime?.minute ?? 0,
-            );
+      final eventDateTime = _resolveEventNotificationDate(event, settings);
 
       if (eventDateTime.isAfter(now)) {
         await scheduleEventNotification(event);
@@ -347,6 +627,10 @@ class NotificationService {
           await scheduleOverdueNotification(event);
         }
       }
+    }
+
+    for (final project in projects) {
+      await scheduleProjectDeadlineNotification(project);
     }
   }
 

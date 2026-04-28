@@ -1,0 +1,38 @@
+# .codecov.yml
+codecov:
+  notify:
+    after_n_builds: 4 # Wait for Flutter + 3 Rust modules to finish
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        target: auto
+        threshold: 0%
+
+# Organizes reports by module so you can see which part of the app is missing tests
+flag_management:
+  default_rules:
+    carryforward: true
+  individual_flags:
+    - name: flutter_app
+      paths:
+        - lib/
+    - name: native
+      paths:
+        - native/
+    - name: native_math
+      paths:
+        - native_math/
+    - name: native_audio
+      paths:
+        - native_audio/
+
+comment:
+  layout: "reach,diff,flags,files"
+  behavior: default
+  require_changes: false

@@ -10,14 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
 import 'package:kivixa/services/audio/audio_playback_service.dart';
+import 'package:kivixa/services/audio/voice_preference_utils.dart';
 
-enum AudioVoiceProfile { female, male, custom }
-
-AudioVoiceProfile audioVoiceProfileFromPref(int value) {
-  if (value <= 0) return AudioVoiceProfile.female;
-  if (value == 1) return AudioVoiceProfile.male;
-  return AudioVoiceProfile.custom;
-}
+export 'package:kivixa/services/audio/voice_preference_utils.dart'
+    show AudioVoiceProfile, audioVoiceProfileFromPref, selectPreferredVoiceId;
 
 T _readAudioPref<T>(T Function() reader, T fallback) {
   try {
@@ -33,55 +29,6 @@ void _writeAudioPref(void Function() writer) {
   } catch (_) {
     // Ignore when prefs are not initialized (for example in isolated tests).
   }
-}
-
-String? selectPreferredVoiceId(
-  List<VoiceStyle> voices,
-  AudioVoiceProfile profile, {
-  String? customVoiceId,
-}) {
-  if (voices.isEmpty) return null;
-
-  if (profile == AudioVoiceProfile.custom &&
-      customVoiceId != null &&
-      customVoiceId.isNotEmpty) {
-    final customMatch = voices.where((voice) => voice.id == customVoiceId);
-    if (customMatch.isNotEmpty) {
-      return customMatch.first.id;
-    }
-  }
-
-  bool isMaleVoice(VoiceStyle voice) {
-    final id = voice.id.toLowerCase();
-    final name = voice.name.toLowerCase();
-    final malePattern = RegExp(r'(^|[^a-z])male([^a-z]|$)');
-    return id.startsWith('am_') ||
-        id.startsWith('bm_') ||
-        malePattern.hasMatch(id) ||
-        malePattern.hasMatch(name);
-  }
-
-  bool isFemaleVoice(VoiceStyle voice) {
-    final id = voice.id.toLowerCase();
-    final name = voice.name.toLowerCase();
-    final femalePattern = RegExp(r'(^|[^a-z])female([^a-z]|$)');
-    return id.startsWith('af_') ||
-        id.startsWith('bf_') ||
-        femalePattern.hasMatch(id) ||
-        femalePattern.hasMatch(name);
-  }
-
-  final preferred = switch (profile) {
-    AudioVoiceProfile.male => voices.where(isMaleVoice),
-    AudioVoiceProfile.female => voices.where(isFemaleVoice),
-    AudioVoiceProfile.custom => const Iterable<VoiceStyle>.empty(),
-  };
-
-  if (preferred.isNotEmpty) {
-    return preferred.first.id;
-  }
-
-  return voices.first.id;
 }
 
 /// Read aloud controller for managing TTS playback
@@ -250,25 +197,21 @@ class ReadAloudController extends ChangeNotifier {
     _progress = _currentSentenceIndex / _sentences.length;
     notifyListeners();
 
-    final result = await _engine.synthesize(
-      _currentSentence,
-      voiceId: _voiceId,
-    );
-    if (result != null) {
-      await _playback.playSynthesis(result);
+    await _playback.speak(_currentSentence, voiceId: _voiceId);
 
-      // Wait for completion
-      while (_playback.state.value == PlaybackState.playing && _isPlaying) {
-        await Future.delayed(const Duration(milliseconds: 50));
-      }
+    // Wait for completion
+    while (_isPlaying &&
+        (_playback.state.value == PlaybackState.loading ||
+            _playback.state.value == PlaybackState.playing)) {
+      await Future.delayed(const Duration(milliseconds: 50));
+    }
 
-      // Move to next sentence if still playing
-      if (_isPlaying && _currentSentenceIndex < _sentences.length - 1) {
-        _currentSentenceIndex++;
-        await _playCurrentSentence();
-      } else if (_currentSentenceIndex >= _sentences.length - 1) {
-        stop();
-      }
+    // Move to next sentence if still playing
+    if (_isPlaying && _currentSentenceIndex < _sentences.length - 1) {
+      _currentSentenceIndex++;
+      await _playCurrentSentence();
+    } else if (_currentSentenceIndex >= _sentences.length - 1) {
+      stop();
     }
   }
 

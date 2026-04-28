@@ -39,34 +39,23 @@ void main() {
     });
   });
 
-  // Tests with animations and native deps are skipped individually
   group('WalkieTalkieMode', () {
-    testWidgets('should render', (tester) async {
-      // Skip - has repeating animations and native deps
-    }, skip: true); // Has repeating animations and native deps
+    test('should accept onSendMessage callback', () {
+      Future<String> sendMessage(String input) async => 'echo:$input';
 
-    testWidgets(
-      'should accept onSendMessage callback',
-      (tester) async {
-        // Skip - has repeating animations and native deps
-      },
-      skip: true, // Has repeating animations and native deps
-    );
+      final widget = WalkieTalkieMode(onSendMessage: sendMessage);
+      expect(widget.onSendMessage, same(sendMessage));
+    });
 
-    testWidgets(
-      'should accept onClose callback',
-      (tester) async {
-        // Skip - has repeating animations and native deps
-      },
-      skip: true, // Has repeating animations and native deps
-    );
+    test('should accept optional onExit callback', () {
+      void onExit() {}
 
-    testWidgets(
-      'should accept title parameter',
-      (tester) async {
-        // Skip - has repeating animations and native deps
-      },
-      skip: true, // Has repeating animations and native deps
-    );
+      final widget = WalkieTalkieMode(
+        onSendMessage: (input) async => input,
+        onExit: onExit,
+      );
+
+      expect(widget.onExit, same(onExit));
+    });
   });
 }

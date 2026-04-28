@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/ai/chat_interface.dart';
+import 'package:kivixa/components/ai/mcp_chat_controller.dart';
 import 'package:kivixa/components/overlay/assistant_window.dart';
+import 'package:kivixa/services/ai/chat_attachment_service.dart';
 import 'package:kivixa/services/ai/inference_service.dart';
 import 'package:kivixa/services/ai/model_manager.dart';
 import 'package:kivixa/services/overlay/overlay_controller.dart';
@@ -53,6 +55,45 @@ class _FakeModelGateway implements ChatModelGateway {
   void setCurrentlyLoadedModel(String? modelId) {}
 }
 
+class _FakeMcpChatController extends Fake implements MCPChatController {
+  _FakeMcpChatController(List<MCPChatMessage> initialMessages)
+    : _messages = List<MCPChatMessage>.from(initialMessages);
+
+  final List<MCPChatMessage> _messages;
+
+  @override
+  List<MCPChatMessage> get messages => List.unmodifiable(_messages);
+
+  @override
+  bool get isGenerating => false;
+
+  @override
+  void addListener(VoidCallback listener) {}
+
+  @override
+  void removeListener(VoidCallback listener) {}
+
+  @override
+  Future<void> sendMessage(
+    String content, {
+    BuildContext? context,
+    List<ChatAttachment> attachments = const <ChatAttachment>[],
+  }) async {}
+
+  @override
+  void clearMessages() {
+    _messages.clear();
+  }
+
+  @override
+  Future<void> retryLastMessage({BuildContext? context}) async {}
+
+  @override
+  String exportConversationAsJson({String sessionType = 'mcp-chat'}) {
+    return '{"sessionType":"$sessionType"}';
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -69,23 +110,38 @@ void main() {
       modelGateway: _FakeModelGateway(model),
       autoInitialize: false,
     );
+    final mcpChatController = _FakeMcpChatController(const <MCPChatMessage>[]);
     await chatController.switchModel(model);
 
     OverlayController.instance.openAssistant();
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(body: AssistantWindow(chatController: chatController)),
+        home: Scaffold(
+          body: AssistantWindow(
+            chatController: chatController,
+            mcpChatController: mcpChatController,
+          ),
+        ),
       ),
     );
     await tester.pumpAndSettle();
 
+    expect(find.text('Summarize'), findsNothing);
+    expect(find.text('Code'), findsNothing);
+    expect(find.text('Ideas'), findsNothing);
+    expect(find.text('MCP Mode'), findsNothing);
+    expect(find.text(model.name), findsOneWidget);
+    expect(find.byTooltip('Export chat as JSON'), findsOneWidget);
     expect(find.byTooltip('Add attachments'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Enable MCP Tools'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Kivixa MCP Assistant'), findsOneWidget);
+    expect(find.byTooltip('Switch to AI Chat'), findsOneWidget);
+    expect(find.text('Kivixa MCP Assistant'), findsNothing);
+    expect(find.text(model.name), findsNothing);
+    expect(find.byTooltip('Export chat as JSON'), findsOneWidget);
     expect(find.byTooltip('Add attachments'), findsOneWidget);
 
     chatController.dispose();

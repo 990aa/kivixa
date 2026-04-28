@@ -7,19 +7,24 @@ class TermsAndConditionsService {
   static const _termsAcceptedDateKey = 'termsAcceptedDate';
 
   /// Current version of the terms and conditions
-  /// Bump this when terms are updated to require re-acceptance
-  static const currentTermsVersion = '0.7.1';
+  /// Used for tracking when acceptance occurred.
+  /// Version changes no longer force a blocking re-acceptance popup.
+  static const currentTermsVersion = '0.8.26';
 
-  /// Check if user has accepted the current terms
+  /// Check if user has accepted terms at least once.
   static Future<bool> hasAcceptedTerms() async {
     final prefs = await SharedPreferences.getInstance();
     final accepted = prefs.getBool(_termsAcceptedKey) ?? false;
 
     if (!accepted) return false;
 
-    // Check if terms version matches
+    // Keep version tracking up to date without re-gating app usage.
     final acceptedVersion = prefs.getString(_termsAcceptedVersionKey);
-    return acceptedVersion == currentTermsVersion;
+    if (acceptedVersion != currentTermsVersion) {
+      await prefs.setString(_termsAcceptedVersionKey, currentTermsVersion);
+    }
+
+    return true;
   }
 
   /// Record that user has accepted the terms
