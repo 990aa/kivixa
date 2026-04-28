@@ -42,9 +42,23 @@ class MediaService {
   /// Initialize the media service directories
   Future<void> init() async {
     final appDir = await getApplicationDocumentsDirectory();
-    _mediaDir = Directory('${appDir.path}/kivixa/assets/media');
-    _thumbnailDir = Directory('${appDir.path}/kivixa/assets/thumbnails');
-    _webCacheDir = Directory('${appDir.path}/kivixa/assets/web_cache');
+    await initWithDirectories(
+      mediaDir: Directory('${appDir.path}/kivixa/assets/media'),
+      thumbnailDir: Directory('${appDir.path}/kivixa/assets/thumbnails'),
+      webCacheDir: Directory('${appDir.path}/kivixa/assets/web_cache'),
+    );
+  }
+
+  /// Initialize with specific directories, used for testing.
+  @visibleForTesting
+  Future<void> initWithDirectories({
+    required Directory mediaDir,
+    required Directory thumbnailDir,
+    required Directory webCacheDir,
+  }) async {
+    _mediaDir = mediaDir;
+    _thumbnailDir = thumbnailDir;
+    _webCacheDir = webCacheDir;
 
     await _mediaDir!.create(recursive: true);
     await _thumbnailDir!.create(recursive: true);
@@ -250,10 +264,16 @@ class MediaService {
 
     try {
       if (_webCacheDir!.existsSync()) {
-        await for (final entity in _webCacheDir!.list()) {
-          if (entity is File) {
-            await entity.delete();
-          }
+        final entities = await _webCacheDir!.list().toList();
+        final files = entities.whereType<File>().toList();
+
+        // Batch deletions to avoid exhausting OS file-descriptor limits on
+        // large caches; 50 concurrent deletes balances parallelism with
+        // resource usage.
+        const batchSize = 50;
+        for (var i = 0; i < files.length; i += batchSize) {
+          final batch = files.skip(i).take(batchSize);
+          await Future.wait(batch.map((file) => file.delete()));
         }
         _log.info('Web cache cleared');
       }
@@ -268,13 +288,34 @@ class MediaService {
   Future<int> getWebCacheSize() async {
     if (_webCacheDir == null || !_webCacheDir!.existsSync()) return 0;
 
-    var size = 0;
-    await for (final entity in _webCacheDir!.list()) {
-      if (entity is File) {
-        size += await entity.length();
+    try {
+      final entities = await _webCacheDir!.list().toList();
+      final files = entities.whereType<File>().toList();
+
+      var totalSize = 0;
+      // Batch length requests to avoid FD limits.
+      const batchSize = 50;
+      for (var i = 0; i < files.length; i += batchSize) {
+        final batch = files.skip(i).take(batchSize);
+        // Per-file error handling: a single failing length() call doesn't abort the batch.
+        final sizes = await Future.wait(
+          batch.map((file) async {
+            try {
+              return await file.length();
+            } catch (e) {
+              _log.fine('Failed to get length for ${file.path}: $e');
+              return 0;
+            }
+          }),
+        );
+        totalSize += sizes.fold(0, (sum, size) => sum + size);
       }
+
+      return totalSize;
+    } catch (e) {
+      _log.warning('Error getting web cache size: $e');
+      return 0;
     }
-    return size;
   }
 
   /// Delete media associated with a deleted note
@@ -282,7 +323,22 @@ class MediaService {
   Future<void> deleteOrphanedMedia(List<String> mediaPaths) async {
     if (!stows.deleteMediaWithNote.value) return;
 
-    for (final mediaPath in mediaPaths) {
+    // List thumbnails once to avoid repeated directory scans per media item.
+    // Wrapped in try/catch so a listing failure (e.g. permission denied) does
+    // not abort the whole cleanup; per-media errors are still handled below.
+    final List<FileSystemEntity> thumbnailEntities;
+    try {
+      if (_thumbnailDir != null && _thumbnailDir!.existsSync()) {
+        thumbnailEntities = await _thumbnailDir!.list().toList();
+      } else {
+        thumbnailEntities = const [];
+      }
+    } catch (e) {
+      _log.warning('Failed to list thumbnail directory, skipping thumbnail cleanup: $e');
+      thumbnailEntities = const [];
+    }
+
+
       try {
         // Only delete files within our media directory
         if (mediaPath.startsWith(_mediaDir?.path ?? '')) {
@@ -294,13 +350,26 @@ class MediaService {
         }
 
         // Also delete thumbnail if exists
-        final thumbName = '${mediaPath.hashCode.toRadixString(16)}*.thumb';
-        if (_thumbnailDir != null && _thumbnailDir!.existsSync()) {
-          await for (final entity in _thumbnailDir!.list()) {
-            if (entity is File && entity.path.contains(thumbName)) {
-              await entity.delete();
-            }
-          }
+        if (thumbnailEntities.isNotEmpty) {
+          final thumbPrefix = '${mediaPath.hashCode.toRadixString(16)}_';
+          await Future.wait(
+            thumbnailEntities
+                .whereType<File>()
+                .where((entity) {
+                  final name = path.basename(entity.path);
+                  return name.startsWith(thumbPrefix) && name.endsWith('.thumb');
+                })
+                .map((entity) async {
+                  try {
+                    // Check existence to avoid exceptions if already deleted (e.g. duplicates)
+                    if (await entity.exists()) {
+                      await entity.delete();
+                    }
+                  } catch (e) {
+                    _log.fine('Failed to delete thumbnail ${entity.path}: $e');
+                  }
+                }),
+          );
         }
       } catch (e) {
         _log.warning('Error deleting orphaned media: $e');
