@@ -14,8 +14,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Check out the base branch of the PR so we have the labeler.yml config
-          ref: ${{ github.base_ref }}
+          # For testing the labeler fix, check out the PR head
+          ref: ${{ github.head_ref }}
           sparse-checkout: |
             .github/labeler.yml
           sparse-checkout-cone-mode: false
