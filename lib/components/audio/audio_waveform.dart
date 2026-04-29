@@ -3,10 +3,12 @@
 // Visualizes audio amplitude in real-time.
 
 import 'dart:math' as math;
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
+import 'package:kivixa/services/sleep_wake_controller.dart';
 
 /// Waveform display style
 enum WaveformStyle {
@@ -66,9 +68,45 @@ class AudioWaveform extends StatefulWidget {
 }
 
 class _AudioWaveformState extends State<AudioWaveform>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, SleepAwareMixin {
   late AnimationController _idleController;
   AudioVisualizerData _currentData = AudioVisualizerData.empty;
+  StreamSubscription<AudioVisualizerData>? _visualizerSubscription;
+
+  @override
+  String get sleepComponentId => 'audio_waveform_${widget.key?.hashCode ?? hashCode}';
+
+  @override
+  Future<SleepState> captureState() async {
+    return {
+      'isAnimating': _idleController.isAnimating,
+      'progress': _idleController.value,
+    };
+  }
+
+  @override
+  Future<void> restoreState(SleepState state) async {
+    final progress = state['progress'] as double?;
+    final isAnimating = state['isAnimating'] as bool? ?? false;
+    
+    if (progress != null) {
+      _idleController.value = progress;
+    }
+    if (isAnimating && widget.animateIdle) {
+      _idleController.repeat(reverse: true);
+    }
+  }
+
+  @override
+  Future<void> onSleep(SleepState state) async {
+    _idleController.stop();
+    _visualizerSubscription?.pause();
+  }
+
+  @override
+  Future<void> onWake(SleepState state) async {
+    _visualizerSubscription?.resume();
+  }
 
   @override
   void initState() {
@@ -84,8 +122,8 @@ class _AudioWaveformState extends State<AudioWaveform>
 
     // Listen to visualizer stream
     final stream = widget.dataStream ?? AudioNeuralEngine().visualizerStream;
-    stream.listen((data) {
-      if (mounted) {
+    _visualizerSubscription = stream.listen((data) {
+      if (mounted && !isAsleep) {
         setState(() => _currentData = data);
       }
     });
@@ -93,6 +131,7 @@ class _AudioWaveformState extends State<AudioWaveform>
 
   @override
   void dispose() {
+    _visualizerSubscription?.cancel();
     _idleController.dispose();
     super.dispose();
   }

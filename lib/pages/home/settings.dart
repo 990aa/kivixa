@@ -36,6 +36,7 @@ import 'package:kivixa/services/productivity/chained_routine_service.dart';
 import 'package:kivixa/services/productivity/productivity_timer_service.dart';
 import 'package:kivixa/services/quick_notes/quick_notes_service.dart';
 import 'package:stow/stow.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -923,19 +924,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     SettingsButton(
                       title: t.settings.openDataDir,
                       icon: Icons.folder_open,
-                      onPressed: () {
-                        if (Platform.isWindows) {
-                          Process.run('explorer', [
-                            FileManager.documentsDirectory,
-                          ]);
-                        } else if (Platform.isLinux) {
-                          Process.run('xdg-open', [
-                            FileManager.documentsDirectory,
-                          ]);
-                        } else if (Platform.isMacOS) {
-                          Process.run('open', [FileManager.documentsDirectory]);
-                        }
-                      },
+                      onPressed: () =>
+                          launchUrl(Uri.file(FileManager.documentsDirectory)),
                     ),
                 ],
                 if (showExtensions) ...[

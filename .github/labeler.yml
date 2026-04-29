@@ -1,26 +1,51 @@
+# Configuration for actions/labeler
+
+# Rust-related changes
 rust:
-  - native/**/*
-  - native_math/**/*
-  - native_audio/**/*
-  - rust_builder/**/*
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'native/**/*'
+      - 'native_audio/**/*'
+      - 'native_math/**/*'
+      - 'rust_builder/**/*'
+
+# Dart / Flutter files
+dart:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'lib/**/*.dart'
+      - 'test/**/*.dart'
+      - 'pubspec.yaml'
 
 flutter:
-  - lib/**/*
-  - assets/**/*
-  - pubspec.yaml
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'lib/**/*'
+      - 'assets/**/*'
 
+# Android, iOS, Windows, Linux
 android:
-  - android/**/*
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'android/**/*'
 
 ios:
-  - ios/**/*
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'ios/**/*'
 
 windows:
-  - windows/**/*
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'windows/**/*'
 
 linux:
-  - linux/**/*
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'linux/**/*'
 
+# CI workflow changes
 ci:
-  - .github/workflows/**/*
-  
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/workflows/**/*'
