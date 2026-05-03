@@ -237,7 +237,7 @@ jobs:
           cargo llvm-cov --manifest-path ${{ matrix.crate }}/Cargo.toml --all-features --lcov --output-path lcov-${{ matrix.crate }}.info --ignore-filename-regex '.*\.g\.rs|.*\.freezed\.rs'
 
       - name: Upload Rust coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: rust-coverage-${{ matrix.crate }}
           path: lcov-${{ matrix.crate }}.info
