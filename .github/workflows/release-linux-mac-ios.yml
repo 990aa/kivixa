@@ -584,7 +584,7 @@ jobs:
           TAG_NAME: ${{ needs.extract-version.outputs.tag_name }}
         run: |
           echo "Polling for release with tag: $TAG_NAME"
-          MAX_ATTEMPTS=30   # 30 × 60 s = 30 minutes max wait
+          MAX_ATTEMPTS=30   # 30 × 120 s = 3600 s = 60 minutes max wait
           ATTEMPT=0
 
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
@@ -604,7 +604,7 @@ jobs:
               exit 0
             fi
 
-            sleep 60
+            sleep 120
           done
 
           echo "[ERROR] Release not found after $MAX_ATTEMPTS attempts."
