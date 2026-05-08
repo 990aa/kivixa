@@ -478,4 +478,4 @@ keydname: CN=runnervmymu0l.ak4m3v4snh5uzga43viiloyuah.ex.internal.cloudapp.net, 
 # every run, set this to true:
 #
 # refresh_scanner: true
-archive_older: 3
+archive_older: 15
