@@ -93,9 +93,9 @@ dependencies {
 
 configurations.all {
     resolutionStrategy {
-        force("androidx.core:core:1.13.1")
-        force("androidx.core:core-ktx:1.13.1")
-        force("androidx.browser:browser:1.8.0")
+        force("androidx.core:core:1.18.0")
+        force("androidx.core:core-ktx:1.18.0")
+        force("androidx.browser:browser:1.10.0")
     }
 }
 
