@@ -198,7 +198,7 @@ class TranslationsSettings {
   List<String> get axisDirections => ['Top', 'Right', 'Bottom', 'Left'];
   final TranslationsSettingsReset reset = TranslationsSettingsReset();
   String get resyncEverything => 'Resync everything';
-  String get openDataDir => 'Open kivixa folder';
+  String get openDataDir => 'Open Kivixa Folder (Advanced)';
   final TranslationsSettingsCustomDataDir customDataDir =
       TranslationsSettingsCustomDataDir();
   String get autosaveDisabled => 'Never';
