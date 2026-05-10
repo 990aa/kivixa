@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:kivixa/components/overlay/browser_window.dart';
 import 'package:kivixa/services/browser_service.dart';
+import 'package:kivixa/services/sleep_wake_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -77,7 +78,7 @@ class BrowserPage extends StatefulWidget {
   State<BrowserPage> createState() => _BrowserPageState();
 }
 
-class _BrowserPageState extends State<BrowserPage> {
+class _BrowserPageState extends State<BrowserPage> with SleepAwareMixin {
   InAppWebViewController? _webViewController;
   FindInteractionController? _findInteractionController;
   final _urlController = TextEditingController();
@@ -98,8 +99,62 @@ class _BrowserPageState extends State<BrowserPage> {
   var _desktopModeEnabled = false;
   final _showTabBar = true;
 
-  /// Console log entries
   final _consoleLogs = <ConsoleLogEntry>[];
+
+  @override
+  String get sleepComponentId => 'browser_page';
+
+  @override
+  Future<SleepState> captureState() async {
+    return {
+      'currentUrl': _currentUrl,
+      'pageTitle': _pageTitle,
+      'canGoBack': _canGoBack,
+      'canGoForward': _canGoForward,
+      'isSecure': _isSecure,
+      'desktopModeEnabled': _desktopModeEnabled,
+      'showFindBar': _showFindBar,
+      'showConsole': _showConsole,
+    };
+  }
+
+  @override
+  Future<void> restoreState(SleepState state) async {
+    if (state.containsKey('currentUrl')) {
+      _currentUrl = state['currentUrl'] as String? ?? _homePage;
+    }
+    if (state.containsKey('pageTitle')) {
+      _pageTitle = state['pageTitle'] as String? ?? '';
+    }
+    if (state.containsKey('canGoBack')) {
+      _canGoBack = state['canGoBack'] as bool? ?? false;
+    }
+    if (state.containsKey('canGoForward')) {
+      _canGoForward = state['canGoForward'] as bool? ?? false;
+    }
+    if (state.containsKey('isSecure')) {
+      _isSecure = state['isSecure'] as bool? ?? false;
+    }
+    if (state.containsKey('desktopModeEnabled')) {
+      _desktopModeEnabled = state['desktopModeEnabled'] as bool? ?? false;
+    }
+    if (state.containsKey('showFindBar')) {
+      _showFindBar = state['showFindBar'] as bool? ?? false;
+    }
+    if (state.containsKey('showConsole')) {
+      _showConsole = state['showConsole'] as bool? ?? false;
+    }
+  }
+
+  @override
+  Future<void> onSleep(SleepState state) async {
+    _webViewController?.stopLoading();
+  }
+
+  @override
+  Future<void> onWake(SleepState state) async {
+    // Controller will be recreated
+  }
 
   /// Whether we're on a desktop platform
   bool get _isDesktop =>
@@ -183,6 +238,8 @@ class _BrowserPageState extends State<BrowserPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (isAsleep) return const SizedBox.shrink();
+
     // Keyboard shortcuts for desktop - wrapped in KeyboardListener for more reliable capture
     return KeyboardListener(
       focusNode: FocusNode(),
