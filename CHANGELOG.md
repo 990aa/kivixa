@@ -718,5 +718,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.8.26] - 2026-04-27
 
+### Added
+- Automated performance engineering test suite (`kivixa_benchmark_suite.dart`) to validate startup performance, sleep/wake cycle latency, frame build time, section manager overhead, and state snapshot serialization.
+
+### Changed
+- Expanded the coverage of the sleep/wake state-resumption architecture to `CalendarPage`, `BrowserPage`, and `KnowledgeGraphPage` to aggressively minimize RAM usage while maintaining peak performance.
+
+---
+## [0.8.30] - 2026-05-08
+
+### Fixed
+- Android incompatible version fix
 
 ---
