@@ -23,6 +23,7 @@ import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/pages/editor/editor.dart';
 import 'package:kivixa/pages/textfile/text_file_editor.dart';
+import 'package:kivixa/services/sleep_wake_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Node shape types for mind mapping
@@ -187,7 +188,7 @@ class KnowledgeGraphPage extends StatefulWidget {
 }
 
 class _KnowledgeGraphPageState extends State<KnowledgeGraphPage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, SleepAwareMixin {
   // Graph data
   final List<GraphNode> _nodes = [];
   final List<GraphEdge> _edges = [];
@@ -214,6 +215,46 @@ class _KnowledgeGraphPageState extends State<KnowledgeGraphPage>
   // Counters
   var _nodeCounter = 0;
   var _edgeCounter = 0;
+
+  @override
+  String get sleepComponentId => 'knowledge_graph_page';
+
+  @override
+  Future<SleepState> captureState() async {
+    return {
+      'panOffsetX': _panOffset.dx,
+      'panOffsetY': _panOffset.dy,
+      'scale': _scale,
+      'showGrid': _showGrid,
+    };
+  }
+
+  @override
+  Future<void> restoreState(SleepState state) async {
+    if (state.containsKey('panOffsetX') && state.containsKey('panOffsetY')) {
+      _panOffset = Offset(
+        state['panOffsetX'] as double,
+        state['panOffsetY'] as double,
+      );
+    }
+    if (state.containsKey('scale')) {
+      _scale = state['scale'] as double;
+    }
+    if (state.containsKey('showGrid')) {
+      _showGrid = state['showGrid'] as bool;
+    }
+  }
+
+  @override
+  Future<void> onSleep(SleepState state) async {
+    _nodes.clear();
+    _edges.clear();
+  }
+
+  @override
+  Future<void> onWake(SleepState state) async {
+    await _loadSavedData();
+  }
 
   // Cluster colors
   static const _clusterColors = <Color>[
@@ -1464,6 +1505,8 @@ class _KnowledgeGraphPageState extends State<KnowledgeGraphPage>
 
   @override
   Widget build(BuildContext context) {
+    if (isAsleep) return const SizedBox.shrink();
+
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
