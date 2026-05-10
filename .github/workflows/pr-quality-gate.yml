@@ -148,7 +148,7 @@ jobs:
           flutter test --no-pub --coverage --reporter expanded "${test_files[@]}"
 
       - name: Upload Flutter coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: coverage/lcov.info
           flags: flutter_app
@@ -237,7 +237,7 @@ jobs:
           cargo llvm-cov --manifest-path ${{ matrix.crate }}/Cargo.toml --all-features --lcov --output-path lcov-${{ matrix.crate }}.info --ignore-filename-regex '.*\.g\.rs|.*\.freezed\.rs'
 
       - name: Upload Rust coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: rust-coverage-${{ matrix.crate }}
           path: lcov-${{ matrix.crate }}.info
@@ -245,7 +245,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Rust coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: lcov-${{ matrix.crate }}.info
           flags: ${{ matrix.crate }}
@@ -300,7 +300,7 @@ jobs:
           ref: ${{ needs.resolve-target.outputs.checkout_ref }}
           fetch-depth: 0
 
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: filter
         if: ${{ needs.resolve-target.outputs.full_run != 'true' }}
         with:
