@@ -2,11 +2,10 @@
 //
 // Visualizes audio amplitude in real-time.
 
-import 'dart:math' as math;
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-
 import 'package:kivixa/services/audio/audio_neural_engine.dart';
 import 'package:kivixa/services/sleep_wake_controller.dart';
 

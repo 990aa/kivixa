@@ -286,8 +286,8 @@ class AppLifecycleManager with WidgetsBindingObserver {
     PaintingBinding.instance.imageCache.clearLiveImages();
 
     debugPrint(
-      '🧹 Memory cleanup hint — platform: ${Platform.operatingSystem}, '
-      'active sections: $activeSectionCount/${registeredSectionCount}',
+      'Memory cleanup hint — platform: ${Platform.operatingSystem}, '
+      'active sections: $activeSectionCount/$registeredSectionCount',
     );
   }
 
