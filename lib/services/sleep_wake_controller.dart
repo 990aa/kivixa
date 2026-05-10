@@ -9,10 +9,9 @@
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-import 'app_lifecycle_manager.dart';
+import 'package:kivixa/services/app_lifecycle_manager.dart';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Serialisable snapshot of component state
@@ -71,7 +70,7 @@ class SleepWakeController {
   /// on top of the global [AppLifecycleManager.idleTimeout].
   final Duration idleGracePeriod;
 
-  bool _asleep = false;
+  var _asleep = false;
   bool get isAsleep => _asleep;
 
   SleepState _savedState = {};
