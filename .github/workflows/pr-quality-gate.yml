@@ -148,7 +148,7 @@ jobs:
           flutter test --no-pub --coverage --reporter expanded "${test_files[@]}"
 
       - name: Upload Flutter coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: coverage/lcov.info
           flags: flutter_app
@@ -245,7 +245,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Rust coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: lcov-${{ matrix.crate }}.info
           flags: ${{ matrix.crate }}
