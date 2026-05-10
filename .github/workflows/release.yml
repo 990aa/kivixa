@@ -871,7 +871,7 @@ jobs:
           data["archive_name"] = "Kivixa Archive"
           data["archive_description"] = "Older versions of Kivixa kept for compatibility and rollback."
           data["archive_icon"] = "icon.png"
-          data["archive_older"] = 3
+          data["archive_older"] = 15
 
           with path.open("w", encoding="utf-8") as fp:
               yaml.dump(data, fp)
