@@ -10,7 +10,6 @@
 //
 // Output: performance_benchmarks/results/benchmark_<timestamp>.json
 
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 

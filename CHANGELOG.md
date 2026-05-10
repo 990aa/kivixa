@@ -731,3 +731,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Android incompatible version fix
 
 ---
+## [0.8.31] - 2026-05-10
+
+### Changed
+- Version bump to 0.8.31
+
+---
