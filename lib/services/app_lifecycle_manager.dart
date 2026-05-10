@@ -287,7 +287,7 @@ class AppLifecycleManager with WidgetsBindingObserver {
 
     debugPrint(
       '🧹 Memory cleanup hint — platform: ${Platform.operatingSystem}, '
-      'active sections: $activeSectionCount/${registeredSectionCount}',
+      'active sections: $activeSectionCount/$registeredSectionCount',
     );
   }
 
