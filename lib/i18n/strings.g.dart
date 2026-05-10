@@ -415,7 +415,6 @@ class TranslationsAppInfo {
       'Kivixa  Copyright © 2026-${buildYear}  990aa';
   String get dirty => 'DIRTY';
   String get debug => 'DEBUG';
-  String get sponsorButton => 'Tap here to sponsor me or buy more storage';
   String get licenseButton => 'Tap here to view more license information';
   String get privacyPolicyButton => 'Tap here to view the privacy policy';
 }
