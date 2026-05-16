@@ -10,16 +10,16 @@
     "--pretty"
   ],
   "disabled": [],
-  "endTimestamp": 1778921058709,
+  "endTimestamp": 1778946178779,
   "failedBuilds": {},
   "fdroiddata": {
-    "commitId": "e8a68738241ad88c1d2b9f7439ac7f6015144e4c",
+    "commitId": "f867b3c1b471fc6c86881ee9b457244412f146b9",
     "isDirty": false,
     "modifiedFiles": [],
     "untrackedFiles": [
-      "repo/Kivixa-Android-0.8.32-arm64.apk",
-      "repo/Kivixa-Android-0.8.32-armv7.apk",
-      "repo/Kivixa-Android-0.8.32-x86_64.apk"
+      "repo/Kivixa-Android-0.8.33-arm64.apk",
+      "repo/Kivixa-Android-0.8.33-armv7.apk",
+      "repo/Kivixa-Android-0.8.33-x86_64.apk"
     ]
   },
   "jarsigner": "/usr/bin/jarsigner",
@@ -34,17 +34,17 @@
     "com.a990aa.kivixa"
   ],
   "stages": {
-    "archive_old_apks archive": 1778921051603,
-    "delete_disabled_builds": 1778921037548,
-    "index.make archive": 1778921051605,
-    "index.make repo": 1778921055469,
-    "prepare_apps archive": 1778921051604,
-    "prepare_apps repo": 1778921055468,
-    "process_apks": 1778921037548,
-    "read_added_date_from_all_apks": 1778921051603,
-    "remove_apks": 1778921049982,
-    "scan_repo_files": 1778921049981
+    "archive_old_apks archive": 1778946172280,
+    "delete_disabled_builds": 1778946156974,
+    "index.make archive": 1778946172282,
+    "index.make repo": 1778946175844,
+    "prepare_apps archive": 1778946172281,
+    "prepare_apps repo": 1778946175843,
+    "process_apks": 1778946156975,
+    "read_added_date_from_all_apks": 1778946172280,
+    "remove_apks": 1778946169156,
+    "scan_repo_files": 1778946169155
   },
-  "startTimestamp": 1778921036000,
+  "startTimestamp": 1778946156000,
   "subcommand": "update"
 }
