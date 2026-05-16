@@ -746,6 +746,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Settings Page UI Update**: Reorganized UI elements in Settings Page without any backend functionality changes.
   - Moved various Handwritten options (Toolbar Position, Auto Invert, Autosave, etc.) under the "Handwritten Settings" section directly after "Hide the finger drawing toggle".
   - Removed stray subtitle "Notifications & Sound" to maintain clear visual grouping.
+  - Renamed "Handwritten Settings" subtitle to "Handwritten Note Settings".
+  - Moved the "Custom Kivixa folder" and "Open Kivixa folder" setting under the "Data Management" section just before "Delete Data on Uninstall".
 
 
 

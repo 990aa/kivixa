@@ -29,7 +29,7 @@ void main() {
     });
 
     test(
-      'Handwritten Settings section merges Writing, Handwritten Note, and Performance',
+      'Handwritten Note Settings section merges Writing, Handwritten Note, and Performance',
       () {
         final settingsFile = File(
           'lib/pages/home/settings.dart',
@@ -38,8 +38,8 @@ void main() {
         // Check that the merged section title exists
         expect(
           settingsFile,
-          contains("'Handwritten Settings'"),
-          reason: 'Should have Handwritten Settings title',
+          contains("'Handwritten Note Settings'"),
+          reason: 'Should have Handwritten Note Settings title',
         );
 
         // Verify that Writing, Handwritten, and Performance don't have their own section subtitles
@@ -154,26 +154,11 @@ void main() {
     });
 
     test(
-      'Open Kivixa Folder button is moved from Advanced to Data Management',
+      'Open Kivixa Folder button and Custom Data Dir are in Data Management',
       () {
         final settingsFile = File(
           'lib/pages/home/settings.dart',
         ).readAsStringSync();
-
-        // Find Advanced section
-        final advancedStart = settingsFile.indexOf('if (showAdvanced) ...[');
-        final advancedEnd = settingsFile.indexOf('if (showExtensions) ...[');
-        final advancedSection = settingsFile.substring(
-          advancedStart,
-          advancedEnd,
-        );
-
-        // Advanced section should not contain openDataDir
-        expect(
-          advancedSection,
-          isNot(contains('t.settings.openDataDir')),
-          reason: 'Open Kivixa Folder button should not be in Advanced section',
-        );
 
         // Find Data Management section
         final dataManagementStart = settingsFile.indexOf(
@@ -200,42 +185,19 @@ void main() {
           reason:
               'openDataDir should be conditionally shown for desktop platforms',
         );
+
+        // Data Management section should contain Custom Data Dir for Android
+        expect(
+          dataManagementSection,
+          contains('t.settings.prefLabels.customDataDir'),
+          reason:
+              'Custom Data Dir setting should be in Data Management section',
+        );
       },
     );
 
-    test('Advanced section only contains Android-specific content', () {
-      final settingsFile = File(
-        'lib/pages/home/settings.dart',
-      ).readAsStringSync();
-
-      final advancedStart = settingsFile.indexOf('if (showAdvanced) ...[');
-      final advancedEnd = settingsFile.indexOf('if (showExtensions) ...[');
-      final advancedSection = settingsFile.substring(
-        advancedStart,
-        advancedEnd,
-      );
-
-      // Advanced section should contain Android-specific customDataDir
-      expect(
-        advancedSection,
-        contains('Platform.isAndroid'),
-        reason: 'Advanced section should be Android-specific after restructure',
-      );
-
-      // Advanced should NOT have its own section title
-      expect(
-        advancedSection,
-        isNot(
-          contains(
-            'SettingsSubtitle(\n                    subtitle: t.settings.prefCategories.advanced',
-          ),
-        ),
-        reason: 'Advanced section title should be removed',
-      );
-    });
-
     test(
-      'Settings layout order is correct: General -> Security -> Handwritten Settings',
+      'Settings layout order is correct: General -> Security -> Handwritten Note Settings',
       () {
         final settingsFile = File(
           'lib/pages/home/settings.dart',
@@ -251,26 +213,6 @@ void main() {
         expect(securityPos < handwrittenSettingsPos, isTrue);
       },
     );
-
-    test('showAdvanced flag is platform-gated to Android only', () {
-      final settingsFile = File(
-        'lib/pages/home/settings.dart',
-      ).readAsStringSync();
-
-      // Find the showAdvanced variable definition
-      final showAdvancedDef = settingsFile.indexOf('final showAdvanced =');
-      final showAdvancedEnd = settingsFile.indexOf(';', showAdvancedDef);
-      final showAdvancedLine = settingsFile.substring(
-        showAdvancedDef,
-        showAdvancedEnd + 1,
-      );
-
-      expect(
-        showAdvancedLine,
-        contains('Platform.isAndroid'),
-        reason: 'showAdvanced should be gated to Android platform only',
-      );
-    });
   });
 
   group('Font setting cleanup verification', () {
@@ -330,12 +272,11 @@ void main() {
         'lib/pages/home/settings.dart',
       ).readAsStringSync();
 
-      // Verify showAdvanced description mentions only Android
       expect(
         settingsFile,
-        contains("'Custom data directory configuration'"),
+        contains("'Clear app data, reset settings, and data directory'"),
         reason:
-            'showAdvanced description should be updated for Android-only content',
+            'showDataManagement description should be updated',
       );
     });
   });

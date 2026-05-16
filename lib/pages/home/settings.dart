@@ -380,8 +380,8 @@ class _SettingsPageState extends State<SettingsPage> {
     );
     final showDataManagement = _matchesSettingsSection(
       category: 'Data Management',
-      description: 'Clear app data and reset settings',
-      keywords: const ['data management', 'clear data', 'reset'],
+      description: 'Clear app data, reset settings, and data directory',
+      keywords: const ['data management', 'clear data', 'reset', 'data directory', 'storage'],
     );
     final hasSearchMatch =
         showLegal ||
@@ -946,6 +946,11 @@ class _SettingsPageState extends State<SettingsPage> {
                       icon: Icons.folder_open,
                       onPressed: () =>
                           launchUrl(Uri.file(FileManager.documentsDirectory)),
+                    ),
+                  if (Platform.isAndroid)
+                    SettingsDirectorySelector(
+                      title: t.settings.prefLabels.customDataDir,
+                      icon: Icons.folder,
                     ),
                   const _DeleteDataOnUninstallWidget(),
                   const ClearAppDataWidget(),
