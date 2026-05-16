@@ -1,0 +1,24 @@
+# Configuration for actions/labeler v6
+rust:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'native/**/*'
+          - 'native_audio/**/*'
+          - 'native_math/**/*'
+          - 'rust_builder/**/*'
+
+dart:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/**/*.dart'
+          - 'test/**/*.dart'
+
+android:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'android/**/*'
+
+windows:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'windows/**/*'
