@@ -95,6 +95,32 @@ void main() {
       },
     );
 
+    test(
+      'NotificationSettingsWidget is placed below the Performance settings block and stray subtitle is removed',
+      () {
+        final settingsFile = File(
+          'lib/pages/home/settings.dart',
+        ).readAsStringSync();
+
+        // Check that the stray subtitle is removed
+        expect(
+          settingsFile,
+          isNot(contains("const SettingsSubtitle(subtitle: 'Notifications & Sound'),")),
+          reason: 'Stray Notifications & Sound subtitle should be removed',
+        );
+
+        // Verify that Notifications block is after Performance block
+        final performanceStart = settingsFile.indexOf('if (showPerformance) ...[');
+        final notificationsStart = settingsFile.indexOf('if (showNotifications) ...[');
+
+        expect(
+          performanceStart < notificationsStart,
+          isTrue,
+          reason: 'Notifications settings should appear after Performance settings',
+        );
+      },
+    );
+
     test('Writing settings appear before Handwritten settings', () {
       final settingsFile = File(
         'lib/pages/home/settings.dart',

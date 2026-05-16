@@ -580,7 +580,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   _AppLockSettingsSection(onChanged: () => setState(() {})),
                 ],
                 if (showWriting || showHandwritten || showPerformance) ...[
-                  const SettingsSubtitle(subtitle: 'Handwritten Settings'),
+                  const SettingsSubtitle(subtitle: 'Handwritten Note Settings'),
                 ],
                 if (showWriting) ...[
                   SettingsSwitch(
@@ -633,10 +633,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     pref: stows.hideFingerDrawingToggle,
                     afterChange: (_) => setState(() {}),
                   ),
-                ],
-                if (showNotifications) ...[
-                  const SettingsSubtitle(subtitle: 'Notifications & Sound'),
-                  const NotificationSettingsWidget(),
                 ],
                 if (showHandwritten) ...[
                   SettingsSelection(
@@ -779,6 +775,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     icon: Icons.straighten,
                     pref: stows.autoStraightenLines,
                   ),
+                ],
+                if (showNotifications) ...[
+                  const NotificationSettingsWidget(),
                 ],
                 if (showFloatingHub) ...[
                   const SettingsSubtitle(subtitle: 'Floating Hub'),
