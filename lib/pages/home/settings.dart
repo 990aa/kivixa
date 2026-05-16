@@ -1555,11 +1555,6 @@ class _DeleteDataOnUninstallWidgetState
     final colorScheme = ColorScheme.of(context);
     final isEnabled = stows.deleteDataOnUninstall.value;
 
-    // Only show on Android where this setting is relevant
-    if (!Platform.isAndroid) {
-      return const SizedBox.shrink();
-    }
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Card(
