@@ -740,3 +740,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Renovate Configuration**: Removed untrusted schema reference from `renovate.json` to resolve JSON validation error. The configuration now uses extended presets without explicit schema validation, which is the recommended approach for renovate.
 
 ---
+## [0.8.33] - 2026-05-16
+
+
+
+---
