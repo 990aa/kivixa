@@ -938,6 +938,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
                 if (showDataManagement) ...[
                   const SettingsSubtitle(subtitle: 'Data Management'),
+                  if (Platform.isAndroid)
+                    SettingsDirectorySelector(
+                      title: t.settings.prefLabels.customDataDir,
+                      icon: Icons.folder,
+                    ),
                   if (Platform.isWindows ||
                       Platform.isLinux ||
                       Platform.isMacOS)
@@ -946,11 +951,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       icon: Icons.folder_open,
                       onPressed: () =>
                           launchUrl(Uri.file(FileManager.documentsDirectory)),
-                    ),
-                  if (Platform.isAndroid)
-                    SettingsDirectorySelector(
-                      title: t.settings.prefLabels.customDataDir,
-                      icon: Icons.folder,
                     ),
                   const _DeleteDataOnUninstallWidget(),
                   const ClearAppDataWidget(),
