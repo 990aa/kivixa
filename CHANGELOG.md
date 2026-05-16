@@ -725,7 +725,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Expanded the coverage of the sleep/wake state-resumption architecture to `CalendarPage`, `BrowserPage`, and `KnowledgeGraphPage` to aggressively minimize RAM usage while maintaining peak performance.
 
 ---
-## [0.8.31] - 2026-05-10
+## [0.8.32] - 2026-05-16
 
 ### Changed
 - **Settings Page Layout**: Reorganized settings categories for improved UX and clarity:
