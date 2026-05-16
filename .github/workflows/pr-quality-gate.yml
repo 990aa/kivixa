@@ -135,7 +135,7 @@ jobs:
       - name: Analyze Flutter/Dart code (fatal warnings and infos)
         run: flutter analyze --fatal-infos --fatal-warnings
 
-      - name: Run full Flutter test suite (temporarily skip fm_test)
+      - name: Run full Flutter test suite (skip fm_test)
         shell: bash
         run: |
           set -euo pipefail

@@ -728,7 +728,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.31] - 2026-05-10
 
 ### Changed
-- **Settings Page Layout Restructure**: Reorganized settings categories for improved UX and clarity:
+- **Settings Page Layout**: Reorganized settings categories for improved UX and clarity:
   - Moved "Security" section to appear immediately after "General" section for better security-first positioning.
   - Merged "Writing", "Handwritten Note", and "Performance" sections into a single unified "Handwritten Settings" section (Writing options appear first, followed by Handwritten options, then Performance options).
   - Removed individual subtitles within the merged section for a cleaner, more streamlined interface.
