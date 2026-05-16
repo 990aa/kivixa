@@ -135,7 +135,7 @@ jobs:
       - name: Analyze Flutter/Dart code (fatal warnings and infos)
         run: flutter analyze --fatal-infos --fatal-warnings
 
-      - name: Run full Flutter test suite (temporarily skip fm_test)
+      - name: Run full Flutter test suite (skip fm_test)
         shell: bash
         run: |
           set -euo pipefail
@@ -505,3 +505,11 @@ jobs:
         run: |
           flutter pub get
           flutter build windows --release
+
+      - name: Upload Windows Build
+        if: ${{ needs.path-filter.outputs.dart_other == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: kivixa-windows-build
+          path: build/windows/x64/runner/Release/
+          retention-days: 5
