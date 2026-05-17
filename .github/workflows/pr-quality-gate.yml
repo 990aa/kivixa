@@ -508,7 +508,7 @@ jobs:
 
       - name: Upload Windows Build
         if: ${{ needs.path-filter.outputs.dart_other == 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: kivixa-windows-build
           path: build/windows/x64/runner/Release/
