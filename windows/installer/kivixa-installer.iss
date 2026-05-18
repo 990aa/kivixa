@@ -160,40 +160,28 @@ end;
 // ---------------------------------------------------------
 function GetTermsText: String;
 begin
-  Result := 
+  Result :=
     'KIVIXA TERMS AND CONDITIONS' + #13#10 + #13#10 +
-    'Last Updated: January 2026' + #13#10 +
-    'Version: 0.8.31' + #13#10 + #13#10 +
-    'By using Kivixa, you agree to these terms and conditions.' + #13#10 + #13#10 +
-    '1. ACCEPTANCE OF TERMS' + #13#10 + #13#10 +
-    'By downloading, installing, or using the Kivixa application ("App"), you agree to be bound by these Terms and Conditions ("Terms"). If you do not agree to these Terms, do not use the App.' + #13#10 + #13#10 +
-    '2. LICENSE' + #13#10 + #13#10 +
-    'Kivixa grants you a limited, non-exclusive, non-transferable, revocable license to use the App for personal or educational purposes, subject to these Terms.' + #13#10 + #13#10 +
-    '3. USER DATA' + #13#10 + #13#10 +
-    '3.1 Local Storage: Your notes, projects, and other data are stored locally on your device. Kivixa does not collect or transmit your personal data to external servers unless you explicitly use sync or backup features.' + #13#10 + #13#10 +
-    '3.2 Data Responsibility: You are responsible for backing up your data. Kivixa is not responsible for any data loss due to device failure, app updates, or user error.' + #13#10 + #13#10 +
-    '3.3 Data Clearing: The App provides options to clear your data. Once cleared, data cannot be recovered.' + #13#10 + #13#10 +
-    '4. INTELLECTUAL PROPERTY' + #13#10 + #13#10 +
-    '4.1 App Content: The App, including its design, code, graphics, and documentation, is the property of the Kivixa development team and is protected by intellectual property laws.' + #13#10 + #13#10 +
-    '4.2 User Content: You retain ownership of all content you create using the App. By using the App, you grant Kivixa a limited license to process your content solely for the purpose of providing App functionality.' + #13#10 + #13#10 +
-    '5. PROHIBITED USES' + #13#10 + #13#10 +
-    'You agree not to:' + #13#10 +
-    '- Reverse engineer, decompile, or disassemble the App' + #13#10 +
-    '- Use the App for any illegal or unauthorized purpose' + #13#10 +
-    '- Distribute, sell, or sublicense the App' + #13#10 +
-    '- Remove any proprietary notices from the App' + #13#10 + #13#10 +
-    '6. DISCLAIMER OF WARRANTIES' + #13#10 + #13#10 +
-    'THE APP IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. KIVIXA DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.' + #13#10 + #13#10 +
-    '7. LIMITATION OF LIABILITY' + #13#10 + #13#10 +
-    'IN NO EVENT SHALL KIVIXA BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR RELATED TO YOUR USE OF THE APP.' + #13#10 + #13#10 +
-    '8. UPDATES AND MODIFICATIONS' + #13#10 + #13#10 +
-    'Kivixa may update or modify the App at any time. Continued use of the App after updates constitutes acceptance of any modified Terms.' + #13#10 + #13#10 +
-    '9. TERMINATION' + #13#10 + #13#10 +
-    'Kivixa may terminate your access to the App at any time for any reason. Upon termination, you must cease all use of the App.' + #13#10 + #13#10 +
-    '10. GOVERNING LAW' + #13#10 + #13#10 +
-    'These Terms shall be governed by and construed in accordance with applicable laws, without regard to conflict of law principles.' + #13#10 + #13#10 +
-    '11. CONTACT' + #13#10 + #13#10 +
-    'For questions about these Terms, please visit our repository or contact the development team.';
+    'Last Updated: May 2026' + #13#10 + #13#10 +
+    '1. AGREEMENT TO TERMS' + #13#10 +
+    'These Terms of Service constitute a legally binding agreement made between you and the Kivixa Project (''we,'', ''us,'' or ''our''), concerning your access to and use of the Kivixa application and any related services. By accessing the App, you acknowledge that you have read, understood, and agreed to be bound by all of these Terms.' + #13#10 + #13#10 +
+    '2. INTELLECTUAL PROPERTY RIGHTS' + #13#10 +
+    'Our Content: Unless otherwise indicated, the App, including source code, databases, functionality, software, and graphic designs, are owned or controlled by us and are protected by copyright and trademark laws. Access is provided under applicable open-source licenses.' + #13#10 + #13#10 +
+    'User Content: You retain full ownership of any data you create (''User Content''). Because Kivixa is local-first, we have no access to, nor control over, your User Content.' + #13#10 + #13#10 +
+    '3. LOCAL-FIRST ARCHITECTURE & DATA RESPONSIBILITY' + #13#10 +
+    'Zero-Knowledge: You acknowledge that Kivixa operates on a ''Zero-Knowledge'' model. All data is stored locally on your device.' + #13#10 + #13#10 +
+    'Backup Responsibility: We do not provide cloud backup services. You are solely responsible for maintaining backups of your data. We are not liable for any data loss resulting from hardware failure, software bugs, app uninstallation, or device loss.' + #13#10 + #13#10 +
+    '4. LOCAL AI & CONTENT DISCLAIMER' + #13#10 +
+    'Kivixa provides tools for local AI processing.' + #13#10 + #13#10 +
+    'Accuracy: AI-generated content may be inaccurate, biased, or ''hallucinated.'' You should not rely on AI-generated output for medical, legal, financial, or high-stakes decision-making.' + #13#10 + #13#10 +
+    'Liability: The Kivixa Project is not responsible for any content generated by local models or any actions you take based on such content.' + #13#10 + #13#10 +
+    '5. PROHIBITED ACTIVITIES' + #13#10 +
+    'You may not use the App to:' + #13#10 +
+    'Circulate malicious software or scripts.' + #13#10 +
+    'Engage in any activity that violates local or international laws.' + #13#10 +
+    'Attempt to bypass or modify the App’s security features.' + #13#10 + #13#10 +
+    '6. LIMITATION OF LIABILITY & DISCLAIMER' + #13#10 +
+    'KIVIXA IS PROVIDED ON AN ''AS-IS'' AND ''AS-AVAILABLE'' BASIS. TO THE FULLEST EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES. WE WILL NOT BE LIABLE FOR ANY DAMAGES OF ANY KIND ARISING FROM THE USE OF THE APP, INCLUDING BUT NOT LIMITED TO DIRECT, INDIRECT, INCIDENTAL, PUNITIVE, AND CONSEQUENTIAL DAMAGES.';
 end;
 
 // ---------------------------------------------------------
@@ -201,34 +189,28 @@ end;
 // ---------------------------------------------------------
 function GetPrivacyText: String;
 begin
-  Result := 
+  Result :=
     'KIVIXA PRIVACY POLICY' + #13#10 + #13#10 +
-    'Last Updated: December 2025' + #13#10 + #13#10 +
-    '1. INFORMATION WE COLLECT' + #13#10 + #13#10 +
-    'Kivixa is designed with privacy in mind. We do not collect personal information unless explicitly stated.' + #13#10 + #13#10 +
-    '1.1 Local Data: All notes, projects, and settings are stored locally on your device.' + #13#10 + #13#10 +
-    '1.2 No Telemetry: Kivixa does not send usage statistics or telemetry data.' + #13#10 + #13#10 +
-    '2. DATA STORAGE' + #13#10 + #13#10 +
-    'Your data is stored in the following locations:' + #13#10 +
-    '- Notes and documents: Local device storage' + #13#10 +
-    '- Settings and preferences: Local app preferences' + #13#10 +
-    '- Calendar events: Local device storage' + #13#10 +
-    '- AI models (if downloaded): Local device storage' + #13#10 + #13#10 +
-    '3. LOCAL AI FEATURES' + #13#10 + #13#10 +
-    '3.1 On-Device Processing: Kivixa includes optional AI features powered by Small Language Models (SLMs) and Large Language Models (LLMs) that run entirely on your device. All AI processing occurs locally without any data being sent to external servers.' + #13#10 + #13#10 +
-    '3.2 No Cloud AI: Unlike many applications, Kivixa does NOT use cloud-based AI services. Your notes, documents, and any content processed by AI features never leave your device.' + #13#10 + #13#10 +
-    '3.3 AI Model Storage: Downloaded AI models are stored locally on your device and can be removed at any time through the app settings.' + #13#10 + #13#10 +
-    '3.4 Privacy by Design: The local AI architecture ensures complete privacy - your conversations with AI, document analysis, and all AI-assisted features remain entirely private on your device.' + #13#10 + #13#10 +
-    '4. DATA SHARING' + #13#10 + #13#10 +
-    'We do not share your data with third parties.' + #13#10 + #13#10 +
-    '5. SECURITY' + #13#10 + #13#10 +
-    'While we implement reasonable security measures, no system is completely secure. You are responsible for maintaining the security of your device.' + #13#10 + #13#10 +
-    '6. CHILDREN''S PRIVACY' + #13#10 + #13#10 +
-    'Kivixa is not intended for children under 13 years of age.' + #13#10 + #13#10 +
-    '7. CHANGES TO THIS POLICY' + #13#10 + #13#10 +
-    'We may update this Privacy Policy from time to time. Continued use of the App constitutes acceptance of any changes.' + #13#10 + #13#10 +
-    '8. CONTACT' + #13#10 + #13#10 +
-    'For privacy-related questions, please visit our repository or contact the development team.';
+    'Last Updated: May 2026' + #13#10 + #13#10 +
+    '1. OUR PRIVACY PHILOSOPHY' + #13#10 +
+    'Privacy is not a "feature" of Kivixa; it is the foundation. Our architecture is designed so that your data is never collected, stored on our servers, or sold to third parties.' + #13#10 + #13#10 +
+    '2. DATA COLLECTION & PROCESSING' + #13#10 +
+    'Personal Information: We do not require an account to use Kivixa. We do not collect your name, email address, or phone number.' + #13#10 + #13#10 +
+    'Usage Data (Telemetry): Kivixa does not include telemetry or "phone home" tracking. We do not know how often you use the app or which features you prefer.' + #13#10 + #13#10 +
+    'Crash Reporting: Optional crash reports may be generated by your operating system (Android/Windows). These are governed by your OS privacy settings and are not directly collected by Kivixa.' + #13#10 + #13#10 +
+    '3. LOCAL PROCESSING' + #13#10 +
+    'On-Device AI: All AI analysis, document summarization, and chat interactions occur strictly on your device''s CPU/GPU. No text or data is transmitted to the cloud for processing.' + #13#10 + #13#10 +
+    'Native Engines: The Rust-based engines process data locally in your device''s memory. No data is cached or sent externally.' + #13#10 + #13#10 +
+    '4. THIRD-PARTY SERVICES' + #13#10 +
+    'While Kivixa is local-first, you may interact with third-party services through:' + #13#10 +
+    'GitHub/F-Droid/Winget: If you download updates, these platforms may collect standard technical metadata (IP address, device type) required for file delivery.' + #13#10 + #13#10 +
+    'External Links: If you click a link within the app, you will be directed to an external site governed by its own privacy policy.' + #13#10 + #13#10 +
+    '5. DATA SECURITY' + #13#10 +
+    'Because your data is stored locally, its security depends on the security of your device. We recommend using encrypted storage, biometrics, or strong passwords to protect your device from unauthorized access.' + #13#10 + #13#10 +
+    '6. CHILDREN''S PRIVACY' + #13#10 +
+    'Kivixa does not knowingly collect data from anyone. Because all data stays on your device, we have no way to identify the age of our users. We encourage parents to monitor their children''s device usage.' + #13#10 + #13#10 +
+    '7. CONTACT INFORMATION' + #13#10 +
+    'For any questions regarding these policies, please open an issue on our official GitHub repository.';
 end;
 
 // ---------------------------------------------------------
