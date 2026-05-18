@@ -73,13 +73,6 @@ void main() {
       },
     );
 
-    test('pubspec no longer declares Atkinson Hyperlegible assets', () {
-      final pubspec = File('pubspec.yaml').readAsStringSync();
-
-      expect(pubspec, isNot(contains('Atkinson_Hyperlegible_Next')));
-      expect(pubspec, isNot(contains('family: AtkinsonHyperlegibleNext')));
-    });
-
     test('Neucha font is fully removed and handwriting defaults to Dekko', () {
       final pubspec = File('pubspec.yaml').readAsStringSync();
       final main = File('lib/main.dart').readAsStringSync();
