@@ -1,0 +1,6 @@
+ignore = [
+    "**/target/",
+    "**/vendor/",
+    "native/vendor/",
+    "native/target/"
+]

@@ -361,11 +361,13 @@ class _SettingsPageState extends State<SettingsPage> {
       description: 'App lock and PIN security',
       keywords: const ['security', 'app lock', 'pin'],
     );
-    final showAdvanced = _matchesSettingsSection(
-      category: t.settings.prefCategories.advanced,
-      description: 'Data directory and advanced configuration',
-      keywords: const ['advanced', 'data directory', 'storage'],
-    );
+    final showAdvanced =
+        Platform.isAndroid &&
+        _matchesSettingsSection(
+          category: t.settings.prefCategories.advanced,
+          description: 'Custom data directory configuration',
+          keywords: const ['advanced', 'data directory', 'storage'],
+        );
     final showExtensions = _matchesSettingsSection(
       category: 'Extensions',
       description: 'Plugins and version history',
@@ -378,8 +380,8 @@ class _SettingsPageState extends State<SettingsPage> {
     );
     final showDataManagement = _matchesSettingsSection(
       category: 'Data Management',
-      description: 'Clear app data and reset settings',
-      keywords: const ['data management', 'clear data', 'reset'],
+      description: 'Clear app data, reset settings, and data directory',
+      keywords: const ['data management', 'clear data', 'reset', 'data directory', 'storage'],
     );
     final hasSearchMatch =
         showLegal ||
@@ -571,8 +573,16 @@ class _SettingsPageState extends State<SettingsPage> {
                     pref: stows.accentColor,
                   ),
                 ],
+                if (showSecurity) ...[
+                  SettingsSubtitle(
+                    subtitle: t.settings.prefCategories.security,
+                  ),
+                  _AppLockSettingsSection(onChanged: () => setState(() {})),
+                ],
+                if (showWriting || showHandwritten || showPerformance) ...[
+                  const SettingsSubtitle(subtitle: 'Handwritten Note Settings'),
+                ],
                 if (showWriting) ...[
-                  SettingsSubtitle(subtitle: t.settings.prefCategories.writing),
                   SettingsSwitch(
                     title: t.settings.prefLabels.preferGreyscale,
                     subtitle: t.settings.prefDescriptions.preferGreyscale,
@@ -624,12 +634,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     afterChange: (_) => setState(() {}),
                   ),
                 ],
-                if (showNotifications) ...[
-                  const SettingsSubtitle(subtitle: 'Notifications & Sound'),
-                  const NotificationSettingsWidget(),
-                ],
                 if (showHandwritten) ...[
-                  const SettingsSubtitle(subtitle: 'Handwritten Note'),
                   SettingsSelection(
                     title: t.settings.prefLabels.editorToolbarAlignment,
                     subtitle:
@@ -721,9 +726,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   // ),
                 ],
                 if (showPerformance) ...[
-                  SettingsSubtitle(
-                    subtitle: t.settings.prefCategories.performance,
-                  ),
                   SettingsSelection(
                     title: t.settings.prefLabels.maxImageSize,
                     subtitle: t.settings.prefDescriptions.maxImageSize,
@@ -773,6 +775,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     icon: Icons.straighten,
                     pref: stows.autoStraightenLines,
                   ),
+                ],
+                if (showNotifications) ...[
+                  const NotificationSettingsWidget(),
                 ],
                 if (showFloatingHub) ...[
                   const SettingsSubtitle(subtitle: 'Floating Hub'),
@@ -903,29 +908,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   const SettingsSubtitle(subtitle: 'Quick Notes'),
                   const _QuickNotesSettingsSection(),
                 ],
-                if (showSecurity) ...[
-                  SettingsSubtitle(
-                    subtitle: t.settings.prefCategories.security,
-                  ),
-                  _AppLockSettingsSection(onChanged: () => setState(() {})),
-                ],
                 if (showAdvanced) ...[
-                  SettingsSubtitle(
-                    subtitle: t.settings.prefCategories.advanced,
-                  ),
                   if (Platform.isAndroid)
                     SettingsDirectorySelector(
                       title: t.settings.prefLabels.customDataDir,
                       icon: Icons.folder,
-                    ),
-                  if (Platform.isWindows ||
-                      Platform.isLinux ||
-                      Platform.isMacOS)
-                    SettingsButton(
-                      title: t.settings.openDataDir,
-                      icon: Icons.folder_open,
-                      onPressed: () =>
-                          launchUrl(Uri.file(FileManager.documentsDirectory)),
                     ),
                 ],
                 if (showExtensions) ...[
@@ -951,6 +938,20 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
                 if (showDataManagement) ...[
                   const SettingsSubtitle(subtitle: 'Data Management'),
+                  if (Platform.isAndroid)
+                    SettingsDirectorySelector(
+                      title: t.settings.prefLabels.customDataDir,
+                      icon: Icons.folder,
+                    ),
+                  if (Platform.isWindows ||
+                      Platform.isLinux ||
+                      Platform.isMacOS)
+                    SettingsButton(
+                      title: t.settings.openDataDir,
+                      icon: Icons.folder_open,
+                      onPressed: () =>
+                          launchUrl(Uri.file(FileManager.documentsDirectory)),
+                    ),
                   const _DeleteDataOnUninstallWidget(),
                   const ClearAppDataWidget(),
                   const _ResetAllSettingsWidget(),
@@ -1553,11 +1554,6 @@ class _DeleteDataOnUninstallWidgetState
   Widget build(BuildContext context) {
     final colorScheme = ColorScheme.of(context);
     final isEnabled = stows.deleteDataOnUninstall.value;
-
-    // Only show on Android where this setting is relevant
-    if (!Platform.isAndroid) {
-      return const SizedBox.shrink();
-    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
