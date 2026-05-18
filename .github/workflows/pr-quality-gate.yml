@@ -197,7 +197,10 @@ jobs:
           crate="${{ matrix.crate }}"
 
           if [[ "${{ needs.resolve-target.outputs.full_run }}" == "true" ]]; then
+            # Added exclusions for target/ and vendor/
             find "$crate" -type f -name '*.rs' \
+              -not -path "*/target/*" \
+              -not -path "*/vendor/*" \
               | sed "s#^${crate}/##" \
               | sort > "${crate}/changed_rs_files.txt"
           else
@@ -361,7 +364,7 @@ jobs:
           submodules: recursive
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -508,7 +511,7 @@ jobs:
 
       - name: Upload Windows Build
         if: ${{ needs.path-filter.outputs.dart_other == 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: kivixa-windows-build
           path: build/windows/x64/runner/Release/

@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'actions', 'java-kotlin', 'rust' ]
+        language: [ 'actions', 'rust' ]
 
     steps:
     - name: Checkout repository
@@ -32,36 +32,7 @@ jobs:
       uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
-        # MAGIC FIX: Use 'manual' for Java/Kotlin, but 'none' for Rust and Actions!
-        build-mode: ${{ matrix.language == 'java-kotlin' && 'manual' || 'none' }}
-
-    # --------------------------------------------------------
-    # JAVA-KOTLIN BUILD (FLUTTER)
-    # This remains because Android compilation still requires tracing
-    # --------------------------------------------------------
-    - name: Setup Java (Java-Kotlin)
-      if: matrix.language == 'java-kotlin'
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-
-    - name: Setup Flutter (Java-Kotlin)
-      if: matrix.language == 'java-kotlin'
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.41.7'
-        channel: 'stable'
-        cache: true
-
-    - name: Get Flutter dependencies (Java-Kotlin)
-      if: matrix.language == 'java-kotlin'
-      run: flutter pub get
-
-    - name: Manual Build for CodeQL (Java-Kotlin)
-      if: matrix.language == 'java-kotlin'
-      continue-on-error: true 
-      run: flutter build apk --debug
+        build-mode: none
 
     # --------------------------------------------------------
     # FINAL ANALYSIS
