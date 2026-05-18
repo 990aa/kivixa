@@ -9,7 +9,6 @@ import 'package:url_launcher/url_launcher.dart';
 class AppInfo extends StatelessWidget {
   const AppInfo({super.key});
 
-  static final Uri sponsorUrl = Uri.parse('https://github.com/sponsors/990aa');
   static final Uri privacyPolicyUrl = Uri.parse(
     'https://kivixa.990aa.org/privacy-policy/',
   );
@@ -50,13 +49,6 @@ class AppInfo extends StatelessWidget {
     applicationLegalese: t.appInfo.licenseNotice(buildYear: buildYear),
     children: [
       const SizedBox(height: 10),
-      TextButton(
-        onPressed: () => launchUrl(sponsorUrl),
-        child: SizedBox(
-          width: double.infinity,
-          child: Text(t.appInfo.sponsorButton),
-        ),
-      ),
       TextButton(
         onPressed: () => launchUrl(licenseUrl),
         child: SizedBox(

@@ -725,15 +725,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Expanded the coverage of the sleep/wake state-resumption architecture to `CalendarPage`, `BrowserPage`, and `KnowledgeGraphPage` to aggressively minimize RAM usage while maintaining peak performance.
 
 ---
-## [0.8.30] - 2026-05-08
-
-### Fixed
-- Android incompatible version fix
-
----
-## [0.8.31] - 2026-05-10
+## [0.8.32] - 2026-05-16
 
 ### Changed
-- Version bump to 0.8.31
+- **Settings Page Layout**: Reorganized settings categories for improved UX and clarity:
+  - Moved "Security" section to appear immediately after "General" section for better security-first positioning.
+  - Merged "Writing", "Handwritten Note", and "Performance" sections into a single unified "Handwritten Settings" section (Writing options appear first, followed by Handwritten options, then Performance options).
+  - Removed individual subtitles within the merged section for a cleaner, more streamlined interface.
+  - Moved "Open Kivixa Folder" button from the "Advanced" section to "Data Management" section on desktop platforms (Windows, Linux, macOS).
+  - Removed the now-empty "Advanced" section title; Android users still have access to custom data directory settings within the "Advanced" conditional block.
+- Updated settings search categories and descriptions to reflect the new layout structure.
+
+### Fixed
+- **Renovate Configuration**: Removed untrusted schema reference from `renovate.json` to resolve JSON validation error. The configuration now uses extended presets without explicit schema validation, which is the recommended approach for renovate.
+
+---
+## [0.8.33] - 2026-05-16
+
+### Changed
+- **Settings Page UI Update**: Reorganized UI elements in Settings Page without any backend functionality changes.
+  - Moved various Handwritten options (Toolbar Position, Auto Invert, Autosave, etc.) under the "Handwritten Settings" section directly after "Hide the finger drawing toggle".
+  - Removed stray subtitle "Notifications & Sound" to maintain clear visual grouping.
+  - Renamed "Handwritten Settings" subtitle to "Handwritten Note Settings".
+  - Moved the "Custom Kivixa folder" and "Open Kivixa folder" setting under the "Data Management" section just before "Delete Data on Uninstall".
+  - Reordered "Delete Data on Uninstall" to be placed just above the "Clear App Data" setting and just below the "Open Kivixa Folder" setting.
+  
+---
+## [0.8.34] - 2026-05-16
+
+### Changed
+- Version bump to 0.8.34
 
 ---
