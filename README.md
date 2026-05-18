@@ -12,7 +12,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.9.0+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
-[![Version](https://img.shields.io/badge/Version-0.8.30%2B80300--beta-orange)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-0.8.33%2B80330--beta-orange)](CHANGELOG.md)
 
 **Install on Windows with winget (recommended):**
 
@@ -20,11 +20,11 @@
   <code>winget install Kivixa</code>
 </p>
 
-[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.8.30%2B80300/Kivixa-Setup-0.8.30.exe)
+[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.8.33%2B80330/Kivixa-Setup-0.8.33.exe)
 
-[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.30%2B80300/Kivixa-Android-0.8.30-arm64.apk)
-[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.30%2B80300/Kivixa-Android-0.8.30-armv7.apk)
-[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.30%2B80300/Kivixa-Android-0.8.30-x86_64.apk)
+[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.33%2B80330/Kivixa-Android-0.8.33-arm64.apk)
+[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.33%2B80330/Kivixa-Android-0.8.33-armv7.apk)
+[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.33%2B80330/Kivixa-Android-0.8.33-x86_64.apk)
 
 **F-Droid Repository (step-by-step):**
 

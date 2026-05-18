@@ -197,7 +197,10 @@ jobs:
           crate="${{ matrix.crate }}"
 
           if [[ "${{ needs.resolve-target.outputs.full_run }}" == "true" ]]; then
+            # Added exclusions for target/ and vendor/
             find "$crate" -type f -name '*.rs' \
+              -not -path "*/target/*" \
+              -not -path "*/vendor/*" \
               | sed "s#^${crate}/##" \
               | sort > "${crate}/changed_rs_files.txt"
           else
