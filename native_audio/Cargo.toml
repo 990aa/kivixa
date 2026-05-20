@@ -23,7 +23,7 @@ thiserror = "2.0.18"
 
 # Audio processing
 hound = "3.5"          # WAV file handling
-rubato = "2.0.0"        # High-quality resampling
+rubato = "3.0.0"        # High-quality resampling
 dasp_sample = "0.11"   # Audio sample type conversions
 
 # Phonemization for TTS (lightweight)
