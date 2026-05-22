@@ -10,6 +10,7 @@ import 'package:kivixa/data/models/notification_settings.dart';
 import 'package:kivixa/data/notification_settings_storage.dart';
 import 'package:kivixa/services/notification_sound_catalog_service.dart';
 import 'package:kivixa/services/productivity/material_icon_codec.dart';
+import 'package:kivixa/services/app_lifecycle_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A single block in a routine chain
@@ -380,6 +381,16 @@ class ChainedRoutineService extends ChangeNotifier {
   RoutineState _state = RoutineState.idle;
   Duration _remainingTime = Duration.zero;
   Timer? _timer;
+  
+  DateTime? _phaseStartTime;
+  DateTime? _phaseEndTime;
+  bool _lifecycleBound = false;
+
+  static const _statusNotificationId = 98765;
+  static const _completionNotificationId = 98766;
+  static const _actionPause = 'chained_action_pause';
+  static const _actionResume = 'chained_action_resume';
+  static const _actionStop = 'chained_action_stop';
 
   // Routine catalogs
   final _defaultRoutines = List<ChainedRoutine>.from(
@@ -479,7 +490,63 @@ class ChainedRoutineService extends ChangeNotifier {
 
     await _loadRoutines();
     await _loadSettings();
+
+    if (!_lifecycleBound) {
+      AppLifecycleManager.instance.addResumeListener(_handleAppResume);
+      _lifecycleBound = true;
+    }
+
     _initialized = true;
+  }
+
+  void _handleAppResume() {
+    if (_state == RoutineState.running) {
+      _syncWithClock();
+    }
+  }
+
+  void _syncWithClock() {
+    if (_state != RoutineState.running || _phaseStartTime == null) {
+      return;
+    }
+
+    // Cancel completion notification since we are back
+    _notifications?.cancel(_completionNotificationId);
+
+    final now = DateTime.now();
+    var elapsed = now.difference(_phaseStartTime!);
+    if (elapsed.isNegative) {
+      return;
+    }
+
+    while (_state == RoutineState.running && elapsed >= _remainingTime) {
+      elapsed -= _remainingTime;
+      _onBlockComplete(silent: true);
+    }
+
+    if (_state == RoutineState.running) {
+      final remaining = _remainingTime - elapsed;
+      _remainingTime = remaining.isNegative ? Duration.zero : remaining;
+      final adjustedStart = now.subtract(currentBlock!.duration - _remainingTime);
+      _phaseStartTime = adjustedStart;
+      _phaseEndTime = now.add(_remainingTime);
+      _startTimer();
+      unawaited(_showTimerStatusNotification());
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
+    }
+
+    notifyListeners();
+  }
+
+  void _setPhaseTiming(DateTime startTime, Duration duration) {
+    _phaseStartTime = startTime;
+    _phaseEndTime = startTime.add(duration);
+    _remainingTime = duration;
+  }
+
+  void _clearPhaseTiming() {
+    _phaseStartTime = null;
+    _phaseEndTime = null;
   }
 
   /// Start a routine
@@ -492,15 +559,12 @@ class ChainedRoutineService extends ChangeNotifier {
     _currentRoutine = routine;
     _currentBlockIndex = 0;
     _state = RoutineState.running;
-    _remainingTime = routine.blocks.first.duration;
+    _setPhaseTiming(DateTime.now(), routine.blocks.first.duration);
     _startTimer();
     notifyListeners();
 
-    _showNotification(
-      title: '${routine.name} Started',
-      body:
-          'First: ${routine.blocks.first.name} (${routine.blocks.first.durationMinutes} min)',
-    );
+    unawaited(_showTimerStatusNotification());
+    unawaited(_scheduleCurrentPhaseCompletionNotification());
   }
 
   /// Pause the routine
@@ -508,6 +572,9 @@ class ChainedRoutineService extends ChangeNotifier {
     if (_state == RoutineState.running) {
       _timer?.cancel();
       _state = RoutineState.paused;
+      _clearPhaseTiming();
+      _notifications?.cancel(_completionNotificationId);
+      unawaited(_showTimerStatusNotification());
       notifyListeners();
     }
   }
@@ -516,7 +583,10 @@ class ChainedRoutineService extends ChangeNotifier {
   void resume() {
     if (_state == RoutineState.paused) {
       _state = RoutineState.running;
+      _setPhaseTiming(DateTime.now(), _remainingTime);
       _startTimer();
+      unawaited(_showTimerStatusNotification());
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
       notifyListeners();
     }
   }
@@ -528,6 +598,9 @@ class ChainedRoutineService extends ChangeNotifier {
     _currentBlockIndex = 0;
     _state = RoutineState.idle;
     _remainingTime = Duration.zero;
+    _clearPhaseTiming();
+    _notifications?.cancel(_completionNotificationId);
+    _notifications?.cancel(_statusNotificationId);
     notifyListeners();
   }
 
@@ -540,6 +613,11 @@ class ChainedRoutineService extends ChangeNotifier {
   /// Add extra time to current block
   void addTime(Duration extra) {
     _remainingTime += extra;
+    if (_state == RoutineState.running) {
+      _setPhaseTiming(DateTime.now(), _remainingTime);
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
+      unawaited(_showTimerStatusNotification());
+    }
     notifyListeners();
   }
 
@@ -555,39 +633,38 @@ class ChainedRoutineService extends ChangeNotifier {
     });
   }
 
-  void _onBlockComplete() {
+  void _onBlockComplete({bool silent = false}) {
     _timer?.cancel();
     final block = currentBlock;
-    if (block != null) {
-      final hasNextBlock = _currentBlockIndex < totalBlocks - 1;
-      final nextBlock = hasNextBlock
-          ? _currentRoutine!.blocks[_currentBlockIndex + 1]
-          : null;
-      _showNotification(
-        title: '${block.name} Complete!',
-        body: nextBlock != null
-            ? 'Up next: ${nextBlock.name} (${nextBlock.durationMinutes} min)'
-            : 'Routine complete!',
-      );
+    if (!silent && block != null) {
+      // Audio playback will be handled by hybrid logic later
     }
-    _advanceToNextBlock();
+    _advanceToNextBlock(silent: silent);
   }
 
-  void _advanceToNextBlock() {
+  void _advanceToNextBlock({bool silent = false}) {
     _currentBlockIndex++;
     if (_currentBlockIndex >= totalBlocks) {
       _state = RoutineState.completed;
-      _showNotification(
-        title: '${_currentRoutine!.name} Complete! 🎉',
-        body: 'Great job! You completed all $totalBlocks blocks.',
-      );
+      _clearPhaseTiming();
+      _notifications?.cancel(_statusNotificationId);
+      if (!silent) {
+        _showNotification(
+          title: '${_currentRoutine!.name} Complete! 🎉',
+          body: 'Great job! You completed all $totalBlocks blocks.',
+        );
+      }
       notifyListeners();
       return;
     }
 
-    _remainingTime = _currentRoutine!.blocks[_currentBlockIndex].duration;
     _state = RoutineState.running;
+    _setPhaseTiming(DateTime.now(), _currentRoutine!.blocks[_currentBlockIndex].duration);
     _startTimer();
+    if (!silent) {
+      unawaited(_showTimerStatusNotification());
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
+    }
     notifyListeners();
   }
 
