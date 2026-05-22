@@ -247,7 +247,7 @@ class ProductivityTimerService extends ChangeNotifier {
   SessionType _sessionType = SessionType.focus;
   var _totalDuration = const Duration(minutes: 25);
   var _remainingTime = const Duration(minutes: 25);
-  var _workDuration = const Duration(minutes: 25);
+  Duration _workDuration = const Duration(minutes: 25);
   var _breakDuration = const Duration(minutes: 5);
   var _currentCycle = 1;
   var _totalCycles = 4;
@@ -489,29 +489,17 @@ class ProductivityTimerService extends ChangeNotifier {
     final effectivePlaySound =
         playSound && _soundEnabled && _shouldPlaySound(globalSettings);
     final enableVibration = _shouldVibrate(globalSettings);
-    final resolvedSound = await _resolveAndroidSound(
+    final sound = await _resolveAndroidSound(
       globalSettings,
       effectivePlaySound,
     );
-    final vibrationPattern = enableVibration
-        ? (longVibrationAlert
-              ? _longReminderVibrationPattern()
-              : _shortNotificationVibrationPattern())
-        : null;
-
-    final effectiveActions = <AndroidNotificationAction>[...?actions];
-    if (!ongoing &&
-        !effectiveActions.any((action) => action.id == _actionDismiss)) {
-      effectiveActions.add(
-        const AndroidNotificationAction(
-          _actionDismiss,
-          'Dismiss',
-          showsUserInterface: false,
-        ),
-      );
-    }
-
-    final soundIdentity = resolvedSound.identity;
+    final soundIdentity = !effectivePlaySound
+        ? 'sound_off'
+        : (sound is RawResourceAndroidNotificationSound
+              ? 'kivixa_notification'
+              : sound is UriAndroidNotificationSound
+              ? globalSettings.reminderSoundId
+              : 'sound_off');
 
     final androidDetails = AndroidNotificationDetails(
       _channelIdForSettings(globalSettings, soundIdentity),
@@ -520,7 +508,7 @@ class ProductivityTimerService extends ChangeNotifier {
       importance: Importance.high,
       priority: Priority.high,
       playSound: effectivePlaySound,
-      sound: resolvedSound,
+      sound: sound,
       audioAttributesUsage: _resolveAudioAttributesUsage(effectivePlaySound),
       enableVibration: enableVibration,
       vibrationPattern: vibrationPattern,
@@ -815,10 +803,8 @@ class ProductivityTimerService extends ChangeNotifier {
         _completionNotificationId,
         content.title,
         content.body,
-        details,
         tz.TZDateTime.from(scheduledTime, tz.local),
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
+        details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: 'productivity_timer_completion',
       );
@@ -853,16 +839,7 @@ class ProductivityTimerService extends ChangeNotifier {
     }
   }
 
-  void _setPhaseTiming(DateTime startTime, Duration duration) {
-    _phaseStartTime = startTime;
-    _phaseEndTime = startTime.add(duration);
-    _remainingTime = duration;
-  }
 
-  void _clearPhaseTiming() {
-    _phaseStartTime = null;
-    _phaseEndTime = null;
-  }
 
   void _syncWithClock() {
     if (!_isActivePhase || _phaseStartTime == null) {
