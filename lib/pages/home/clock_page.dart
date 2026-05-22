@@ -792,11 +792,11 @@ class _ClockPageState extends State<ClockPage>
                             children: [
                               _buildPresetChip(
                                 Icons.work,
-                                '${preset.workMinutes}m',
+                                '${preset.workMinutes}m${preset.workSeconds > 0 ? ' ${preset.workSeconds}s' : ''}',
                               ),
                               _buildPresetChip(
                                 Icons.coffee,
-                                '${preset.breakMinutes}m break',
+                                '${preset.breakMinutes}m${preset.breakSeconds > 0 ? ' ${preset.breakSeconds}s' : ''} break',
                               ),
                               _buildPresetChip(
                                 Icons.loop,
@@ -1209,7 +1209,7 @@ class _ClockPageState extends State<ClockPage>
                   decoration: isCompleted ? TextDecoration.lineThrough : null,
                 ),
               ),
-              subtitle: Text('${b.durationMinutes} min'),
+              subtitle: Text('${b.durationMinutes}m${b.durationSeconds > 0 ? ' ${b.durationSeconds}s' : ''}'),
               trailing: isCurrent
                   ? Icon(Icons.arrow_forward, color: colorScheme.primary)
                   : null,
@@ -1304,7 +1304,7 @@ class _ClockPageState extends State<ClockPage>
                     subtitle: block.description != null
                         ? Text(block.description!)
                         : null,
-                    trailing: Text('${block.durationMinutes} min'),
+                    trailing: Text('${block.durationMinutes}m${block.durationSeconds > 0 ? ' ${block.durationSeconds}s' : ''}'),
                   );
                 }),
                 const SizedBox(height: 24),
@@ -1361,8 +1361,14 @@ class _ClockPageState extends State<ClockPage>
     final workMinutesController = TextEditingController(
       text: '${preset?.workMinutes ?? 25}',
     );
+    final workSecondsController = TextEditingController(
+      text: '${preset?.workSeconds ?? 0}',
+    );
     final breakMinutesController = TextEditingController(
       text: '${preset?.breakMinutes ?? 5}',
+    );
+    final breakSecondsController = TextEditingController(
+      text: '${preset?.breakSeconds ?? 0}',
     );
     final cyclesController = TextEditingController(
       text: '${preset?.totalCycles ?? 4}',
@@ -1392,20 +1398,52 @@ class _ClockPageState extends State<ClockPage>
                       ),
                     ),
                     const SizedBox(height: 12),
-                    TextField(
-                      controller: workMinutesController,
-                      decoration: const InputDecoration(
-                        labelText: 'Work Minutes',
-                      ),
-                      keyboardType: TextInputType.number,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: workMinutesController,
+                            decoration: const InputDecoration(
+                              labelText: 'Work Minutes',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: workSecondsController,
+                            decoration: const InputDecoration(
+                              labelText: 'Work Seconds',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 12),
-                    TextField(
-                      controller: breakMinutesController,
-                      decoration: const InputDecoration(
-                        labelText: 'Break Minutes',
-                      ),
-                      keyboardType: TextInputType.number,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: breakMinutesController,
+                            decoration: const InputDecoration(
+                              labelText: 'Break Minutes',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: breakSecondsController,
+                            decoration: const InputDecoration(
+                              labelText: 'Break Seconds',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 12),
                     TextField(
@@ -1456,21 +1494,33 @@ class _ClockPageState extends State<ClockPage>
                     final workMinutes = int.tryParse(
                       workMinutesController.text.trim(),
                     );
+                    final workSeconds = int.tryParse(
+                          workSecondsController.text.trim(),
+                        ) ??
+                        0;
                     final breakMinutes = int.tryParse(
                       breakMinutesController.text.trim(),
                     );
+                    final breakSeconds = int.tryParse(
+                          breakSecondsController.text.trim(),
+                        ) ??
+                        0;
                     final cycles = int.tryParse(cyclesController.text.trim());
 
                     if (name.isEmpty ||
                         workMinutes == null ||
                         breakMinutes == null ||
                         cycles == null ||
-                        workMinutes <= 0 ||
-                        breakMinutes <= 0 ||
-                        cycles <= 0) {
+                        (workMinutes <= 0 && workSeconds <= 0) ||
+                        (breakMinutes <= 0 && breakSeconds <= 0) ||
+                        cycles <= 0 ||
+                        workSeconds < 0 ||
+                        workSeconds >= 60 ||
+                        breakSeconds < 0 ||
+                        breakSeconds >= 60) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Please enter valid preset values.'),
+                          content: Text('Please enter valid preset values (seconds 0-59).'),
                         ),
                       );
                       return;
@@ -1489,7 +1539,9 @@ class _ClockPageState extends State<ClockPage>
                       name: name,
                       icon: preset?.icon ?? Icons.tune,
                       workMinutes: workMinutes,
+                      workSeconds: workSeconds,
                       breakMinutes: breakMinutes,
+                      breakSeconds: breakSeconds,
                       longBreakMinutes: preset?.longBreakMinutes,
                       cyclesBeforeLongBreak: preset?.cyclesBeforeLongBreak,
                       totalCycles: cycles,
@@ -1682,7 +1734,7 @@ class _ClockPageState extends State<ClockPage>
                                               ),
                                         ),
                                         Text(
-                                          '${block.durationMinutes} min',
+                                          '${block.durationMinutes}m${block.durationSeconds > 0 ? ' ${block.durationSeconds}s' : ''}',
                                           style: Theme.of(
                                             context,
                                           ).textTheme.bodySmall,
@@ -1793,6 +1845,9 @@ class _ClockPageState extends State<ClockPage>
     final durationController = TextEditingController(
       text: '${existing?.durationMinutes ?? 25}',
     );
+    final durationSecondsController = TextEditingController(
+      text: '${existing?.durationSeconds ?? 0}',
+    );
     final descriptionController = TextEditingController(
       text: existing?.description ?? '',
     );
@@ -1822,12 +1877,28 @@ class _ClockPageState extends State<ClockPage>
                       ),
                     ),
                     const SizedBox(height: 12),
-                    TextField(
-                      controller: durationController,
-                      decoration: const InputDecoration(
-                        labelText: 'Duration (minutes)',
-                      ),
-                      keyboardType: TextInputType.number,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: durationController,
+                            decoration: const InputDecoration(
+                              labelText: 'Duration (minutes)',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: durationSecondsController,
+                            decoration: const InputDecoration(
+                              labelText: 'Duration (seconds)',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<int>(
@@ -1878,9 +1949,16 @@ class _ClockPageState extends State<ClockPage>
                     final durationMinutes = int.tryParse(
                       durationController.text.trim(),
                     );
+                    final durationSeconds = int.tryParse(
+                          durationSecondsController.text.trim(),
+                        ) ??
+                        0;
+
                     if (name.isEmpty ||
                         durationMinutes == null ||
-                        durationMinutes <= 0) {
+                        (durationMinutes <= 0 && durationSeconds <= 0) ||
+                        durationSeconds < 0 ||
+                        durationSeconds >= 60) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
@@ -1896,6 +1974,8 @@ class _ClockPageState extends State<ClockPage>
                       dialogContext,
                       RoutineBlock(
                         name: name,
+                        durationMinutes: durationMinutes,
+                        durationSeconds: durationSeconds,
                         durationMinutes: durationMinutes,
                         icon: style.icon,
                         color: style.color,
