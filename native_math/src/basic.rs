@@ -232,7 +232,14 @@ fn preprocess_expression(expr: &str) -> String {
             Token::FuncConst(f) => {
                 if is_constant_name(f) {
                     result.push_str(f);
-                    result.push_str("()");
+                    let next_is_paren = if i + 1 < tokens.len() {
+                        matches!(tokens[i+1], Token::Op('('))
+                    } else {
+                        false
+                    };
+                    if !next_is_paren {
+                        result.push_str("()");
+                    }
                 } else {
                     result.push_str(f);
                 }
