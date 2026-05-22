@@ -668,9 +668,130 @@ class ProductivityTimerService extends ChangeNotifier {
       body: _buildProductivityContextSummary(),
       playSound: false,
       ongoing: true,
+      chronometerStart: _phaseStartTime,
       payload: 'productivity_timer_status',
       actions: _buildStatusActions(),
     );
+  }
+
+  Future<void> _ensureTimeZonesInitialized() async {
+    if (_timeZonesInitialized) {
+      return;
+    }
+    tz.initializeTimeZones();
+    _timeZonesInitialized = true;
+  }
+
+  Future<void> _cancelScheduledCompletionNotification() async {
+    if (!_notificationsInitialized) {
+      return;
+    }
+    await _notifications?.cancel(_completionNotificationId);
+  }
+
+  ({String title, String body}) _completionNotificationContent() {
+    if (_state == TimerState.breakTime) {
+      if (_currentCycle < _totalCycles) {
+        return (
+          title: 'Break Complete!',
+          body:
+              'Ready for the next session?\n${_buildProductivityContextSummary()}',
+        );
+      }
+      return (
+        title: 'All Sessions Complete! 🎉',
+        body:
+            'Great job! You completed $_totalCycles sessions.\n${_buildProductivityContextSummary()}',
+      );
+    }
+
+    return (
+      title: 'Session Complete!',
+      body: 'Time for a break!\n${_buildProductivityContextSummary()}',
+    );
+  }
+
+  Future<void> _scheduleCurrentPhaseCompletionNotification() async {
+    if (!_notificationsInitialized || _phaseEndTime == null) {
+      return;
+    }
+
+    final scheduledTime = _phaseEndTime!;
+    if (scheduledTime.isBefore(DateTime.now())) {
+      return;
+    }
+
+    await _ensureTimeZonesInitialized();
+
+    final globalSettings = await NotificationSettingsStorage.loadSettings();
+    final effectivePlaySound =
+        _soundEnabled && _shouldPlaySound(globalSettings);
+    final enableVibration = _shouldVibrate(globalSettings);
+    final resolvedSound = await _resolveAndroidSound(
+      globalSettings,
+      effectivePlaySound,
+    );
+    final vibrationPattern = enableVibration
+        ? _longReminderVibrationPattern()
+        : null;
+
+    final androidDetails = AndroidNotificationDetails(
+      _channelIdForSettings(globalSettings, resolvedSound.identity),
+      'Productivity Timer',
+      channelDescription: 'Notifications for productivity timer',
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: effectivePlaySound,
+      sound: resolvedSound.sound,
+      audioAttributesUsage: _resolveAudioAttributesUsage(effectivePlaySound),
+      enableVibration: enableVibration,
+      vibrationPattern: vibrationPattern,
+      timeoutAfter: 60000,
+      actions: const [
+        AndroidNotificationAction(
+          _actionDismiss,
+          'Dismiss',
+          showsUserInterface: false,
+        ),
+      ],
+    );
+
+    final soundFileName = effectivePlaySound
+        ? NotificationSoundCatalogService.instance
+              .optionById(globalSettings.reminderSoundId)
+              .fileName
+        : null;
+
+    final darwinDetails = DarwinNotificationDetails(
+      sound: effectivePlaySound
+          ? (soundFileName ?? 'kivixa_notification.mp3')
+          : null,
+      presentSound: effectivePlaySound,
+    );
+
+    final details = NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
+    );
+
+    final content = _completionNotificationContent();
+
+    try {
+      await _notifications?.zonedSchedule(
+        _completionNotificationId,
+        content.title,
+        content.body,
+        details,
+        tz.TZDateTime.from(scheduledTime, tz.local),
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        payload: 'productivity_timer_completion',
+      );
+    } catch (e) {
+      debugPrint('Failed to schedule completion notification: $e');
+    }
   }
 
   /// Check if we need to reset daily stats
