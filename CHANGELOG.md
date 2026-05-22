@@ -753,6 +753,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.8.34] - 2026-05-16
 
-
+### Added
+- **Timer Seconds Input**: Added support to specify minutes and seconds when creating Custom Quick Presets and Custom Routine Blocks.
+- **Background Timer Sync**: Chained routine timers now run seamlessly in the background and accurately update Android notifications when the app is backgrounded.
+- **Completion Sounds**: Timers now play the user's chosen notification audio upon completion, smoothly handling foreground media and background native audio states.
 
 ---
