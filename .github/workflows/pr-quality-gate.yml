@@ -130,7 +130,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          xargs -r dart format --set-exit-if-changed --output=none < changed_dart_files.txt
+          tr -d '\r' < changed_dart_files.txt | tr '\n' '\0' | xargs -0 -r dart format --set-exit-if-changed
 
       - name: Analyze Flutter/Dart code (fatal warnings and infos)
         run: flutter analyze --fatal-infos --fatal-warnings
