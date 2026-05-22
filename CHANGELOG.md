@@ -751,17 +751,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Reordered "Delete Data on Uninstall" to be placed just above the "Clear App Data" setting and just below the "Open Kivixa Folder" setting.
   
 ---
-## [0.8.34] - 2026-05-16
+
+
+## [0.9.0] - 2026-05-22
 
 ### Added
 - **Timer Seconds Input**: Added support to specify minutes and seconds when creating Custom Quick Presets and Custom Routine Blocks.
 - **Background Timer Sync**: Chained routine timers now run seamlessly in the background and accurately update Android notifications when the app is backgrounded.
 - **Completion Sounds**: Timers now play the user's chosen notification audio upon completion, smoothly handling foreground media and background native audio states.
-
----
-## [0.9.0] - 2026-05-22
-
-### Added
 - **Math Auto-Closing Brackets**: Math expressions automatically close unclosed brackets before evaluation.
 - **Extended Trigonometry**: Added support for all reciprocal trig (`sec`, `csc`, `cot`) and inverse trig functions (`asin`, `acos`, `atan`, `asec`, `acsc`, `acot`).
 - **Implicit Math Operations**: The backend engine now intelligently infers multiplication (e.g., `2(3+1)` becomes `2*(3+1)`) and constant combinations (e.g., `hc` evaluates as `h*c`).
