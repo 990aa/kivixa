@@ -131,18 +131,123 @@ pub fn evaluate_expression(expression: &str) -> ExpressionResult {
         }
     };
 
-    // Clean expression
-    let expr = expression
-        .replace("×", "*")
-        .replace("÷", "/")
-        .replace("−", "-")
-        .replace("π", "pi()")
-        .replace("√", "sqrt");
+    let expr = preprocess_expression(expression);
 
     match fasteval::ez_eval(&expr, &mut ns) {
         Ok(val) => ExpressionResult::ok(val),
         Err(e) => ExpressionResult::error(&format!("Evaluation error: {}", e)),
     }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+enum Token {
+    Number(String),
+    FuncConst(String),
+    Op(char),
+}
+
+fn tokenize(mut s: &str) -> Vec<Token> {
+    let mut tokens = Vec::new();
+    let funcs_and_consts = [
+        "asin", "acos", "atan", "asec", "acsc", "acot",
+        "sind", "cosd", "tand", "secd", "cscd", "cotd",
+        "sinh", "cosh", "tanh", "asinh", "acosh", "atanh",
+        "sin", "cos", "tan", "sec", "csc", "cot",
+        "log2", "logb", "log", "ln", "exp", "pow", "sqrt", "cbrt", "root",
+        "floor", "ceil", "round", "trunc", "frac", "abs", "sign",
+        "min", "max", "clamp", "factorial", "fact",
+        "pi", "tau", "phi", "kB", "NA", "e", "c", "G", "h", "R", "g"
+    ];
+
+    while !s.is_empty() {
+        s = s.trim_start();
+        if s.is_empty() { break; }
+
+        let c = s.chars().next().unwrap();
+
+        if c.is_ascii_digit() || c == '.' {
+            let end = s.find(|c: char| !c.is_ascii_digit() && c != '.').unwrap_or(s.len());
+            tokens.push(Token::Number(s[..end].to_string()));
+            s = &s[end..];
+        } else if c.is_alphabetic() {
+            let mut matched = false;
+            for fc in funcs_and_consts.iter() {
+                if s.starts_with(fc) {
+                    tokens.push(Token::FuncConst(fc.to_string()));
+                    s = &s[fc.len()..];
+                    matched = true;
+                    break;
+                }
+            }
+            if !matched {
+                tokens.push(Token::FuncConst(s[..1].to_string()));
+                s = &s[1..];
+            }
+        } else {
+            tokens.push(Token::Op(c));
+            s = &s[c.len_utf8()..];
+        }
+    }
+    tokens
+}
+
+fn preprocess_expression(expr: &str) -> String {
+    let clean_expr = expr
+        .replace("×", "*")
+        .replace("÷", "/")
+        .replace("−", "-")
+        .replace("π", "pi")
+        .replace("√", "sqrt");
+
+    let tokens = tokenize(&clean_expr);
+    let mut result = String::new();
+    let mut open_brackets = 0;
+
+    for i in 0..tokens.len() {
+        let t = &tokens[i];
+
+        if let Token::Op('(') = t { open_brackets += 1; }
+        if let Token::Op(')') = t { open_brackets -= 1; }
+
+        if i > 0 {
+            let prev = &tokens[i-1];
+            let needs_mult = match (prev, t) {
+                (Token::Number(_), Token::FuncConst(_)) => true,
+                (Token::Number(_), Token::Op('(')) => true,
+                (Token::Op(')'), Token::Number(_)) => true,
+                (Token::Op(')'), Token::FuncConst(_)) => true,
+                (Token::Op(')'), Token::Op('(')) => true,
+                (Token::FuncConst(f1), Token::FuncConst(_)) => is_constant_name(f1),
+                (Token::FuncConst(f1), Token::Number(_)) => is_constant_name(f1),
+                (Token::FuncConst(f1), Token::Op('(')) => is_constant_name(f1),
+                _ => false,
+            };
+            if needs_mult {
+                result.push('*');
+            }
+        }
+
+        match t {
+            Token::Number(n) => result.push_str(n),
+            Token::FuncConst(f) => {
+                if is_constant_name(f) {
+                    result.push_str(f);
+                    result.push_str("()");
+                } else {
+                    result.push_str(f);
+                }
+            },
+            Token::Op(c) => result.push(*c),
+        }
+    }
+
+    if open_brackets > 0 {
+        for _ in 0..open_brackets {
+            result.push(')');
+        }
+    }
+
+    result
 }
 
 /// Convert between number systems
