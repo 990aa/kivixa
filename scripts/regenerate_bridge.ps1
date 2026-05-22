@@ -24,9 +24,7 @@ function Assert-LastExitCode {
     }
 }
 
-# ---------------------------------------------------------
 # STEP 1: REGENERATE BINDINGS
-# ---------------------------------------------------------
 Write-Host "`nStep 1: Running flutter_rust_bridge_codegen..." -ForegroundColor Yellow
 
 # Core AI/Native Module
@@ -48,9 +46,7 @@ Assert-LastExitCode "Audio binding generation"
 Write-Host " Done." -ForegroundColor Green
 
 
-# ---------------------------------------------------------
 # STEP 2: PURGE BOILERPLATE
-# ---------------------------------------------------------
 Write-Host "`nStep 2: Cleaning rust_builder directory..." -ForegroundColor Yellow
 $rustBuilderDir = Join-Path $rootDir "rust_builder"
 if (-not (Test-Path -LiteralPath $rustBuilderDir -PathType Container)) {
@@ -93,9 +89,7 @@ foreach ($item in $purgeList) {
     }
 }
 
-# ---------------------------------------------------------
 # FINAL STATUS
-# ---------------------------------------------------------
 Write-Host "`n=== Success! Your bridge is updated and the codebase is clean. ===`n" -ForegroundColor Green
 Write-Host "To commit changes, run:" -ForegroundColor Gray
 Write-Host "git add . && git commit -m 'feat: regenerate native bridge'" -ForegroundColor Gray
