@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -247,7 +246,7 @@ class ProductivityTimerService extends ChangeNotifier {
   SessionType _sessionType = SessionType.focus;
   var _totalDuration = const Duration(minutes: 25);
   var _remainingTime = const Duration(minutes: 25);
-  Duration _workDuration = const Duration(minutes: 25);
+
   var _breakDuration = const Duration(minutes: 5);
   var _currentCycle = 1;
   var _totalCycles = 4;
