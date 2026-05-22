@@ -761,4 +761,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.9.0] - 2026-05-22
 
+### Added
+- **Math Auto-Closing Brackets**: Math expressions automatically close unclosed brackets before evaluation.
+- **Extended Trigonometry**: Added support for all reciprocal trig (`sec`, `csc`, `cot`) and inverse trig functions (`asin`, `acos`, `atan`, `asec`, `acsc`, `acot`).
+- **Implicit Math Operations**: The backend engine now intelligently infers multiplication (e.g., `2(3+1)` becomes `2*(3+1)`) and constant combinations (e.g., `hc` evaluates as `h*c`).
+- **New Math Constants**: Replaced generic numbers with extensive scientific constants including Speed of Light (`c`), Gravitational Constant (`G`), Planck Constant (`h`), Boltzmann (`kB`), Avogadro (`NA`), and Gas Constant (`R`).
+- **Detailed Unit Testing**: Integrated comprehensive background service tests covering timer serialization, background syncing, and calculation integrity.
+
+### Changed
+- **Redesigned Math Interface**: Totally revamped the General Calculator layout. Placed Backspace/Clear adjacent to the input field, clearly grouped trigonometric, logarithmic, and mathematical features, and optimized the layout for maximum operational UX.
+
 ---
