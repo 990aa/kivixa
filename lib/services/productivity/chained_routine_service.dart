@@ -17,6 +17,7 @@ class RoutineBlock {
   const RoutineBlock({
     required this.name,
     required this.durationMinutes,
+    this.durationSeconds = 0,
     this.icon = Icons.timer,
     this.color = Colors.blue,
     this.description,
@@ -24,15 +25,20 @@ class RoutineBlock {
 
   final String name;
   final int durationMinutes;
+  final int durationSeconds;
   final IconData icon;
   final Color color;
   final String? description;
 
-  Duration get duration => Duration(minutes: durationMinutes);
+  Duration get duration => Duration(
+    minutes: durationMinutes,
+    seconds: durationSeconds,
+  );
 
   Map<String, dynamic> toJson() => {
     'name': name,
     'durationMinutes': durationMinutes,
+    'durationSeconds': durationSeconds,
     'icon': icon.codePoint,
     'color': color.toARGB32(),
     'description': description,
@@ -41,6 +47,7 @@ class RoutineBlock {
     return RoutineBlock(
       name: json['name'] as String,
       durationMinutes: json['durationMinutes'] as int,
+      durationSeconds: json['durationSeconds'] as int? ?? 0,
       icon: MaterialIconCodec.fromCodePoint(
         json['icon'] as int,
         fallback: Icons.timer,
@@ -53,6 +60,7 @@ class RoutineBlock {
   RoutineBlock copyWith({
     String? name,
     int? durationMinutes,
+    int? durationSeconds,
     IconData? icon,
     Color? color,
     String? description,
@@ -60,6 +68,7 @@ class RoutineBlock {
     return RoutineBlock(
       name: name ?? this.name,
       durationMinutes: durationMinutes ?? this.durationMinutes,
+      durationSeconds: durationSeconds ?? this.durationSeconds,
       icon: icon ?? this.icon,
       color: color ?? this.color,
       description: description ?? this.description,
