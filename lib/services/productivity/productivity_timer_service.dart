@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kivixa/data/models/notification_settings.dart';
@@ -13,6 +14,7 @@ import 'package:kivixa/services/notification_sound_catalog_service.dart';
 import 'package:kivixa/services/productivity/chained_routine_service.dart';
 import 'package:kivixa/services/productivity/multi_timer_service.dart';
 import 'package:kivixa/services/productivity/timer_context_tag.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -272,6 +274,7 @@ class ProductivityTimerService extends ChangeNotifier {
   // Notifications
   FlutterLocalNotificationsPlugin? _notifications;
   var _notificationsInitialized = false;
+  Player? _alarmPlayer;
   var _soundEnabled = true;
   var _showPreEndWarning = true;
   var _preEndWarningMinutes = 5;
@@ -371,6 +374,13 @@ class ProductivityTimerService extends ChangeNotifier {
     await _loadTagMinutes();
     await _initializeNotifications();
 
+    try {
+      MediaKit.ensureInitialized();
+      _alarmPlayer = Player();
+    } catch (e) {
+      debugPrint('Failed to initialize alarm player: $e');
+    }
+
     if (!_lifecycleBound) {
       AppLifecycleManager.instance.addResumeListener(_handleAppResume);
       _lifecycleBound = true;
@@ -420,6 +430,8 @@ class ProductivityTimerService extends ChangeNotifier {
   }
 
   void _handleNotificationResponse(NotificationResponse response) {
+    _stopAlarmSound();
+    
     if (response.actionId == _actionDismiss) {
       unawaited(_notifications?.cancel(response.id ?? _statusNotificationId));
       return;
@@ -435,6 +447,27 @@ class ProductivityTimerService extends ChangeNotifier {
       default:
         break;
     }
+  }
+
+  Future<void> _playAlarmSound() async {
+    if (!_soundEnabled) return;
+    final settings = await NotificationSettingsStorage.loadSettings();
+    if (!settings.notificationSoundEnabled) return;
+
+    final path = await NotificationSoundCatalogService.instance
+        .localPathForReminderSound(settings.reminderSoundId);
+    if (path != null && File(path).existsSync()) {
+      try {
+        await _alarmPlayer?.open(Media(path), play: true);
+        await _alarmPlayer?.setPlaylistMode(PlaylistMode.loop);
+      } catch (e) {
+        debugPrint('Failed to play alarm: $e');
+      }
+    }
+  }
+
+  void _stopAlarmSound() {
+    _alarmPlayer?.stop();
   }
 
   /// Show notification
@@ -963,8 +996,10 @@ class ProductivityTimerService extends ChangeNotifier {
           title: 'Break Complete!',
           body:
               'Ready for the next session?\n${_buildProductivityContextSummary()}',
+          playSound: false,
         ),
       );
+      _playAlarmSound();
       onBreakComplete?.call();
 
       if (_currentCycle < _totalCycles) {
@@ -982,8 +1017,10 @@ class ProductivityTimerService extends ChangeNotifier {
             title: 'All Sessions Complete! 🎉',
             body:
                 'Great job! You completed $_totalCycles sessions.\n${_buildProductivityContextSummary()}',
+            playSound: false,
           ),
         );
+        _playAlarmSound();
       }
     } else {
       // Work session completed
@@ -992,8 +1029,10 @@ class ProductivityTimerService extends ChangeNotifier {
         _showNotification(
           title: 'Session Complete!',
           body: 'Time for a break!\n${_buildProductivityContextSummary()}',
+          playSound: false,
         ),
       );
+      _playAlarmSound();
       onSessionComplete?.call();
 
       if (_autoStartBreak) {
