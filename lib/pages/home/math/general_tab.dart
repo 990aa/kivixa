@@ -239,125 +239,85 @@ class _MathGeneralTabState extends State<MathGeneralTab> {
   }
 
   Widget _buildCompactKeypad(ColorScheme colorScheme) {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 6,
-      childAspectRatio: 1.4,
-      crossAxisSpacing: 4,
-      mainAxisSpacing: 4,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Row 1: Functions
-        _compactBtn(
-          'sin',
-          () => _insertText('sin('),
-          colorScheme.tertiaryContainer,
+        Row(
+          children: [
+            Expanded(child: _compactBtn('(', () => _insertText('('), colorScheme.surfaceContainerHigh)),
+            const SizedBox(width: 4),
+            Expanded(child: _compactBtn(')', () => _insertText(')'), colorScheme.surfaceContainerHigh)),
+            const SizedBox(width: 4),
+            Expanded(child: _compactBtn('Ans', () {
+              if (_result.startsWith('= ')) {
+                _insertText(_result.substring(2));
+              }
+            }, colorScheme.surfaceContainerHigh)),
+            const SizedBox(width: 4),
+            Expanded(child: _compactBtn('C', _clear, colorScheme.errorContainer)),
+            const SizedBox(width: 4),
+            Expanded(child: _compactBtn('⌫', _backspace, colorScheme.errorContainer.withValues(alpha: 0.5))),
+          ],
         ),
-        _compactBtn(
-          'cos',
-          () => _insertText('cos('),
-          colorScheme.tertiaryContainer,
-        ),
-        _compactBtn(
-          'tan',
-          () => _insertText('tan('),
-          colorScheme.tertiaryContainer,
-        ),
-        _compactBtn(
-          'ln',
-          () => _insertText('ln('),
-          colorScheme.tertiaryContainer,
-        ),
-        _compactBtn(
-          'log',
-          () => _insertText('log('),
-          colorScheme.tertiaryContainer,
-        ),
-        _compactBtn(
-          '√',
-          () => _insertText('sqrt('),
-          colorScheme.tertiaryContainer,
-        ),
+        const SizedBox(height: 8),
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 5,
+          childAspectRatio: 1.2,
+          crossAxisSpacing: 4,
+          mainAxisSpacing: 4,
+          children: [
+            _compactBtn('sin', () => _insertText('sin('), colorScheme.tertiaryContainer),
+            _compactBtn('cos', () => _insertText('cos('), colorScheme.tertiaryContainer),
+            _compactBtn('tan', () => _insertText('tan('), colorScheme.tertiaryContainer),
+            _compactBtn('sec', () => _insertText('sec('), colorScheme.tertiaryContainer),
+            _compactBtn('csc', () => _insertText('csc('), colorScheme.tertiaryContainer),
 
-        // Row 2: Powers and special
-        _compactBtn(
-          'x²',
-          () => _insertText('^2'),
-          colorScheme.tertiaryContainer,
-        ),
-        _compactBtn(
-          'xʸ',
-          () => _insertText('^'),
-          colorScheme.tertiaryContainer,
-        ),
-        _compactBtn(
-          '|x|',
-          () => _insertText('abs('),
-          colorScheme.tertiaryContainer,
-        ),
-        _compactBtn(
-          'n!',
-          () => _insertText('!'),
-          colorScheme.tertiaryContainer,
-        ),
-        _compactBtn(
-          'nPr',
-          () => _insertText('P'),
-          colorScheme.tertiaryContainer,
-        ),
-        _compactBtn(
-          'nCr',
-          () => _insertText('C'),
-          colorScheme.tertiaryContainer,
-        ),
+            _compactBtn('asin', () => _insertText('asin('), colorScheme.tertiaryContainer),
+            _compactBtn('acos', () => _insertText('acos('), colorScheme.tertiaryContainer),
+            _compactBtn('atan', () => _insertText('atan('), colorScheme.tertiaryContainer),
+            _compactBtn('asec', () => _insertText('asec('), colorScheme.tertiaryContainer),
+            _compactBtn('acsc', () => _insertText('acsc('), colorScheme.tertiaryContainer),
 
-        // Row 3: Constants and brackets
-        _compactBtn(
-          'π',
-          () => _insertText('π'),
-          colorScheme.secondaryContainer,
-        ),
-        _compactBtn(
-          'e',
-          () => _insertText('e'),
-          colorScheme.secondaryContainer,
-        ),
-        _compactBtn('(', () => _insertText('('), null),
-        _compactBtn(')', () => _insertText(')'), null),
-        _compactBtn('C', _clear, colorScheme.errorContainer),
-        _compactBtn(
-          '⌫',
-          _backspace,
-          colorScheme.errorContainer.withValues(alpha: 0.5),
-        ),
+            _compactBtn('cot', () => _insertText('cot('), colorScheme.tertiaryContainer),
+            _compactBtn('acot', () => _insertText('acot('), colorScheme.tertiaryContainer),
+            _compactBtn('ln', () => _insertText('ln('), colorScheme.secondaryContainer),
+            _compactBtn('log', () => _insertText('log('), colorScheme.secondaryContainer),
+            _compactBtn('|x|', () => _insertText('abs('), colorScheme.secondaryContainer),
 
-        // Row 4: Numbers 7-9 and operators
-        _compactBtn('7', () => _insertText('7'), null),
-        _compactBtn('8', () => _insertText('8'), null),
-        _compactBtn('9', () => _insertText('9'), null),
-        _compactBtn('%', () => _insertText('%'), colorScheme.primaryContainer),
-        _compactBtn('÷', () => _insertText('/'), colorScheme.primaryContainer),
-        _compactBtn('×', () => _insertText('*'), colorScheme.primaryContainer),
+            _compactBtn('√', () => _insertText('sqrt('), colorScheme.secondaryContainer),
+            _compactBtn('x²', () => _insertText('^2'), colorScheme.secondaryContainer),
+            _compactBtn('xʸ', () => _insertText('^'), colorScheme.secondaryContainer),
+            _compactBtn('n!', () => _insertText('!'), colorScheme.surfaceContainerHigh),
+            _compactBtn('nPr', () => _insertText('P'), colorScheme.surfaceContainerHigh),
 
-        // Row 5: Numbers 4-6 and subtract
-        _compactBtn('4', () => _insertText('4'), null),
-        _compactBtn('5', () => _insertText('5'), null),
-        _compactBtn('6', () => _insertText('6'), null),
-        _compactBtn('-', () => _insertText('-'), colorScheme.primaryContainer),
-        _compactBtn('+', () => _insertText('+'), colorScheme.primaryContainer),
-        _compactBtn('Ans', () {
-          if (_result.startsWith('= ')) {
-            _insertText(_result.substring(2));
-          }
-        }, colorScheme.secondaryContainer),
+            _compactBtn('7', () => _insertText('7'), null),
+            _compactBtn('8', () => _insertText('8'), null),
+            _compactBtn('9', () => _insertText('9'), null),
+            _compactBtn('÷', () => _insertText('/'), colorScheme.primaryContainer),
+            _compactBtn('nCr', () => _insertText('C'), colorScheme.surfaceContainerHigh),
 
-        // Row 6: Numbers 1-3 and equals
-        _compactBtn('1', () => _insertText('1'), null),
-        _compactBtn('2', () => _insertText('2'), null),
-        _compactBtn('3', () => _insertText('3'), null),
-        _compactBtn('0', () => _insertText('0'), null),
-        _compactBtn('.', () => _insertText('.'), null),
-        _compactBtn('=', _evaluate, colorScheme.primary, colorScheme.onPrimary),
+            _compactBtn('4', () => _insertText('4'), null),
+            _compactBtn('5', () => _insertText('5'), null),
+            _compactBtn('6', () => _insertText('6'), null),
+            _compactBtn('×', () => _insertText('*'), colorScheme.primaryContainer),
+            _compactBtn('%', () => _insertText('%'), colorScheme.primaryContainer),
+
+            _compactBtn('1', () => _insertText('1'), null),
+            _compactBtn('2', () => _insertText('2'), null),
+            _compactBtn('3', () => _insertText('3'), null),
+            _compactBtn('-', () => _insertText('-'), colorScheme.primaryContainer),
+            const SizedBox(), // Empty spacer
+
+            _compactBtn('0', () => _insertText('0'), null),
+            _compactBtn('.', () => _insertText('.'), null),
+            _compactBtn('=', _evaluate, colorScheme.primary, colorScheme.onPrimary),
+            _compactBtn('+', () => _insertText('+'), colorScheme.primaryContainer),
+            const SizedBox(), // Empty spacer
+          ],
+        ),
       ],
     );
   }
@@ -513,16 +473,13 @@ class _MathGeneralTabState extends State<MathGeneralTab> {
   static const _constants = [
     _Constant('π', 'Pi', '3.14159265358979', 'π'),
     _Constant('e', 'Euler\'s number', '2.71828182845905', 'e'),
-    _Constant('φ', 'Golden ratio', '1.61803398874989', '1.6180339887'),
-    _Constant('√2', 'Square root of 2', '1.41421356237310', '1.4142135624'),
-    _Constant('√3', 'Square root of 3', '1.73205080756888', '1.7320508076'),
-    _Constant('c', 'Speed of light (m/s)', '299792458', '299792458'),
-    _Constant('G', 'Gravitational const', '6.67430e-11', '6.67430e-11'),
-    _Constant('h', 'Planck constant', '6.62607015e-34', '6.62607015e-34'),
-    _Constant('kB', 'Boltzmann const', '1.380649e-23', '1.380649e-23'),
-    _Constant('NA', 'Avogadro const', '6.02214076e23', '6.02214076e23'),
-    _Constant('R', 'Gas constant', '8.314462618', '8.314462618'),
-    _Constant('g', 'Standard gravity', '9.80665', '9.80665'),
+    _Constant('c', 'Speed of light (m/s)', '299792458', 'c'),
+    _Constant('G', 'Gravitational const', '6.67430e-11', 'G'),
+    _Constant('h', 'Planck constant', '6.62607015e-34', 'h'),
+    _Constant('kB', 'Boltzmann const', '1.380649e-23', 'kB'),
+    _Constant('NA', 'Avogadro const', '6.02214076e23', 'NA'),
+    _Constant('R', 'Gas constant', '8.314462618', 'R'),
+    _Constant('g', 'Standard gravity', '9.80665', 'g'),
   ];
 }
 
