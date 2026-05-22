@@ -572,7 +572,8 @@ class ProductivityTimerService extends ChangeNotifier {
     final modified = await file.lastModified();
     return _ResolvedAndroidSound(
       sound: UriAndroidNotificationSound(Uri.file(path).toString()),
-      identity: '${settings.reminderSoundId}_${modified.millisecondsSinceEpoch}',
+      identity:
+          '${settings.reminderSoundId}_${modified.millisecondsSinceEpoch}',
     );
   }
 
