@@ -841,6 +841,17 @@ class ProductivityTimerService extends ChangeNotifier {
 
 
 
+  void _setPhaseTiming(DateTime startTime, Duration duration) {
+    _phaseStartTime = startTime;
+    _phaseEndTime = startTime.add(duration);
+    _remainingTime = duration;
+  }
+
+  void _clearPhaseTiming() {
+    _phaseStartTime = null;
+    _phaseEndTime = null;
+  }
+
   void _syncWithClock() {
     if (!_isActivePhase || _phaseStartTime == null) {
       return;
@@ -856,7 +867,7 @@ class ProductivityTimerService extends ChangeNotifier {
 
     while (_isActivePhase && elapsed >= _remainingTime) {
       elapsed -= _remainingTime;
-      _handlePhaseCompletion(silent: true);
+      _onTimerComplete(silent: true);
     }
 
     if (_isActivePhase) {
@@ -913,6 +924,7 @@ class ProductivityTimerService extends ChangeNotifier {
     _remainingTime = _totalDuration;
     _state = TimerState.running;
 
+    _setPhaseTiming(DateTime.now(), _remainingTime);
     _startTimer();
     notifyListeners();
 
@@ -962,21 +974,22 @@ class ProductivityTimerService extends ChangeNotifier {
   }
 
   /// Handle timer completion
-  void _onTimerComplete() {
+  void _onTimerComplete({bool silent = false}) {
     _timer?.cancel();
     unawaited(_notifications?.cancel(_statusNotificationId));
 
     if (_state == TimerState.breakTime) {
-      // Break completed
-      unawaited(
-        _showNotification(
-          title: 'Break Complete!',
-          body:
-              'Ready for the next session?\n${_buildProductivityContextSummary()}',
-          playSound: false,
-        ),
-      );
-      _playAlarmSound();
+      if (!silent) {
+        unawaited(
+          _showNotification(
+            title: 'Break Complete!',
+            body:
+                'Ready for the next session?\n${_buildProductivityContextSummary()}',
+            playSound: false,
+          ),
+        );
+        _playAlarmSound();
+      }
       onBreakComplete?.call();
 
       if (_currentCycle < _totalCycles) {
@@ -989,37 +1002,46 @@ class ProductivityTimerService extends ChangeNotifier {
       } else {
         // All cycles completed
         _state = TimerState.completed;
+        _clearPhaseTiming();
+        if (!silent) {
+          unawaited(
+            _showNotification(
+              title: 'All Sessions Complete! 🎉',
+              body:
+                  'Great job! You completed $_totalCycles sessions.\n${_buildProductivityContextSummary()}',
+              playSound: false,
+            ),
+          );
+          _playAlarmSound();
+        }
+      }
+    } else {
+      // Work session completed
+      _recordSession();
+      if (!silent) {
         unawaited(
           _showNotification(
-            title: 'All Sessions Complete! 🎉',
-            body:
-                'Great job! You completed $_totalCycles sessions.\n${_buildProductivityContextSummary()}',
+            title: 'Session Complete!',
+            body: 'Time for a break!\n${_buildProductivityContextSummary()}',
             playSound: false,
           ),
         );
         _playAlarmSound();
       }
-    } else {
-      // Work session completed
-      _recordSession();
-      unawaited(
-        _showNotification(
-          title: 'Session Complete!',
-          body: 'Time for a break!\n${_buildProductivityContextSummary()}',
-          playSound: false,
-        ),
-      );
-      _playAlarmSound();
       onSessionComplete?.call();
 
       if (_autoStartBreak) {
         _startBreak();
       } else {
         _state = TimerState.idle;
+        _clearPhaseTiming();
       }
     }
 
-    unawaited(_showTimerStatusNotification());
+    if (!silent) {
+      unawaited(_showTimerStatusNotification());
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
+    }
 
     notifyListeners();
   }
@@ -1037,8 +1059,10 @@ class ProductivityTimerService extends ChangeNotifier {
 
     _remainingTime = _totalDuration;
     _state = TimerState.breakTime;
+    _setPhaseTiming(DateTime.now(), _remainingTime);
     _startTimer();
     unawaited(_showTimerStatusNotification());
+    unawaited(_scheduleCurrentPhaseCompletionNotification());
     notifyListeners();
   }
 
@@ -1049,8 +1073,10 @@ class ProductivityTimerService extends ChangeNotifier {
         : _totalDuration;
     _remainingTime = _totalDuration;
     _state = TimerState.running;
+    _setPhaseTiming(DateTime.now(), _remainingTime);
     _startTimer();
     unawaited(_showTimerStatusNotification());
+    unawaited(_scheduleCurrentPhaseCompletionNotification());
     notifyListeners();
   }
 
@@ -1059,7 +1085,9 @@ class ProductivityTimerService extends ChangeNotifier {
     if (_state == TimerState.running || _state == TimerState.breakTime) {
       _timer?.cancel();
       _state = TimerState.paused;
+      _clearPhaseTiming();
       unawaited(_showTimerStatusNotification());
+      unawaited(_cancelScheduledCompletionNotification());
       notifyListeners();
     }
   }
@@ -1070,8 +1098,10 @@ class ProductivityTimerService extends ChangeNotifier {
       _state = _remainingTime == _breakDuration
           ? TimerState.breakTime
           : TimerState.running;
+      _setPhaseTiming(DateTime.now(), _remainingTime);
       _startTimer();
       unawaited(_showTimerStatusNotification());
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
       notifyListeners();
     }
   }
@@ -1082,7 +1112,9 @@ class ProductivityTimerService extends ChangeNotifier {
     _state = TimerState.idle;
     _remainingTime = _totalDuration;
     _currentCycle = 1;
+    _clearPhaseTiming();
     unawaited(_notifications?.cancel(_statusNotificationId));
+    unawaited(_cancelScheduledCompletionNotification());
     notifyListeners();
   }
 
@@ -1107,6 +1139,11 @@ class ProductivityTimerService extends ChangeNotifier {
   void addTime(Duration extra) {
     _remainingTime += extra;
     _totalDuration += extra;
+    if (_isActivePhase) {
+      _setPhaseTiming(DateTime.now(), _remainingTime);
+      unawaited(_showTimerStatusNotification());
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
+    }
     notifyListeners();
   }
 
