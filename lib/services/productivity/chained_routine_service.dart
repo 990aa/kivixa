@@ -30,10 +30,8 @@ class RoutineBlock {
   final Color color;
   final String? description;
 
-  Duration get duration => Duration(
-    minutes: durationMinutes,
-    seconds: durationSeconds,
-  );
+  Duration get duration =>
+      Duration(minutes: durationMinutes, seconds: durationSeconds);
 
   Map<String, dynamic> toJson() => {
     'name': name,

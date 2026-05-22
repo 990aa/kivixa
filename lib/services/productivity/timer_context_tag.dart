@@ -166,11 +166,11 @@ class QuickPreset {
   final String name;
   final IconData icon;
   final int workMinutes;
-    final int workSeconds;
+  final int workSeconds;
   final int breakMinutes;
-    final int breakSeconds;
+  final int breakSeconds;
   final int? longBreakMinutes;
-    final int? longBreakSeconds;
+  final int? longBreakSeconds;
   final int? cyclesBeforeLongBreak;
   final int totalCycles;
   final bool autoStartBreak;
@@ -178,16 +178,13 @@ class QuickPreset {
   final String? description;
   final bool isDefault;
 
-    Duration get workDuration =>
+  Duration get workDuration =>
       Duration(minutes: workMinutes, seconds: workSeconds);
-    Duration get breakDuration =>
+  Duration get breakDuration =>
       Duration(minutes: breakMinutes, seconds: breakSeconds);
-    Duration? get longBreakDuration => longBreakMinutes == null
+  Duration? get longBreakDuration => longBreakMinutes == null
       ? null
-      : Duration(
-        minutes: longBreakMinutes!,
-        seconds: longBreakSeconds ?? 0,
-      );
+      : Duration(minutes: longBreakMinutes!, seconds: longBreakSeconds ?? 0);
 
   /// Predefined quick presets
   static const code = QuickPreset(
@@ -353,11 +350,11 @@ class QuickPreset {
       name: name ?? this.name,
       icon: icon ?? this.icon,
       workMinutes: workMinutes ?? this.workMinutes,
-        workSeconds: workSeconds ?? this.workSeconds,
+      workSeconds: workSeconds ?? this.workSeconds,
       breakMinutes: breakMinutes ?? this.breakMinutes,
-        breakSeconds: breakSeconds ?? this.breakSeconds,
+      breakSeconds: breakSeconds ?? this.breakSeconds,
       longBreakMinutes: longBreakMinutes ?? this.longBreakMinutes,
-        longBreakSeconds: longBreakSeconds ?? this.longBreakSeconds,
+      longBreakSeconds: longBreakSeconds ?? this.longBreakSeconds,
       cyclesBeforeLongBreak:
           cyclesBeforeLongBreak ?? this.cyclesBeforeLongBreak,
       totalCycles: totalCycles ?? this.totalCycles,

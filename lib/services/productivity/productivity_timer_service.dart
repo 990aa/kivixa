@@ -8,11 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kivixa/data/models/notification_settings.dart';
 import 'package:kivixa/data/notification_settings_storage.dart';
+import 'package:kivixa/services/app_lifecycle_manager.dart';
 import 'package:kivixa/services/notification_sound_catalog_service.dart';
 import 'package:kivixa/services/productivity/chained_routine_service.dart';
 import 'package:kivixa/services/productivity/multi_timer_service.dart';
 import 'package:kivixa/services/productivity/timer_context_tag.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 export 'package:kivixa/services/productivity/timer_context_tag.dart';
 
@@ -222,10 +225,12 @@ class ProductivityTimerService extends ChangeNotifier {
   static ProductivityTimerService get instance => _instance;
 
   static const _statusNotificationId = 9001;
+  static const _completionNotificationId = 9002;
   static const _actionPause = 'productivity_pause';
   static const _actionResume = 'productivity_resume';
   static const _actionStop = 'productivity_stop';
   static const _actionDismiss = 'productivity_dismiss';
+  static var _timeZonesInitialized = false;
 
   // Timer state
   Timer? _timer;
@@ -233,11 +238,15 @@ class ProductivityTimerService extends ChangeNotifier {
   SessionType _sessionType = SessionType.focus;
   var _totalDuration = const Duration(minutes: 25);
   var _remainingTime = const Duration(minutes: 25);
+  var _workDuration = const Duration(minutes: 25);
   var _breakDuration = const Duration(minutes: 5);
   var _currentCycle = 1;
   var _totalCycles = 4;
   TimerTemplate? _activeTemplate;
   QuickPreset? _activePreset;
+  DateTime? _phaseStartTime;
+  DateTime? _phaseEndTime;
+  var _lifecycleBound = false;
 
   final _defaultQuickPresets = List<QuickPreset>.from(
     QuickPreset.defaultPresets,
