@@ -1976,7 +1976,6 @@ class _ClockPageState extends State<ClockPage>
                         name: name,
                         durationMinutes: durationMinutes,
                         durationSeconds: durationSeconds,
-                        durationMinutes: durationMinutes,
                         icon: style.icon,
                         color: style.color,
                         description: descriptionController.text.trim().isEmpty
