@@ -50,15 +50,24 @@ pub fn evaluate_expression(expression: &str) -> ExpressionResult {
             "sin" => Some(args.first()?.sin()),
             "cos" => Some(args.first()?.cos()),
             "tan" => Some(args.first()?.tan()),
+            "sec" => Some(1.0 / args.first()?.cos()),
+            "csc" => Some(1.0 / args.first()?.sin()),
+            "cot" => Some(1.0 / args.first()?.tan()),
             "asin" => Some(args.first()?.asin()),
             "acos" => Some(args.first()?.acos()),
             "atan" => Some(args.first()?.atan()),
             "atan2" => Some(args.first()?.atan2(*args.get(1)?)),
+            "asec" => Some((1.0 / args.first()?).acos()),
+            "acsc" => Some((1.0 / args.first()?).asin()),
+            "acot" => Some((1.0 / args.first()?).atan()),
 
             // Trigonometric (degrees)
             "sind" => Some(args.first()?.to_radians().sin()),
             "cosd" => Some(args.first()?.to_radians().cos()),
             "tand" => Some(args.first()?.to_radians().tan()),
+            "secd" => Some(1.0 / args.first()?.to_radians().cos()),
+            "cscd" => Some(1.0 / args.first()?.to_radians().sin()),
+            "cotd" => Some(1.0 / args.first()?.to_radians().tan()),
 
             // Hyperbolic
             "sinh" => Some(args.first()?.sinh()),
@@ -100,6 +109,13 @@ pub fn evaluate_expression(expression: &str) -> ExpressionResult {
             "e" => Some(std::f64::consts::E),
             "tau" => Some(std::f64::consts::TAU),
             "phi" => Some(1.618033988749895), // Golden ratio
+            "c" => Some(299792458.0),
+            "G" => Some(6.67430e-11),
+            "h" => Some(6.62607015e-34),
+            "kB" => Some(1.380649e-23),
+            "NA" => Some(6.02214076e23),
+            "R" => Some(8.314462618),
+            "g" => Some(9.80665),
 
             // Factorial (for small numbers)
             "fact" | "factorial" => {
@@ -211,13 +227,22 @@ fn is_function_name(name: &str) -> bool {
         "sin"
             | "cos"
             | "tan"
+            | "sec"
+            | "csc"
+            | "cot"
             | "asin"
             | "acos"
             | "atan"
             | "atan2"
+            | "asec"
+            | "acsc"
+            | "acot"
             | "sind"
             | "cosd"
             | "tand"
+            | "secd"
+            | "cscd"
+            | "cotd"
             | "sinh"
             | "cosh"
             | "tanh"
@@ -249,7 +274,7 @@ fn is_function_name(name: &str) -> bool {
 }
 
 fn is_constant_name(name: &str) -> bool {
-    matches!(name.to_lowercase().as_str(), "pi" | "e" | "tau" | "phi")
+    matches!(name, "pi" | "e" | "tau" | "phi" | "c" | "G" | "h" | "kB" | "NA" | "R" | "g")
 }
 
 /// Evaluate a formula with given variable values
