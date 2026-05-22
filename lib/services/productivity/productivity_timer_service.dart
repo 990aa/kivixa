@@ -546,21 +546,34 @@ class ProductivityTimerService extends ChangeNotifier {
     return settings.notificationVibrationEnabled;
   }
 
-  Future<AndroidNotificationSound?> _resolveAndroidSound(
+  Future<_ResolvedAndroidSound> _resolveAndroidSound(
     NotificationSettings settings,
     bool shouldPlaySound,
   ) async {
     if (!shouldPlaySound) {
-      return null;
+      return const _ResolvedAndroidSound(sound: null, identity: 'sound_off');
     }
 
     final path = await NotificationSoundCatalogService.instance
         .localPathForReminderSound(settings.reminderSoundId);
     if (path == null || path.trim().isEmpty) {
-      return const RawResourceAndroidNotificationSound('kivixa_notification');
+      return const _ResolvedAndroidSound(
+        sound: RawResourceAndroidNotificationSound('kivixa_notification'),
+        identity: 'kivixa_notification',
+      );
     }
-
-    return UriAndroidNotificationSound(Uri.file(path).toString());
+    final file = File(path);
+    if (!file.existsSync()) {
+      return const _ResolvedAndroidSound(
+        sound: RawResourceAndroidNotificationSound('kivixa_notification'),
+        identity: 'kivixa_notification',
+      );
+    }
+    final modified = await file.lastModified();
+    return _ResolvedAndroidSound(
+      sound: UriAndroidNotificationSound(Uri.file(path).toString()),
+      identity: '${settings.reminderSoundId}_${modified.millisecondsSinceEpoch}',
+    );
   }
 
   AudioAttributesUsage _resolveAudioAttributesUsage(bool playSound) {
@@ -568,10 +581,6 @@ class ProductivityTimerService extends ChangeNotifier {
         ? AudioAttributesUsage.alarm
         : AudioAttributesUsage.notification;
   }
-
-  // Android Notification.FLAG_INSISTENT = 4
-  // Causes the notification sound/vibration to repeat until cancelled
-  static const _androidFlagInsistent = 4;
 
   Int64List _shortNotificationVibrationPattern() {
     return Int64List.fromList([0, 180]);
