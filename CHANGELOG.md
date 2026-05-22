@@ -759,3 +759,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Completion Sounds**: Timers now play the user's chosen notification audio upon completion, smoothly handling foreground media and background native audio states.
 
 ---
+## [0.9.0] - 2026-05-22
+
+### Changed
+- Version bump to 0.9.0
+
+---
