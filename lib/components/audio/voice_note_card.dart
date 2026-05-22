@@ -115,10 +115,8 @@ class VoiceNoteCardData {
   });
 
   /// Get full transcript text
-  String get fullText => segments
-      .where((s) => !s.isSilence)
-      .map((s) => s.text)
-      .join(' ');
+  String get fullText =>
+      segments.where((s) => !s.isSilence).map((s) => s.text).join(' ');
 
   /// Get segment at a specific time
   AudioSegment? getSegmentAtTime(double time) {
@@ -418,9 +416,7 @@ class _VoiceNoteCardState extends State<VoiceNoteCard>
                     ? const _RecordingIndicator()
                     : Text(
                         'Tap to record voice note',
-                        style: TextStyle(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
                       ),
               ),
             ),
@@ -431,14 +427,12 @@ class _VoiceNoteCardState extends State<VoiceNoteCard>
               animation: _playheadController,
               builder: (context, child) {
                 return Positioned(
-                  left: _playheadController.value *
+                  left:
+                      _playheadController.value *
                       (MediaQuery.of(context).size.width - 32),
                   top: 0,
                   bottom: 0,
-                  child: Container(
-                    width: 2,
-                    color: colorScheme.primary,
-                  ),
+                  child: Container(width: 2, color: colorScheme.primary),
                 );
               },
             ),
@@ -472,10 +466,10 @@ class _VoiceNoteCardState extends State<VoiceNoteCard>
               _isRecording
                   ? Icons.stop
                   : _data == null
-                      ? Icons.mic
-                      : _isPlaying
-                          ? Icons.pause
-                          : Icons.play_arrow,
+                  ? Icons.mic
+                  : _isPlaying
+                  ? Icons.pause
+                  : Icons.play_arrow,
             ),
             style: IconButton.styleFrom(
               backgroundColor: _isRecording
@@ -505,8 +499,8 @@ class _VoiceNoteCardState extends State<VoiceNoteCard>
                   _data != null
                       ? '${_formatDuration(_playbackPosition)} / ${_formatDuration(_data!.duration)}'
                       : _isRecording
-                          ? 'Recording...'
-                          : 'No recording',
+                      ? 'Recording...'
+                      : 'No recording',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -522,9 +516,7 @@ class _VoiceNoteCardState extends State<VoiceNoteCard>
                 // Toggle skip silence in parent
               },
               icon: Icon(
-                widget.skipSilence
-                    ? Icons.skip_next
-                    : Icons.skip_next_outlined,
+                widget.skipSilence ? Icons.skip_next : Icons.skip_next_outlined,
               ),
               tooltip: 'Skip silence',
               color: widget.skipSilence
@@ -536,11 +528,7 @@ class _VoiceNoteCardState extends State<VoiceNoteCard>
           if (_data != null)
             IconButton(
               onPressed: () => setState(() => _isExpanded = !_isExpanded),
-              icon: Icon(
-                _isExpanded
-                    ? Icons.expand_less
-                    : Icons.expand_more,
-              ),
+              icon: Icon(_isExpanded ? Icons.expand_less : Icons.expand_more),
               tooltip: _isExpanded ? 'Hide transcript' : 'Show transcript',
             ),
         ],
@@ -573,11 +561,12 @@ class _VoiceNoteCardState extends State<VoiceNoteCard>
               final speakerColor = _data!.getSpeakerColor(segment);
 
               // Check if text matches search query
-              final matchesSearch = widget.searchQuery != null &&
+              final matchesSearch =
+                  widget.searchQuery != null &&
                   widget.searchQuery!.isNotEmpty &&
                   segment.text.toLowerCase().contains(
-                        widget.searchQuery!.toLowerCase(),
-                      );
+                    widget.searchQuery!.toLowerCase(),
+                  );
 
               return TextSpan(
                 text: '${segment.text} ',
@@ -585,8 +574,8 @@ class _VoiceNoteCardState extends State<VoiceNoteCard>
                   backgroundColor: isHighlighted
                       ? speakerColor.withValues(alpha: 0.3)
                       : matchesSearch
-                          ? Colors.yellow.withValues(alpha: 0.4)
-                          : null,
+                      ? Colors.yellow.withValues(alpha: 0.4)
+                      : null,
                   color: colorScheme.onSurface,
                 ),
                 recognizer: null, // Would add TapGestureRecognizer for seek

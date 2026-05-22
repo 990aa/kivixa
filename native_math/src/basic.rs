@@ -219,17 +219,13 @@ fn preprocess_expression(expr: &str) -> String {
                 (Token::Op(')'), Token::Op('(')) => true,
                 (Token::FuncConst(f1), Token::FuncConst(_)) => is_constant_name(f1),
                 (Token::FuncConst(f1), Token::Number(_)) => is_constant_name(f1),
-                (Token::FuncConst(f1), Token::Op('(')) => {
-                    if is_constant_name(f1) {
-                        let next_next_is_close = if i + 1 < tokens.len() {
-                            matches!(tokens[i+1], Token::Op(')'))
-                        } else {
-                            false
-                        };
-                        !next_next_is_close
+                (Token::FuncConst(f1), Token::Op('(')) if is_constant_name(f1) => {
+                    let next_next_is_close = if i + 1 < tokens.len() {
+                        matches!(tokens[i+1], Token::Op(')'))
                     } else {
                         false
-                    }
+                    };
+                    !next_next_is_close
                 },
                 _ => false,
             };

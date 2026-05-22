@@ -1209,7 +1209,9 @@ class _ClockPageState extends State<ClockPage>
                   decoration: isCompleted ? TextDecoration.lineThrough : null,
                 ),
               ),
-              subtitle: Text('${b.durationMinutes}m${b.durationSeconds > 0 ? ' ${b.durationSeconds}s' : ''}'),
+              subtitle: Text(
+                '${b.durationMinutes}m${b.durationSeconds > 0 ? ' ${b.durationSeconds}s' : ''}',
+              ),
               trailing: isCurrent
                   ? Icon(Icons.arrow_forward, color: colorScheme.primary)
                   : null,
@@ -1304,7 +1306,9 @@ class _ClockPageState extends State<ClockPage>
                     subtitle: block.description != null
                         ? Text(block.description!)
                         : null,
-                    trailing: Text('${block.durationMinutes}m${block.durationSeconds > 0 ? ' ${block.durationSeconds}s' : ''}'),
+                    trailing: Text(
+                      '${block.durationMinutes}m${block.durationSeconds > 0 ? ' ${block.durationSeconds}s' : ''}',
+                    ),
                   );
                 }),
                 const SizedBox(height: 24),
@@ -1494,17 +1498,13 @@ class _ClockPageState extends State<ClockPage>
                     final workMinutes = int.tryParse(
                       workMinutesController.text.trim(),
                     );
-                    final workSeconds = int.tryParse(
-                          workSecondsController.text.trim(),
-                        ) ??
-                        0;
+                    final workSeconds =
+                        int.tryParse(workSecondsController.text.trim()) ?? 0;
                     final breakMinutes = int.tryParse(
                       breakMinutesController.text.trim(),
                     );
-                    final breakSeconds = int.tryParse(
-                          breakSecondsController.text.trim(),
-                        ) ??
-                        0;
+                    final breakSeconds =
+                        int.tryParse(breakSecondsController.text.trim()) ?? 0;
                     final cycles = int.tryParse(cyclesController.text.trim());
 
                     if (name.isEmpty ||
@@ -1520,7 +1520,9 @@ class _ClockPageState extends State<ClockPage>
                         breakSeconds >= 60) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Please enter valid preset values (seconds 0-59).'),
+                          content: Text(
+                            'Please enter valid preset values (seconds 0-59).',
+                          ),
                         ),
                       );
                       return;
@@ -1949,9 +1951,8 @@ class _ClockPageState extends State<ClockPage>
                     final durationMinutes = int.tryParse(
                       durationController.text.trim(),
                     );
-                    final durationSeconds = int.tryParse(
-                          durationSecondsController.text.trim(),
-                        ) ??
+                    final durationSeconds =
+                        int.tryParse(durationSecondsController.text.trim()) ??
                         0;
 
                     if (name.isEmpty ||

@@ -245,19 +245,41 @@ class _MathGeneralTabState extends State<MathGeneralTab> {
       children: [
         Row(
           children: [
-            Expanded(child: _compactBtn('(', () => _insertText('('), colorScheme.surfaceContainerHigh)),
+            Expanded(
+              child: _compactBtn(
+                '(',
+                () => _insertText('('),
+                colorScheme.surfaceContainerHigh,
+              ),
+            ),
             const SizedBox(width: 4),
-            Expanded(child: _compactBtn(')', () => _insertText(')'), colorScheme.surfaceContainerHigh)),
+            Expanded(
+              child: _compactBtn(
+                ')',
+                () => _insertText(')'),
+                colorScheme.surfaceContainerHigh,
+              ),
+            ),
             const SizedBox(width: 4),
-            Expanded(child: _compactBtn('Ans', () {
-              if (_result.startsWith('= ')) {
-                _insertText(_result.substring(2));
-              }
-            }, colorScheme.surfaceContainerHigh)),
+            Expanded(
+              child: _compactBtn('Ans', () {
+                if (_result.startsWith('= ')) {
+                  _insertText(_result.substring(2));
+                }
+              }, colorScheme.surfaceContainerHigh),
+            ),
             const SizedBox(width: 4),
-            Expanded(child: _compactBtn('C', _clear, colorScheme.errorContainer)),
+            Expanded(
+              child: _compactBtn('C', _clear, colorScheme.errorContainer),
+            ),
             const SizedBox(width: 4),
-            Expanded(child: _compactBtn('⌫', _backspace, colorScheme.errorContainer.withValues(alpha: 0.5))),
+            Expanded(
+              child: _compactBtn(
+                '⌫',
+                _backspace,
+                colorScheme.errorContainer.withValues(alpha: 0.5),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 8),
@@ -269,52 +291,161 @@ class _MathGeneralTabState extends State<MathGeneralTab> {
           crossAxisSpacing: 4,
           mainAxisSpacing: 4,
           children: [
-            _compactBtn('sin', () => _insertText('sin('), colorScheme.tertiaryContainer),
-            _compactBtn('cos', () => _insertText('cos('), colorScheme.tertiaryContainer),
-            _compactBtn('tan', () => _insertText('tan('), colorScheme.tertiaryContainer),
-            _compactBtn('sec', () => _insertText('sec('), colorScheme.tertiaryContainer),
-            _compactBtn('csc', () => _insertText('csc('), colorScheme.tertiaryContainer),
+            _compactBtn(
+              'sin',
+              () => _insertText('sin('),
+              colorScheme.tertiaryContainer,
+            ),
+            _compactBtn(
+              'cos',
+              () => _insertText('cos('),
+              colorScheme.tertiaryContainer,
+            ),
+            _compactBtn(
+              'tan',
+              () => _insertText('tan('),
+              colorScheme.tertiaryContainer,
+            ),
+            _compactBtn(
+              'sec',
+              () => _insertText('sec('),
+              colorScheme.tertiaryContainer,
+            ),
+            _compactBtn(
+              'csc',
+              () => _insertText('csc('),
+              colorScheme.tertiaryContainer,
+            ),
 
-            _compactBtn('asin', () => _insertText('asin('), colorScheme.tertiaryContainer),
-            _compactBtn('acos', () => _insertText('acos('), colorScheme.tertiaryContainer),
-            _compactBtn('atan', () => _insertText('atan('), colorScheme.tertiaryContainer),
-            _compactBtn('asec', () => _insertText('asec('), colorScheme.tertiaryContainer),
-            _compactBtn('acsc', () => _insertText('acsc('), colorScheme.tertiaryContainer),
+            _compactBtn(
+              'asin',
+              () => _insertText('asin('),
+              colorScheme.tertiaryContainer,
+            ),
+            _compactBtn(
+              'acos',
+              () => _insertText('acos('),
+              colorScheme.tertiaryContainer,
+            ),
+            _compactBtn(
+              'atan',
+              () => _insertText('atan('),
+              colorScheme.tertiaryContainer,
+            ),
+            _compactBtn(
+              'asec',
+              () => _insertText('asec('),
+              colorScheme.tertiaryContainer,
+            ),
+            _compactBtn(
+              'acsc',
+              () => _insertText('acsc('),
+              colorScheme.tertiaryContainer,
+            ),
 
-            _compactBtn('cot', () => _insertText('cot('), colorScheme.tertiaryContainer),
-            _compactBtn('acot', () => _insertText('acot('), colorScheme.tertiaryContainer),
-            _compactBtn('ln', () => _insertText('ln('), colorScheme.secondaryContainer),
-            _compactBtn('log', () => _insertText('log('), colorScheme.secondaryContainer),
-            _compactBtn('|x|', () => _insertText('abs('), colorScheme.secondaryContainer),
+            _compactBtn(
+              'cot',
+              () => _insertText('cot('),
+              colorScheme.tertiaryContainer,
+            ),
+            _compactBtn(
+              'acot',
+              () => _insertText('acot('),
+              colorScheme.tertiaryContainer,
+            ),
+            _compactBtn(
+              'ln',
+              () => _insertText('ln('),
+              colorScheme.secondaryContainer,
+            ),
+            _compactBtn(
+              'log',
+              () => _insertText('log('),
+              colorScheme.secondaryContainer,
+            ),
+            _compactBtn(
+              '|x|',
+              () => _insertText('abs('),
+              colorScheme.secondaryContainer,
+            ),
 
-            _compactBtn('√', () => _insertText('sqrt('), colorScheme.secondaryContainer),
-            _compactBtn('x²', () => _insertText('^2'), colorScheme.secondaryContainer),
-            _compactBtn('xʸ', () => _insertText('^'), colorScheme.secondaryContainer),
-            _compactBtn('n!', () => _insertText('!'), colorScheme.surfaceContainerHigh),
-            _compactBtn('nPr', () => _insertText('P'), colorScheme.surfaceContainerHigh),
+            _compactBtn(
+              '√',
+              () => _insertText('sqrt('),
+              colorScheme.secondaryContainer,
+            ),
+            _compactBtn(
+              'x²',
+              () => _insertText('^2'),
+              colorScheme.secondaryContainer,
+            ),
+            _compactBtn(
+              'xʸ',
+              () => _insertText('^'),
+              colorScheme.secondaryContainer,
+            ),
+            _compactBtn(
+              'n!',
+              () => _insertText('!'),
+              colorScheme.surfaceContainerHigh,
+            ),
+            _compactBtn(
+              'nPr',
+              () => _insertText('P'),
+              colorScheme.surfaceContainerHigh,
+            ),
 
             _compactBtn('7', () => _insertText('7'), null),
             _compactBtn('8', () => _insertText('8'), null),
             _compactBtn('9', () => _insertText('9'), null),
-            _compactBtn('÷', () => _insertText('/'), colorScheme.primaryContainer),
-            _compactBtn('nCr', () => _insertText('C'), colorScheme.surfaceContainerHigh),
+            _compactBtn(
+              '÷',
+              () => _insertText('/'),
+              colorScheme.primaryContainer,
+            ),
+            _compactBtn(
+              'nCr',
+              () => _insertText('C'),
+              colorScheme.surfaceContainerHigh,
+            ),
 
             _compactBtn('4', () => _insertText('4'), null),
             _compactBtn('5', () => _insertText('5'), null),
             _compactBtn('6', () => _insertText('6'), null),
-            _compactBtn('×', () => _insertText('*'), colorScheme.primaryContainer),
-            _compactBtn('%', () => _insertText('%'), colorScheme.primaryContainer),
+            _compactBtn(
+              '×',
+              () => _insertText('*'),
+              colorScheme.primaryContainer,
+            ),
+            _compactBtn(
+              '%',
+              () => _insertText('%'),
+              colorScheme.primaryContainer,
+            ),
 
             _compactBtn('1', () => _insertText('1'), null),
             _compactBtn('2', () => _insertText('2'), null),
             _compactBtn('3', () => _insertText('3'), null),
-            _compactBtn('-', () => _insertText('-'), colorScheme.primaryContainer),
+            _compactBtn(
+              '-',
+              () => _insertText('-'),
+              colorScheme.primaryContainer,
+            ),
             const SizedBox(), // Empty spacer
 
             _compactBtn('0', () => _insertText('0'), null),
             _compactBtn('.', () => _insertText('.'), null),
-            _compactBtn('=', _evaluate, colorScheme.primary, colorScheme.onPrimary),
-            _compactBtn('+', () => _insertText('+'), colorScheme.primaryContainer),
+            _compactBtn(
+              '=',
+              _evaluate,
+              colorScheme.primary,
+              colorScheme.onPrimary,
+            ),
+            _compactBtn(
+              '+',
+              () => _insertText('+'),
+              colorScheme.primaryContainer,
+            ),
             const SizedBox(), // Empty spacer
           ],
         ),

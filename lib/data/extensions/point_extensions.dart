@@ -26,11 +26,7 @@ extension PointExtensions on PointVector {
   }
 
   BsonBinary toBsonBinary() {
-    final Float32List point = Float32List.fromList([
-      x,
-      y,
-      ?pressure,
-    ]);
+    final Float32List point = Float32List.fromList([x, y, ?pressure]);
     return BsonBinary.from(point.buffer.asUint8List());
   }
 

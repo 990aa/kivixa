@@ -73,7 +73,8 @@ class _AudioWaveformState extends State<AudioWaveform>
   StreamSubscription<AudioVisualizerData>? _visualizerSubscription;
 
   @override
-  String get sleepComponentId => 'audio_waveform_${widget.key?.hashCode ?? hashCode}';
+  String get sleepComponentId =>
+      'audio_waveform_${widget.key?.hashCode ?? hashCode}';
 
   @override
   Future<SleepState> captureState() async {
@@ -87,7 +88,7 @@ class _AudioWaveformState extends State<AudioWaveform>
   Future<void> restoreState(SleepState state) async {
     final progress = state['progress'] as double?;
     final isAnimating = state['isAnimating'] as bool? ?? false;
-    
+
     if (progress != null) {
       _idleController.value = progress;
     }

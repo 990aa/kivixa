@@ -384,7 +384,7 @@ class ChainedRoutineService extends ChangeNotifier {
   RoutineState _state = RoutineState.idle;
   Duration _remainingTime = Duration.zero;
   Timer? _timer;
-  
+
   DateTime? _phaseStartTime;
   DateTime? _phaseEndTime;
   var _lifecycleBound = false;
@@ -488,7 +488,8 @@ class ChainedRoutineService extends ChangeNotifier {
         await _notifications?.initialize(
           initSettings,
           onDidReceiveNotificationResponse: _onNotificationResponse,
-          onDidReceiveBackgroundNotificationResponse: _onBackgroundNotificationResponse,
+          onDidReceiveBackgroundNotificationResponse:
+              _onBackgroundNotificationResponse,
         );
       } catch (e) {
         debugPrint(
@@ -501,7 +502,9 @@ class ChainedRoutineService extends ChangeNotifier {
       MediaKit.ensureInitialized();
       _alarmPlayer = Player();
     } catch (e) {
-      debugPrint('Failed to initialize alarm player in ChainedRoutineService: $e');
+      debugPrint(
+        'Failed to initialize alarm player in ChainedRoutineService: $e',
+      );
     }
 
     await _loadRoutines();
@@ -526,7 +529,7 @@ class ChainedRoutineService extends ChangeNotifier {
 
   void _handleNotificationResponse(NotificationResponse response) {
     _stopAlarmSound();
-    
+
     if (response.actionId == _dismissActionId) {
       unawaited(_notifications?.cancel(response.id ?? _statusNotificationId));
       return;
@@ -593,7 +596,9 @@ class ChainedRoutineService extends ChangeNotifier {
     if (_state == RoutineState.running) {
       final remaining = _remainingTime - elapsed;
       _remainingTime = remaining.isNegative ? Duration.zero : remaining;
-      final adjustedStart = now.subtract(currentBlock!.duration - _remainingTime);
+      final adjustedStart = now.subtract(
+        currentBlock!.duration - _remainingTime,
+      );
       _phaseStartTime = adjustedStart;
       _phaseEndTime = now.add(_remainingTime);
       _startTimer();
@@ -729,7 +734,10 @@ class ChainedRoutineService extends ChangeNotifier {
     }
 
     _state = RoutineState.running;
-    _setPhaseTiming(DateTime.now(), _currentRoutine!.blocks[_currentBlockIndex].duration);
+    _setPhaseTiming(
+      DateTime.now(),
+      _currentRoutine!.blocks[_currentBlockIndex].duration,
+    );
     _startTimer();
     if (!silent) {
       unawaited(_showTimerStatusNotification());
@@ -945,7 +953,8 @@ class ChainedRoutineService extends ChangeNotifier {
     List<AndroidNotificationAction>? actions,
   }) async {
     final settings = await NotificationSettingsStorage.loadSettings();
-    final effectivePlaySound = playSound && _soundEnabled && _shouldPlaySound(settings);
+    final effectivePlaySound =
+        playSound && _soundEnabled && _shouldPlaySound(settings);
     final enableVibration = _shouldVibrate(settings);
     final sound = await _resolveAndroidSound(settings, effectivePlaySound);
     final soundIdentity = !effectivePlaySound

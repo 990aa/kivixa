@@ -381,7 +381,13 @@ class _SettingsPageState extends State<SettingsPage> {
     final showDataManagement = _matchesSettingsSection(
       category: 'Data Management',
       description: 'Clear app data, reset settings, and data directory',
-      keywords: const ['data management', 'clear data', 'reset', 'data directory', 'storage'],
+      keywords: const [
+        'data management',
+        'clear data',
+        'reset',
+        'data directory',
+        'storage',
+      ],
     );
     final hasSearchMatch =
         showLegal ||
@@ -776,9 +782,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     pref: stows.autoStraightenLines,
                   ),
                 ],
-                if (showNotifications) ...[
-                  const NotificationSettingsWidget(),
-                ],
+                if (showNotifications) ...[const NotificationSettingsWidget()],
                 if (showFloatingHub) ...[
                   const SettingsSubtitle(subtitle: 'Floating Hub'),
                   SettingsSwitch(

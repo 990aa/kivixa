@@ -385,8 +385,6 @@ class ProductivityTimerService extends ChangeNotifier {
       _lifecycleBound = true;
     }
 
-
-
     _checkDayReset();
     _initialized = true;
   }
@@ -430,7 +428,7 @@ class ProductivityTimerService extends ChangeNotifier {
 
   void _handleNotificationResponse(NotificationResponse response) {
     _stopAlarmSound();
-    
+
     if (response.actionId == _actionDismiss) {
       unawaited(_notifications?.cancel(response.id ?? _statusNotificationId));
       return;
@@ -848,8 +846,6 @@ class ProductivityTimerService extends ChangeNotifier {
       _syncWithClock();
     }
   }
-
-
 
   void _setPhaseTiming(DateTime startTime, Duration duration) {
     _phaseStartTime = startTime;

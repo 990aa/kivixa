@@ -148,13 +148,15 @@ class ReadAloudController extends ChangeNotifier {
         milliseconds: (wordCount * 350 / _speed).round(),
       );
 
-      sentences.add(SentenceInfo(
-        startIndex: match.start,
-        endIndex: match.end,
-        startTime: timeOffset,
-        endTime: timeOffset + estimatedDuration,
-        text: sentenceText,
-      ));
+      sentences.add(
+        SentenceInfo(
+          startIndex: match.start,
+          endIndex: match.end,
+          startTime: timeOffset,
+          endTime: timeOffset + estimatedDuration,
+          text: sentenceText,
+        ),
+      );
 
       timeOffset += estimatedDuration;
     }
@@ -183,9 +185,7 @@ class ReadAloudController extends ChangeNotifier {
   void _onState(PlaybackState state) {
     if (_info == null) return;
 
-    _info = _info!.copyWith(
-      isPlaying: state == PlaybackState.playing,
-    );
+    _info = _info!.copyWith(isPlaying: state == PlaybackState.playing);
     notifyListeners();
 
     if (state == PlaybackState.stopped) {
@@ -320,7 +320,9 @@ class ReadAloudMiniPlayer extends StatelessWidget {
                             'Reading aloud',
                             style: TextStyle(
                               fontSize: 10,
-                              color: colorScheme.onSurface.withValues(alpha: 0.5),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.5,
+                              ),
                             ),
                           ),
                           Text(
@@ -338,7 +340,8 @@ class ReadAloudMiniPlayer extends StatelessWidget {
 
                   // Controls
                   IconButton(
-                    onPressed: () => controller.skip(const Duration(seconds: -10)),
+                    onPressed: () =>
+                        controller.skip(const Duration(seconds: -10)),
                     icon: const Icon(Icons.replay_10, size: 20),
                     visualDensity: VisualDensity.compact,
                   ),
@@ -350,7 +353,8 @@ class ReadAloudMiniPlayer extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () => controller.skip(const Duration(seconds: 10)),
+                    onPressed: () =>
+                        controller.skip(const Duration(seconds: 10)),
                     icon: const Icon(Icons.forward_10, size: 20),
                     visualDensity: VisualDensity.compact,
                   ),
@@ -369,7 +373,8 @@ class ReadAloudMiniPlayer extends StatelessWidget {
               const SizedBox(height: 8),
               LinearProgressIndicator(
                 value: info.duration.inMilliseconds > 0
-                    ? info.position.inMilliseconds / info.duration.inMilliseconds
+                    ? info.position.inMilliseconds /
+                          info.duration.inMilliseconds
                     : 0,
                 borderRadius: BorderRadius.circular(2),
               ),
@@ -444,12 +449,11 @@ class _ReadAloudTextState extends State<ReadAloudText> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final defaultStyle = widget.style ??
-        theme.textTheme.bodyLarge?.copyWith(
-          height: 1.8,
-        );
+    final defaultStyle =
+        widget.style ?? theme.textTheme.bodyLarge?.copyWith(height: 1.8);
 
-    final highlightStyle = widget.highlightStyle ??
+    final highlightStyle =
+        widget.highlightStyle ??
         defaultStyle?.copyWith(
           backgroundColor: colorScheme.primaryContainer,
           color: colorScheme.onPrimaryContainer,
@@ -469,10 +473,7 @@ class _ReadAloudTextState extends State<ReadAloudText> {
         }
 
         if (info == null || info.sentences.isEmpty) {
-          return SelectableText(
-            widget.text,
-            style: defaultStyle,
-          );
+          return SelectableText(widget.text, style: defaultStyle);
         }
 
         // Build highlighted text spans
@@ -501,43 +502,47 @@ class _ReadAloudTextState extends State<ReadAloudText> {
 
       // Add any text before this sentence
       if (sentence.startIndex > lastEnd) {
-        spans.add(TextSpan(
-          text: widget.text.substring(lastEnd, sentence.startIndex),
-          style: defaultStyle,
-        ));
+        spans.add(
+          TextSpan(
+            text: widget.text.substring(lastEnd, sentence.startIndex),
+            style: defaultStyle,
+          ),
+        );
       }
 
       // Add the sentence with appropriate style
       final isCurrentSentence = i == info.currentSentence && info.isPlaying;
-      spans.add(WidgetSpan(
-        child: Builder(
-          key: _sentenceKeys.isNotEmpty && i < _sentenceKeys.length
-              ? _sentenceKeys[i]
-              : null,
-          builder: (context) {
-            return GestureDetector(
-              onTap: () => widget.controller.skipToSentence(i),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(
-                  horizontal: isCurrentSentence ? 4 : 0,
-                  vertical: isCurrentSentence ? 2 : 0,
+      spans.add(
+        WidgetSpan(
+          child: Builder(
+            key: _sentenceKeys.isNotEmpty && i < _sentenceKeys.length
+                ? _sentenceKeys[i]
+                : null,
+            builder: (context) {
+              return GestureDetector(
+                onTap: () => widget.controller.skipToSentence(i),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isCurrentSentence ? 4 : 0,
+                    vertical: isCurrentSentence ? 2 : 0,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isCurrentSentence
+                        ? highlightStyle?.backgroundColor
+                        : null,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    sentence.text,
+                    style: isCurrentSentence ? highlightStyle : defaultStyle,
+                  ),
                 ),
-                decoration: BoxDecoration(
-                  color: isCurrentSentence
-                      ? highlightStyle?.backgroundColor
-                      : null,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  sentence.text,
-                  style: isCurrentSentence ? highlightStyle : defaultStyle,
-                ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
-      ));
+      );
 
       // Add space after sentence if needed
       if (sentence.endIndex < widget.text.length) {
@@ -552,10 +557,9 @@ class _ReadAloudTextState extends State<ReadAloudText> {
 
     // Add any remaining text
     if (lastEnd < widget.text.length) {
-      spans.add(TextSpan(
-        text: widget.text.substring(lastEnd),
-        style: defaultStyle,
-      ));
+      spans.add(
+        TextSpan(text: widget.text.substring(lastEnd), style: defaultStyle),
+      );
     }
 
     return spans;
@@ -590,9 +594,7 @@ class ReadAloudPanel extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            border: Border(
-              top: BorderSide(color: colorScheme.outlineVariant),
-            ),
+            border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
           ),
           child: SafeArea(
             child: Column(
@@ -601,10 +603,7 @@ class ReadAloudPanel extends StatelessWidget {
                 // Header
                 Row(
                   children: [
-                    Text(
-                      'Read Aloud',
-                      style: theme.textTheme.titleMedium,
-                    ),
+                    Text('Read Aloud', style: theme.textTheme.titleMedium),
                     const Spacer(),
                     IconButton(
                       onPressed: onMinimize,
@@ -629,7 +628,10 @@ class ReadAloudPanel extends StatelessWidget {
                   children: [
                     Slider(
                       value: info.position.inMilliseconds.toDouble(),
-                      max: info.duration.inMilliseconds.toDouble().clamp(1, double.infinity),
+                      max: info.duration.inMilliseconds.toDouble().clamp(
+                        1,
+                        double.infinity,
+                      ),
                       onChanged: (value) {
                         controller.skip(
                           Duration(milliseconds: value.toInt()) - info.position,
@@ -683,7 +685,8 @@ class ReadAloudPanel extends StatelessWidget {
 
                     // Skip backward
                     IconButton(
-                      onPressed: () => controller.skip(const Duration(seconds: -10)),
+                      onPressed: () =>
+                          controller.skip(const Duration(seconds: -10)),
                       icon: const Icon(Icons.replay_10),
                       iconSize: 32,
                     ),
@@ -703,7 +706,8 @@ class ReadAloudPanel extends StatelessWidget {
 
                     // Skip forward
                     IconButton(
-                      onPressed: () => controller.skip(const Duration(seconds: 10)),
+                      onPressed: () =>
+                          controller.skip(const Duration(seconds: 10)),
                       icon: const Icon(Icons.forward_10),
                       iconSize: 32,
                     ),

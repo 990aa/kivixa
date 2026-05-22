@@ -117,7 +117,9 @@ class SleepWakeController {
     _asleep = false;
     try {
       await onWake(_savedState);
-      debugPrint('☀️  [$componentId] woke — restored ${_savedState.length} keys');
+      debugPrint(
+        '☀️  [$componentId] woke — restored ${_savedState.length} keys',
+      );
     } catch (e) {
       debugPrint('⚠️  [$componentId] wake error: $e');
     }
