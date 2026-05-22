@@ -216,6 +216,13 @@ class ProductivityGoal {
   }
 }
 
+class _ResolvedAndroidSound {
+  const _ResolvedAndroidSound({required this.sound, required this.identity});
+
+  final AndroidNotificationSound? sound;
+  final String identity;
+}
+
 /// Productivity Timer Service
 /// Manages timer logic, sessions, notifications, and statistics
 class ProductivityTimerService extends ChangeNotifier {
@@ -350,6 +357,8 @@ class ProductivityTimerService extends ChangeNotifier {
   bool get isPaused => _state == TimerState.paused;
   bool get isBreak => _state == TimerState.breakTime;
   bool get isIdle => _state == TimerState.idle;
+  bool get _isActivePhase =>
+      _state == TimerState.running || _state == TimerState.breakTime;
 
   /// Initialize the service
   Future<void> initialize() async {
@@ -361,6 +370,13 @@ class ProductivityTimerService extends ChangeNotifier {
     await _loadTags();
     await _loadTagMinutes();
     await _initializeNotifications();
+
+    if (!_lifecycleBound) {
+      AppLifecycleManager.instance.addResumeListener(_handleAppResume);
+      _lifecycleBound = true;
+    }
+
+    _workDuration = _totalDuration;
 
     _checkDayReset();
     _initialized = true;
@@ -429,6 +445,8 @@ class ProductivityTimerService extends ChangeNotifier {
     int? notificationId,
     bool ongoing = false,
     bool longVibrationAlert = true,
+    DateTime? chronometerStart,
+    bool chronometerCountDown = false,
     String? payload,
     List<AndroidNotificationAction>? actions,
   }) async {
@@ -460,9 +478,7 @@ class ProductivityTimerService extends ChangeNotifier {
       );
     }
 
-    final soundIdentity = effectivePlaySound
-        ? globalSettings.reminderSoundId
-        : 'sound_off';
+    final soundIdentity = resolvedSound.identity;
 
     final androidDetails = AndroidNotificationDetails(
       _channelIdForSettings(globalSettings, soundIdentity),
@@ -479,10 +495,11 @@ class ProductivityTimerService extends ChangeNotifier {
       ongoing: ongoing,
       autoCancel: !ongoing,
       onlyAlertOnce: true,
+      showWhen: chronometerStart != null,
+      when: chronometerStart?.millisecondsSinceEpoch,
+      usesChronometer: chronometerStart != null,
+      chronometerCountDown: chronometerCountDown,
       actions: effectiveActions,
-      additionalFlags: longVibrationAlert
-          ? Int32List.fromList([_androidFlagInsistent])
-          : null, // FLAG_INSISTENT
     );
 
     final soundFileName = effectivePlaySound
@@ -664,6 +681,55 @@ class ProductivityTimerService extends ChangeNotifier {
       _stats.lastSessionDate = today;
       _saveStats();
     }
+  }
+
+  void _handleAppResume() {
+    if (_isActivePhase) {
+      _syncWithClock();
+    }
+  }
+
+  void _setPhaseTiming(DateTime startTime, Duration duration) {
+    _phaseStartTime = startTime;
+    _phaseEndTime = startTime.add(duration);
+    _remainingTime = duration;
+  }
+
+  void _clearPhaseTiming() {
+    _phaseStartTime = null;
+    _phaseEndTime = null;
+  }
+
+  void _syncWithClock() {
+    if (!_isActivePhase || _phaseStartTime == null) {
+      return;
+    }
+
+    _cancelScheduledCompletionNotification();
+
+    final now = DateTime.now();
+    var elapsed = now.difference(_phaseStartTime!);
+    if (elapsed.isNegative) {
+      return;
+    }
+
+    while (_isActivePhase && elapsed >= _remainingTime) {
+      elapsed -= _remainingTime;
+      _handlePhaseCompletion(silent: true);
+    }
+
+    if (_isActivePhase) {
+      final remaining = _remainingTime - elapsed;
+      _remainingTime = remaining.isNegative ? Duration.zero : remaining;
+      final adjustedStart = now.subtract(_totalDuration - _remainingTime);
+      _phaseStartTime = adjustedStart;
+      _phaseEndTime = now.add(_remainingTime);
+      _startTimer();
+      unawaited(_showTimerStatusNotification());
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
+    }
+
+    notifyListeners();
   }
 
   // ============================================================
