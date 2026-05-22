@@ -13,6 +13,7 @@ import 'package:kivixa/services/productivity/material_icon_codec.dart';
 import 'package:kivixa/services/app_lifecycle_manager.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest_all.dart' as tz_init;
 import 'package:timezone/timezone.dart' as tz;
 
 /// A single block in a routine chain
@@ -386,7 +387,7 @@ class ChainedRoutineService extends ChangeNotifier {
   
   DateTime? _phaseStartTime;
   DateTime? _phaseEndTime;
-  bool _lifecycleBound = false;
+  var _lifecycleBound = false;
 
   static const _statusNotificationId = 98765;
   static const _completionNotificationId = 98766;
@@ -1081,7 +1082,7 @@ class ChainedRoutineService extends ChangeNotifier {
     if (_timeZonesInitialized) {
       return;
     }
-    tz.initializeTimeZones();
+    tz_init.initializeTimeZones();
     _timeZonesInitialized = true;
   }
 
@@ -1174,10 +1175,8 @@ class ChainedRoutineService extends ChangeNotifier {
         _completionNotificationId,
         title,
         body,
-        details,
         tz.TZDateTime.from(scheduledTime, tz.local),
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
+        details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: 'chained_routine_completion',
       );

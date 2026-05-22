@@ -509,12 +509,12 @@ class AudioNeuralEngine {
             ),
           );
         },
-        pauseFor: const Duration(seconds: 5),
-        listenFor: const Duration(minutes: 10),
         listenOptions: stt.SpeechListenOptions(
           listenMode: stt.ListenMode.dictation,
           partialResults: true,
           cancelOnError: true,
+          pauseFor: const Duration(seconds: 5),
+          listenFor: const Duration(minutes: 10),
         ),
       );
 

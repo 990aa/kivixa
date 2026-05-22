@@ -489,17 +489,28 @@ class ProductivityTimerService extends ChangeNotifier {
     final effectivePlaySound =
         playSound && _soundEnabled && _shouldPlaySound(globalSettings);
     final enableVibration = _shouldVibrate(globalSettings);
-    final sound = await _resolveAndroidSound(
+    final resolvedSound = await _resolveAndroidSound(
       globalSettings,
       effectivePlaySound,
     );
-    final soundIdentity = !effectivePlaySound
-        ? 'sound_off'
-        : (sound is RawResourceAndroidNotificationSound
-              ? 'kivixa_notification'
-              : sound is UriAndroidNotificationSound
-              ? globalSettings.reminderSoundId
-              : 'sound_off');
+    final soundIdentity = resolvedSound.identity;
+    final vibrationPattern = enableVibration
+        ? (longVibrationAlert
+              ? _longReminderVibrationPattern()
+              : _shortNotificationVibrationPattern())
+        : null;
+
+    final effectiveActions = <AndroidNotificationAction>[...?actions];
+    if (!ongoing &&
+        !effectiveActions.any((action) => action.id == _actionDismiss)) {
+      effectiveActions.add(
+        const AndroidNotificationAction(
+          _actionDismiss,
+          'Dismiss',
+          showsUserInterface: false,
+        ),
+      );
+    }
 
     final androidDetails = AndroidNotificationDetails(
       _channelIdForSettings(globalSettings, soundIdentity),
@@ -508,7 +519,7 @@ class ProductivityTimerService extends ChangeNotifier {
       importance: Importance.high,
       priority: Priority.high,
       playSound: effectivePlaySound,
-      sound: sound,
+      sound: resolvedSound.sound,
       audioAttributesUsage: _resolveAudioAttributesUsage(effectivePlaySound),
       enableVibration: enableVibration,
       vibrationPattern: vibrationPattern,
@@ -590,7 +601,7 @@ class ProductivityTimerService extends ChangeNotifier {
         identity: 'kivixa_notification',
       );
     }
-    final modified = await file.lastModified();
+    final modified = file.lastModifiedSync();
     return _ResolvedAndroidSound(
       sound: UriAndroidNotificationSound(Uri.file(path).toString()),
       identity:
