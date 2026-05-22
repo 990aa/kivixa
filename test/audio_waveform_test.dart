@@ -16,7 +16,7 @@ void main() {
   group('AudioWaveform', () {
     testWidgets('should render with default parameters', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: AudioWaveform())),
+        const MaterialApp(home: Scaffold(body: AudioWaveform(dataStream: Stream.empty()))),
       );
 
       expect(find.byType(AudioWaveform), findsOneWidget);
@@ -24,7 +24,7 @@ void main() {
 
     testWidgets('should render with custom height', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: AudioWaveform(height: 100))),
+        const MaterialApp(home: Scaffold(body: AudioWaveform(dataStream: const Stream.empty(), height: 100))),
       );
 
       expect(find.byType(AudioWaveform), findsOneWidget);
@@ -32,7 +32,7 @@ void main() {
 
     testWidgets('should render with custom width', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: AudioWaveform(width: 200))),
+        const MaterialApp(home: Scaffold(body: AudioWaveform(dataStream: const Stream.empty(), width: 200))),
       );
 
       expect(find.byType(AudioWaveform), findsOneWidget);
@@ -41,7 +41,7 @@ void main() {
     testWidgets('should render with bar style', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: AudioWaveform(style: WaveformStyle.bars)),
+          home: Scaffold(body: AudioWaveform(dataStream: const Stream.empty(), style: WaveformStyle.bars)),
         ),
       );
 
@@ -51,7 +51,7 @@ void main() {
     testWidgets('should render with line style', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: AudioWaveform(style: WaveformStyle.line)),
+          home: Scaffold(body: AudioWaveform(dataStream: const Stream.empty(), style: WaveformStyle.line)),
         ),
       );
 
@@ -61,7 +61,7 @@ void main() {
     testWidgets('should render with circular style', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: AudioWaveform(style: WaveformStyle.circular)),
+          home: Scaffold(body: AudioWaveform(dataStream: const Stream.empty(), style: WaveformStyle.circular)),
         ),
       );
 
@@ -71,7 +71,7 @@ void main() {
     testWidgets('should accept custom color', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: AudioWaveform(color: Colors.blue)),
+          home: Scaffold(body: AudioWaveform(dataStream: const Stream.empty(), color: Colors.blue)),
         ),
       );
 
@@ -81,7 +81,7 @@ void main() {
     testWidgets('should accept secondary color', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: AudioWaveform(secondaryColor: Colors.red)),
+          home: Scaffold(body: AudioWaveform(dataStream: const Stream.empty(), secondaryColor: Colors.red)),
         ),
       );
 
@@ -90,7 +90,7 @@ void main() {
 
     testWidgets('should accept custom bar count', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: AudioWaveform(barCount: 64))),
+        const MaterialApp(home: Scaffold(body: AudioWaveform(dataStream: const Stream.empty(), barCount: 64))),
       );
 
       expect(find.byType(AudioWaveform), findsOneWidget);
@@ -99,7 +99,7 @@ void main() {
     testWidgets('should respect animateIdle flag', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: AudioWaveform(animateIdle: false)),
+          home: Scaffold(body: AudioWaveform(dataStream: const Stream.empty(), animateIdle: false)),
         ),
       );
 
