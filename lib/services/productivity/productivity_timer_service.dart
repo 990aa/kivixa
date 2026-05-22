@@ -385,7 +385,7 @@ class ProductivityTimerService extends ChangeNotifier {
       _lifecycleBound = true;
     }
 
-    _workDuration = _totalDuration;
+
 
     _checkDayReset();
     _initialized = true;
