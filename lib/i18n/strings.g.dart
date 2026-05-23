@@ -198,7 +198,7 @@ class TranslationsSettings {
   List<String> get axisDirections => ['Top', 'Right', 'Bottom', 'Left'];
   final TranslationsSettingsReset reset = TranslationsSettingsReset();
   String get resyncEverything => 'Resync everything';
-  String get openDataDir => 'Open kivixa folder';
+  String get openDataDir => 'Open Kivixa Folder';
   final TranslationsSettingsCustomDataDir customDataDir =
       TranslationsSettingsCustomDataDir();
   String get autosaveDisabled => 'Never';
@@ -220,7 +220,6 @@ class TranslationsSettingsPrefLabels {
   String get platform => 'Theme type';
   String get layoutSize => 'Layout type';
   String get customAccentColor => 'Custom accent color';
-  String get hyperlegibleFont => 'Atkinson Hyperlegible font';
   String get shouldCheckForUpdates => 'Check for kivixa updates';
   String get shouldAlwaysAlertForUpdates => 'Faster updates';
   String get allowInsecureConnections => 'Allow insecure connections';
@@ -241,7 +240,6 @@ class TranslationsSettingsPrefLabels {
   String get autosave => 'Auto-save';
   String get shapeRecognitionDelay => 'Shape recognition delay';
   String get autoStraightenLines => 'Auto straighten lines';
-  String get simplifiedHomeLayout => 'Simplified home layout';
   String get customDataDir => 'Custom kivixa folder';
   String get pencilSoundSetting => 'Pencil sound effect';
   String get sentry => 'Error reporting';
@@ -252,8 +250,6 @@ class TranslationsSettingsPrefLabels {
 }
 
 class TranslationsSettingsPrefDescriptions {
-  String get hyperlegibleFont =>
-      'Increases legibility for users with low vision';
   String get allowInsecureConnections =>
       '(Not recommended) Allow kivixa to connect to servers with self-signed/untrusted certificates';
   String get preferGreyscale => 'For e-ink displays';
@@ -270,8 +266,6 @@ class TranslationsSettingsPrefDescriptions {
   String get shapeRecognitionDelay => 'How often to update the shape preview';
   String get autoStraightenLines =>
       'Straightens long lines without having to use the shape pen';
-  String get simplifiedHomeLayout =>
-      'Sets a fixed height for each note preview';
   String get shouldAlwaysAlertForUpdates =>
       'Tell me about updates as soon as they\'re available';
   final TranslationsSettingsPrefDescriptionsPencilSoundSetting
@@ -418,10 +412,9 @@ class TranslationsProfileQuickLinks {
 
 class TranslationsAppInfo {
   String licenseNotice({required Object buildYear}) =>
-      'kivixa  Copyright © 2022-${buildYear}  990aa\nThis program comes with absolutely no warranty. This is free software, and you are welcome to redistribute it under certain conditions.';
+      'Kivixa  Copyright © 2026-${buildYear}  990aa';
   String get dirty => 'DIRTY';
   String get debug => 'DEBUG';
-  String get sponsorButton => 'Tap here to sponsor me or buy more storage';
   String get licenseButton => 'Tap here to view more license information';
   String get privacyPolicyButton => 'Tap here to view the privacy policy';
 }

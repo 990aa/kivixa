@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/services/ai/mcp_service.dart';
 import 'package:kivixa/services/ai/model_router.dart';
+import 'package:path/path.dart' as p;
 
 class _FakePluginExecutor implements PluginScriptExecutor {
   @override
@@ -12,6 +13,66 @@ class _FakePluginExecutor implements PluginScriptExecutor {
 }
 
 void main() {
+  group('MCP Service Path Validation Tests', () {
+    late MCPService mcpService;
+    late Directory tempDir;
+
+    setUp(() async {
+      mcpService = MCPService.instance;
+      mcpService.resetForTests();
+      tempDir = await Directory.systemTemp.createTemp('mcp_path_test_');
+      await mcpService.initialize(tempDir.path);
+    });
+
+    tearDown(() async {
+      if (tempDir.existsSync()) {
+        tempDir.deleteSync(recursive: true);
+      }
+      mcpService.resetForTests();
+    });
+
+    test('Valid relative paths should be allowed', () {
+      expect(mcpService.validatePath('test.txt'), isTrue);
+      expect(mcpService.validatePath('folder/test.txt'), isTrue);
+      expect(mcpService.validatePath('folder/subfolder/test.txt'), isTrue);
+    });
+
+    test('Path traversal via .. should be blocked', () {
+      expect(mcpService.validatePath('../test.txt'), isFalse);
+      expect(mcpService.validatePath('folder/../../test.txt'), isFalse);
+    });
+
+    test('URL encoded path traversal should be blocked', () {
+      expect(mcpService.validatePath('%2e%2e/test.txt'), isFalse);
+      expect(mcpService.validatePath('folder/%2e%2e/%2e%2e/test.txt'), isFalse);
+    });
+
+    test('Legitimate filenames containing % should be allowed', () {
+      expect(mcpService.validatePath('100%.md'), isTrue);
+      expect(mcpService.validatePath('progress_50%.txt'), isTrue);
+      expect(mcpService.validatePath('folder/report_%done.txt'), isTrue);
+    });
+
+    test('Malformed URL encodings (stray %) should be treated as literals', () {
+      // Bare % not followed by two hex digits is left as-is (not rejected)
+      expect(mcpService.validatePath('file%zz.txt'), isTrue);
+      expect(mcpService.validatePath('100%report.txt'), isTrue);
+      // But a valid %2e%2e encoding that decodes to ".." must still be blocked
+      expect(mcpService.validatePath('%2e%2e/escape.txt'), isFalse);
+    });
+
+    test('Null bytes injection should be blocked', () {
+      expect(mcpService.validatePath('test\x00.txt'), isFalse);
+      expect(mcpService.validatePath('%00test.txt'), isFalse);
+      expect(mcpService.validatePath('test.txt%00'), isFalse);
+    });
+
+    test('Absolute paths should be blocked', () {
+      expect(mcpService.validatePath('/etc/passwd'), isFalse);
+      expect(mcpService.validatePath('C:\\Windows\\System32'), isFalse);
+    });
+  });
+
   group('MCP Service Tests', () {
     group('MCPToolInfo', () {
       test('should create tool info with correct properties', () {
@@ -440,6 +501,40 @@ Sure, I can do that.
       expect(parsed.parameters['path'], 'sandbox/tmp_folder');
     });
 
+    test('parses args-based MCP backend tool call payload', () {
+      const response =
+          '{"tool":"write_file","args":{"path":"sandbox/demo.md","content":"hello","append":false}}';
+
+      final parsed = service.parseToolCall(response);
+
+      expect(parsed, isNotNull);
+      expect(parsed!.tool, 'write_file');
+      expect(parsed.parameters['path'], 'sandbox/demo.md');
+      expect(parsed.parameters['content'], 'hello');
+      expect(parsed.parameters['append'], isFalse);
+    });
+
+    test('parses args payload with escaped multiline content', () {
+      const response =
+          r'{"tool":"write_file","args":{"path":"sandbox/changes.md","content":"Line 1\nLine 2 with \"quotes\"","append":false}}';
+
+      final parsed = service.parseToolCall(response);
+
+      expect(parsed, isNotNull);
+      expect(parsed!.tool, 'write_file');
+      expect(parsed.parameters['path'], 'sandbox/changes.md');
+      expect(parsed.parameters['content'], 'Line 1\nLine 2 with "quotes"');
+      expect(parsed.parameters['append'], isFalse);
+    });
+
+    test('rejects unknown tool names from model output', () {
+      const response = '{"tool":"shell_exec","args":{"command":"rm -rf /"}}';
+
+      final parsed = service.parseToolCall(response);
+
+      expect(parsed, isNull);
+    });
+
     test('parses direct user instruction for create_folder template', () {
       const prompt = 'Use create_folder to create sandbox/tmp_folder.';
       final parsed = service.parseUserDirectedToolCall(prompt);
@@ -448,6 +543,44 @@ Sure, I can do that.
       expect(parsed!.tool, 'create_folder');
       expect(parsed.parameters['path'], 'sandbox/tmp_folder');
     });
+
+    test('parses function-gemma style write_file paragraph request', () {
+      const prompt =
+          'Use write_file to create sandbox/changes.md and write about a paragraph on changes around us';
+
+      final parsed = service.parseUserDirectedToolCall(prompt);
+
+      expect(parsed, isNotNull);
+      expect(parsed!.tool, 'write_file');
+      expect(parsed.parameters['path'], 'sandbox/changes.md');
+      expect(
+        (parsed.parameters['content'] as String).toLowerCase(),
+        contains('changes around us'),
+      );
+      expect(parsed.parameters['append'], isFalse);
+    });
+
+    test(
+      'executes function-gemma style write_file paragraph request end-to-end',
+      () async {
+        const prompt =
+            'Use write_file to create sandbox/changes.md and write about a paragraph on changes around us';
+        final parsed = service.parseUserDirectedToolCall(prompt);
+
+        expect(parsed, isNotNull);
+
+        final result = await service.executeDirectly(parsed!);
+        expect(result.success, isTrue);
+
+        final outputFile = File(
+          p.join(sandboxDir.path, 'sandbox', 'changes.md'),
+        );
+        expect(outputFile.existsSync(), isTrue);
+        final text = await outputFile.readAsString();
+        expect(text.toLowerCase(), contains('changes around us'));
+        expect(text.trim().length, greaterThan(40));
+      },
+    );
 
     test('parses export_markdown instruction with markdown body', () {
       const prompt =

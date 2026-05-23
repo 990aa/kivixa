@@ -1,37 +1,51 @@
-# .github/labeler.yml
+# Configuration for actions/labeler
 
-dart:
-  - changed-files:
-      - any-glob-to-any-file: 'lib/**/*.dart'
-      - any-glob-to-any-file: 'test/**/*.dart'
-
+# Rust-related changes
 rust:
   - changed-files:
-      - any-glob-to-any-file: 'native/**/*.rs'
-      - any-glob-to-any-file: 'native_audio/**/*.rs'
-      - any-glob-to-any-file: 'native_math/**/*.rs'
-      - any-glob-to-any-file: 'rust_builder/**/*.rs'
+    - any-glob-to-any-file:
+      - 'native/**/*'
+      - 'native_audio/**/*'
+      - 'native_math/**/*'
+      - 'rust_builder/**/*'
 
+# Dart / Flutter files
+dart:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'lib/**/*.dart'
+      - 'test/**/*.dart'
+      - 'pubspec.yaml'
+
+flutter:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'lib/**/*'
+      - 'assets/**/*'
+
+# Android, iOS, Windows, Linux
 android:
   - changed-files:
-      - any-glob-to-any-file: 'android/**/*'
+    - any-glob-to-any-file:
+      - 'android/**/*'
 
 ios:
   - changed-files:
-      - any-glob-to-any-file: 'ios/**/*'
+    - any-glob-to-any-file:
+      - 'ios/**/*'
 
 windows:
   - changed-files:
-      - any-glob-to-any-file: 'windows/**/*'
-
-macos:
-  - changed-files:
-      - any-glob-to-any-file: 'macos/**/*'
+    - any-glob-to-any-file:
+      - 'windows/**/*'
 
 linux:
   - changed-files:
-      - any-glob-to-any-file: 'linux/**/*'
+    - any-glob-to-any-file:
+      - 'linux/**/*'
 
+# CI workflow changes
 ci:
   - changed-files:
-      - any-glob-to-any-file: '.github/workflows/**/*'
+    - any-glob-to-any-file:
+      - '.github/workflows/**/*'

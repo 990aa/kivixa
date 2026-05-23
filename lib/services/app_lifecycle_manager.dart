@@ -2,6 +2,11 @@
 //
 // Manages app-wide lifecycle events, idle detection, and memory optimization.
 // Helps prevent RAM bloat during long-running sessions on Windows and Android.
+//
+// Tiered idle strategy:
+//   Active (user is present)  → idle timer: 5 min  (configurable)
+//   Background (app paused)   → all sections paused immediately
+//   Memory pressure           → immediate cleanup hint + shorten idle to 2 min
 
 import 'dart:async';
 import 'dart:io';
@@ -242,17 +247,51 @@ class AppLifecycleManager with WidgetsBindingObserver {
 
   // ==================== Memory Management ====================
 
-  /// Hint to the runtime that it's a good time for garbage collection
+  /// Number of currently registered sections (useful for benchmark reporting).
+  int get registeredSectionCount => _sectionCallbacks.length;
+
+  /// Number of currently *active* sections (visible to the user).
+  int get activeSectionCount => _activeSections.length;
+
+  /// Called by the platform when memory is low.
+  /// Immediately pauses idle sections and shortens the idle timer.
+  void onMemoryPressure() {
+    debugPrint('🔴 Memory pressure received — triggering aggressive cleanup');
+
+    // Shorten the idle timeout temporarily so inactive sections sleep faster.
+    idleTimeout = const Duration(minutes: 2);
+
+    // If we're already idle, deepen the cleanup.
+    _triggerGarbageCollectionHint();
+
+    // Pause sections that are not in the active set.
+    for (final section in _sectionCallbacks.keys) {
+      if (!_activeSections.contains(section)) {
+        _sectionCallbacks[section]?.call(false);
+      }
+    }
+  }
+
+  /// Reset idle timeout to the default after memory pressure subsides.
+  void resetIdleTimeout() {
+    idleTimeout = const Duration(minutes: 5);
+    _resetIdleTimer();
+  }
+
+  /// Hint to the runtime that it's a good time for garbage collection.
+  /// Works on Android, iOS, Windows, Linux, and macOS.
   void _triggerGarbageCollectionHint() {
-    // Flutter doesn't expose direct GC control, but we can help by:
-    // 1. Clearing image cache
+    // Clear the Flutter image cache (works on all platforms).
     PaintingBinding.instance.imageCache.clear();
     PaintingBinding.instance.imageCache.clearLiveImages();
 
-    debugPrint('Triggered memory cleanup hint');
+    debugPrint(
+      'Memory cleanup hint — platform: ${Platform.operatingSystem}, '
+      'active sections: $activeSectionCount/$registeredSectionCount',
+    );
   }
 
-  /// Manually trigger memory cleanup (call sparingly)
+  /// Manually trigger memory cleanup (call sparingly).
   void triggerMemoryCleanup() {
     _triggerGarbageCollectionHint();
   }

@@ -11,6 +11,7 @@ import 'package:kivixa/data/tools/highlighter.dart';
 import 'package:kivixa/data/tools/pen.dart';
 import 'package:logging/logging.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stow/stow.dart';
 import 'package:stow_codecs/stow_codecs.dart';
 import 'package:stow_plain/stow_plain.dart';
@@ -31,6 +32,17 @@ class Stows {
 
   static void markAsOnMainIsolate() {
     _isOnMainIsolate = true;
+  }
+
+  static const _deprecatedPreferenceKeys = <String>{'simplifiedHomeLayout'};
+
+  static Future<void> removeDeprecatedPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    for (final key in _deprecatedPreferenceKeys) {
+      if (prefs.containsKey(key)) {
+        await prefs.remove(key);
+      }
+    }
   }
 
   final log = Logger('Stows');
@@ -122,11 +134,6 @@ class Stows {
   //   volatile: !_isOnMainIsolate,
   // );
 
-  final simplifiedHomeLayout = PlainStow(
-    'simplifiedHomeLayout',
-    false,
-    volatile: !_isOnMainIsolate,
-  );
   final printPageIndicators = PlainStow(
     'printPageIndicators',
     false,

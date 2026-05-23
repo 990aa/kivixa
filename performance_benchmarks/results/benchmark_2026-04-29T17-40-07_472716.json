@@ -1,0 +1,653 @@
+{
+  "deviceInfo": "windows \"Windows 11 Pro\" 10.0 (Build 26200)",
+  "startTime": "2026-04-29T17:40:06.633019",
+  "endTime": "2026-04-29T17:40:07.544877",
+  "metrics": [
+    {
+      "type": "startupTime",
+      "name": "startup_threshold_ms",
+      "value": 3000.0,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:06.895832"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 1.779,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 1.307,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 1.2,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 1.248,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 0.981,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 1.901,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 2.298,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 1.082,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 1.29,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 2.039,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 3.031,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 0.941,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 1.074,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 1.179,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 0.787,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 1.25,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 1.897,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 2.169,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 0.804,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "sleep_wake_roundtrip_ms",
+      "value": 1.006,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.007887"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.648,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.155,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.397,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.223,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.827,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.25,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.399,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.346,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.16,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.106,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.107,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.098,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.118,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.413,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.183,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.242,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.138,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.112,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.178,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.121,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.106,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.245,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.174,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.131,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.206,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.172,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.286,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.161,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.133,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.146,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.207,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.146,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.114,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.121,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.105,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.119,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.478,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.135,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.138,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.113,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.131,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.203,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.123,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.133,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.128,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.099,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.122,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.117,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.235,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.121,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.123,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.338,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.177,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.116,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.13,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.151,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.296,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.124,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.127,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "async_yield_ms",
+      "value": 0.119,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.044798"
+    },
+    {
+      "type": "navigationTime",
+      "name": "section_register_100_avg_ms",
+      "value": 0.6426999999999999,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.064676"
+    },
+    {
+      "type": "frameBuildTime",
+      "name": "json_state_roundtrip_p99_ms",
+      "value": 5.707,
+      "unit": "ms",
+      "timestamp": "2026-04-29T17:40:07.172600"
+    }
+  ],
+  "summary": {
+    "startupTime": {
+      "count": 1.0,
+      "min": 3000.0,
+      "max": 3000.0,
+      "avg": 3000.0,
+      "p50": 3000.0,
+      "p95": 3000.0,
+      "p99": 3000.0
+    },
+    "frameBuildTime": {
+      "count": 81.0,
+      "min": 0.098,
+      "max": 5.707,
+      "avg": 0.577037037037037,
+      "p50": 0.178,
+      "p95": 2.039,
+      "p99": 3.031
+    },
+    "frameRasterTime": {
+      "count": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "avg": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0
+    },
+    "scrollPerformance": {
+      "count": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "avg": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0
+    },
+    "navigationTime": {
+      "count": 1.0,
+      "min": 0.6426999999999999,
+      "max": 0.6426999999999999,
+      "avg": 0.6426999999999999,
+      "p50": 0.6426999999999999,
+      "p95": 0.6426999999999999,
+      "p99": 0.6426999999999999
+    },
+    "memoryUsage": {
+      "count": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "avg": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0
+    },
+    "wakeLatency": {
+      "count": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "avg": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0
+    }
+  }
+}

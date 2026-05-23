@@ -1,0 +1,651 @@
+# Kivixa Release Workflow — Linux, macOS & iOS
+#
+# Triggered by the same version tags as the main Android+Windows workflow.
+# Builds:
+#   - Linux x86_64 (tarball)
+#   - macOS universal (x86_64 + arm64, zipped .app)
+#   - iOS arm64 (unsigned .ipa)
+#
+# All three Rust modules (native, native_math, native_audio) are compiled for
+# every target before the Flutter build so they are present at link time.
+#
+# Release strategy:
+#   The Android+Windows workflow owns creating the GitHub Release.  This
+#   workflow waits until that release exists for the same tag, then appends
+#   its built artefacts to it.  A dedicated "wait-for-release" job handles the
+#   polling so the three platform build jobs can run fully in parallel.
+
+name: Build and Release (Linux + macOS + iOS)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Full tag name (e.g., v0.8.24+80240)'
+        required: true
+        default: '0.0.1'
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: '3.44.0'
+
+# Shared version-extraction logic (reused as a composite across jobs via env)
+
+jobs:
+
+  # JOB 0: Extract version — single source of truth for all downstream jobs
+
+  extract-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version:      ${{ steps.version.outputs.version }}
+      build_number: ${{ steps.version.outputs.build_number }}
+      tag_name:     ${{ steps.version.outputs.tag_name }}
+
+    steps:
+      - name: Extract version from tag
+        id: version
+        run: |
+          # 1. Grab the raw tag name based on how the workflow was triggered
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG_NAME="${{ github.event.inputs.tag_name }}"
+          else
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+          fi
+          
+          # 2. Strip the leading 'v' if it exists (e.g., v0.8.24+80240 -> 0.8.24+80240)
+          CLEAN_TAG="${TAG_NAME#v}"
+          
+          # 3. Separate the semantic version from the build number
+          VERSION="$(echo "$CLEAN_TAG" | cut -d'+' -f1)"
+          BUILD_NUMBER="$(echo "$CLEAN_TAG" | grep -oP '\+\K\d+' || true)"
+          
+          # 4. Output the results
+          echo "version=$VERSION"           >> "$GITHUB_OUTPUT"
+          echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "tag_name=$TAG_NAME"         >> "$GITHUB_OUTPUT"
+          
+          echo "Extracted version=$VERSION  build=$BUILD_NUMBER  tag=$TAG_NAME"
+
+  # JOB 1: Build Linux x86_64
+
+  build-linux:
+    runs-on: ubuntu-latest
+    needs: extract-version
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Sync pubspec.yaml version with tag
+        run: |
+          VERSION="${{ needs.extract-version.outputs.version }}"
+          BUILD="${{ needs.extract-version.outputs.build_number }}"
+          if [ -n "$BUILD" ]; then
+            FULL_VERSION="${VERSION}+${BUILD}"
+          else
+            FULL_VERSION="${VERSION}"
+          fi
+          sed -i "s/^version: .*/version: ${FULL_VERSION}/" pubspec.yaml
+          echo "Updated pubspec.yaml → version: $FULL_VERSION"
+          grep "^version:" pubspec.yaml
+
+      # ---- Setup Rust -------------------------------------------------------
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+
+      # ---- Setup Flutter ---------------------------------------------------
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      # ---- Build Rust ------------------------------------------------------
+      - name: Build kivixa_native for Linux
+        run: |
+          echo "=== Building kivixa_native for Linux ==="
+          cd native
+          cargo build --release --target x86_64-unknown-linux-gnu
+          cd ..
+
+          mkdir -p build/linux/x64/release/bundle/lib
+
+          cp native/target/x86_64-unknown-linux-gnu/release/libkivixa_native.so \
+             build/linux/x64/release/bundle/lib/
+
+          echo "libkivixa_native.so copied"
+          ls -la build/linux/x64/release/bundle/lib/
+
+      - name: Build kivixa_math for Linux
+        run: |
+          echo "=== Building kivixa_math for Linux ==="
+          cd native_math
+          cargo build --release --target x86_64-unknown-linux-gnu
+          cd ..
+
+          cp native_math/target/x86_64-unknown-linux-gnu/release/libkivixa_math.so \
+             build/linux/x64/release/bundle/lib/
+
+          echo "libkivixa_math.so copied"
+          ls -la build/linux/x64/release/bundle/lib/
+
+      - name: Build kivixa_audio for Linux
+        run: |
+          echo "=== Building kivixa_audio for Linux ==="
+          cd native_audio
+          cargo build --release --target x86_64-unknown-linux-gnu
+          cd ..
+
+          cp native_audio/target/x86_64-unknown-linux-gnu/release/libkivixa_audio.so \
+             build/linux/x64/release/bundle/lib/
+
+          echo "libkivixa_audio.so copied"
+          ls -la build/linux/x64/release/bundle/lib/
+
+      # ---- Flutter / Linux system deps --------------------------------------
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            clang cmake ninja-build pkg-config \
+            libgtk-3-dev liblzma-dev libstdc++-12-dev \
+            libblkid-dev libjpeg-dev libpng-dev \
+            libglib2.0-dev libpango1.0-dev libcairo2-dev \
+            libatk1.0-dev libgdk-pixbuf2.0-dev \
+            libwebkit2gtk-4.1-dev \
+            libsecret-1-dev \
+            libmpv-dev
+
+      - name: Build Linux
+        run: flutter build linux --release
+
+      # ---- Post-build: copy Rust libs into Flutter bundle ------------------
+      - name: Re-copy Rust libs into Flutter Linux bundle
+        run: |
+          BUNDLE="build/linux/x64/release/bundle/lib"
+          mkdir -p "$BUNDLE"
+
+          cp native/target/x86_64-unknown-linux-gnu/release/libkivixa_native.so "$BUNDLE/"
+          cp native_math/target/x86_64-unknown-linux-gnu/release/libkivixa_math.so "$BUNDLE/"
+          cp native_audio/target/x86_64-unknown-linux-gnu/release/libkivixa_audio.so "$BUNDLE/"
+
+          echo "=== Final bundle/lib contents ==="
+          ls -la "$BUNDLE/"
+
+      - name: Verify Rust .so files in bundle
+        run: |
+          BUNDLE="build/linux/x64/release/bundle/lib"
+          for LIB in libkivixa_native.so libkivixa_math.so libkivixa_audio.so; do
+            if [ -f "$BUNDLE/$LIB" ]; then
+              echo "[OK] $LIB"
+            else
+              echo "[ERROR] $LIB missing from bundle!"
+              exit 1
+            fi
+          done
+
+      - name: Package Linux bundle as tarball
+        run: |
+          VERSION="${{ needs.extract-version.outputs.version }}"
+          BUNDLE="build/linux/x64/release/bundle"
+          ARCHIVE_NAME="Kivixa-Linux-${VERSION}-x86_64.tar.gz"
+
+          mkdir -p artifacts
+          tar -czf "artifacts/${ARCHIVE_NAME}" -C "$BUNDLE" .
+
+          echo "=== Artifacts ==="
+          ls -lh artifacts/
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: linux-bundle
+          path: artifacts/Kivixa-Linux-*.tar.gz
+          retention-days: 5
+
+  # JOB 2: Build macOS universal (x86_64 + arm64)
+
+  build-macos:
+    runs-on: macos-latest
+    needs: extract-version
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Sync pubspec.yaml version with tag
+        run: |
+          VERSION="${{ needs.extract-version.outputs.version }}"
+          BUILD="${{ needs.extract-version.outputs.build_number }}"
+          if [ -n "$BUILD" ]; then
+            FULL_VERSION="${VERSION}+${BUILD}"
+          else
+            FULL_VERSION="${VERSION}"
+          fi
+          sed -i '' "s/^version: .*/version: ${FULL_VERSION}/" pubspec.yaml
+          echo "Updated pubspec.yaml → version: $FULL_VERSION"
+          grep "^version:" pubspec.yaml
+
+      # ---- Setup Rust (both macOS arches) -----------------------------------
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin,aarch64-apple-darwin
+
+      # ---- Setup Flutter ---------------------------------------------------
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      # ---- Build Rust (cargo build for both arches) -----------------------
+      - name: Build kivixa_native for macOS (universal)
+        run: |
+          echo "=== Building kivixa_native for macOS (x86_64 + arm64) ==="
+          cd native
+          cargo build --release --target x86_64-apple-darwin
+          cargo build --release --target aarch64-apple-darwin
+          cd ..
+
+          mkdir -p macos_libs
+
+          lipo -create \
+            native/target/x86_64-apple-darwin/release/libkivixa_native.dylib \
+            native/target/aarch64-apple-darwin/release/libkivixa_native.dylib \
+            -output macos_libs/libkivixa_native.dylib
+
+          echo "libkivixa_native.dylib (universal) created"
+          file macos_libs/libkivixa_native.dylib
+
+      - name: Build kivixa_math for macOS (universal)
+        run: |
+          echo "=== Building kivixa_math for macOS (x86_64 + arm64) ==="
+          cd native_math
+          cargo build --release --target x86_64-apple-darwin
+          cargo build --release --target aarch64-apple-darwin
+          cd ..
+
+          lipo -create \
+            native_math/target/x86_64-apple-darwin/release/libkivixa_math.dylib \
+            native_math/target/aarch64-apple-darwin/release/libkivixa_math.dylib \
+            -output macos_libs/libkivixa_math.dylib
+
+          echo "libkivixa_math.dylib (universal) created"
+          file macos_libs/libkivixa_math.dylib
+
+      - name: Build kivixa_audio for macOS (universal)
+        run: |
+          echo "=== Building kivixa_audio for macOS (x86_64 + arm64) ==="
+          cd native_audio
+          cargo build --release --target x86_64-apple-darwin
+          cargo build --release --target aarch64-apple-darwin
+          cd ..
+
+          lipo -create \
+            native_audio/target/x86_64-apple-darwin/release/libkivixa_audio.dylib \
+            native_audio/target/aarch64-apple-darwin/release/libkivixa_audio.dylib \
+            -output macos_libs/libkivixa_audio.dylib
+
+          echo "libkivixa_audio.dylib (universal) created"
+          file macos_libs/libkivixa_audio.dylib
+
+      # ---- Copy libs so Flutter can find them at build time ----------------
+      - name: Stage Rust dylibs for Flutter macOS build
+        run: |
+          RELEASE_DIR="build/macos/Build/Products/Release"
+          mkdir -p "$RELEASE_DIR"
+          cp macos_libs/*.dylib "$RELEASE_DIR/" || true
+
+          mkdir -p rust_builder/target/x86_64-apple-darwin/release
+          cp macos_libs/libkivixa_native.dylib  rust_builder/target/x86_64-apple-darwin/release/
+          cp macos_libs/libkivixa_math.dylib    rust_builder/target/x86_64-apple-darwin/release/
+          cp macos_libs/libkivixa_audio.dylib   rust_builder/target/x86_64-apple-darwin/release/
+
+      # ---- Flutter build ---------------------------------------------------
+      - name: Build macOS (no code signing)
+        run: |
+          echo "=== 1. Generating Podfile (Expect failure) ==="
+          # This runs pod install, drops the Podfile, and crashes. We catch the crash with || true.
+          flutter build macos --release || true
+          
+          echo "=== 2. Patching macOS Podfile deployment target ==="
+          if [ -f "macos/Podfile" ]; then
+            sed -i '' "s/^# platform :osx.*/platform :osx, '11.0'/g" macos/Podfile
+            sed -i '' "s/^platform :osx.*/platform :osx, '11.0'/g" macos/Podfile
+            echo "Patch successful!"
+          else
+            echo "[ERROR] macos/Podfile was not generated!"
+            exit 1
+          fi
+          
+          echo "=== 3. Building macOS (Final attempt) ==="
+          flutter build macos --release
+
+      # ---- Post-build: embed universal dylibs into .app --------------------
+      - name: Embed Rust dylibs into .app bundle
+        run: |
+          APP_PATH="$(find build/macos/Build/Products/Release -name '*.app' -maxdepth 2 | head -1)"
+          if [ -z "$APP_PATH" ]; then
+            echo "[ERROR] .app bundle not found under build/macos/Build/Products/Release"
+            find build/macos -name '*.app' || true
+            exit 1
+          fi
+          echo "Found .app bundle: $APP_PATH"
+
+          FRAMEWORKS_DIR="$APP_PATH/Contents/Frameworks"
+          mkdir -p "$FRAMEWORKS_DIR"
+
+          for DYLIB in macos_libs/*.dylib; do
+            cp "$DYLIB" "$FRAMEWORKS_DIR/"
+            echo "[OK] Copied $(basename $DYLIB) → $FRAMEWORKS_DIR/"
+          done
+
+          echo "=== Frameworks dir ==="
+          ls -lh "$FRAMEWORKS_DIR/"
+
+      - name: Verify Rust dylibs in .app
+        run: |
+          APP_PATH="$(find build/macos/Build/Products/Release -name '*.app' -maxdepth 2 | head -1)"
+          FRAMEWORKS_DIR="$APP_PATH/Contents/Frameworks"
+          for LIB in libkivixa_native.dylib libkivixa_math.dylib libkivixa_audio.dylib; do
+            if [ -f "$FRAMEWORKS_DIR/$LIB" ]; then
+              echo "[OK] $LIB"
+            else
+              echo "[ERROR] $LIB missing from .app!"
+              exit 1
+            fi
+          done
+
+      - name: Package macOS .app as zip
+        run: |
+          VERSION="${{ needs.extract-version.outputs.version }}"
+          APP_PATH="$(find build/macos/Build/Products/Release -name '*.app' -maxdepth 2 | head -1)"
+          ARCHIVE_NAME="Kivixa-macOS-${VERSION}-universal.zip"
+
+          mkdir -p artifacts
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "artifacts/${ARCHIVE_NAME}"
+
+          echo "=== Artifacts ==="
+          ls -lh artifacts/
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: macos-app
+          path: artifacts/Kivixa-macOS-*.zip
+          retention-days: 5
+
+  # JOB 3: Build iOS arm64 (unsigned IPA)
+
+  build-ios:
+    runs-on: macos-latest
+    needs: extract-version
+    env:
+      IPHONEOS_DEPLOYMENT_TARGET: '14.0'
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Sync pubspec.yaml version with tag
+        run: |
+          VERSION="${{ needs.extract-version.outputs.version }}"
+          BUILD="${{ needs.extract-version.outputs.build_number }}"
+          if [ -n "$BUILD" ]; then
+            FULL_VERSION="${VERSION}+${BUILD}"
+          else
+            FULL_VERSION="${VERSION}"
+          fi
+          sed -i '' "s/^version: .*/version: ${FULL_VERSION}/" pubspec.yaml
+          echo "Updated pubspec.yaml → version: $FULL_VERSION"
+          grep "^version:" pubspec.yaml
+
+      # ---- Setup Rust for iOS device target --------------------------------
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios
+
+      # ---- Setup Flutter ---------------------------------------------------
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      # ---- Build Rust (cargo build for iOS) --------------------------------
+      - name: Build kivixa_native for iOS (arm64)
+        run: |
+          echo "=== Building kivixa_native for iOS arm64 ==="
+          cd native
+          RUSTFLAGS="-C link-arg=-Wl,-undefined,dynamic_lookup" cargo build --release --target aarch64-apple-ios
+          cd ..
+
+          mkdir -p ios_libs
+
+          cp native/target/aarch64-apple-ios/release/libkivixa_native.a ios_libs/
+          [ -f native/target/aarch64-apple-ios/release/libkivixa_native.dylib ] && \
+            cp native/target/aarch64-apple-ios/release/libkivixa_native.dylib ios_libs/ || true
+
+          echo "=== ios_libs ==="
+          ls -lh ios_libs/
+
+      - name: Build kivixa_math for iOS (arm64)
+        run: |
+          echo "=== Building kivixa_math for iOS arm64 ==="
+          cd native_math
+          RUSTFLAGS="-C link-arg=-Wl,-undefined,dynamic_lookup" cargo build --release --target aarch64-apple-ios
+          cd ..
+
+          [ -f native_math/target/aarch64-apple-ios/release/libkivixa_math.a ] && \
+            cp native_math/target/aarch64-apple-ios/release/libkivixa_math.a ios_libs/ || true
+          [ -f native_math/target/aarch64-apple-ios/release/libkivixa_math.dylib ] && \
+            cp native_math/target/aarch64-apple-ios/release/libkivixa_math.dylib ios_libs/ || true
+
+          echo "=== ios_libs ==="
+          ls -lh ios_libs/
+
+      - name: Build kivixa_audio for iOS (arm64)
+        run: |
+          echo "=== Building kivixa_audio for iOS arm64 ==="
+          cd native_audio
+          RUSTFLAGS="-C link-arg=-Wl,-undefined,dynamic_lookup" cargo build --release --target aarch64-apple-ios
+          cd ..
+
+          [ -f native_audio/target/aarch64-apple-ios/release/libkivixa_audio.a ] && \
+            cp native_audio/target/aarch64-apple-ios/release/libkivixa_audio.a ios_libs/ || true
+          [ -f native_audio/target/aarch64-apple-ios/release/libkivixa_audio.dylib ] && \
+            cp native_audio/target/aarch64-apple-ios/release/libkivixa_audio.dylib ios_libs/ || true
+
+          echo "=== ios_libs ==="
+          ls -lh ios_libs/
+
+      # ---- Stage libs for the iOS Xcode project ----------------------------
+      - name: Stage Rust libs for Flutter iOS build
+        run: |
+          DEST="ios/Frameworks"
+          mkdir -p "$DEST"
+          cp ios_libs/* "$DEST/" || true
+
+          mkdir -p rust_builder/target/aarch64-apple-ios/release
+          cp ios_libs/* rust_builder/target/aarch64-apple-ios/release/ || true
+
+          echo "=== iOS Frameworks staged ==="
+          ls -lh "$DEST/"
+
+      # ---- Flutter build ---------------------------------------------------
+      - name: Build iOS (unsigned IPA)
+        run: |
+          echo "=== 1. Generating Podfile (Expect failure) ==="
+          flutter build ipa --release --no-codesign || true
+          
+          echo "=== 2. Patching iOS Podfile deployment target ==="
+          if [ -f "ios/Podfile" ]; then
+            sed -i '' "s/^# platform :ios.*/platform :ios, '15.0'/g" ios/Podfile
+            sed -i '' "s/^platform :ios.*/platform :ios, '15.0'/g" ios/Podfile
+            echo "Patch successful!"
+          else
+            echo "[ERROR] ios/Podfile was not generated!"
+            exit 1
+          fi
+          
+          echo "=== 3. Building iOS (Final attempt) ==="
+          flutter build ipa --release --no-codesign
+
+      - name: Create Unsigned IPA
+        run: |
+          VERSION="${{ needs.extract-version.outputs.version }}"
+          APP_PATH="build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app"
+
+          if [ ! -d "$APP_PATH" ]; then
+            echo "[ERROR] Runner.app not found at $APP_PATH."
+            find build/ios -name "*.app" -type d || true
+            exit 1
+          fi
+
+          echo "Found Runner.app! Manually packaging into unsigned .ipa..."
+          
+          # Standard IPA structure: a 'Payload' folder containing the .app
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          
+          mkdir -p artifacts
+          zip -qr "artifacts/Kivixa-iOS-${VERSION}-arm64.ipa" Payload
+          
+          echo "=== Artifacts ==="
+          ls -lh artifacts/
+
+      - name: Upload iOS artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ios-ipa
+          path: artifacts/Kivixa-iOS-*.ipa
+          retention-days: 5
+
+  # JOB 4: Wait for the Android+Windows workflow to finish creating the
+  #         GitHub Release, then append Linux / macOS / iOS artefacts to it.
+
+  wait-for-release:
+    runs-on: ubuntu-latest
+    needs: [extract-version, build-linux, build-macos, build-ios]
+    # SKIPS THIS JOB IF RUN MANUALLY (workflow_dispatch)
+    if: github.event_name != 'workflow_dispatch'
+    outputs:
+      release_exists: ${{ steps.poll.outputs.release_exists }}
+
+    steps:
+      - name: Wait until GitHub Release exists for this tag
+        id: poll
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ needs.extract-version.outputs.tag_name }}
+        run: |
+          echo "Polling for release with tag: $TAG_NAME"
+          MAX_ATTEMPTS=30   # 30 × 120 s = 3600 s = 60 minutes max wait
+          ATTEMPT=0
+
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "Attempt $ATTEMPT / $MAX_ATTEMPTS …"
+
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG_NAME}")
+
+            echo "  HTTP status: $HTTP_STATUS"
+
+            if [ "$HTTP_STATUS" = "200" ]; then
+              echo "Release found!"
+              echo "release_exists=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            sleep 120
+          done
+
+          echo "[ERROR] Release not found after $MAX_ATTEMPTS attempts."
+          echo "release_exists=false" >> "$GITHUB_OUTPUT"
+          exit 1
+
+  # JOB 5: Upload artefacts to the existing GitHub Release
+
+  upload-to-release:
+    runs-on: ubuntu-latest
+    needs: [extract-version, wait-for-release]
+    # SKIPS THIS JOB IF RUN MANUALLY OR IF RELEASE WASN'T FOUND
+    if: github.event_name != 'workflow_dispatch' && needs.wait-for-release.outputs.release_exists == 'true'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: linux-bundle
+          path: release-artifacts
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: macos-app
+          path: release-artifacts
+
+      - name: Download iOS artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ios-ipa
+          path: release-artifacts
+
+      - name: List artefacts to upload
+        run: ls -lh release-artifacts/
+
+      - name: Append artefacts to existing GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ needs.extract-version.outputs.tag_name }}
+          files: release-artifacts/*
+          append_body: true
+          body: |
+
+            **Linux:**
+            - `Kivixa-Linux-${{ needs.extract-version.outputs.version }}-x86_64.tar.gz` — Linux x86_64 bundle
+
+            **macOS:**
+            - `Kivixa-macOS-${{ needs.extract-version.outputs.version }}-universal.zip` — macOS universal app (x86_64 + Apple Silicon)
+
+            **iOS:**
+            - `Kivixa-iOS-${{ needs.extract-version.outputs.version }}-arm64.ipa` — iOS unsigned IPA (sideload via AltStore / Sideloadly)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

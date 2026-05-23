@@ -11,6 +11,8 @@ enum MetricType {
   frameRasterTime,
   scrollPerformance,
   navigationTime,
+  memoryUsage,
+  wakeLatency,
 }
 
 /// Single performance measurement

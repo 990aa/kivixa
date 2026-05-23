@@ -1,7 +1,6 @@
-
 # Kivixa Release Workflow
 
-# Triggered by pushing a version tag (e.g., v0.1.7+1007) or manually
+# Triggered by pushing a version tag or manually
 #
 # This workflow:
 # 1. Builds Rust native libraries for Android and Windows
@@ -15,7 +14,7 @@
  
 
 
-name: Build and Release
+name: Build and Release (Windows + Android)
 
 on:
   push:
@@ -38,15 +37,15 @@ on:
         type: boolean
         default: true
 
+permissions:
+  contents: read
+
 env:
-  FLUTTER_VERSION: '3.41.6'
+  FLUTTER_VERSION: '3.44.0'
 
 jobs:
-   
-
   # JOB 1: Build Android APKs (with Rust native libs)
-   
-
+  
   build-android:
     runs-on: ubuntu-latest
     outputs:
@@ -108,7 +107,7 @@ jobs:
           grep "^version:" pubspec.yaml
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -675,20 +674,20 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Download Android artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: android-apks
           path: release-artifacts
 
       - name: Download Windows artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: windows-installer
           path: release-artifacts
 
       - name: Download MSIX artifacts
-        continue-on-error: true # <--- PREVENTS RELEASE FAILURE IF MSIX WAS NOT BUILT
-        uses: actions/download-artifact@v4
+        continue-on-error: true 
+        uses: actions/download-artifact@v8
         with:
           name: windows-msix
           path: release-artifacts
@@ -712,7 +711,7 @@ jobs:
 
       - name: Create GitHub Release
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           name: Kivixa v${{ needs.build-android.outputs.version }}
           tag_name: ${{ needs.build-android.outputs.tag_name }}
@@ -764,13 +763,13 @@ jobs:
           fetch-depth: 0
 
       - name: Download Android artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: android-apks
           path: fdroid-apks
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.14'
 
@@ -799,12 +798,12 @@ jobs:
           # Keep the published repo clean by dropping temporary artifact cache.
           rm -rf fdroid-apks tmp
 
-          # Remove legacy APKs older than 0.4.0 from both repo and archive.
+          # Remove legacy APKs older than 0.8.21 from both repo and archive.
           for dir in repo archive; do
             find "$dir" -maxdepth 1 -type f -name 'Kivixa-Android-*.apk' | while IFS= read -r apk; do
               base_name=$(basename "$apk")
               version=$(echo "$base_name" | sed -E 's/^Kivixa-Android-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
-              if [ -n "$version" ] && [ "$(printf '%s\n0.4.0\n' "$version" | sort -V | head -n1)" != "0.4.0" ]; then
+              if [ -n "$version" ] && [ "$(printf '%s\n0.8.21\n' "$version" | sort -V | head -n1)" != "0.8.21" ]; then
                 rm -f "$apk"
               fi
             done
@@ -868,7 +867,7 @@ jobs:
           data["archive_name"] = "Kivixa Archive"
           data["archive_description"] = "Older versions of Kivixa kept for compatibility and rollback."
           data["archive_icon"] = "icon.png"
-          data["archive_older"] = 3
+          data["archive_older"] = 15
 
           with path.open("w", encoding="utf-8") as fp:
               yaml.dump(data, fp)

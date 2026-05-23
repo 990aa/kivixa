@@ -1,0 +1,37 @@
+{
+  "extends": [
+    "config:recommended",
+    ":separateMajorReleases",
+    ":combinePatchMinorReleases"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["cargo"],
+      "groupName": "rust crates",
+      "rangeStrategy": "bump"
+    },
+    {
+      "matchManagers": ["pub"],
+      "groupName": "dart and flutter packages"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update FLUTTERVERSION in GitHub Actions workflows",
+      "managerFilePatterns": [
+        "/(^|/)\\.github/workflows/.*\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "FLUTTERVERSION\\s*:?\\s*[\"']?(?<currentValue>\\d+\\.\\d+\\.\\d+)[\"']?"
+      ],
+      "depNameTemplate": "flutter",
+      "datasourceTemplate": "flutter-version",
+      "versioningTemplate": "semver"
+    }
+  ]
+}

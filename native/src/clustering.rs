@@ -1,21 +1,15 @@
 //! AI-Powered K-Means Clustering for Knowledge Graph
 //!
 //! Automatically groups notes into clusters based on embedding similarity.
-//! Uses linfa-clustering for efficient K-Means implementation.
+//! Uses an in-crate deterministic K-Means implementation.
 //!
 //! Features:
 //! - Automatic cluster discovery from note embeddings
 //! - Color assignment for visual grouping
 //! - Semantic edge detection for hidden connections
 
-use anyhow::Result;
-use linfa::prelude::Predict;
-use linfa::traits::Fit;
-use linfa::DatasetBase;
-use linfa_clustering::KMeans;
-use ndarray::Array2;
+use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 use crate::embeddings::{cosine_similarity, EmbeddingEntry};
 
@@ -101,6 +95,103 @@ fn get_cluster_color(cluster_id: usize) -> String {
     CLUSTER_COLORS[cluster_id % CLUSTER_COLORS.len()].to_string()
 }
 
+fn squared_euclidean(a: &[f32], b: &[f32]) -> f32 {
+    a.iter()
+        .zip(b.iter())
+        .map(|(x, y)| {
+            let diff = x - y;
+            diff * diff
+        })
+        .sum()
+}
+
+fn initialize_centroids(entries: &[EmbeddingEntry], k: usize) -> Vec<Vec<f32>> {
+    let n = entries.len();
+    let step = (n as f32 / k as f32).max(1.0);
+
+    (0..k)
+        .map(|i| {
+            let idx = ((i as f32 * step).floor() as usize).min(n - 1);
+            entries[idx].vector.clone()
+        })
+        .collect()
+}
+
+fn assign_to_centroids(entries: &[EmbeddingEntry], centroids: &[Vec<f32>]) -> Vec<usize> {
+    let mut assignments = Vec::with_capacity(entries.len());
+
+    for entry in entries {
+        let mut best_cluster = 0usize;
+        let mut best_distance = f32::INFINITY;
+
+        for (cluster_id, centroid) in centroids.iter().enumerate() {
+            let distance = squared_euclidean(&entry.vector, centroid);
+            if distance < best_distance {
+                best_distance = distance;
+                best_cluster = cluster_id;
+            }
+        }
+
+        assignments.push(best_cluster);
+    }
+
+    assignments
+}
+
+fn recompute_centroids(
+    entries: &[EmbeddingEntry],
+    assignments: &[usize],
+    previous_centroids: &[Vec<f32>],
+    k: usize,
+) -> Result<Vec<Vec<f32>>> {
+    let dim = entries[0].vector.len();
+    for entry in entries.iter() {
+        if entry.vector.len() != dim {
+            return Err(anyhow!(
+                "inconsistent embedding dimensions: expected {}, got {} for entry {}",
+                dim,
+                entry.vector.len(),
+                entry.id
+            ));
+        }
+    }
+
+    let mut sums = vec![vec![0.0f32; dim]; k];
+    let mut counts = vec![0usize; k];
+
+    for (entry, &cluster_id) in entries.iter().zip(assignments.iter()) {
+        counts[cluster_id] += 1;
+        for (j, value) in entry.vector.iter().enumerate() {
+            sums[cluster_id][j] += *value;
+        }
+    }
+
+    let mut centroids = Vec::with_capacity(k);
+    for cluster_id in 0..k {
+        if counts[cluster_id] == 0 {
+            // Keep the previous centroid for empty clusters.
+            centroids.push(previous_centroids[cluster_id].clone());
+            continue;
+        }
+
+        let inv_count = 1.0 / counts[cluster_id] as f32;
+        for value in &mut sums[cluster_id] {
+            *value *= inv_count;
+        }
+        centroids.push(sums[cluster_id].clone());
+    }
+
+    Ok(centroids)
+}
+
+fn max_centroid_shift(previous: &[Vec<f32>], current: &[Vec<f32>]) -> f32 {
+    previous
+        .iter()
+        .zip(current.iter())
+        .map(|(old_centroid, new_centroid)| squared_euclidean(old_centroid, new_centroid).sqrt())
+        .fold(0.0, f32::max)
+}
+
 /// Run K-Means clustering on embedding vectors
 ///
 /// # Arguments
@@ -141,48 +232,43 @@ pub fn cluster_embeddings_kmeans(
     }
 
     // Determine optimal K
-    let k = k.unwrap_or_else(|| {
-        // Rule of thumb: sqrt(n/2), clamped to reasonable range
-        let auto_k = ((entries.len() as f64 / 2.0).sqrt().ceil() as usize).max(2);
-        auto_k.min(entries.len()).min(16) // Max 16 clusters
-    });
+    let k = match k {
+        Some(0) => anyhow::bail!("k must be at least 1"),
+        Some(requested_k) => requested_k.min(entries.len()).min(16), // Max 16 clusters
+        None => {
+            // Rule of thumb: sqrt(n/2), clamped to reasonable range
+            let auto_k = ((entries.len() as f64 / 2.0).sqrt().ceil() as usize).max(2);
+            auto_k.min(entries.len()).min(16) // Max 16 clusters
+        }
+    };
 
-    let max_iter = max_iterations.unwrap_or(100);
+    let max_iter = max_iterations.unwrap_or(100).max(1);
 
-    // Get embedding dimension
-    let dim = entries[0].vector.len();
-
-    // Build data matrix (n_samples x n_features)
     let n_samples = entries.len();
-    let mut data = Array2::<f64>::zeros((n_samples, dim));
+    let mut centroids = initialize_centroids(entries, k);
+    let mut assignments = assign_to_centroids(entries, &centroids);
 
-    for (i, entry) in entries.iter().enumerate() {
-        for (j, &val) in entry.vector.iter().enumerate() {
-            data[[i, j]] = val as f64;
+    for _ in 0..max_iter {
+        let updated_centroids = recompute_centroids(entries, &assignments, &centroids, k)?;
+        let updated_assignments = assign_to_centroids(entries, &updated_centroids);
+        let shift = max_centroid_shift(&centroids, &updated_centroids);
+
+        centroids = updated_centroids;
+        let converged = updated_assignments == assignments || shift <= 1e-4;
+        assignments = updated_assignments;
+
+        if converged {
+            break;
         }
     }
 
-    // Create dataset
-    let dataset = DatasetBase::from(data);
-
-    // Run K-Means
-    let model = KMeans::params(k)
-        .max_n_iterations(max_iter as u64)
-        .tolerance(1e-4)
-        .fit(&dataset)?;
-
-    // Get cluster assignments
-    let predictions = model.predict(&dataset);
-
     // Build assignments
-    let mut assignments = Vec::with_capacity(n_samples);
-    let mut cluster_counts: HashMap<usize, usize> = HashMap::new();
+    let mut assignment_items = Vec::with_capacity(n_samples);
+    let mut cluster_counts = vec![0usize; k];
 
-    for (i, entry) in entries.iter().enumerate() {
-        let cluster_id = predictions[i];
-        *cluster_counts.entry(cluster_id).or_insert(0) += 1;
-
-        assignments.push(ClusterAssignment {
+    for (entry, &cluster_id) in entries.iter().zip(assignments.iter()) {
+        cluster_counts[cluster_id] += 1;
+        assignment_items.push(ClusterAssignment {
             id: entry.id.clone(),
             cluster_id,
             color: get_cluster_color(cluster_id),
@@ -190,13 +276,11 @@ pub fn cluster_embeddings_kmeans(
     }
 
     // Build cluster info
-    let centroids = model.centroids();
     let mut clusters = Vec::with_capacity(k);
 
     for cluster_id in 0..k {
-        let size = cluster_counts.get(&cluster_id).copied().unwrap_or(0);
-        let centroid_row = centroids.row(cluster_id);
-        let centroid: Vec<f32> = centroid_row.iter().map(|&v| v as f32).collect();
+        let size = cluster_counts[cluster_id];
+        let centroid = centroids[cluster_id].clone();
 
         clusters.push(ClusterInfo {
             id: cluster_id,
@@ -207,7 +291,7 @@ pub fn cluster_embeddings_kmeans(
     }
 
     Ok(ClusteringResult {
-        assignments,
+        assignments: assignment_items,
         clusters,
         k,
     })

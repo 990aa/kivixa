@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:kivixa/data/models/media_element.dart';
 import 'package:kivixa/services/media_service.dart';
+import 'package:kivixa/services/sleep_wake_controller.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 // Platform-specific imports are handled conditionally
@@ -54,7 +55,7 @@ class MediaVideoPlayer extends StatefulWidget {
 }
 
 class _MediaVideoPlayerState extends State<MediaVideoPlayer>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, SleepAwareMixin {
   var _isVisible = false;
   var _isInitialized = false;
   var _isPlaying = false;
@@ -77,6 +78,34 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer>
   // In production, you'd use conditional imports for:
   // - media_kit on Windows/Desktop
   // - awesome_video_player on Android
+
+  @override
+  String get sleepComponentId => 'media_video_player_${widget.element.path.hashCode}';
+
+  @override
+  Future<SleepState> captureState() async {
+    return {
+      'position': _position.inMilliseconds,
+      'isPlaying': _isPlaying,
+      'isMuted': _isMuted,
+      'volume': _volume,
+    };
+  }
+
+  @override
+  Future<void> restoreState(SleepState state) async {
+    final positionMs = state['position'] as int? ?? 0;
+    _position = Duration(milliseconds: positionMs);
+    _isPlaying = state['isPlaying'] as bool? ?? false;
+    _isMuted = state['isMuted'] as bool? ?? false;
+    _volume = state['volume'] as double? ?? 1.0;
+  }
+
+  @override
+  Future<void> onSleep(SleepState state) async {
+    _controlsTimer?.cancel();
+    _playButtonController.stop();
+  }
 
   @override
   void initState() {

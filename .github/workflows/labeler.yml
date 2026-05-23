@@ -1,0 +1,28 @@
+name: "Pull Request Labeler"
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          # Check out the base branch of the PR so we have the labeler.yml config
+          ref: ${{ github.base_ref }}
+          sparse-checkout: |
+            .github/labeler.yml
+          sparse-checkout-cone-mode: false
+
+      - name: Apply labels
+        uses: actions/labeler@v6
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: ".github/labeler.yml"
+          sync-labels: false

@@ -32,6 +32,9 @@ class KnowledgeGraphStreamingService {
   // Timer for polling Rust
   Timer? _pollTimer;
 
+  // Mark bridge as unavailable after initialization/load failures.
+  var _bridgeUnavailable = false;
+
   // Current viewport state (used when Rust bridge is connected)
   // ignore: unused_field
   double _viewportX = 0;
@@ -58,9 +61,26 @@ class KnowledgeGraphStreamingService {
   /// Whether streaming is active
   bool get isStreaming => _pollTimer?.isActive ?? false;
 
+  bool _isBridgeUnavailableError(Object error) {
+    final message = error.toString().toLowerCase();
+    return message.contains('flutter_rust_bridge has not been initialized') ||
+        message.contains('failed to load dynamic library') ||
+        message.contains('could not open');
+  }
+
+  bool _handleBridgeUnavailableError(String operation, Object error) {
+    if (_isBridgeUnavailableError(error)) {
+      _bridgeUnavailable = true;
+      debugPrint('[KnowledgeGraph] $operation unavailable: $error');
+      return true;
+    }
+    return false;
+  }
+
   /// Start the streaming simulation
   Future<void> startStreaming() async {
     if (isStreaming) return;
+    if (_bridgeUnavailable) return;
 
     try {
       // Start Rust simulation
@@ -76,6 +96,9 @@ class KnowledgeGraphStreamingService {
       _lastFrameTime = DateTime.now();
       _frameCount = 0;
     } catch (e) {
+      if (_handleBridgeUnavailableError('Start streaming', e)) {
+        return;
+      }
       debugPrint('[KnowledgeGraph] Failed to start streaming: $e');
       rethrow;
     }
@@ -86,11 +109,16 @@ class KnowledgeGraphStreamingService {
     _pollTimer?.cancel();
     _pollTimer = null;
 
+    if (_bridgeUnavailable) return;
+
     try {
       // Stop Rust simulation
       native.stopGraphStream();
       debugPrint('[KnowledgeGraph] Stopped streaming simulation');
     } catch (e) {
+      if (_handleBridgeUnavailableError('Stop streaming', e)) {
+        return;
+      }
       debugPrint('[KnowledgeGraph] Error stopping stream: $e');
     }
   }
@@ -109,6 +137,8 @@ class KnowledgeGraphStreamingService {
     _viewportHeight = height;
     _viewportScale = scale;
 
+    if (_bridgeUnavailable) return;
+
     try {
       // Update Rust viewport
       await native.updateGraphViewport(
@@ -119,6 +149,9 @@ class KnowledgeGraphStreamingService {
         scale: scale,
       );
     } catch (e) {
+      if (_handleBridgeUnavailableError('Update viewport', e)) {
+        return;
+      }
       debugPrint('[KnowledgeGraph] Failed to update viewport: $e');
     }
   }
@@ -131,6 +164,8 @@ class KnowledgeGraphStreamingService {
     double radius = 20.0,
     int color = 0xFF2196F3,
   }) async {
+    if (_bridgeUnavailable) return;
+
     try {
       await native.addStreamNode(
         id: id,
@@ -141,6 +176,9 @@ class KnowledgeGraphStreamingService {
       );
       debugPrint('[KnowledgeGraph] Added node: $id');
     } catch (e) {
+      if (_handleBridgeUnavailableError('Add node', e)) {
+        return;
+      }
       debugPrint('[KnowledgeGraph] Failed to add node: $e');
       rethrow;
     }
@@ -148,10 +186,15 @@ class KnowledgeGraphStreamingService {
 
   /// Remove a node from the graph
   Future<void> removeNode(String id) async {
+    if (_bridgeUnavailable) return;
+
     try {
       await native.removeStreamNode(id: id);
       debugPrint('[KnowledgeGraph] Removed node: $id');
     } catch (e) {
+      if (_handleBridgeUnavailableError('Remove node', e)) {
+        return;
+      }
       debugPrint('[KnowledgeGraph] Failed to remove node: $e');
       rethrow;
     }
@@ -163,6 +206,8 @@ class KnowledgeGraphStreamingService {
     required String toId,
     double strength = 1.0,
   }) async {
+    if (_bridgeUnavailable) return;
+
     try {
       await native.addStreamEdge(
         fromId: fromId,
@@ -171,6 +216,9 @@ class KnowledgeGraphStreamingService {
       );
       debugPrint('[KnowledgeGraph] Added edge: $fromId -> $toId');
     } catch (e) {
+      if (_handleBridgeUnavailableError('Add edge', e)) {
+        return;
+      }
       debugPrint('[KnowledgeGraph] Failed to add edge: $e');
       rethrow;
     }
@@ -178,10 +226,15 @@ class KnowledgeGraphStreamingService {
 
   /// Remove an edge between two nodes
   Future<void> removeEdge(String fromId, String toId) async {
+    if (_bridgeUnavailable) return;
+
     try {
       await native.removeStreamEdge(fromId: fromId, toId: toId);
       debugPrint('[KnowledgeGraph] Removed edge: $fromId -> $toId');
     } catch (e) {
+      if (_handleBridgeUnavailableError('Remove edge', e)) {
+        return;
+      }
       debugPrint('[KnowledgeGraph] Failed to remove edge: $e');
       rethrow;
     }
@@ -189,12 +242,17 @@ class KnowledgeGraphStreamingService {
 
   /// Pin a node at its current position
   Future<void> pinNode(String id, bool pinned) async {
+    if (_bridgeUnavailable) return;
+
     try {
       await native.pinStreamNode(id: id, pinned: pinned);
       debugPrint(
         '[KnowledgeGraph] ${pinned ? 'Pinned' : 'Unpinned'} node: $id',
       );
     } catch (e) {
+      if (_handleBridgeUnavailableError('Pin node', e)) {
+        return;
+      }
       debugPrint('[KnowledgeGraph] Failed to pin node: $e');
       rethrow;
     }
@@ -202,9 +260,14 @@ class KnowledgeGraphStreamingService {
 
   /// Set node position (for dragging)
   Future<void> setNodePosition(String id, double x, double y) async {
+    if (_bridgeUnavailable) return;
+
     try {
       await native.setStreamNodePosition(id: id, x: x, y: y);
     } catch (e) {
+      if (_handleBridgeUnavailableError('Set node position', e)) {
+        return;
+      }
       debugPrint('[KnowledgeGraph] Failed to set node position: $e');
       rethrow;
     }
@@ -212,10 +275,15 @@ class KnowledgeGraphStreamingService {
 
   /// Clear all nodes and edges
   Future<void> clearGraph() async {
+    if (_bridgeUnavailable) return;
+
     try {
       native.clearStreamGraph();
       debugPrint('[KnowledgeGraph] Cleared graph');
     } catch (e) {
+      if (_handleBridgeUnavailableError('Clear graph', e)) {
+        return;
+      }
       debugPrint('[KnowledgeGraph] Failed to clear graph: $e');
       rethrow;
     }
@@ -223,6 +291,15 @@ class KnowledgeGraphStreamingService {
 
   /// Get graph statistics
   Future<GraphStats> getStats() async {
+    if (_bridgeUnavailable) {
+      return const GraphStats(
+        nodeCount: 0,
+        edgeCount: 0,
+        visibleCount: 0,
+        fps: 0,
+      );
+    }
+
     try {
       final stats = native.getStreamGraphStats();
       return GraphStats(
@@ -232,6 +309,7 @@ class KnowledgeGraphStreamingService {
         fps: _currentFps,
       );
     } catch (e) {
+      _handleBridgeUnavailableError('Get stats', e);
       debugPrint('[KnowledgeGraph] Failed to get stats: $e');
       return const GraphStats(
         nodeCount: 0,
@@ -243,6 +321,12 @@ class KnowledgeGraphStreamingService {
   }
 
   void _pollVisibleNodes(Timer timer) async {
+    if (_bridgeUnavailable) {
+      timer.cancel();
+      _pollTimer = null;
+      return;
+    }
+
     try {
       // Get visible nodes from Rust
       final List<NodePosition> nodes = await native.getVisibleGraphNodes();
@@ -282,6 +366,11 @@ class KnowledgeGraphStreamingService {
         }
       }
     } catch (e) {
+      if (_handleBridgeUnavailableError('Poll visible nodes', e)) {
+        timer.cancel();
+        _pollTimer = null;
+        return;
+      }
       debugPrint('[KnowledgeGraph] Error polling visible nodes: $e');
     }
   }

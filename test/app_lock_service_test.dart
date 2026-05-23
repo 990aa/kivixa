@@ -1,36 +1,46 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kivixa/data/flavor_config.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/services/app_lock_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences.setMockInitialValues({});
 
-  const channel = MethodChannel('plugins.it_vance.com/flutter_secure_storage');
+  setUpAll(() {
+    FlavorConfig.setup();
+  });
+
+  const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
   final log = <MethodCall>[];
 
-  void setupMockSecureStorage(MethodChannel channel, {Map<String, String>? initialData}) {
+  void setupMockSecureStorage(
+    MethodChannel channel, {
+    Map<String, String>? initialData,
+  }) {
     final data = initialData ?? {};
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-      log.add(methodCall);
-      switch (methodCall.method) {
-        case 'write':
-          data[methodCall.arguments['key']] = methodCall.arguments['value'];
+          log.add(methodCall);
+          switch (methodCall.method) {
+            case 'write':
+              data[methodCall.arguments['key']] = methodCall.arguments['value'];
+              return null;
+            case 'read':
+              return data[methodCall.arguments['key']];
+            case 'delete':
+              data.remove(methodCall.arguments['key']);
+              return null;
+            case 'containsKey':
+              return data.containsKey(methodCall.arguments['key']);
+            case 'deleteAll':
+              data.clear();
+              return null;
+          }
           return null;
-        case 'read':
-          return data[methodCall.arguments['key']];
-        case 'delete':
-          data.remove(methodCall.arguments['key']);
-          return null;
-        case 'containsKey':
-          return data.containsKey(methodCall.arguments['key']);
-        case 'deleteAll':
-          data.clear();
-          return null;
-      }
-      return null;
-    });
+        });
   }
 
   setUp(() {
@@ -41,22 +51,25 @@ void main() {
   });
 
   group('AppLockService.setPin', () {
-    test('returns false and logs error when storage throws exception', () async {
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-        if (methodCall.method == 'write') {
-          throw Exception('Storage error');
-        }
-        return null;
-      });
+    test(
+      'returns false and logs error when storage throws exception',
+      () async {
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+              if (methodCall.method == 'write') {
+                throw Exception('Storage error');
+              }
+              return null;
+            });
 
-      final service = AppLockService();
-      final result = await service.setPin('1234');
+        final service = AppLockService();
+        final result = await service.setPin('1234');
 
-      expect(result, isFalse);
-      expect(stows.appLockPinSet.value, isFalse);
-      expect(stows.appLockEnabled.value, isFalse);
-    });
+        expect(result, isFalse);
+        expect(stows.appLockPinSet.value, isFalse);
+        expect(stows.appLockEnabled.value, isFalse);
+      },
+    );
 
     test('returns true and updates state on success', () async {
       final service = AppLockService();
@@ -78,6 +91,23 @@ void main() {
       expect(result, isFalse);
       expect(stows.appLockPinSet.value, isFalse);
     });
+
+    test(
+      'returns false for empty PIN without writing or overwriting existing PIN',
+      () async {
+        final service = AppLockService();
+        await service.setPin('1234');
+        log.clear();
+
+        final result = await service.setPin('');
+
+        expect(result, isFalse);
+        expect(log.where((c) => c.method == 'write'), isEmpty);
+        expect(stows.appLockPinSet.value, isTrue);
+        expect(stows.appLockEnabled.value, isTrue);
+        expect(await service.verifyPin('1234'), isTrue);
+      },
+    );
   });
 
   group('AppLockService.verifyPin', () {
@@ -111,11 +141,11 @@ void main() {
 
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-        if (methodCall.method == 'read') {
-          throw Exception('Read error');
-        }
-        return null;
-      });
+            if (methodCall.method == 'read') {
+              throw Exception('Read error');
+            }
+            return null;
+          });
 
       final result = await service.verifyPin('1234');
       expect(result, isFalse);
@@ -173,21 +203,26 @@ void main() {
       expect(stows.appLockPinSet.value, isTrue);
     });
 
-    test('returns false when storage throws exception during deletion', () async {
-      // SHA256 of '1234'
-      const hash1234 = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4';
+    test(
+      'returns false when storage throws exception during deletion',
+      () async {
+        // SHA256 of '1234'
+        const hash1234 =
+            '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4';
 
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-        if (methodCall.method == 'read') return hash1234;
-        if (methodCall.method == 'delete') throw Exception('Delete error');
-        return null;
-      });
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+              if (methodCall.method == 'read') return hash1234;
+              if (methodCall.method == 'delete')
+                throw Exception('Delete error');
+              return null;
+            });
 
-      final service = AppLockService();
-      final result = await service.removePin('1234');
-      expect(result, isFalse);
-    });
+        final service = AppLockService();
+        final result = await service.removePin('1234');
+        expect(result, isFalse);
+      },
+    );
   });
 
   group('AppLockService UI controls', () {

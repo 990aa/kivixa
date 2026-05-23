@@ -3,6 +3,7 @@ import 'package:kivixa/data/calendar_storage.dart';
 import 'package:kivixa/data/models/calendar_event.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/services/notification_service.dart';
+import 'package:kivixa/services/sleep_wake_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum CalendarView { month, week, day, year }
@@ -25,7 +26,7 @@ class CalendarPage extends StatefulWidget {
   State<CalendarPage> createState() => _CalendarPageState();
 }
 
-class _CalendarPageState extends State<CalendarPage> {
+class _CalendarPageState extends State<CalendarPage> with SleepAwareMixin {
   var _selectedDate = DateTime.now();
   var _focusedMonth = DateTime.now();
   var _monthEvents = <CalendarEvent>[];
@@ -33,6 +34,45 @@ class _CalendarPageState extends State<CalendarPage> {
   var _previousView = CalendarView.month;
   DateTime? _lastTapTime;
   DateTime? _lastTappedDate;
+
+  @override
+  String get sleepComponentId => 'calendar_page';
+
+  @override
+  Future<SleepState> captureState() async {
+    return {
+      'selectedDate': _selectedDate.toIso8601String(),
+      'focusedMonth': _focusedMonth.toIso8601String(),
+      'calendarView': _calendarView.index,
+      'previousView': _previousView.index,
+    };
+  }
+
+  @override
+  Future<void> restoreState(SleepState state) async {
+    if (state.containsKey('selectedDate')) {
+      _selectedDate = DateTime.parse(state['selectedDate'] as String);
+    }
+    if (state.containsKey('focusedMonth')) {
+      _focusedMonth = DateTime.parse(state['focusedMonth'] as String);
+    }
+    if (state.containsKey('calendarView')) {
+      _calendarView = CalendarView.values[state['calendarView'] as int];
+    }
+    if (state.containsKey('previousView')) {
+      _previousView = CalendarView.values[state['previousView'] as int];
+    }
+  }
+
+  @override
+  Future<void> onSleep(SleepState state) async {
+    _monthEvents.clear();
+  }
+
+  @override
+  Future<void> onWake(SleepState state) async {
+    await _loadEvents();
+  }
 
   @override
   void initState() {
@@ -246,6 +286,8 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (isAsleep) return const SizedBox.shrink();
+
     switch (_calendarView) {
       case CalendarView.month:
         return _buildMonthView();

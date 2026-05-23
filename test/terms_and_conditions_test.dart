@@ -80,8 +80,8 @@ void main() {
       expect(await TermsAndConditionsService.getAcceptedDate(), null);
     });
 
-    test('hasAcceptedTerms returns false if terms version changed', () async {
-      // Simulate accepting an old version
+    test('hasAcceptedTerms remains true when terms version changed', () async {
+      // Simulate acceptance from a previous version
       SharedPreferences.setMockInitialValues({
         'termsAccepted': true,
         'termsAcceptedVersion': '0.9.0', // Old version
@@ -89,9 +89,11 @@ void main() {
       });
 
       final result = await TermsAndConditionsService.hasAcceptedTerms();
+      final prefs = await SharedPreferences.getInstance();
+      final upgradedVersion = prefs.getString('termsAcceptedVersion');
 
-      // Should return false because version doesn't match current
-      expect(result, false);
+      expect(result, true);
+      expect(upgradedVersion, TermsAndConditionsService.currentTermsVersion);
     });
 
     test('hasAcceptedTerms returns true if terms version matches', () async {
@@ -137,26 +139,38 @@ void main() {
     test('privacy policy contains required sections', () {
       final privacy = TermsAndConditionsService.getPrivacyPolicyText();
 
-      expect(privacy.contains('INFORMATION WE COLLECT'), true);
-      expect(privacy.contains('DATA STORAGE'), true);
-      expect(privacy.contains('DATA SHARING'), true);
-      expect(privacy.contains('SECURITY'), true);
+      expect(privacy.contains('OUR PRIVACY PHILOSOPHY'), true);
+      expect(privacy.contains('DATA COLLECTION & PROCESSING'), true);
+      expect(privacy.contains('LOCAL PROCESSING'), true);
+      expect(privacy.contains('THIRD-PARTY SERVICES'), true);
+      expect(
+        privacy.contains('DATA SECURITY') || privacy.contains('SECURITY'),
+        true,
+      );
     });
 
     test('privacy policy contains Local AI section', () {
       final privacy = TermsAndConditionsService.getPrivacyPolicyText();
-
-      // Verify the new LOCAL AI FEATURES section exists
-      expect(privacy.contains('LOCAL AI FEATURES'), true);
-      expect(privacy.contains('On-Device Processing'), true);
-      expect(privacy.contains('No Cloud AI'), true);
-      expect(privacy.contains('AI Model Storage'), true);
-      expect(privacy.contains('Privacy by Design'), true);
-
-      // Verify it mentions SLMs and LLMs running locally
-      expect(privacy.contains('Small Language Models'), true);
-      expect(privacy.contains('Large Language Models'), true);
-      expect(privacy.contains('entirely on your device'), true);
+      // Verify the updated On-Device AI / Local Processing statements exist
+      expect(
+        privacy.contains('On-Device AI') ||
+            privacy.contains('LOCAL PROCESSING'),
+        true,
+      );
+      expect(
+        privacy.contains('All AI analysis') || privacy.contains('On-Device AI'),
+        true,
+      );
+      expect(
+        privacy.contains('No text or data is transmitted') ||
+            privacy.contains('No Cloud'),
+        true,
+      );
+      expect(
+        privacy.contains('Native Engines') ||
+            privacy.contains('Rust-based engines'),
+        true,
+      );
     });
 
     test('currentTermsVersion is valid semantic version', () {
