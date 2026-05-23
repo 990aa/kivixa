@@ -16,17 +16,17 @@ class MockPathProvider extends PathProviderPlatform with MockPlatformInterfaceMi
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late Directory tempDir;
-  late PathProviderPlatform previousPathProvider;
+  late PathProviderPlatform originalPlatform;
 
   setUp(() async {
+    originalPlatform = PathProviderPlatform.instance;
     tempDir = Directory.systemTemp.createTempSync('media_service_test');
-    previousPathProvider = PathProviderPlatform.instance;
     PathProviderPlatform.instance = MockPathProvider(tempDir.path);
     await MediaService.instance.init();
   });
 
   tearDown(() {
-    PathProviderPlatform.instance = previousPathProvider;
+    PathProviderPlatform.instance = originalPlatform;
     if (tempDir.existsSync()) {
       tempDir.deleteSync(recursive: true);
     }
@@ -53,17 +53,19 @@ void main() {
       expect(size, 300);
     });
 
-    test('getWebCacheSize includes all existing cache files', () async {
+    test('getWebCacheSize handles partial failures', () async {
        final cacheDir = Directory(p.join(tempDir.path, 'kivixa/assets/web_cache'));
        await cacheDir.create(recursive: true);
-      await File(p.join(cacheDir.path, 'f1.cache')).writeAsBytes(List.filled(100, 0));
 
-      // Add another file and verify both files are included in the total.
-      final f2 = File(p.join(cacheDir.path, 'f2.cache'));
-      await f2.writeAsString('temp');
+       final f1 = File(p.join(cacheDir.path, 'f1.cache'));
+       await f1.writeAsBytes(List.filled(100, 0));
 
-      final size = await MediaService.instance.getWebCacheSize();
-      expect(size, greaterThanOrEqualTo(100));
+       final f2 = File(p.join(cacheDir.path, 'f2.cache'));
+       await f2.writeAsString('temp');
+       await f2.delete();
+
+       final size = await MediaService.instance.getWebCacheSize();
+       expect(size, 100);
     });
   });
 
@@ -112,11 +114,27 @@ void main() {
         MediaElement(path: 'test.png', mediaType: MediaType.image).isImage,
         isTrue,
       );
+      expect(
+        MediaElement(path: 'test.gif', mediaType: MediaType.image).isImage,
+        isTrue,
+      );
+      expect(
+        MediaElement(path: 'test.webp', mediaType: MediaType.image).isImage,
+        isTrue,
+      );
     });
 
     test('detects video types from extension', () {
       expect(
         MediaElement(path: 'test.mp4', mediaType: MediaType.video).isVideo,
+        isTrue,
+      );
+      expect(
+        MediaElement(path: 'test.avi', mediaType: MediaType.video).isVideo,
+        isTrue,
+      );
+      expect(
+        MediaElement(path: 'test.mov', mediaType: MediaType.video).isVideo,
         isTrue,
       );
     });

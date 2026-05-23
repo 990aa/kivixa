@@ -273,15 +273,13 @@ class MediaService {
         const batchSize = 50;
         for (var i = 0; i < files.length; i += batchSize) {
           final batch = files.skip(i).take(batchSize);
-          await Future.wait(
-            batch.map((file) async {
-              try {
-                await file.delete();
-              } catch (e) {
-                _log.fine('Failed to delete cache file ${file.path}: $e');
-              }
-            }),
-          );
+          await Future.wait(batch.map((file) async {
+            try {
+              await file.delete();
+            } catch (e) {
+              _log.fine('Failed to delete cached file ${file.path}: $e');
+            }
+          }));
         }
         _log.info('Web cache cleared');
       }
@@ -341,7 +339,6 @@ class MediaService {
       }
     } catch (e) {
       _log.warning('Error listing thumbnail directory: $e');
-      // Use an unmodifiable empty list; no allocation needed on every call.
       thumbnailEntities = const [];
     }
 
@@ -368,10 +365,8 @@ class MediaService {
                 })
                 .map((entity) async {
                   try {
-                    // Check existence to avoid exceptions if already deleted (e.g. duplicates)
-                    if (await entity.exists()) {
-                      await entity.delete();
-                    }
+                    // Catch exception on delete instead of checking exists() to save a round-trip.
+                    await entity.delete();
                   } catch (e) {
                     _log.fine('Failed to delete thumbnail ${entity.path}: $e');
                   }
