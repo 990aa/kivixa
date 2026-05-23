@@ -273,7 +273,15 @@ class MediaService {
         const batchSize = 50;
         for (var i = 0; i < files.length; i += batchSize) {
           final batch = files.skip(i).take(batchSize);
-          await Future.wait(batch.map((file) => file.delete()));
+          await Future.wait(
+            batch.map((file) async {
+              try {
+                await file.delete();
+              } catch (e) {
+                _log.fine('Failed to delete cache file ${file.path}: $e');
+              }
+            }),
+          );
         }
         _log.info('Web cache cleared');
       }
