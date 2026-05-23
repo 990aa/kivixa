@@ -149,24 +149,76 @@ enum Token {
 fn tokenize(mut s: &str) -> Vec<Token> {
     let mut tokens = Vec::new();
     let funcs_and_consts = [
-        "asin", "acos", "atan", "asec", "acsc", "acot",
-        "sind", "cosd", "tand", "secd", "cscd", "cotd",
-        "sinh", "cosh", "tanh", "asinh", "acosh", "atanh",
-        "sin", "cos", "tan", "sec", "csc", "cot",
-        "log2", "logb", "log", "ln", "exp", "pow", "sqrt", "cbrt", "root",
-        "floor", "ceil", "round", "trunc", "frac", "abs", "sign",
-        "min", "max", "clamp", "factorial", "fact",
-        "pi", "tau", "phi", "kB", "NA", "e", "c", "G", "h", "R", "g"
+        "asin",
+        "acos",
+        "atan",
+        "asec",
+        "acsc",
+        "acot",
+        "sind",
+        "cosd",
+        "tand",
+        "secd",
+        "cscd",
+        "cotd",
+        "sinh",
+        "cosh",
+        "tanh",
+        "asinh",
+        "acosh",
+        "atanh",
+        "sin",
+        "cos",
+        "tan",
+        "sec",
+        "csc",
+        "cot",
+        "log2",
+        "logb",
+        "log",
+        "ln",
+        "exp",
+        "pow",
+        "sqrt",
+        "cbrt",
+        "root",
+        "floor",
+        "ceil",
+        "round",
+        "trunc",
+        "frac",
+        "abs",
+        "sign",
+        "min",
+        "max",
+        "clamp",
+        "factorial",
+        "fact",
+        "pi",
+        "tau",
+        "phi",
+        "kB",
+        "NA",
+        "e",
+        "c",
+        "G",
+        "h",
+        "R",
+        "g",
     ];
 
     while !s.is_empty() {
         s = s.trim_start();
-        if s.is_empty() { break; }
+        if s.is_empty() {
+            break;
+        }
 
         let c = s.chars().next().unwrap();
 
         if c.is_ascii_digit() || c == '.' {
-            let end = s.find(|c: char| !c.is_ascii_digit() && c != '.').unwrap_or(s.len());
+            let end = s
+                .find(|c: char| !c.is_ascii_digit() && c != '.')
+                .unwrap_or(s.len());
             tokens.push(Token::Number(s[..end].to_string()));
             s = &s[end..];
         } else if c.is_alphabetic() {
@@ -206,11 +258,15 @@ fn preprocess_expression(expr: &str) -> String {
     for i in 0..tokens.len() {
         let t = &tokens[i];
 
-        if let Token::Op('(') = t { open_brackets += 1; }
-        if let Token::Op(')') = t { open_brackets -= 1; }
+        if let Token::Op('(') = t {
+            open_brackets += 1;
+        }
+        if let Token::Op(')') = t {
+            open_brackets -= 1;
+        }
 
         if i > 0 {
-            let prev = &tokens[i-1];
+            let prev = &tokens[i - 1];
             let needs_mult = match (prev, t) {
                 (Token::Number(_), Token::FuncConst(_)) => true,
                 (Token::Number(_), Token::Op('(')) => true,
@@ -221,12 +277,12 @@ fn preprocess_expression(expr: &str) -> String {
                 (Token::FuncConst(f1), Token::Number(_)) => is_constant_name(f1),
                 (Token::FuncConst(f1), Token::Op('(')) if is_constant_name(f1) => {
                     let next_next_is_close = if i + 1 < tokens.len() {
-                        matches!(tokens[i+1], Token::Op(')'))
+                        matches!(tokens[i + 1], Token::Op(')'))
                     } else {
                         false
                     };
                     !next_next_is_close
-                },
+                }
                 _ => false,
             };
             if needs_mult {
@@ -240,7 +296,7 @@ fn preprocess_expression(expr: &str) -> String {
                 if is_constant_name(f) {
                     result.push_str(f);
                     let next_is_paren = if i + 1 < tokens.len() {
-                        matches!(tokens[i+1], Token::Op('('))
+                        matches!(tokens[i + 1], Token::Op('('))
                     } else {
                         false
                     };
@@ -250,7 +306,7 @@ fn preprocess_expression(expr: &str) -> String {
                 } else {
                     result.push_str(f);
                 }
-            },
+            }
             Token::Op(c) => result.push(*c),
         }
     }
@@ -393,7 +449,10 @@ fn is_function_name(name: &str) -> bool {
 }
 
 fn is_constant_name(name: &str) -> bool {
-    matches!(name, "pi" | "e" | "tau" | "phi" | "c" | "G" | "h" | "kB" | "NA" | "R" | "g")
+    matches!(
+        name,
+        "pi" | "e" | "tau" | "phi" | "c" | "G" | "h" | "kB" | "NA" | "R" | "g"
+    )
 }
 
 /// Evaluate a formula with given variable values

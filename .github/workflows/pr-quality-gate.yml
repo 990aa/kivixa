@@ -357,6 +357,13 @@ jobs:
     needs: [resolve-target, path-filter]
     if: ${{ needs.path-filter.outputs.dart_other == 'true' || needs.path-filter.outputs.native == 'true' || needs.path-filter.outputs.native_audio == 'true' || needs.path-filter.outputs.native_math == 'true' }}
     steps:
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
       - name: Checkout code
         uses: actions/checkout@v6
         with:

@@ -1,11 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/services/productivity/chained_routine_service.dart';
-import 'package:flutter/material.dart';
 
 void main() {
   group('RoutineBlock & ChainedRoutine Model Tests', () {
     test('RoutineBlock initialization and duration calculation', () {
-      final block = RoutineBlock(
+      final block = const RoutineBlock(
         name: 'Focus',
         durationMinutes: 25,
         durationSeconds: 30,
@@ -18,7 +18,7 @@ void main() {
     });
 
     test('RoutineBlock JSON serialization and deserialization', () {
-      final block = RoutineBlock(
+      final block = const RoutineBlock(
         name: 'Break',
         durationMinutes: 5,
         durationSeconds: 15,
@@ -34,22 +34,22 @@ void main() {
       expect(decodedBlock.name, 'Break');
       expect(decodedBlock.durationMinutes, 5);
       expect(decodedBlock.durationSeconds, 15);
-      expect(decodedBlock.color.value, Colors.green.value);
+      expect(decodedBlock.color.toARGB32(), Colors.green.toARGB32());
       expect(decodedBlock.duration.inSeconds, 315);
     });
 
     test('ChainedRoutine total duration calculation', () {
-      final routine = ChainedRoutine(
+      final routine = const ChainedRoutine(
         id: 'r1',
         name: 'Morning Routine',
         blocks: [
-          RoutineBlock(
+          const RoutineBlock(
             name: 'Block 1',
             durationMinutes: 10,
             durationSeconds: 30,
             color: Colors.red,
           ),
-          RoutineBlock(
+          const RoutineBlock(
             name: 'Block 2',
             durationMinutes: 5,
             durationSeconds: 15,
