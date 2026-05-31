@@ -769,7 +769,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Redesigned Math Interface**: Totally revamped the General Calculator layout. Placed Backspace/Clear adjacent to the input field, clearly grouped trigonometric, logarithmic, and mathematical features, and optimized the layout for maximum operational UX.
 
 ---
-## [0.10.0] - 2026-05-23
+## [0.10.0] - 2026-05-31
 
+### Added
+- **Arbitrary Order Derivatives**: Math module now supports any positive integer order for computing standard derivatives and partial derivatives in the calculus section.
+- **New Statistical Distributions**: Added support for evaluating PDF, CDF, mean, and variance of Log-Normal, Laplace, Logistic, Pareto, and Rayleigh distributions.
+- **Math Module Documentation**: Added comprehensive documentation describing the complete suite of math capabilities in `docs/math_module_details.md`.
+
+### Changed
+- **Statistics Engine Migration**: Transitioned front-end Flutter statistics computations to the Rust `native_math` backend for improved performance and consistency.
 
 ---
