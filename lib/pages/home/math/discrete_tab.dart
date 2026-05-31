@@ -1363,7 +1363,6 @@ class _ModularArithmeticCalculatorState
     );
   }
 
-  Widget _referenceItem(String name, String formula) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: RichText(
@@ -1377,6 +1376,212 @@ class _ModularArithmeticCalculatorState
             TextSpan(text: formula),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// SEQUENCE CALCULATOR
+
+class _SequenceCalculator extends StatefulWidget {
+  const _SequenceCalculator();
+
+  @override
+  State<_SequenceCalculator> createState() => _SequenceCalculatorState();
+}
+
+class _SequenceCalculatorState extends State<_SequenceCalculator> {
+  final _nCtrl = TextEditingController(text: '10');
+  final _aCtrl = TextEditingController(text: '1');
+  final _dCtrl = TextEditingController(text: '2');
+  final _sCtrl = TextEditingController(text: '5');
+  var _category = 'Classical';
+  var _seqType = 'arithmetic';
+  var _result = '';
+  var _isComputing = false;
+
+  final Map<String, Map<String, String>> _categories = {
+    'Classical': {
+      'arithmetic': 'Arithmetic',
+      'geometric': 'Geometric',
+      'triangular': 'Triangular',
+      'polygonal': 'Polygonal',
+    },
+    'Number-Theoretic': {
+      'mersenne': 'Mersenne',
+      'lucas': 'Lucas',
+      'pell': 'Pell',
+    },
+    'Combinatorial': {
+      'stirling1_row': 'Stirling (1st Kind)',
+      'partition': 'Partition Numbers',
+    },
+    'Analytical': {
+      'harmonic': 'Harmonic',
+      'bernoulli': 'Bernoulli',
+      'euler': 'Euler',
+    },
+  };
+
+  @override
+  void dispose() {
+    _nCtrl.dispose();
+    _aCtrl.dispose();
+    _dCtrl.dispose();
+    _sCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _compute() async {
+    setState(() {
+      _isComputing = true;
+      _result = '';
+    });
+
+    try {
+      final n = int.parse(_nCtrl.text);
+      if (n > 1000) throw Exception('n too large');
+
+      List<String> output;
+
+      if (_category == 'Classical') {
+        final a = double.tryParse(_aCtrl.text) ?? 1;
+        final d = double.tryParse(_dCtrl.text) ?? 2;
+        final s = int.tryParse(_sCtrl.text) ?? 5;
+        output = await MathService.instance.generateClassicalSequence(
+          _seqType, a, d, n, s,
+        );
+      } else if (_category == 'Number-Theoretic') {
+        output = await MathService.instance.generateNumberTheoreticSequence(
+          _seqType, n,
+        );
+      } else if (_category == 'Combinatorial') {
+        output = await MathService.instance.generateCombinatorialSequence(
+          _seqType, n,
+        );
+      } else {
+        final res = await MathService.instance.generateAnalyticalSequence(
+          _seqType, n,
+        );
+        output = res.map((r) => r.toStringAsFixed(6)).toList();
+      }
+
+      setState(() {
+        _result = output.join(', ');
+        _isComputing = false;
+      });
+    } catch (e) {
+      setState(() {
+        _result = 'Error: ${e.toString().replaceAll('Exception: ', '')}';
+        _isComputing = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Sequence Generator',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 16),
+          
+          DropdownButtonFormField<String>(
+            decoration: const InputDecoration(
+              labelText: 'Category',
+              border: OutlineInputBorder(),
+            ),
+            value: _category,
+            items: _categories.keys.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+            onChanged: (v) {
+              if (v != null) {
+                setState(() {
+                  _category = v;
+                  _seqType = _categories[v]!.keys.first;
+                });
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+          
+          DropdownButtonFormField<String>(
+            decoration: const InputDecoration(
+              labelText: 'Sequence Type',
+              border: OutlineInputBorder(),
+            ),
+            value: _seqType,
+            items: _categories[_category]!.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
+            onChanged: (v) => setState(() => _seqType = v!),
+          ),
+          const SizedBox(height: 16),
+          
+          TextField(
+            controller: _nCtrl,
+            decoration: const InputDecoration(
+              labelText: 'n (terms)',
+              border: OutlineInputBorder(),
+            ),
+            keyboardType: TextInputType.number,
+          ),
+          
+          if (_category == 'Classical' && (_seqType == 'arithmetic' || _seqType == 'geometric')) ...[
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _aCtrl,
+                    decoration: const InputDecoration(labelText: 'Initial (a)', border: OutlineInputBorder()),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: TextField(
+                    controller: _dCtrl,
+                    decoration: InputDecoration(labelText: _seqType == 'arithmetic' ? 'Difference (d)' : 'Ratio (r)', border: const OutlineInputBorder()),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          
+          if (_seqType == 'polygonal') ...[
+            const SizedBox(height: 16),
+            TextField(
+              controller: _sCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Sides (s)',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+          
+          const SizedBox(height: 24),
+          Center(
+            child: FilledButton.icon(
+              onPressed: _isComputing ? null : _compute,
+              icon: _isComputing ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.calculate),
+              label: const Text('Generate'),
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (_result.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: _result.startsWith('Error') ? Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.3) : Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: SelectableText(_result, style: const TextStyle(fontFamily: 'monospace', fontSize: 16)),
+            ),
+        ],
       ),
     );
   }
