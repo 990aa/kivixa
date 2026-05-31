@@ -388,6 +388,48 @@ class MathService {
     return await math_api.anova(groups: float64Groups, alpha: alpha);
   }
 
+  /// F-test
+  Future<HypothesisTestResult> fTest(
+    List<double> data1,
+    List<double> data2,
+    double alpha,
+  ) async {
+    _ensureInitialized();
+    return await math_api.fTest(data1: data1, data2: data2, alpha: alpha);
+  }
+
+  /// Mann-Whitney U test
+  Future<HypothesisTestResult> mannWhitneyU(
+    List<double> data1,
+    List<double> data2,
+    double alpha,
+  ) async {
+    _ensureInitialized();
+    return await math_api.mannWhitneyU(data1: data1, data2: data2, alpha: alpha);
+  }
+
+  /// Binomial test
+  Future<HypothesisTestResult> binomialTest(
+    int successes,
+    int trials,
+    double expectedP,
+    double alpha,
+  ) async {
+    _ensureInitialized();
+    return await math_api.binomialTest(
+      successes: BigInt.from(successes),
+      trials: BigInt.from(trials),
+      expectedP: expectedP,
+      alpha: alpha,
+    );
+  }
+
+  /// Durbin-Watson test
+  Future<HypothesisTestResult> durbinWatsonTest(List<double> residuals) async {
+    _ensureInitialized();
+    return await math_api.durbinWatsonTest(residuals: residuals);
+  }
+
   /// Distribution computation
   Future<DistributionResult> distributionCompute(
     String distributionType,
@@ -399,6 +441,58 @@ class MathService {
       distributionType: distributionType,
       params: params,
       x: x,
+    );
+  }
+
+  // Sequences
+
+  Future<List<String>> generateClassicalSequence(
+    String seqType,
+    double a,
+    double dOrR,
+    int n,
+    int s,
+  ) async {
+    _ensureInitialized();
+    return await math_api.generateClassicalSequence(
+      seqType: seqType,
+      a: a,
+      dOrR: dOrR,
+      n: n,
+      s: BigInt.from(s),
+    );
+  }
+
+  Future<List<String>> generateNumberTheoreticSequence(
+    String seqType,
+    int n,
+  ) async {
+    _ensureInitialized();
+    return await math_api.generateNumberTheoreticSequence(
+      seqType: seqType,
+      n: n,
+    );
+  }
+
+  Future<List<String>> generateCombinatorialSequence(
+    String seqType,
+    int n,
+  ) async {
+    _ensureInitialized();
+    return await math_api.generateCombinatorialSequence(
+      seqType: seqType,
+      n: n,
+    );
+  }
+
+  Future<Float64List> generateAnalyticalSequence(
+    String seqType,
+    int n,
+  ) async {
+    _ensureInitialized();
+    return await math_api.generateAnalyticalSequence(
+      seqType: seqType,
+      n: n,
     );
   }
 
@@ -475,6 +569,44 @@ class MathService {
       lower: lower,
       upper: upper,
       numIntervals: numIntervals,
+    );
+  }
+
+  /// Symbolic differentiation
+  Future<CalculusResult> symbolicDifferentiate(
+    String expression,
+    String variable, {
+    int order = 1,
+  }) async {
+    _ensureInitialized();
+    return await math_api.symbolicDifferentiate(
+      expression: expression,
+      variable: variable,
+      order: order,
+    );
+  }
+
+  /// Symbolic integration
+  Future<CalculusResult> symbolicIntegrate(
+    String expression,
+    List<String> variables,
+  ) async {
+    _ensureInitialized();
+    return await math_api.symbolicIntegrate(
+      expression: expression,
+      variables: variables,
+    );
+  }
+
+  /// Symbolic gradient
+  Future<List<CalculusResult>> symbolicGradient(
+    String expression,
+    List<String> variables,
+  ) async {
+    _ensureInitialized();
+    return await math_api.symbolicGradient(
+      expression: expression,
+      variables: variables,
     );
   }
 
