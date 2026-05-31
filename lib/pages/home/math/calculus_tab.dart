@@ -195,22 +195,42 @@ class _DerivativeCalculatorState extends State<_DerivativeCalculator> {
     try {
       final expr = _expressionCtrl.text;
       final variable = _variableCtrl.text;
-      final point = double.parse(_pointCtrl.text);
+      final pointText = _pointCtrl.text.trim();
       final order = int.tryParse(_orderCtrl.text) ?? 1;
 
-      // Use Rust backend for computation
-      final result = await MathService.instance.differentiate(
-        expr,
-        variable,
-        point,
-        order: order,
-      );
-
       final primeSymbol = "'" * order;
-      setState(() {
-        _result = 'f$primeSymbol($point) = ${_formatNumber(result.value)}';
-        _isComputing = false;
-      });
+
+      if (pointText.isEmpty) {
+        // Use symbolic differentiation
+        final result = await MathService.instance.symbolicDifferentiate(
+          expr,
+          variable,
+          order: order,
+        );
+
+        if (!result.success) {
+          throw Exception(result.error ?? 'Unknown error');
+        }
+
+        setState(() {
+          _result = 'f$primeSymbol($variable) = ${result.symbolicValue ?? ""}';
+          _isComputing = false;
+        });
+      } else {
+        // Numerical differentiation
+        final point = double.parse(pointText);
+        final result = await MathService.instance.differentiate(
+          expr,
+          variable,
+          point,
+          order: order,
+        );
+
+        setState(() {
+          _result = 'f$primeSymbol($point) = ${_formatNumber(result.value)}';
+          _isComputing = false;
+        });
+      }
     } catch (e) {
       setState(() {
         _result = 'Error: ${e.toString().replaceAll('Exception: ', '')}';
@@ -227,7 +247,8 @@ class _DerivativeCalculatorState extends State<_DerivativeCalculator> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Numerical Differentiation',
+          Text(
+            'Differentiation',
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 16),
@@ -259,6 +280,7 @@ class _DerivativeCalculatorState extends State<_DerivativeCalculator> {
                   controller: _pointCtrl,
                   decoration: const InputDecoration(
                     labelText: 'At point',
+                    hintText: '(leave blank for symbolic)',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: const TextInputType.numberWithOptions(
