@@ -359,6 +359,97 @@ pub fn distribution_compute(distribution_type: &str, params: &[f64], x: f64) -> 
                 Err(e) => DistributionResult::error(&format!("Invalid parameters: {:?}", e)),
             }
         }
+        "log_normal" | "lognormal" => {
+            let mu = params.first().copied().unwrap_or(0.0);
+            let sigma = params.get(1).copied().unwrap_or(1.0);
+            if sigma <= 0.0 {
+                return DistributionResult::error("Sigma must be positive");
+            }
+            let mean = (mu + sigma * sigma / 2.0).exp();
+            let variance = ((sigma * sigma).exp() - 1.0) * (2.0 * mu + sigma * sigma).exp();
+            let pdf = if x <= 0.0 { 0.0 } else {
+                (1.0 / (x * sigma * (2.0 * std::f64::consts::PI).sqrt())) *
+                (-((x.ln() - mu).powi(2)) / (2.0 * sigma * sigma)).exp()
+            };
+            let cdf = if x <= 0.0 { 0.0 } else {
+                match Normal::new(mu, sigma) {
+                    Ok(dist) => dist.cdf(x.ln()),
+                    Err(_) => f64::NAN
+                }
+            };
+            DistributionResult {
+                success: true, pdf, cdf, mean, variance, std_dev: variance.sqrt(), error: None
+            }
+        }
+        "laplace" => {
+            let mu = params.first().copied().unwrap_or(0.0);
+            let b = params.get(1).copied().unwrap_or(1.0);
+            if b <= 0.0 {
+                return DistributionResult::error("Scale (b) must be positive");
+            }
+            let mean = mu;
+            let variance = 2.0 * b * b;
+            let pdf = (1.0 / (2.0 * b)) * (-((x - mu).abs()) / b).exp();
+            let cdf = if x < mu {
+                0.5 * ((x - mu) / b).exp()
+            } else {
+                1.0 - 0.5 * (-(x - mu) / b).exp()
+            };
+            DistributionResult {
+                success: true, pdf, cdf, mean, variance, std_dev: variance.sqrt(), error: None
+            }
+        }
+        "logistic" => {
+            let mu = params.first().copied().unwrap_or(0.0);
+            let s = params.get(1).copied().unwrap_or(1.0);
+            if s <= 0.0 {
+                return DistributionResult::error("Scale (s) must be positive");
+            }
+            let mean = mu;
+            let variance = (s * s * std::f64::consts::PI * std::f64::consts::PI) / 3.0;
+            let z = (x - mu) / s;
+            let exp_minus_z = (-z).exp();
+            let pdf = exp_minus_z / (s * (1.0 + exp_minus_z) * (1.0 + exp_minus_z));
+            let cdf = 1.0 / (1.0 + exp_minus_z);
+            DistributionResult {
+                success: true, pdf, cdf, mean, variance, std_dev: variance.sqrt(), error: None
+            }
+        }
+        "pareto" => {
+            let xm = params.first().copied().unwrap_or(1.0);
+            let alpha = params.get(1).copied().unwrap_or(1.0);
+            if xm <= 0.0 || alpha <= 0.0 {
+                return DistributionResult::error("Scale and shape must be positive");
+            }
+            let mean = if alpha > 1.0 { (alpha * xm) / (alpha - 1.0) } else { f64::INFINITY };
+            let variance = if alpha > 2.0 {
+                (xm * xm * alpha) / ((alpha - 1.0) * (alpha - 1.0) * (alpha - 2.0))
+            } else {
+                f64::INFINITY
+            };
+            let pdf = if x < xm { 0.0 } else { (alpha * xm.powf(alpha)) / x.powf(alpha + 1.0) };
+            let cdf = if x < xm { 0.0 } else { 1.0 - (xm / x).powf(alpha) };
+            DistributionResult {
+                success: true, pdf, cdf, mean, variance, std_dev: variance.sqrt(), error: None
+            }
+        }
+        "rayleigh" => {
+            let sigma = params.first().copied().unwrap_or(1.0);
+            if sigma <= 0.0 {
+                return DistributionResult::error("Sigma must be positive");
+            }
+            let mean = sigma * (std::f64::consts::PI / 2.0).sqrt();
+            let variance = ((4.0 - std::f64::consts::PI) / 2.0) * sigma * sigma;
+            let pdf = if x < 0.0 { 0.0 } else {
+                (x / (sigma * sigma)) * (-(x * x) / (2.0 * sigma * sigma)).exp()
+            };
+            let cdf = if x < 0.0 { 0.0 } else {
+                1.0 - (-(x * x) / (2.0 * sigma * sigma)).exp()
+            };
+            DistributionResult {
+                success: true, pdf, cdf, mean, variance, std_dev: variance.sqrt(), error: None
+            }
+        }
         _ => DistributionResult::error(&format!("Unknown distribution: {}", distribution_type)),
     }
 }
