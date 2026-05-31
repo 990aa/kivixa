@@ -3,65 +3,63 @@
 
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
-import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
+import 'package:kivixa/src/rust_math/frb_generated.dart';
 
+/// Result of calculus operations
+class CalculusResult {
+  final bool success;
+  final double value;
+  final String? symbolic;
+  final String? error;
 
-            
+  const CalculusResult({
+    required this.success,
+    required this.value,
+    this.symbolic,
+    this.error,
+  });
 
-            
+  @override
+  int get hashCode =>
+      success.hashCode ^ value.hashCode ^ symbolic.hashCode ^ error.hashCode;
 
-            /// Result of calculus operations
-class CalculusResult  {
-                final bool success;
-final double value;
-final String? symbolic;
-final String? error;
-
-                const CalculusResult({required this.success ,required this.value ,this.symbolic ,this.error ,});
-
-                
-                
-
-                
-        @override
-        int get hashCode => success.hashCode^value.hashCode^symbolic.hashCode^error.hashCode;
-        
-
-                
-        @override
-        bool operator ==(Object other) =>
-            identical(this, other) ||
-            other is CalculusResult &&
-                runtimeType == other.runtimeType
-                && success == other.success&& value == other.value&& symbolic == other.symbolic&& error == other.error;
-        
-            }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CalculusResult &&
+          runtimeType == other.runtimeType &&
+          success == other.success &&
+          value == other.value &&
+          symbolic == other.symbolic &&
+          error == other.error;
+}
 
 /// Result of equation solving
-class SolveResult  {
-                final bool success;
-final Float64List roots;
-final BigInt iterations;
-final String? error;
+class SolveResult {
+  final bool success;
+  final Float64List roots;
+  final BigInt iterations;
+  final String? error;
 
-                const SolveResult({required this.success ,required this.roots ,required this.iterations ,this.error ,});
+  const SolveResult({
+    required this.success,
+    required this.roots,
+    required this.iterations,
+    this.error,
+  });
 
-                
-                
+  @override
+  int get hashCode =>
+      success.hashCode ^ roots.hashCode ^ iterations.hashCode ^ error.hashCode;
 
-                
-        @override
-        int get hashCode => success.hashCode^roots.hashCode^iterations.hashCode^error.hashCode;
-        
-
-                
-        @override
-        bool operator ==(Object other) =>
-            identical(this, other) ||
-            other is SolveResult &&
-                runtimeType == other.runtimeType
-                && success == other.success&& roots == other.roots&& iterations == other.iterations&& error == other.error;
-        
-            }
-            
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SolveResult &&
+          runtimeType == other.runtimeType &&
+          success == other.success &&
+          roots == other.roots &&
+          iterations == other.iterations &&
+          error == other.error;
+}
