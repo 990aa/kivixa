@@ -611,6 +611,7 @@ class _DistributionCalculatorState extends State<_DistributionCalculator> {
   final _xCtrl = TextEditingController(text: '0');
   var _calcType = 'pdf';
   var _result = '';
+  var _isComputing = false;
 
   static const _distributions = {
     'normal': 'Normal (Gaussian)',
@@ -626,6 +627,11 @@ class _DistributionCalculatorState extends State<_DistributionCalculator> {
     'chi_square': 'Chi-Square',
     'beta': 'Beta',
     'gamma': 'Gamma',
+    'log_normal': 'Log-Normal',
+    'laplace': 'Laplace',
+    'logistic': 'Logistic',
+    'pareto': 'Pareto',
+    'rayleigh': 'Rayleigh',
     'cauchy': 'Cauchy',
     'f': 'F-Distribution',
   };
@@ -655,6 +661,8 @@ class _DistributionCalculatorState extends State<_DistributionCalculator> {
       'beta',
       'x0',
       'gamma',
+      'xm',
+      's',
     ]) {
       _params[p] = TextEditingController();
     }
@@ -675,14 +683,16 @@ class _DistributionCalculatorState extends State<_DistributionCalculator> {
     _params['beta']!.text = '5';
     _params['x0']!.text = '0';
     _params['gamma']!.text = '1';
+    _params['xm']!.text = '1';
+    _params['s']!.text = '1';
   }
 
   @override
   void dispose() {
+    _xCtrl.dispose();
     for (final c in _params.values) {
       c.dispose();
     }
-    _xCtrl.dispose();
     super.dispose();
   }
 
@@ -690,17 +700,27 @@ class _DistributionCalculatorState extends State<_DistributionCalculator> {
     switch (_distribution) {
       case 'normal':
         return [('mean', 'Mean (μ)', '0'), ('std', 'Std Dev (σ)', '1')];
+      case 'log_normal':
+        return [('mean', 'Mean (μ)', '0'), ('std', 'Std Dev (σ)', '1')];
+      case 'laplace':
+        return [('mean', 'Location (μ)', '0'), ('b', 'Scale (b)', '1')];
+      case 'logistic':
+        return [('mean', 'Location (μ)', '0'), ('s', 'Scale (s)', '1')];
+      case 'pareto':
+        return [('xm', 'Scale (xm)', '1'), ('alpha', 'Shape (α)', '1')];
+      case 'rayleigh':
+        return [('std', 'Scale (σ)', '1')];
       case 'bernoulli':
         return [('p', 'Probability (p)', '0.5')];
       case 'binomial':
         return [('n', 'Trials (n)', '10'), ('p', 'Probability (p)', '0.5')];
       case 'poisson':
-        return [('rate', 'Rate (λ)', '5')];
+        return [('rate', 'Rate (λ)', '1')];
       case 'hypergeometric':
         return [
           ('N', 'Population (N)', '50'),
-          ('K', 'Success states (K)', '20'),
-          ('n', 'Draws (n)', '10'),
+          ('K', 'Successes in Pop. (K)', '20'),
+          ('n', 'Draws (n)', '5'),
         ];
       case 'geometric':
         return [('p', 'Probability (p)', '0.5')];
@@ -711,9 +731,9 @@ class _DistributionCalculatorState extends State<_DistributionCalculator> {
       case 'exponential':
         return [('rate', 'Rate (λ)', '1')];
       case 't':
-        return [('df', 'Degrees of Freedom', '5')];
+        return [('df', 'Degrees of Freedom (ν)', '5')];
       case 'chi_square':
-        return [('df', 'Degrees of Freedom', '5')];
+        return [('df', 'Degrees of Freedom (k)', '5')];
       case 'beta':
         return [('alpha', 'Alpha (α)', '2'), ('beta', 'Beta (β)', '5')];
       case 'gamma':
@@ -730,187 +750,47 @@ class _DistributionCalculatorState extends State<_DistributionCalculator> {
     }
   }
 
-  void _compute() {
+  Future<void> _compute() async {
+    setState(() {
+      _isComputing = true;
+      _result = '';
+    });
+
     try {
       final x = double.parse(_xCtrl.text);
-      double result;
+      final paramsList = _getParamsForDistribution()
+          .map((p) => double.parse(_params[p.$1]!.text))
+          .toList();
 
-      switch (_distribution) {
-        case 'normal':
-          final mean = double.parse(_params['mean']!.text);
-          final std = double.parse(_params['std']!.text);
-          if (std <= 0) throw Exception('Std dev must be positive');
-          if (_calcType == 'pdf') {
-            result = _normalPdf(x, mean, std);
-          } else if (_calcType == 'cdf') {
-            result = _normalCdf(x, mean, std);
-          } else {
-            result = _normalInvCdf(x, mean, std);
-          }
+      final res = await MathService.instance.distributionCompute(
+        _distribution,
+        paramsList,
+        x,
+      );
 
-        case 'bernoulli':
-          final p = double.parse(_params['p']!.text);
-          if (p < 0 || p > 1) throw Exception('p must be between 0 and 1');
-          if (_calcType == 'pdf') {
-            result = x == 1 ? p : (x == 0 ? 1 - p : 0);
-          } else {
-            result = x < 0 ? 0 : (x < 1 ? 1 - p : 1);
-          }
+      if (!res.success) throw Exception(res.error ?? 'Unknown error');
 
-        case 'binomial':
-          final n = int.parse(_params['n']!.text);
-          final p = double.parse(_params['p']!.text);
-          if (n < 0) throw Exception('n must be non-negative');
-          if (p < 0 || p > 1) throw Exception('p must be between 0 and 1');
-          if (_calcType == 'pdf') {
-            result = _binomialPmf(x.toInt(), n, p);
-          } else {
-            result = _binomialCdf(x.toInt(), n, p);
-          }
-
-        case 'poisson':
-          final lambda = double.parse(_params['rate']!.text);
-          if (lambda <= 0) throw Exception('λ must be positive');
-          if (_calcType == 'pdf') {
-            result = _poissonPmf(x.toInt(), lambda);
-          } else {
-            result = _poissonCdf(x.toInt(), lambda);
-          }
-
-        case 'hypergeometric':
-          final bigN = int.parse(_params['N']!.text);
-          final bigK = int.parse(_params['K']!.text);
-          final n = int.parse(_params['n']!.text);
-          if (_calcType == 'pdf') {
-            result = _hypergeometricPmf(x.toInt(), bigN, bigK, n);
-          } else {
-            result = _hypergeometricCdf(x.toInt(), bigN, bigK, n);
-          }
-
-        case 'geometric':
-          final p = double.parse(_params['p']!.text);
-          if (p <= 0 || p > 1) throw Exception('p must be in (0, 1]');
-          final k = x.toInt();
-          if (_calcType == 'pdf') {
-            result = k >= 1 ? (math.pow(1 - p, k - 1) * p).toDouble() : 0;
-          } else {
-            result = k >= 1 ? (1 - math.pow(1 - p, k)).toDouble() : 0;
-          }
-
-        case 'uniform_discrete':
-          final a = int.parse(_params['a']!.text);
-          final b = int.parse(_params['b']!.text);
-          if (a >= b) throw Exception('a must be less than b');
-          final k = x.toInt();
-          if (_calcType == 'pdf') {
-            result = k >= a && k <= b ? 1 / (b - a + 1) : 0;
-          } else {
-            result = k < a ? 0 : (k > b ? 1 : (k - a + 1) / (b - a + 1));
-          }
-
-        case 'uniform_continuous':
-          final a = double.parse(_params['a']!.text);
-          final b = double.parse(_params['b']!.text);
-          if (a >= b) throw Exception('a must be less than b');
-          if (_calcType == 'pdf') {
-            result = x >= a && x <= b ? 1 / (b - a) : 0;
-          } else if (_calcType == 'cdf') {
-            result = x < a ? 0 : (x > b ? 1 : (x - a) / (b - a));
-          } else {
-            result = a + x * (b - a);
-          }
-
-        case 'exponential':
-          final lambda = double.parse(_params['rate']!.text);
-          if (lambda <= 0) throw Exception('λ must be positive');
-          if (_calcType == 'pdf') {
-            result = x >= 0 ? lambda * math.exp(-lambda * x) : 0;
-          } else if (_calcType == 'cdf') {
-            result = x >= 0 ? 1 - math.exp(-lambda * x) : 0;
-          } else {
-            result = -math.log(1 - x) / lambda;
-          }
-
-        case 't':
-          final df = double.parse(_params['df']!.text);
-          if (df <= 0) throw Exception('df must be positive');
-          if (_calcType == 'pdf') {
-            result = _tPdf(x, df);
-          } else {
-            result = _tCdf(x, df);
-          }
-
-        case 'chi_square':
-          final df = double.parse(_params['df']!.text);
-          if (df <= 0) throw Exception('df must be positive');
-          if (_calcType == 'pdf') {
-            result = _chiSquarePdf(x, df);
-          } else {
-            result = _chiSquareCdf(x, df);
-          }
-
-        case 'beta':
-          final alpha = double.parse(_params['alpha']!.text);
-          final beta = double.parse(_params['beta']!.text);
-          if (alpha <= 0 || beta <= 0) {
-            throw Exception('α and β must be positive');
-          }
-          if (_calcType == 'pdf') {
-            result = _betaPdf(x, alpha, beta);
-          } else {
-            result = _betaCdf(x, alpha, beta);
-          }
-
-        case 'gamma':
-          final k = double.parse(_params['alpha']!.text);
-          final theta = double.parse(_params['rate']!.text);
-          if (k <= 0 || theta <= 0) {
-            throw Exception('k and θ must be positive');
-          }
-          if (_calcType == 'pdf') {
-            result = _gammaPdf(x, k, theta);
-          } else {
-            result = _gammaCdf(x, k, theta);
-          }
-
-        case 'cauchy':
-          final x0 = double.parse(_params['x0']!.text);
-          final gamma = double.parse(_params['gamma']!.text);
-          if (gamma <= 0) throw Exception('γ must be positive');
-          if (_calcType == 'pdf') {
-            final z = (x - x0) / gamma;
-            result = 1 / (math.pi * gamma * (1 + z * z));
-          } else if (_calcType == 'cdf') {
-            result = 0.5 + math.atan((x - x0) / gamma) / math.pi;
-          } else {
-            result = x0 + gamma * math.tan(math.pi * (x - 0.5));
-          }
-
-        case 'f':
-          final d1 = double.parse(_params['df1']!.text);
-          final d2 = double.parse(_params['df2']!.text);
-          if (d1 <= 0 || d2 <= 0) {
-            throw Exception('df values must be positive');
-          }
-          if (_calcType == 'pdf') {
-            result = _fPdf(x, d1, d2);
-          } else {
-            result = _fCdf(x, d1, d2);
-          }
-
-        default:
-          throw Exception('Unknown distribution');
-      }
+      final resultVal = _calcType == 'pdf' ? res.pdf : res.cdf;
 
       final typeLabel = _calcType == 'pdf'
           ? (_isDiscrete() ? 'P(X = $x)' : 'f($x)')
-          : (_calcType == 'cdf' ? 'P(X ≤ $x)' : 'x for P = $x');
+          : 'P(X ≤ $x)';
 
-      setState(() => _result = '$typeLabel = ${_formatNumber(result)}');
+      setState(() {
+        _result = '$typeLabel = ${_formatNumber(resultVal)}';
+        if (!res.mean.isNaN) {
+          _result += '\nMean: ${_formatNumber(res.mean)}';
+        }
+        if (!res.variance.isNaN) {
+          _result += '\nVariance: ${_formatNumber(res.variance)}';
+        }
+        _isComputing = false;
+      });
     } catch (e) {
-      setState(
-        () => _result = 'Error: ${e.toString().replaceAll('Exception: ', '')}',
-      );
+      setState(() {
+        _result = 'Error: ${e.toString().replaceAll('Exception: ', '')}';
+        _isComputing = false;
+      });
     }
   }
 
@@ -923,239 +803,6 @@ class _DistributionCalculatorState extends State<_DistributionCalculator> {
       'geometric',
       'uniform_discrete',
     ].contains(_distribution);
-  }
-
-  double _normalPdf(double x, double mean, double std) {
-    final z = (x - mean) / std;
-    return math.exp(-0.5 * z * z) / (std * math.sqrt(2 * math.pi));
-  }
-
-  double _normalCdf(double x, double mean, double std) {
-    final z = (x - mean) / (std * math.sqrt(2));
-    return 0.5 * (1 + _erf(z));
-  }
-
-  double _normalInvCdf(double p, double mean, double std) {
-    if (p <= 0) return double.negativeInfinity;
-    if (p >= 1) return double.infinity;
-    if (p == 0.5) return mean;
-
-    final t = p < 0.5
-        ? math.sqrt(-2 * math.log(p))
-        : math.sqrt(-2 * math.log(1 - p));
-    const c0 = 2.515517;
-    const c1 = 0.802853;
-    const c2 = 0.010328;
-    const d1 = 1.432788;
-    const d2 = 0.189269;
-    const d3 = 0.001308;
-
-    var z =
-        t -
-        (c0 + c1 * t + c2 * t * t) / (1 + d1 * t + d2 * t * t + d3 * t * t * t);
-    if (p < 0.5) z = -z;
-
-    return mean + std * z;
-  }
-
-  double _erf(double x) {
-    const a1 = 0.254829592;
-    const a2 = -0.284496736;
-    const a3 = 1.421413741;
-    const a4 = -1.453152027;
-    const a5 = 1.061405429;
-    const p = 0.3275911;
-
-    final sign = x < 0 ? -1 : 1;
-    x = x.abs();
-
-    final t = 1.0 / (1.0 + p * x);
-    final y =
-        1.0 -
-        (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * math.exp(-x * x);
-
-    return sign * y;
-  }
-
-  double _binomialPmf(int k, int n, double p) {
-    if (k < 0 || k > n) return 0;
-    return _binomialCoef(n, k) * math.pow(p, k) * math.pow(1 - p, n - k);
-  }
-
-  double _binomialCdf(int k, int n, double p) {
-    var sum = 0.0;
-    for (var i = 0; i <= k; i++) {
-      sum += _binomialPmf(i, n, p);
-    }
-    return sum;
-  }
-
-  double _poissonPmf(int k, double lambda) {
-    if (k < 0) return 0;
-    return math.exp(-lambda) * math.pow(lambda, k) / _factorial(k);
-  }
-
-  double _poissonCdf(int k, double lambda) {
-    var sum = 0.0;
-    for (var i = 0; i <= k; i++) {
-      sum += _poissonPmf(i, lambda);
-    }
-    return sum;
-  }
-
-  double _hypergeometricPmf(int k, int bigN, int bigK, int n) {
-    if (k < math.max(0, n + bigK - bigN) || k > math.min(n, bigK)) return 0;
-    return (_binomialCoef(bigK, k) * _binomialCoef(bigN - bigK, n - k)) /
-        _binomialCoef(bigN, n);
-  }
-
-  double _hypergeometricCdf(int k, int bigN, int bigK, int n) {
-    var sum = 0.0;
-    for (var i = 0; i <= k; i++) {
-      sum += _hypergeometricPmf(i, bigN, bigK, n);
-    }
-    return sum;
-  }
-
-  double _tPdf(double t, double df) {
-    return _gammaFunc((df + 1) / 2) /
-        (math.sqrt(df * math.pi) * _gammaFunc(df / 2)) *
-        math.pow(1 + t * t / df, -(df + 1) / 2);
-  }
-
-  double _tCdf(double t, double df) {
-    const n = 1000;
-    final h = (t - (-10)) / n;
-    var sum = (_tPdf(-10, df) + _tPdf(t, df)) / 2;
-    for (var i = 1; i < n; i++) {
-      sum += _tPdf(-10 + i * h, df);
-    }
-    return (sum * h).clamp(0.0, 1.0);
-  }
-
-  double _chiSquarePdf(double x, double k) {
-    if (x < 0) return 0;
-    return math.pow(x, k / 2 - 1) *
-        math.exp(-x / 2) /
-        (math.pow(2, k / 2) * _gammaFunc(k / 2));
-  }
-
-  double _chiSquareCdf(double x, double k) {
-    if (x <= 0) return 0;
-    return _lowerIncompleteGamma(k / 2, x / 2) / _gammaFunc(k / 2);
-  }
-
-  double _betaPdf(double x, double alpha, double beta) {
-    if (x < 0 || x > 1) return 0;
-    return math.pow(x, alpha - 1) *
-        math.pow(1 - x, beta - 1) /
-        _betaFunc(alpha, beta);
-  }
-
-  double _betaCdf(double x, double alpha, double beta) {
-    if (x <= 0) return 0;
-    if (x >= 1) return 1;
-    return _incompleteBeta(x, alpha, beta);
-  }
-
-  double _gammaPdf(double x, double k, double theta) {
-    if (x < 0) return 0;
-    return math.pow(x, k - 1) *
-        math.exp(-x / theta) /
-        (math.pow(theta, k) * _gammaFunc(k));
-  }
-
-  double _gammaCdf(double x, double k, double theta) {
-    if (x <= 0) return 0;
-    return _lowerIncompleteGamma(k, x / theta) / _gammaFunc(k);
-  }
-
-  double _fPdf(double x, double d1, double d2) {
-    if (x < 0) return 0;
-    return math.sqrt(
-          math.pow(d1 * x, d1) *
-              math.pow(d2, d2) /
-              math.pow(d1 * x + d2, d1 + d2),
-        ) /
-        (x * _betaFunc(d1 / 2, d2 / 2));
-  }
-
-  double _fCdf(double x, double d1, double d2) {
-    if (x <= 0) return 0;
-    return _incompleteBeta(d1 * x / (d1 * x + d2), d1 / 2, d2 / 2);
-  }
-
-  double _gammaFunc(double z) {
-    if (z < 0.5) {
-      return math.pi / (math.sin(math.pi * z) * _gammaFunc(1 - z));
-    }
-    z -= 1;
-    const g = 7;
-    const c = [
-      0.99999999999980993,
-      676.5203681218851,
-      -1259.1392167224028,
-      771.32342877765313,
-      -176.61502916214059,
-      12.507343278686905,
-      -0.13857109526572012,
-      9.9843695780195716e-6,
-      1.5056327351493116e-7,
-    ];
-    var x = c[0];
-    for (var i = 1; i < g + 2; i++) {
-      x += c[i] / (z + i);
-    }
-    final t = z + g + 0.5;
-    return math.sqrt(2 * math.pi) * math.pow(t, z + 0.5) * math.exp(-t) * x;
-  }
-
-  double _betaFunc(double a, double b) {
-    return _gammaFunc(a) * _gammaFunc(b) / _gammaFunc(a + b);
-  }
-
-  double _lowerIncompleteGamma(double a, double x) {
-    if (x == 0) return 0;
-    var sum = 0.0;
-    var term = 1.0 / a;
-    sum = term;
-    for (var n = 1; n < 100; n++) {
-      term *= x / (a + n);
-      sum += term;
-      if (term.abs() < 1e-10) break;
-    }
-    return math.pow(x, a) * math.exp(-x) * sum;
-  }
-
-  double _incompleteBeta(double x, double a, double b) {
-    const n = 1000;
-    final h = x / n;
-    var sum = 0.0;
-    for (var i = 1; i < n; i++) {
-      final t = i * h;
-      sum += math.pow(t, a - 1) * math.pow(1 - t, b - 1);
-    }
-    return h * sum / _betaFunc(a, b);
-  }
-
-  double _binomialCoef(int n, int k) {
-    if (k > n || k < 0) return 0;
-    if (k == 0 || k == n) return 1;
-    var result = 1.0;
-    for (var i = 0; i < k; i++) {
-      result *= (n - i) / (i + 1);
-    }
-    return result;
-  }
-
-  double _factorial(int n) {
-    if (n < 0) return double.nan;
-    if (n <= 1) return 1;
-    var result = 1.0;
-    for (var i = 2; i <= n; i++) {
-      result *= i;
-    }
-    return result;
   }
 
   String _formatNumber(double n) {
@@ -1212,9 +859,9 @@ class _DistributionCalculatorState extends State<_DistributionCalculator> {
           ),
           TextField(
             controller: _xCtrl,
-            decoration: InputDecoration(
-              labelText: _calcType == 'icdf' ? 'Probability p' : 'Value x',
-              border: const OutlineInputBorder(),
+            decoration: const InputDecoration(
+              labelText: 'Value x',
+              border: OutlineInputBorder(),
               isDense: true,
             ),
             keyboardType: const TextInputType.numberWithOptions(
@@ -1230,8 +877,6 @@ class _DistributionCalculatorState extends State<_DistributionCalculator> {
                 label: Text(isDiscrete ? 'PMF' : 'PDF'),
               ),
               const ButtonSegment(value: 'cdf', label: Text('CDF')),
-              if (!isDiscrete)
-                const ButtonSegment(value: 'icdf', label: Text('Inverse')),
             ],
             selected: {_calcType},
             onSelectionChanged: (s) => setState(() => _calcType = s.first),
@@ -1239,8 +884,14 @@ class _DistributionCalculatorState extends State<_DistributionCalculator> {
           const SizedBox(height: 16),
           Center(
             child: FilledButton.icon(
-              onPressed: _compute,
-              icon: const Icon(Icons.calculate),
+              onPressed: _isComputing ? null : _compute,
+              icon: _isComputing
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.calculate),
               label: const Text('Calculate'),
             ),
           ),

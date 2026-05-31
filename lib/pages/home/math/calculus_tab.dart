@@ -173,7 +173,7 @@ class _DerivativeCalculatorState extends State<_DerivativeCalculator> {
   final _expressionCtrl = TextEditingController(text: 'x^2 + 3*x + 2');
   final _variableCtrl = TextEditingController(text: 'x');
   final _pointCtrl = TextEditingController(text: '1');
-  var _order = 1;
+  final _orderCtrl = TextEditingController(text: '1');
   var _result = '';
   var _isComputing = false;
 
@@ -182,6 +182,7 @@ class _DerivativeCalculatorState extends State<_DerivativeCalculator> {
     _expressionCtrl.dispose();
     _variableCtrl.dispose();
     _pointCtrl.dispose();
+    _orderCtrl.dispose();
     super.dispose();
   }
 
@@ -195,16 +196,17 @@ class _DerivativeCalculatorState extends State<_DerivativeCalculator> {
       final expr = _expressionCtrl.text;
       final variable = _variableCtrl.text;
       final point = double.parse(_pointCtrl.text);
+      final order = int.tryParse(_orderCtrl.text) ?? 1;
 
       // Use Rust backend for computation
       final result = await MathService.instance.differentiate(
         expr,
         variable,
         point,
-        order: _order,
+        order: order,
       );
 
-      final primeSymbol = "'" * _order;
+      final primeSymbol = "'" * order;
       setState(() {
         _result = 'f$primeSymbol($point) = ${_formatNumber(result.value)}';
         _isComputing = false;
@@ -273,14 +275,16 @@ class _DerivativeCalculatorState extends State<_DerivativeCalculator> {
             children: [
               const Text('Order: '),
               const SizedBox(width: 8),
-              SegmentedButton<int>(
-                segments: const [
-                  ButtonSegment(value: 1, label: Text("f'")),
-                  ButtonSegment(value: 2, label: Text("f''")),
-                  ButtonSegment(value: 3, label: Text("f'''")),
-                ],
-                selected: {_order},
-                onSelectionChanged: (s) => setState(() => _order = s.first),
+              SizedBox(
+                width: 100,
+                child: TextField(
+                  controller: _orderCtrl,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
               ),
             ],
           ),
@@ -341,8 +345,8 @@ class _PartialDerivativeCalculatorState
   final _expressionCtrl = TextEditingController(text: 'x^2*y + y^3');
   final _variablesCtrl = TextEditingController(text: 'x, y');
   final _pointCtrl = TextEditingController(text: '1, 2');
+  final _orderCtrl = TextEditingController(text: '1');
   var _partialVar = 'x';
-  var _order = 1;
   var _result = '';
   var _isComputing = false;
 
@@ -351,6 +355,7 @@ class _PartialDerivativeCalculatorState
     _expressionCtrl.dispose();
     _variablesCtrl.dispose();
     _pointCtrl.dispose();
+    _orderCtrl.dispose();
     super.dispose();
   }
 
@@ -394,6 +399,8 @@ class _PartialDerivativeCalculatorState
 
       final point = pointStrs.map((s) => double.parse(s)).toList();
       final varIndex = vars.indexOf(_partialVar);
+      final order = int.tryParse(_orderCtrl.text) ?? 1;
+      
       if (varIndex == -1) {
         throw Exception('Variable "$_partialVar" not found in variables list');
       }
@@ -406,7 +413,7 @@ class _PartialDerivativeCalculatorState
       final pointPlus = List<double>.from(point);
       final pointMinus = List<double>.from(point);
 
-      for (var o = 0; o < _order; o++) {
+      for (var o = 0; o < order; o++) {
         pointPlus[varIndex] = point[varIndex] + h;
         pointMinus[varIndex] = point[varIndex] - h;
         if (o == 0) {
@@ -427,8 +434,8 @@ class _PartialDerivativeCalculatorState
         point[varIndex] = point[varIndex]; // Reset
       }
 
-      final orderStr = _order == 1 ? '' : '$_order';
-      final subscript = _order == 1 ? _partialVar : _partialVar * _order;
+      final orderStr = order == 1 ? '' : '$order';
+      final subscript = order == 1 ? _partialVar : _partialVar * order;
       setState(() {
         _result =
             '∂$orderStr f/∂$subscript at (${pointStrs.join(', ')})\n= ${_formatNumber(derivative)}';
@@ -511,13 +518,16 @@ class _PartialDerivativeCalculatorState
               ),
               const SizedBox(width: 24),
               const Text('Order: '),
-              SegmentedButton<int>(
-                segments: const [
-                  ButtonSegment(value: 1, label: Text('1st')),
-                  ButtonSegment(value: 2, label: Text('2nd')),
-                ],
-                selected: {_order},
-                onSelectionChanged: (s) => setState(() => _order = s.first),
+              SizedBox(
+                width: 100,
+                child: TextField(
+                  controller: _orderCtrl,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
               ),
             ],
           ),
