@@ -4,536 +4,756 @@
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
-import 'package:kivixa/src/rust/clustering.dart';
-import 'package:kivixa/src/rust/embeddings.dart';
+import 'package:kivixa/src/rust/basic.dart';
+import 'package:kivixa/src/rust/calculus.dart';
+import 'package:kivixa/src/rust/complex.dart';
+import 'package:kivixa/src/rust/discrete.dart';
 import 'package:kivixa/src/rust/frb_generated.dart';
-import 'package:kivixa/src/rust/graph.dart';
-import 'package:kivixa/src/rust/mcp.dart';
-import 'package:kivixa/src/rust/streaming.dart';
+import 'package:kivixa/src/rust/graphing.dart';
+import 'package:kivixa/src/rust/matrix.dart';
+import 'package:kivixa/src/rust/statistics.dart';
+import 'package:kivixa/src/rust/units.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`
+// These functions are ignored because they are not marked as `pub`: `base_to_number_system`
 
-/// Initialize an AI model from the given path (auto-detects model type)
-void initModel({required String modelPath}) =>
-    RustLib.instance.api.crateApiInitModel(modelPath: modelPath);
+/// Evaluate a mathematical expression string
+/// Supports: +, -, *, /, ^, sqrt, sin, cos, tan, log, ln, abs, etc.
+ExpressionResult evaluateExpression({required String expression}) =>
+    RustLib.instance.api.crateApiEvaluateExpression(expression: expression);
 
-/// Initialize the model with custom configuration
-/// model_type: 0 = Phi4, 1 = Qwen, 2 = Functionary (auto-detected if not in range)
-Future<void> initModelWithConfig({
-  required String modelPath,
-  required int nGpuLayers,
-  required int nCtx,
-  required int nThreads,
-  required double temperature,
-  required double topP,
-  required int maxTokens,
-  int? modelType,
-}) => RustLib.instance.api.crateApiInitModelWithConfig(
-  modelPath: modelPath,
-  nGpuLayers: nGpuLayers,
-  nCtx: nCtx,
-  nThreads: nThreads,
-  temperature: temperature,
-  topP: topP,
-  maxTokens: maxTokens,
-  modelType: modelType,
+/// Convert between number systems (binary, octal, decimal, hex)
+/// from_base and to_base: 2 = binary, 8 = octal, 10 = decimal, 16 = hex
+String convertNumberSystem({
+  required String value,
+  required int fromBase,
+  required int toBase,
+}) => RustLib.instance.api.crateApiConvertNumberSystem(
+  value: value,
+  fromBase: fromBase,
+  toBase: toBase,
 );
 
-/// Get the loaded model type (0 = Phi4, 1 = Qwen, 2 = Functionary, -1 = not loaded)
-int getModelType() => RustLib.instance.api.crateApiGetModelType();
+/// Get mathematical constants
+double getConstant({required String name}) =>
+    RustLib.instance.api.crateApiGetConstant(name: name);
 
-/// Check if the model is loaded
-bool isModelLoaded() => RustLib.instance.api.crateApiIsModelLoaded();
-
-/// Unload the model and free resources
-void unloadModel() => RustLib.instance.api.crateApiUnloadModel();
-
-/// Get the embedding dimension of the loaded model
-BigInt getEmbeddingDimension() =>
-    RustLib.instance.api.crateApiGetEmbeddingDimension();
-
-/// Generate text completion from a prompt
-Future<String> generateText({required String prompt, int? maxTokens}) => RustLib
-    .instance
-    .api
-    .crateApiGenerateText(prompt: prompt, maxTokens: maxTokens);
-
-/// Chat completion with conversation history
-///
-/// Messages should be a list of (role, content) tuples where role is
-/// "system", "user", or "assistant"
-Future<String> chatCompletion({
-  required List<(String, String)> messages,
-  int? maxTokens,
-}) => RustLib.instance.api.crateApiChatCompletion(
-  messages: messages,
-  maxTokens: maxTokens,
+/// Perform complex number operations
+ComplexResult complexOperation({
+  required double aReal,
+  required double aImag,
+  required double bReal,
+  required double bImag,
+  required String operation,
+}) => RustLib.instance.api.crateApiComplexOperation(
+  aReal: aReal,
+  aImag: aImag,
+  bReal: bReal,
+  bImag: bImag,
+  operation: operation,
 );
 
-/// Extract topics from note content
-Future<List<String>> extractTopics({required String text, int? numTopics}) =>
-    RustLib.instance.api.crateApiExtractTopics(
-      text: text,
-      numTopics: numTopics,
-    );
-
-/// Get embedding for text
-Future<Float32List> getEmbedding({required String text}) =>
-    RustLib.instance.api.crateApiGetEmbedding(text: text);
-
-/// Compute embeddings for multiple texts
-Future<List<EmbeddingEntry>> batchEmbed({required List<String> texts}) =>
-    RustLib.instance.api.crateApiBatchEmbed(texts: texts);
-
-/// Find similar entries to a query embedding
-Future<List<SimilarityResult>> findSimilar({
-  required List<double> query,
-  required List<EmbeddingEntry> entries,
-  required BigInt topK,
-  required double threshold,
-}) => RustLib.instance.api.crateApiFindSimilar(
-  query: query,
-  entries: entries,
-  topK: topK,
-  threshold: threshold,
+/// Convert complex number between rectangular and polar forms
+ComplexResult complexConvert({
+  required double real,
+  required double imag,
+  required bool toPolar,
+}) => RustLib.instance.api.crateApiComplexConvert(
+  real: real,
+  imag: imag,
+  toPolar: toPolar,
 );
 
-/// Semantic search: embed query and find similar entries
-Future<List<SimilarityResult>> semanticSearch({
-  required String queryText,
-  required List<EmbeddingEntry> entries,
-  required BigInt topK,
-}) => RustLib.instance.api.crateApiSemanticSearch(
-  queryText: queryText,
-  entries: entries,
-  topK: topK,
+/// Perform matrix operations (add, multiply, transpose, inverse, etc.)
+/// Matrix data is passed as a flat array with dimensions
+Future<MatrixResult> matrixOperation({
+  required List<double> aData,
+  required BigInt aRows,
+  required BigInt aCols,
+  Float64List? bData,
+  BigInt? bRows,
+  BigInt? bCols,
+  required String operation,
+}) => RustLib.instance.api.crateApiMatrixOperation(
+  aData: aData,
+  aRows: aRows,
+  aCols: aCols,
+  bData: bData,
+  bRows: bRows,
+  bCols: bCols,
+  operation: operation,
 );
 
-/// Cluster embeddings by similarity
-Future<List<EmbeddingCluster>> clusterEmbeddings({
-  required List<EmbeddingEntry> entries,
-  required double threshold,
-}) => RustLib.instance.api.crateApiClusterEmbeddings(
-  entries: entries,
-  threshold: threshold,
+/// Compute matrix decompositions (LU, QR, SVD, Cholesky, Eigen)
+Future<MatrixDecomposition> matrixDecomposition({
+  required List<double> data,
+  required BigInt rows,
+  required BigInt cols,
+  required String decompositionType,
+}) => RustLib.instance.api.crateApiMatrixDecomposition(
+  data: data,
+  rows: rows,
+  cols: cols,
+  decompositionType: decompositionType,
 );
 
-/// Compute cosine similarity between two vectors
-double cosineSimilarity({required List<double> a, required List<double> b}) =>
-    RustLib.instance.api.crateApiCosineSimilarity(a: a, b: b);
-
-/// Initialize the knowledge graph
-void initGraph() => RustLib.instance.api.crateApiInitGraph();
-
-/// Add a node to the graph
-Future<void> addGraphNode({
-  required String id,
-  required String label,
-  required String nodeType,
-  required double x,
-  required double y,
-  String? color,
-  String? metadata,
-}) => RustLib.instance.api.crateApiAddGraphNode(
-  id: id,
-  label: label,
-  nodeType: nodeType,
-  x: x,
-  y: y,
-  color: color,
-  metadata: metadata,
+/// Compute matrix properties (determinant, rank, trace, eigenvalues)
+Future<MatrixResult> matrixProperties({
+  required List<double> data,
+  required BigInt rows,
+  required BigInt cols,
+}) => RustLib.instance.api.crateApiMatrixProperties(
+  data: data,
+  rows: rows,
+  cols: cols,
 );
 
-/// Add multiple nodes at once
-Future<void> addGraphNodes({required List<GraphNode> nodes}) =>
-    RustLib.instance.api.crateApiAddGraphNodes(nodes: nodes);
+/// Row reduce matrix to echelon form (RREF)
+Future<MatrixResult> matrixRref({
+  required List<double> data,
+  required BigInt rows,
+  required BigInt cols,
+}) =>
+    RustLib.instance.api.crateApiMatrixRref(data: data, rows: rows, cols: cols);
 
-/// Remove a node from the graph
-Future<void> removeGraphNode({required String nodeId}) =>
-    RustLib.instance.api.crateApiRemoveGraphNode(nodeId: nodeId);
-
-/// Add an edge to the graph
-Future<void> addGraphEdge({
-  required String source,
-  required String target,
-  required double weight,
-  required String edgeType,
-}) => RustLib.instance.api.crateApiAddGraphEdge(
-  source: source,
-  target: target,
-  weight: weight,
-  edgeType: edgeType,
+/// Compute numerical derivative at a point
+Future<CalculusResult> differentiate({
+  required String expression,
+  required String variable,
+  required double point,
+  required int order,
+}) => RustLib.instance.api.crateApiDifferentiate(
+  expression: expression,
+  variable: variable,
+  point: point,
+  order: order,
 );
 
-/// Add multiple edges at once
-Future<void> addGraphEdges({required List<GraphEdge> edges}) =>
-    RustLib.instance.api.crateApiAddGraphEdges(edges: edges);
-
-/// Compute physics-based layout
-Future<GraphState> computeGraphLayout({int? iterations}) =>
-    RustLib.instance.api.crateApiComputeGraphLayout(iterations: iterations);
-
-/// Get current graph state
-Future<GraphState> getGraphState() =>
-    RustLib.instance.api.crateApiGetGraphState();
-
-/// Clear the graph
-void clearGraph() => RustLib.instance.api.crateApiClearGraph();
-
-/// Connect a note to topic hubs
-Future<void> connectNoteToTopics({
-  required String noteId,
-  required List<String> topicIds,
-}) => RustLib.instance.api.crateApiConnectNoteToTopics(
-  noteId: noteId,
-  topicIds: topicIds,
+/// Compute numerical integral (definite)
+Future<CalculusResult> integrate({
+  required String expression,
+  required String variable,
+  required double lower,
+  required double upper,
+  required int numIntervals,
+}) => RustLib.instance.api.crateApiIntegrate(
+  expression: expression,
+  variable: variable,
+  lower: lower,
+  upper: upper,
+  numIntervals: numIntervals,
 );
 
-/// Get or create a topic hub node
-Future<String> getOrCreateTopicHub({required String topic}) =>
-    RustLib.instance.api.crateApiGetOrCreateTopicHub(topic: topic);
-
-/// Simple health check
-String healthCheck() => RustLib.instance.api.crateApiHealthCheck();
-
-/// Get version info
-String getVersion() => RustLib.instance.api.crateApiGetVersion();
-
-/// Start the graph streaming simulation
-/// This runs physics simulation at 60fps and streams visible nodes
-Future<void> startGraphStream() =>
-    RustLib.instance.api.crateApiStartGraphStream();
-
-/// Stop the graph streaming simulation
-void stopGraphStream() => RustLib.instance.api.crateApiStopGraphStream();
-
-/// Check if the graph stream is currently running
-bool isGraphStreamRunning() =>
-    RustLib.instance.api.crateApiIsGraphStreamRunning();
-
-/// Update the viewport for culling
-/// Only nodes within the viewport will be sent to Flutter
-Future<void> updateGraphViewport({
-  required double x,
-  required double y,
-  required double width,
-  required double height,
-  required double scale,
-}) => RustLib.instance.api.crateApiUpdateGraphViewport(
-  x: x,
-  y: y,
-  width: width,
-  height: height,
-  scale: scale,
-);
-
-/// Get visible nodes within the current viewport
-/// Returns positions for nodes that should be rendered
-Future<List<NodePosition>> getVisibleGraphNodes() =>
-    RustLib.instance.api.crateApiGetVisibleGraphNodes();
-
-/// Add a node to the streaming graph
-Future<void> addStreamNode({
-  required String id,
-  required double x,
-  required double y,
-  required double radius,
-  required int color,
-}) => RustLib.instance.api.crateApiAddStreamNode(
-  id: id,
-  x: x,
-  y: y,
-  radius: radius,
-  color: color,
-);
-
-/// Remove a node from the streaming graph
-Future<void> removeStreamNode({required String id}) =>
-    RustLib.instance.api.crateApiRemoveStreamNode(id: id);
-
-/// Add an edge to the streaming graph
-Future<void> addStreamEdge({
-  required String fromId,
-  required String toId,
-  required double strength,
-}) => RustLib.instance.api.crateApiAddStreamEdge(
-  fromId: fromId,
-  toId: toId,
-  strength: strength,
-);
-
-/// Remove an edge from the streaming graph
-Future<void> removeStreamEdge({required String fromId, required String toId}) =>
-    RustLib.instance.api.crateApiRemoveStreamEdge(fromId: fromId, toId: toId);
-
-/// Pin a node at its current position (stops physics for that node)
-Future<void> pinStreamNode({required String id, required bool pinned}) =>
-    RustLib.instance.api.crateApiPinStreamNode(id: id, pinned: pinned);
-
-/// Set node position (for dragging)
-Future<void> setStreamNodePosition({
-  required String id,
-  required double x,
-  required double y,
-}) => RustLib.instance.api.crateApiSetStreamNodePosition(id: id, x: x, y: y);
-
-/// Clear all nodes and edges from the streaming graph
-void clearStreamGraph() => RustLib.instance.api.crateApiClearStreamGraph();
-
-/// Get stats about the streaming graph
-StreamGraphStats getStreamGraphStats() =>
-    RustLib.instance.api.crateApiGetStreamGraphStats();
-
-/// Run K-Means clustering on note embeddings
-///
-/// # Arguments
-/// * `entries` - List of embedding entries to cluster
-/// * `k` - Number of clusters (if None, auto-detect based on data size)
-/// * `max_iterations` - Maximum K-Means iterations (default: 100)
-///
-/// # Returns
-/// * Clustering result with assignments and metadata
-Future<ClusteringResult> clusterNotes({
-  required List<EmbeddingEntry> entries,
-  BigInt? k,
-  BigInt? maxIterations,
-}) => RustLib.instance.api.crateApiClusterNotes(
-  entries: entries,
-  k: k,
+/// Solve equation f(x) = 0 using Newton-Raphson
+Future<SolveResult> solveEquation({
+  required String expression,
+  required String variable,
+  required double initialGuess,
+  required double tolerance,
+  required int maxIterations,
+}) => RustLib.instance.api.crateApiSolveEquation(
+  expression: expression,
+  variable: variable,
+  initialGuess: initialGuess,
+  tolerance: tolerance,
   maxIterations: maxIterations,
 );
 
-/// Discover semantic edges between notes based on embedding similarity
-///
-/// # Arguments
-/// * `entries` - List of embedding entries
-/// * `threshold` - Minimum similarity for edge creation (default: 0.85)
-/// * `existing_links` - Optional list of existing hard links (source, target pairs)
-///
-/// # Returns
-/// * Semantic edges with similarity scores
-Future<SemanticEdgeResult> discoverSemanticEdges({
-  required List<EmbeddingEntry> entries,
-  double? threshold,
-  List<(String, String)>? existingLinks,
-}) => RustLib.instance.api.crateApiDiscoverSemanticEdges(
-  entries: entries,
-  threshold: threshold,
-  existingLinks: existingLinks,
+/// Find multiple roots in an interval
+Future<SolveResult> findRootsInInterval({
+  required String expression,
+  required String variable,
+  required double start,
+  required double end,
+  required int numSamples,
+}) => RustLib.instance.api.crateApiFindRootsInInterval(
+  expression: expression,
+  variable: variable,
+  start: start,
+  end: end,
+  numSamples: numSamples,
 );
 
-/// Analyze knowledge graph: cluster and find semantic edges in one pass
-///
-/// More efficient than calling both functions separately
-Future<KnowledgeGraphAnalysis> analyzeKnowledgeGraph({
-  required List<EmbeddingEntry> entries,
-  BigInt? k,
-  double? similarityThreshold,
-  List<(String, String)>? existingLinks,
-}) => RustLib.instance.api.crateApiAnalyzeKnowledgeGraph(
-  entries: entries,
-  k: k,
-  similarityThreshold: similarityThreshold,
-  existingLinks: existingLinks,
+/// Compute limit numerically
+Future<CalculusResult> computeLimit({
+  required String expression,
+  required String variable,
+  required double approachValue,
+  required bool fromLeft,
+  required bool fromRight,
+}) => RustLib.instance.api.crateApiComputeLimit(
+  expression: expression,
+  variable: variable,
+  approachValue: approachValue,
+  fromLeft: fromLeft,
+  fromRight: fromRight,
 );
 
-/// Initialize the MCP system with configuration
-///
-/// # Arguments
-/// * `base_path` - Base path for file operations (browse/ directory)
-/// * `max_file_size` - Maximum file size in bytes (default: 10MB)
-/// * `allowed_extensions` - Optional list of allowed file extensions
-Future<void> initMcp({
-  required String basePath,
-  BigInt? maxFileSize,
-  List<String>? allowedExtensions,
-}) => RustLib.instance.api.crateApiInitMcp(
-  basePath: basePath,
-  maxFileSize: maxFileSize,
-  allowedExtensions: allowedExtensions,
+/// Get Taylor series coefficients
+Future<Float64List> taylorCoefficients({
+  required String expression,
+  required String variable,
+  required double around,
+  required int numTerms,
+}) => RustLib.instance.api.crateApiTaylorCoefficients(
+  expression: expression,
+  variable: variable,
+  around: around,
+  numTerms: numTerms,
 );
 
-/// Check if MCP is initialized
-bool isMcpInitialized() => RustLib.instance.api.crateApiIsMcpInitialized();
+/// Compute partial derivative with respect to one variable
+Future<CalculusResult> partialDerivative({
+  required String expression,
+  required String variable,
+  required List<(String, double)> point,
+  required int order,
+}) => RustLib.instance.api.crateApiPartialDerivative(
+  expression: expression,
+  variable: variable,
+  point: point,
+  order: order,
+);
 
-/// Validate a file path for MCP operations
-///
-/// # Arguments
-/// * `path` - Relative path to validate
-///
-/// # Returns
-/// * `true` if path is valid and within sandbox
-bool mcpValidatePath({required String path}) =>
-    RustLib.instance.api.crateApiMcpValidatePath(path: path);
+/// Compute mixed partial derivative ∂²f/∂x∂y
+Future<CalculusResult> mixedPartialDerivative({
+  required String expression,
+  required String var1,
+  required String var2,
+  required List<(String, double)> point,
+}) => RustLib.instance.api.crateApiMixedPartialDerivative(
+  expression: expression,
+  var1: var1,
+  var2: var2,
+  point: point,
+);
 
-/// Read a file via MCP
-///
-/// # Arguments
-/// * `path` - Relative path within browse/ folder
-///
-/// # Returns
-/// * File contents as string
-Future<String> mcpReadFile({required String path}) =>
-    RustLib.instance.api.crateApiMcpReadFile(path: path);
+/// Compute gradient vector
+Future<Float64List> gradient({
+  required String expression,
+  required List<String> variables,
+  required List<(String, double)> point,
+}) => RustLib.instance.api.crateApiGradient(
+  expression: expression,
+  variables: variables,
+  point: point,
+);
 
-/// Write a file via MCP
-///
-/// # Arguments
-/// * `path` - Relative path within browse/ folder
-/// * `content` - Content to write
-Future<void> mcpWriteFile({required String path, required String content}) =>
-    RustLib.instance.api.crateApiMcpWriteFile(path: path, content: content);
+/// Compute double integral ∫∫ f(x,y) dx dy
+Future<CalculusResult> doubleIntegral({
+  required String expression,
+  required String xVar,
+  required String yVar,
+  required double xMin,
+  required double xMax,
+  required double yMin,
+  required double yMax,
+  required int numIntervals,
+}) => RustLib.instance.api.crateApiDoubleIntegral(
+  expression: expression,
+  xVar: xVar,
+  yVar: yVar,
+  xMin: xMin,
+  xMax: xMax,
+  yMin: yMin,
+  yMax: yMax,
+  numIntervals: numIntervals,
+);
 
-/// Delete a file via MCP
-///
-/// # Arguments
-/// * `path` - Relative path within browse/ folder
-Future<void> mcpDeleteFile({required String path}) =>
-    RustLib.instance.api.crateApiMcpDeleteFile(path: path);
+/// Compute triple integral ∫∫∫ f(x,y,z) dx dy dz
+Future<CalculusResult> tripleIntegral({
+  required String expression,
+  required String xVar,
+  required String yVar,
+  required String zVar,
+  required double xMin,
+  required double xMax,
+  required double yMin,
+  required double yMax,
+  required double zMin,
+  required double zMax,
+  required int numIntervals,
+}) => RustLib.instance.api.crateApiTripleIntegral(
+  expression: expression,
+  xVar: xVar,
+  yVar: yVar,
+  zVar: zVar,
+  xMin: xMin,
+  xMax: xMax,
+  yMin: yMin,
+  yMax: yMax,
+  zMin: zMin,
+  zMax: zMax,
+  numIntervals: numIntervals,
+);
 
-/// Create a folder via MCP
-///
-/// # Arguments
-/// * `path` - Relative path within browse/ folder
-Future<void> mcpCreateFolder({required String path}) =>
-    RustLib.instance.api.crateApiMcpCreateFolder(path: path);
+/// Compute line integral along a parameterized path
+Future<CalculusResult> lineIntegral({
+  required String expression,
+  required String xParam,
+  required String yParam,
+  required String tVar,
+  required double tMin,
+  required double tMax,
+  required int numIntervals,
+}) => RustLib.instance.api.crateApiLineIntegral(
+  expression: expression,
+  xParam: xParam,
+  yParam: yParam,
+  tVar: tVar,
+  tMin: tMin,
+  tMax: tMax,
+  numIntervals: numIntervals,
+);
 
-/// List files in a directory via MCP
-///
-/// # Arguments
-/// * `path` - Relative path within browse/ folder (empty for root)
-///
-/// # Returns
-/// * List of file/folder names
-Future<List<String>> mcpListFiles({required String path}) =>
-    RustLib.instance.api.crateApiMcpListFiles(path: path);
+/// Symbolic differentiation
+Future<CalculusResult> symbolicDifferentiate({
+  required String expression,
+  required String variable,
+  required int order,
+}) => RustLib.instance.api.crateApiSymbolicDifferentiate(
+  expression: expression,
+  variable: variable,
+  order: order,
+);
 
-/// Get tool schemas for AI prompt construction
-///
-/// # Returns
-/// * JSON string containing tool schemas
-String mcpGetToolSchemas() => RustLib.instance.api.crateApiMcpGetToolSchemas();
+/// Symbolic gradient vector
+Future<List<CalculusResult>> symbolicGradient({
+  required String expression,
+  required List<String> variables,
+}) => RustLib.instance.api.crateApiSymbolicGradient(
+  expression: expression,
+  variables: variables,
+);
 
-/// Parse a tool call from AI response
-///
-/// # Arguments
-/// * `json` - JSON string representing the tool call
-///
-/// # Returns
-/// * Parsed tool call structure
-Future<MCPToolCall> mcpParseToolCall({required String json}) =>
-    RustLib.instance.api.crateApiMcpParseToolCall(json: json);
+/// Symbolic indefinite integration
+Future<CalculusResult> symbolicIntegrate({
+  required String expression,
+  required List<String> variables,
+}) => RustLib.instance.api.crateApiSymbolicIntegrate(
+  expression: expression,
+  variables: variables,
+);
 
-/// Execute a tool call
-///
-/// # Arguments
-/// * `tool_call` - The tool call to execute
-///
-/// # Returns
-/// * Result of the tool execution
-Future<MCPToolResult> mcpExecuteToolCall({required MCPToolCall toolCall}) =>
-    RustLib.instance.api.crateApiMcpExecuteToolCall(toolCall: toolCall);
+/// Compute descriptive statistics from a dataset
+Future<StatisticsResult> computeStatistics({required List<double> data}) =>
+    RustLib.instance.api.crateApiComputeStatistics(data: data);
 
-/// Classify a task based on user message
-///
-/// # Arguments
-/// * `message` - User message to classify
-///
-/// # Returns
-/// * Task category (Conversation, ToolUse, CodeGeneration)
-TaskCategory mcpClassifyTask({required String message}) =>
-    RustLib.instance.api.crateApiMcpClassifyTask(message: message);
+/// Compute probability distribution values (PDF, CDF)
+Future<DistributionResult> distributionCompute({
+  required String distributionType,
+  required List<double> params,
+  required double x,
+}) => RustLib.instance.api.crateApiDistributionCompute(
+  distributionType: distributionType,
+  params: params,
+  x: x,
+);
 
-/// Get the recommended model for a task category
-///
-/// # Arguments
-/// * `category` - Task category
-///
-/// # Returns
-/// * Model name string
-String mcpGetModelForTask({required TaskCategory category}) =>
-    RustLib.instance.api.crateApiMcpGetModelForTask(category: category);
+/// Perform linear regression
+Future<RegressionResult> linearRegression({
+  required List<double> xData,
+  required List<double> yData,
+}) => RustLib.instance.api.crateApiLinearRegression(xData: xData, yData: yData);
 
-/// Get all available MCP tools
-List<MCPTool> mcpGetAllTools() => RustLib.instance.api.crateApiMcpGetAllTools();
+/// Perform polynomial regression
+Future<RegressionResult> polynomialRegression({
+  required List<double> xData,
+  required List<double> yData,
+  required BigInt degree,
+}) => RustLib.instance.api.crateApiPolynomialRegression(
+  xData: xData,
+  yData: yData,
+  degree: degree,
+);
 
-/// Get tool name
-String mcpGetToolName({required MCPTool tool}) =>
-    RustLib.instance.api.crateApiMcpGetToolName(tool: tool);
+/// One-sample t-test
+Future<HypothesisTestResult> tTest({
+  required List<double> data,
+  required double hypothesizedMean,
+  required double alpha,
+}) => RustLib.instance.api.crateApiTTest(
+  data: data,
+  hypothesizedMean: hypothesizedMean,
+  alpha: alpha,
+);
 
-/// Get tool description
-String mcpGetToolDescription({required MCPTool tool}) =>
-    RustLib.instance.api.crateApiMcpGetToolDescription(tool: tool);
+/// Two-sample t-test
+Future<HypothesisTestResult> twoSampleTTest({
+  required List<double> data1,
+  required List<double> data2,
+  required double alpha,
+}) => RustLib.instance.api.crateApiTwoSampleTTest(
+  data1: data1,
+  data2: data2,
+  alpha: alpha,
+);
 
-/// Get tool parameters
-List<MCPParameter> mcpGetToolParameters({required MCPTool tool}) =>
-    RustLib.instance.api.crateApiMcpGetToolParameters(tool: tool);
+/// Chi-squared test
+Future<HypothesisTestResult> chiSquaredTest({
+  required List<double> observed,
+  required List<double> expected,
+  required double alpha,
+}) => RustLib.instance.api.crateApiChiSquaredTest(
+  observed: observed,
+  expected: expected,
+  alpha: alpha,
+);
 
-/// A cluster of embedding IDs
-class EmbeddingCluster {
-  /// IDs of embeddings in this cluster
-  final List<String> ids;
+/// One-sample z-test (known population standard deviation)
+Future<HypothesisTestResult> zTest({
+  required List<double> data,
+  required double hypothesizedMean,
+  required double populationStd,
+  required double alpha,
+}) => RustLib.instance.api.crateApiZTest(
+  data: data,
+  hypothesizedMean: hypothesizedMean,
+  populationStd: populationStd,
+  alpha: alpha,
+);
 
-  const EmbeddingCluster({required this.ids});
+/// Two-sample z-test (known population standard deviations)
+Future<HypothesisTestResult> twoSampleZTest({
+  required List<double> data1,
+  required List<double> data2,
+  required double std1,
+  required double std2,
+  required double alpha,
+}) => RustLib.instance.api.crateApiTwoSampleZTest(
+  data1: data1,
+  data2: data2,
+  std1: std1,
+  std2: std2,
+  alpha: alpha,
+);
 
-  @override
-  int get hashCode => ids.hashCode;
+/// One-way ANOVA (Analysis of Variance)
+Future<HypothesisTestResult> anova({
+  required List<Float64List> groups,
+  required double alpha,
+}) => RustLib.instance.api.crateApiAnova(groups: groups, alpha: alpha);
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is EmbeddingCluster &&
-          runtimeType == other.runtimeType &&
-          ids == other.ids;
-}
+/// Correlation and covariance
+Future<CorrelationResult> correlationCovariance({
+  required List<double> x,
+  required List<double> y,
+}) => RustLib.instance.api.crateApiCorrelationCovariance(x: x, y: y);
 
-/// Combined result of knowledge graph analysis
-class KnowledgeGraphAnalysis {
-  /// Cluster assignments for each note
-  final ClusteringResult clustering;
+/// Advanced Hypothesis Tests
+Future<HypothesisTestResult> fTest({
+  required List<double> data1,
+  required List<double> data2,
+  required double alpha,
+}) => RustLib.instance.api.crateApiFTest(
+  data1: data1,
+  data2: data2,
+  alpha: alpha,
+);
 
-  /// Discovered semantic edges
-  final SemanticEdgeResult semanticEdges;
+Future<HypothesisTestResult> mannWhitneyU({
+  required List<double> data1,
+  required List<double> data2,
+  required double alpha,
+}) => RustLib.instance.api.crateApiMannWhitneyU(
+  data1: data1,
+  data2: data2,
+  alpha: alpha,
+);
 
-  const KnowledgeGraphAnalysis({
-    required this.clustering,
-    required this.semanticEdges,
-  });
+Future<HypothesisTestResult> binomialTest({
+  required BigInt successes,
+  required BigInt trials,
+  required double expectedP,
+  required double alpha,
+}) => RustLib.instance.api.crateApiBinomialTest(
+  successes: successes,
+  trials: trials,
+  expectedP: expectedP,
+  alpha: alpha,
+);
 
-  @override
-  int get hashCode => clustering.hashCode ^ semanticEdges.hashCode;
+Future<HypothesisTestResult> durbinWatsonTest({
+  required List<double> residuals,
+}) => RustLib.instance.api.crateApiDurbinWatsonTest(residuals: residuals);
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is KnowledgeGraphAnalysis &&
-          runtimeType == other.runtimeType &&
-          clustering == other.clustering &&
-          semanticEdges == other.semanticEdges;
-}
+/// Confidence interval for mean
+Future<ConfidenceIntervalResult> confidenceIntervalMean({
+  required List<double> data,
+  required double confidenceLevel,
+}) => RustLib.instance.api.crateApiConfidenceIntervalMean(
+  data: data,
+  confidenceLevel: confidenceLevel,
+);
 
-/// Statistics about the streaming graph
-class StreamGraphStats {
-  final BigInt nodeCount;
-  final BigInt edgeCount;
-  final BigInt visibleCount;
+/// Confidence interval for proportion
+ConfidenceIntervalResult confidenceIntervalProportion({
+  required BigInt successes,
+  required BigInt n,
+  required double confidenceLevel,
+}) => RustLib.instance.api.crateApiConfidenceIntervalProportion(
+  successes: successes,
+  n: n,
+  confidenceLevel: confidenceLevel,
+);
 
-  const StreamGraphStats({
-    required this.nodeCount,
-    required this.edgeCount,
-    required this.visibleCount,
-  });
+/// Confidence interval for variance
+Future<ConfidenceIntervalResult> confidenceIntervalVariance({
+  required List<double> data,
+  required double confidenceLevel,
+}) => RustLib.instance.api.crateApiConfidenceIntervalVariance(
+  data: data,
+  confidenceLevel: confidenceLevel,
+);
 
-  @override
-  int get hashCode =>
-      nodeCount.hashCode ^ edgeCount.hashCode ^ visibleCount.hashCode;
+/// Check primality using Miller-Rabin
+bool isPrime({required BigInt n}) => RustLib.instance.api.crateApiIsPrime(n: n);
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is StreamGraphStats &&
-          runtimeType == other.runtimeType &&
-          nodeCount == other.nodeCount &&
-          edgeCount == other.edgeCount &&
-          visibleCount == other.visibleCount;
-}
+/// Compute GCD
+BigInt gcd({required BigInt a, required BigInt b}) =>
+    RustLib.instance.api.crateApiGcd(a: a, b: b);
+
+/// Compute LCM
+BigInt lcm({required BigInt a, required BigInt b}) =>
+    RustLib.instance.api.crateApiLcm(a: a, b: b);
+
+/// Compute combinations nCr
+DiscreteResult combinations({required BigInt n, required BigInt r}) =>
+    RustLib.instance.api.crateApiCombinations(n: n, r: r);
+
+/// Compute permutations nPr
+DiscreteResult permutations({required BigInt n, required BigInt r}) =>
+    RustLib.instance.api.crateApiPermutations(n: n, r: r);
+
+/// Compute factorial
+DiscreteResult factorial({required BigInt n}) =>
+    RustLib.instance.api.crateApiFactorial(n: n);
+
+/// Modular exponentiation (a^b mod m)
+DiscreteResult modPow({
+  required BigInt base,
+  required BigInt exp,
+  required BigInt modulus,
+}) =>
+    RustLib.instance.api.crateApiModPow(base: base, exp: exp, modulus: modulus);
+
+/// Modular inverse
+DiscreteResult modInverse({required BigInt a, required BigInt m}) =>
+    RustLib.instance.api.crateApiModInverse(a: a, m: m);
+
+/// Modular addition
+DiscreteResult modAdd({
+  required BigInt a,
+  required BigInt b,
+  required BigInt m,
+}) => RustLib.instance.api.crateApiModAdd(a: a, b: b, m: m);
+
+/// Modular subtraction
+DiscreteResult modSub({
+  required BigInt a,
+  required BigInt b,
+  required BigInt m,
+}) => RustLib.instance.api.crateApiModSub(a: a, b: b, m: m);
+
+/// Modular multiplication
+DiscreteResult modMultiply({
+  required BigInt a,
+  required BigInt b,
+  required BigInt m,
+}) => RustLib.instance.api.crateApiModMultiply(a: a, b: b, m: m);
+
+/// Modular division
+DiscreteResult modDivide({
+  required BigInt a,
+  required BigInt b,
+  required BigInt m,
+}) => RustLib.instance.api.crateApiModDivide(a: a, b: b, m: m);
+
+/// Prime factorization
+DiscreteResult primeFactors({required BigInt n}) =>
+    RustLib.instance.api.crateApiPrimeFactors(n: n);
+
+/// Generate primes up to n (sieve)
+Future<DiscreteResult> sievePrimes({required BigInt n}) =>
+    RustLib.instance.api.crateApiSievePrimes(n: n);
+
+/// Nth Fibonacci number
+DiscreteResult fibonacci({required BigInt n}) =>
+    RustLib.instance.api.crateApiFibonacci(n: n);
+
+/// Euler's totient function
+DiscreteResult eulerTotient({required BigInt n}) =>
+    RustLib.instance.api.crateApiEulerTotient(n: n);
+
+/// Get divisors of a number
+DiscreteResult listDivisors({required BigInt n}) =>
+    RustLib.instance.api.crateApiListDivisors(n: n);
+
+/// Catalan number
+DiscreteResult catalan({required BigInt n}) =>
+    RustLib.instance.api.crateApiCatalan(n: n);
+
+/// Check if number is perfect (sum of proper divisors equals number)
+DiscreteResult isPerfect({required BigInt n}) =>
+    RustLib.instance.api.crateApiIsPerfect(n: n);
+
+/// Generate a classical sequence (arithmetic, geometric, triangular, polygonal)
+Future<List<String>> generateClassicalSequence({
+  required String seqType,
+  required double a,
+  required double dOrR,
+  required int n,
+  required BigInt s,
+}) => RustLib.instance.api.crateApiGenerateClassicalSequence(
+  seqType: seqType,
+  a: a,
+  dOrR: dOrR,
+  n: n,
+  s: s,
+);
+
+/// Generate a number-theoretic sequence (mersenne, lucas, pell)
+Future<List<String>> generateNumberTheoreticSequence({
+  required String seqType,
+  required int n,
+}) => RustLib.instance.api.crateApiGenerateNumberTheoreticSequence(
+  seqType: seqType,
+  n: n,
+);
+
+/// Generate a combinatorial sequence (stirling1_row, partition)
+Future<List<String>> generateCombinatorialSequence({
+  required String seqType,
+  required int n,
+}) => RustLib.instance.api.crateApiGenerateCombinatorialSequence(
+  seqType: seqType,
+  n: n,
+);
+
+/// Generate an analytical sequence (harmonic, bernoulli, euler)
+Future<Float64List> generateAnalyticalSequence({
+  required String seqType,
+  required int n,
+}) => RustLib.instance.api.crateApiGenerateAnalyticalSequence(
+  seqType: seqType,
+  n: n,
+);
+
+/// Convert between units
+UnitResult convertUnit({
+  required double value,
+  required String fromUnit,
+  required String toUnit,
+}) => RustLib.instance.api.crateApiConvertUnit(
+  value: value,
+  fromUnit: fromUnit,
+  toUnit: toUnit,
+);
+
+/// Get available units for a category
+List<String> getUnitsForCategory({required String category}) =>
+    RustLib.instance.api.crateApiGetUnitsForCategory(category: category);
+
+/// Get all unit categories
+List<String> getUnitCategories() =>
+    RustLib.instance.api.crateApiGetUnitCategories();
+
+/// Convert to all units in same category
+List<UnitResult> convertToAllUnits({
+  required double value,
+  required String fromUnit,
+}) => RustLib.instance.api.crateApiConvertToAllUnits(
+  value: value,
+  fromUnit: fromUnit,
+);
+
+/// Evaluate a function over a range for graphing
+/// Uses rayon for parallel evaluation - extremely fast
+Future<GraphResult> evaluateGraphPoints({
+  required String expression,
+  required String variable,
+  required List<double> xValues,
+}) => RustLib.instance.api.crateApiEvaluateGraphPoints(
+  expression: expression,
+  variable: variable,
+  xValues: xValues,
+);
+
+/// Generate x values for a range
+Float64List generateXRange({
+  required double start,
+  required double end,
+  required BigInt numPoints,
+}) => RustLib.instance.api.crateApiGenerateXRange(
+  start: start,
+  end: end,
+  numPoints: numPoints,
+);
+
+/// Find function roots in a range
+Future<Float64List> findGraphRoots({
+  required String expression,
+  required String variable,
+  required double xMin,
+  required double xMax,
+  required BigInt numSamples,
+}) => RustLib.instance.api.crateApiFindGraphRoots(
+  expression: expression,
+  variable: variable,
+  xMin: xMin,
+  xMax: xMax,
+  numSamples: numSamples,
+);
+
+/// Find local extrema (maxima/minima) in a range
+Future<(List<(double, double)>, List<(double, double)>)> findExtrema({
+  required String expression,
+  required String variable,
+  required double xMin,
+  required double xMax,
+  required BigInt numSamples,
+}) => RustLib.instance.api.crateApiFindExtrema(
+  expression: expression,
+  variable: variable,
+  xMin: xMin,
+  xMax: xMax,
+  numSamples: numSamples,
+);
+
+/// Compute derivative graph
+Future<GraphResult> derivativeGraph({
+  required String expression,
+  required String variable,
+  required List<double> xValues,
+}) => RustLib.instance.api.crateApiDerivativeGraph(
+  expression: expression,
+  variable: variable,
+  xValues: xValues,
+);
+
+/// Compute integral graph (cumulative)
+Future<GraphResult> integralGraph({
+  required String expression,
+  required String variable,
+  required List<double> xValues,
+  required double initialValue,
+}) => RustLib.instance.api.crateApiIntegralGraph(
+  expression: expression,
+  variable: variable,
+  xValues: xValues,
+  initialValue: initialValue,
+);
+
+/// Parse a custom formula and extract variables
+List<String> parseFormula({required String formula}) =>
+    RustLib.instance.api.crateApiParseFormula(formula: formula);
+
+/// Evaluate a custom formula with given variable values
+ExpressionResult evaluateFormula({
+  required String formula,
+  required List<String> variables,
+  required List<double> values,
+}) => RustLib.instance.api.crateApiEvaluateFormula(
+  formula: formula,
+  variables: variables,
+  values: values,
+);
