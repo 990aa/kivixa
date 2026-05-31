@@ -775,6 +775,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Arbitrary Order Derivatives**: Math module now supports any positive integer order for computing standard derivatives and partial derivatives in the calculus section.
 - **New Statistical Distributions**: Added support for evaluating PDF, CDF, mean, and variance of Log-Normal, Laplace, Logistic, Pareto, and Rayleigh distributions.
 - **Math Module Documentation**: Added comprehensive documentation describing the complete suite of math capabilities in `docs/math_module_details.md`.
+- **Symbolic Calculus**: Added support for symbolic differentiation and integration, returning algebraic expressions (e.g. `2x` for `x^2`).
+- **Advanced Statistical Tests**: Added F-Test for Variances, Mann-Whitney U Test, Binomial Test, and Durbin-Watson Test to the Hypothesis tab.
+- **Discrete Sequence Generators**: New sequence generation tool supporting Classical (Arithmetic, Geometric, Triangular, Polygonal), Number-Theoretic (Mersenne, Lucas, Pell), Combinatorial (Stirling, Partition), and Analytical (Harmonic, Bernoulli, Euler) sequences.
 
 ### Changed
 - **Statistics Engine Migration**: Transitioned front-end Flutter statistics computations to the Rust `native_math` backend for improved performance and consistency.
