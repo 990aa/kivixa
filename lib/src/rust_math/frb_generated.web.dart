@@ -81,6 +81,9 @@ abstract class MathRustLibApiImplPlatform extends BaseApiImpl<MathRustLibWire> {
   List<String> dco_decode_list_String(dynamic raw);
 
   @protected
+  List<CalculusResult> dco_decode_list_calculus_result(dynamic raw);
+
+  @protected
   List<GraphPoint> dco_decode_list_graph_point(dynamic raw);
 
   @protected
@@ -224,6 +227,11 @@ abstract class MathRustLibApiImplPlatform extends BaseApiImpl<MathRustLibWire> {
 
   @protected
   List<String> sse_decode_list_String(SseDeserializer deserializer);
+
+  @protected
+  List<CalculusResult> sse_decode_list_calculus_result(
+    SseDeserializer deserializer,
+  );
 
   @protected
   List<GraphPoint> sse_decode_list_graph_point(SseDeserializer deserializer);
@@ -486,6 +494,12 @@ abstract class MathRustLibApiImplPlatform extends BaseApiImpl<MathRustLibWire> {
   JSAny cst_encode_list_String(List<String> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_String).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_calculus_result(List<CalculusResult> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_calculus_result).toList().jsify()!;
   }
 
   @protected
@@ -772,6 +786,12 @@ abstract class MathRustLibApiImplPlatform extends BaseApiImpl<MathRustLibWire> {
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_calculus_result(
+    List<CalculusResult> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_graph_point(
     List<GraphPoint> self,
     SseSerializer serializer,
@@ -923,6 +943,20 @@ class MathRustLibWire implements BaseWire {
     JSAny groups,
     double alpha,
   ) => wasmModule.wire__crate__api__anova(port_, groups, alpha);
+
+  void wire__crate__api__binomial_test(
+    NativePortType port_,
+    JSAny successes,
+    JSAny trials,
+    double expected_p,
+    double alpha,
+  ) => wasmModule.wire__crate__api__binomial_test(
+    port_,
+    successes,
+    trials,
+    expected_p,
+    alpha,
+  );
 
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__catalan(JSAny n) => wasmModule.wire__crate__api__catalan(n);
@@ -1100,6 +1134,11 @@ class MathRustLibWire implements BaseWire {
     num_intervals,
   );
 
+  void wire__crate__api__durbin_watson_test(
+    NativePortType port_,
+    JSAny residuals,
+  ) => wasmModule.wire__crate__api__durbin_watson_test(port_, residuals);
+
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__euler_totient(JSAny n) =>
       wasmModule.wire__crate__api__euler_totient(n);
@@ -1127,6 +1166,13 @@ class MathRustLibWire implements BaseWire {
     variable,
     x_values,
   );
+
+  void wire__crate__api__f_test(
+    NativePortType port_,
+    JSAny data1,
+    JSAny data2,
+    double alpha,
+  ) => wasmModule.wire__crate__api__f_test(port_, data1, data2, alpha);
 
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__factorial(JSAny n) =>
@@ -1187,6 +1233,52 @@ class MathRustLibWire implements BaseWire {
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__gcd(JSAny a, JSAny b) =>
       wasmModule.wire__crate__api__gcd(a, b);
+
+  void wire__crate__api__generate_analytical_sequence(
+    NativePortType port_,
+    String seq_type,
+    int n,
+  ) => wasmModule.wire__crate__api__generate_analytical_sequence(
+    port_,
+    seq_type,
+    n,
+  );
+
+  void wire__crate__api__generate_classical_sequence(
+    NativePortType port_,
+    String seq_type,
+    double a,
+    double d_or_r,
+    int n,
+    JSAny s,
+  ) => wasmModule.wire__crate__api__generate_classical_sequence(
+    port_,
+    seq_type,
+    a,
+    d_or_r,
+    n,
+    s,
+  );
+
+  void wire__crate__api__generate_combinatorial_sequence(
+    NativePortType port_,
+    String seq_type,
+    int n,
+  ) => wasmModule.wire__crate__api__generate_combinatorial_sequence(
+    port_,
+    seq_type,
+    n,
+  );
+
+  void wire__crate__api__generate_number_theoretic_sequence(
+    NativePortType port_,
+    String seq_type,
+    int n,
+  ) => wasmModule.wire__crate__api__generate_number_theoretic_sequence(
+    port_,
+    seq_type,
+    n,
+  );
 
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__generate_x_range(
@@ -1293,6 +1385,13 @@ class MathRustLibWire implements BaseWire {
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__list_divisors(JSAny n) =>
       wasmModule.wire__crate__api__list_divisors(n);
+
+  void wire__crate__api__mann_whitney_u(
+    NativePortType port_,
+    JSAny data1,
+    JSAny data2,
+    double alpha,
+  ) => wasmModule.wire__crate__api__mann_whitney_u(port_, data1, data2, alpha);
 
   void wire__crate__api__matrix_decomposition(
     NativePortType port_,
@@ -1437,6 +1536,38 @@ class MathRustLibWire implements BaseWire {
     max_iterations,
   );
 
+  void wire__crate__api__symbolic_differentiate(
+    NativePortType port_,
+    String expression,
+    String variable,
+    int order,
+  ) => wasmModule.wire__crate__api__symbolic_differentiate(
+    port_,
+    expression,
+    variable,
+    order,
+  );
+
+  void wire__crate__api__symbolic_gradient(
+    NativePortType port_,
+    String expression,
+    JSAny variables,
+  ) => wasmModule.wire__crate__api__symbolic_gradient(
+    port_,
+    expression,
+    variables,
+  );
+
+  void wire__crate__api__symbolic_integrate(
+    NativePortType port_,
+    String expression,
+    JSAny variables,
+  ) => wasmModule.wire__crate__api__symbolic_integrate(
+    port_,
+    expression,
+    variables,
+  );
+
   void wire__crate__api__t_test(
     NativePortType port_,
     JSAny data,
@@ -1543,6 +1674,14 @@ extension type MathRustLibWasmModule._(JSObject _) implements JSObject {
   external void wire__crate__api__anova(
     NativePortType port_,
     JSAny groups,
+    double alpha,
+  );
+
+  external void wire__crate__api__binomial_test(
+    NativePortType port_,
+    JSAny successes,
+    JSAny trials,
+    double expected_p,
     double alpha,
   );
 
@@ -1661,6 +1800,11 @@ extension type MathRustLibWasmModule._(JSObject _) implements JSObject {
     int num_intervals,
   );
 
+  external void wire__crate__api__durbin_watson_test(
+    NativePortType port_,
+    JSAny residuals,
+  );
+
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__euler_totient(JSAny n);
 
@@ -1679,6 +1823,13 @@ extension type MathRustLibWasmModule._(JSObject _) implements JSObject {
     String expression,
     String variable,
     JSAny x_values,
+  );
+
+  external void wire__crate__api__f_test(
+    NativePortType port_,
+    JSAny data1,
+    JSAny data2,
+    double alpha,
   );
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
@@ -1716,6 +1867,33 @@ extension type MathRustLibWasmModule._(JSObject _) implements JSObject {
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__gcd(JSAny a, JSAny b);
+
+  external void wire__crate__api__generate_analytical_sequence(
+    NativePortType port_,
+    String seq_type,
+    int n,
+  );
+
+  external void wire__crate__api__generate_classical_sequence(
+    NativePortType port_,
+    String seq_type,
+    double a,
+    double d_or_r,
+    int n,
+    JSAny s,
+  );
+
+  external void wire__crate__api__generate_combinatorial_sequence(
+    NativePortType port_,
+    String seq_type,
+    int n,
+  );
+
+  external void wire__crate__api__generate_number_theoretic_sequence(
+    NativePortType port_,
+    String seq_type,
+    int n,
+  );
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__generate_x_range(
@@ -1787,6 +1965,13 @@ extension type MathRustLibWasmModule._(JSObject _) implements JSObject {
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__list_divisors(JSAny n);
+
+  external void wire__crate__api__mann_whitney_u(
+    NativePortType port_,
+    JSAny data1,
+    JSAny data2,
+    double alpha,
+  );
 
   external void wire__crate__api__matrix_decomposition(
     NativePortType port_,
@@ -1880,6 +2065,25 @@ extension type MathRustLibWasmModule._(JSObject _) implements JSObject {
     double initial_guess,
     double tolerance,
     int max_iterations,
+  );
+
+  external void wire__crate__api__symbolic_differentiate(
+    NativePortType port_,
+    String expression,
+    String variable,
+    int order,
+  );
+
+  external void wire__crate__api__symbolic_gradient(
+    NativePortType port_,
+    String expression,
+    JSAny variables,
+  );
+
+  external void wire__crate__api__symbolic_integrate(
+    NativePortType port_,
+    String expression,
+    JSAny variables,
   );
 
   external void wire__crate__api__t_test(

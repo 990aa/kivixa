@@ -78,6 +78,9 @@ abstract class MathRustLibApiImplPlatform extends BaseApiImpl<MathRustLibWire> {
   List<String> dco_decode_list_String(dynamic raw);
 
   @protected
+  List<CalculusResult> dco_decode_list_calculus_result(dynamic raw);
+
+  @protected
   List<GraphPoint> dco_decode_list_graph_point(dynamic raw);
 
   @protected
@@ -223,6 +226,11 @@ abstract class MathRustLibApiImplPlatform extends BaseApiImpl<MathRustLibWire> {
   List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
+  List<CalculusResult> sse_decode_list_calculus_result(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<GraphPoint> sse_decode_list_graph_point(SseDeserializer deserializer);
 
   @protected
@@ -357,6 +365,18 @@ abstract class MathRustLibApiImplPlatform extends BaseApiImpl<MathRustLibWire> {
     final ans = wire.cst_new_list_String(raw.length);
     for (var i = 0; i < raw.length; ++i) {
       ans.ref.ptr[i] = cst_encode_String(raw[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_calculus_result> cst_encode_list_calculus_result(
+    List<CalculusResult> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_calculus_result(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_calculus_result(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
@@ -835,6 +855,12 @@ abstract class MathRustLibApiImplPlatform extends BaseApiImpl<MathRustLibWire> {
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_calculus_result(
+    List<CalculusResult> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_graph_point(
     List<GraphPoint> self,
     SseSerializer serializer,
@@ -1039,6 +1065,38 @@ class MathRustLibWire implements BaseWire {
           double,
         )
       >();
+
+  void wire__crate__api__binomial_test(
+    int port_,
+    int successes,
+    int trials,
+    double expected_p,
+    double alpha,
+  ) {
+    return _wire__crate__api__binomial_test(
+      port_,
+      successes,
+      trials,
+      expected_p,
+      alpha,
+    );
+  }
+
+  late final _wire__crate__api__binomial_testPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Uint64,
+            ffi.Double,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__binomial_test');
+  late final _wire__crate__api__binomial_test =
+      _wire__crate__api__binomial_testPtr
+          .asFunction<void Function(int, int, int, double, double)>();
 
   WireSyncRust2DartDco wire__crate__api__catalan(int n) {
     return _wire__crate__api__catalan(n);
@@ -1588,6 +1646,28 @@ class MathRustLibWire implements BaseWire {
             )
           >();
 
+  void wire__crate__api__durbin_watson_test(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> residuals,
+  ) {
+    return _wire__crate__api__durbin_watson_test(port_, residuals);
+  }
+
+  late final _wire__crate__api__durbin_watson_testPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__durbin_watson_test');
+  late final _wire__crate__api__durbin_watson_test =
+      _wire__crate__api__durbin_watson_testPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_f_64_loose>)
+          >();
+
   WireSyncRust2DartDco wire__crate__api__euler_totient(int n) {
     return _wire__crate__api__euler_totient(n);
   }
@@ -1685,6 +1765,36 @@ class MathRustLibWire implements BaseWire {
               ffi.Pointer<wire_cst_list_prim_f_64_loose>,
             )
           >();
+
+  void wire__crate__api__f_test(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data1,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data2,
+    double alpha,
+  ) {
+    return _wire__crate__api__f_test(port_, data1, data2, alpha);
+  }
+
+  late final _wire__crate__api__f_testPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__f_test');
+  late final _wire__crate__api__f_test = _wire__crate__api__f_testPtr
+      .asFunction<
+        void Function(
+          int,
+          ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+          ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+          double,
+        )
+      >();
 
   WireSyncRust2DartDco wire__crate__api__factorial(int n) {
     return _wire__crate__api__factorial(n);
@@ -1852,6 +1962,130 @@ class MathRustLibWire implements BaseWire {
       >('frbgen_kivixa_wire__crate__api__gcd');
   late final _wire__crate__api__gcd = _wire__crate__api__gcdPtr
       .asFunction<WireSyncRust2DartDco Function(int, int)>();
+
+  void wire__crate__api__generate_analytical_sequence(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> seq_type,
+    int n,
+  ) {
+    return _wire__crate__api__generate_analytical_sequence(port_, seq_type, n);
+  }
+
+  late final _wire__crate__api__generate_analytical_sequencePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Uint32,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__generate_analytical_sequence');
+  late final _wire__crate__api__generate_analytical_sequence =
+      _wire__crate__api__generate_analytical_sequencePtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>, int)
+          >();
+
+  void wire__crate__api__generate_classical_sequence(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> seq_type,
+    double a,
+    double d_or_r,
+    int n,
+    int s,
+  ) {
+    return _wire__crate__api__generate_classical_sequence(
+      port_,
+      seq_type,
+      a,
+      d_or_r,
+      n,
+      s,
+    );
+  }
+
+  late final _wire__crate__api__generate_classical_sequencePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Double,
+            ffi.Double,
+            ffi.Uint32,
+            ffi.Uint64,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__generate_classical_sequence');
+  late final _wire__crate__api__generate_classical_sequence =
+      _wire__crate__api__generate_classical_sequencePtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              double,
+              double,
+              int,
+              int,
+            )
+          >();
+
+  void wire__crate__api__generate_combinatorial_sequence(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> seq_type,
+    int n,
+  ) {
+    return _wire__crate__api__generate_combinatorial_sequence(
+      port_,
+      seq_type,
+      n,
+    );
+  }
+
+  late final _wire__crate__api__generate_combinatorial_sequencePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Uint32,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__generate_combinatorial_sequence');
+  late final _wire__crate__api__generate_combinatorial_sequence =
+      _wire__crate__api__generate_combinatorial_sequencePtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>, int)
+          >();
+
+  void wire__crate__api__generate_number_theoretic_sequence(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> seq_type,
+    int n,
+  ) {
+    return _wire__crate__api__generate_number_theoretic_sequence(
+      port_,
+      seq_type,
+      n,
+    );
+  }
+
+  late final _wire__crate__api__generate_number_theoretic_sequencePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Uint32,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__generate_number_theoretic_sequence');
+  late final _wire__crate__api__generate_number_theoretic_sequence =
+      _wire__crate__api__generate_number_theoretic_sequencePtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>, int)
+          >();
 
   WireSyncRust2DartDco wire__crate__api__generate_x_range(
     double start,
@@ -2177,6 +2411,37 @@ class MathRustLibWire implements BaseWire {
   late final _wire__crate__api__list_divisors =
       _wire__crate__api__list_divisorsPtr
           .asFunction<WireSyncRust2DartDco Function(int)>();
+
+  void wire__crate__api__mann_whitney_u(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data1,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data2,
+    double alpha,
+  ) {
+    return _wire__crate__api__mann_whitney_u(port_, data1, data2, alpha);
+  }
+
+  late final _wire__crate__api__mann_whitney_uPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__mann_whitney_u');
+  late final _wire__crate__api__mann_whitney_u =
+      _wire__crate__api__mann_whitney_uPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              double,
+            )
+          >();
 
   void wire__crate__api__matrix_decomposition(
     int port_,
@@ -2628,6 +2893,98 @@ class MathRustLibWire implements BaseWire {
             )
           >();
 
+  void wire__crate__api__symbolic_differentiate(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> variable,
+    int order,
+  ) {
+    return _wire__crate__api__symbolic_differentiate(
+      port_,
+      expression,
+      variable,
+      order,
+    );
+  }
+
+  late final _wire__crate__api__symbolic_differentiatePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Uint32,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__symbolic_differentiate');
+  late final _wire__crate__api__symbolic_differentiate =
+      _wire__crate__api__symbolic_differentiatePtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              int,
+            )
+          >();
+
+  void wire__crate__api__symbolic_gradient(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_String> variables,
+  ) {
+    return _wire__crate__api__symbolic_gradient(port_, expression, variables);
+  }
+
+  late final _wire__crate__api__symbolic_gradientPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_String>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__symbolic_gradient');
+  late final _wire__crate__api__symbolic_gradient =
+      _wire__crate__api__symbolic_gradientPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_String>,
+            )
+          >();
+
+  void wire__crate__api__symbolic_integrate(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_String> variables,
+  ) {
+    return _wire__crate__api__symbolic_integrate(port_, expression, variables);
+  }
+
+  late final _wire__crate__api__symbolic_integratePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_String>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__symbolic_integrate');
+  late final _wire__crate__api__symbolic_integrate =
+      _wire__crate__api__symbolic_integratePtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_String>,
+            )
+          >();
+
   void wire__crate__api__t_test(
     int port_,
     ffi.Pointer<wire_cst_list_prim_f_64_loose> data,
@@ -2926,6 +3283,21 @@ class MathRustLibWire implements BaseWire {
   late final _cst_new_list_String = _cst_new_list_StringPtr
       .asFunction<ffi.Pointer<wire_cst_list_String> Function(int)>();
 
+  ffi.Pointer<wire_cst_list_calculus_result> cst_new_list_calculus_result(
+    int len,
+  ) {
+    return _cst_new_list_calculus_result(len);
+  }
+
+  late final _cst_new_list_calculus_resultPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_calculus_result> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_calculus_result');
+  late final _cst_new_list_calculus_result = _cst_new_list_calculus_resultPtr
+      .asFunction<ffi.Pointer<wire_cst_list_calculus_result> Function(int)>();
+
   ffi.Pointer<wire_cst_list_graph_point> cst_new_list_graph_point(int len) {
     return _cst_new_list_graph_point(len);
   }
@@ -3145,6 +3517,25 @@ final class wire_cst_list_record_string_f_64 extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_calculus_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  @ffi.Double()
+  external double value;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> symbolic;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+}
+
+final class wire_cst_list_calculus_result extends ffi.Struct {
+  external ffi.Pointer<wire_cst_calculus_result> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_graph_point extends ffi.Struct {
   @ffi.Double()
   external double x;
@@ -3230,18 +3621,6 @@ final class wire_cst_list_unit_result extends ffi.Struct {
 
   @ffi.Int32()
   external int len;
-}
-
-final class wire_cst_calculus_result extends ffi.Struct {
-  @ffi.Bool()
-  external bool success;
-
-  @ffi.Double()
-  external double value;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> symbolic;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
 }
 
 final class wire_cst_complex_result extends ffi.Struct {
