@@ -5,7 +5,7 @@ import 'package:kivixa/services/productivity/chained_routine_service.dart';
 void main() {
   group('RoutineBlock & ChainedRoutine Model Tests', () {
     test('RoutineBlock initialization and duration calculation', () {
-      final block = const RoutineBlock(
+      const block = RoutineBlock(
         name: 'Focus',
         durationMinutes: 25,
         durationSeconds: 30,
@@ -18,7 +18,7 @@ void main() {
     });
 
     test('RoutineBlock JSON serialization and deserialization', () {
-      final block = const RoutineBlock(
+      const block = RoutineBlock(
         name: 'Break',
         durationMinutes: 5,
         durationSeconds: 15,
@@ -39,17 +39,17 @@ void main() {
     });
 
     test('ChainedRoutine total duration calculation', () {
-      final routine = const ChainedRoutine(
+      const routine = ChainedRoutine(
         id: 'r1',
         name: 'Morning Routine',
         blocks: [
-          const RoutineBlock(
+          RoutineBlock(
             name: 'Block 1',
             durationMinutes: 10,
             durationSeconds: 30,
             color: Colors.red,
           ),
-          const RoutineBlock(
+          RoutineBlock(
             name: 'Block 2',
             durationMinutes: 5,
             durationSeconds: 15,
