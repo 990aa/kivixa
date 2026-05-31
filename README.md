@@ -42,10 +42,10 @@ The download links are **dynamically fetched** from the GitHub Releases API, so 
 
 ```bash
 # Install dependencies
-npm install
+bun install
 
 # Start the dev server
-npm run dev
+bun run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to see the site.
@@ -53,8 +53,8 @@ Open [http://localhost:3000](http://localhost:3000) to see the site.
 ### Build for Production
 
 ```bash
-npm run build
-npm start
+bun run build
+bun run start
 ```
 
 ## Dynamic Release Data
@@ -76,8 +76,8 @@ If the API is unreachable, hardcoded fallback URLs are used.
 
 ```bash
 # Run E2E tests (requires dev server running)
-npm run dev &
-npm run test:e2e
+bun run dev &
+bun run test:e2e
 ```
 
 ### Test Coverage
