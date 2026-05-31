@@ -548,3 +548,170 @@ pub fn is_perfect(n: u64) -> DiscreteResult {
     let sum = sum_divisors(n);
     DiscreteResult::bool_val(sum.value - n == n)
 }
+
+// Classical Sequences
+
+pub fn arithmetic_sequence(a: f64, d: f64, n: u32) -> Vec<f64> {
+    (0..n).map(|i| a + (i as f64) * d).collect()
+}
+
+pub fn geometric_sequence(a: f64, r: f64, n: u32) -> Vec<f64> {
+    (0..n).map(|i| a * r.powi(i as i32)).collect()
+}
+
+pub fn triangular_sequence(n: u32) -> Vec<String> {
+    (1..=n)
+        .map(|i| {
+            let i_u = i as u64;
+            let v = i_u * (i_u + 1) / 2;
+            v.to_string()
+        })
+        .collect()
+}
+
+pub fn polygonal_sequence(s: u64, n: u32) -> Vec<String> {
+    if s < 3 {
+        return vec![];
+    }
+    (1..=n)
+        .map(|i| {
+            let i = i as u64;
+            let v = (s - 2) * i * (i - 1) / 2 + i;
+            v.to_string()
+        })
+        .collect()
+}
+
+// Number-Theoretic Sequences
+
+pub fn mersenne_sequence(n: u32) -> Vec<String> {
+    (1..=n)
+        .map(|i| {
+            let mut m = BigUint::one() << (i as usize);
+            m -= BigUint::one();
+            m.to_string()
+        })
+        .collect()
+}
+
+pub fn lucas_sequence(n: u32) -> Vec<String> {
+    if n == 0 {
+        return vec![];
+    }
+    let mut seq = vec![BigUint::from(2u32)];
+    if n == 1 {
+        return seq.into_iter().map(|b| b.to_string()).collect();
+    }
+    seq.push(BigUint::one());
+    for i in 2..n {
+        let next = &seq[i as usize - 1] + &seq[i as usize - 2];
+        seq.push(next);
+    }
+    seq.into_iter().map(|b| b.to_string()).collect()
+}
+
+pub fn pell_sequence(n: u32) -> Vec<String> {
+    if n == 0 {
+        return vec![];
+    }
+    let mut seq = vec![BigUint::zero()];
+    if n == 1 {
+        return seq.into_iter().map(|b| b.to_string()).collect();
+    }
+    seq.push(BigUint::one());
+    for i in 2..n {
+        let next = 2u32 * &seq[i as usize - 1] + &seq[i as usize - 2];
+        seq.push(next);
+    }
+    seq.into_iter().map(|b| b.to_string()).collect()
+}
+
+// Combinatorial Sequences
+
+pub fn stirling1(n: u32, k: u32) -> BigUint {
+    if k > n {
+        return BigUint::zero();
+    }
+    if k == 0 {
+        return if n == 0 {
+            BigUint::one()
+        } else {
+            BigUint::zero()
+        };
+    }
+    if k == n {
+        return BigUint::one();
+    }
+
+    let mut prev = vec![BigUint::zero(); (k + 1) as usize];
+    prev[0] = BigUint::one();
+    for i in 1..=n {
+        let mut curr = vec![BigUint::zero(); (k + 1) as usize];
+        for j in 1..=k.min(i) {
+            let mult = BigUint::from(i - 1);
+            curr[j as usize] = &prev[(j - 1) as usize] + &prev[j as usize] * mult;
+        }
+        prev = curr;
+    }
+    prev[k as usize].clone()
+}
+
+pub fn stirling1_row(n: u32) -> Vec<String> {
+    (0..=n).map(|k| stirling1(n, k).to_string()).collect()
+}
+
+pub fn partition_sequence(n: u32) -> Vec<String> {
+    let mut p = vec![BigUint::zero(); (n + 1) as usize];
+    p[0] = BigUint::one();
+    for i in 1..=n {
+        for j in i..=n {
+            let val = p[(j - i) as usize].clone();
+            p[j as usize] += val;
+        }
+    }
+    p[1..].iter().map(|v| v.to_string()).collect()
+}
+
+// Analytical Sequences
+
+pub fn harmonic_sequence(n: u32) -> Vec<f64> {
+    let mut sum = 0.0;
+    let mut seq = Vec::new();
+    for i in 1..=n {
+        sum += 1.0 / (i as f64);
+        seq.push(sum);
+    }
+    seq
+}
+
+// Generating Bernoulli numbers B_n up to n.
+pub fn bernoulli_sequence(n: u32) -> Vec<f64> {
+    let mut b = vec![0.0; (n + 1) as usize];
+    b[0] = 1.0;
+    for m in 1..=n {
+        b[m as usize] = 0.0;
+        for k in 0..m {
+            let num = combinations(m as u64 + 1, k as u64).value as f64;
+            b[m as usize] -= num * b[k as usize];
+        }
+        b[m as usize] /= m as f64 + 1.0;
+    }
+    b
+}
+
+pub fn euler_sequence(n: u32) -> Vec<f64> {
+    let mut e = vec![0.0; (n + 1) as usize];
+    e[0] = 1.0;
+    for m in 1..=n {
+        if m % 2 != 0 {
+            e[m as usize] = 0.0;
+        } else {
+            e[m as usize] = 0.0;
+            for k in (0..m).step_by(2) {
+                let num = combinations(m as u64, k as u64).value as f64;
+                e[m as usize] -= num * e[k as usize];
+            }
+        }
+    }
+    e
+}
