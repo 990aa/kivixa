@@ -38,7 +38,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.12.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1636446782;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1871710083;
 
 // Section: executor
 
@@ -65,6 +65,44 @@ fn wire__crate__api__anova_impl(
                     (move || async move {
                         let output_ok =
                             Result::<_, ()>::Ok(crate::api::anova(api_groups, api_alpha).await)?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__binomial_test_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    successes: impl CstDecode<u64>,
+    trials: impl CstDecode<u64>,
+    expected_p: impl CstDecode<f64>,
+    alpha: impl CstDecode<f64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "binomial_test",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_successes = successes.cst_decode();
+            let api_trials = trials.cst_decode();
+            let api_expected_p = expected_p.cst_decode();
+            let api_alpha = alpha.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, ()>(
+                    (move || async move {
+                        let output_ok = Result::<_, ()>::Ok(
+                            crate::api::binomial_test(
+                                api_successes,
+                                api_trials,
+                                api_expected_p,
+                                api_alpha,
+                            )
+                            .await,
+                        )?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -614,6 +652,32 @@ fn wire__crate__api__double_integral_impl(
         },
     )
 }
+fn wire__crate__api__durbin_watson_test_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    residuals: impl CstDecode<Vec<f64>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "durbin_watson_test",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_residuals = residuals.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, ()>(
+                    (move || async move {
+                        let output_ok = Result::<_, ()>::Ok(
+                            crate::api::durbin_watson_test(api_residuals).await,
+                        )?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__euler_totient_impl(
     n: impl CstDecode<u64>,
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -703,6 +767,36 @@ fn wire__crate__api__evaluate_graph_points_impl(
                                 api_x_values,
                             )
                             .await,
+                        )?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__f_test_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    data1: impl CstDecode<Vec<f64>>,
+    data2: impl CstDecode<Vec<f64>>,
+    alpha: impl CstDecode<f64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "f_test",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_data1 = data1.cst_decode();
+            let api_data2 = data2.cst_decode();
+            let api_alpha = alpha.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, ()>(
+                    (move || async move {
+                        let output_ok = Result::<_, ()>::Ok(
+                            crate::api::f_test(api_data1, api_data2, api_alpha).await,
                         )?;
                         Ok(output_ok)
                     })()
@@ -888,6 +982,132 @@ fn wire__crate__api__gcd_impl(
                 let output_ok = Result::<_, ()>::Ok(crate::api::gcd(api_a, api_b))?;
                 Ok(output_ok)
             })())
+        },
+    )
+}
+fn wire__crate__api__generate_analytical_sequence_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    seq_type: impl CstDecode<String>,
+    n: impl CstDecode<u32>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "generate_analytical_sequence",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_seq_type = seq_type.cst_decode();
+            let api_n = n.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, ()>(
+                    (move || async move {
+                        let output_ok = Result::<_, ()>::Ok(
+                            crate::api::generate_analytical_sequence(api_seq_type, api_n).await,
+                        )?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__generate_classical_sequence_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    seq_type: impl CstDecode<String>,
+    a: impl CstDecode<f64>,
+    d_or_r: impl CstDecode<f64>,
+    n: impl CstDecode<u32>,
+    s: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "generate_classical_sequence",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_seq_type = seq_type.cst_decode();
+            let api_a = a.cst_decode();
+            let api_d_or_r = d_or_r.cst_decode();
+            let api_n = n.cst_decode();
+            let api_s = s.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, ()>(
+                    (move || async move {
+                        let output_ok = Result::<_, ()>::Ok(
+                            crate::api::generate_classical_sequence(
+                                api_seq_type,
+                                api_a,
+                                api_d_or_r,
+                                api_n,
+                                api_s,
+                            )
+                            .await,
+                        )?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__generate_combinatorial_sequence_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    seq_type: impl CstDecode<String>,
+    n: impl CstDecode<u32>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "generate_combinatorial_sequence",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_seq_type = seq_type.cst_decode();
+            let api_n = n.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, ()>(
+                    (move || async move {
+                        let output_ok = Result::<_, ()>::Ok(
+                            crate::api::generate_combinatorial_sequence(api_seq_type, api_n).await,
+                        )?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__generate_number_theoretic_sequence_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    seq_type: impl CstDecode<String>,
+    n: impl CstDecode<u32>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "generate_number_theoretic_sequence",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_seq_type = seq_type.cst_decode();
+            let api_n = n.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, ()>(
+                    (move || async move {
+                        let output_ok = Result::<_, ()>::Ok(
+                            crate::api::generate_number_theoretic_sequence(api_seq_type, api_n)
+                                .await,
+                        )?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
         },
     )
 }
@@ -1244,6 +1464,36 @@ fn wire__crate__api__list_divisors_impl(
                 let output_ok = Result::<_, ()>::Ok(crate::api::list_divisors(api_n))?;
                 Ok(output_ok)
             })())
+        },
+    )
+}
+fn wire__crate__api__mann_whitney_u_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    data1: impl CstDecode<Vec<f64>>,
+    data2: impl CstDecode<Vec<f64>>,
+    alpha: impl CstDecode<f64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mann_whitney_u",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_data1 = data1.cst_decode();
+            let api_data2 = data2.cst_decode();
+            let api_alpha = alpha.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, ()>(
+                    (move || async move {
+                        let output_ok = Result::<_, ()>::Ok(
+                            crate::api::mann_whitney_u(api_data1, api_data2, api_alpha).await,
+                        )?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
         },
     )
 }
@@ -1751,6 +2001,97 @@ fn wire__crate__api__solve_equation_impl(
         },
     )
 }
+fn wire__crate__api__symbolic_differentiate_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    expression: impl CstDecode<String>,
+    variable: impl CstDecode<String>,
+    order: impl CstDecode<u32>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "symbolic_differentiate",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_expression = expression.cst_decode();
+            let api_variable = variable.cst_decode();
+            let api_order = order.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, ()>(
+                    (move || async move {
+                        let output_ok = Result::<_, ()>::Ok(
+                            crate::api::symbolic_differentiate(
+                                api_expression,
+                                api_variable,
+                                api_order,
+                            )
+                            .await,
+                        )?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__symbolic_gradient_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    expression: impl CstDecode<String>,
+    variables: impl CstDecode<Vec<String>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "symbolic_gradient",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_expression = expression.cst_decode();
+            let api_variables = variables.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, ()>(
+                    (move || async move {
+                        let output_ok = Result::<_, ()>::Ok(
+                            crate::api::symbolic_gradient(api_expression, api_variables).await,
+                        )?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__symbolic_integrate_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    expression: impl CstDecode<String>,
+    variables: impl CstDecode<Vec<String>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "symbolic_integrate",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_expression = expression.cst_decode();
+            let api_variables = variables.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, ()>(
+                    (move || async move {
+                        let output_ok = Result::<_, ()>::Ok(
+                            crate::api::symbolic_integrate(api_expression, api_variables).await,
+                        )?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__t_test_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     data: impl CstDecode<Vec<f64>>,
@@ -2247,6 +2588,18 @@ impl SseDecode for Vec<String> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<String>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::calculus::CalculusResult> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::calculus::CalculusResult>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -3136,6 +3489,16 @@ impl SseEncode for Vec<String> {
     }
 }
 
+impl SseEncode for Vec<crate::calculus::CalculusResult> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::calculus::CalculusResult>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::graphing::GraphPoint> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -3586,6 +3949,16 @@ mod io {
     impl CstDecode<Vec<String>> for *mut wire_cst_list_String {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<String> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::calculus::CalculusResult>> for *mut wire_cst_list_calculus_result {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::calculus::CalculusResult> {
             let vec = unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -4093,6 +4466,17 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__binomial_test(
+        port_: i64,
+        successes: u64,
+        trials: u64,
+        expected_p: f64,
+        alpha: f64,
+    ) {
+        wire__crate__api__binomial_test_impl(port_, successes, trials, expected_p, alpha)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__catalan(
         n: u64,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -4283,6 +4667,14 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__durbin_watson_test(
+        port_: i64,
+        residuals: *mut wire_cst_list_prim_f_64_loose,
+    ) {
+        wire__crate__api__durbin_watson_test_impl(port_, residuals)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__euler_totient(
         n: u64,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -4313,6 +4705,16 @@ mod io {
         x_values: *mut wire_cst_list_prim_f_64_loose,
     ) {
         wire__crate__api__evaluate_graph_points_impl(port_, expression, variable, x_values)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__f_test(
+        port_: i64,
+        data1: *mut wire_cst_list_prim_f_64_loose,
+        data2: *mut wire_cst_list_prim_f_64_loose,
+        alpha: f64,
+    ) {
+        wire__crate__api__f_test_impl(port_, data1, data2, alpha)
     }
 
     #[unsafe(no_mangle)]
@@ -4385,6 +4787,45 @@ mod io {
         b: u64,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__api__gcd_impl(a, b)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__generate_analytical_sequence(
+        port_: i64,
+        seq_type: *mut wire_cst_list_prim_u_8_strict,
+        n: u32,
+    ) {
+        wire__crate__api__generate_analytical_sequence_impl(port_, seq_type, n)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__generate_classical_sequence(
+        port_: i64,
+        seq_type: *mut wire_cst_list_prim_u_8_strict,
+        a: f64,
+        d_or_r: f64,
+        n: u32,
+        s: u64,
+    ) {
+        wire__crate__api__generate_classical_sequence_impl(port_, seq_type, a, d_or_r, n, s)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__generate_combinatorial_sequence(
+        port_: i64,
+        seq_type: *mut wire_cst_list_prim_u_8_strict,
+        n: u32,
+    ) {
+        wire__crate__api__generate_combinatorial_sequence_impl(port_, seq_type, n)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__generate_number_theoretic_sequence(
+        port_: i64,
+        seq_type: *mut wire_cst_list_prim_u_8_strict,
+        n: u32,
+    ) {
+        wire__crate__api__generate_number_theoretic_sequence_impl(port_, seq_type, n)
     }
 
     #[unsafe(no_mangle)]
@@ -4513,6 +4954,16 @@ mod io {
         n: u64,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__api__list_divisors_impl(n)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__mann_whitney_u(
+        port_: i64,
+        data1: *mut wire_cst_list_prim_f_64_loose,
+        data2: *mut wire_cst_list_prim_f_64_loose,
+        alpha: f64,
+    ) {
+        wire__crate__api__mann_whitney_u_impl(port_, data1, data2, alpha)
     }
 
     #[unsafe(no_mangle)]
@@ -4694,6 +5145,34 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__symbolic_differentiate(
+        port_: i64,
+        expression: *mut wire_cst_list_prim_u_8_strict,
+        variable: *mut wire_cst_list_prim_u_8_strict,
+        order: u32,
+    ) {
+        wire__crate__api__symbolic_differentiate_impl(port_, expression, variable, order)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__symbolic_gradient(
+        port_: i64,
+        expression: *mut wire_cst_list_prim_u_8_strict,
+        variables: *mut wire_cst_list_String,
+    ) {
+        wire__crate__api__symbolic_gradient_impl(port_, expression, variables)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__symbolic_integrate(
+        port_: i64,
+        expression: *mut wire_cst_list_prim_u_8_strict,
+        variables: *mut wire_cst_list_String,
+    ) {
+        wire__crate__api__symbolic_integrate_impl(port_, expression, variables)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__t_test(
         port_: i64,
         data: *mut wire_cst_list_prim_f_64_loose,
@@ -4798,6 +5277,20 @@ mod io {
         let wrap = wire_cst_list_String {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
                 <*mut wire_cst_list_prim_u_8_strict>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_cst_new_list_calculus_result(
+        len: i32,
+    ) -> *mut wire_cst_list_calculus_result {
+        let wrap = wire_cst_list_calculus_result {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_calculus_result>::new_with_null_ptr(),
                 len,
             ),
             len,
@@ -5035,6 +5528,12 @@ mod io {
     #[derive(Clone, Copy)]
     pub struct wire_cst_list_String {
         ptr: *mut *mut wire_cst_list_prim_u_8_strict,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_calculus_result {
+        ptr: *mut wire_cst_calculus_result,
         len: i32,
     }
     #[repr(C)]
@@ -5449,6 +5948,18 @@ mod web {
                 .collect()
         }
     }
+    impl CstDecode<Vec<crate::calculus::CalculusResult>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::calculus::CalculusResult> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::graphing::GraphPoint>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -5808,6 +6319,17 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__binomial_test(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        successes: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        trials: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        expected_p: f64,
+        alpha: f64,
+    ) {
+        wire__crate__api__binomial_test_impl(port_, successes, trials, expected_p, alpha)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__catalan(
         n: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -5998,6 +6520,14 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__durbin_watson_test(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        residuals: Box<[f64]>,
+    ) {
+        wire__crate__api__durbin_watson_test_impl(port_, residuals)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__euler_totient(
         n: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -6028,6 +6558,16 @@ mod web {
         x_values: Box<[f64]>,
     ) {
         wire__crate__api__evaluate_graph_points_impl(port_, expression, variable, x_values)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__f_test(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        data1: Box<[f64]>,
+        data2: Box<[f64]>,
+        alpha: f64,
+    ) {
+        wire__crate__api__f_test_impl(port_, data1, data2, alpha)
     }
 
     #[wasm_bindgen]
@@ -6100,6 +6640,45 @@ mod web {
         b: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__api__gcd_impl(a, b)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__generate_analytical_sequence(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        seq_type: String,
+        n: u32,
+    ) {
+        wire__crate__api__generate_analytical_sequence_impl(port_, seq_type, n)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__generate_classical_sequence(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        seq_type: String,
+        a: f64,
+        d_or_r: f64,
+        n: u32,
+        s: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__generate_classical_sequence_impl(port_, seq_type, a, d_or_r, n, s)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__generate_combinatorial_sequence(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        seq_type: String,
+        n: u32,
+    ) {
+        wire__crate__api__generate_combinatorial_sequence_impl(port_, seq_type, n)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__generate_number_theoretic_sequence(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        seq_type: String,
+        n: u32,
+    ) {
+        wire__crate__api__generate_number_theoretic_sequence_impl(port_, seq_type, n)
     }
 
     #[wasm_bindgen]
@@ -6228,6 +6807,16 @@ mod web {
         n: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__api__list_divisors_impl(n)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__mann_whitney_u(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        data1: Box<[f64]>,
+        data2: Box<[f64]>,
+        alpha: f64,
+    ) {
+        wire__crate__api__mann_whitney_u_impl(port_, data1, data2, alpha)
     }
 
     #[wasm_bindgen]
@@ -6409,6 +6998,34 @@ mod web {
             tolerance,
             max_iterations,
         )
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__symbolic_differentiate(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        expression: String,
+        variable: String,
+        order: u32,
+    ) {
+        wire__crate__api__symbolic_differentiate_impl(port_, expression, variable, order)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__symbolic_gradient(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        expression: String,
+        variables: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__symbolic_gradient_impl(port_, expression, variables)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__symbolic_integrate(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        expression: String,
+        variables: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__symbolic_integrate_impl(port_, expression, variables)
     }
 
     #[wasm_bindgen]

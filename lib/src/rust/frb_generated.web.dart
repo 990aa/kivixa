@@ -11,12 +11,15 @@ import 'dart:convert';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_web.dart';
 import 'package:kivixa/src/rust/api.dart';
-import 'package:kivixa/src/rust/clustering.dart';
-import 'package:kivixa/src/rust/embeddings.dart';
+import 'package:kivixa/src/rust/basic.dart';
+import 'package:kivixa/src/rust/calculus.dart';
+import 'package:kivixa/src/rust/complex.dart';
+import 'package:kivixa/src/rust/discrete.dart';
 import 'package:kivixa/src/rust/frb_generated.dart';
-import 'package:kivixa/src/rust/graph.dart';
-import 'package:kivixa/src/rust/mcp.dart';
-import 'package:kivixa/src/rust/streaming.dart';
+import 'package:kivixa/src/rust/graphing.dart';
+import 'package:kivixa/src/rust/matrix.dart';
+import 'package:kivixa/src/rust/statistics.dart';
+import 'package:kivixa/src/rust/units.dart';
 
 abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   RustLibApiImplPlatform({
@@ -27,172 +30,134 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   });
 
   @protected
-  AnyhowException dco_decode_AnyhowException(dynamic raw);
-
-  @protected
   String dco_decode_String(dynamic raw);
 
   @protected
   bool dco_decode_bool(dynamic raw);
 
   @protected
-  double dco_decode_box_autoadd_f_32(dynamic raw);
+  bool dco_decode_box_autoadd_bool(dynamic raw);
 
   @protected
-  int dco_decode_box_autoadd_i_32(dynamic raw);
-
-  @protected
-  MCPToolCall dco_decode_box_autoadd_mcp_tool_call(dynamic raw);
-
-  @protected
-  int dco_decode_box_autoadd_u_32(dynamic raw);
+  double dco_decode_box_autoadd_f_64(dynamic raw);
 
   @protected
   BigInt dco_decode_box_autoadd_usize(dynamic raw);
 
   @protected
-  ClusterAssignment dco_decode_cluster_assignment(dynamic raw);
+  CalculusResult dco_decode_calculus_result(dynamic raw);
 
   @protected
-  ClusterInfo dco_decode_cluster_info(dynamic raw);
+  ComplexResult dco_decode_complex_result(dynamic raw);
 
   @protected
-  ClusteringResult dco_decode_clustering_result(dynamic raw);
+  ConfidenceIntervalResult dco_decode_confidence_interval_result(dynamic raw);
 
   @protected
-  EmbeddingCluster dco_decode_embedding_cluster(dynamic raw);
+  CorrelationResult dco_decode_correlation_result(dynamic raw);
 
   @protected
-  EmbeddingEntry dco_decode_embedding_entry(dynamic raw);
+  DiscreteResult dco_decode_discrete_result(dynamic raw);
 
   @protected
-  double dco_decode_f_32(dynamic raw);
+  DistributionResult dco_decode_distribution_result(dynamic raw);
 
   @protected
-  GraphEdge dco_decode_graph_edge(dynamic raw);
+  ExpressionResult dco_decode_expression_result(dynamic raw);
 
   @protected
-  GraphNode dco_decode_graph_node(dynamic raw);
+  double dco_decode_f_64(dynamic raw);
 
   @protected
-  GraphState dco_decode_graph_state(dynamic raw);
+  GraphPoint dco_decode_graph_point(dynamic raw);
 
   @protected
-  int dco_decode_i_32(dynamic raw);
+  GraphResult dco_decode_graph_result(dynamic raw);
 
   @protected
-  KnowledgeGraphAnalysis dco_decode_knowledge_graph_analysis(dynamic raw);
+  HypothesisTestResult dco_decode_hypothesis_test_result(dynamic raw);
 
   @protected
   List<String> dco_decode_list_String(dynamic raw);
 
   @protected
-  List<ClusterAssignment> dco_decode_list_cluster_assignment(dynamic raw);
+  List<CalculusResult> dco_decode_list_calculus_result(dynamic raw);
 
   @protected
-  List<ClusterInfo> dco_decode_list_cluster_info(dynamic raw);
+  List<GraphPoint> dco_decode_list_graph_point(dynamic raw);
 
   @protected
-  List<EmbeddingCluster> dco_decode_list_embedding_cluster(dynamic raw);
+  List<Float64List> dco_decode_list_list_prim_f_64_strict(dynamic raw);
 
   @protected
-  List<EmbeddingEntry> dco_decode_list_embedding_entry(dynamic raw);
+  List<MatrixResult> dco_decode_list_matrix_result(dynamic raw);
 
   @protected
-  List<GraphEdge> dco_decode_list_graph_edge(dynamic raw);
+  List<double> dco_decode_list_prim_f_64_loose(dynamic raw);
 
   @protected
-  List<GraphNode> dco_decode_list_graph_node(dynamic raw);
+  Float64List dco_decode_list_prim_f_64_strict(dynamic raw);
 
   @protected
-  List<MCPParameter> dco_decode_list_mcp_parameter(dynamic raw);
-
-  @protected
-  List<MCPTool> dco_decode_list_mcp_tool(dynamic raw);
-
-  @protected
-  List<NodePosition> dco_decode_list_node_position(dynamic raw);
-
-  @protected
-  List<double> dco_decode_list_prim_f_32_loose(dynamic raw);
-
-  @protected
-  Float32List dco_decode_list_prim_f_32_strict(dynamic raw);
+  Uint64List dco_decode_list_prim_u_64_strict(dynamic raw);
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
-  List<(String, String)> dco_decode_list_record_string_string(dynamic raw);
+  List<(double, double)> dco_decode_list_record_f_64_f_64(dynamic raw);
 
   @protected
-  List<SemanticEdge> dco_decode_list_semantic_edge(dynamic raw);
+  List<(String, double)> dco_decode_list_record_string_f_64(dynamic raw);
 
   @protected
-  List<SimilarityResult> dco_decode_list_similarity_result(dynamic raw);
+  List<UnitResult> dco_decode_list_unit_result(dynamic raw);
 
   @protected
-  MCPParamType dco_decode_mcp_param_type(dynamic raw);
+  MatrixDecomposition dco_decode_matrix_decomposition(dynamic raw);
 
   @protected
-  MCPParameter dco_decode_mcp_parameter(dynamic raw);
-
-  @protected
-  MCPTool dco_decode_mcp_tool(dynamic raw);
-
-  @protected
-  MCPToolCall dco_decode_mcp_tool_call(dynamic raw);
-
-  @protected
-  MCPToolResult dco_decode_mcp_tool_result(dynamic raw);
-
-  @protected
-  NodePosition dco_decode_node_position(dynamic raw);
+  MatrixResult dco_decode_matrix_result(dynamic raw);
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
-  double? dco_decode_opt_box_autoadd_f_32(dynamic raw);
+  bool? dco_decode_opt_box_autoadd_bool(dynamic raw);
 
   @protected
-  int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
-
-  @protected
-  int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
+  double? dco_decode_opt_box_autoadd_f_64(dynamic raw);
 
   @protected
   BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw);
 
   @protected
-  List<String>? dco_decode_opt_list_String(dynamic raw);
+  Float64List? dco_decode_opt_list_prim_f_64_strict(dynamic raw);
 
   @protected
-  Float32List? dco_decode_opt_list_prim_f_32_strict(dynamic raw);
+  (double, double) dco_decode_record_f_64_f_64(dynamic raw);
 
   @protected
-  List<(String, String)>? dco_decode_opt_list_record_string_string(dynamic raw);
+  (List<(double, double)>, List<(double, double)>)
+  dco_decode_record_list_record_f_64_f_64_list_record_f_64_f_64(dynamic raw);
 
   @protected
-  (String, String) dco_decode_record_string_string(dynamic raw);
+  (String, double) dco_decode_record_string_f_64(dynamic raw);
 
   @protected
-  SemanticEdge dco_decode_semantic_edge(dynamic raw);
+  RegressionResult dco_decode_regression_result(dynamic raw);
 
   @protected
-  SemanticEdgeResult dco_decode_semantic_edge_result(dynamic raw);
+  SolveResult dco_decode_solve_result(dynamic raw);
 
   @protected
-  SimilarityResult dco_decode_similarity_result(dynamic raw);
-
-  @protected
-  StreamGraphStats dco_decode_stream_graph_stats(dynamic raw);
-
-  @protected
-  TaskCategory dco_decode_task_category(dynamic raw);
+  StatisticsResult dco_decode_statistics_result(dynamic raw);
 
   @protected
   int dco_decode_u_32(dynamic raw);
+
+  @protected
+  BigInt dco_decode_u_64(dynamic raw);
 
   @protected
   int dco_decode_u_8(dynamic raw);
@@ -201,10 +166,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void dco_decode_unit(dynamic raw);
 
   @protected
-  BigInt dco_decode_usize(dynamic raw);
+  UnitResult dco_decode_unit_result(dynamic raw);
 
   @protected
-  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+  BigInt dco_decode_usize(dynamic raw);
 
   @protected
   String sse_decode_String(SseDeserializer deserializer);
@@ -213,54 +178,50 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
-  double sse_decode_box_autoadd_f_32(SseDeserializer deserializer);
+  bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
 
   @protected
-  int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
-
-  @protected
-  MCPToolCall sse_decode_box_autoadd_mcp_tool_call(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
+  double sse_decode_box_autoadd_f_64(SseDeserializer deserializer);
 
   @protected
   BigInt sse_decode_box_autoadd_usize(SseDeserializer deserializer);
 
   @protected
-  ClusterAssignment sse_decode_cluster_assignment(SseDeserializer deserializer);
+  CalculusResult sse_decode_calculus_result(SseDeserializer deserializer);
 
   @protected
-  ClusterInfo sse_decode_cluster_info(SseDeserializer deserializer);
+  ComplexResult sse_decode_complex_result(SseDeserializer deserializer);
 
   @protected
-  ClusteringResult sse_decode_clustering_result(SseDeserializer deserializer);
+  ConfidenceIntervalResult sse_decode_confidence_interval_result(
+    SseDeserializer deserializer,
+  );
 
   @protected
-  EmbeddingCluster sse_decode_embedding_cluster(SseDeserializer deserializer);
+  CorrelationResult sse_decode_correlation_result(SseDeserializer deserializer);
 
   @protected
-  EmbeddingEntry sse_decode_embedding_entry(SseDeserializer deserializer);
+  DiscreteResult sse_decode_discrete_result(SseDeserializer deserializer);
 
   @protected
-  double sse_decode_f_32(SseDeserializer deserializer);
+  DistributionResult sse_decode_distribution_result(
+    SseDeserializer deserializer,
+  );
 
   @protected
-  GraphEdge sse_decode_graph_edge(SseDeserializer deserializer);
+  ExpressionResult sse_decode_expression_result(SseDeserializer deserializer);
 
   @protected
-  GraphNode sse_decode_graph_node(SseDeserializer deserializer);
+  double sse_decode_f_64(SseDeserializer deserializer);
 
   @protected
-  GraphState sse_decode_graph_state(SseDeserializer deserializer);
+  GraphPoint sse_decode_graph_point(SseDeserializer deserializer);
 
   @protected
-  int sse_decode_i_32(SseDeserializer deserializer);
+  GraphResult sse_decode_graph_result(SseDeserializer deserializer);
 
   @protected
-  KnowledgeGraphAnalysis sse_decode_knowledge_graph_analysis(
+  HypothesisTestResult sse_decode_hypothesis_test_result(
     SseDeserializer deserializer,
   );
 
@@ -268,136 +229,99 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
-  List<ClusterAssignment> sse_decode_list_cluster_assignment(
+  List<CalculusResult> sse_decode_list_calculus_result(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<ClusterInfo> sse_decode_list_cluster_info(SseDeserializer deserializer);
+  List<GraphPoint> sse_decode_list_graph_point(SseDeserializer deserializer);
 
   @protected
-  List<EmbeddingCluster> sse_decode_list_embedding_cluster(
+  List<Float64List> sse_decode_list_list_prim_f_64_strict(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<EmbeddingEntry> sse_decode_list_embedding_entry(
+  List<MatrixResult> sse_decode_list_matrix_result(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<GraphEdge> sse_decode_list_graph_edge(SseDeserializer deserializer);
+  List<double> sse_decode_list_prim_f_64_loose(SseDeserializer deserializer);
 
   @protected
-  List<GraphNode> sse_decode_list_graph_node(SseDeserializer deserializer);
+  Float64List sse_decode_list_prim_f_64_strict(SseDeserializer deserializer);
 
   @protected
-  List<MCPParameter> sse_decode_list_mcp_parameter(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  List<MCPTool> sse_decode_list_mcp_tool(SseDeserializer deserializer);
-
-  @protected
-  List<NodePosition> sse_decode_list_node_position(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  List<double> sse_decode_list_prim_f_32_loose(SseDeserializer deserializer);
-
-  @protected
-  Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer);
+  Uint64List sse_decode_list_prim_u_64_strict(SseDeserializer deserializer);
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
-  List<(String, String)> sse_decode_list_record_string_string(
+  List<(double, double)> sse_decode_list_record_f_64_f_64(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<SemanticEdge> sse_decode_list_semantic_edge(
+  List<(String, double)> sse_decode_list_record_string_f_64(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<SimilarityResult> sse_decode_list_similarity_result(
+  List<UnitResult> sse_decode_list_unit_result(SseDeserializer deserializer);
+
+  @protected
+  MatrixDecomposition sse_decode_matrix_decomposition(
     SseDeserializer deserializer,
   );
 
   @protected
-  MCPParamType sse_decode_mcp_param_type(SseDeserializer deserializer);
-
-  @protected
-  MCPParameter sse_decode_mcp_parameter(SseDeserializer deserializer);
-
-  @protected
-  MCPTool sse_decode_mcp_tool(SseDeserializer deserializer);
-
-  @protected
-  MCPToolCall sse_decode_mcp_tool_call(SseDeserializer deserializer);
-
-  @protected
-  MCPToolResult sse_decode_mcp_tool_result(SseDeserializer deserializer);
-
-  @protected
-  NodePosition sse_decode_node_position(SseDeserializer deserializer);
+  MatrixResult sse_decode_matrix_result(SseDeserializer deserializer);
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
-  double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer);
+  bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer);
 
   @protected
-  int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
-
-  @protected
-  int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
+  double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer);
 
   @protected
   BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer);
 
   @protected
-  List<String>? sse_decode_opt_list_String(SseDeserializer deserializer);
-
-  @protected
-  Float32List? sse_decode_opt_list_prim_f_32_strict(
+  Float64List? sse_decode_opt_list_prim_f_64_strict(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<(String, String)>? sse_decode_opt_list_record_string_string(
+  (double, double) sse_decode_record_f_64_f_64(SseDeserializer deserializer);
+
+  @protected
+  (List<(double, double)>, List<(double, double)>)
+  sse_decode_record_list_record_f_64_f_64_list_record_f_64_f_64(
     SseDeserializer deserializer,
   );
 
   @protected
-  (String, String) sse_decode_record_string_string(
-    SseDeserializer deserializer,
-  );
+  (String, double) sse_decode_record_string_f_64(SseDeserializer deserializer);
 
   @protected
-  SemanticEdge sse_decode_semantic_edge(SseDeserializer deserializer);
+  RegressionResult sse_decode_regression_result(SseDeserializer deserializer);
 
   @protected
-  SemanticEdgeResult sse_decode_semantic_edge_result(
-    SseDeserializer deserializer,
-  );
+  SolveResult sse_decode_solve_result(SseDeserializer deserializer);
 
   @protected
-  SimilarityResult sse_decode_similarity_result(SseDeserializer deserializer);
-
-  @protected
-  StreamGraphStats sse_decode_stream_graph_stats(SseDeserializer deserializer);
-
-  @protected
-  TaskCategory sse_decode_task_category(SseDeserializer deserializer);
+  StatisticsResult sse_decode_statistics_result(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_32(SseDeserializer deserializer);
+
+  @protected
+  BigInt sse_decode_u_64(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_8(SseDeserializer deserializer);
@@ -406,13 +330,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_decode_unit(SseDeserializer deserializer);
 
   @protected
+  UnitResult sse_decode_unit_result(SseDeserializer deserializer);
+
+  @protected
   BigInt sse_decode_usize(SseDeserializer deserializer);
 
   @protected
-  String cst_encode_AnyhowException(AnyhowException raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    throw UnimplementedError();
-  }
+  int sse_decode_i_32(SseDeserializer deserializer);
 
   @protected
   String cst_encode_String(String raw) {
@@ -421,27 +345,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
-  double cst_encode_box_autoadd_f_32(double raw) {
+  bool cst_encode_box_autoadd_bool(bool raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return cst_encode_f_32(raw);
+    return cst_encode_bool(raw);
   }
 
   @protected
-  int cst_encode_box_autoadd_i_32(int raw) {
+  double cst_encode_box_autoadd_f_64(double raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return cst_encode_i_32(raw);
-  }
-
-  @protected
-  JSAny cst_encode_box_autoadd_mcp_tool_call(MCPToolCall raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return cst_encode_mcp_tool_call(raw);
-  }
-
-  @protected
-  int cst_encode_box_autoadd_u_32(int raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return cst_encode_u_32(raw);
+    return cst_encode_f_64(raw);
   }
 
   @protected
@@ -451,92 +363,130 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
-  JSAny cst_encode_cluster_assignment(ClusterAssignment raw) {
+  JSAny cst_encode_calculus_result(CalculusResult raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
-      cst_encode_String(raw.id),
-      cst_encode_usize(raw.clusterId),
-      cst_encode_String(raw.color),
+      cst_encode_bool(raw.success),
+      cst_encode_f_64(raw.value),
+      cst_encode_opt_String(raw.symbolic),
+      cst_encode_opt_String(raw.error),
     ].jsify()!;
   }
 
   @protected
-  JSAny cst_encode_cluster_info(ClusterInfo raw) {
+  JSAny cst_encode_complex_result(ComplexResult raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
-      cst_encode_usize(raw.id),
-      cst_encode_usize(raw.size),
-      cst_encode_String(raw.color),
-      cst_encode_opt_list_prim_f_32_strict(raw.centroid),
+      cst_encode_bool(raw.success),
+      cst_encode_f_64(raw.real),
+      cst_encode_f_64(raw.imag),
+      cst_encode_f_64(raw.magnitude),
+      cst_encode_f_64(raw.angleRad),
+      cst_encode_f_64(raw.angleDeg),
+      cst_encode_String(raw.formattedRect),
+      cst_encode_String(raw.formattedPolar),
+      cst_encode_opt_String(raw.error),
     ].jsify()!;
   }
 
   @protected
-  JSAny cst_encode_clustering_result(ClusteringResult raw) {
+  JSAny cst_encode_confidence_interval_result(ConfidenceIntervalResult raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
-      cst_encode_list_cluster_assignment(raw.assignments),
-      cst_encode_list_cluster_info(raw.clusters),
-      cst_encode_usize(raw.k),
+      cst_encode_bool(raw.success),
+      cst_encode_f_64(raw.lower),
+      cst_encode_f_64(raw.upper),
+      cst_encode_f_64(raw.center),
+      cst_encode_f_64(raw.marginOfError),
+      cst_encode_opt_String(raw.error),
     ].jsify()!;
   }
 
   @protected
-  JSAny cst_encode_embedding_cluster(EmbeddingCluster raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return [cst_encode_list_String(raw.ids)].jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_embedding_entry(EmbeddingEntry raw) {
+  JSAny cst_encode_correlation_result(CorrelationResult raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
-      cst_encode_String(raw.id),
-      cst_encode_list_prim_f_32_strict(raw.vector),
-      cst_encode_opt_String(raw.textPreview),
+      cst_encode_bool(raw.success),
+      cst_encode_f_64(raw.correlation),
+      cst_encode_f_64(raw.covariance),
+      cst_encode_f_64(raw.pValue),
+      cst_encode_opt_String(raw.error),
     ].jsify()!;
   }
 
   @protected
-  JSAny cst_encode_graph_edge(GraphEdge raw) {
+  JSAny cst_encode_discrete_result(DiscreteResult raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
-      cst_encode_String(raw.source),
-      cst_encode_String(raw.target),
-      cst_encode_f_32(raw.weight),
-      cst_encode_String(raw.edgeType),
+      cst_encode_bool(raw.success),
+      cst_encode_u_64(raw.value),
+      cst_encode_opt_String(raw.bigValue),
+      cst_encode_list_prim_u_64_strict(raw.values),
+      cst_encode_opt_box_autoadd_bool(raw.boolResult),
+      cst_encode_opt_String(raw.error),
     ].jsify()!;
   }
 
   @protected
-  JSAny cst_encode_graph_node(GraphNode raw) {
+  JSAny cst_encode_distribution_result(DistributionResult raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
-      cst_encode_String(raw.id),
-      cst_encode_String(raw.label),
-      cst_encode_String(raw.nodeType),
-      cst_encode_f_32(raw.x),
-      cst_encode_f_32(raw.y),
-      cst_encode_opt_String(raw.color),
-      cst_encode_opt_String(raw.metadata),
+      cst_encode_bool(raw.success),
+      cst_encode_f_64(raw.pdf),
+      cst_encode_f_64(raw.cdf),
+      cst_encode_f_64(raw.mean),
+      cst_encode_f_64(raw.variance),
+      cst_encode_f_64(raw.stdDev),
+      cst_encode_opt_String(raw.error),
     ].jsify()!;
   }
 
   @protected
-  JSAny cst_encode_graph_state(GraphState raw) {
+  JSAny cst_encode_expression_result(ExpressionResult raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
-      cst_encode_list_graph_node(raw.nodes),
-      cst_encode_list_graph_edge(raw.edges),
+      cst_encode_bool(raw.success),
+      cst_encode_f_64(raw.value),
+      cst_encode_opt_String(raw.error),
+      cst_encode_String(raw.formatted),
     ].jsify()!;
   }
 
   @protected
-  JSAny cst_encode_knowledge_graph_analysis(KnowledgeGraphAnalysis raw) {
+  JSAny cst_encode_graph_point(GraphPoint raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
-      cst_encode_clustering_result(raw.clustering),
-      cst_encode_semantic_edge_result(raw.semanticEdges),
+      cst_encode_f_64(raw.x),
+      cst_encode_f_64(raw.y),
+      cst_encode_bool(raw.valid),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_graph_result(GraphResult raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_bool(raw.success),
+      cst_encode_list_graph_point(raw.points),
+      cst_encode_f_64(raw.xMin),
+      cst_encode_f_64(raw.xMax),
+      cst_encode_f_64(raw.yMin),
+      cst_encode_f_64(raw.yMax),
+      cst_encode_opt_String(raw.error),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_hypothesis_test_result(HypothesisTestResult raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_bool(raw.success),
+      cst_encode_f_64(raw.testStatistic),
+      cst_encode_f_64(raw.pValue),
+      cst_encode_f_64(raw.criticalValue),
+      cst_encode_bool(raw.rejectNull),
+      cst_encode_record_f_64_f_64(raw.confidenceInterval),
+      cst_encode_opt_String(raw.error),
     ].jsify()!;
   }
 
@@ -547,69 +497,45 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
-  JSAny cst_encode_list_cluster_assignment(List<ClusterAssignment> raw) {
+  JSAny cst_encode_list_calculus_result(List<CalculusResult> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_cluster_assignment).toList().jsify()!;
+    return raw.map(cst_encode_calculus_result).toList().jsify()!;
   }
 
   @protected
-  JSAny cst_encode_list_cluster_info(List<ClusterInfo> raw) {
+  JSAny cst_encode_list_graph_point(List<GraphPoint> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_cluster_info).toList().jsify()!;
+    return raw.map(cst_encode_graph_point).toList().jsify()!;
   }
 
   @protected
-  JSAny cst_encode_list_embedding_cluster(List<EmbeddingCluster> raw) {
+  JSAny cst_encode_list_list_prim_f_64_strict(List<Float64List> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_embedding_cluster).toList().jsify()!;
+    return raw.map(cst_encode_list_prim_f_64_strict).toList().jsify()!;
   }
 
   @protected
-  JSAny cst_encode_list_embedding_entry(List<EmbeddingEntry> raw) {
+  JSAny cst_encode_list_matrix_result(List<MatrixResult> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_embedding_entry).toList().jsify()!;
+    return raw.map(cst_encode_matrix_result).toList().jsify()!;
   }
 
   @protected
-  JSAny cst_encode_list_graph_edge(List<GraphEdge> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_graph_edge).toList().jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_list_graph_node(List<GraphNode> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_graph_node).toList().jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_list_mcp_parameter(List<MCPParameter> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_mcp_parameter).toList().jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_list_mcp_tool(List<MCPTool> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_mcp_tool).toList().jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_list_node_position(List<NodePosition> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_node_position).toList().jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_list_prim_f_32_loose(List<double> raw) {
+  JSAny cst_encode_list_prim_f_64_loose(List<double> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.jsify()!;
   }
 
   @protected
-  JSAny cst_encode_list_prim_f_32_strict(Float32List raw) {
+  JSAny cst_encode_list_prim_f_64_strict(Float64List raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_prim_u_64_strict(Uint64List raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.inner.jsify()!;
   }
 
   @protected
@@ -619,64 +545,45 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
-  JSAny cst_encode_list_record_string_string(List<(String, String)> raw) {
+  JSAny cst_encode_list_record_f_64_f_64(List<(double, double)> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_record_string_string).toList().jsify()!;
+    return raw.map(cst_encode_record_f_64_f_64).toList().jsify()!;
   }
 
   @protected
-  JSAny cst_encode_list_semantic_edge(List<SemanticEdge> raw) {
+  JSAny cst_encode_list_record_string_f_64(List<(String, double)> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_semantic_edge).toList().jsify()!;
+    return raw.map(cst_encode_record_string_f_64).toList().jsify()!;
   }
 
   @protected
-  JSAny cst_encode_list_similarity_result(List<SimilarityResult> raw) {
+  JSAny cst_encode_list_unit_result(List<UnitResult> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.map(cst_encode_similarity_result).toList().jsify()!;
+    return raw.map(cst_encode_unit_result).toList().jsify()!;
   }
 
   @protected
-  JSAny cst_encode_mcp_parameter(MCPParameter raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return [
-      cst_encode_String(raw.name),
-      cst_encode_String(raw.description),
-      cst_encode_mcp_param_type(raw.paramType),
-      cst_encode_bool(raw.required_),
-    ].jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_mcp_tool_call(MCPToolCall raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return [
-      cst_encode_String(raw.tool),
-      cst_encode_String(raw.parametersJson),
-      cst_encode_String(raw.description),
-    ].jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_mcp_tool_result(MCPToolResult raw) {
+  JSAny cst_encode_matrix_decomposition(MatrixDecomposition raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
       cst_encode_bool(raw.success),
-      cst_encode_String(raw.result),
-      cst_encode_String(raw.tool),
+      cst_encode_String(raw.decompositionType),
+      cst_encode_list_matrix_result(raw.matrices),
+      cst_encode_list_String(raw.labels),
+      cst_encode_opt_String(raw.error),
     ].jsify()!;
   }
 
   @protected
-  JSAny cst_encode_node_position(NodePosition raw) {
+  JSAny cst_encode_matrix_result(MatrixResult raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
-      cst_encode_String(raw.id),
-      cst_encode_f_32(raw.x),
-      cst_encode_f_32(raw.y),
-      cst_encode_f_32(raw.radius),
-      cst_encode_u_32(raw.color),
-      cst_encode_String(raw.nodeType),
+      cst_encode_bool(raw.success),
+      cst_encode_list_prim_f_64_strict(raw.data),
+      cst_encode_usize(raw.rows),
+      cst_encode_usize(raw.cols),
+      cst_encode_opt_box_autoadd_f_64(raw.scalar),
+      cst_encode_opt_String(raw.error),
     ].jsify()!;
   }
 
@@ -687,21 +594,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
-  double? cst_encode_opt_box_autoadd_f_32(double? raw) {
+  bool? cst_encode_opt_box_autoadd_bool(bool? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? null : cst_encode_box_autoadd_f_32(raw);
+    return raw == null ? null : cst_encode_box_autoadd_bool(raw);
   }
 
   @protected
-  int? cst_encode_opt_box_autoadd_i_32(int? raw) {
+  double? cst_encode_opt_box_autoadd_f_64(double? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? null : cst_encode_box_autoadd_i_32(raw);
-  }
-
-  @protected
-  int? cst_encode_opt_box_autoadd_u_32(int? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? null : cst_encode_box_autoadd_u_32(raw);
+    return raw == null ? null : cst_encode_box_autoadd_f_64(raw);
   }
 
   @protected
@@ -711,66 +612,83 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
-  JSAny? cst_encode_opt_list_String(List<String>? raw) {
+  JSAny? cst_encode_opt_list_prim_f_64_strict(Float64List? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? null : cst_encode_list_String(raw);
+    return raw == null ? null : cst_encode_list_prim_f_64_strict(raw);
   }
 
   @protected
-  JSAny? cst_encode_opt_list_prim_f_32_strict(Float32List? raw) {
+  JSAny cst_encode_record_f_64_f_64((double, double) raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? null : cst_encode_list_prim_f_32_strict(raw);
+    return [cst_encode_f_64(raw.$1), cst_encode_f_64(raw.$2)].jsify()!;
   }
 
   @protected
-  JSAny? cst_encode_opt_list_record_string_string(List<(String, String)>? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? null : cst_encode_list_record_string_string(raw);
-  }
-
-  @protected
-  JSAny cst_encode_record_string_string((String, String) raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return [cst_encode_String(raw.$1), cst_encode_String(raw.$2)].jsify()!;
-  }
-
-  @protected
-  JSAny cst_encode_semantic_edge(SemanticEdge raw) {
+  JSAny cst_encode_record_list_record_f_64_f_64_list_record_f_64_f_64(
+    (List<(double, double)>, List<(double, double)>) raw,
+  ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
-      cst_encode_String(raw.source),
-      cst_encode_String(raw.target),
-      cst_encode_f_32(raw.similarity),
-      cst_encode_bool(raw.isGhost),
+      cst_encode_list_record_f_64_f_64(raw.$1),
+      cst_encode_list_record_f_64_f_64(raw.$2),
     ].jsify()!;
   }
 
   @protected
-  JSAny cst_encode_semantic_edge_result(SemanticEdgeResult raw) {
+  JSAny cst_encode_record_string_f_64((String, double) raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [cst_encode_String(raw.$1), cst_encode_f_64(raw.$2)].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_regression_result(RegressionResult raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
-      cst_encode_list_semantic_edge(raw.edges),
-      cst_encode_usize(raw.count),
+      cst_encode_bool(raw.success),
+      cst_encode_list_prim_f_64_strict(raw.coefficients),
+      cst_encode_f_64(raw.rSquared),
+      cst_encode_list_prim_f_64_strict(raw.residuals),
+      cst_encode_opt_String(raw.error),
     ].jsify()!;
   }
 
   @protected
-  JSAny cst_encode_similarity_result(SimilarityResult raw) {
+  JSAny cst_encode_solve_result(SolveResult raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
-      cst_encode_String(raw.id),
-      cst_encode_f_32(raw.score),
-      cst_encode_opt_String(raw.textPreview),
+      cst_encode_bool(raw.success),
+      cst_encode_list_prim_f_64_strict(raw.roots),
+      cst_encode_usize(raw.iterations),
+      cst_encode_opt_String(raw.error),
     ].jsify()!;
   }
 
   @protected
-  JSAny cst_encode_stream_graph_stats(StreamGraphStats raw) {
+  JSAny cst_encode_statistics_result(StatisticsResult raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
-      cst_encode_usize(raw.nodeCount),
-      cst_encode_usize(raw.edgeCount),
-      cst_encode_usize(raw.visibleCount),
+      cst_encode_bool(raw.success),
+      cst_encode_list_record_string_f_64(raw.values),
+      cst_encode_opt_String(raw.error),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_u_64(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return castNativeBigInt(raw);
+  }
+
+  @protected
+  JSAny cst_encode_unit_result(UnitResult raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_bool(raw.success),
+      cst_encode_f_64(raw.value),
+      cst_encode_String(raw.fromUnit),
+      cst_encode_String(raw.toUnit),
+      cst_encode_String(raw.formula),
+      cst_encode_opt_String(raw.error),
     ].jsify()!;
   }
 
@@ -784,19 +702,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool cst_encode_bool(bool raw);
 
   @protected
-  double cst_encode_f_32(double raw);
-
-  @protected
-  int cst_encode_i_32(int raw);
-
-  @protected
-  int cst_encode_mcp_param_type(MCPParamType raw);
-
-  @protected
-  int cst_encode_mcp_tool(MCPTool raw);
-
-  @protected
-  int cst_encode_task_category(TaskCategory raw);
+  double cst_encode_f_64(double raw);
 
   @protected
   int cst_encode_u_32(int raw);
@@ -808,80 +714,71 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void cst_encode_unit(void raw);
 
   @protected
-  void sse_encode_AnyhowException(
-    AnyhowException self,
-    SseSerializer serializer,
-  );
-
-  @protected
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
   void sse_encode_bool(bool self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer);
+  void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_box_autoadd_mcp_tool_call(
-    MCPToolCall self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
+  void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_usize(BigInt self, SseSerializer serializer);
 
   @protected
-  void sse_encode_cluster_assignment(
-    ClusterAssignment self,
+  void sse_encode_calculus_result(
+    CalculusResult self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_cluster_info(ClusterInfo self, SseSerializer serializer);
+  void sse_encode_complex_result(ComplexResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_clustering_result(
-    ClusteringResult self,
+  void sse_encode_confidence_interval_result(
+    ConfidenceIntervalResult self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_embedding_cluster(
-    EmbeddingCluster self,
+  void sse_encode_correlation_result(
+    CorrelationResult self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_embedding_entry(
-    EmbeddingEntry self,
+  void sse_encode_discrete_result(
+    DiscreteResult self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_f_32(double self, SseSerializer serializer);
+  void sse_encode_distribution_result(
+    DistributionResult self,
+    SseSerializer serializer,
+  );
 
   @protected
-  void sse_encode_graph_edge(GraphEdge self, SseSerializer serializer);
+  void sse_encode_expression_result(
+    ExpressionResult self,
+    SseSerializer serializer,
+  );
 
   @protected
-  void sse_encode_graph_node(GraphNode self, SseSerializer serializer);
+  void sse_encode_f_64(double self, SseSerializer serializer);
 
   @protected
-  void sse_encode_graph_state(GraphState self, SseSerializer serializer);
+  void sse_encode_graph_point(GraphPoint self, SseSerializer serializer);
 
   @protected
-  void sse_encode_i_32(int self, SseSerializer serializer);
+  void sse_encode_graph_result(GraphResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_knowledge_graph_analysis(
-    KnowledgeGraphAnalysis self,
+  void sse_encode_hypothesis_test_result(
+    HypothesisTestResult self,
     SseSerializer serializer,
   );
 
@@ -889,65 +786,44 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_cluster_assignment(
-    List<ClusterAssignment> self,
+  void sse_encode_list_calculus_result(
+    List<CalculusResult> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_cluster_info(
-    List<ClusterInfo> self,
+  void sse_encode_list_graph_point(
+    List<GraphPoint> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_embedding_cluster(
-    List<EmbeddingCluster> self,
+  void sse_encode_list_list_prim_f_64_strict(
+    List<Float64List> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_embedding_entry(
-    List<EmbeddingEntry> self,
+  void sse_encode_list_matrix_result(
+    List<MatrixResult> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_graph_edge(
-    List<GraphEdge> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_graph_node(
-    List<GraphNode> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_mcp_parameter(
-    List<MCPParameter> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_mcp_tool(List<MCPTool> self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_list_node_position(
-    List<NodePosition> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_f_32_loose(
+  void sse_encode_list_prim_f_64_loose(
     List<double> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_prim_f_32_strict(
-    Float32List self,
+  void sse_encode_list_prim_f_64_strict(
+    Float64List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_prim_u_64_strict(
+    Uint64List self,
     SseSerializer serializer,
   );
 
@@ -958,103 +834,88 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  void sse_encode_list_record_string_string(
-    List<(String, String)> self,
+  void sse_encode_list_record_f_64_f_64(
+    List<(double, double)> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_semantic_edge(
-    List<SemanticEdge> self,
+  void sse_encode_list_record_string_f_64(
+    List<(String, double)> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_similarity_result(
-    List<SimilarityResult> self,
+  void sse_encode_list_unit_result(
+    List<UnitResult> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_mcp_param_type(MCPParamType self, SseSerializer serializer);
+  void sse_encode_matrix_decomposition(
+    MatrixDecomposition self,
+    SseSerializer serializer,
+  );
 
   @protected
-  void sse_encode_mcp_parameter(MCPParameter self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_mcp_tool(MCPTool self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_mcp_tool_call(MCPToolCall self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_mcp_tool_result(MCPToolResult self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_node_position(NodePosition self, SseSerializer serializer);
+  void sse_encode_matrix_result(MatrixResult self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer);
+  void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
+  void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_box_autoadd_usize(BigInt? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_list_String(List<String>? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_list_prim_f_32_strict(
-    Float32List? self,
+  void sse_encode_opt_list_prim_f_64_strict(
+    Float64List? self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_opt_list_record_string_string(
-    List<(String, String)>? self,
+  void sse_encode_record_f_64_f_64(
+    (double, double) self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_record_string_string(
-    (String, String) self,
+  void sse_encode_record_list_record_f_64_f_64_list_record_f_64_f_64(
+    (List<(double, double)>, List<(double, double)>) self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_semantic_edge(SemanticEdge self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_semantic_edge_result(
-    SemanticEdgeResult self,
+  void sse_encode_record_string_f_64(
+    (String, double) self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_similarity_result(
-    SimilarityResult self,
+  void sse_encode_regression_result(
+    RegressionResult self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_stream_graph_stats(
-    StreamGraphStats self,
-    SseSerializer serializer,
-  );
+  void sse_encode_solve_result(SolveResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_task_category(TaskCategory self, SseSerializer serializer);
+  void sse_encode_statistics_result(
+    StatisticsResult self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_u_64(BigInt self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_8(int self, SseSerializer serializer);
@@ -1063,7 +924,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_unit(void self, SseSerializer serializer);
 
   @protected
+  void sse_encode_unit_result(UnitResult self, SseSerializer serializer);
+
+  @protected
   void sse_encode_usize(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer);
 }
 
 // Section: wire_class
@@ -1071,394 +938,730 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 class RustLibWire implements BaseWire {
   RustLibWire.fromExternalLibrary(ExternalLibrary lib);
 
-  void wire__crate__api__add_graph_edge(
+  void wire__crate__api__anova(
     NativePortType port_,
-    String source,
-    String target,
-    double weight,
-    String edge_type,
-  ) => wasmModule.wire__crate__api__add_graph_edge(
+    JSAny groups,
+    double alpha,
+  ) => wasmModule.wire__crate__api__anova(port_, groups, alpha);
+
+  void wire__crate__api__binomial_test(
+    NativePortType port_,
+    JSAny successes,
+    JSAny trials,
+    double expected_p,
+    double alpha,
+  ) => wasmModule.wire__crate__api__binomial_test(
     port_,
-    source,
-    target,
-    weight,
-    edge_type,
+    successes,
+    trials,
+    expected_p,
+    alpha,
   );
 
-  void wire__crate__api__add_graph_edges(NativePortType port_, JSAny edges) =>
-      wasmModule.wire__crate__api__add_graph_edges(port_, edges);
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__catalan(JSAny n) => wasmModule.wire__crate__api__catalan(n);
 
-  void wire__crate__api__add_graph_node(
+  void wire__crate__api__chi_squared_test(
     NativePortType port_,
-    String id,
-    String label,
-    String node_type,
+    JSAny observed,
+    JSAny expected,
+    double alpha,
+  ) => wasmModule.wire__crate__api__chi_squared_test(
+    port_,
+    observed,
+    expected,
+    alpha,
+  );
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__combinations(JSAny n, JSAny r) =>
+      wasmModule.wire__crate__api__combinations(n, r);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__complex_convert(double real, double imag, bool to_polar) =>
+      wasmModule.wire__crate__api__complex_convert(real, imag, to_polar);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__complex_operation(
+    double a_real,
+    double a_imag,
+    double b_real,
+    double b_imag,
+    String operation,
+  ) => wasmModule.wire__crate__api__complex_operation(
+    a_real,
+    a_imag,
+    b_real,
+    b_imag,
+    operation,
+  );
+
+  void wire__crate__api__compute_limit(
+    NativePortType port_,
+    String expression,
+    String variable,
+    double approach_value,
+    bool from_left,
+    bool from_right,
+  ) => wasmModule.wire__crate__api__compute_limit(
+    port_,
+    expression,
+    variable,
+    approach_value,
+    from_left,
+    from_right,
+  );
+
+  void wire__crate__api__compute_statistics(NativePortType port_, JSAny data) =>
+      wasmModule.wire__crate__api__compute_statistics(port_, data);
+
+  void wire__crate__api__confidence_interval_mean(
+    NativePortType port_,
+    JSAny data,
+    double confidence_level,
+  ) => wasmModule.wire__crate__api__confidence_interval_mean(
+    port_,
+    data,
+    confidence_level,
+  );
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__confidence_interval_proportion(
+    JSAny successes,
+    JSAny n,
+    double confidence_level,
+  ) => wasmModule.wire__crate__api__confidence_interval_proportion(
+    successes,
+    n,
+    confidence_level,
+  );
+
+  void wire__crate__api__confidence_interval_variance(
+    NativePortType port_,
+    JSAny data,
+    double confidence_level,
+  ) => wasmModule.wire__crate__api__confidence_interval_variance(
+    port_,
+    data,
+    confidence_level,
+  );
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__convert_number_system(
+    String value,
+    int from_base,
+    int to_base,
+  ) => wasmModule.wire__crate__api__convert_number_system(
+    value,
+    from_base,
+    to_base,
+  );
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__convert_to_all_units(double value, String from_unit) =>
+      wasmModule.wire__crate__api__convert_to_all_units(value, from_unit);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__convert_unit(
+    double value,
+    String from_unit,
+    String to_unit,
+  ) => wasmModule.wire__crate__api__convert_unit(value, from_unit, to_unit);
+
+  void wire__crate__api__correlation_covariance(
+    NativePortType port_,
+    JSAny x,
+    JSAny y,
+  ) => wasmModule.wire__crate__api__correlation_covariance(port_, x, y);
+
+  void wire__crate__api__derivative_graph(
+    NativePortType port_,
+    String expression,
+    String variable,
+    JSAny x_values,
+  ) => wasmModule.wire__crate__api__derivative_graph(
+    port_,
+    expression,
+    variable,
+    x_values,
+  );
+
+  void wire__crate__api__differentiate(
+    NativePortType port_,
+    String expression,
+    String variable,
+    double point,
+    int order,
+  ) => wasmModule.wire__crate__api__differentiate(
+    port_,
+    expression,
+    variable,
+    point,
+    order,
+  );
+
+  void wire__crate__api__distribution_compute(
+    NativePortType port_,
+    String distribution_type,
+    JSAny params,
     double x,
-    double y,
-    String? color,
-    String? metadata,
-  ) => wasmModule.wire__crate__api__add_graph_node(
+  ) => wasmModule.wire__crate__api__distribution_compute(
     port_,
-    id,
-    label,
-    node_type,
+    distribution_type,
+    params,
     x,
-    y,
-    color,
-    metadata,
   );
 
-  void wire__crate__api__add_graph_nodes(NativePortType port_, JSAny nodes) =>
-      wasmModule.wire__crate__api__add_graph_nodes(port_, nodes);
-
-  void wire__crate__api__add_stream_edge(
+  void wire__crate__api__double_integral(
     NativePortType port_,
-    String from_id,
-    String to_id,
-    double strength,
-  ) => wasmModule.wire__crate__api__add_stream_edge(
+    String expression,
+    String x_var,
+    String y_var,
+    double x_min,
+    double x_max,
+    double y_min,
+    double y_max,
+    int num_intervals,
+  ) => wasmModule.wire__crate__api__double_integral(
     port_,
-    from_id,
-    to_id,
-    strength,
+    expression,
+    x_var,
+    y_var,
+    x_min,
+    x_max,
+    y_min,
+    y_max,
+    num_intervals,
   );
 
-  void wire__crate__api__add_stream_node(
+  void wire__crate__api__durbin_watson_test(
     NativePortType port_,
-    String id,
-    double x,
-    double y,
-    double radius,
-    int color,
-  ) => wasmModule.wire__crate__api__add_stream_node(
-    port_,
-    id,
-    x,
-    y,
-    radius,
-    color,
-  );
+    JSAny residuals,
+  ) => wasmModule.wire__crate__api__durbin_watson_test(port_, residuals);
 
-  void wire__crate__api__analyze_knowledge_graph(
-    NativePortType port_,
-    JSAny entries,
-    JSAny? k,
-    double? similarity_threshold,
-    JSAny? existing_links,
-  ) => wasmModule.wire__crate__api__analyze_knowledge_graph(
-    port_,
-    entries,
-    k,
-    similarity_threshold,
-    existing_links,
-  );
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__euler_totient(JSAny n) =>
+      wasmModule.wire__crate__api__euler_totient(n);
 
-  void wire__crate__api__batch_embed(NativePortType port_, JSAny texts) =>
-      wasmModule.wire__crate__api__batch_embed(port_, texts);
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__evaluate_expression(String expression) =>
+      wasmModule.wire__crate__api__evaluate_expression(expression);
 
-  void wire__crate__api__chat_completion(
-    NativePortType port_,
-    JSAny messages,
-    int? max_tokens,
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__evaluate_formula(
+    String formula,
+    JSAny variables,
+    JSAny values,
   ) =>
-      wasmModule.wire__crate__api__chat_completion(port_, messages, max_tokens);
+      wasmModule.wire__crate__api__evaluate_formula(formula, variables, values);
 
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__clear_graph() => wasmModule.wire__crate__api__clear_graph();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__clear_stream_graph() =>
-      wasmModule.wire__crate__api__clear_stream_graph();
-
-  void wire__crate__api__cluster_embeddings(
+  void wire__crate__api__evaluate_graph_points(
     NativePortType port_,
-    JSAny entries,
-    double threshold,
-  ) => wasmModule.wire__crate__api__cluster_embeddings(
+    String expression,
+    String variable,
+    JSAny x_values,
+  ) => wasmModule.wire__crate__api__evaluate_graph_points(
     port_,
-    entries,
-    threshold,
+    expression,
+    variable,
+    x_values,
   );
 
-  void wire__crate__api__cluster_notes(
+  void wire__crate__api__f_test(
     NativePortType port_,
-    JSAny entries,
-    JSAny? k,
-    JSAny? max_iterations,
-  ) => wasmModule.wire__crate__api__cluster_notes(
+    JSAny data1,
+    JSAny data2,
+    double alpha,
+  ) => wasmModule.wire__crate__api__f_test(port_, data1, data2, alpha);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__factorial(JSAny n) =>
+      wasmModule.wire__crate__api__factorial(n);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__fibonacci(JSAny n) =>
+      wasmModule.wire__crate__api__fibonacci(n);
+
+  void wire__crate__api__find_extrema(
+    NativePortType port_,
+    String expression,
+    String variable,
+    double x_min,
+    double x_max,
+    JSAny num_samples,
+  ) => wasmModule.wire__crate__api__find_extrema(
     port_,
-    entries,
-    k,
+    expression,
+    variable,
+    x_min,
+    x_max,
+    num_samples,
+  );
+
+  void wire__crate__api__find_graph_roots(
+    NativePortType port_,
+    String expression,
+    String variable,
+    double x_min,
+    double x_max,
+    JSAny num_samples,
+  ) => wasmModule.wire__crate__api__find_graph_roots(
+    port_,
+    expression,
+    variable,
+    x_min,
+    x_max,
+    num_samples,
+  );
+
+  void wire__crate__api__find_roots_in_interval(
+    NativePortType port_,
+    String expression,
+    String variable,
+    double start,
+    double end,
+    int num_samples,
+  ) => wasmModule.wire__crate__api__find_roots_in_interval(
+    port_,
+    expression,
+    variable,
+    start,
+    end,
+    num_samples,
+  );
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__gcd(JSAny a, JSAny b) =>
+      wasmModule.wire__crate__api__gcd(a, b);
+
+  void wire__crate__api__generate_analytical_sequence(
+    NativePortType port_,
+    String seq_type,
+    int n,
+  ) => wasmModule.wire__crate__api__generate_analytical_sequence(
+    port_,
+    seq_type,
+    n,
+  );
+
+  void wire__crate__api__generate_classical_sequence(
+    NativePortType port_,
+    String seq_type,
+    double a,
+    double d_or_r,
+    int n,
+    JSAny s,
+  ) => wasmModule.wire__crate__api__generate_classical_sequence(
+    port_,
+    seq_type,
+    a,
+    d_or_r,
+    n,
+    s,
+  );
+
+  void wire__crate__api__generate_combinatorial_sequence(
+    NativePortType port_,
+    String seq_type,
+    int n,
+  ) => wasmModule.wire__crate__api__generate_combinatorial_sequence(
+    port_,
+    seq_type,
+    n,
+  );
+
+  void wire__crate__api__generate_number_theoretic_sequence(
+    NativePortType port_,
+    String seq_type,
+    int n,
+  ) => wasmModule.wire__crate__api__generate_number_theoretic_sequence(
+    port_,
+    seq_type,
+    n,
+  );
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__generate_x_range(
+    double start,
+    double end,
+    JSAny num_points,
+  ) => wasmModule.wire__crate__api__generate_x_range(start, end, num_points);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__get_constant(String name) =>
+      wasmModule.wire__crate__api__get_constant(name);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__get_unit_categories() =>
+      wasmModule.wire__crate__api__get_unit_categories();
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__get_units_for_category(String category) =>
+      wasmModule.wire__crate__api__get_units_for_category(category);
+
+  void wire__crate__api__gradient(
+    NativePortType port_,
+    String expression,
+    JSAny variables,
+    JSAny point,
+  ) => wasmModule.wire__crate__api__gradient(
+    port_,
+    expression,
+    variables,
+    point,
+  );
+
+  void wire__crate__api__init_app(NativePortType port_) =>
+      wasmModule.wire__crate__api__init_app(port_);
+
+  void wire__crate__api__integral_graph(
+    NativePortType port_,
+    String expression,
+    String variable,
+    JSAny x_values,
+    double initial_value,
+  ) => wasmModule.wire__crate__api__integral_graph(
+    port_,
+    expression,
+    variable,
+    x_values,
+    initial_value,
+  );
+
+  void wire__crate__api__integrate(
+    NativePortType port_,
+    String expression,
+    String variable,
+    double lower,
+    double upper,
+    int num_intervals,
+  ) => wasmModule.wire__crate__api__integrate(
+    port_,
+    expression,
+    variable,
+    lower,
+    upper,
+    num_intervals,
+  );
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__is_perfect(JSAny n) =>
+      wasmModule.wire__crate__api__is_perfect(n);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__is_prime(JSAny n) =>
+      wasmModule.wire__crate__api__is_prime(n);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__lcm(JSAny a, JSAny b) =>
+      wasmModule.wire__crate__api__lcm(a, b);
+
+  void wire__crate__api__line_integral(
+    NativePortType port_,
+    String expression,
+    String x_param,
+    String y_param,
+    String t_var,
+    double t_min,
+    double t_max,
+    int num_intervals,
+  ) => wasmModule.wire__crate__api__line_integral(
+    port_,
+    expression,
+    x_param,
+    y_param,
+    t_var,
+    t_min,
+    t_max,
+    num_intervals,
+  );
+
+  void wire__crate__api__linear_regression(
+    NativePortType port_,
+    JSAny x_data,
+    JSAny y_data,
+  ) => wasmModule.wire__crate__api__linear_regression(port_, x_data, y_data);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__list_divisors(JSAny n) =>
+      wasmModule.wire__crate__api__list_divisors(n);
+
+  void wire__crate__api__mann_whitney_u(
+    NativePortType port_,
+    JSAny data1,
+    JSAny data2,
+    double alpha,
+  ) => wasmModule.wire__crate__api__mann_whitney_u(port_, data1, data2, alpha);
+
+  void wire__crate__api__matrix_decomposition(
+    NativePortType port_,
+    JSAny data,
+    JSAny rows,
+    JSAny cols,
+    String decomposition_type,
+  ) => wasmModule.wire__crate__api__matrix_decomposition(
+    port_,
+    data,
+    rows,
+    cols,
+    decomposition_type,
+  );
+
+  void wire__crate__api__matrix_operation(
+    NativePortType port_,
+    JSAny a_data,
+    JSAny a_rows,
+    JSAny a_cols,
+    JSAny? b_data,
+    JSAny? b_rows,
+    JSAny? b_cols,
+    String operation,
+  ) => wasmModule.wire__crate__api__matrix_operation(
+    port_,
+    a_data,
+    a_rows,
+    a_cols,
+    b_data,
+    b_rows,
+    b_cols,
+    operation,
+  );
+
+  void wire__crate__api__matrix_properties(
+    NativePortType port_,
+    JSAny data,
+    JSAny rows,
+    JSAny cols,
+  ) => wasmModule.wire__crate__api__matrix_properties(port_, data, rows, cols);
+
+  void wire__crate__api__matrix_rref(
+    NativePortType port_,
+    JSAny data,
+    JSAny rows,
+    JSAny cols,
+  ) => wasmModule.wire__crate__api__matrix_rref(port_, data, rows, cols);
+
+  void wire__crate__api__mixed_partial_derivative(
+    NativePortType port_,
+    String expression,
+    String var1,
+    String var2,
+    JSAny point,
+  ) => wasmModule.wire__crate__api__mixed_partial_derivative(
+    port_,
+    expression,
+    var1,
+    var2,
+    point,
+  );
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mod_add(JSAny a, JSAny b, JSAny m) =>
+      wasmModule.wire__crate__api__mod_add(a, b, m);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mod_divide(JSAny a, JSAny b, JSAny m) =>
+      wasmModule.wire__crate__api__mod_divide(a, b, m);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mod_inverse(JSAny a, JSAny m) =>
+      wasmModule.wire__crate__api__mod_inverse(a, m);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mod_multiply(JSAny a, JSAny b, JSAny m) =>
+      wasmModule.wire__crate__api__mod_multiply(a, b, m);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mod_pow(JSAny base, JSAny exp, JSAny modulus) =>
+      wasmModule.wire__crate__api__mod_pow(base, exp, modulus);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mod_sub(JSAny a, JSAny b, JSAny m) =>
+      wasmModule.wire__crate__api__mod_sub(a, b, m);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__parse_formula(String formula) =>
+      wasmModule.wire__crate__api__parse_formula(formula);
+
+  void wire__crate__api__partial_derivative(
+    NativePortType port_,
+    String expression,
+    String variable,
+    JSAny point,
+    int order,
+  ) => wasmModule.wire__crate__api__partial_derivative(
+    port_,
+    expression,
+    variable,
+    point,
+    order,
+  );
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__permutations(JSAny n, JSAny r) =>
+      wasmModule.wire__crate__api__permutations(n, r);
+
+  void wire__crate__api__polynomial_regression(
+    NativePortType port_,
+    JSAny x_data,
+    JSAny y_data,
+    JSAny degree,
+  ) => wasmModule.wire__crate__api__polynomial_regression(
+    port_,
+    x_data,
+    y_data,
+    degree,
+  );
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__prime_factors(JSAny n) =>
+      wasmModule.wire__crate__api__prime_factors(n);
+
+  void wire__crate__api__sieve_primes(NativePortType port_, JSAny n) =>
+      wasmModule.wire__crate__api__sieve_primes(port_, n);
+
+  void wire__crate__api__solve_equation(
+    NativePortType port_,
+    String expression,
+    String variable,
+    double initial_guess,
+    double tolerance,
+    int max_iterations,
+  ) => wasmModule.wire__crate__api__solve_equation(
+    port_,
+    expression,
+    variable,
+    initial_guess,
+    tolerance,
     max_iterations,
   );
 
-  void wire__crate__api__compute_graph_layout(
+  void wire__crate__api__symbolic_differentiate(
     NativePortType port_,
-    int? iterations,
-  ) => wasmModule.wire__crate__api__compute_graph_layout(port_, iterations);
-
-  void wire__crate__api__connect_note_to_topics(
-    NativePortType port_,
-    String note_id,
-    JSAny topic_ids,
-  ) => wasmModule.wire__crate__api__connect_note_to_topics(
+    String expression,
+    String variable,
+    int order,
+  ) => wasmModule.wire__crate__api__symbolic_differentiate(
     port_,
-    note_id,
-    topic_ids,
+    expression,
+    variable,
+    order,
   );
 
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__cosine_similarity(JSAny a, JSAny b) =>
-      wasmModule.wire__crate__api__cosine_similarity(a, b);
-
-  void wire__crate__api__discover_semantic_edges(
+  void wire__crate__api__symbolic_gradient(
     NativePortType port_,
-    JSAny entries,
-    double? threshold,
-    JSAny? existing_links,
-  ) => wasmModule.wire__crate__api__discover_semantic_edges(
+    String expression,
+    JSAny variables,
+  ) => wasmModule.wire__crate__api__symbolic_gradient(
     port_,
-    entries,
-    threshold,
-    existing_links,
+    expression,
+    variables,
   );
 
-  void wire__crate__api__extract_topics(
+  void wire__crate__api__symbolic_integrate(
     NativePortType port_,
-    String text,
-    int? num_topics,
-  ) => wasmModule.wire__crate__api__extract_topics(port_, text, num_topics);
-
-  void wire__crate__api__find_similar(
-    NativePortType port_,
-    JSAny query,
-    JSAny entries,
-    JSAny top_k,
-    double threshold,
-  ) => wasmModule.wire__crate__api__find_similar(
+    String expression,
+    JSAny variables,
+  ) => wasmModule.wire__crate__api__symbolic_integrate(
     port_,
-    query,
-    entries,
-    top_k,
-    threshold,
+    expression,
+    variables,
   );
 
-  void wire__crate__api__generate_text(
+  void wire__crate__api__t_test(
     NativePortType port_,
-    String prompt,
-    int? max_tokens,
-  ) => wasmModule.wire__crate__api__generate_text(port_, prompt, max_tokens);
-
-  void wire__crate__api__get_embedding(NativePortType port_, String text) =>
-      wasmModule.wire__crate__api__get_embedding(port_, text);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__get_embedding_dimension() =>
-      wasmModule.wire__crate__api__get_embedding_dimension();
-
-  void wire__crate__api__get_graph_state(NativePortType port_) =>
-      wasmModule.wire__crate__api__get_graph_state(port_);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__get_model_type() =>
-      wasmModule.wire__crate__api__get_model_type();
-
-  void wire__crate__api__get_or_create_topic_hub(
-    NativePortType port_,
-    String topic,
-  ) => wasmModule.wire__crate__api__get_or_create_topic_hub(port_, topic);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__get_stream_graph_stats() =>
-      wasmModule.wire__crate__api__get_stream_graph_stats();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__get_version() => wasmModule.wire__crate__api__get_version();
-
-  void wire__crate__api__get_visible_graph_nodes(NativePortType port_) =>
-      wasmModule.wire__crate__api__get_visible_graph_nodes(port_);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__health_check() =>
-      wasmModule.wire__crate__api__health_check();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__init_graph() => wasmModule.wire__crate__api__init_graph();
-
-  void wire__crate__api__init_mcp(
-    NativePortType port_,
-    String base_path,
-    JSAny? max_file_size,
-    JSAny? allowed_extensions,
-  ) => wasmModule.wire__crate__api__init_mcp(
+    JSAny data,
+    double hypothesized_mean,
+    double alpha,
+  ) => wasmModule.wire__crate__api__t_test(
     port_,
-    base_path,
-    max_file_size,
-    allowed_extensions,
+    data,
+    hypothesized_mean,
+    alpha,
   );
 
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__init_model(String model_path) =>
-      wasmModule.wire__crate__api__init_model(model_path);
-
-  void wire__crate__api__init_model_with_config(
+  void wire__crate__api__taylor_coefficients(
     NativePortType port_,
-    String model_path,
-    int n_gpu_layers,
-    int n_ctx,
-    int n_threads,
-    double temperature,
-    double top_p,
-    int max_tokens,
-    int? model_type,
-  ) => wasmModule.wire__crate__api__init_model_with_config(
+    String expression,
+    String variable,
+    double around,
+    int num_terms,
+  ) => wasmModule.wire__crate__api__taylor_coefficients(
     port_,
-    model_path,
-    n_gpu_layers,
-    n_ctx,
-    n_threads,
-    temperature,
-    top_p,
-    max_tokens,
-    model_type,
+    expression,
+    variable,
+    around,
+    num_terms,
   );
 
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__is_graph_stream_running() =>
-      wasmModule.wire__crate__api__is_graph_stream_running();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__is_mcp_initialized() =>
-      wasmModule.wire__crate__api__is_mcp_initialized();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__is_model_loaded() =>
-      wasmModule.wire__crate__api__is_model_loaded();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_classify_task(String message) =>
-      wasmModule.wire__crate__api__mcp_classify_task(message);
-
-  void wire__crate__api__mcp_create_folder(NativePortType port_, String path) =>
-      wasmModule.wire__crate__api__mcp_create_folder(port_, path);
-
-  void wire__crate__api__mcp_delete_file(NativePortType port_, String path) =>
-      wasmModule.wire__crate__api__mcp_delete_file(port_, path);
-
-  void wire__crate__api__mcp_execute_tool_call(
+  void wire__crate__api__triple_integral(
     NativePortType port_,
-    JSAny tool_call,
-  ) => wasmModule.wire__crate__api__mcp_execute_tool_call(port_, tool_call);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_get_all_tools() =>
-      wasmModule.wire__crate__api__mcp_get_all_tools();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_get_model_for_task(int category) =>
-      wasmModule.wire__crate__api__mcp_get_model_for_task(category);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_get_tool_description(int tool) =>
-      wasmModule.wire__crate__api__mcp_get_tool_description(tool);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_get_tool_name(int tool) =>
-      wasmModule.wire__crate__api__mcp_get_tool_name(tool);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_get_tool_parameters(int tool) =>
-      wasmModule.wire__crate__api__mcp_get_tool_parameters(tool);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_get_tool_schemas() =>
-      wasmModule.wire__crate__api__mcp_get_tool_schemas();
-
-  void wire__crate__api__mcp_list_files(NativePortType port_, String path) =>
-      wasmModule.wire__crate__api__mcp_list_files(port_, path);
-
-  void wire__crate__api__mcp_parse_tool_call(
-    NativePortType port_,
-    String json,
-  ) => wasmModule.wire__crate__api__mcp_parse_tool_call(port_, json);
-
-  void wire__crate__api__mcp_read_file(NativePortType port_, String path) =>
-      wasmModule.wire__crate__api__mcp_read_file(port_, path);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_validate_path(String path) =>
-      wasmModule.wire__crate__api__mcp_validate_path(path);
-
-  void wire__crate__api__mcp_write_file(
-    NativePortType port_,
-    String path,
-    String content,
-  ) => wasmModule.wire__crate__api__mcp_write_file(port_, path, content);
-
-  void wire__crate__api__pin_stream_node(
-    NativePortType port_,
-    String id,
-    bool pinned,
-  ) => wasmModule.wire__crate__api__pin_stream_node(port_, id, pinned);
-
-  void wire__crate__api__remove_graph_node(
-    NativePortType port_,
-    String node_id,
-  ) => wasmModule.wire__crate__api__remove_graph_node(port_, node_id);
-
-  void wire__crate__api__remove_stream_edge(
-    NativePortType port_,
-    String from_id,
-    String to_id,
-  ) => wasmModule.wire__crate__api__remove_stream_edge(port_, from_id, to_id);
-
-  void wire__crate__api__remove_stream_node(NativePortType port_, String id) =>
-      wasmModule.wire__crate__api__remove_stream_node(port_, id);
-
-  void wire__crate__api__semantic_search(
-    NativePortType port_,
-    String query_text,
-    JSAny entries,
-    JSAny top_k,
-  ) => wasmModule.wire__crate__api__semantic_search(
+    String expression,
+    String x_var,
+    String y_var,
+    String z_var,
+    double x_min,
+    double x_max,
+    double y_min,
+    double y_max,
+    double z_min,
+    double z_max,
+    int num_intervals,
+  ) => wasmModule.wire__crate__api__triple_integral(
     port_,
-    query_text,
-    entries,
-    top_k,
+    expression,
+    x_var,
+    y_var,
+    z_var,
+    x_min,
+    x_max,
+    y_min,
+    y_max,
+    z_min,
+    z_max,
+    num_intervals,
   );
 
-  void wire__crate__api__set_stream_node_position(
+  void wire__crate__api__two_sample_t_test(
     NativePortType port_,
-    String id,
-    double x,
-    double y,
-  ) => wasmModule.wire__crate__api__set_stream_node_position(port_, id, x, y);
-
-  void wire__crate__api__start_graph_stream(NativePortType port_) =>
-      wasmModule.wire__crate__api__start_graph_stream(port_);
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__stop_graph_stream() =>
-      wasmModule.wire__crate__api__stop_graph_stream();
-
-  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__unload_model() =>
-      wasmModule.wire__crate__api__unload_model();
-
-  void wire__crate__api__update_graph_viewport(
-    NativePortType port_,
-    double x,
-    double y,
-    double width,
-    double height,
-    double scale,
-  ) => wasmModule.wire__crate__api__update_graph_viewport(
+    JSAny data1,
+    JSAny data2,
+    double alpha,
+  ) => wasmModule.wire__crate__api__two_sample_t_test(
     port_,
-    x,
-    y,
-    width,
-    height,
-    scale,
+    data1,
+    data2,
+    alpha,
+  );
+
+  void wire__crate__api__two_sample_z_test(
+    NativePortType port_,
+    JSAny data1,
+    JSAny data2,
+    double std1,
+    double std2,
+    double alpha,
+  ) => wasmModule.wire__crate__api__two_sample_z_test(
+    port_,
+    data1,
+    data2,
+    std1,
+    std2,
+    alpha,
+  );
+
+  void wire__crate__api__z_test(
+    NativePortType port_,
+    JSAny data,
+    double hypothesized_mean,
+    double population_std,
+    double alpha,
+  ) => wasmModule.wire__crate__api__z_test(
+    port_,
+    data,
+    hypothesized_mean,
+    population_std,
+    alpha,
   );
 }
 
@@ -1468,303 +1671,472 @@ external RustLibWasmModule get wasmModule;
 @JS()
 @anonymous
 extension type RustLibWasmModule._(JSObject _) implements JSObject {
-  external void wire__crate__api__add_graph_edge(
+  external void wire__crate__api__anova(
     NativePortType port_,
-    String source,
-    String target,
-    double weight,
-    String edge_type,
+    JSAny groups,
+    double alpha,
   );
 
-  external void wire__crate__api__add_graph_edges(
+  external void wire__crate__api__binomial_test(
     NativePortType port_,
-    JSAny edges,
+    JSAny successes,
+    JSAny trials,
+    double expected_p,
+    double alpha,
   );
 
-  external void wire__crate__api__add_graph_node(
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__catalan(JSAny n);
+
+  external void wire__crate__api__chi_squared_test(
     NativePortType port_,
-    String id,
-    String label,
-    String node_type,
+    JSAny observed,
+    JSAny expected,
+    double alpha,
+  );
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__combinations(JSAny n, JSAny r);
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__complex_convert(double real, double imag, bool to_polar);
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__complex_operation(
+    double a_real,
+    double a_imag,
+    double b_real,
+    double b_imag,
+    String operation,
+  );
+
+  external void wire__crate__api__compute_limit(
+    NativePortType port_,
+    String expression,
+    String variable,
+    double approach_value,
+    bool from_left,
+    bool from_right,
+  );
+
+  external void wire__crate__api__compute_statistics(
+    NativePortType port_,
+    JSAny data,
+  );
+
+  external void wire__crate__api__confidence_interval_mean(
+    NativePortType port_,
+    JSAny data,
+    double confidence_level,
+  );
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__confidence_interval_proportion(
+    JSAny successes,
+    JSAny n,
+    double confidence_level,
+  );
+
+  external void wire__crate__api__confidence_interval_variance(
+    NativePortType port_,
+    JSAny data,
+    double confidence_level,
+  );
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__convert_number_system(
+    String value,
+    int from_base,
+    int to_base,
+  );
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__convert_to_all_units(double value, String from_unit);
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__convert_unit(
+    double value,
+    String from_unit,
+    String to_unit,
+  );
+
+  external void wire__crate__api__correlation_covariance(
+    NativePortType port_,
+    JSAny x,
+    JSAny y,
+  );
+
+  external void wire__crate__api__derivative_graph(
+    NativePortType port_,
+    String expression,
+    String variable,
+    JSAny x_values,
+  );
+
+  external void wire__crate__api__differentiate(
+    NativePortType port_,
+    String expression,
+    String variable,
+    double point,
+    int order,
+  );
+
+  external void wire__crate__api__distribution_compute(
+    NativePortType port_,
+    String distribution_type,
+    JSAny params,
     double x,
-    double y,
-    String? color,
-    String? metadata,
   );
 
-  external void wire__crate__api__add_graph_nodes(
+  external void wire__crate__api__double_integral(
     NativePortType port_,
-    JSAny nodes,
+    String expression,
+    String x_var,
+    String y_var,
+    double x_min,
+    double x_max,
+    double y_min,
+    double y_max,
+    int num_intervals,
   );
 
-  external void wire__crate__api__add_stream_edge(
+  external void wire__crate__api__durbin_watson_test(
     NativePortType port_,
-    String from_id,
-    String to_id,
-    double strength,
-  );
-
-  external void wire__crate__api__add_stream_node(
-    NativePortType port_,
-    String id,
-    double x,
-    double y,
-    double radius,
-    int color,
-  );
-
-  external void wire__crate__api__analyze_knowledge_graph(
-    NativePortType port_,
-    JSAny entries,
-    JSAny? k,
-    double? similarity_threshold,
-    JSAny? existing_links,
-  );
-
-  external void wire__crate__api__batch_embed(
-    NativePortType port_,
-    JSAny texts,
-  );
-
-  external void wire__crate__api__chat_completion(
-    NativePortType port_,
-    JSAny messages,
-    int? max_tokens,
+    JSAny residuals,
   );
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__clear_graph();
+  wire__crate__api__euler_totient(JSAny n);
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__clear_stream_graph();
+  wire__crate__api__evaluate_expression(String expression);
 
-  external void wire__crate__api__cluster_embeddings(
-    NativePortType port_,
-    JSAny entries,
-    double threshold,
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__evaluate_formula(
+    String formula,
+    JSAny variables,
+    JSAny values,
   );
 
-  external void wire__crate__api__cluster_notes(
+  external void wire__crate__api__evaluate_graph_points(
     NativePortType port_,
-    JSAny entries,
-    JSAny? k,
-    JSAny? max_iterations,
+    String expression,
+    String variable,
+    JSAny x_values,
   );
 
-  external void wire__crate__api__compute_graph_layout(
+  external void wire__crate__api__f_test(
     NativePortType port_,
-    int? iterations,
-  );
-
-  external void wire__crate__api__connect_note_to_topics(
-    NativePortType port_,
-    String note_id,
-    JSAny topic_ids,
+    JSAny data1,
+    JSAny data2,
+    double alpha,
   );
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__cosine_similarity(JSAny a, JSAny b);
+  wire__crate__api__factorial(JSAny n);
 
-  external void wire__crate__api__discover_semantic_edges(
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__fibonacci(JSAny n);
+
+  external void wire__crate__api__find_extrema(
     NativePortType port_,
-    JSAny entries,
-    double? threshold,
-    JSAny? existing_links,
+    String expression,
+    String variable,
+    double x_min,
+    double x_max,
+    JSAny num_samples,
   );
 
-  external void wire__crate__api__extract_topics(
+  external void wire__crate__api__find_graph_roots(
     NativePortType port_,
-    String text,
-    int? num_topics,
+    String expression,
+    String variable,
+    double x_min,
+    double x_max,
+    JSAny num_samples,
   );
 
-  external void wire__crate__api__find_similar(
+  external void wire__crate__api__find_roots_in_interval(
     NativePortType port_,
-    JSAny query,
-    JSAny entries,
-    JSAny top_k,
-    double threshold,
-  );
-
-  external void wire__crate__api__generate_text(
-    NativePortType port_,
-    String prompt,
-    int? max_tokens,
-  );
-
-  external void wire__crate__api__get_embedding(
-    NativePortType port_,
-    String text,
+    String expression,
+    String variable,
+    double start,
+    double end,
+    int num_samples,
   );
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__get_embedding_dimension();
+  wire__crate__api__gcd(JSAny a, JSAny b);
 
-  external void wire__crate__api__get_graph_state(NativePortType port_);
-
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__get_model_type();
-
-  external void wire__crate__api__get_or_create_topic_hub(
+  external void wire__crate__api__generate_analytical_sequence(
     NativePortType port_,
-    String topic,
+    String seq_type,
+    int n,
+  );
+
+  external void wire__crate__api__generate_classical_sequence(
+    NativePortType port_,
+    String seq_type,
+    double a,
+    double d_or_r,
+    int n,
+    JSAny s,
+  );
+
+  external void wire__crate__api__generate_combinatorial_sequence(
+    NativePortType port_,
+    String seq_type,
+    int n,
+  );
+
+  external void wire__crate__api__generate_number_theoretic_sequence(
+    NativePortType port_,
+    String seq_type,
+    int n,
   );
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__get_stream_graph_stats();
-
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__get_version();
-
-  external void wire__crate__api__get_visible_graph_nodes(NativePortType port_);
-
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__health_check();
-
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__init_graph();
-
-  external void wire__crate__api__init_mcp(
-    NativePortType port_,
-    String base_path,
-    JSAny? max_file_size,
-    JSAny? allowed_extensions,
+  wire__crate__api__generate_x_range(
+    double start,
+    double end,
+    JSAny num_points,
   );
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__init_model(String model_path);
+  wire__crate__api__get_constant(String name);
 
-  external void wire__crate__api__init_model_with_config(
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__get_unit_categories();
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__get_units_for_category(String category);
+
+  external void wire__crate__api__gradient(
     NativePortType port_,
-    String model_path,
-    int n_gpu_layers,
-    int n_ctx,
-    int n_threads,
-    double temperature,
-    double top_p,
-    int max_tokens,
-    int? model_type,
+    String expression,
+    JSAny variables,
+    JSAny point,
+  );
+
+  external void wire__crate__api__init_app(NativePortType port_);
+
+  external void wire__crate__api__integral_graph(
+    NativePortType port_,
+    String expression,
+    String variable,
+    JSAny x_values,
+    double initial_value,
+  );
+
+  external void wire__crate__api__integrate(
+    NativePortType port_,
+    String expression,
+    String variable,
+    double lower,
+    double upper,
+    int num_intervals,
   );
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__is_graph_stream_running();
+  wire__crate__api__is_perfect(JSAny n);
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__is_mcp_initialized();
+  wire__crate__api__is_prime(JSAny n);
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__is_model_loaded();
+  wire__crate__api__lcm(JSAny a, JSAny b);
 
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_classify_task(String message);
-
-  external void wire__crate__api__mcp_create_folder(
+  external void wire__crate__api__line_integral(
     NativePortType port_,
-    String path,
+    String expression,
+    String x_param,
+    String y_param,
+    String t_var,
+    double t_min,
+    double t_max,
+    int num_intervals,
   );
 
-  external void wire__crate__api__mcp_delete_file(
+  external void wire__crate__api__linear_regression(
     NativePortType port_,
-    String path,
-  );
-
-  external void wire__crate__api__mcp_execute_tool_call(
-    NativePortType port_,
-    JSAny tool_call,
-  );
-
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_get_all_tools();
-
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_get_model_for_task(int category);
-
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_get_tool_description(int tool);
-
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_get_tool_name(int tool);
-
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_get_tool_parameters(int tool);
-
-  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_get_tool_schemas();
-
-  external void wire__crate__api__mcp_list_files(
-    NativePortType port_,
-    String path,
-  );
-
-  external void wire__crate__api__mcp_parse_tool_call(
-    NativePortType port_,
-    String json,
-  );
-
-  external void wire__crate__api__mcp_read_file(
-    NativePortType port_,
-    String path,
+    JSAny x_data,
+    JSAny y_data,
   );
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__mcp_validate_path(String path);
+  wire__crate__api__list_divisors(JSAny n);
 
-  external void wire__crate__api__mcp_write_file(
+  external void wire__crate__api__mann_whitney_u(
     NativePortType port_,
-    String path,
-    String content,
+    JSAny data1,
+    JSAny data2,
+    double alpha,
   );
 
-  external void wire__crate__api__pin_stream_node(
+  external void wire__crate__api__matrix_decomposition(
     NativePortType port_,
-    String id,
-    bool pinned,
+    JSAny data,
+    JSAny rows,
+    JSAny cols,
+    String decomposition_type,
   );
 
-  external void wire__crate__api__remove_graph_node(
+  external void wire__crate__api__matrix_operation(
     NativePortType port_,
-    String node_id,
+    JSAny a_data,
+    JSAny a_rows,
+    JSAny a_cols,
+    JSAny? b_data,
+    JSAny? b_rows,
+    JSAny? b_cols,
+    String operation,
   );
 
-  external void wire__crate__api__remove_stream_edge(
+  external void wire__crate__api__matrix_properties(
     NativePortType port_,
-    String from_id,
-    String to_id,
+    JSAny data,
+    JSAny rows,
+    JSAny cols,
   );
 
-  external void wire__crate__api__remove_stream_node(
+  external void wire__crate__api__matrix_rref(
     NativePortType port_,
-    String id,
+    JSAny data,
+    JSAny rows,
+    JSAny cols,
   );
 
-  external void wire__crate__api__semantic_search(
+  external void wire__crate__api__mixed_partial_derivative(
     NativePortType port_,
-    String query_text,
-    JSAny entries,
-    JSAny top_k,
+    String expression,
+    String var1,
+    String var2,
+    JSAny point,
   );
-
-  external void wire__crate__api__set_stream_node_position(
-    NativePortType port_,
-    String id,
-    double x,
-    double y,
-  );
-
-  external void wire__crate__api__start_graph_stream(NativePortType port_);
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__stop_graph_stream();
+  wire__crate__api__mod_add(JSAny a, JSAny b, JSAny m);
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
-  wire__crate__api__unload_model();
+  wire__crate__api__mod_divide(JSAny a, JSAny b, JSAny m);
 
-  external void wire__crate__api__update_graph_viewport(
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mod_inverse(JSAny a, JSAny m);
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mod_multiply(JSAny a, JSAny b, JSAny m);
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mod_pow(JSAny base, JSAny exp, JSAny modulus);
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__mod_sub(JSAny a, JSAny b, JSAny m);
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__parse_formula(String formula);
+
+  external void wire__crate__api__partial_derivative(
     NativePortType port_,
-    double x,
-    double y,
-    double width,
-    double height,
-    double scale,
+    String expression,
+    String variable,
+    JSAny point,
+    int order,
+  );
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__permutations(JSAny n, JSAny r);
+
+  external void wire__crate__api__polynomial_regression(
+    NativePortType port_,
+    JSAny x_data,
+    JSAny y_data,
+    JSAny degree,
+  );
+
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__api__prime_factors(JSAny n);
+
+  external void wire__crate__api__sieve_primes(NativePortType port_, JSAny n);
+
+  external void wire__crate__api__solve_equation(
+    NativePortType port_,
+    String expression,
+    String variable,
+    double initial_guess,
+    double tolerance,
+    int max_iterations,
+  );
+
+  external void wire__crate__api__symbolic_differentiate(
+    NativePortType port_,
+    String expression,
+    String variable,
+    int order,
+  );
+
+  external void wire__crate__api__symbolic_gradient(
+    NativePortType port_,
+    String expression,
+    JSAny variables,
+  );
+
+  external void wire__crate__api__symbolic_integrate(
+    NativePortType port_,
+    String expression,
+    JSAny variables,
+  );
+
+  external void wire__crate__api__t_test(
+    NativePortType port_,
+    JSAny data,
+    double hypothesized_mean,
+    double alpha,
+  );
+
+  external void wire__crate__api__taylor_coefficients(
+    NativePortType port_,
+    String expression,
+    String variable,
+    double around,
+    int num_terms,
+  );
+
+  external void wire__crate__api__triple_integral(
+    NativePortType port_,
+    String expression,
+    String x_var,
+    String y_var,
+    String z_var,
+    double x_min,
+    double x_max,
+    double y_min,
+    double y_max,
+    double z_min,
+    double z_max,
+    int num_intervals,
+  );
+
+  external void wire__crate__api__two_sample_t_test(
+    NativePortType port_,
+    JSAny data1,
+    JSAny data2,
+    double alpha,
+  );
+
+  external void wire__crate__api__two_sample_z_test(
+    NativePortType port_,
+    JSAny data1,
+    JSAny data2,
+    double std1,
+    double std2,
+    double alpha,
+  );
+
+  external void wire__crate__api__z_test(
+    NativePortType port_,
+    JSAny data,
+    double hypothesized_mean,
+    double population_std,
+    double alpha,
   );
 }

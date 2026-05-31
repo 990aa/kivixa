@@ -4,16 +4,19 @@
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
 import 'api.dart';
-import 'clustering.dart';
+import 'basic.dart';
+import 'calculus.dart';
+import 'complex.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi' as ffi;
-import 'embeddings.dart';
+import 'discrete.dart';
 import 'frb_generated.dart';
-import 'graph.dart';
-import 'mcp.dart';
+import 'graphing.dart';
+import 'matrix.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
-import 'streaming.dart';
+import 'statistics.dart';
+import 'units.dart';
 
 abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   RustLibApiImplPlatform({
@@ -24,172 +27,134 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   });
 
   @protected
-  AnyhowException dco_decode_AnyhowException(dynamic raw);
-
-  @protected
   String dco_decode_String(dynamic raw);
 
   @protected
   bool dco_decode_bool(dynamic raw);
 
   @protected
-  double dco_decode_box_autoadd_f_32(dynamic raw);
+  bool dco_decode_box_autoadd_bool(dynamic raw);
 
   @protected
-  int dco_decode_box_autoadd_i_32(dynamic raw);
-
-  @protected
-  MCPToolCall dco_decode_box_autoadd_mcp_tool_call(dynamic raw);
-
-  @protected
-  int dco_decode_box_autoadd_u_32(dynamic raw);
+  double dco_decode_box_autoadd_f_64(dynamic raw);
 
   @protected
   BigInt dco_decode_box_autoadd_usize(dynamic raw);
 
   @protected
-  ClusterAssignment dco_decode_cluster_assignment(dynamic raw);
+  CalculusResult dco_decode_calculus_result(dynamic raw);
 
   @protected
-  ClusterInfo dco_decode_cluster_info(dynamic raw);
+  ComplexResult dco_decode_complex_result(dynamic raw);
 
   @protected
-  ClusteringResult dco_decode_clustering_result(dynamic raw);
+  ConfidenceIntervalResult dco_decode_confidence_interval_result(dynamic raw);
 
   @protected
-  EmbeddingCluster dco_decode_embedding_cluster(dynamic raw);
+  CorrelationResult dco_decode_correlation_result(dynamic raw);
 
   @protected
-  EmbeddingEntry dco_decode_embedding_entry(dynamic raw);
+  DiscreteResult dco_decode_discrete_result(dynamic raw);
 
   @protected
-  double dco_decode_f_32(dynamic raw);
+  DistributionResult dco_decode_distribution_result(dynamic raw);
 
   @protected
-  GraphEdge dco_decode_graph_edge(dynamic raw);
+  ExpressionResult dco_decode_expression_result(dynamic raw);
 
   @protected
-  GraphNode dco_decode_graph_node(dynamic raw);
+  double dco_decode_f_64(dynamic raw);
 
   @protected
-  GraphState dco_decode_graph_state(dynamic raw);
+  GraphPoint dco_decode_graph_point(dynamic raw);
 
   @protected
-  int dco_decode_i_32(dynamic raw);
+  GraphResult dco_decode_graph_result(dynamic raw);
 
   @protected
-  KnowledgeGraphAnalysis dco_decode_knowledge_graph_analysis(dynamic raw);
+  HypothesisTestResult dco_decode_hypothesis_test_result(dynamic raw);
 
   @protected
   List<String> dco_decode_list_String(dynamic raw);
 
   @protected
-  List<ClusterAssignment> dco_decode_list_cluster_assignment(dynamic raw);
+  List<CalculusResult> dco_decode_list_calculus_result(dynamic raw);
 
   @protected
-  List<ClusterInfo> dco_decode_list_cluster_info(dynamic raw);
+  List<GraphPoint> dco_decode_list_graph_point(dynamic raw);
 
   @protected
-  List<EmbeddingCluster> dco_decode_list_embedding_cluster(dynamic raw);
+  List<Float64List> dco_decode_list_list_prim_f_64_strict(dynamic raw);
 
   @protected
-  List<EmbeddingEntry> dco_decode_list_embedding_entry(dynamic raw);
+  List<MatrixResult> dco_decode_list_matrix_result(dynamic raw);
 
   @protected
-  List<GraphEdge> dco_decode_list_graph_edge(dynamic raw);
+  List<double> dco_decode_list_prim_f_64_loose(dynamic raw);
 
   @protected
-  List<GraphNode> dco_decode_list_graph_node(dynamic raw);
+  Float64List dco_decode_list_prim_f_64_strict(dynamic raw);
 
   @protected
-  List<MCPParameter> dco_decode_list_mcp_parameter(dynamic raw);
-
-  @protected
-  List<MCPTool> dco_decode_list_mcp_tool(dynamic raw);
-
-  @protected
-  List<NodePosition> dco_decode_list_node_position(dynamic raw);
-
-  @protected
-  List<double> dco_decode_list_prim_f_32_loose(dynamic raw);
-
-  @protected
-  Float32List dco_decode_list_prim_f_32_strict(dynamic raw);
+  Uint64List dco_decode_list_prim_u_64_strict(dynamic raw);
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
-  List<(String, String)> dco_decode_list_record_string_string(dynamic raw);
+  List<(double, double)> dco_decode_list_record_f_64_f_64(dynamic raw);
 
   @protected
-  List<SemanticEdge> dco_decode_list_semantic_edge(dynamic raw);
+  List<(String, double)> dco_decode_list_record_string_f_64(dynamic raw);
 
   @protected
-  List<SimilarityResult> dco_decode_list_similarity_result(dynamic raw);
+  List<UnitResult> dco_decode_list_unit_result(dynamic raw);
 
   @protected
-  MCPParamType dco_decode_mcp_param_type(dynamic raw);
+  MatrixDecomposition dco_decode_matrix_decomposition(dynamic raw);
 
   @protected
-  MCPParameter dco_decode_mcp_parameter(dynamic raw);
-
-  @protected
-  MCPTool dco_decode_mcp_tool(dynamic raw);
-
-  @protected
-  MCPToolCall dco_decode_mcp_tool_call(dynamic raw);
-
-  @protected
-  MCPToolResult dco_decode_mcp_tool_result(dynamic raw);
-
-  @protected
-  NodePosition dco_decode_node_position(dynamic raw);
+  MatrixResult dco_decode_matrix_result(dynamic raw);
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
-  double? dco_decode_opt_box_autoadd_f_32(dynamic raw);
+  bool? dco_decode_opt_box_autoadd_bool(dynamic raw);
 
   @protected
-  int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
-
-  @protected
-  int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
+  double? dco_decode_opt_box_autoadd_f_64(dynamic raw);
 
   @protected
   BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw);
 
   @protected
-  List<String>? dco_decode_opt_list_String(dynamic raw);
+  Float64List? dco_decode_opt_list_prim_f_64_strict(dynamic raw);
 
   @protected
-  Float32List? dco_decode_opt_list_prim_f_32_strict(dynamic raw);
+  (double, double) dco_decode_record_f_64_f_64(dynamic raw);
 
   @protected
-  List<(String, String)>? dco_decode_opt_list_record_string_string(dynamic raw);
+  (List<(double, double)>, List<(double, double)>)
+  dco_decode_record_list_record_f_64_f_64_list_record_f_64_f_64(dynamic raw);
 
   @protected
-  (String, String) dco_decode_record_string_string(dynamic raw);
+  (String, double) dco_decode_record_string_f_64(dynamic raw);
 
   @protected
-  SemanticEdge dco_decode_semantic_edge(dynamic raw);
+  RegressionResult dco_decode_regression_result(dynamic raw);
 
   @protected
-  SemanticEdgeResult dco_decode_semantic_edge_result(dynamic raw);
+  SolveResult dco_decode_solve_result(dynamic raw);
 
   @protected
-  SimilarityResult dco_decode_similarity_result(dynamic raw);
-
-  @protected
-  StreamGraphStats dco_decode_stream_graph_stats(dynamic raw);
-
-  @protected
-  TaskCategory dco_decode_task_category(dynamic raw);
+  StatisticsResult dco_decode_statistics_result(dynamic raw);
 
   @protected
   int dco_decode_u_32(dynamic raw);
+
+  @protected
+  BigInt dco_decode_u_64(dynamic raw);
 
   @protected
   int dco_decode_u_8(dynamic raw);
@@ -198,10 +163,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void dco_decode_unit(dynamic raw);
 
   @protected
-  BigInt dco_decode_usize(dynamic raw);
+  UnitResult dco_decode_unit_result(dynamic raw);
 
   @protected
-  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+  BigInt dco_decode_usize(dynamic raw);
 
   @protected
   String sse_decode_String(SseDeserializer deserializer);
@@ -210,54 +175,50 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
-  double sse_decode_box_autoadd_f_32(SseDeserializer deserializer);
+  bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
 
   @protected
-  int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
-
-  @protected
-  MCPToolCall sse_decode_box_autoadd_mcp_tool_call(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
+  double sse_decode_box_autoadd_f_64(SseDeserializer deserializer);
 
   @protected
   BigInt sse_decode_box_autoadd_usize(SseDeserializer deserializer);
 
   @protected
-  ClusterAssignment sse_decode_cluster_assignment(SseDeserializer deserializer);
+  CalculusResult sse_decode_calculus_result(SseDeserializer deserializer);
 
   @protected
-  ClusterInfo sse_decode_cluster_info(SseDeserializer deserializer);
+  ComplexResult sse_decode_complex_result(SseDeserializer deserializer);
 
   @protected
-  ClusteringResult sse_decode_clustering_result(SseDeserializer deserializer);
+  ConfidenceIntervalResult sse_decode_confidence_interval_result(
+    SseDeserializer deserializer,
+  );
 
   @protected
-  EmbeddingCluster sse_decode_embedding_cluster(SseDeserializer deserializer);
+  CorrelationResult sse_decode_correlation_result(SseDeserializer deserializer);
 
   @protected
-  EmbeddingEntry sse_decode_embedding_entry(SseDeserializer deserializer);
+  DiscreteResult sse_decode_discrete_result(SseDeserializer deserializer);
 
   @protected
-  double sse_decode_f_32(SseDeserializer deserializer);
+  DistributionResult sse_decode_distribution_result(
+    SseDeserializer deserializer,
+  );
 
   @protected
-  GraphEdge sse_decode_graph_edge(SseDeserializer deserializer);
+  ExpressionResult sse_decode_expression_result(SseDeserializer deserializer);
 
   @protected
-  GraphNode sse_decode_graph_node(SseDeserializer deserializer);
+  double sse_decode_f_64(SseDeserializer deserializer);
 
   @protected
-  GraphState sse_decode_graph_state(SseDeserializer deserializer);
+  GraphPoint sse_decode_graph_point(SseDeserializer deserializer);
 
   @protected
-  int sse_decode_i_32(SseDeserializer deserializer);
+  GraphResult sse_decode_graph_result(SseDeserializer deserializer);
 
   @protected
-  KnowledgeGraphAnalysis sse_decode_knowledge_graph_analysis(
+  HypothesisTestResult sse_decode_hypothesis_test_result(
     SseDeserializer deserializer,
   );
 
@@ -265,136 +226,99 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
-  List<ClusterAssignment> sse_decode_list_cluster_assignment(
+  List<CalculusResult> sse_decode_list_calculus_result(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<ClusterInfo> sse_decode_list_cluster_info(SseDeserializer deserializer);
+  List<GraphPoint> sse_decode_list_graph_point(SseDeserializer deserializer);
 
   @protected
-  List<EmbeddingCluster> sse_decode_list_embedding_cluster(
+  List<Float64List> sse_decode_list_list_prim_f_64_strict(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<EmbeddingEntry> sse_decode_list_embedding_entry(
+  List<MatrixResult> sse_decode_list_matrix_result(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<GraphEdge> sse_decode_list_graph_edge(SseDeserializer deserializer);
+  List<double> sse_decode_list_prim_f_64_loose(SseDeserializer deserializer);
 
   @protected
-  List<GraphNode> sse_decode_list_graph_node(SseDeserializer deserializer);
+  Float64List sse_decode_list_prim_f_64_strict(SseDeserializer deserializer);
 
   @protected
-  List<MCPParameter> sse_decode_list_mcp_parameter(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  List<MCPTool> sse_decode_list_mcp_tool(SseDeserializer deserializer);
-
-  @protected
-  List<NodePosition> sse_decode_list_node_position(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  List<double> sse_decode_list_prim_f_32_loose(SseDeserializer deserializer);
-
-  @protected
-  Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer);
+  Uint64List sse_decode_list_prim_u_64_strict(SseDeserializer deserializer);
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
-  List<(String, String)> sse_decode_list_record_string_string(
+  List<(double, double)> sse_decode_list_record_f_64_f_64(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<SemanticEdge> sse_decode_list_semantic_edge(
+  List<(String, double)> sse_decode_list_record_string_f_64(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<SimilarityResult> sse_decode_list_similarity_result(
+  List<UnitResult> sse_decode_list_unit_result(SseDeserializer deserializer);
+
+  @protected
+  MatrixDecomposition sse_decode_matrix_decomposition(
     SseDeserializer deserializer,
   );
 
   @protected
-  MCPParamType sse_decode_mcp_param_type(SseDeserializer deserializer);
-
-  @protected
-  MCPParameter sse_decode_mcp_parameter(SseDeserializer deserializer);
-
-  @protected
-  MCPTool sse_decode_mcp_tool(SseDeserializer deserializer);
-
-  @protected
-  MCPToolCall sse_decode_mcp_tool_call(SseDeserializer deserializer);
-
-  @protected
-  MCPToolResult sse_decode_mcp_tool_result(SseDeserializer deserializer);
-
-  @protected
-  NodePosition sse_decode_node_position(SseDeserializer deserializer);
+  MatrixResult sse_decode_matrix_result(SseDeserializer deserializer);
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
-  double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer);
+  bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer);
 
   @protected
-  int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
-
-  @protected
-  int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
+  double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer);
 
   @protected
   BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer);
 
   @protected
-  List<String>? sse_decode_opt_list_String(SseDeserializer deserializer);
-
-  @protected
-  Float32List? sse_decode_opt_list_prim_f_32_strict(
+  Float64List? sse_decode_opt_list_prim_f_64_strict(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<(String, String)>? sse_decode_opt_list_record_string_string(
+  (double, double) sse_decode_record_f_64_f_64(SseDeserializer deserializer);
+
+  @protected
+  (List<(double, double)>, List<(double, double)>)
+  sse_decode_record_list_record_f_64_f_64_list_record_f_64_f_64(
     SseDeserializer deserializer,
   );
 
   @protected
-  (String, String) sse_decode_record_string_string(
-    SseDeserializer deserializer,
-  );
+  (String, double) sse_decode_record_string_f_64(SseDeserializer deserializer);
 
   @protected
-  SemanticEdge sse_decode_semantic_edge(SseDeserializer deserializer);
+  RegressionResult sse_decode_regression_result(SseDeserializer deserializer);
 
   @protected
-  SemanticEdgeResult sse_decode_semantic_edge_result(
-    SseDeserializer deserializer,
-  );
+  SolveResult sse_decode_solve_result(SseDeserializer deserializer);
 
   @protected
-  SimilarityResult sse_decode_similarity_result(SseDeserializer deserializer);
-
-  @protected
-  StreamGraphStats sse_decode_stream_graph_stats(SseDeserializer deserializer);
-
-  @protected
-  TaskCategory sse_decode_task_category(SseDeserializer deserializer);
+  StatisticsResult sse_decode_statistics_result(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_32(SseDeserializer deserializer);
+
+  @protected
+  BigInt sse_decode_u_64(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_8(SseDeserializer deserializer);
@@ -403,15 +327,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_decode_unit(SseDeserializer deserializer);
 
   @protected
+  UnitResult sse_decode_unit_result(SseDeserializer deserializer);
+
+  @protected
   BigInt sse_decode_usize(SseDeserializer deserializer);
 
   @protected
-  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_AnyhowException(
-    AnyhowException raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    throw UnimplementedError();
-  }
+  int sse_decode_i_32(SseDeserializer deserializer);
 
   @protected
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_String(String raw) {
@@ -420,31 +342,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
-  ffi.Pointer<ffi.Float> cst_encode_box_autoadd_f_32(double raw) {
+  ffi.Pointer<ffi.Bool> cst_encode_box_autoadd_bool(bool raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return wire.cst_new_box_autoadd_f_32(cst_encode_f_32(raw));
+    return wire.cst_new_box_autoadd_bool(cst_encode_bool(raw));
   }
 
   @protected
-  ffi.Pointer<ffi.Int32> cst_encode_box_autoadd_i_32(int raw) {
+  ffi.Pointer<ffi.Double> cst_encode_box_autoadd_f_64(double raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return wire.cst_new_box_autoadd_i_32(cst_encode_i_32(raw));
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_mcp_tool_call> cst_encode_box_autoadd_mcp_tool_call(
-    MCPToolCall raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ptr = wire.cst_new_box_autoadd_mcp_tool_call();
-    cst_api_fill_to_wire_mcp_tool_call(raw, ptr.ref);
-    return ptr;
-  }
-
-  @protected
-  ffi.Pointer<ffi.Uint32> cst_encode_box_autoadd_u_32(int raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return wire.cst_new_box_autoadd_u_32(cst_encode_u_32(raw));
+    return wire.cst_new_box_autoadd_f_64(cst_encode_f_64(raw));
   }
 
   @protected
@@ -464,128 +370,79 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
-  ffi.Pointer<wire_cst_list_cluster_assignment>
-  cst_encode_list_cluster_assignment(List<ClusterAssignment> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_cluster_assignment(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_cluster_assignment(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_cluster_info> cst_encode_list_cluster_info(
-    List<ClusterInfo> raw,
+  ffi.Pointer<wire_cst_list_calculus_result> cst_encode_list_calculus_result(
+    List<CalculusResult> raw,
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_cluster_info(raw.length);
+    final ans = wire.cst_new_list_calculus_result(raw.length);
     for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_cluster_info(raw[i], ans.ref.ptr[i]);
+      cst_api_fill_to_wire_calculus_result(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
 
   @protected
-  ffi.Pointer<wire_cst_list_embedding_cluster>
-  cst_encode_list_embedding_cluster(List<EmbeddingCluster> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_embedding_cluster(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_embedding_cluster(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_embedding_entry> cst_encode_list_embedding_entry(
-    List<EmbeddingEntry> raw,
+  ffi.Pointer<wire_cst_list_graph_point> cst_encode_list_graph_point(
+    List<GraphPoint> raw,
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_embedding_entry(raw.length);
+    final ans = wire.cst_new_list_graph_point(raw.length);
     for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_embedding_entry(raw[i], ans.ref.ptr[i]);
+      cst_api_fill_to_wire_graph_point(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
 
   @protected
-  ffi.Pointer<wire_cst_list_graph_edge> cst_encode_list_graph_edge(
-    List<GraphEdge> raw,
+  ffi.Pointer<wire_cst_list_list_prim_f_64_strict>
+  cst_encode_list_list_prim_f_64_strict(List<Float64List> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_list_prim_f_64_strict(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      ans.ref.ptr[i] = cst_encode_list_prim_f_64_strict(raw[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_matrix_result> cst_encode_list_matrix_result(
+    List<MatrixResult> raw,
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_graph_edge(raw.length);
+    final ans = wire.cst_new_list_matrix_result(raw.length);
     for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_graph_edge(raw[i], ans.ref.ptr[i]);
+      cst_api_fill_to_wire_matrix_result(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
 
   @protected
-  ffi.Pointer<wire_cst_list_graph_node> cst_encode_list_graph_node(
-    List<GraphNode> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_graph_node(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_graph_node(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_mcp_parameter> cst_encode_list_mcp_parameter(
-    List<MCPParameter> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_mcp_parameter(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_mcp_parameter(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_mcp_tool> cst_encode_list_mcp_tool(
-    List<MCPTool> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_mcp_tool(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      ans.ref.ptr[i] = cst_encode_mcp_tool(raw[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_node_position> cst_encode_list_node_position(
-    List<NodePosition> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_node_position(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_node_position(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_f_32_loose> cst_encode_list_prim_f_32_loose(
+  ffi.Pointer<wire_cst_list_prim_f_64_loose> cst_encode_list_prim_f_64_loose(
     List<double> raw,
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_f_32_loose(raw.length);
+    final ans = wire.cst_new_list_prim_f_64_loose(raw.length);
     ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
     return ans;
   }
 
   @protected
-  ffi.Pointer<wire_cst_list_prim_f_32_strict> cst_encode_list_prim_f_32_strict(
-    Float32List raw,
+  ffi.Pointer<wire_cst_list_prim_f_64_strict> cst_encode_list_prim_f_64_strict(
+    Float64List raw,
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_f_32_strict(raw.length);
+    final ans = wire.cst_new_list_prim_f_64_strict(raw.length);
     ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_64_strict> cst_encode_list_prim_u_64_strict(
+    Uint64List raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_u_64_strict(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw.inner);
     return ans;
   }
 
@@ -600,35 +457,36 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
-  ffi.Pointer<wire_cst_list_record_string_string>
-  cst_encode_list_record_string_string(List<(String, String)> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_record_string_string(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_record_string_string(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_semantic_edge> cst_encode_list_semantic_edge(
-    List<SemanticEdge> raw,
+  ffi.Pointer<wire_cst_list_record_f_64_f_64> cst_encode_list_record_f_64_f_64(
+    List<(double, double)> raw,
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_semantic_edge(raw.length);
+    final ans = wire.cst_new_list_record_f_64_f_64(raw.length);
     for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_semantic_edge(raw[i], ans.ref.ptr[i]);
+      cst_api_fill_to_wire_record_f_64_f_64(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
 
   @protected
-  ffi.Pointer<wire_cst_list_similarity_result>
-  cst_encode_list_similarity_result(List<SimilarityResult> raw) {
+  ffi.Pointer<wire_cst_list_record_string_f_64>
+  cst_encode_list_record_string_f_64(List<(String, double)> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_similarity_result(raw.length);
+    final ans = wire.cst_new_list_record_string_f_64(raw.length);
     for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_similarity_result(raw[i], ans.ref.ptr[i]);
+      cst_api_fill_to_wire_record_string_f_64(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_unit_result> cst_encode_list_unit_result(
+    List<UnitResult> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_unit_result(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_unit_result(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
@@ -642,21 +500,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
-  ffi.Pointer<ffi.Float> cst_encode_opt_box_autoadd_f_32(double? raw) {
+  ffi.Pointer<ffi.Bool> cst_encode_opt_box_autoadd_bool(bool? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_f_32(raw);
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_bool(raw);
   }
 
   @protected
-  ffi.Pointer<ffi.Int32> cst_encode_opt_box_autoadd_i_32(int? raw) {
+  ffi.Pointer<ffi.Double> cst_encode_opt_box_autoadd_f_64(double? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_i_32(raw);
-  }
-
-  @protected
-  ffi.Pointer<ffi.Uint32> cst_encode_opt_box_autoadd_u_32(int? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_u_32(raw);
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_f_64(raw);
   }
 
   @protected
@@ -666,27 +518,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
-  ffi.Pointer<wire_cst_list_String> cst_encode_opt_list_String(
-    List<String>? raw,
-  ) {
+  ffi.Pointer<wire_cst_list_prim_f_64_strict>
+  cst_encode_opt_list_prim_f_64_strict(Float64List? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_list_String(raw);
+    return raw == null ? ffi.nullptr : cst_encode_list_prim_f_64_strict(raw);
   }
 
   @protected
-  ffi.Pointer<wire_cst_list_prim_f_32_strict>
-  cst_encode_opt_list_prim_f_32_strict(Float32List? raw) {
+  int cst_encode_u_64(BigInt raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_list_prim_f_32_strict(raw);
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_record_string_string>
-  cst_encode_opt_list_record_string_string(List<(String, String)>? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null
-        ? ffi.nullptr
-        : cst_encode_list_record_string_string(raw);
+    return raw.toSigned(64).toInt();
   }
 
   @protected
@@ -696,223 +537,241 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   }
 
   @protected
-  void cst_api_fill_to_wire_box_autoadd_mcp_tool_call(
-    MCPToolCall apiObj,
-    ffi.Pointer<wire_cst_mcp_tool_call> wireObj,
-  ) {
-    cst_api_fill_to_wire_mcp_tool_call(apiObj, wireObj.ref);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_cluster_assignment(
-    ClusterAssignment apiObj,
-    wire_cst_cluster_assignment wireObj,
-  ) {
-    wireObj.id = cst_encode_String(apiObj.id);
-    wireObj.cluster_id = cst_encode_usize(apiObj.clusterId);
-    wireObj.color = cst_encode_String(apiObj.color);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_cluster_info(
-    ClusterInfo apiObj,
-    wire_cst_cluster_info wireObj,
-  ) {
-    wireObj.id = cst_encode_usize(apiObj.id);
-    wireObj.size = cst_encode_usize(apiObj.size);
-    wireObj.color = cst_encode_String(apiObj.color);
-    wireObj.centroid = cst_encode_opt_list_prim_f_32_strict(apiObj.centroid);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_clustering_result(
-    ClusteringResult apiObj,
-    wire_cst_clustering_result wireObj,
-  ) {
-    wireObj.assignments = cst_encode_list_cluster_assignment(
-      apiObj.assignments,
-    );
-    wireObj.clusters = cst_encode_list_cluster_info(apiObj.clusters);
-    wireObj.k = cst_encode_usize(apiObj.k);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_embedding_cluster(
-    EmbeddingCluster apiObj,
-    wire_cst_embedding_cluster wireObj,
-  ) {
-    wireObj.ids = cst_encode_list_String(apiObj.ids);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_embedding_entry(
-    EmbeddingEntry apiObj,
-    wire_cst_embedding_entry wireObj,
-  ) {
-    wireObj.id = cst_encode_String(apiObj.id);
-    wireObj.vector = cst_encode_list_prim_f_32_strict(apiObj.vector);
-    wireObj.text_preview = cst_encode_opt_String(apiObj.textPreview);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_graph_edge(
-    GraphEdge apiObj,
-    wire_cst_graph_edge wireObj,
-  ) {
-    wireObj.source = cst_encode_String(apiObj.source);
-    wireObj.target = cst_encode_String(apiObj.target);
-    wireObj.weight = cst_encode_f_32(apiObj.weight);
-    wireObj.edge_type = cst_encode_String(apiObj.edgeType);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_graph_node(
-    GraphNode apiObj,
-    wire_cst_graph_node wireObj,
-  ) {
-    wireObj.id = cst_encode_String(apiObj.id);
-    wireObj.label = cst_encode_String(apiObj.label);
-    wireObj.node_type = cst_encode_String(apiObj.nodeType);
-    wireObj.x = cst_encode_f_32(apiObj.x);
-    wireObj.y = cst_encode_f_32(apiObj.y);
-    wireObj.color = cst_encode_opt_String(apiObj.color);
-    wireObj.metadata = cst_encode_opt_String(apiObj.metadata);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_graph_state(
-    GraphState apiObj,
-    wire_cst_graph_state wireObj,
-  ) {
-    wireObj.nodes = cst_encode_list_graph_node(apiObj.nodes);
-    wireObj.edges = cst_encode_list_graph_edge(apiObj.edges);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_knowledge_graph_analysis(
-    KnowledgeGraphAnalysis apiObj,
-    wire_cst_knowledge_graph_analysis wireObj,
-  ) {
-    cst_api_fill_to_wire_clustering_result(
-      apiObj.clustering,
-      wireObj.clustering,
-    );
-    cst_api_fill_to_wire_semantic_edge_result(
-      apiObj.semanticEdges,
-      wireObj.semantic_edges,
-    );
-  }
-
-  @protected
-  void cst_api_fill_to_wire_mcp_parameter(
-    MCPParameter apiObj,
-    wire_cst_mcp_parameter wireObj,
-  ) {
-    wireObj.name = cst_encode_String(apiObj.name);
-    wireObj.description = cst_encode_String(apiObj.description);
-    wireObj.param_type = cst_encode_mcp_param_type(apiObj.paramType);
-    wireObj.required = cst_encode_bool(apiObj.required_);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_mcp_tool_call(
-    MCPToolCall apiObj,
-    wire_cst_mcp_tool_call wireObj,
-  ) {
-    wireObj.tool = cst_encode_String(apiObj.tool);
-    wireObj.parameters_json = cst_encode_String(apiObj.parametersJson);
-    wireObj.description = cst_encode_String(apiObj.description);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_mcp_tool_result(
-    MCPToolResult apiObj,
-    wire_cst_mcp_tool_result wireObj,
+  void cst_api_fill_to_wire_calculus_result(
+    CalculusResult apiObj,
+    wire_cst_calculus_result wireObj,
   ) {
     wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.result = cst_encode_String(apiObj.result);
-    wireObj.tool = cst_encode_String(apiObj.tool);
+    wireObj.value = cst_encode_f_64(apiObj.value);
+    wireObj.symbolic = cst_encode_opt_String(apiObj.symbolic);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
   }
 
   @protected
-  void cst_api_fill_to_wire_node_position(
-    NodePosition apiObj,
-    wire_cst_node_position wireObj,
+  void cst_api_fill_to_wire_complex_result(
+    ComplexResult apiObj,
+    wire_cst_complex_result wireObj,
   ) {
-    wireObj.id = cst_encode_String(apiObj.id);
-    wireObj.x = cst_encode_f_32(apiObj.x);
-    wireObj.y = cst_encode_f_32(apiObj.y);
-    wireObj.radius = cst_encode_f_32(apiObj.radius);
-    wireObj.color = cst_encode_u_32(apiObj.color);
-    wireObj.node_type = cst_encode_String(apiObj.nodeType);
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.real = cst_encode_f_64(apiObj.real);
+    wireObj.imag = cst_encode_f_64(apiObj.imag);
+    wireObj.magnitude = cst_encode_f_64(apiObj.magnitude);
+    wireObj.angle_rad = cst_encode_f_64(apiObj.angleRad);
+    wireObj.angle_deg = cst_encode_f_64(apiObj.angleDeg);
+    wireObj.formatted_rect = cst_encode_String(apiObj.formattedRect);
+    wireObj.formatted_polar = cst_encode_String(apiObj.formattedPolar);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
   }
 
   @protected
-  void cst_api_fill_to_wire_record_string_string(
-    (String, String) apiObj,
-    wire_cst_record_string_string wireObj,
+  void cst_api_fill_to_wire_confidence_interval_result(
+    ConfidenceIntervalResult apiObj,
+    wire_cst_confidence_interval_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.lower = cst_encode_f_64(apiObj.lower);
+    wireObj.upper = cst_encode_f_64(apiObj.upper);
+    wireObj.center = cst_encode_f_64(apiObj.center);
+    wireObj.margin_of_error = cst_encode_f_64(apiObj.marginOfError);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_correlation_result(
+    CorrelationResult apiObj,
+    wire_cst_correlation_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.correlation = cst_encode_f_64(apiObj.correlation);
+    wireObj.covariance = cst_encode_f_64(apiObj.covariance);
+    wireObj.p_value = cst_encode_f_64(apiObj.pValue);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_discrete_result(
+    DiscreteResult apiObj,
+    wire_cst_discrete_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.value = cst_encode_u_64(apiObj.value);
+    wireObj.big_value = cst_encode_opt_String(apiObj.bigValue);
+    wireObj.values = cst_encode_list_prim_u_64_strict(apiObj.values);
+    wireObj.bool_result = cst_encode_opt_box_autoadd_bool(apiObj.boolResult);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_distribution_result(
+    DistributionResult apiObj,
+    wire_cst_distribution_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.pdf = cst_encode_f_64(apiObj.pdf);
+    wireObj.cdf = cst_encode_f_64(apiObj.cdf);
+    wireObj.mean = cst_encode_f_64(apiObj.mean);
+    wireObj.variance = cst_encode_f_64(apiObj.variance);
+    wireObj.std_dev = cst_encode_f_64(apiObj.stdDev);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_expression_result(
+    ExpressionResult apiObj,
+    wire_cst_expression_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.value = cst_encode_f_64(apiObj.value);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+    wireObj.formatted = cst_encode_String(apiObj.formatted);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_graph_point(
+    GraphPoint apiObj,
+    wire_cst_graph_point wireObj,
+  ) {
+    wireObj.x = cst_encode_f_64(apiObj.x);
+    wireObj.y = cst_encode_f_64(apiObj.y);
+    wireObj.valid = cst_encode_bool(apiObj.valid);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_graph_result(
+    GraphResult apiObj,
+    wire_cst_graph_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.points = cst_encode_list_graph_point(apiObj.points);
+    wireObj.x_min = cst_encode_f_64(apiObj.xMin);
+    wireObj.x_max = cst_encode_f_64(apiObj.xMax);
+    wireObj.y_min = cst_encode_f_64(apiObj.yMin);
+    wireObj.y_max = cst_encode_f_64(apiObj.yMax);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_hypothesis_test_result(
+    HypothesisTestResult apiObj,
+    wire_cst_hypothesis_test_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.test_statistic = cst_encode_f_64(apiObj.testStatistic);
+    wireObj.p_value = cst_encode_f_64(apiObj.pValue);
+    wireObj.critical_value = cst_encode_f_64(apiObj.criticalValue);
+    wireObj.reject_null = cst_encode_bool(apiObj.rejectNull);
+    cst_api_fill_to_wire_record_f_64_f_64(
+      apiObj.confidenceInterval,
+      wireObj.confidence_interval,
+    );
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_matrix_decomposition(
+    MatrixDecomposition apiObj,
+    wire_cst_matrix_decomposition wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.decomposition_type = cst_encode_String(apiObj.decompositionType);
+    wireObj.matrices = cst_encode_list_matrix_result(apiObj.matrices);
+    wireObj.labels = cst_encode_list_String(apiObj.labels);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_matrix_result(
+    MatrixResult apiObj,
+    wire_cst_matrix_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.data = cst_encode_list_prim_f_64_strict(apiObj.data);
+    wireObj.rows = cst_encode_usize(apiObj.rows);
+    wireObj.cols = cst_encode_usize(apiObj.cols);
+    wireObj.scalar = cst_encode_opt_box_autoadd_f_64(apiObj.scalar);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_record_f_64_f_64(
+    (double, double) apiObj,
+    wire_cst_record_f_64_f_64 wireObj,
+  ) {
+    wireObj.field0 = cst_encode_f_64(apiObj.$1);
+    wireObj.field1 = cst_encode_f_64(apiObj.$2);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_record_list_record_f_64_f_64_list_record_f_64_f_64(
+    (List<(double, double)>, List<(double, double)>) apiObj,
+    wire_cst_record_list_record_f_64_f_64_list_record_f_64_f_64 wireObj,
+  ) {
+    wireObj.field0 = cst_encode_list_record_f_64_f_64(apiObj.$1);
+    wireObj.field1 = cst_encode_list_record_f_64_f_64(apiObj.$2);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_record_string_f_64(
+    (String, double) apiObj,
+    wire_cst_record_string_f_64 wireObj,
   ) {
     wireObj.field0 = cst_encode_String(apiObj.$1);
-    wireObj.field1 = cst_encode_String(apiObj.$2);
+    wireObj.field1 = cst_encode_f_64(apiObj.$2);
   }
 
   @protected
-  void cst_api_fill_to_wire_semantic_edge(
-    SemanticEdge apiObj,
-    wire_cst_semantic_edge wireObj,
+  void cst_api_fill_to_wire_regression_result(
+    RegressionResult apiObj,
+    wire_cst_regression_result wireObj,
   ) {
-    wireObj.source = cst_encode_String(apiObj.source);
-    wireObj.target = cst_encode_String(apiObj.target);
-    wireObj.similarity = cst_encode_f_32(apiObj.similarity);
-    wireObj.is_ghost = cst_encode_bool(apiObj.isGhost);
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.coefficients = cst_encode_list_prim_f_64_strict(
+      apiObj.coefficients,
+    );
+    wireObj.r_squared = cst_encode_f_64(apiObj.rSquared);
+    wireObj.residuals = cst_encode_list_prim_f_64_strict(apiObj.residuals);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
   }
 
   @protected
-  void cst_api_fill_to_wire_semantic_edge_result(
-    SemanticEdgeResult apiObj,
-    wire_cst_semantic_edge_result wireObj,
+  void cst_api_fill_to_wire_solve_result(
+    SolveResult apiObj,
+    wire_cst_solve_result wireObj,
   ) {
-    wireObj.edges = cst_encode_list_semantic_edge(apiObj.edges);
-    wireObj.count = cst_encode_usize(apiObj.count);
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.roots = cst_encode_list_prim_f_64_strict(apiObj.roots);
+    wireObj.iterations = cst_encode_usize(apiObj.iterations);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
   }
 
   @protected
-  void cst_api_fill_to_wire_similarity_result(
-    SimilarityResult apiObj,
-    wire_cst_similarity_result wireObj,
+  void cst_api_fill_to_wire_statistics_result(
+    StatisticsResult apiObj,
+    wire_cst_statistics_result wireObj,
   ) {
-    wireObj.id = cst_encode_String(apiObj.id);
-    wireObj.score = cst_encode_f_32(apiObj.score);
-    wireObj.text_preview = cst_encode_opt_String(apiObj.textPreview);
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.values = cst_encode_list_record_string_f_64(apiObj.values);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
   }
 
   @protected
-  void cst_api_fill_to_wire_stream_graph_stats(
-    StreamGraphStats apiObj,
-    wire_cst_stream_graph_stats wireObj,
+  void cst_api_fill_to_wire_unit_result(
+    UnitResult apiObj,
+    wire_cst_unit_result wireObj,
   ) {
-    wireObj.node_count = cst_encode_usize(apiObj.nodeCount);
-    wireObj.edge_count = cst_encode_usize(apiObj.edgeCount);
-    wireObj.visible_count = cst_encode_usize(apiObj.visibleCount);
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.value = cst_encode_f_64(apiObj.value);
+    wireObj.from_unit = cst_encode_String(apiObj.fromUnit);
+    wireObj.to_unit = cst_encode_String(apiObj.toUnit);
+    wireObj.formula = cst_encode_String(apiObj.formula);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
   }
 
   @protected
   bool cst_encode_bool(bool raw);
 
   @protected
-  double cst_encode_f_32(double raw);
-
-  @protected
-  int cst_encode_i_32(int raw);
-
-  @protected
-  int cst_encode_mcp_param_type(MCPParamType raw);
-
-  @protected
-  int cst_encode_mcp_tool(MCPTool raw);
-
-  @protected
-  int cst_encode_task_category(TaskCategory raw);
+  double cst_encode_f_64(double raw);
 
   @protected
   int cst_encode_u_32(int raw);
@@ -924,80 +783,71 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void cst_encode_unit(void raw);
 
   @protected
-  void sse_encode_AnyhowException(
-    AnyhowException self,
-    SseSerializer serializer,
-  );
-
-  @protected
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
   void sse_encode_bool(bool self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer);
+  void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_box_autoadd_mcp_tool_call(
-    MCPToolCall self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
+  void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_usize(BigInt self, SseSerializer serializer);
 
   @protected
-  void sse_encode_cluster_assignment(
-    ClusterAssignment self,
+  void sse_encode_calculus_result(
+    CalculusResult self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_cluster_info(ClusterInfo self, SseSerializer serializer);
+  void sse_encode_complex_result(ComplexResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_clustering_result(
-    ClusteringResult self,
+  void sse_encode_confidence_interval_result(
+    ConfidenceIntervalResult self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_embedding_cluster(
-    EmbeddingCluster self,
+  void sse_encode_correlation_result(
+    CorrelationResult self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_embedding_entry(
-    EmbeddingEntry self,
+  void sse_encode_discrete_result(
+    DiscreteResult self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_f_32(double self, SseSerializer serializer);
+  void sse_encode_distribution_result(
+    DistributionResult self,
+    SseSerializer serializer,
+  );
 
   @protected
-  void sse_encode_graph_edge(GraphEdge self, SseSerializer serializer);
+  void sse_encode_expression_result(
+    ExpressionResult self,
+    SseSerializer serializer,
+  );
 
   @protected
-  void sse_encode_graph_node(GraphNode self, SseSerializer serializer);
+  void sse_encode_f_64(double self, SseSerializer serializer);
 
   @protected
-  void sse_encode_graph_state(GraphState self, SseSerializer serializer);
+  void sse_encode_graph_point(GraphPoint self, SseSerializer serializer);
 
   @protected
-  void sse_encode_i_32(int self, SseSerializer serializer);
+  void sse_encode_graph_result(GraphResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_knowledge_graph_analysis(
-    KnowledgeGraphAnalysis self,
+  void sse_encode_hypothesis_test_result(
+    HypothesisTestResult self,
     SseSerializer serializer,
   );
 
@@ -1005,65 +855,44 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_cluster_assignment(
-    List<ClusterAssignment> self,
+  void sse_encode_list_calculus_result(
+    List<CalculusResult> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_cluster_info(
-    List<ClusterInfo> self,
+  void sse_encode_list_graph_point(
+    List<GraphPoint> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_embedding_cluster(
-    List<EmbeddingCluster> self,
+  void sse_encode_list_list_prim_f_64_strict(
+    List<Float64List> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_embedding_entry(
-    List<EmbeddingEntry> self,
+  void sse_encode_list_matrix_result(
+    List<MatrixResult> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_graph_edge(
-    List<GraphEdge> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_graph_node(
-    List<GraphNode> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_mcp_parameter(
-    List<MCPParameter> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_mcp_tool(List<MCPTool> self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_list_node_position(
-    List<NodePosition> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_f_32_loose(
+  void sse_encode_list_prim_f_64_loose(
     List<double> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_prim_f_32_strict(
-    Float32List self,
+  void sse_encode_list_prim_f_64_strict(
+    Float64List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_prim_u_64_strict(
+    Uint64List self,
     SseSerializer serializer,
   );
 
@@ -1074,103 +903,88 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  void sse_encode_list_record_string_string(
-    List<(String, String)> self,
+  void sse_encode_list_record_f_64_f_64(
+    List<(double, double)> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_semantic_edge(
-    List<SemanticEdge> self,
+  void sse_encode_list_record_string_f_64(
+    List<(String, double)> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_similarity_result(
-    List<SimilarityResult> self,
+  void sse_encode_list_unit_result(
+    List<UnitResult> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_mcp_param_type(MCPParamType self, SseSerializer serializer);
+  void sse_encode_matrix_decomposition(
+    MatrixDecomposition self,
+    SseSerializer serializer,
+  );
 
   @protected
-  void sse_encode_mcp_parameter(MCPParameter self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_mcp_tool(MCPTool self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_mcp_tool_call(MCPToolCall self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_mcp_tool_result(MCPToolResult self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_node_position(NodePosition self, SseSerializer serializer);
+  void sse_encode_matrix_result(MatrixResult self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer);
+  void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
+  void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_box_autoadd_usize(BigInt? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_list_String(List<String>? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_list_prim_f_32_strict(
-    Float32List? self,
+  void sse_encode_opt_list_prim_f_64_strict(
+    Float64List? self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_opt_list_record_string_string(
-    List<(String, String)>? self,
+  void sse_encode_record_f_64_f_64(
+    (double, double) self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_record_string_string(
-    (String, String) self,
+  void sse_encode_record_list_record_f_64_f_64_list_record_f_64_f_64(
+    (List<(double, double)>, List<(double, double)>) self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_semantic_edge(SemanticEdge self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_semantic_edge_result(
-    SemanticEdgeResult self,
+  void sse_encode_record_string_f_64(
+    (String, double) self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_similarity_result(
-    SimilarityResult self,
+  void sse_encode_regression_result(
+    RegressionResult self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_stream_graph_stats(
-    StreamGraphStats self,
-    SseSerializer serializer,
-  );
+  void sse_encode_solve_result(SolveResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_task_category(TaskCategory self, SseSerializer serializer);
+  void sse_encode_statistics_result(
+    StatisticsResult self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_u_64(BigInt self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_8(int self, SseSerializer serializer);
@@ -1179,7 +993,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_unit(void self, SseSerializer serializer);
 
   @protected
+  void sse_encode_unit_result(UnitResult self, SseSerializer serializer);
+
+  @protected
   void sse_encode_usize(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer);
 }
 
 // Section: wire_class
@@ -1219,396 +1039,1905 @@ class RustLibWire implements BaseWire {
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
       .asFunction<void Function(DartPostCObjectFnType)>();
 
-  void wire__crate__api__add_graph_edge(
+  void wire__crate__api__anova(
     int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> source,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> target,
-    double weight,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> edge_type,
+    ffi.Pointer<wire_cst_list_list_prim_f_64_strict> groups,
+    double alpha,
   ) {
-    return _wire__crate__api__add_graph_edge(
+    return _wire__crate__api__anova(port_, groups, alpha);
+  }
+
+  late final _wire__crate__api__anovaPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_list_prim_f_64_strict>,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__anova');
+  late final _wire__crate__api__anova = _wire__crate__api__anovaPtr
+      .asFunction<
+        void Function(
+          int,
+          ffi.Pointer<wire_cst_list_list_prim_f_64_strict>,
+          double,
+        )
+      >();
+
+  void wire__crate__api__binomial_test(
+    int port_,
+    int successes,
+    int trials,
+    double expected_p,
+    double alpha,
+  ) {
+    return _wire__crate__api__binomial_test(
       port_,
-      source,
-      target,
-      weight,
-      edge_type,
+      successes,
+      trials,
+      expected_p,
+      alpha,
     );
   }
 
-  late final _wire__crate__api__add_graph_edgePtr =
+  late final _wire__crate__api__binomial_testPtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Void Function(
             ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Float,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Uint64,
+            ffi.Uint64,
+            ffi.Double,
+            ffi.Double,
           )
         >
-      >('frbgen_kivixa_wire__crate__api__add_graph_edge');
-  late final _wire__crate__api__add_graph_edge =
-      _wire__crate__api__add_graph_edgePtr
-          .asFunction<
-            void Function(
-              int,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              double,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            )
-          >();
+      >('frbgen_kivixa_wire__crate__api__binomial_test');
+  late final _wire__crate__api__binomial_test =
+      _wire__crate__api__binomial_testPtr
+          .asFunction<void Function(int, int, int, double, double)>();
 
-  void wire__crate__api__add_graph_edges(
-    int port_,
-    ffi.Pointer<wire_cst_list_graph_edge> edges,
-  ) {
-    return _wire__crate__api__add_graph_edges(port_, edges);
+  WireSyncRust2DartDco wire__crate__api__catalan(int n) {
+    return _wire__crate__api__catalan(n);
   }
 
-  late final _wire__crate__api__add_graph_edgesPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_cst_list_graph_edge>)
-        >
-      >('frbgen_kivixa_wire__crate__api__add_graph_edges');
-  late final _wire__crate__api__add_graph_edges =
-      _wire__crate__api__add_graph_edgesPtr
-          .asFunction<
-            void Function(int, ffi.Pointer<wire_cst_list_graph_edge>)
-          >();
+  late final _wire__crate__api__catalanPtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.Uint64)>>(
+        'frbgen_kivixa_wire__crate__api__catalan',
+      );
+  late final _wire__crate__api__catalan = _wire__crate__api__catalanPtr
+      .asFunction<WireSyncRust2DartDco Function(int)>();
 
-  void wire__crate__api__add_graph_node(
+  void wire__crate__api__chi_squared_test(
     int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> id,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> label,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> node_type,
-    double x,
-    double y,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> color,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> metadata,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> observed,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> expected,
+    double alpha,
   ) {
-    return _wire__crate__api__add_graph_node(
+    return _wire__crate__api__chi_squared_test(
       port_,
-      id,
-      label,
-      node_type,
-      x,
-      y,
-      color,
-      metadata,
+      observed,
+      expected,
+      alpha,
     );
   }
 
-  late final _wire__crate__api__add_graph_nodePtr =
+  late final _wire__crate__api__chi_squared_testPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__chi_squared_test');
+  late final _wire__crate__api__chi_squared_test =
+      _wire__crate__api__chi_squared_testPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              double,
+            )
+          >();
+
+  WireSyncRust2DartDco wire__crate__api__combinations(int n, int r) {
+    return _wire__crate__api__combinations(n, r);
+  }
+
+  late final _wire__crate__api__combinationsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(ffi.Uint64, ffi.Uint64)
+        >
+      >('frbgen_kivixa_wire__crate__api__combinations');
+  late final _wire__crate__api__combinations =
+      _wire__crate__api__combinationsPtr
+          .asFunction<WireSyncRust2DartDco Function(int, int)>();
+
+  WireSyncRust2DartDco wire__crate__api__complex_convert(
+    double real,
+    double imag,
+    bool to_polar,
+  ) {
+    return _wire__crate__api__complex_convert(real, imag, to_polar);
+  }
+
+  late final _wire__crate__api__complex_convertPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(ffi.Double, ffi.Double, ffi.Bool)
+        >
+      >('frbgen_kivixa_wire__crate__api__complex_convert');
+  late final _wire__crate__api__complex_convert =
+      _wire__crate__api__complex_convertPtr
+          .asFunction<WireSyncRust2DartDco Function(double, double, bool)>();
+
+  WireSyncRust2DartDco wire__crate__api__complex_operation(
+    double a_real,
+    double a_imag,
+    double b_real,
+    double b_imag,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> operation,
+  ) {
+    return _wire__crate__api__complex_operation(
+      a_real,
+      a_imag,
+      b_real,
+      b_imag,
+      operation,
+    );
+  }
+
+  late final _wire__crate__api__complex_operationPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(
+            ffi.Double,
+            ffi.Double,
+            ffi.Double,
+            ffi.Double,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__complex_operation');
+  late final _wire__crate__api__complex_operation =
+      _wire__crate__api__complex_operationPtr
+          .asFunction<
+            WireSyncRust2DartDco Function(
+              double,
+              double,
+              double,
+              double,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
+  void wire__crate__api__compute_limit(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> variable,
+    double approach_value,
+    bool from_left,
+    bool from_right,
+  ) {
+    return _wire__crate__api__compute_limit(
+      port_,
+      expression,
+      variable,
+      approach_value,
+      from_left,
+      from_right,
+    );
+  }
+
+  late final _wire__crate__api__compute_limitPtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Void Function(
             ffi.Int64,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Float,
-            ffi.Float,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Double,
+            ffi.Bool,
+            ffi.Bool,
           )
         >
-      >('frbgen_kivixa_wire__crate__api__add_graph_node');
-  late final _wire__crate__api__add_graph_node =
-      _wire__crate__api__add_graph_nodePtr
+      >('frbgen_kivixa_wire__crate__api__compute_limit');
+  late final _wire__crate__api__compute_limit =
+      _wire__crate__api__compute_limitPtr
           .asFunction<
             void Function(
               int,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               double,
-              double,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              bool,
+              bool,
             )
           >();
 
-  void wire__crate__api__add_graph_nodes(
+  void wire__crate__api__compute_statistics(
     int port_,
-    ffi.Pointer<wire_cst_list_graph_node> nodes,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data,
   ) {
-    return _wire__crate__api__add_graph_nodes(port_, nodes);
+    return _wire__crate__api__compute_statistics(port_, data);
   }
 
-  late final _wire__crate__api__add_graph_nodesPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_cst_list_graph_node>)
-        >
-      >('frbgen_kivixa_wire__crate__api__add_graph_nodes');
-  late final _wire__crate__api__add_graph_nodes =
-      _wire__crate__api__add_graph_nodesPtr
-          .asFunction<
-            void Function(int, ffi.Pointer<wire_cst_list_graph_node>)
-          >();
-
-  void wire__crate__api__add_stream_edge(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> from_id,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> to_id,
-    double strength,
-  ) {
-    return _wire__crate__api__add_stream_edge(port_, from_id, to_id, strength);
-  }
-
-  late final _wire__crate__api__add_stream_edgePtr =
+  late final _wire__crate__api__compute_statisticsPtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Void Function(
             ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Float,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
           )
         >
-      >('frbgen_kivixa_wire__crate__api__add_stream_edge');
-  late final _wire__crate__api__add_stream_edge =
-      _wire__crate__api__add_stream_edgePtr
+      >('frbgen_kivixa_wire__crate__api__compute_statistics');
+  late final _wire__crate__api__compute_statistics =
+      _wire__crate__api__compute_statisticsPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_f_64_loose>)
+          >();
+
+  void wire__crate__api__confidence_interval_mean(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data,
+    double confidence_level,
+  ) {
+    return _wire__crate__api__confidence_interval_mean(
+      port_,
+      data,
+      confidence_level,
+    );
+  }
+
+  late final _wire__crate__api__confidence_interval_meanPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__confidence_interval_mean');
+  late final _wire__crate__api__confidence_interval_mean =
+      _wire__crate__api__confidence_interval_meanPtr
           .asFunction<
             void Function(
               int,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
               double,
             )
           >();
 
-  void wire__crate__api__add_stream_node(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> id,
-    double x,
-    double y,
-    double radius,
-    int color,
+  WireSyncRust2DartDco wire__crate__api__confidence_interval_proportion(
+    int successes,
+    int n,
+    double confidence_level,
   ) {
-    return _wire__crate__api__add_stream_node(port_, id, x, y, radius, color);
+    return _wire__crate__api__confidence_interval_proportion(
+      successes,
+      n,
+      confidence_level,
+    );
   }
 
-  late final _wire__crate__api__add_stream_nodePtr =
+  late final _wire__crate__api__confidence_interval_proportionPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(ffi.Uint64, ffi.Uint64, ffi.Double)
+        >
+      >('frbgen_kivixa_wire__crate__api__confidence_interval_proportion');
+  late final _wire__crate__api__confidence_interval_proportion =
+      _wire__crate__api__confidence_interval_proportionPtr
+          .asFunction<WireSyncRust2DartDco Function(int, int, double)>();
+
+  void wire__crate__api__confidence_interval_variance(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data,
+    double confidence_level,
+  ) {
+    return _wire__crate__api__confidence_interval_variance(
+      port_,
+      data,
+      confidence_level,
+    );
+  }
+
+  late final _wire__crate__api__confidence_interval_variancePtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Void Function(
             ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__confidence_interval_variance');
+  late final _wire__crate__api__confidence_interval_variance =
+      _wire__crate__api__confidence_interval_variancePtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              double,
+            )
+          >();
+
+  WireSyncRust2DartDco wire__crate__api__convert_number_system(
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> value,
+    int from_base,
+    int to_base,
+  ) {
+    return _wire__crate__api__convert_number_system(value, from_base, to_base);
+  }
+
+  late final _wire__crate__api__convert_number_systemPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Float,
-            ffi.Float,
-            ffi.Float,
+            ffi.Uint32,
             ffi.Uint32,
           )
         >
-      >('frbgen_kivixa_wire__crate__api__add_stream_node');
-  late final _wire__crate__api__add_stream_node =
-      _wire__crate__api__add_stream_nodePtr
+      >('frbgen_kivixa_wire__crate__api__convert_number_system');
+  late final _wire__crate__api__convert_number_system =
+      _wire__crate__api__convert_number_systemPtr
+          .asFunction<
+            WireSyncRust2DartDco Function(
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              int,
+              int,
+            )
+          >();
+
+  WireSyncRust2DartDco wire__crate__api__convert_to_all_units(
+    double value,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> from_unit,
+  ) {
+    return _wire__crate__api__convert_to_all_units(value, from_unit);
+  }
+
+  late final _wire__crate__api__convert_to_all_unitsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(
+            ffi.Double,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__convert_to_all_units');
+  late final _wire__crate__api__convert_to_all_units =
+      _wire__crate__api__convert_to_all_unitsPtr
+          .asFunction<
+            WireSyncRust2DartDco Function(
+              double,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
+  WireSyncRust2DartDco wire__crate__api__convert_unit(
+    double value,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> from_unit,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> to_unit,
+  ) {
+    return _wire__crate__api__convert_unit(value, from_unit, to_unit);
+  }
+
+  late final _wire__crate__api__convert_unitPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(
+            ffi.Double,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__convert_unit');
+  late final _wire__crate__api__convert_unit =
+      _wire__crate__api__convert_unitPtr
+          .asFunction<
+            WireSyncRust2DartDco Function(
+              double,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
+  void wire__crate__api__correlation_covariance(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> x,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> y,
+  ) {
+    return _wire__crate__api__correlation_covariance(port_, x, y);
+  }
+
+  late final _wire__crate__api__correlation_covariancePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__correlation_covariance');
+  late final _wire__crate__api__correlation_covariance =
+      _wire__crate__api__correlation_covariancePtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            )
+          >();
+
+  void wire__crate__api__derivative_graph(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> variable,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> x_values,
+  ) {
+    return _wire__crate__api__derivative_graph(
+      port_,
+      expression,
+      variable,
+      x_values,
+    );
+  }
+
+  late final _wire__crate__api__derivative_graphPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__derivative_graph');
+  late final _wire__crate__api__derivative_graph =
+      _wire__crate__api__derivative_graphPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            )
+          >();
+
+  void wire__crate__api__differentiate(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> variable,
+    double point,
+    int order,
+  ) {
+    return _wire__crate__api__differentiate(
+      port_,
+      expression,
+      variable,
+      point,
+      order,
+    );
+  }
+
+  late final _wire__crate__api__differentiatePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Double,
+            ffi.Uint32,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__differentiate');
+  late final _wire__crate__api__differentiate =
+      _wire__crate__api__differentiatePtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              double,
+              int,
+            )
+          >();
+
+  void wire__crate__api__distribution_compute(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> distribution_type,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> params,
+    double x,
+  ) {
+    return _wire__crate__api__distribution_compute(
+      port_,
+      distribution_type,
+      params,
+      x,
+    );
+  }
+
+  late final _wire__crate__api__distribution_computePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__distribution_compute');
+  late final _wire__crate__api__distribution_compute =
+      _wire__crate__api__distribution_computePtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              double,
+            )
+          >();
+
+  void wire__crate__api__double_integral(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> x_var,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> y_var,
+    double x_min,
+    double x_max,
+    double y_min,
+    double y_max,
+    int num_intervals,
+  ) {
+    return _wire__crate__api__double_integral(
+      port_,
+      expression,
+      x_var,
+      y_var,
+      x_min,
+      x_max,
+      y_min,
+      y_max,
+      num_intervals,
+    );
+  }
+
+  late final _wire__crate__api__double_integralPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Double,
+            ffi.Double,
+            ffi.Double,
+            ffi.Double,
+            ffi.Uint32,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__double_integral');
+  late final _wire__crate__api__double_integral =
+      _wire__crate__api__double_integralPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              double,
+              double,
+              double,
+              double,
+              int,
+            )
+          >();
+
+  void wire__crate__api__durbin_watson_test(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> residuals,
+  ) {
+    return _wire__crate__api__durbin_watson_test(port_, residuals);
+  }
+
+  late final _wire__crate__api__durbin_watson_testPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__durbin_watson_test');
+  late final _wire__crate__api__durbin_watson_test =
+      _wire__crate__api__durbin_watson_testPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_f_64_loose>)
+          >();
+
+  WireSyncRust2DartDco wire__crate__api__euler_totient(int n) {
+    return _wire__crate__api__euler_totient(n);
+  }
+
+  late final _wire__crate__api__euler_totientPtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.Uint64)>>(
+        'frbgen_kivixa_wire__crate__api__euler_totient',
+      );
+  late final _wire__crate__api__euler_totient =
+      _wire__crate__api__euler_totientPtr
+          .asFunction<WireSyncRust2DartDco Function(int)>();
+
+  WireSyncRust2DartDco wire__crate__api__evaluate_expression(
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+  ) {
+    return _wire__crate__api__evaluate_expression(expression);
+  }
+
+  late final _wire__crate__api__evaluate_expressionPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__evaluate_expression');
+  late final _wire__crate__api__evaluate_expression =
+      _wire__crate__api__evaluate_expressionPtr
+          .asFunction<
+            WireSyncRust2DartDco Function(
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
+  WireSyncRust2DartDco wire__crate__api__evaluate_formula(
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> formula,
+    ffi.Pointer<wire_cst_list_String> variables,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> values,
+  ) {
+    return _wire__crate__api__evaluate_formula(formula, variables, values);
+  }
+
+  late final _wire__crate__api__evaluate_formulaPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_String>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__evaluate_formula');
+  late final _wire__crate__api__evaluate_formula =
+      _wire__crate__api__evaluate_formulaPtr
+          .asFunction<
+            WireSyncRust2DartDco Function(
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_String>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            )
+          >();
+
+  void wire__crate__api__evaluate_graph_points(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> variable,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> x_values,
+  ) {
+    return _wire__crate__api__evaluate_graph_points(
+      port_,
+      expression,
+      variable,
+      x_values,
+    );
+  }
+
+  late final _wire__crate__api__evaluate_graph_pointsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__evaluate_graph_points');
+  late final _wire__crate__api__evaluate_graph_points =
+      _wire__crate__api__evaluate_graph_pointsPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            )
+          >();
+
+  void wire__crate__api__f_test(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data1,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data2,
+    double alpha,
+  ) {
+    return _wire__crate__api__f_test(port_, data1, data2, alpha);
+  }
+
+  late final _wire__crate__api__f_testPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__f_test');
+  late final _wire__crate__api__f_test = _wire__crate__api__f_testPtr
+      .asFunction<
+        void Function(
+          int,
+          ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+          ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+          double,
+        )
+      >();
+
+  WireSyncRust2DartDco wire__crate__api__factorial(int n) {
+    return _wire__crate__api__factorial(n);
+  }
+
+  late final _wire__crate__api__factorialPtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.Uint64)>>(
+        'frbgen_kivixa_wire__crate__api__factorial',
+      );
+  late final _wire__crate__api__factorial = _wire__crate__api__factorialPtr
+      .asFunction<WireSyncRust2DartDco Function(int)>();
+
+  WireSyncRust2DartDco wire__crate__api__fibonacci(int n) {
+    return _wire__crate__api__fibonacci(n);
+  }
+
+  late final _wire__crate__api__fibonacciPtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.Uint64)>>(
+        'frbgen_kivixa_wire__crate__api__fibonacci',
+      );
+  late final _wire__crate__api__fibonacci = _wire__crate__api__fibonacciPtr
+      .asFunction<WireSyncRust2DartDco Function(int)>();
+
+  void wire__crate__api__find_extrema(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> variable,
+    double x_min,
+    double x_max,
+    int num_samples,
+  ) {
+    return _wire__crate__api__find_extrema(
+      port_,
+      expression,
+      variable,
+      x_min,
+      x_max,
+      num_samples,
+    );
+  }
+
+  late final _wire__crate__api__find_extremaPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Double,
+            ffi.Double,
+            ffi.UintPtr,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__find_extrema');
+  late final _wire__crate__api__find_extrema =
+      _wire__crate__api__find_extremaPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              double,
+              double,
+              int,
+            )
+          >();
+
+  void wire__crate__api__find_graph_roots(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> variable,
+    double x_min,
+    double x_max,
+    int num_samples,
+  ) {
+    return _wire__crate__api__find_graph_roots(
+      port_,
+      expression,
+      variable,
+      x_min,
+      x_max,
+      num_samples,
+    );
+  }
+
+  late final _wire__crate__api__find_graph_rootsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Double,
+            ffi.Double,
+            ffi.UintPtr,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__find_graph_roots');
+  late final _wire__crate__api__find_graph_roots =
+      _wire__crate__api__find_graph_rootsPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              double,
+              double,
+              int,
+            )
+          >();
+
+  void wire__crate__api__find_roots_in_interval(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> variable,
+    double start,
+    double end,
+    int num_samples,
+  ) {
+    return _wire__crate__api__find_roots_in_interval(
+      port_,
+      expression,
+      variable,
+      start,
+      end,
+      num_samples,
+    );
+  }
+
+  late final _wire__crate__api__find_roots_in_intervalPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Double,
+            ffi.Double,
+            ffi.Uint32,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__find_roots_in_interval');
+  late final _wire__crate__api__find_roots_in_interval =
+      _wire__crate__api__find_roots_in_intervalPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              double,
+              double,
+              int,
+            )
+          >();
+
+  WireSyncRust2DartDco wire__crate__api__gcd(int a, int b) {
+    return _wire__crate__api__gcd(a, b);
+  }
+
+  late final _wire__crate__api__gcdPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(ffi.Uint64, ffi.Uint64)
+        >
+      >('frbgen_kivixa_wire__crate__api__gcd');
+  late final _wire__crate__api__gcd = _wire__crate__api__gcdPtr
+      .asFunction<WireSyncRust2DartDco Function(int, int)>();
+
+  void wire__crate__api__generate_analytical_sequence(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> seq_type,
+    int n,
+  ) {
+    return _wire__crate__api__generate_analytical_sequence(port_, seq_type, n);
+  }
+
+  late final _wire__crate__api__generate_analytical_sequencePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Uint32,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__generate_analytical_sequence');
+  late final _wire__crate__api__generate_analytical_sequence =
+      _wire__crate__api__generate_analytical_sequencePtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>, int)
+          >();
+
+  void wire__crate__api__generate_classical_sequence(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> seq_type,
+    double a,
+    double d_or_r,
+    int n,
+    int s,
+  ) {
+    return _wire__crate__api__generate_classical_sequence(
+      port_,
+      seq_type,
+      a,
+      d_or_r,
+      n,
+      s,
+    );
+  }
+
+  late final _wire__crate__api__generate_classical_sequencePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Double,
+            ffi.Double,
+            ffi.Uint32,
+            ffi.Uint64,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__generate_classical_sequence');
+  late final _wire__crate__api__generate_classical_sequence =
+      _wire__crate__api__generate_classical_sequencePtr
           .asFunction<
             void Function(
               int,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               double,
               double,
-              double,
+              int,
               int,
             )
           >();
 
-  void wire__crate__api__analyze_knowledge_graph(
+  void wire__crate__api__generate_combinatorial_sequence(
     int port_,
-    ffi.Pointer<wire_cst_list_embedding_entry> entries,
-    ffi.Pointer<ffi.UintPtr> k,
-    ffi.Pointer<ffi.Float> similarity_threshold,
-    ffi.Pointer<wire_cst_list_record_string_string> existing_links,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> seq_type,
+    int n,
   ) {
-    return _wire__crate__api__analyze_knowledge_graph(
+    return _wire__crate__api__generate_combinatorial_sequence(
       port_,
-      entries,
-      k,
-      similarity_threshold,
-      existing_links,
+      seq_type,
+      n,
     );
   }
 
-  late final _wire__crate__api__analyze_knowledge_graphPtr =
+  late final _wire__crate__api__generate_combinatorial_sequencePtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Void Function(
             ffi.Int64,
-            ffi.Pointer<wire_cst_list_embedding_entry>,
-            ffi.Pointer<ffi.UintPtr>,
-            ffi.Pointer<ffi.Float>,
-            ffi.Pointer<wire_cst_list_record_string_string>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Uint32,
           )
         >
-      >('frbgen_kivixa_wire__crate__api__analyze_knowledge_graph');
-  late final _wire__crate__api__analyze_knowledge_graph =
-      _wire__crate__api__analyze_knowledge_graphPtr
+      >('frbgen_kivixa_wire__crate__api__generate_combinatorial_sequence');
+  late final _wire__crate__api__generate_combinatorial_sequence =
+      _wire__crate__api__generate_combinatorial_sequencePtr
           .asFunction<
-            void Function(
-              int,
-              ffi.Pointer<wire_cst_list_embedding_entry>,
-              ffi.Pointer<ffi.UintPtr>,
-              ffi.Pointer<ffi.Float>,
-              ffi.Pointer<wire_cst_list_record_string_string>,
-            )
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>, int)
           >();
 
-  void wire__crate__api__batch_embed(
+  void wire__crate__api__generate_number_theoretic_sequence(
     int port_,
-    ffi.Pointer<wire_cst_list_String> texts,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> seq_type,
+    int n,
   ) {
-    return _wire__crate__api__batch_embed(port_, texts);
+    return _wire__crate__api__generate_number_theoretic_sequence(
+      port_,
+      seq_type,
+      n,
+    );
   }
 
-  late final _wire__crate__api__batch_embedPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_cst_list_String>)
-        >
-      >('frbgen_kivixa_wire__crate__api__batch_embed');
-  late final _wire__crate__api__batch_embed = _wire__crate__api__batch_embedPtr
-      .asFunction<void Function(int, ffi.Pointer<wire_cst_list_String>)>();
-
-  void wire__crate__api__chat_completion(
-    int port_,
-    ffi.Pointer<wire_cst_list_record_string_string> messages,
-    ffi.Pointer<ffi.Uint32> max_tokens,
-  ) {
-    return _wire__crate__api__chat_completion(port_, messages, max_tokens);
-  }
-
-  late final _wire__crate__api__chat_completionPtr =
+  late final _wire__crate__api__generate_number_theoretic_sequencePtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Void Function(
             ffi.Int64,
-            ffi.Pointer<wire_cst_list_record_string_string>,
-            ffi.Pointer<ffi.Uint32>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Uint32,
           )
         >
-      >('frbgen_kivixa_wire__crate__api__chat_completion');
-  late final _wire__crate__api__chat_completion =
-      _wire__crate__api__chat_completionPtr
+      >('frbgen_kivixa_wire__crate__api__generate_number_theoretic_sequence');
+  late final _wire__crate__api__generate_number_theoretic_sequence =
+      _wire__crate__api__generate_number_theoretic_sequencePtr
           .asFunction<
-            void Function(
-              int,
-              ffi.Pointer<wire_cst_list_record_string_string>,
-              ffi.Pointer<ffi.Uint32>,
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>, int)
+          >();
+
+  WireSyncRust2DartDco wire__crate__api__generate_x_range(
+    double start,
+    double end,
+    int num_points,
+  ) {
+    return _wire__crate__api__generate_x_range(start, end, num_points);
+  }
+
+  late final _wire__crate__api__generate_x_rangePtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(ffi.Double, ffi.Double, ffi.UintPtr)
+        >
+      >('frbgen_kivixa_wire__crate__api__generate_x_range');
+  late final _wire__crate__api__generate_x_range =
+      _wire__crate__api__generate_x_rangePtr
+          .asFunction<WireSyncRust2DartDco Function(double, double, int)>();
+
+  WireSyncRust2DartDco wire__crate__api__get_constant(
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__api__get_constant(name);
+  }
+
+  late final _wire__crate__api__get_constantPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__get_constant');
+  late final _wire__crate__api__get_constant =
+      _wire__crate__api__get_constantPtr
+          .asFunction<
+            WireSyncRust2DartDco Function(
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             )
           >();
 
-  WireSyncRust2DartDco wire__crate__api__clear_graph() {
-    return _wire__crate__api__clear_graph();
+  WireSyncRust2DartDco wire__crate__api__get_unit_categories() {
+    return _wire__crate__api__get_unit_categories();
   }
 
-  late final _wire__crate__api__clear_graphPtr =
+  late final _wire__crate__api__get_unit_categoriesPtr =
       _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__clear_graph',
+        'frbgen_kivixa_wire__crate__api__get_unit_categories',
       );
-  late final _wire__crate__api__clear_graph = _wire__crate__api__clear_graphPtr
-      .asFunction<WireSyncRust2DartDco Function()>();
-
-  WireSyncRust2DartDco wire__crate__api__clear_stream_graph() {
-    return _wire__crate__api__clear_stream_graph();
-  }
-
-  late final _wire__crate__api__clear_stream_graphPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__clear_stream_graph',
-      );
-  late final _wire__crate__api__clear_stream_graph =
-      _wire__crate__api__clear_stream_graphPtr
+  late final _wire__crate__api__get_unit_categories =
+      _wire__crate__api__get_unit_categoriesPtr
           .asFunction<WireSyncRust2DartDco Function()>();
 
-  void wire__crate__api__cluster_embeddings(
-    int port_,
-    ffi.Pointer<wire_cst_list_embedding_entry> entries,
-    double threshold,
+  WireSyncRust2DartDco wire__crate__api__get_units_for_category(
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> category,
   ) {
-    return _wire__crate__api__cluster_embeddings(port_, entries, threshold);
+    return _wire__crate__api__get_units_for_category(category);
   }
 
-  late final _wire__crate__api__cluster_embeddingsPtr =
+  late final _wire__crate__api__get_units_for_categoryPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__get_units_for_category');
+  late final _wire__crate__api__get_units_for_category =
+      _wire__crate__api__get_units_for_categoryPtr
+          .asFunction<
+            WireSyncRust2DartDco Function(
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
+  void wire__crate__api__gradient(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_String> variables,
+    ffi.Pointer<wire_cst_list_record_string_f_64> point,
+  ) {
+    return _wire__crate__api__gradient(port_, expression, variables, point);
+  }
+
+  late final _wire__crate__api__gradientPtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Void Function(
             ffi.Int64,
-            ffi.Pointer<wire_cst_list_embedding_entry>,
-            ffi.Float,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_String>,
+            ffi.Pointer<wire_cst_list_record_string_f_64>,
           )
         >
-      >('frbgen_kivixa_wire__crate__api__cluster_embeddings');
-  late final _wire__crate__api__cluster_embeddings =
-      _wire__crate__api__cluster_embeddingsPtr
+      >('frbgen_kivixa_wire__crate__api__gradient');
+  late final _wire__crate__api__gradient = _wire__crate__api__gradientPtr
+      .asFunction<
+        void Function(
+          int,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          ffi.Pointer<wire_cst_list_String>,
+          ffi.Pointer<wire_cst_list_record_string_f_64>,
+        )
+      >();
+
+  void wire__crate__api__init_app(int port_) {
+    return _wire__crate__api__init_app(port_);
+  }
+
+  late final _wire__crate__api__init_appPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+        'frbgen_kivixa_wire__crate__api__init_app',
+      );
+  late final _wire__crate__api__init_app = _wire__crate__api__init_appPtr
+      .asFunction<void Function(int)>();
+
+  void wire__crate__api__integral_graph(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> variable,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> x_values,
+    double initial_value,
+  ) {
+    return _wire__crate__api__integral_graph(
+      port_,
+      expression,
+      variable,
+      x_values,
+      initial_value,
+    );
+  }
+
+  late final _wire__crate__api__integral_graphPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__integral_graph');
+  late final _wire__crate__api__integral_graph =
+      _wire__crate__api__integral_graphPtr
           .asFunction<
             void Function(
               int,
-              ffi.Pointer<wire_cst_list_embedding_entry>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
               double,
             )
           >();
 
-  void wire__crate__api__cluster_notes(
+  void wire__crate__api__integrate(
     int port_,
-    ffi.Pointer<wire_cst_list_embedding_entry> entries,
-    ffi.Pointer<ffi.UintPtr> k,
-    ffi.Pointer<ffi.UintPtr> max_iterations,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> variable,
+    double lower,
+    double upper,
+    int num_intervals,
   ) {
-    return _wire__crate__api__cluster_notes(port_, entries, k, max_iterations);
+    return _wire__crate__api__integrate(
+      port_,
+      expression,
+      variable,
+      lower,
+      upper,
+      num_intervals,
+    );
   }
 
-  late final _wire__crate__api__cluster_notesPtr =
+  late final _wire__crate__api__integratePtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Void Function(
             ffi.Int64,
-            ffi.Pointer<wire_cst_list_embedding_entry>,
-            ffi.Pointer<ffi.UintPtr>,
-            ffi.Pointer<ffi.UintPtr>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Double,
+            ffi.Double,
+            ffi.Uint32,
           )
         >
-      >('frbgen_kivixa_wire__crate__api__cluster_notes');
-  late final _wire__crate__api__cluster_notes =
-      _wire__crate__api__cluster_notesPtr
+      >('frbgen_kivixa_wire__crate__api__integrate');
+  late final _wire__crate__api__integrate = _wire__crate__api__integratePtr
+      .asFunction<
+        void Function(
+          int,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          double,
+          double,
+          int,
+        )
+      >();
+
+  WireSyncRust2DartDco wire__crate__api__is_perfect(int n) {
+    return _wire__crate__api__is_perfect(n);
+  }
+
+  late final _wire__crate__api__is_perfectPtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.Uint64)>>(
+        'frbgen_kivixa_wire__crate__api__is_perfect',
+      );
+  late final _wire__crate__api__is_perfect = _wire__crate__api__is_perfectPtr
+      .asFunction<WireSyncRust2DartDco Function(int)>();
+
+  WireSyncRust2DartDco wire__crate__api__is_prime(int n) {
+    return _wire__crate__api__is_prime(n);
+  }
+
+  late final _wire__crate__api__is_primePtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.Uint64)>>(
+        'frbgen_kivixa_wire__crate__api__is_prime',
+      );
+  late final _wire__crate__api__is_prime = _wire__crate__api__is_primePtr
+      .asFunction<WireSyncRust2DartDco Function(int)>();
+
+  WireSyncRust2DartDco wire__crate__api__lcm(int a, int b) {
+    return _wire__crate__api__lcm(a, b);
+  }
+
+  late final _wire__crate__api__lcmPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(ffi.Uint64, ffi.Uint64)
+        >
+      >('frbgen_kivixa_wire__crate__api__lcm');
+  late final _wire__crate__api__lcm = _wire__crate__api__lcmPtr
+      .asFunction<WireSyncRust2DartDco Function(int, int)>();
+
+  void wire__crate__api__line_integral(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> x_param,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> y_param,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> t_var,
+    double t_min,
+    double t_max,
+    int num_intervals,
+  ) {
+    return _wire__crate__api__line_integral(
+      port_,
+      expression,
+      x_param,
+      y_param,
+      t_var,
+      t_min,
+      t_max,
+      num_intervals,
+    );
+  }
+
+  late final _wire__crate__api__line_integralPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Double,
+            ffi.Double,
+            ffi.Uint32,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__line_integral');
+  late final _wire__crate__api__line_integral =
+      _wire__crate__api__line_integralPtr
           .asFunction<
             void Function(
               int,
-              ffi.Pointer<wire_cst_list_embedding_entry>,
-              ffi.Pointer<ffi.UintPtr>,
-              ffi.Pointer<ffi.UintPtr>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              double,
+              double,
+              int,
             )
           >();
 
-  void wire__crate__api__compute_graph_layout(
+  void wire__crate__api__linear_regression(
     int port_,
-    ffi.Pointer<ffi.Uint32> iterations,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> x_data,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> y_data,
   ) {
-    return _wire__crate__api__compute_graph_layout(port_, iterations);
+    return _wire__crate__api__linear_regression(port_, x_data, y_data);
   }
 
-  late final _wire__crate__api__compute_graph_layoutPtr =
+  late final _wire__crate__api__linear_regressionPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Pointer<ffi.Uint32>)
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+          )
         >
-      >('frbgen_kivixa_wire__crate__api__compute_graph_layout');
-  late final _wire__crate__api__compute_graph_layout =
-      _wire__crate__api__compute_graph_layoutPtr
-          .asFunction<void Function(int, ffi.Pointer<ffi.Uint32>)>();
+      >('frbgen_kivixa_wire__crate__api__linear_regression');
+  late final _wire__crate__api__linear_regression =
+      _wire__crate__api__linear_regressionPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            )
+          >();
 
-  void wire__crate__api__connect_note_to_topics(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> note_id,
-    ffi.Pointer<wire_cst_list_String> topic_ids,
-  ) {
-    return _wire__crate__api__connect_note_to_topics(port_, note_id, topic_ids);
+  WireSyncRust2DartDco wire__crate__api__list_divisors(int n) {
+    return _wire__crate__api__list_divisors(n);
   }
 
-  late final _wire__crate__api__connect_note_to_topicsPtr =
+  late final _wire__crate__api__list_divisorsPtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.Uint64)>>(
+        'frbgen_kivixa_wire__crate__api__list_divisors',
+      );
+  late final _wire__crate__api__list_divisors =
+      _wire__crate__api__list_divisorsPtr
+          .asFunction<WireSyncRust2DartDco Function(int)>();
+
+  void wire__crate__api__mann_whitney_u(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data1,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data2,
+    double alpha,
+  ) {
+    return _wire__crate__api__mann_whitney_u(port_, data1, data2, alpha);
+  }
+
+  late final _wire__crate__api__mann_whitney_uPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__mann_whitney_u');
+  late final _wire__crate__api__mann_whitney_u =
+      _wire__crate__api__mann_whitney_uPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              double,
+            )
+          >();
+
+  void wire__crate__api__matrix_decomposition(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data,
+    int rows,
+    int cols,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> decomposition_type,
+  ) {
+    return _wire__crate__api__matrix_decomposition(
+      port_,
+      data,
+      rows,
+      cols,
+      decomposition_type,
+    );
+  }
+
+  late final _wire__crate__api__matrix_decompositionPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.UintPtr,
+            ffi.UintPtr,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__matrix_decomposition');
+  late final _wire__crate__api__matrix_decomposition =
+      _wire__crate__api__matrix_decompositionPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              int,
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
+  void wire__crate__api__matrix_operation(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> a_data,
+    int a_rows,
+    int a_cols,
+    ffi.Pointer<wire_cst_list_prim_f_64_strict> b_data,
+    ffi.Pointer<ffi.UintPtr> b_rows,
+    ffi.Pointer<ffi.UintPtr> b_cols,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> operation,
+  ) {
+    return _wire__crate__api__matrix_operation(
+      port_,
+      a_data,
+      a_rows,
+      a_cols,
+      b_data,
+      b_rows,
+      b_cols,
+      operation,
+    );
+  }
+
+  late final _wire__crate__api__matrix_operationPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.UintPtr,
+            ffi.UintPtr,
+            ffi.Pointer<wire_cst_list_prim_f_64_strict>,
+            ffi.Pointer<ffi.UintPtr>,
+            ffi.Pointer<ffi.UintPtr>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__matrix_operation');
+  late final _wire__crate__api__matrix_operation =
+      _wire__crate__api__matrix_operationPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              int,
+              int,
+              ffi.Pointer<wire_cst_list_prim_f_64_strict>,
+              ffi.Pointer<ffi.UintPtr>,
+              ffi.Pointer<ffi.UintPtr>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
+  void wire__crate__api__matrix_properties(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data,
+    int rows,
+    int cols,
+  ) {
+    return _wire__crate__api__matrix_properties(port_, data, rows, cols);
+  }
+
+  late final _wire__crate__api__matrix_propertiesPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.UintPtr,
+            ffi.UintPtr,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__matrix_properties');
+  late final _wire__crate__api__matrix_properties =
+      _wire__crate__api__matrix_propertiesPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              int,
+              int,
+            )
+          >();
+
+  void wire__crate__api__matrix_rref(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data,
+    int rows,
+    int cols,
+  ) {
+    return _wire__crate__api__matrix_rref(port_, data, rows, cols);
+  }
+
+  late final _wire__crate__api__matrix_rrefPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.UintPtr,
+            ffi.UintPtr,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__matrix_rref');
+  late final _wire__crate__api__matrix_rref = _wire__crate__api__matrix_rrefPtr
+      .asFunction<
+        void Function(int, ffi.Pointer<wire_cst_list_prim_f_64_loose>, int, int)
+      >();
+
+  void wire__crate__api__mixed_partial_derivative(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> var1,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> var2,
+    ffi.Pointer<wire_cst_list_record_string_f_64> point,
+  ) {
+    return _wire__crate__api__mixed_partial_derivative(
+      port_,
+      expression,
+      var1,
+      var2,
+      point,
+    );
+  }
+
+  late final _wire__crate__api__mixed_partial_derivativePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_record_string_f_64>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__mixed_partial_derivative');
+  late final _wire__crate__api__mixed_partial_derivative =
+      _wire__crate__api__mixed_partial_derivativePtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_record_string_f_64>,
+            )
+          >();
+
+  WireSyncRust2DartDco wire__crate__api__mod_add(int a, int b, int m) {
+    return _wire__crate__api__mod_add(a, b, m);
+  }
+
+  late final _wire__crate__api__mod_addPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(ffi.Uint64, ffi.Uint64, ffi.Uint64)
+        >
+      >('frbgen_kivixa_wire__crate__api__mod_add');
+  late final _wire__crate__api__mod_add = _wire__crate__api__mod_addPtr
+      .asFunction<WireSyncRust2DartDco Function(int, int, int)>();
+
+  WireSyncRust2DartDco wire__crate__api__mod_divide(int a, int b, int m) {
+    return _wire__crate__api__mod_divide(a, b, m);
+  }
+
+  late final _wire__crate__api__mod_dividePtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(ffi.Uint64, ffi.Uint64, ffi.Uint64)
+        >
+      >('frbgen_kivixa_wire__crate__api__mod_divide');
+  late final _wire__crate__api__mod_divide = _wire__crate__api__mod_dividePtr
+      .asFunction<WireSyncRust2DartDco Function(int, int, int)>();
+
+  WireSyncRust2DartDco wire__crate__api__mod_inverse(int a, int m) {
+    return _wire__crate__api__mod_inverse(a, m);
+  }
+
+  late final _wire__crate__api__mod_inversePtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(ffi.Uint64, ffi.Uint64)
+        >
+      >('frbgen_kivixa_wire__crate__api__mod_inverse');
+  late final _wire__crate__api__mod_inverse = _wire__crate__api__mod_inversePtr
+      .asFunction<WireSyncRust2DartDco Function(int, int)>();
+
+  WireSyncRust2DartDco wire__crate__api__mod_multiply(int a, int b, int m) {
+    return _wire__crate__api__mod_multiply(a, b, m);
+  }
+
+  late final _wire__crate__api__mod_multiplyPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(ffi.Uint64, ffi.Uint64, ffi.Uint64)
+        >
+      >('frbgen_kivixa_wire__crate__api__mod_multiply');
+  late final _wire__crate__api__mod_multiply =
+      _wire__crate__api__mod_multiplyPtr
+          .asFunction<WireSyncRust2DartDco Function(int, int, int)>();
+
+  WireSyncRust2DartDco wire__crate__api__mod_pow(
+    int base,
+    int exp,
+    int modulus,
+  ) {
+    return _wire__crate__api__mod_pow(base, exp, modulus);
+  }
+
+  late final _wire__crate__api__mod_powPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(ffi.Uint64, ffi.Uint64, ffi.Uint64)
+        >
+      >('frbgen_kivixa_wire__crate__api__mod_pow');
+  late final _wire__crate__api__mod_pow = _wire__crate__api__mod_powPtr
+      .asFunction<WireSyncRust2DartDco Function(int, int, int)>();
+
+  WireSyncRust2DartDco wire__crate__api__mod_sub(int a, int b, int m) {
+    return _wire__crate__api__mod_sub(a, b, m);
+  }
+
+  late final _wire__crate__api__mod_subPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(ffi.Uint64, ffi.Uint64, ffi.Uint64)
+        >
+      >('frbgen_kivixa_wire__crate__api__mod_sub');
+  late final _wire__crate__api__mod_sub = _wire__crate__api__mod_subPtr
+      .asFunction<WireSyncRust2DartDco Function(int, int, int)>();
+
+  WireSyncRust2DartDco wire__crate__api__parse_formula(
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> formula,
+  ) {
+    return _wire__crate__api__parse_formula(formula);
+  }
+
+  late final _wire__crate__api__parse_formulaPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__parse_formula');
+  late final _wire__crate__api__parse_formula =
+      _wire__crate__api__parse_formulaPtr
+          .asFunction<
+            WireSyncRust2DartDco Function(
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
+  void wire__crate__api__partial_derivative(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> variable,
+    ffi.Pointer<wire_cst_list_record_string_f_64> point,
+    int order,
+  ) {
+    return _wire__crate__api__partial_derivative(
+      port_,
+      expression,
+      variable,
+      point,
+      order,
+    );
+  }
+
+  late final _wire__crate__api__partial_derivativePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_record_string_f_64>,
+            ffi.Uint32,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__partial_derivative');
+  late final _wire__crate__api__partial_derivative =
+      _wire__crate__api__partial_derivativePtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_record_string_f_64>,
+              int,
+            )
+          >();
+
+  WireSyncRust2DartDco wire__crate__api__permutations(int n, int r) {
+    return _wire__crate__api__permutations(n, r);
+  }
+
+  late final _wire__crate__api__permutationsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(ffi.Uint64, ffi.Uint64)
+        >
+      >('frbgen_kivixa_wire__crate__api__permutations');
+  late final _wire__crate__api__permutations =
+      _wire__crate__api__permutationsPtr
+          .asFunction<WireSyncRust2DartDco Function(int, int)>();
+
+  void wire__crate__api__polynomial_regression(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> x_data,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> y_data,
+    int degree,
+  ) {
+    return _wire__crate__api__polynomial_regression(
+      port_,
+      x_data,
+      y_data,
+      degree,
+    );
+  }
+
+  late final _wire__crate__api__polynomial_regressionPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.UintPtr,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__polynomial_regression');
+  late final _wire__crate__api__polynomial_regression =
+      _wire__crate__api__polynomial_regressionPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              int,
+            )
+          >();
+
+  WireSyncRust2DartDco wire__crate__api__prime_factors(int n) {
+    return _wire__crate__api__prime_factors(n);
+  }
+
+  late final _wire__crate__api__prime_factorsPtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.Uint64)>>(
+        'frbgen_kivixa_wire__crate__api__prime_factors',
+      );
+  late final _wire__crate__api__prime_factors =
+      _wire__crate__api__prime_factorsPtr
+          .asFunction<WireSyncRust2DartDco Function(int)>();
+
+  void wire__crate__api__sieve_primes(int port_, int n) {
+    return _wire__crate__api__sieve_primes(port_, n);
+  }
+
+  late final _wire__crate__api__sieve_primesPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+        'frbgen_kivixa_wire__crate__api__sieve_primes',
+      );
+  late final _wire__crate__api__sieve_primes =
+      _wire__crate__api__sieve_primesPtr.asFunction<void Function(int, int)>();
+
+  void wire__crate__api__solve_equation(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> variable,
+    double initial_guess,
+    double tolerance,
+    int max_iterations,
+  ) {
+    return _wire__crate__api__solve_equation(
+      port_,
+      expression,
+      variable,
+      initial_guess,
+      tolerance,
+      max_iterations,
+    );
+  }
+
+  late final _wire__crate__api__solve_equationPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Double,
+            ffi.Double,
+            ffi.Uint32,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__solve_equation');
+  late final _wire__crate__api__solve_equation =
+      _wire__crate__api__solve_equationPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              double,
+              double,
+              int,
+            )
+          >();
+
+  void wire__crate__api__symbolic_differentiate(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> variable,
+    int order,
+  ) {
+    return _wire__crate__api__symbolic_differentiate(
+      port_,
+      expression,
+      variable,
+      order,
+    );
+  }
+
+  late final _wire__crate__api__symbolic_differentiatePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Uint32,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__symbolic_differentiate');
+  late final _wire__crate__api__symbolic_differentiate =
+      _wire__crate__api__symbolic_differentiatePtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              int,
+            )
+          >();
+
+  void wire__crate__api__symbolic_gradient(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_String> variables,
+  ) {
+    return _wire__crate__api__symbolic_gradient(port_, expression, variables);
+  }
+
+  late final _wire__crate__api__symbolic_gradientPtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Void Function(
@@ -1617,9 +2946,9 @@ class RustLibWire implements BaseWire {
             ffi.Pointer<wire_cst_list_String>,
           )
         >
-      >('frbgen_kivixa_wire__crate__api__connect_note_to_topics');
-  late final _wire__crate__api__connect_note_to_topics =
-      _wire__crate__api__connect_note_to_topicsPtr
+      >('frbgen_kivixa_wire__crate__api__symbolic_gradient');
+  late final _wire__crate__api__symbolic_gradient =
+      _wire__crate__api__symbolic_gradientPtr
           .asFunction<
             void Function(
               int,
@@ -1628,1000 +2957,307 @@ class RustLibWire implements BaseWire {
             )
           >();
 
-  WireSyncRust2DartDco wire__crate__api__cosine_similarity(
-    ffi.Pointer<wire_cst_list_prim_f_32_loose> a,
-    ffi.Pointer<wire_cst_list_prim_f_32_loose> b,
-  ) {
-    return _wire__crate__api__cosine_similarity(a, b);
-  }
-
-  late final _wire__crate__api__cosine_similarityPtr =
-      _lookup<
-        ffi.NativeFunction<
-          WireSyncRust2DartDco Function(
-            ffi.Pointer<wire_cst_list_prim_f_32_loose>,
-            ffi.Pointer<wire_cst_list_prim_f_32_loose>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__cosine_similarity');
-  late final _wire__crate__api__cosine_similarity =
-      _wire__crate__api__cosine_similarityPtr
-          .asFunction<
-            WireSyncRust2DartDco Function(
-              ffi.Pointer<wire_cst_list_prim_f_32_loose>,
-              ffi.Pointer<wire_cst_list_prim_f_32_loose>,
-            )
-          >();
-
-  void wire__crate__api__discover_semantic_edges(
+  void wire__crate__api__symbolic_integrate(
     int port_,
-    ffi.Pointer<wire_cst_list_embedding_entry> entries,
-    ffi.Pointer<ffi.Float> threshold,
-    ffi.Pointer<wire_cst_list_record_string_string> existing_links,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_String> variables,
   ) {
-    return _wire__crate__api__discover_semantic_edges(
-      port_,
-      entries,
-      threshold,
-      existing_links,
-    );
+    return _wire__crate__api__symbolic_integrate(port_, expression, variables);
   }
 
-  late final _wire__crate__api__discover_semantic_edgesPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_embedding_entry>,
-            ffi.Pointer<ffi.Float>,
-            ffi.Pointer<wire_cst_list_record_string_string>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__discover_semantic_edges');
-  late final _wire__crate__api__discover_semantic_edges =
-      _wire__crate__api__discover_semantic_edgesPtr
-          .asFunction<
-            void Function(
-              int,
-              ffi.Pointer<wire_cst_list_embedding_entry>,
-              ffi.Pointer<ffi.Float>,
-              ffi.Pointer<wire_cst_list_record_string_string>,
-            )
-          >();
-
-  void wire__crate__api__extract_topics(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> text,
-    ffi.Pointer<ffi.Uint32> num_topics,
-  ) {
-    return _wire__crate__api__extract_topics(port_, text, num_topics);
-  }
-
-  late final _wire__crate__api__extract_topicsPtr =
+  late final _wire__crate__api__symbolic_integratePtr =
       _lookup<
         ffi.NativeFunction<
           ffi.Void Function(
             ffi.Int64,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Pointer<ffi.Uint32>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__extract_topics');
-  late final _wire__crate__api__extract_topics =
-      _wire__crate__api__extract_topicsPtr
-          .asFunction<
-            void Function(
-              int,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              ffi.Pointer<ffi.Uint32>,
-            )
-          >();
-
-  void wire__crate__api__find_similar(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_f_32_loose> query,
-    ffi.Pointer<wire_cst_list_embedding_entry> entries,
-    int top_k,
-    double threshold,
-  ) {
-    return _wire__crate__api__find_similar(
-      port_,
-      query,
-      entries,
-      top_k,
-      threshold,
-    );
-  }
-
-  late final _wire__crate__api__find_similarPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_f_32_loose>,
-            ffi.Pointer<wire_cst_list_embedding_entry>,
-            ffi.UintPtr,
-            ffi.Float,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__find_similar');
-  late final _wire__crate__api__find_similar =
-      _wire__crate__api__find_similarPtr
-          .asFunction<
-            void Function(
-              int,
-              ffi.Pointer<wire_cst_list_prim_f_32_loose>,
-              ffi.Pointer<wire_cst_list_embedding_entry>,
-              int,
-              double,
-            )
-          >();
-
-  void wire__crate__api__generate_text(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> prompt,
-    ffi.Pointer<ffi.Uint32> max_tokens,
-  ) {
-    return _wire__crate__api__generate_text(port_, prompt, max_tokens);
-  }
-
-  late final _wire__crate__api__generate_textPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Pointer<ffi.Uint32>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__generate_text');
-  late final _wire__crate__api__generate_text =
-      _wire__crate__api__generate_textPtr
-          .asFunction<
-            void Function(
-              int,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              ffi.Pointer<ffi.Uint32>,
-            )
-          >();
-
-  void wire__crate__api__get_embedding(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> text,
-  ) {
-    return _wire__crate__api__get_embedding(port_, text);
-  }
-
-  late final _wire__crate__api__get_embeddingPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__get_embedding');
-  late final _wire__crate__api__get_embedding =
-      _wire__crate__api__get_embeddingPtr
-          .asFunction<
-            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
-          >();
-
-  WireSyncRust2DartDco wire__crate__api__get_embedding_dimension() {
-    return _wire__crate__api__get_embedding_dimension();
-  }
-
-  late final _wire__crate__api__get_embedding_dimensionPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__get_embedding_dimension',
-      );
-  late final _wire__crate__api__get_embedding_dimension =
-      _wire__crate__api__get_embedding_dimensionPtr
-          .asFunction<WireSyncRust2DartDco Function()>();
-
-  void wire__crate__api__get_graph_state(int port_) {
-    return _wire__crate__api__get_graph_state(port_);
-  }
-
-  late final _wire__crate__api__get_graph_statePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-        'frbgen_kivixa_wire__crate__api__get_graph_state',
-      );
-  late final _wire__crate__api__get_graph_state =
-      _wire__crate__api__get_graph_statePtr.asFunction<void Function(int)>();
-
-  WireSyncRust2DartDco wire__crate__api__get_model_type() {
-    return _wire__crate__api__get_model_type();
-  }
-
-  late final _wire__crate__api__get_model_typePtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__get_model_type',
-      );
-  late final _wire__crate__api__get_model_type =
-      _wire__crate__api__get_model_typePtr
-          .asFunction<WireSyncRust2DartDco Function()>();
-
-  void wire__crate__api__get_or_create_topic_hub(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> topic,
-  ) {
-    return _wire__crate__api__get_or_create_topic_hub(port_, topic);
-  }
-
-  late final _wire__crate__api__get_or_create_topic_hubPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__get_or_create_topic_hub');
-  late final _wire__crate__api__get_or_create_topic_hub =
-      _wire__crate__api__get_or_create_topic_hubPtr
-          .asFunction<
-            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
-          >();
-
-  WireSyncRust2DartDco wire__crate__api__get_stream_graph_stats() {
-    return _wire__crate__api__get_stream_graph_stats();
-  }
-
-  late final _wire__crate__api__get_stream_graph_statsPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__get_stream_graph_stats',
-      );
-  late final _wire__crate__api__get_stream_graph_stats =
-      _wire__crate__api__get_stream_graph_statsPtr
-          .asFunction<WireSyncRust2DartDco Function()>();
-
-  WireSyncRust2DartDco wire__crate__api__get_version() {
-    return _wire__crate__api__get_version();
-  }
-
-  late final _wire__crate__api__get_versionPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__get_version',
-      );
-  late final _wire__crate__api__get_version = _wire__crate__api__get_versionPtr
-      .asFunction<WireSyncRust2DartDco Function()>();
-
-  void wire__crate__api__get_visible_graph_nodes(int port_) {
-    return _wire__crate__api__get_visible_graph_nodes(port_);
-  }
-
-  late final _wire__crate__api__get_visible_graph_nodesPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-        'frbgen_kivixa_wire__crate__api__get_visible_graph_nodes',
-      );
-  late final _wire__crate__api__get_visible_graph_nodes =
-      _wire__crate__api__get_visible_graph_nodesPtr
-          .asFunction<void Function(int)>();
-
-  WireSyncRust2DartDco wire__crate__api__health_check() {
-    return _wire__crate__api__health_check();
-  }
-
-  late final _wire__crate__api__health_checkPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__health_check',
-      );
-  late final _wire__crate__api__health_check =
-      _wire__crate__api__health_checkPtr
-          .asFunction<WireSyncRust2DartDco Function()>();
-
-  WireSyncRust2DartDco wire__crate__api__init_graph() {
-    return _wire__crate__api__init_graph();
-  }
-
-  late final _wire__crate__api__init_graphPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__init_graph',
-      );
-  late final _wire__crate__api__init_graph = _wire__crate__api__init_graphPtr
-      .asFunction<WireSyncRust2DartDco Function()>();
-
-  void wire__crate__api__init_mcp(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> base_path,
-    ffi.Pointer<ffi.UintPtr> max_file_size,
-    ffi.Pointer<wire_cst_list_String> allowed_extensions,
-  ) {
-    return _wire__crate__api__init_mcp(
-      port_,
-      base_path,
-      max_file_size,
-      allowed_extensions,
-    );
-  }
-
-  late final _wire__crate__api__init_mcpPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Pointer<ffi.UintPtr>,
             ffi.Pointer<wire_cst_list_String>,
           )
         >
-      >('frbgen_kivixa_wire__crate__api__init_mcp');
-  late final _wire__crate__api__init_mcp = _wire__crate__api__init_mcpPtr
+      >('frbgen_kivixa_wire__crate__api__symbolic_integrate');
+  late final _wire__crate__api__symbolic_integrate =
+      _wire__crate__api__symbolic_integratePtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_String>,
+            )
+          >();
+
+  void wire__crate__api__t_test(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data,
+    double hypothesized_mean,
+    double alpha,
+  ) {
+    return _wire__crate__api__t_test(port_, data, hypothesized_mean, alpha);
+  }
+
+  late final _wire__crate__api__t_testPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Double,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__t_test');
+  late final _wire__crate__api__t_test = _wire__crate__api__t_testPtr
       .asFunction<
         void Function(
           int,
-          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          ffi.Pointer<ffi.UintPtr>,
-          ffi.Pointer<wire_cst_list_String>,
+          ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+          double,
+          double,
         )
       >();
 
-  WireSyncRust2DartDco wire__crate__api__init_model(
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> model_path,
+  void wire__crate__api__taylor_coefficients(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> variable,
+    double around,
+    int num_terms,
   ) {
-    return _wire__crate__api__init_model(model_path);
+    return _wire__crate__api__taylor_coefficients(
+      port_,
+      expression,
+      variable,
+      around,
+      num_terms,
+    );
   }
 
-  late final _wire__crate__api__init_modelPtr =
+  late final _wire__crate__api__taylor_coefficientsPtr =
       _lookup<
         ffi.NativeFunction<
-          WireSyncRust2DartDco Function(
+          ffi.Void Function(
+            ffi.Int64,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Double,
+            ffi.Uint32,
           )
         >
-      >('frbgen_kivixa_wire__crate__api__init_model');
-  late final _wire__crate__api__init_model = _wire__crate__api__init_modelPtr
+      >('frbgen_kivixa_wire__crate__api__taylor_coefficients');
+  late final _wire__crate__api__taylor_coefficients =
+      _wire__crate__api__taylor_coefficientsPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              double,
+              int,
+            )
+          >();
+
+  void wire__crate__api__triple_integral(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> x_var,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> y_var,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> z_var,
+    double x_min,
+    double x_max,
+    double y_min,
+    double y_max,
+    double z_min,
+    double z_max,
+    int num_intervals,
+  ) {
+    return _wire__crate__api__triple_integral(
+      port_,
+      expression,
+      x_var,
+      y_var,
+      z_var,
+      x_min,
+      x_max,
+      y_min,
+      y_max,
+      z_min,
+      z_max,
+      num_intervals,
+    );
+  }
+
+  late final _wire__crate__api__triple_integralPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Double,
+            ffi.Double,
+            ffi.Double,
+            ffi.Double,
+            ffi.Double,
+            ffi.Double,
+            ffi.Uint32,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__triple_integral');
+  late final _wire__crate__api__triple_integral =
+      _wire__crate__api__triple_integralPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              double,
+              double,
+              double,
+              double,
+              double,
+              double,
+              int,
+            )
+          >();
+
+  void wire__crate__api__two_sample_t_test(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data1,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data2,
+    double alpha,
+  ) {
+    return _wire__crate__api__two_sample_t_test(port_, data1, data2, alpha);
+  }
+
+  late final _wire__crate__api__two_sample_t_testPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__two_sample_t_test');
+  late final _wire__crate__api__two_sample_t_test =
+      _wire__crate__api__two_sample_t_testPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              double,
+            )
+          >();
+
+  void wire__crate__api__two_sample_z_test(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data1,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data2,
+    double std1,
+    double std2,
+    double alpha,
+  ) {
+    return _wire__crate__api__two_sample_z_test(
+      port_,
+      data1,
+      data2,
+      std1,
+      std2,
+      alpha,
+    );
+  }
+
+  late final _wire__crate__api__two_sample_z_testPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Double,
+            ffi.Double,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__two_sample_z_test');
+  late final _wire__crate__api__two_sample_z_test =
+      _wire__crate__api__two_sample_z_testPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              double,
+              double,
+              double,
+            )
+          >();
+
+  void wire__crate__api__z_test(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> data,
+    double hypothesized_mean,
+    double population_std,
+    double alpha,
+  ) {
+    return _wire__crate__api__z_test(
+      port_,
+      data,
+      hypothesized_mean,
+      population_std,
+      alpha,
+    );
+  }
+
+  late final _wire__crate__api__z_testPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Double,
+            ffi.Double,
+            ffi.Double,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__z_test');
+  late final _wire__crate__api__z_test = _wire__crate__api__z_testPtr
       .asFunction<
-        WireSyncRust2DartDco Function(
-          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+        void Function(
+          int,
+          ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+          double,
+          double,
+          double,
         )
       >();
 
-  void wire__crate__api__init_model_with_config(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> model_path,
-    int n_gpu_layers,
-    int n_ctx,
-    int n_threads,
-    double temperature,
-    double top_p,
-    int max_tokens,
-    ffi.Pointer<ffi.Int32> model_type,
-  ) {
-    return _wire__crate__api__init_model_with_config(
-      port_,
-      model_path,
-      n_gpu_layers,
-      n_ctx,
-      n_threads,
-      temperature,
-      top_p,
-      max_tokens,
-      model_type,
-    );
+  ffi.Pointer<ffi.Bool> cst_new_box_autoadd_bool(bool value) {
+    return _cst_new_box_autoadd_bool(value);
   }
 
-  late final _wire__crate__api__init_model_with_configPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Uint32,
-            ffi.Uint32,
-            ffi.Int32,
-            ffi.Float,
-            ffi.Float,
-            ffi.Uint32,
-            ffi.Pointer<ffi.Int32>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__init_model_with_config');
-  late final _wire__crate__api__init_model_with_config =
-      _wire__crate__api__init_model_with_configPtr
-          .asFunction<
-            void Function(
-              int,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              int,
-              int,
-              int,
-              double,
-              double,
-              int,
-              ffi.Pointer<ffi.Int32>,
-            )
-          >();
-
-  WireSyncRust2DartDco wire__crate__api__is_graph_stream_running() {
-    return _wire__crate__api__is_graph_stream_running();
-  }
-
-  late final _wire__crate__api__is_graph_stream_runningPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__is_graph_stream_running',
+  late final _cst_new_box_autoadd_boolPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Bool> Function(ffi.Bool)>>(
+        'frbgen_kivixa_cst_new_box_autoadd_bool',
       );
-  late final _wire__crate__api__is_graph_stream_running =
-      _wire__crate__api__is_graph_stream_runningPtr
-          .asFunction<WireSyncRust2DartDco Function()>();
+  late final _cst_new_box_autoadd_bool = _cst_new_box_autoadd_boolPtr
+      .asFunction<ffi.Pointer<ffi.Bool> Function(bool)>();
 
-  WireSyncRust2DartDco wire__crate__api__is_mcp_initialized() {
-    return _wire__crate__api__is_mcp_initialized();
+  ffi.Pointer<ffi.Double> cst_new_box_autoadd_f_64(double value) {
+    return _cst_new_box_autoadd_f_64(value);
   }
 
-  late final _wire__crate__api__is_mcp_initializedPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__is_mcp_initialized',
+  late final _cst_new_box_autoadd_f_64Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Double> Function(ffi.Double)>>(
+        'frbgen_kivixa_cst_new_box_autoadd_f_64',
       );
-  late final _wire__crate__api__is_mcp_initialized =
-      _wire__crate__api__is_mcp_initializedPtr
-          .asFunction<WireSyncRust2DartDco Function()>();
-
-  WireSyncRust2DartDco wire__crate__api__is_model_loaded() {
-    return _wire__crate__api__is_model_loaded();
-  }
-
-  late final _wire__crate__api__is_model_loadedPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__is_model_loaded',
-      );
-  late final _wire__crate__api__is_model_loaded =
-      _wire__crate__api__is_model_loadedPtr
-          .asFunction<WireSyncRust2DartDco Function()>();
-
-  WireSyncRust2DartDco wire__crate__api__mcp_classify_task(
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> message,
-  ) {
-    return _wire__crate__api__mcp_classify_task(message);
-  }
-
-  late final _wire__crate__api__mcp_classify_taskPtr =
-      _lookup<
-        ffi.NativeFunction<
-          WireSyncRust2DartDco Function(
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__mcp_classify_task');
-  late final _wire__crate__api__mcp_classify_task =
-      _wire__crate__api__mcp_classify_taskPtr
-          .asFunction<
-            WireSyncRust2DartDco Function(
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            )
-          >();
-
-  void wire__crate__api__mcp_create_folder(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
-  ) {
-    return _wire__crate__api__mcp_create_folder(port_, path);
-  }
-
-  late final _wire__crate__api__mcp_create_folderPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__mcp_create_folder');
-  late final _wire__crate__api__mcp_create_folder =
-      _wire__crate__api__mcp_create_folderPtr
-          .asFunction<
-            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
-          >();
-
-  void wire__crate__api__mcp_delete_file(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
-  ) {
-    return _wire__crate__api__mcp_delete_file(port_, path);
-  }
-
-  late final _wire__crate__api__mcp_delete_filePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__mcp_delete_file');
-  late final _wire__crate__api__mcp_delete_file =
-      _wire__crate__api__mcp_delete_filePtr
-          .asFunction<
-            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
-          >();
-
-  void wire__crate__api__mcp_execute_tool_call(
-    int port_,
-    ffi.Pointer<wire_cst_mcp_tool_call> tool_call,
-  ) {
-    return _wire__crate__api__mcp_execute_tool_call(port_, tool_call);
-  }
-
-  late final _wire__crate__api__mcp_execute_tool_callPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_cst_mcp_tool_call>)
-        >
-      >('frbgen_kivixa_wire__crate__api__mcp_execute_tool_call');
-  late final _wire__crate__api__mcp_execute_tool_call =
-      _wire__crate__api__mcp_execute_tool_callPtr
-          .asFunction<
-            void Function(int, ffi.Pointer<wire_cst_mcp_tool_call>)
-          >();
-
-  WireSyncRust2DartDco wire__crate__api__mcp_get_all_tools() {
-    return _wire__crate__api__mcp_get_all_tools();
-  }
-
-  late final _wire__crate__api__mcp_get_all_toolsPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__mcp_get_all_tools',
-      );
-  late final _wire__crate__api__mcp_get_all_tools =
-      _wire__crate__api__mcp_get_all_toolsPtr
-          .asFunction<WireSyncRust2DartDco Function()>();
-
-  WireSyncRust2DartDco wire__crate__api__mcp_get_model_for_task(int category) {
-    return _wire__crate__api__mcp_get_model_for_task(category);
-  }
-
-  late final _wire__crate__api__mcp_get_model_for_taskPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.Int32)>>(
-        'frbgen_kivixa_wire__crate__api__mcp_get_model_for_task',
-      );
-  late final _wire__crate__api__mcp_get_model_for_task =
-      _wire__crate__api__mcp_get_model_for_taskPtr
-          .asFunction<WireSyncRust2DartDco Function(int)>();
-
-  WireSyncRust2DartDco wire__crate__api__mcp_get_tool_description(int tool) {
-    return _wire__crate__api__mcp_get_tool_description(tool);
-  }
-
-  late final _wire__crate__api__mcp_get_tool_descriptionPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.Int32)>>(
-        'frbgen_kivixa_wire__crate__api__mcp_get_tool_description',
-      );
-  late final _wire__crate__api__mcp_get_tool_description =
-      _wire__crate__api__mcp_get_tool_descriptionPtr
-          .asFunction<WireSyncRust2DartDco Function(int)>();
-
-  WireSyncRust2DartDco wire__crate__api__mcp_get_tool_name(int tool) {
-    return _wire__crate__api__mcp_get_tool_name(tool);
-  }
-
-  late final _wire__crate__api__mcp_get_tool_namePtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.Int32)>>(
-        'frbgen_kivixa_wire__crate__api__mcp_get_tool_name',
-      );
-  late final _wire__crate__api__mcp_get_tool_name =
-      _wire__crate__api__mcp_get_tool_namePtr
-          .asFunction<WireSyncRust2DartDco Function(int)>();
-
-  WireSyncRust2DartDco wire__crate__api__mcp_get_tool_parameters(int tool) {
-    return _wire__crate__api__mcp_get_tool_parameters(tool);
-  }
-
-  late final _wire__crate__api__mcp_get_tool_parametersPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.Int32)>>(
-        'frbgen_kivixa_wire__crate__api__mcp_get_tool_parameters',
-      );
-  late final _wire__crate__api__mcp_get_tool_parameters =
-      _wire__crate__api__mcp_get_tool_parametersPtr
-          .asFunction<WireSyncRust2DartDco Function(int)>();
-
-  WireSyncRust2DartDco wire__crate__api__mcp_get_tool_schemas() {
-    return _wire__crate__api__mcp_get_tool_schemas();
-  }
-
-  late final _wire__crate__api__mcp_get_tool_schemasPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__mcp_get_tool_schemas',
-      );
-  late final _wire__crate__api__mcp_get_tool_schemas =
-      _wire__crate__api__mcp_get_tool_schemasPtr
-          .asFunction<WireSyncRust2DartDco Function()>();
-
-  void wire__crate__api__mcp_list_files(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
-  ) {
-    return _wire__crate__api__mcp_list_files(port_, path);
-  }
-
-  late final _wire__crate__api__mcp_list_filesPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__mcp_list_files');
-  late final _wire__crate__api__mcp_list_files =
-      _wire__crate__api__mcp_list_filesPtr
-          .asFunction<
-            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
-          >();
-
-  void wire__crate__api__mcp_parse_tool_call(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> json,
-  ) {
-    return _wire__crate__api__mcp_parse_tool_call(port_, json);
-  }
-
-  late final _wire__crate__api__mcp_parse_tool_callPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__mcp_parse_tool_call');
-  late final _wire__crate__api__mcp_parse_tool_call =
-      _wire__crate__api__mcp_parse_tool_callPtr
-          .asFunction<
-            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
-          >();
-
-  void wire__crate__api__mcp_read_file(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
-  ) {
-    return _wire__crate__api__mcp_read_file(port_, path);
-  }
-
-  late final _wire__crate__api__mcp_read_filePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__mcp_read_file');
-  late final _wire__crate__api__mcp_read_file =
-      _wire__crate__api__mcp_read_filePtr
-          .asFunction<
-            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
-          >();
-
-  WireSyncRust2DartDco wire__crate__api__mcp_validate_path(
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
-  ) {
-    return _wire__crate__api__mcp_validate_path(path);
-  }
-
-  late final _wire__crate__api__mcp_validate_pathPtr =
-      _lookup<
-        ffi.NativeFunction<
-          WireSyncRust2DartDco Function(
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__mcp_validate_path');
-  late final _wire__crate__api__mcp_validate_path =
-      _wire__crate__api__mcp_validate_pathPtr
-          .asFunction<
-            WireSyncRust2DartDco Function(
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            )
-          >();
-
-  void wire__crate__api__mcp_write_file(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> content,
-  ) {
-    return _wire__crate__api__mcp_write_file(port_, path, content);
-  }
-
-  late final _wire__crate__api__mcp_write_filePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__mcp_write_file');
-  late final _wire__crate__api__mcp_write_file =
-      _wire__crate__api__mcp_write_filePtr
-          .asFunction<
-            void Function(
-              int,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            )
-          >();
-
-  void wire__crate__api__pin_stream_node(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> id,
-    bool pinned,
-  ) {
-    return _wire__crate__api__pin_stream_node(port_, id, pinned);
-  }
-
-  late final _wire__crate__api__pin_stream_nodePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Bool,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__pin_stream_node');
-  late final _wire__crate__api__pin_stream_node =
-      _wire__crate__api__pin_stream_nodePtr
-          .asFunction<
-            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>, bool)
-          >();
-
-  void wire__crate__api__remove_graph_node(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> node_id,
-  ) {
-    return _wire__crate__api__remove_graph_node(port_, node_id);
-  }
-
-  late final _wire__crate__api__remove_graph_nodePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__remove_graph_node');
-  late final _wire__crate__api__remove_graph_node =
-      _wire__crate__api__remove_graph_nodePtr
-          .asFunction<
-            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
-          >();
-
-  void wire__crate__api__remove_stream_edge(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> from_id,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> to_id,
-  ) {
-    return _wire__crate__api__remove_stream_edge(port_, from_id, to_id);
-  }
-
-  late final _wire__crate__api__remove_stream_edgePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__remove_stream_edge');
-  late final _wire__crate__api__remove_stream_edge =
-      _wire__crate__api__remove_stream_edgePtr
-          .asFunction<
-            void Function(
-              int,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            )
-          >();
-
-  void wire__crate__api__remove_stream_node(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> id,
-  ) {
-    return _wire__crate__api__remove_stream_node(port_, id);
-  }
-
-  late final _wire__crate__api__remove_stream_nodePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__remove_stream_node');
-  late final _wire__crate__api__remove_stream_node =
-      _wire__crate__api__remove_stream_nodePtr
-          .asFunction<
-            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
-          >();
-
-  void wire__crate__api__semantic_search(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> query_text,
-    ffi.Pointer<wire_cst_list_embedding_entry> entries,
-    int top_k,
-  ) {
-    return _wire__crate__api__semantic_search(
-      port_,
-      query_text,
-      entries,
-      top_k,
-    );
-  }
-
-  late final _wire__crate__api__semantic_searchPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Pointer<wire_cst_list_embedding_entry>,
-            ffi.UintPtr,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__semantic_search');
-  late final _wire__crate__api__semantic_search =
-      _wire__crate__api__semantic_searchPtr
-          .asFunction<
-            void Function(
-              int,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              ffi.Pointer<wire_cst_list_embedding_entry>,
-              int,
-            )
-          >();
-
-  void wire__crate__api__set_stream_node_position(
-    int port_,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> id,
-    double x,
-    double y,
-  ) {
-    return _wire__crate__api__set_stream_node_position(port_, id, x, y);
-  }
-
-  late final _wire__crate__api__set_stream_node_positionPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Float,
-            ffi.Float,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__set_stream_node_position');
-  late final _wire__crate__api__set_stream_node_position =
-      _wire__crate__api__set_stream_node_positionPtr
-          .asFunction<
-            void Function(
-              int,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              double,
-              double,
-            )
-          >();
-
-  void wire__crate__api__start_graph_stream(int port_) {
-    return _wire__crate__api__start_graph_stream(port_);
-  }
-
-  late final _wire__crate__api__start_graph_streamPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-        'frbgen_kivixa_wire__crate__api__start_graph_stream',
-      );
-  late final _wire__crate__api__start_graph_stream =
-      _wire__crate__api__start_graph_streamPtr.asFunction<void Function(int)>();
-
-  WireSyncRust2DartDco wire__crate__api__stop_graph_stream() {
-    return _wire__crate__api__stop_graph_stream();
-  }
-
-  late final _wire__crate__api__stop_graph_streamPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__stop_graph_stream',
-      );
-  late final _wire__crate__api__stop_graph_stream =
-      _wire__crate__api__stop_graph_streamPtr
-          .asFunction<WireSyncRust2DartDco Function()>();
-
-  WireSyncRust2DartDco wire__crate__api__unload_model() {
-    return _wire__crate__api__unload_model();
-  }
-
-  late final _wire__crate__api__unload_modelPtr =
-      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
-        'frbgen_kivixa_wire__crate__api__unload_model',
-      );
-  late final _wire__crate__api__unload_model =
-      _wire__crate__api__unload_modelPtr
-          .asFunction<WireSyncRust2DartDco Function()>();
-
-  void wire__crate__api__update_graph_viewport(
-    int port_,
-    double x,
-    double y,
-    double width,
-    double height,
-    double scale,
-  ) {
-    return _wire__crate__api__update_graph_viewport(
-      port_,
-      x,
-      y,
-      width,
-      height,
-      scale,
-    );
-  }
-
-  late final _wire__crate__api__update_graph_viewportPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.Float,
-            ffi.Float,
-            ffi.Float,
-            ffi.Float,
-            ffi.Float,
-          )
-        >
-      >('frbgen_kivixa_wire__crate__api__update_graph_viewport');
-  late final _wire__crate__api__update_graph_viewport =
-      _wire__crate__api__update_graph_viewportPtr
-          .asFunction<
-            void Function(int, double, double, double, double, double)
-          >();
-
-  ffi.Pointer<ffi.Float> cst_new_box_autoadd_f_32(double value) {
-    return _cst_new_box_autoadd_f_32(value);
-  }
-
-  late final _cst_new_box_autoadd_f_32Ptr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Float> Function(ffi.Float)>>(
-        'frbgen_kivixa_cst_new_box_autoadd_f_32',
-      );
-  late final _cst_new_box_autoadd_f_32 = _cst_new_box_autoadd_f_32Ptr
-      .asFunction<ffi.Pointer<ffi.Float> Function(double)>();
-
-  ffi.Pointer<ffi.Int32> cst_new_box_autoadd_i_32(int value) {
-    return _cst_new_box_autoadd_i_32(value);
-  }
-
-  late final _cst_new_box_autoadd_i_32Ptr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Int32> Function(ffi.Int32)>>(
-        'frbgen_kivixa_cst_new_box_autoadd_i_32',
-      );
-  late final _cst_new_box_autoadd_i_32 = _cst_new_box_autoadd_i_32Ptr
-      .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
-
-  ffi.Pointer<wire_cst_mcp_tool_call> cst_new_box_autoadd_mcp_tool_call() {
-    return _cst_new_box_autoadd_mcp_tool_call();
-  }
-
-  late final _cst_new_box_autoadd_mcp_tool_callPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<wire_cst_mcp_tool_call> Function()>
-      >('frbgen_kivixa_cst_new_box_autoadd_mcp_tool_call');
-  late final _cst_new_box_autoadd_mcp_tool_call =
-      _cst_new_box_autoadd_mcp_tool_callPtr
-          .asFunction<ffi.Pointer<wire_cst_mcp_tool_call> Function()>();
-
-  ffi.Pointer<ffi.Uint32> cst_new_box_autoadd_u_32(int value) {
-    return _cst_new_box_autoadd_u_32(value);
-  }
-
-  late final _cst_new_box_autoadd_u_32Ptr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint32> Function(ffi.Uint32)>>(
-        'frbgen_kivixa_cst_new_box_autoadd_u_32',
-      );
-  late final _cst_new_box_autoadd_u_32 = _cst_new_box_autoadd_u_32Ptr
-      .asFunction<ffi.Pointer<ffi.Uint32> Function(int)>();
+  late final _cst_new_box_autoadd_f_64 = _cst_new_box_autoadd_f_64Ptr
+      .asFunction<ffi.Pointer<ffi.Double> Function(double)>();
 
   ffi.Pointer<ffi.UintPtr> cst_new_box_autoadd_usize(int value) {
     return _cst_new_box_autoadd_usize(value);
@@ -2647,164 +3283,108 @@ class RustLibWire implements BaseWire {
   late final _cst_new_list_String = _cst_new_list_StringPtr
       .asFunction<ffi.Pointer<wire_cst_list_String> Function(int)>();
 
-  ffi.Pointer<wire_cst_list_cluster_assignment> cst_new_list_cluster_assignment(
+  ffi.Pointer<wire_cst_list_calculus_result> cst_new_list_calculus_result(
     int len,
   ) {
-    return _cst_new_list_cluster_assignment(len);
+    return _cst_new_list_calculus_result(len);
   }
 
-  late final _cst_new_list_cluster_assignmentPtr =
+  late final _cst_new_list_calculus_resultPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_cluster_assignment> Function(ffi.Int32)
+          ffi.Pointer<wire_cst_list_calculus_result> Function(ffi.Int32)
         >
-      >('frbgen_kivixa_cst_new_list_cluster_assignment');
-  late final _cst_new_list_cluster_assignment =
-      _cst_new_list_cluster_assignmentPtr
+      >('frbgen_kivixa_cst_new_list_calculus_result');
+  late final _cst_new_list_calculus_result = _cst_new_list_calculus_resultPtr
+      .asFunction<ffi.Pointer<wire_cst_list_calculus_result> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_graph_point> cst_new_list_graph_point(int len) {
+    return _cst_new_list_graph_point(len);
+  }
+
+  late final _cst_new_list_graph_pointPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_graph_point> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_graph_point');
+  late final _cst_new_list_graph_point = _cst_new_list_graph_pointPtr
+      .asFunction<ffi.Pointer<wire_cst_list_graph_point> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_list_prim_f_64_strict>
+  cst_new_list_list_prim_f_64_strict(int len) {
+    return _cst_new_list_list_prim_f_64_strict(len);
+  }
+
+  late final _cst_new_list_list_prim_f_64_strictPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_list_prim_f_64_strict> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_list_prim_f_64_strict');
+  late final _cst_new_list_list_prim_f_64_strict =
+      _cst_new_list_list_prim_f_64_strictPtr
           .asFunction<
-            ffi.Pointer<wire_cst_list_cluster_assignment> Function(int)
+            ffi.Pointer<wire_cst_list_list_prim_f_64_strict> Function(int)
           >();
 
-  ffi.Pointer<wire_cst_list_cluster_info> cst_new_list_cluster_info(int len) {
-    return _cst_new_list_cluster_info(len);
+  ffi.Pointer<wire_cst_list_matrix_result> cst_new_list_matrix_result(int len) {
+    return _cst_new_list_matrix_result(len);
   }
 
-  late final _cst_new_list_cluster_infoPtr =
+  late final _cst_new_list_matrix_resultPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_cluster_info> Function(ffi.Int32)
+          ffi.Pointer<wire_cst_list_matrix_result> Function(ffi.Int32)
         >
-      >('frbgen_kivixa_cst_new_list_cluster_info');
-  late final _cst_new_list_cluster_info = _cst_new_list_cluster_infoPtr
-      .asFunction<ffi.Pointer<wire_cst_list_cluster_info> Function(int)>();
+      >('frbgen_kivixa_cst_new_list_matrix_result');
+  late final _cst_new_list_matrix_result = _cst_new_list_matrix_resultPtr
+      .asFunction<ffi.Pointer<wire_cst_list_matrix_result> Function(int)>();
 
-  ffi.Pointer<wire_cst_list_embedding_cluster> cst_new_list_embedding_cluster(
+  ffi.Pointer<wire_cst_list_prim_f_64_loose> cst_new_list_prim_f_64_loose(
     int len,
   ) {
-    return _cst_new_list_embedding_cluster(len);
+    return _cst_new_list_prim_f_64_loose(len);
   }
 
-  late final _cst_new_list_embedding_clusterPtr =
+  late final _cst_new_list_prim_f_64_loosePtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_embedding_cluster> Function(ffi.Int32)
+          ffi.Pointer<wire_cst_list_prim_f_64_loose> Function(ffi.Int32)
         >
-      >('frbgen_kivixa_cst_new_list_embedding_cluster');
-  late final _cst_new_list_embedding_cluster =
-      _cst_new_list_embedding_clusterPtr
-          .asFunction<
-            ffi.Pointer<wire_cst_list_embedding_cluster> Function(int)
-          >();
+      >('frbgen_kivixa_cst_new_list_prim_f_64_loose');
+  late final _cst_new_list_prim_f_64_loose = _cst_new_list_prim_f_64_loosePtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_f_64_loose> Function(int)>();
 
-  ffi.Pointer<wire_cst_list_embedding_entry> cst_new_list_embedding_entry(
+  ffi.Pointer<wire_cst_list_prim_f_64_strict> cst_new_list_prim_f_64_strict(
     int len,
   ) {
-    return _cst_new_list_embedding_entry(len);
+    return _cst_new_list_prim_f_64_strict(len);
   }
 
-  late final _cst_new_list_embedding_entryPtr =
+  late final _cst_new_list_prim_f_64_strictPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_embedding_entry> Function(ffi.Int32)
+          ffi.Pointer<wire_cst_list_prim_f_64_strict> Function(ffi.Int32)
         >
-      >('frbgen_kivixa_cst_new_list_embedding_entry');
-  late final _cst_new_list_embedding_entry = _cst_new_list_embedding_entryPtr
-      .asFunction<ffi.Pointer<wire_cst_list_embedding_entry> Function(int)>();
+      >('frbgen_kivixa_cst_new_list_prim_f_64_strict');
+  late final _cst_new_list_prim_f_64_strict = _cst_new_list_prim_f_64_strictPtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_f_64_strict> Function(int)>();
 
-  ffi.Pointer<wire_cst_list_graph_edge> cst_new_list_graph_edge(int len) {
-    return _cst_new_list_graph_edge(len);
-  }
-
-  late final _cst_new_list_graph_edgePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_graph_edge> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_graph_edge');
-  late final _cst_new_list_graph_edge = _cst_new_list_graph_edgePtr
-      .asFunction<ffi.Pointer<wire_cst_list_graph_edge> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_graph_node> cst_new_list_graph_node(int len) {
-    return _cst_new_list_graph_node(len);
-  }
-
-  late final _cst_new_list_graph_nodePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_graph_node> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_graph_node');
-  late final _cst_new_list_graph_node = _cst_new_list_graph_nodePtr
-      .asFunction<ffi.Pointer<wire_cst_list_graph_node> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_mcp_parameter> cst_new_list_mcp_parameter(int len) {
-    return _cst_new_list_mcp_parameter(len);
-  }
-
-  late final _cst_new_list_mcp_parameterPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_mcp_parameter> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_mcp_parameter');
-  late final _cst_new_list_mcp_parameter = _cst_new_list_mcp_parameterPtr
-      .asFunction<ffi.Pointer<wire_cst_list_mcp_parameter> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_mcp_tool> cst_new_list_mcp_tool(int len) {
-    return _cst_new_list_mcp_tool(len);
-  }
-
-  late final _cst_new_list_mcp_toolPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_mcp_tool> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_mcp_tool');
-  late final _cst_new_list_mcp_tool = _cst_new_list_mcp_toolPtr
-      .asFunction<ffi.Pointer<wire_cst_list_mcp_tool> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_node_position> cst_new_list_node_position(int len) {
-    return _cst_new_list_node_position(len);
-  }
-
-  late final _cst_new_list_node_positionPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_node_position> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_node_position');
-  late final _cst_new_list_node_position = _cst_new_list_node_positionPtr
-      .asFunction<ffi.Pointer<wire_cst_list_node_position> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_prim_f_32_loose> cst_new_list_prim_f_32_loose(
+  ffi.Pointer<wire_cst_list_prim_u_64_strict> cst_new_list_prim_u_64_strict(
     int len,
   ) {
-    return _cst_new_list_prim_f_32_loose(len);
+    return _cst_new_list_prim_u_64_strict(len);
   }
 
-  late final _cst_new_list_prim_f_32_loosePtr =
+  late final _cst_new_list_prim_u_64_strictPtr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_prim_f_32_loose> Function(ffi.Int32)
+          ffi.Pointer<wire_cst_list_prim_u_64_strict> Function(ffi.Int32)
         >
-      >('frbgen_kivixa_cst_new_list_prim_f_32_loose');
-  late final _cst_new_list_prim_f_32_loose = _cst_new_list_prim_f_32_loosePtr
-      .asFunction<ffi.Pointer<wire_cst_list_prim_f_32_loose> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_prim_f_32_strict> cst_new_list_prim_f_32_strict(
-    int len,
-  ) {
-    return _cst_new_list_prim_f_32_strict(len);
-  }
-
-  late final _cst_new_list_prim_f_32_strictPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_prim_f_32_strict> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_prim_f_32_strict');
-  late final _cst_new_list_prim_f_32_strict = _cst_new_list_prim_f_32_strictPtr
-      .asFunction<ffi.Pointer<wire_cst_list_prim_f_32_strict> Function(int)>();
+      >('frbgen_kivixa_cst_new_list_prim_u_64_strict');
+  late final _cst_new_list_prim_u_64_strict = _cst_new_list_prim_u_64_strictPtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_u_64_strict> Function(int)>();
 
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_new_list_prim_u_8_strict(
     int len,
@@ -2821,53 +3401,51 @@ class RustLibWire implements BaseWire {
   late final _cst_new_list_prim_u_8_strict = _cst_new_list_prim_u_8_strictPtr
       .asFunction<ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(int)>();
 
-  ffi.Pointer<wire_cst_list_record_string_string>
-  cst_new_list_record_string_string(int len) {
-    return _cst_new_list_record_string_string(len);
-  }
-
-  late final _cst_new_list_record_string_stringPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_record_string_string> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_record_string_string');
-  late final _cst_new_list_record_string_string =
-      _cst_new_list_record_string_stringPtr
-          .asFunction<
-            ffi.Pointer<wire_cst_list_record_string_string> Function(int)
-          >();
-
-  ffi.Pointer<wire_cst_list_semantic_edge> cst_new_list_semantic_edge(int len) {
-    return _cst_new_list_semantic_edge(len);
-  }
-
-  late final _cst_new_list_semantic_edgePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_semantic_edge> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_semantic_edge');
-  late final _cst_new_list_semantic_edge = _cst_new_list_semantic_edgePtr
-      .asFunction<ffi.Pointer<wire_cst_list_semantic_edge> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_similarity_result> cst_new_list_similarity_result(
+  ffi.Pointer<wire_cst_list_record_f_64_f_64> cst_new_list_record_f_64_f_64(
     int len,
   ) {
-    return _cst_new_list_similarity_result(len);
+    return _cst_new_list_record_f_64_f_64(len);
   }
 
-  late final _cst_new_list_similarity_resultPtr =
+  late final _cst_new_list_record_f_64_f_64Ptr =
       _lookup<
         ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_similarity_result> Function(ffi.Int32)
+          ffi.Pointer<wire_cst_list_record_f_64_f_64> Function(ffi.Int32)
         >
-      >('frbgen_kivixa_cst_new_list_similarity_result');
-  late final _cst_new_list_similarity_result =
-      _cst_new_list_similarity_resultPtr
+      >('frbgen_kivixa_cst_new_list_record_f_64_f_64');
+  late final _cst_new_list_record_f_64_f_64 = _cst_new_list_record_f_64_f_64Ptr
+      .asFunction<ffi.Pointer<wire_cst_list_record_f_64_f_64> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_record_string_f_64> cst_new_list_record_string_f_64(
+    int len,
+  ) {
+    return _cst_new_list_record_string_f_64(len);
+  }
+
+  late final _cst_new_list_record_string_f_64Ptr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_record_string_f_64> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_record_string_f_64');
+  late final _cst_new_list_record_string_f_64 =
+      _cst_new_list_record_string_f_64Ptr
           .asFunction<
-            ffi.Pointer<wire_cst_list_similarity_result> Function(int)
+            ffi.Pointer<wire_cst_list_record_string_f_64> Function(int)
           >();
+
+  ffi.Pointer<wire_cst_list_unit_result> cst_new_list_unit_result(int len) {
+    return _cst_new_list_unit_result(len);
+  }
+
+  late final _cst_new_list_unit_resultPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_unit_result> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_unit_result');
+  late final _cst_new_list_unit_result = _cst_new_list_unit_resultPtr
+      .asFunction<ffi.Pointer<wire_cst_list_unit_result> Function(int)>();
 
   int dummy_method_to_enforce_bundling() {
     return _dummy_method_to_enforce_bundling();
@@ -2890,86 +3468,29 @@ typedef DartDartPostCObjectFnTypeFunction =
 typedef DartPostCObjectFnType =
     ffi.Pointer<ffi.NativeFunction<DartPostCObjectFnTypeFunction>>;
 
+final class wire_cst_list_prim_f_64_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Double> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_list_prim_f_64_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Pointer<wire_cst_list_prim_f_64_strict>> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_prim_f_64_loose extends ffi.Struct {
+  external ffi.Pointer<ffi.Double> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_list_prim_u_8_strict extends ffi.Struct {
   external ffi.Pointer<ffi.Uint8> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_graph_edge extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> source;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> target;
-
-  @ffi.Float()
-  external double weight;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> edge_type;
-}
-
-final class wire_cst_list_graph_edge extends ffi.Struct {
-  external ffi.Pointer<wire_cst_graph_edge> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_graph_node extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> id;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> label;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> node_type;
-
-  @ffi.Float()
-  external double x;
-
-  @ffi.Float()
-  external double y;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> color;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> metadata;
-}
-
-final class wire_cst_list_graph_node extends ffi.Struct {
-  external ffi.Pointer<wire_cst_graph_node> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_list_prim_f_32_strict extends ffi.Struct {
-  external ffi.Pointer<ffi.Float> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_embedding_entry extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> id;
-
-  external ffi.Pointer<wire_cst_list_prim_f_32_strict> vector;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> text_preview;
-}
-
-final class wire_cst_list_embedding_entry extends ffi.Struct {
-  external ffi.Pointer<wire_cst_embedding_entry> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_record_string_string extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field0;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field1;
-}
-
-final class wire_cst_list_record_string_string extends ffi.Struct {
-  external ffi.Pointer<wire_cst_record_string_string> ptr;
 
   @ffi.Int32()
   external int len;
@@ -2982,197 +3503,330 @@ final class wire_cst_list_String extends ffi.Struct {
   external int len;
 }
 
-final class wire_cst_list_prim_f_32_loose extends ffi.Struct {
-  external ffi.Pointer<ffi.Float> ptr;
+final class wire_cst_record_string_f_64 extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field0;
+
+  @ffi.Double()
+  external double field1;
+}
+
+final class wire_cst_list_record_string_f_64 extends ffi.Struct {
+  external ffi.Pointer<wire_cst_record_string_f_64> ptr;
 
   @ffi.Int32()
   external int len;
 }
 
-final class wire_cst_mcp_tool_call extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> tool;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> parameters_json;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> description;
-}
-
-final class wire_cst_cluster_assignment extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> id;
-
-  @ffi.UintPtr()
-  external int cluster_id;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> color;
-}
-
-final class wire_cst_list_cluster_assignment extends ffi.Struct {
-  external ffi.Pointer<wire_cst_cluster_assignment> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_cluster_info extends ffi.Struct {
-  @ffi.UintPtr()
-  external int id;
-
-  @ffi.UintPtr()
-  external int size;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> color;
-
-  external ffi.Pointer<wire_cst_list_prim_f_32_strict> centroid;
-}
-
-final class wire_cst_list_cluster_info extends ffi.Struct {
-  external ffi.Pointer<wire_cst_cluster_info> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_embedding_cluster extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_String> ids;
-}
-
-final class wire_cst_list_embedding_cluster extends ffi.Struct {
-  external ffi.Pointer<wire_cst_embedding_cluster> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_mcp_parameter extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> name;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> description;
-
-  @ffi.Int32()
-  external int param_type;
-
-  @ffi.Bool()
-  external bool required;
-}
-
-final class wire_cst_list_mcp_parameter extends ffi.Struct {
-  external ffi.Pointer<wire_cst_mcp_parameter> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_list_mcp_tool extends ffi.Struct {
-  external ffi.Pointer<ffi.Int32> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_node_position extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> id;
-
-  @ffi.Float()
-  external double x;
-
-  @ffi.Float()
-  external double y;
-
-  @ffi.Float()
-  external double radius;
-
-  @ffi.Uint32()
-  external int color;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> node_type;
-}
-
-final class wire_cst_list_node_position extends ffi.Struct {
-  external ffi.Pointer<wire_cst_node_position> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_semantic_edge extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> source;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> target;
-
-  @ffi.Float()
-  external double similarity;
-
-  @ffi.Bool()
-  external bool is_ghost;
-}
-
-final class wire_cst_list_semantic_edge extends ffi.Struct {
-  external ffi.Pointer<wire_cst_semantic_edge> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_similarity_result extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> id;
-
-  @ffi.Float()
-  external double score;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> text_preview;
-}
-
-final class wire_cst_list_similarity_result extends ffi.Struct {
-  external ffi.Pointer<wire_cst_similarity_result> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_clustering_result extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_cluster_assignment> assignments;
-
-  external ffi.Pointer<wire_cst_list_cluster_info> clusters;
-
-  @ffi.UintPtr()
-  external int k;
-}
-
-final class wire_cst_graph_state extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_graph_node> nodes;
-
-  external ffi.Pointer<wire_cst_list_graph_edge> edges;
-}
-
-final class wire_cst_semantic_edge_result extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_semantic_edge> edges;
-
-  @ffi.UintPtr()
-  external int count;
-}
-
-final class wire_cst_knowledge_graph_analysis extends ffi.Struct {
-  external wire_cst_clustering_result clustering;
-
-  external wire_cst_semantic_edge_result semantic_edges;
-}
-
-final class wire_cst_mcp_tool_result extends ffi.Struct {
+final class wire_cst_calculus_result extends ffi.Struct {
   @ffi.Bool()
   external bool success;
 
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> result;
+  @ffi.Double()
+  external double value;
 
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> tool;
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> symbolic;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
 }
 
-final class wire_cst_stream_graph_stats extends ffi.Struct {
-  @ffi.UintPtr()
-  external int node_count;
+final class wire_cst_list_calculus_result extends ffi.Struct {
+  external ffi.Pointer<wire_cst_calculus_result> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_graph_point extends ffi.Struct {
+  @ffi.Double()
+  external double x;
+
+  @ffi.Double()
+  external double y;
+
+  @ffi.Bool()
+  external bool valid;
+}
+
+final class wire_cst_list_graph_point extends ffi.Struct {
+  external ffi.Pointer<wire_cst_graph_point> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_matrix_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  external ffi.Pointer<wire_cst_list_prim_f_64_strict> data;
 
   @ffi.UintPtr()
-  external int edge_count;
+  external int rows;
 
   @ffi.UintPtr()
-  external int visible_count;
+  external int cols;
+
+  external ffi.Pointer<ffi.Double> scalar;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+}
+
+final class wire_cst_list_matrix_result extends ffi.Struct {
+  external ffi.Pointer<wire_cst_matrix_result> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_prim_u_64_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint64> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_record_f_64_f_64 extends ffi.Struct {
+  @ffi.Double()
+  external double field0;
+
+  @ffi.Double()
+  external double field1;
+}
+
+final class wire_cst_list_record_f_64_f_64 extends ffi.Struct {
+  external ffi.Pointer<wire_cst_record_f_64_f_64> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_unit_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  @ffi.Double()
+  external double value;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> from_unit;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> to_unit;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> formula;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+}
+
+final class wire_cst_list_unit_result extends ffi.Struct {
+  external ffi.Pointer<wire_cst_unit_result> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_complex_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  @ffi.Double()
+  external double real;
+
+  @ffi.Double()
+  external double imag;
+
+  @ffi.Double()
+  external double magnitude;
+
+  @ffi.Double()
+  external double angle_rad;
+
+  @ffi.Double()
+  external double angle_deg;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> formatted_rect;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> formatted_polar;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+}
+
+final class wire_cst_confidence_interval_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  @ffi.Double()
+  external double lower;
+
+  @ffi.Double()
+  external double upper;
+
+  @ffi.Double()
+  external double center;
+
+  @ffi.Double()
+  external double margin_of_error;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+}
+
+final class wire_cst_correlation_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  @ffi.Double()
+  external double correlation;
+
+  @ffi.Double()
+  external double covariance;
+
+  @ffi.Double()
+  external double p_value;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+}
+
+final class wire_cst_discrete_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  @ffi.Uint64()
+  external int value;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> big_value;
+
+  external ffi.Pointer<wire_cst_list_prim_u_64_strict> values;
+
+  external ffi.Pointer<ffi.Bool> bool_result;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+}
+
+final class wire_cst_distribution_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  @ffi.Double()
+  external double pdf;
+
+  @ffi.Double()
+  external double cdf;
+
+  @ffi.Double()
+  external double mean;
+
+  @ffi.Double()
+  external double variance;
+
+  @ffi.Double()
+  external double std_dev;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+}
+
+final class wire_cst_expression_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  @ffi.Double()
+  external double value;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> formatted;
+}
+
+final class wire_cst_graph_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  external ffi.Pointer<wire_cst_list_graph_point> points;
+
+  @ffi.Double()
+  external double x_min;
+
+  @ffi.Double()
+  external double x_max;
+
+  @ffi.Double()
+  external double y_min;
+
+  @ffi.Double()
+  external double y_max;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+}
+
+final class wire_cst_hypothesis_test_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  @ffi.Double()
+  external double test_statistic;
+
+  @ffi.Double()
+  external double p_value;
+
+  @ffi.Double()
+  external double critical_value;
+
+  @ffi.Bool()
+  external bool reject_null;
+
+  external wire_cst_record_f_64_f_64 confidence_interval;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+}
+
+final class wire_cst_matrix_decomposition extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> decomposition_type;
+
+  external ffi.Pointer<wire_cst_list_matrix_result> matrices;
+
+  external ffi.Pointer<wire_cst_list_String> labels;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+}
+
+final class wire_cst_record_list_record_f_64_f_64_list_record_f_64_f_64
+    extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_record_f_64_f_64> field0;
+
+  external ffi.Pointer<wire_cst_list_record_f_64_f_64> field1;
+}
+
+final class wire_cst_regression_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  external ffi.Pointer<wire_cst_list_prim_f_64_strict> coefficients;
+
+  @ffi.Double()
+  external double r_squared;
+
+  external ffi.Pointer<wire_cst_list_prim_f_64_strict> residuals;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+}
+
+final class wire_cst_solve_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  external ffi.Pointer<wire_cst_list_prim_f_64_strict> roots;
+
+  @ffi.UintPtr()
+  external int iterations;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+}
+
+final class wire_cst_statistics_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  external ffi.Pointer<wire_cst_list_record_string_f_64> values;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
 }
