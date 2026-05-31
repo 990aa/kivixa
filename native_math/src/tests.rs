@@ -381,8 +381,8 @@ mod statistics_tests {
         let result = distribution_compute("pareto", &[1.0, 3.0], 2.0);
         assert!(result.success);
         assert!((result.pdf - 0.1875).abs() < 0.001); // 3/16
-        assert!((result.cdf - 0.875).abs() < 1e-6);   // 7/8
-        
+        assert!((result.cdf - 0.875).abs() < 1e-6); // 7/8
+
         let result = distribution_compute("rayleigh", &[1.0], 1.0);
         assert!(result.success);
         assert!((result.pdf - 0.6065).abs() < 0.001); // e^(-0.5)
