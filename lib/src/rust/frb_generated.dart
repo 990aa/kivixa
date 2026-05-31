@@ -8,17 +8,14 @@ import 'dart:convert';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:kivixa/src/rust/api.dart';
-import 'package:kivixa/src/rust/basic.dart';
-import 'package:kivixa/src/rust/calculus.dart';
-import 'package:kivixa/src/rust/complex.dart';
-import 'package:kivixa/src/rust/discrete.dart';
+import 'package:kivixa/src/rust/clustering.dart';
+import 'package:kivixa/src/rust/embeddings.dart';
 import 'package:kivixa/src/rust/frb_generated.dart';
 import 'package:kivixa/src/rust/frb_generated.io.dart'
     if (dart.library.js_interop) 'frb_generated.web.dart';
-import 'package:kivixa/src/rust/graphing.dart';
-import 'package:kivixa/src/rust/matrix.dart';
-import 'package:kivixa/src/rust/statistics.dart';
-import 'package:kivixa/src/rust/units.dart';
+import 'package:kivixa/src/rust/graph.dart';
+import 'package:kivixa/src/rust/mcp.dart';
+import 'package:kivixa/src/rust/streaming.dart';
 
 /// Main entrypoint of the Rust API
 class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
@@ -63,9 +60,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
       RustLibWire.fromExternalLibrary;
 
   @override
-  Future<void> executeRustInitializers() async {
-    await api.crateApiInitApp();
-  }
+  Future<void> executeRustInitializers() async {}
 
   @override
   ExternalLibraryLoaderConfig get defaultExternalLibraryLoaderConfig =>
@@ -75,436 +70,234 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => -1871710083;
+  int get rustContentHash => 1959240715;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
-        stem: 'kivixa_math',
-        ioDirectory: 'native_math/target/release/',
+        stem: 'kivixa_native',
+        ioDirectory: 'native/target/release/',
         webPrefix: 'pkg/',
         wasmBindgenName: 'wasm_bindgen',
       );
 }
 
 abstract class RustLibApi extends BaseApi {
-  Future<HypothesisTestResult> crateApiAnova({
-    required List<Float64List> groups,
-    required double alpha,
+  Future<void> crateApiAddGraphEdge({
+    required String source,
+    required String target,
+    required double weight,
+    required String edgeType,
   });
 
-  Future<HypothesisTestResult> crateApiBinomialTest({
-    required BigInt successes,
-    required BigInt trials,
-    required double expectedP,
-    required double alpha,
-  });
+  Future<void> crateApiAddGraphEdges({required List<GraphEdge> edges});
 
-  DiscreteResult crateApiCatalan({required BigInt n});
-
-  Future<HypothesisTestResult> crateApiChiSquaredTest({
-    required List<double> observed,
-    required List<double> expected,
-    required double alpha,
-  });
-
-  DiscreteResult crateApiCombinations({required BigInt n, required BigInt r});
-
-  ComplexResult crateApiComplexConvert({
-    required double real,
-    required double imag,
-    required bool toPolar,
-  });
-
-  ComplexResult crateApiComplexOperation({
-    required double aReal,
-    required double aImag,
-    required double bReal,
-    required double bImag,
-    required String operation,
-  });
-
-  Future<CalculusResult> crateApiComputeLimit({
-    required String expression,
-    required String variable,
-    required double approachValue,
-    required bool fromLeft,
-    required bool fromRight,
-  });
-
-  Future<StatisticsResult> crateApiComputeStatistics({
-    required List<double> data,
-  });
-
-  Future<ConfidenceIntervalResult> crateApiConfidenceIntervalMean({
-    required List<double> data,
-    required double confidenceLevel,
-  });
-
-  ConfidenceIntervalResult crateApiConfidenceIntervalProportion({
-    required BigInt successes,
-    required BigInt n,
-    required double confidenceLevel,
-  });
-
-  Future<ConfidenceIntervalResult> crateApiConfidenceIntervalVariance({
-    required List<double> data,
-    required double confidenceLevel,
-  });
-
-  String crateApiConvertNumberSystem({
-    required String value,
-    required int fromBase,
-    required int toBase,
-  });
-
-  List<UnitResult> crateApiConvertToAllUnits({
-    required double value,
-    required String fromUnit,
-  });
-
-  UnitResult crateApiConvertUnit({
-    required double value,
-    required String fromUnit,
-    required String toUnit,
-  });
-
-  Future<CorrelationResult> crateApiCorrelationCovariance({
-    required List<double> x,
-    required List<double> y,
-  });
-
-  Future<GraphResult> crateApiDerivativeGraph({
-    required String expression,
-    required String variable,
-    required List<double> xValues,
-  });
-
-  Future<CalculusResult> crateApiDifferentiate({
-    required String expression,
-    required String variable,
-    required double point,
-    required int order,
-  });
-
-  Future<DistributionResult> crateApiDistributionCompute({
-    required String distributionType,
-    required List<double> params,
+  Future<void> crateApiAddGraphNode({
+    required String id,
+    required String label,
+    required String nodeType,
     required double x,
+    required double y,
+    String? color,
+    String? metadata,
   });
 
-  Future<CalculusResult> crateApiDoubleIntegral({
-    required String expression,
-    required String xVar,
-    required String yVar,
-    required double xMin,
-    required double xMax,
-    required double yMin,
-    required double yMax,
-    required int numIntervals,
+  Future<void> crateApiAddGraphNodes({required List<GraphNode> nodes});
+
+  Future<void> crateApiAddStreamEdge({
+    required String fromId,
+    required String toId,
+    required double strength,
   });
 
-  Future<HypothesisTestResult> crateApiDurbinWatsonTest({
-    required List<double> residuals,
+  Future<void> crateApiAddStreamNode({
+    required String id,
+    required double x,
+    required double y,
+    required double radius,
+    required int color,
   });
 
-  DiscreteResult crateApiEulerTotient({required BigInt n});
-
-  ExpressionResult crateApiEvaluateExpression({required String expression});
-
-  ExpressionResult crateApiEvaluateFormula({
-    required String formula,
-    required List<String> variables,
-    required List<double> values,
+  Future<KnowledgeGraphAnalysis> crateApiAnalyzeKnowledgeGraph({
+    required List<EmbeddingEntry> entries,
+    BigInt? k,
+    double? similarityThreshold,
+    List<(String, String)>? existingLinks,
   });
 
-  Future<GraphResult> crateApiEvaluateGraphPoints({
-    required String expression,
-    required String variable,
-    required List<double> xValues,
+  Future<List<EmbeddingEntry>> crateApiBatchEmbed({
+    required List<String> texts,
   });
 
-  Future<HypothesisTestResult> crateApiFTest({
-    required List<double> data1,
-    required List<double> data2,
-    required double alpha,
+  Future<String> crateApiChatCompletion({
+    required List<(String, String)> messages,
+    int? maxTokens,
   });
 
-  DiscreteResult crateApiFactorial({required BigInt n});
+  void crateApiClearGraph();
 
-  DiscreteResult crateApiFibonacci({required BigInt n});
+  void crateApiClearStreamGraph();
 
-  Future<(List<(double, double)>, List<(double, double)>)> crateApiFindExtrema({
-    required String expression,
-    required String variable,
-    required double xMin,
-    required double xMax,
-    required BigInt numSamples,
+  Future<List<EmbeddingCluster>> crateApiClusterEmbeddings({
+    required List<EmbeddingEntry> entries,
+    required double threshold,
   });
 
-  Future<Float64List> crateApiFindGraphRoots({
-    required String expression,
-    required String variable,
-    required double xMin,
-    required double xMax,
-    required BigInt numSamples,
+  Future<ClusteringResult> crateApiClusterNotes({
+    required List<EmbeddingEntry> entries,
+    BigInt? k,
+    BigInt? maxIterations,
   });
 
-  Future<SolveResult> crateApiFindRootsInInterval({
-    required String expression,
-    required String variable,
-    required double start,
-    required double end,
-    required int numSamples,
+  Future<GraphState> crateApiComputeGraphLayout({int? iterations});
+
+  Future<void> crateApiConnectNoteToTopics({
+    required String noteId,
+    required List<String> topicIds,
   });
 
-  BigInt crateApiGcd({required BigInt a, required BigInt b});
-
-  Future<Float64List> crateApiGenerateAnalyticalSequence({
-    required String seqType,
-    required int n,
+  double crateApiCosineSimilarity({
+    required List<double> a,
+    required List<double> b,
   });
 
-  Future<List<String>> crateApiGenerateClassicalSequence({
-    required String seqType,
-    required double a,
-    required double dOrR,
-    required int n,
-    required BigInt s,
+  Future<SemanticEdgeResult> crateApiDiscoverSemanticEdges({
+    required List<EmbeddingEntry> entries,
+    double? threshold,
+    List<(String, String)>? existingLinks,
   });
 
-  Future<List<String>> crateApiGenerateCombinatorialSequence({
-    required String seqType,
-    required int n,
+  Future<List<String>> crateApiExtractTopics({
+    required String text,
+    int? numTopics,
   });
 
-  Future<List<String>> crateApiGenerateNumberTheoreticSequence({
-    required String seqType,
-    required int n,
+  Future<List<SimilarityResult>> crateApiFindSimilar({
+    required List<double> query,
+    required List<EmbeddingEntry> entries,
+    required BigInt topK,
+    required double threshold,
   });
 
-  Float64List crateApiGenerateXRange({
-    required double start,
-    required double end,
-    required BigInt numPoints,
+  Future<String> crateApiGenerateText({required String prompt, int? maxTokens});
+
+  Future<Float32List> crateApiGetEmbedding({required String text});
+
+  BigInt crateApiGetEmbeddingDimension();
+
+  Future<GraphState> crateApiGetGraphState();
+
+  int crateApiGetModelType();
+
+  Future<String> crateApiGetOrCreateTopicHub({required String topic});
+
+  StreamGraphStats crateApiGetStreamGraphStats();
+
+  String crateApiGetVersion();
+
+  Future<List<NodePosition>> crateApiGetVisibleGraphNodes();
+
+  String crateApiHealthCheck();
+
+  void crateApiInitGraph();
+
+  Future<void> crateApiInitMcp({
+    required String basePath,
+    BigInt? maxFileSize,
+    List<String>? allowedExtensions,
   });
 
-  double crateApiGetConstant({required String name});
+  void crateApiInitModel({required String modelPath});
 
-  List<String> crateApiGetUnitCategories();
-
-  List<String> crateApiGetUnitsForCategory({required String category});
-
-  Future<Float64List> crateApiGradient({
-    required String expression,
-    required List<String> variables,
-    required List<(String, double)> point,
+  Future<void> crateApiInitModelWithConfig({
+    required String modelPath,
+    required int nGpuLayers,
+    required int nCtx,
+    required int nThreads,
+    required double temperature,
+    required double topP,
+    required int maxTokens,
+    int? modelType,
   });
 
-  Future<void> crateApiInitApp();
+  bool crateApiIsGraphStreamRunning();
 
-  Future<GraphResult> crateApiIntegralGraph({
-    required String expression,
-    required String variable,
-    required List<double> xValues,
-    required double initialValue,
+  bool crateApiIsMcpInitialized();
+
+  bool crateApiIsModelLoaded();
+
+  TaskCategory crateApiMcpClassifyTask({required String message});
+
+  Future<void> crateApiMcpCreateFolder({required String path});
+
+  Future<void> crateApiMcpDeleteFile({required String path});
+
+  Future<MCPToolResult> crateApiMcpExecuteToolCall({
+    required MCPToolCall toolCall,
   });
 
-  Future<CalculusResult> crateApiIntegrate({
-    required String expression,
-    required String variable,
-    required double lower,
-    required double upper,
-    required int numIntervals,
+  List<MCPTool> crateApiMcpGetAllTools();
+
+  String crateApiMcpGetModelForTask({required TaskCategory category});
+
+  String crateApiMcpGetToolDescription({required MCPTool tool});
+
+  String crateApiMcpGetToolName({required MCPTool tool});
+
+  List<MCPParameter> crateApiMcpGetToolParameters({required MCPTool tool});
+
+  String crateApiMcpGetToolSchemas();
+
+  Future<List<String>> crateApiMcpListFiles({required String path});
+
+  Future<MCPToolCall> crateApiMcpParseToolCall({required String json});
+
+  Future<String> crateApiMcpReadFile({required String path});
+
+  bool crateApiMcpValidatePath({required String path});
+
+  Future<void> crateApiMcpWriteFile({
+    required String path,
+    required String content,
   });
 
-  DiscreteResult crateApiIsPerfect({required BigInt n});
-
-  bool crateApiIsPrime({required BigInt n});
-
-  BigInt crateApiLcm({required BigInt a, required BigInt b});
-
-  Future<CalculusResult> crateApiLineIntegral({
-    required String expression,
-    required String xParam,
-    required String yParam,
-    required String tVar,
-    required double tMin,
-    required double tMax,
-    required int numIntervals,
+  Future<void> crateApiPinStreamNode({
+    required String id,
+    required bool pinned,
   });
 
-  Future<RegressionResult> crateApiLinearRegression({
-    required List<double> xData,
-    required List<double> yData,
+  Future<void> crateApiRemoveGraphNode({required String nodeId});
+
+  Future<void> crateApiRemoveStreamEdge({
+    required String fromId,
+    required String toId,
   });
 
-  DiscreteResult crateApiListDivisors({required BigInt n});
+  Future<void> crateApiRemoveStreamNode({required String id});
 
-  Future<HypothesisTestResult> crateApiMannWhitneyU({
-    required List<double> data1,
-    required List<double> data2,
-    required double alpha,
+  Future<List<SimilarityResult>> crateApiSemanticSearch({
+    required String queryText,
+    required List<EmbeddingEntry> entries,
+    required BigInt topK,
   });
 
-  Future<MatrixDecomposition> crateApiMatrixDecomposition({
-    required List<double> data,
-    required BigInt rows,
-    required BigInt cols,
-    required String decompositionType,
+  Future<void> crateApiSetStreamNodePosition({
+    required String id,
+    required double x,
+    required double y,
   });
 
-  Future<MatrixResult> crateApiMatrixOperation({
-    required List<double> aData,
-    required BigInt aRows,
-    required BigInt aCols,
-    Float64List? bData,
-    BigInt? bRows,
-    BigInt? bCols,
-    required String operation,
-  });
+  Future<void> crateApiStartGraphStream();
 
-  Future<MatrixResult> crateApiMatrixProperties({
-    required List<double> data,
-    required BigInt rows,
-    required BigInt cols,
-  });
+  void crateApiStopGraphStream();
 
-  Future<MatrixResult> crateApiMatrixRref({
-    required List<double> data,
-    required BigInt rows,
-    required BigInt cols,
-  });
+  void crateApiUnloadModel();
 
-  Future<CalculusResult> crateApiMixedPartialDerivative({
-    required String expression,
-    required String var1,
-    required String var2,
-    required List<(String, double)> point,
-  });
-
-  DiscreteResult crateApiModAdd({
-    required BigInt a,
-    required BigInt b,
-    required BigInt m,
-  });
-
-  DiscreteResult crateApiModDivide({
-    required BigInt a,
-    required BigInt b,
-    required BigInt m,
-  });
-
-  DiscreteResult crateApiModInverse({required BigInt a, required BigInt m});
-
-  DiscreteResult crateApiModMultiply({
-    required BigInt a,
-    required BigInt b,
-    required BigInt m,
-  });
-
-  DiscreteResult crateApiModPow({
-    required BigInt base,
-    required BigInt exp,
-    required BigInt modulus,
-  });
-
-  DiscreteResult crateApiModSub({
-    required BigInt a,
-    required BigInt b,
-    required BigInt m,
-  });
-
-  List<String> crateApiParseFormula({required String formula});
-
-  Future<CalculusResult> crateApiPartialDerivative({
-    required String expression,
-    required String variable,
-    required List<(String, double)> point,
-    required int order,
-  });
-
-  DiscreteResult crateApiPermutations({required BigInt n, required BigInt r});
-
-  Future<RegressionResult> crateApiPolynomialRegression({
-    required List<double> xData,
-    required List<double> yData,
-    required BigInt degree,
-  });
-
-  DiscreteResult crateApiPrimeFactors({required BigInt n});
-
-  Future<DiscreteResult> crateApiSievePrimes({required BigInt n});
-
-  Future<SolveResult> crateApiSolveEquation({
-    required String expression,
-    required String variable,
-    required double initialGuess,
-    required double tolerance,
-    required int maxIterations,
-  });
-
-  Future<CalculusResult> crateApiSymbolicDifferentiate({
-    required String expression,
-    required String variable,
-    required int order,
-  });
-
-  Future<List<CalculusResult>> crateApiSymbolicGradient({
-    required String expression,
-    required List<String> variables,
-  });
-
-  Future<CalculusResult> crateApiSymbolicIntegrate({
-    required String expression,
-    required List<String> variables,
-  });
-
-  Future<HypothesisTestResult> crateApiTTest({
-    required List<double> data,
-    required double hypothesizedMean,
-    required double alpha,
-  });
-
-  Future<Float64List> crateApiTaylorCoefficients({
-    required String expression,
-    required String variable,
-    required double around,
-    required int numTerms,
-  });
-
-  Future<CalculusResult> crateApiTripleIntegral({
-    required String expression,
-    required String xVar,
-    required String yVar,
-    required String zVar,
-    required double xMin,
-    required double xMax,
-    required double yMin,
-    required double yMax,
-    required double zMin,
-    required double zMax,
-    required int numIntervals,
-  });
-
-  Future<HypothesisTestResult> crateApiTwoSampleTTest({
-    required List<double> data1,
-    required List<double> data2,
-    required double alpha,
-  });
-
-  Future<HypothesisTestResult> crateApiTwoSampleZTest({
-    required List<double> data1,
-    required List<double> data2,
-    required double std1,
-    required double std2,
-    required double alpha,
-  });
-
-  Future<HypothesisTestResult> crateApiZTest({
-    required List<double> data,
-    required double hypothesizedMean,
-    required double populationStd,
-    required double alpha,
+  Future<void> crateApiUpdateGraphViewport({
+    required double x,
+    required double y,
+    required double width,
+    required double height,
+    required double scale,
   });
 }
 
@@ -517,46 +310,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
-  Future<HypothesisTestResult> crateApiAnova({
-    required List<Float64List> groups,
-    required double alpha,
+  Future<void> crateApiAddGraphEdge({
+    required String source,
+    required String target,
+    required double weight,
+    required String edgeType,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final arg0 = cst_encode_list_list_prim_f_64_strict(groups);
-          final arg1 = cst_encode_f_64(alpha);
-          return wire.wire__crate__api__anova(port_, arg0, arg1);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_hypothesis_test_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiAnovaConstMeta,
-        argValues: [groups, alpha],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiAnovaConstMeta =>
-      const TaskConstMeta(debugName: 'anova', argNames: ['groups', 'alpha']);
-
-  @override
-  Future<HypothesisTestResult> crateApiBinomialTest({
-    required BigInt successes,
-    required BigInt trials,
-    required double expectedP,
-    required double alpha,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_u_64(successes);
-          final arg1 = cst_encode_u_64(trials);
-          final arg2 = cst_encode_f_64(expectedP);
-          final arg3 = cst_encode_f_64(alpha);
-          return wire.wire__crate__api__binomial_test(
+          final arg0 = cst_encode_String(source);
+          final arg1 = cst_encode_String(target);
+          final arg2 = cst_encode_f_32(weight);
+          final arg3 = cst_encode_String(edgeType);
+          return wire.wire__crate__api__add_graph_edge(
             port_,
             arg0,
             arg1,
@@ -565,188 +332,164 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           );
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_hypothesis_test_result,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiBinomialTestConstMeta,
-        argValues: [successes, trials, expectedP, alpha],
+        constMeta: kCrateApiAddGraphEdgeConstMeta,
+        argValues: [source, target, weight, edgeType],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiBinomialTestConstMeta => const TaskConstMeta(
-    debugName: 'binomial_test',
-    argNames: ['successes', 'trials', 'expectedP', 'alpha'],
+  TaskConstMeta get kCrateApiAddGraphEdgeConstMeta => const TaskConstMeta(
+    debugName: 'add_graph_edge',
+    argNames: ['source', 'target', 'weight', 'edgeType'],
   );
 
   @override
-  DiscreteResult crateApiCatalan({required BigInt n}) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(n);
-          return wire.wire__crate__api__catalan(arg0);
+  Future<void> crateApiAddGraphEdges({required List<GraphEdge> edges}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_list_graph_edge(edges);
+          return wire.wire__crate__api__add_graph_edges(port_, arg0);
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiCatalanConstMeta,
-        argValues: [n],
+        constMeta: kCrateApiAddGraphEdgesConstMeta,
+        argValues: [edges],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiCatalanConstMeta =>
-      const TaskConstMeta(debugName: 'catalan', argNames: ['n']);
+  TaskConstMeta get kCrateApiAddGraphEdgesConstMeta =>
+      const TaskConstMeta(debugName: 'add_graph_edges', argNames: ['edges']);
 
   @override
-  Future<HypothesisTestResult> crateApiChiSquaredTest({
-    required List<double> observed,
-    required List<double> expected,
-    required double alpha,
+  Future<void> crateApiAddGraphNode({
+    required String id,
+    required String label,
+    required String nodeType,
+    required double x,
+    required double y,
+    String? color,
+    String? metadata,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(observed);
-          final arg1 = cst_encode_list_prim_f_64_loose(expected);
-          final arg2 = cst_encode_f_64(alpha);
-          return wire.wire__crate__api__chi_squared_test(
+          final arg0 = cst_encode_String(id);
+          final arg1 = cst_encode_String(label);
+          final arg2 = cst_encode_String(nodeType);
+          final arg3 = cst_encode_f_32(x);
+          final arg4 = cst_encode_f_32(y);
+          final arg5 = cst_encode_opt_String(color);
+          final arg6 = cst_encode_opt_String(metadata);
+          return wire.wire__crate__api__add_graph_node(
             port_,
-            arg0,
-            arg1,
-            arg2,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_hypothesis_test_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiChiSquaredTestConstMeta,
-        argValues: [observed, expected, alpha],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiChiSquaredTestConstMeta => const TaskConstMeta(
-    debugName: 'chi_squared_test',
-    argNames: ['observed', 'expected', 'alpha'],
-  );
-
-  @override
-  DiscreteResult crateApiCombinations({required BigInt n, required BigInt r}) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(n);
-          final arg1 = cst_encode_u_64(r);
-          return wire.wire__crate__api__combinations(arg0, arg1);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiCombinationsConstMeta,
-        argValues: [n, r],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiCombinationsConstMeta =>
-      const TaskConstMeta(debugName: 'combinations', argNames: ['n', 'r']);
-
-  @override
-  ComplexResult crateApiComplexConvert({
-    required double real,
-    required double imag,
-    required bool toPolar,
-  }) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_f_64(real);
-          final arg1 = cst_encode_f_64(imag);
-          final arg2 = cst_encode_bool(toPolar);
-          return wire.wire__crate__api__complex_convert(arg0, arg1, arg2);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_complex_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiComplexConvertConstMeta,
-        argValues: [real, imag, toPolar],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiComplexConvertConstMeta => const TaskConstMeta(
-    debugName: 'complex_convert',
-    argNames: ['real', 'imag', 'toPolar'],
-  );
-
-  @override
-  ComplexResult crateApiComplexOperation({
-    required double aReal,
-    required double aImag,
-    required double bReal,
-    required double bImag,
-    required String operation,
-  }) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_f_64(aReal);
-          final arg1 = cst_encode_f_64(aImag);
-          final arg2 = cst_encode_f_64(bReal);
-          final arg3 = cst_encode_f_64(bImag);
-          final arg4 = cst_encode_String(operation);
-          return wire.wire__crate__api__complex_operation(
             arg0,
             arg1,
             arg2,
             arg3,
             arg4,
+            arg5,
+            arg6,
           );
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_complex_result,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiComplexOperationConstMeta,
-        argValues: [aReal, aImag, bReal, bImag, operation],
+        constMeta: kCrateApiAddGraphNodeConstMeta,
+        argValues: [id, label, nodeType, x, y, color, metadata],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiComplexOperationConstMeta => const TaskConstMeta(
-    debugName: 'complex_operation',
-    argNames: ['aReal', 'aImag', 'bReal', 'bImag', 'operation'],
+  TaskConstMeta get kCrateApiAddGraphNodeConstMeta => const TaskConstMeta(
+    debugName: 'add_graph_node',
+    argNames: ['id', 'label', 'nodeType', 'x', 'y', 'color', 'metadata'],
   );
 
   @override
-  Future<CalculusResult> crateApiComputeLimit({
-    required String expression,
-    required String variable,
-    required double approachValue,
-    required bool fromLeft,
-    required bool fromRight,
+  Future<void> crateApiAddGraphNodes({required List<GraphNode> nodes}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_list_graph_node(nodes);
+          return wire.wire__crate__api__add_graph_nodes(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiAddGraphNodesConstMeta,
+        argValues: [nodes],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiAddGraphNodesConstMeta =>
+      const TaskConstMeta(debugName: 'add_graph_nodes', argNames: ['nodes']);
+
+  @override
+  Future<void> crateApiAddStreamEdge({
+    required String fromId,
+    required String toId,
+    required double strength,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(variable);
-          final arg2 = cst_encode_f_64(approachValue);
-          final arg3 = cst_encode_bool(fromLeft);
-          final arg4 = cst_encode_bool(fromRight);
-          return wire.wire__crate__api__compute_limit(
+          final arg0 = cst_encode_String(fromId);
+          final arg1 = cst_encode_String(toId);
+          final arg2 = cst_encode_f_32(strength);
+          return wire.wire__crate__api__add_stream_edge(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiAddStreamEdgeConstMeta,
+        argValues: [fromId, toId, strength],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiAddStreamEdgeConstMeta => const TaskConstMeta(
+    debugName: 'add_stream_edge',
+    argNames: ['fromId', 'toId', 'strength'],
+  );
+
+  @override
+  Future<void> crateApiAddStreamNode({
+    required String id,
+    required double x,
+    required double y,
+    required double radius,
+    required int color,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(id);
+          final arg1 = cst_encode_f_32(x);
+          final arg2 = cst_encode_f_32(y);
+          final arg3 = cst_encode_f_32(radius);
+          final arg4 = cst_encode_u_32(color);
+          return wire.wire__crate__api__add_stream_node(
             port_,
             arg0,
             arg1,
@@ -756,406 +499,715 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           );
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_calculus_result,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiComputeLimitConstMeta,
-        argValues: [expression, variable, approachValue, fromLeft, fromRight],
+        constMeta: kCrateApiAddStreamNodeConstMeta,
+        argValues: [id, x, y, radius, color],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiComputeLimitConstMeta => const TaskConstMeta(
-    debugName: 'compute_limit',
-    argNames: [
-      'expression',
-      'variable',
-      'approachValue',
-      'fromLeft',
-      'fromRight',
-    ],
+  TaskConstMeta get kCrateApiAddStreamNodeConstMeta => const TaskConstMeta(
+    debugName: 'add_stream_node',
+    argNames: ['id', 'x', 'y', 'radius', 'color'],
   );
 
   @override
-  Future<StatisticsResult> crateApiComputeStatistics({
-    required List<double> data,
+  Future<KnowledgeGraphAnalysis> crateApiAnalyzeKnowledgeGraph({
+    required List<EmbeddingEntry> entries,
+    BigInt? k,
+    double? similarityThreshold,
+    List<(String, String)>? existingLinks,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(data);
-          return wire.wire__crate__api__compute_statistics(port_, arg0);
+          final arg0 = cst_encode_list_embedding_entry(entries);
+          final arg1 = cst_encode_opt_box_autoadd_usize(k);
+          final arg2 = cst_encode_opt_box_autoadd_f_32(similarityThreshold);
+          final arg3 = cst_encode_opt_list_record_string_string(existingLinks);
+          return wire.wire__crate__api__analyze_knowledge_graph(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+          );
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_statistics_result,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_knowledge_graph_analysis,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiComputeStatisticsConstMeta,
-        argValues: [data],
+        constMeta: kCrateApiAnalyzeKnowledgeGraphConstMeta,
+        argValues: [entries, k, similarityThreshold, existingLinks],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiComputeStatisticsConstMeta =>
-      const TaskConstMeta(debugName: 'compute_statistics', argNames: ['data']);
+  TaskConstMeta get kCrateApiAnalyzeKnowledgeGraphConstMeta =>
+      const TaskConstMeta(
+        debugName: 'analyze_knowledge_graph',
+        argNames: ['entries', 'k', 'similarityThreshold', 'existingLinks'],
+      );
 
   @override
-  Future<ConfidenceIntervalResult> crateApiConfidenceIntervalMean({
-    required List<double> data,
-    required double confidenceLevel,
+  Future<List<EmbeddingEntry>> crateApiBatchEmbed({
+    required List<String> texts,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(data);
-          final arg1 = cst_encode_f_64(confidenceLevel);
-          return wire.wire__crate__api__confidence_interval_mean(
+          final arg0 = cst_encode_list_String(texts);
+          return wire.wire__crate__api__batch_embed(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_embedding_entry,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiBatchEmbedConstMeta,
+        argValues: [texts],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiBatchEmbedConstMeta =>
+      const TaskConstMeta(debugName: 'batch_embed', argNames: ['texts']);
+
+  @override
+  Future<String> crateApiChatCompletion({
+    required List<(String, String)> messages,
+    int? maxTokens,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_list_record_string_string(messages);
+          final arg1 = cst_encode_opt_box_autoadd_u_32(maxTokens);
+          return wire.wire__crate__api__chat_completion(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiChatCompletionConstMeta,
+        argValues: [messages, maxTokens],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiChatCompletionConstMeta => const TaskConstMeta(
+    debugName: 'chat_completion',
+    argNames: ['messages', 'maxTokens'],
+  );
+
+  @override
+  void crateApiClearGraph() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__clear_graph();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiClearGraphConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiClearGraphConstMeta =>
+      const TaskConstMeta(debugName: 'clear_graph', argNames: []);
+
+  @override
+  void crateApiClearStreamGraph() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__clear_stream_graph();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiClearStreamGraphConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiClearStreamGraphConstMeta =>
+      const TaskConstMeta(debugName: 'clear_stream_graph', argNames: []);
+
+  @override
+  Future<List<EmbeddingCluster>> crateApiClusterEmbeddings({
+    required List<EmbeddingEntry> entries,
+    required double threshold,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_list_embedding_entry(entries);
+          final arg1 = cst_encode_f_32(threshold);
+          return wire.wire__crate__api__cluster_embeddings(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_embedding_cluster,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiClusterEmbeddingsConstMeta,
+        argValues: [entries, threshold],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiClusterEmbeddingsConstMeta => const TaskConstMeta(
+    debugName: 'cluster_embeddings',
+    argNames: ['entries', 'threshold'],
+  );
+
+  @override
+  Future<ClusteringResult> crateApiClusterNotes({
+    required List<EmbeddingEntry> entries,
+    BigInt? k,
+    BigInt? maxIterations,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_list_embedding_entry(entries);
+          final arg1 = cst_encode_opt_box_autoadd_usize(k);
+          final arg2 = cst_encode_opt_box_autoadd_usize(maxIterations);
+          return wire.wire__crate__api__cluster_notes(port_, arg0, arg1, arg2);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_clustering_result,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiClusterNotesConstMeta,
+        argValues: [entries, k, maxIterations],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiClusterNotesConstMeta => const TaskConstMeta(
+    debugName: 'cluster_notes',
+    argNames: ['entries', 'k', 'maxIterations'],
+  );
+
+  @override
+  Future<GraphState> crateApiComputeGraphLayout({int? iterations}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_opt_box_autoadd_u_32(iterations);
+          return wire.wire__crate__api__compute_graph_layout(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_graph_state,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiComputeGraphLayoutConstMeta,
+        argValues: [iterations],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiComputeGraphLayoutConstMeta => const TaskConstMeta(
+    debugName: 'compute_graph_layout',
+    argNames: ['iterations'],
+  );
+
+  @override
+  Future<void> crateApiConnectNoteToTopics({
+    required String noteId,
+    required List<String> topicIds,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(noteId);
+          final arg1 = cst_encode_list_String(topicIds);
+          return wire.wire__crate__api__connect_note_to_topics(
             port_,
             arg0,
             arg1,
           );
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_confidence_interval_result,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiConfidenceIntervalMeanConstMeta,
-        argValues: [data, confidenceLevel],
+        constMeta: kCrateApiConnectNoteToTopicsConstMeta,
+        argValues: [noteId, topicIds],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiConfidenceIntervalMeanConstMeta =>
+  TaskConstMeta get kCrateApiConnectNoteToTopicsConstMeta =>
       const TaskConstMeta(
-        debugName: 'confidence_interval_mean',
-        argNames: ['data', 'confidenceLevel'],
+        debugName: 'connect_note_to_topics',
+        argNames: ['noteId', 'topicIds'],
       );
 
   @override
-  ConfidenceIntervalResult crateApiConfidenceIntervalProportion({
-    required BigInt successes,
-    required BigInt n,
-    required double confidenceLevel,
+  double crateApiCosineSimilarity({
+    required List<double> a,
+    required List<double> b,
   }) {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
-          final arg0 = cst_encode_u_64(successes);
-          final arg1 = cst_encode_u_64(n);
-          final arg2 = cst_encode_f_64(confidenceLevel);
-          return wire.wire__crate__api__confidence_interval_proportion(
+          final arg0 = cst_encode_list_prim_f_32_loose(a);
+          final arg1 = cst_encode_list_prim_f_32_loose(b);
+          return wire.wire__crate__api__cosine_similarity(arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_f_32,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiCosineSimilarityConstMeta,
+        argValues: [a, b],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiCosineSimilarityConstMeta =>
+      const TaskConstMeta(debugName: 'cosine_similarity', argNames: ['a', 'b']);
+
+  @override
+  Future<SemanticEdgeResult> crateApiDiscoverSemanticEdges({
+    required List<EmbeddingEntry> entries,
+    double? threshold,
+    List<(String, String)>? existingLinks,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_list_embedding_entry(entries);
+          final arg1 = cst_encode_opt_box_autoadd_f_32(threshold);
+          final arg2 = cst_encode_opt_list_record_string_string(existingLinks);
+          return wire.wire__crate__api__discover_semantic_edges(
+            port_,
             arg0,
             arg1,
             arg2,
           );
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_confidence_interval_result,
+          decodeSuccessData: dco_decode_semantic_edge_result,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiConfidenceIntervalProportionConstMeta,
-        argValues: [successes, n, confidenceLevel],
+        constMeta: kCrateApiDiscoverSemanticEdgesConstMeta,
+        argValues: [entries, threshold, existingLinks],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiConfidenceIntervalProportionConstMeta =>
+  TaskConstMeta get kCrateApiDiscoverSemanticEdgesConstMeta =>
       const TaskConstMeta(
-        debugName: 'confidence_interval_proportion',
-        argNames: ['successes', 'n', 'confidenceLevel'],
+        debugName: 'discover_semantic_edges',
+        argNames: ['entries', 'threshold', 'existingLinks'],
       );
 
   @override
-  Future<ConfidenceIntervalResult> crateApiConfidenceIntervalVariance({
-    required List<double> data,
-    required double confidenceLevel,
+  Future<List<String>> crateApiExtractTopics({
+    required String text,
+    int? numTopics,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(data);
-          final arg1 = cst_encode_f_64(confidenceLevel);
-          return wire.wire__crate__api__confidence_interval_variance(
-            port_,
-            arg0,
-            arg1,
-          );
+          final arg0 = cst_encode_String(text);
+          final arg1 = cst_encode_opt_box_autoadd_u_32(numTopics);
+          return wire.wire__crate__api__extract_topics(port_, arg0, arg1);
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_confidence_interval_result,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_list_String,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiConfidenceIntervalVarianceConstMeta,
-        argValues: [data, confidenceLevel],
+        constMeta: kCrateApiExtractTopicsConstMeta,
+        argValues: [text, numTopics],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiConfidenceIntervalVarianceConstMeta =>
-      const TaskConstMeta(
-        debugName: 'confidence_interval_variance',
-        argNames: ['data', 'confidenceLevel'],
-      );
+  TaskConstMeta get kCrateApiExtractTopicsConstMeta => const TaskConstMeta(
+    debugName: 'extract_topics',
+    argNames: ['text', 'numTopics'],
+  );
 
   @override
-  String crateApiConvertNumberSystem({
-    required String value,
-    required int fromBase,
-    required int toBase,
+  Future<List<SimilarityResult>> crateApiFindSimilar({
+    required List<double> query,
+    required List<EmbeddingEntry> entries,
+    required BigInt topK,
+    required double threshold,
   }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_list_prim_f_32_loose(query);
+          final arg1 = cst_encode_list_embedding_entry(entries);
+          final arg2 = cst_encode_usize(topK);
+          final arg3 = cst_encode_f_32(threshold);
+          return wire.wire__crate__api__find_similar(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_similarity_result,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiFindSimilarConstMeta,
+        argValues: [query, entries, topK, threshold],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiFindSimilarConstMeta => const TaskConstMeta(
+    debugName: 'find_similar',
+    argNames: ['query', 'entries', 'topK', 'threshold'],
+  );
+
+  @override
+  Future<String> crateApiGenerateText({
+    required String prompt,
+    int? maxTokens,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(prompt);
+          final arg1 = cst_encode_opt_box_autoadd_u_32(maxTokens);
+          return wire.wire__crate__api__generate_text(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiGenerateTextConstMeta,
+        argValues: [prompt, maxTokens],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGenerateTextConstMeta => const TaskConstMeta(
+    debugName: 'generate_text',
+    argNames: ['prompt', 'maxTokens'],
+  );
+
+  @override
+  Future<Float32List> crateApiGetEmbedding({required String text}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(text);
+          return wire.wire__crate__api__get_embedding(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_prim_f_32_strict,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiGetEmbeddingConstMeta,
+        argValues: [text],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGetEmbeddingConstMeta =>
+      const TaskConstMeta(debugName: 'get_embedding', argNames: ['text']);
+
+  @override
+  BigInt crateApiGetEmbeddingDimension() {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
-          final arg0 = cst_encode_String(value);
-          final arg1 = cst_encode_u_32(fromBase);
-          final arg2 = cst_encode_u_32(toBase);
-          return wire.wire__crate__api__convert_number_system(arg0, arg1, arg2);
+          return wire.wire__crate__api__get_embedding_dimension();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_usize,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiGetEmbeddingDimensionConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGetEmbeddingDimensionConstMeta =>
+      const TaskConstMeta(debugName: 'get_embedding_dimension', argNames: []);
+
+  @override
+  Future<GraphState> crateApiGetGraphState() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          return wire.wire__crate__api__get_graph_state(port_);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_graph_state,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiGetGraphStateConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGetGraphStateConstMeta =>
+      const TaskConstMeta(debugName: 'get_graph_state', argNames: []);
+
+  @override
+  int crateApiGetModelType() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__get_model_type();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_i_32,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGetModelTypeConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGetModelTypeConstMeta =>
+      const TaskConstMeta(debugName: 'get_model_type', argNames: []);
+
+  @override
+  Future<String> crateApiGetOrCreateTopicHub({required String topic}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(topic);
+          return wire.wire__crate__api__get_or_create_topic_hub(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiGetOrCreateTopicHubConstMeta,
+        argValues: [topic],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGetOrCreateTopicHubConstMeta =>
+      const TaskConstMeta(
+        debugName: 'get_or_create_topic_hub',
+        argNames: ['topic'],
+      );
+
+  @override
+  StreamGraphStats crateApiGetStreamGraphStats() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__get_stream_graph_stats();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_stream_graph_stats,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGetStreamGraphStatsConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGetStreamGraphStatsConstMeta =>
+      const TaskConstMeta(debugName: 'get_stream_graph_stats', argNames: []);
+
+  @override
+  String crateApiGetVersion() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__get_version();
         },
         codec: DcoCodec(
           decodeSuccessData: dco_decode_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiConvertNumberSystemConstMeta,
-        argValues: [value, fromBase, toBase],
+        constMeta: kCrateApiGetVersionConstMeta,
+        argValues: [],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiConvertNumberSystemConstMeta =>
-      const TaskConstMeta(
-        debugName: 'convert_number_system',
-        argNames: ['value', 'fromBase', 'toBase'],
-      );
+  TaskConstMeta get kCrateApiGetVersionConstMeta =>
+      const TaskConstMeta(debugName: 'get_version', argNames: []);
 
   @override
-  List<UnitResult> crateApiConvertToAllUnits({
-    required double value,
-    required String fromUnit,
-  }) {
+  Future<List<NodePosition>> crateApiGetVisibleGraphNodes() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          return wire.wire__crate__api__get_visible_graph_nodes(port_);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_node_position,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGetVisibleGraphNodesConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGetVisibleGraphNodesConstMeta =>
+      const TaskConstMeta(debugName: 'get_visible_graph_nodes', argNames: []);
+
+  @override
+  String crateApiHealthCheck() {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
-          final arg0 = cst_encode_f_64(value);
-          final arg1 = cst_encode_String(fromUnit);
-          return wire.wire__crate__api__convert_to_all_units(arg0, arg1);
+          return wire.wire__crate__api__health_check();
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_list_unit_result,
+          decodeSuccessData: dco_decode_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiConvertToAllUnitsConstMeta,
-        argValues: [value, fromUnit],
+        constMeta: kCrateApiHealthCheckConstMeta,
+        argValues: [],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiConvertToAllUnitsConstMeta => const TaskConstMeta(
-    debugName: 'convert_to_all_units',
-    argNames: ['value', 'fromUnit'],
-  );
+  TaskConstMeta get kCrateApiHealthCheckConstMeta =>
+      const TaskConstMeta(debugName: 'health_check', argNames: []);
 
   @override
-  UnitResult crateApiConvertUnit({
-    required double value,
-    required String fromUnit,
-    required String toUnit,
-  }) {
+  void crateApiInitGraph() {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
-          final arg0 = cst_encode_f_64(value);
-          final arg1 = cst_encode_String(fromUnit);
-          final arg2 = cst_encode_String(toUnit);
-          return wire.wire__crate__api__convert_unit(arg0, arg1, arg2);
+          return wire.wire__crate__api__init_graph();
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_unit_result,
+          decodeSuccessData: dco_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiConvertUnitConstMeta,
-        argValues: [value, fromUnit, toUnit],
+        constMeta: kCrateApiInitGraphConstMeta,
+        argValues: [],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiConvertUnitConstMeta => const TaskConstMeta(
-    debugName: 'convert_unit',
-    argNames: ['value', 'fromUnit', 'toUnit'],
+  TaskConstMeta get kCrateApiInitGraphConstMeta =>
+      const TaskConstMeta(debugName: 'init_graph', argNames: []);
+
+  @override
+  Future<void> crateApiInitMcp({
+    required String basePath,
+    BigInt? maxFileSize,
+    List<String>? allowedExtensions,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(basePath);
+          final arg1 = cst_encode_opt_box_autoadd_usize(maxFileSize);
+          final arg2 = cst_encode_opt_list_String(allowedExtensions);
+          return wire.wire__crate__api__init_mcp(port_, arg0, arg1, arg2);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiInitMcpConstMeta,
+        argValues: [basePath, maxFileSize, allowedExtensions],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiInitMcpConstMeta => const TaskConstMeta(
+    debugName: 'init_mcp',
+    argNames: ['basePath', 'maxFileSize', 'allowedExtensions'],
   );
 
   @override
-  Future<CorrelationResult> crateApiCorrelationCovariance({
-    required List<double> x,
-    required List<double> y,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(x);
-          final arg1 = cst_encode_list_prim_f_64_loose(y);
-          return wire.wire__crate__api__correlation_covariance(
-            port_,
-            arg0,
-            arg1,
-          );
+  void crateApiInitModel({required String modelPath}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final arg0 = cst_encode_String(modelPath);
+          return wire.wire__crate__api__init_model(arg0);
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_correlation_result,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiCorrelationCovarianceConstMeta,
-        argValues: [x, y],
+        constMeta: kCrateApiInitModelConstMeta,
+        argValues: [modelPath],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiCorrelationCovarianceConstMeta =>
-      const TaskConstMeta(
-        debugName: 'correlation_covariance',
-        argNames: ['x', 'y'],
-      );
+  TaskConstMeta get kCrateApiInitModelConstMeta =>
+      const TaskConstMeta(debugName: 'init_model', argNames: ['modelPath']);
 
   @override
-  Future<GraphResult> crateApiDerivativeGraph({
-    required String expression,
-    required String variable,
-    required List<double> xValues,
+  Future<void> crateApiInitModelWithConfig({
+    required String modelPath,
+    required int nGpuLayers,
+    required int nCtx,
+    required int nThreads,
+    required double temperature,
+    required double topP,
+    required int maxTokens,
+    int? modelType,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(variable);
-          final arg2 = cst_encode_list_prim_f_64_loose(xValues);
-          return wire.wire__crate__api__derivative_graph(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_graph_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiDerivativeGraphConstMeta,
-        argValues: [expression, variable, xValues],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiDerivativeGraphConstMeta => const TaskConstMeta(
-    debugName: 'derivative_graph',
-    argNames: ['expression', 'variable', 'xValues'],
-  );
-
-  @override
-  Future<CalculusResult> crateApiDifferentiate({
-    required String expression,
-    required String variable,
-    required double point,
-    required int order,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(variable);
-          final arg2 = cst_encode_f_64(point);
-          final arg3 = cst_encode_u_32(order);
-          return wire.wire__crate__api__differentiate(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_calculus_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiDifferentiateConstMeta,
-        argValues: [expression, variable, point, order],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiDifferentiateConstMeta => const TaskConstMeta(
-    debugName: 'differentiate',
-    argNames: ['expression', 'variable', 'point', 'order'],
-  );
-
-  @override
-  Future<DistributionResult> crateApiDistributionCompute({
-    required String distributionType,
-    required List<double> params,
-    required double x,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(distributionType);
-          final arg1 = cst_encode_list_prim_f_64_loose(params);
-          final arg2 = cst_encode_f_64(x);
-          return wire.wire__crate__api__distribution_compute(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_distribution_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiDistributionComputeConstMeta,
-        argValues: [distributionType, params, x],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiDistributionComputeConstMeta =>
-      const TaskConstMeta(
-        debugName: 'distribution_compute',
-        argNames: ['distributionType', 'params', 'x'],
-      );
-
-  @override
-  Future<CalculusResult> crateApiDoubleIntegral({
-    required String expression,
-    required String xVar,
-    required String yVar,
-    required double xMin,
-    required double xMax,
-    required double yMin,
-    required double yMax,
-    required int numIntervals,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(xVar);
-          final arg2 = cst_encode_String(yVar);
-          final arg3 = cst_encode_f_64(xMin);
-          final arg4 = cst_encode_f_64(xMax);
-          final arg5 = cst_encode_f_64(yMin);
-          final arg6 = cst_encode_f_64(yMax);
-          final arg7 = cst_encode_u_32(numIntervals);
-          return wire.wire__crate__api__double_integral(
+          final arg0 = cst_encode_String(modelPath);
+          final arg1 = cst_encode_u_32(nGpuLayers);
+          final arg2 = cst_encode_u_32(nCtx);
+          final arg3 = cst_encode_i_32(nThreads);
+          final arg4 = cst_encode_f_32(temperature);
+          final arg5 = cst_encode_f_32(topP);
+          final arg6 = cst_encode_u_32(maxTokens);
+          final arg7 = cst_encode_opt_box_autoadd_i_32(modelType);
+          return wire.wire__crate__api__init_model_with_config(
             port_,
             arg0,
             arg1,
@@ -1168,1899 +1220,732 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           );
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_calculus_result,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiDoubleIntegralConstMeta,
+        constMeta: kCrateApiInitModelWithConfigConstMeta,
         argValues: [
-          expression,
-          xVar,
-          yVar,
-          xMin,
-          xMax,
-          yMin,
-          yMax,
-          numIntervals,
+          modelPath,
+          nGpuLayers,
+          nCtx,
+          nThreads,
+          temperature,
+          topP,
+          maxTokens,
+          modelType,
         ],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiDoubleIntegralConstMeta => const TaskConstMeta(
-    debugName: 'double_integral',
-    argNames: [
-      'expression',
-      'xVar',
-      'yVar',
-      'xMin',
-      'xMax',
-      'yMin',
-      'yMax',
-      'numIntervals',
-    ],
-  );
-
-  @override
-  Future<HypothesisTestResult> crateApiDurbinWatsonTest({
-    required List<double> residuals,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(residuals);
-          return wire.wire__crate__api__durbin_watson_test(port_, arg0);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_hypothesis_test_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiDurbinWatsonTestConstMeta,
-        argValues: [residuals],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiDurbinWatsonTestConstMeta => const TaskConstMeta(
-    debugName: 'durbin_watson_test',
-    argNames: ['residuals'],
-  );
-
-  @override
-  DiscreteResult crateApiEulerTotient({required BigInt n}) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(n);
-          return wire.wire__crate__api__euler_totient(arg0);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiEulerTotientConstMeta,
-        argValues: [n],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiEulerTotientConstMeta =>
-      const TaskConstMeta(debugName: 'euler_totient', argNames: ['n']);
-
-  @override
-  ExpressionResult crateApiEvaluateExpression({required String expression}) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_String(expression);
-          return wire.wire__crate__api__evaluate_expression(arg0);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_expression_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiEvaluateExpressionConstMeta,
-        argValues: [expression],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiEvaluateExpressionConstMeta => const TaskConstMeta(
-    debugName: 'evaluate_expression',
-    argNames: ['expression'],
-  );
-
-  @override
-  ExpressionResult crateApiEvaluateFormula({
-    required String formula,
-    required List<String> variables,
-    required List<double> values,
-  }) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_String(formula);
-          final arg1 = cst_encode_list_String(variables);
-          final arg2 = cst_encode_list_prim_f_64_loose(values);
-          return wire.wire__crate__api__evaluate_formula(arg0, arg1, arg2);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_expression_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiEvaluateFormulaConstMeta,
-        argValues: [formula, variables, values],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiEvaluateFormulaConstMeta => const TaskConstMeta(
-    debugName: 'evaluate_formula',
-    argNames: ['formula', 'variables', 'values'],
-  );
-
-  @override
-  Future<GraphResult> crateApiEvaluateGraphPoints({
-    required String expression,
-    required String variable,
-    required List<double> xValues,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(variable);
-          final arg2 = cst_encode_list_prim_f_64_loose(xValues);
-          return wire.wire__crate__api__evaluate_graph_points(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_graph_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiEvaluateGraphPointsConstMeta,
-        argValues: [expression, variable, xValues],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiEvaluateGraphPointsConstMeta =>
+  TaskConstMeta get kCrateApiInitModelWithConfigConstMeta =>
       const TaskConstMeta(
-        debugName: 'evaluate_graph_points',
-        argNames: ['expression', 'variable', 'xValues'],
+        debugName: 'init_model_with_config',
+        argNames: [
+          'modelPath',
+          'nGpuLayers',
+          'nCtx',
+          'nThreads',
+          'temperature',
+          'topP',
+          'maxTokens',
+          'modelType',
+        ],
       );
 
   @override
-  Future<HypothesisTestResult> crateApiFTest({
-    required List<double> data1,
-    required List<double> data2,
-    required double alpha,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(data1);
-          final arg1 = cst_encode_list_prim_f_64_loose(data2);
-          final arg2 = cst_encode_f_64(alpha);
-          return wire.wire__crate__api__f_test(port_, arg0, arg1, arg2);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_hypothesis_test_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiFTestConstMeta,
-        argValues: [data1, data2, alpha],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiFTestConstMeta => const TaskConstMeta(
-    debugName: 'f_test',
-    argNames: ['data1', 'data2', 'alpha'],
-  );
-
-  @override
-  DiscreteResult crateApiFactorial({required BigInt n}) {
+  bool crateApiIsGraphStreamRunning() {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
-          final arg0 = cst_encode_u_64(n);
-          return wire.wire__crate__api__factorial(arg0);
+          return wire.wire__crate__api__is_graph_stream_running();
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
+          decodeSuccessData: dco_decode_bool,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiFactorialConstMeta,
-        argValues: [n],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiFactorialConstMeta =>
-      const TaskConstMeta(debugName: 'factorial', argNames: ['n']);
-
-  @override
-  DiscreteResult crateApiFibonacci({required BigInt n}) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(n);
-          return wire.wire__crate__api__fibonacci(arg0);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiFibonacciConstMeta,
-        argValues: [n],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiFibonacciConstMeta =>
-      const TaskConstMeta(debugName: 'fibonacci', argNames: ['n']);
-
-  @override
-  Future<(List<(double, double)>, List<(double, double)>)> crateApiFindExtrema({
-    required String expression,
-    required String variable,
-    required double xMin,
-    required double xMax,
-    required BigInt numSamples,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(variable);
-          final arg2 = cst_encode_f_64(xMin);
-          final arg3 = cst_encode_f_64(xMax);
-          final arg4 = cst_encode_usize(numSamples);
-          return wire.wire__crate__api__find_extrema(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-            arg4,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData:
-              dco_decode_record_list_record_f_64_f_64_list_record_f_64_f_64,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiFindExtremaConstMeta,
-        argValues: [expression, variable, xMin, xMax, numSamples],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiFindExtremaConstMeta => const TaskConstMeta(
-    debugName: 'find_extrema',
-    argNames: ['expression', 'variable', 'xMin', 'xMax', 'numSamples'],
-  );
-
-  @override
-  Future<Float64List> crateApiFindGraphRoots({
-    required String expression,
-    required String variable,
-    required double xMin,
-    required double xMax,
-    required BigInt numSamples,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(variable);
-          final arg2 = cst_encode_f_64(xMin);
-          final arg3 = cst_encode_f_64(xMax);
-          final arg4 = cst_encode_usize(numSamples);
-          return wire.wire__crate__api__find_graph_roots(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-            arg4,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_list_prim_f_64_strict,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiFindGraphRootsConstMeta,
-        argValues: [expression, variable, xMin, xMax, numSamples],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiFindGraphRootsConstMeta => const TaskConstMeta(
-    debugName: 'find_graph_roots',
-    argNames: ['expression', 'variable', 'xMin', 'xMax', 'numSamples'],
-  );
-
-  @override
-  Future<SolveResult> crateApiFindRootsInInterval({
-    required String expression,
-    required String variable,
-    required double start,
-    required double end,
-    required int numSamples,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(variable);
-          final arg2 = cst_encode_f_64(start);
-          final arg3 = cst_encode_f_64(end);
-          final arg4 = cst_encode_u_32(numSamples);
-          return wire.wire__crate__api__find_roots_in_interval(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-            arg4,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_solve_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiFindRootsInIntervalConstMeta,
-        argValues: [expression, variable, start, end, numSamples],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiFindRootsInIntervalConstMeta =>
-      const TaskConstMeta(
-        debugName: 'find_roots_in_interval',
-        argNames: ['expression', 'variable', 'start', 'end', 'numSamples'],
-      );
-
-  @override
-  BigInt crateApiGcd({required BigInt a, required BigInt b}) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(a);
-          final arg1 = cst_encode_u_64(b);
-          return wire.wire__crate__api__gcd(arg0, arg1);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_u_64,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiGcdConstMeta,
-        argValues: [a, b],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiGcdConstMeta =>
-      const TaskConstMeta(debugName: 'gcd', argNames: ['a', 'b']);
-
-  @override
-  Future<Float64List> crateApiGenerateAnalyticalSequence({
-    required String seqType,
-    required int n,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(seqType);
-          final arg1 = cst_encode_u_32(n);
-          return wire.wire__crate__api__generate_analytical_sequence(
-            port_,
-            arg0,
-            arg1,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_list_prim_f_64_strict,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiGenerateAnalyticalSequenceConstMeta,
-        argValues: [seqType, n],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiGenerateAnalyticalSequenceConstMeta =>
-      const TaskConstMeta(
-        debugName: 'generate_analytical_sequence',
-        argNames: ['seqType', 'n'],
-      );
-
-  @override
-  Future<List<String>> crateApiGenerateClassicalSequence({
-    required String seqType,
-    required double a,
-    required double dOrR,
-    required int n,
-    required BigInt s,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(seqType);
-          final arg1 = cst_encode_f_64(a);
-          final arg2 = cst_encode_f_64(dOrR);
-          final arg3 = cst_encode_u_32(n);
-          final arg4 = cst_encode_u_64(s);
-          return wire.wire__crate__api__generate_classical_sequence(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-            arg4,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_list_String,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiGenerateClassicalSequenceConstMeta,
-        argValues: [seqType, a, dOrR, n, s],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiGenerateClassicalSequenceConstMeta =>
-      const TaskConstMeta(
-        debugName: 'generate_classical_sequence',
-        argNames: ['seqType', 'a', 'dOrR', 'n', 's'],
-      );
-
-  @override
-  Future<List<String>> crateApiGenerateCombinatorialSequence({
-    required String seqType,
-    required int n,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(seqType);
-          final arg1 = cst_encode_u_32(n);
-          return wire.wire__crate__api__generate_combinatorial_sequence(
-            port_,
-            arg0,
-            arg1,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_list_String,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiGenerateCombinatorialSequenceConstMeta,
-        argValues: [seqType, n],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiGenerateCombinatorialSequenceConstMeta =>
-      const TaskConstMeta(
-        debugName: 'generate_combinatorial_sequence',
-        argNames: ['seqType', 'n'],
-      );
-
-  @override
-  Future<List<String>> crateApiGenerateNumberTheoreticSequence({
-    required String seqType,
-    required int n,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(seqType);
-          final arg1 = cst_encode_u_32(n);
-          return wire.wire__crate__api__generate_number_theoretic_sequence(
-            port_,
-            arg0,
-            arg1,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_list_String,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiGenerateNumberTheoreticSequenceConstMeta,
-        argValues: [seqType, n],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiGenerateNumberTheoreticSequenceConstMeta =>
-      const TaskConstMeta(
-        debugName: 'generate_number_theoretic_sequence',
-        argNames: ['seqType', 'n'],
-      );
-
-  @override
-  Float64List crateApiGenerateXRange({
-    required double start,
-    required double end,
-    required BigInt numPoints,
-  }) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_f_64(start);
-          final arg1 = cst_encode_f_64(end);
-          final arg2 = cst_encode_usize(numPoints);
-          return wire.wire__crate__api__generate_x_range(arg0, arg1, arg2);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_list_prim_f_64_strict,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiGenerateXRangeConstMeta,
-        argValues: [start, end, numPoints],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiGenerateXRangeConstMeta => const TaskConstMeta(
-    debugName: 'generate_x_range',
-    argNames: ['start', 'end', 'numPoints'],
-  );
-
-  @override
-  double crateApiGetConstant({required String name}) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_String(name);
-          return wire.wire__crate__api__get_constant(arg0);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_f_64,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiGetConstantConstMeta,
-        argValues: [name],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiGetConstantConstMeta =>
-      const TaskConstMeta(debugName: 'get_constant', argNames: ['name']);
-
-  @override
-  List<String> crateApiGetUnitCategories() {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          return wire.wire__crate__api__get_unit_categories();
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_list_String,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiGetUnitCategoriesConstMeta,
+        constMeta: kCrateApiIsGraphStreamRunningConstMeta,
         argValues: [],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGetUnitCategoriesConstMeta =>
-      const TaskConstMeta(debugName: 'get_unit_categories', argNames: []);
+  TaskConstMeta get kCrateApiIsGraphStreamRunningConstMeta =>
+      const TaskConstMeta(debugName: 'is_graph_stream_running', argNames: []);
 
   @override
-  List<String> crateApiGetUnitsForCategory({required String category}) {
+  bool crateApiIsMcpInitialized() {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
-          final arg0 = cst_encode_String(category);
-          return wire.wire__crate__api__get_units_for_category(arg0);
+          return wire.wire__crate__api__is_mcp_initialized();
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_list_String,
+          decodeSuccessData: dco_decode_bool,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiGetUnitsForCategoryConstMeta,
+        constMeta: kCrateApiIsMcpInitializedConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiIsMcpInitializedConstMeta =>
+      const TaskConstMeta(debugName: 'is_mcp_initialized', argNames: []);
+
+  @override
+  bool crateApiIsModelLoaded() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__is_model_loaded();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiIsModelLoadedConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiIsModelLoadedConstMeta =>
+      const TaskConstMeta(debugName: 'is_model_loaded', argNames: []);
+
+  @override
+  TaskCategory crateApiMcpClassifyTask({required String message}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final arg0 = cst_encode_String(message);
+          return wire.wire__crate__api__mcp_classify_task(arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_task_category,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpClassifyTaskConstMeta,
+        argValues: [message],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpClassifyTaskConstMeta => const TaskConstMeta(
+    debugName: 'mcp_classify_task',
+    argNames: ['message'],
+  );
+
+  @override
+  Future<void> crateApiMcpCreateFolder({required String path}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(path);
+          return wire.wire__crate__api__mcp_create_folder(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiMcpCreateFolderConstMeta,
+        argValues: [path],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpCreateFolderConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_create_folder', argNames: ['path']);
+
+  @override
+  Future<void> crateApiMcpDeleteFile({required String path}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(path);
+          return wire.wire__crate__api__mcp_delete_file(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiMcpDeleteFileConstMeta,
+        argValues: [path],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpDeleteFileConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_delete_file', argNames: ['path']);
+
+  @override
+  Future<MCPToolResult> crateApiMcpExecuteToolCall({
+    required MCPToolCall toolCall,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_box_autoadd_mcp_tool_call(toolCall);
+          return wire.wire__crate__api__mcp_execute_tool_call(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_mcp_tool_result,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpExecuteToolCallConstMeta,
+        argValues: [toolCall],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpExecuteToolCallConstMeta => const TaskConstMeta(
+    debugName: 'mcp_execute_tool_call',
+    argNames: ['toolCall'],
+  );
+
+  @override
+  List<MCPTool> crateApiMcpGetAllTools() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__mcp_get_all_tools();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_mcp_tool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpGetAllToolsConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpGetAllToolsConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_get_all_tools', argNames: []);
+
+  @override
+  String crateApiMcpGetModelForTask({required TaskCategory category}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final arg0 = cst_encode_task_category(category);
+          return wire.wire__crate__api__mcp_get_model_for_task(arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpGetModelForTaskConstMeta,
         argValues: [category],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGetUnitsForCategoryConstMeta =>
-      const TaskConstMeta(
-        debugName: 'get_units_for_category',
-        argNames: ['category'],
-      );
+  TaskConstMeta get kCrateApiMcpGetModelForTaskConstMeta => const TaskConstMeta(
+    debugName: 'mcp_get_model_for_task',
+    argNames: ['category'],
+  );
 
   @override
-  Future<Float64List> crateApiGradient({
-    required String expression,
-    required List<String> variables,
-    required List<(String, double)> point,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_list_String(variables);
-          final arg2 = cst_encode_list_record_string_f_64(point);
-          return wire.wire__crate__api__gradient(port_, arg0, arg1, arg2);
+  String crateApiMcpGetToolDescription({required MCPTool tool}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final arg0 = cst_encode_mcp_tool(tool);
+          return wire.wire__crate__api__mcp_get_tool_description(arg0);
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_list_prim_f_64_strict,
+          decodeSuccessData: dco_decode_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiGradientConstMeta,
-        argValues: [expression, variables, point],
+        constMeta: kCrateApiMcpGetToolDescriptionConstMeta,
+        argValues: [tool],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGradientConstMeta => const TaskConstMeta(
-    debugName: 'gradient',
-    argNames: ['expression', 'variables', 'point'],
-  );
+  TaskConstMeta get kCrateApiMcpGetToolDescriptionConstMeta =>
+      const TaskConstMeta(
+        debugName: 'mcp_get_tool_description',
+        argNames: ['tool'],
+      );
 
   @override
-  Future<void> crateApiInitApp() {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          return wire.wire__crate__api__init_app(port_);
+  String crateApiMcpGetToolName({required MCPTool tool}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final arg0 = cst_encode_mcp_tool(tool);
+          return wire.wire__crate__api__mcp_get_tool_name(arg0);
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_unit,
+          decodeSuccessData: dco_decode_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiInitAppConstMeta,
+        constMeta: kCrateApiMcpGetToolNameConstMeta,
+        argValues: [tool],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpGetToolNameConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_get_tool_name', argNames: ['tool']);
+
+  @override
+  List<MCPParameter> crateApiMcpGetToolParameters({required MCPTool tool}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final arg0 = cst_encode_mcp_tool(tool);
+          return wire.wire__crate__api__mcp_get_tool_parameters(arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_mcp_parameter,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpGetToolParametersConstMeta,
+        argValues: [tool],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpGetToolParametersConstMeta =>
+      const TaskConstMeta(
+        debugName: 'mcp_get_tool_parameters',
+        argNames: ['tool'],
+      );
+
+  @override
+  String crateApiMcpGetToolSchemas() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__mcp_get_tool_schemas();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMcpGetToolSchemasConstMeta,
         argValues: [],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiInitAppConstMeta =>
-      const TaskConstMeta(debugName: 'init_app', argNames: []);
+  TaskConstMeta get kCrateApiMcpGetToolSchemasConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_get_tool_schemas', argNames: []);
 
   @override
-  Future<GraphResult> crateApiIntegralGraph({
-    required String expression,
-    required String variable,
-    required List<double> xValues,
-    required double initialValue,
-  }) {
+  Future<List<String>> crateApiMcpListFiles({required String path}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(variable);
-          final arg2 = cst_encode_list_prim_f_64_loose(xValues);
-          final arg3 = cst_encode_f_64(initialValue);
-          return wire.wire__crate__api__integral_graph(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-          );
+          final arg0 = cst_encode_String(path);
+          return wire.wire__crate__api__mcp_list_files(port_, arg0);
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_graph_result,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_list_String,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiIntegralGraphConstMeta,
-        argValues: [expression, variable, xValues, initialValue],
+        constMeta: kCrateApiMcpListFilesConstMeta,
+        argValues: [path],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiIntegralGraphConstMeta => const TaskConstMeta(
-    debugName: 'integral_graph',
-    argNames: ['expression', 'variable', 'xValues', 'initialValue'],
-  );
+  TaskConstMeta get kCrateApiMcpListFilesConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_list_files', argNames: ['path']);
 
   @override
-  Future<CalculusResult> crateApiIntegrate({
-    required String expression,
-    required String variable,
-    required double lower,
-    required double upper,
-    required int numIntervals,
-  }) {
+  Future<MCPToolCall> crateApiMcpParseToolCall({required String json}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(variable);
-          final arg2 = cst_encode_f_64(lower);
-          final arg3 = cst_encode_f_64(upper);
-          final arg4 = cst_encode_u_32(numIntervals);
-          return wire.wire__crate__api__integrate(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-            arg4,
-          );
+          final arg0 = cst_encode_String(json);
+          return wire.wire__crate__api__mcp_parse_tool_call(port_, arg0);
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_calculus_result,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_mcp_tool_call,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiIntegrateConstMeta,
-        argValues: [expression, variable, lower, upper, numIntervals],
+        constMeta: kCrateApiMcpParseToolCallConstMeta,
+        argValues: [json],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiIntegrateConstMeta => const TaskConstMeta(
-    debugName: 'integrate',
-    argNames: ['expression', 'variable', 'lower', 'upper', 'numIntervals'],
-  );
+  TaskConstMeta get kCrateApiMcpParseToolCallConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_parse_tool_call', argNames: ['json']);
 
   @override
-  DiscreteResult crateApiIsPerfect({required BigInt n}) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(n);
-          return wire.wire__crate__api__is_perfect(arg0);
+  Future<String> crateApiMcpReadFile({required String path}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(path);
+          return wire.wire__crate__api__mcp_read_file(port_, arg0);
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiIsPerfectConstMeta,
-        argValues: [n],
+        constMeta: kCrateApiMcpReadFileConstMeta,
+        argValues: [path],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiIsPerfectConstMeta =>
-      const TaskConstMeta(debugName: 'is_perfect', argNames: ['n']);
+  TaskConstMeta get kCrateApiMcpReadFileConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_read_file', argNames: ['path']);
 
   @override
-  bool crateApiIsPrime({required BigInt n}) {
+  bool crateApiMcpValidatePath({required String path}) {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
-          final arg0 = cst_encode_u_64(n);
-          return wire.wire__crate__api__is_prime(arg0);
+          final arg0 = cst_encode_String(path);
+          return wire.wire__crate__api__mcp_validate_path(arg0);
         },
         codec: DcoCodec(
           decodeSuccessData: dco_decode_bool,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiIsPrimeConstMeta,
-        argValues: [n],
+        constMeta: kCrateApiMcpValidatePathConstMeta,
+        argValues: [path],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiIsPrimeConstMeta =>
-      const TaskConstMeta(debugName: 'is_prime', argNames: ['n']);
+  TaskConstMeta get kCrateApiMcpValidatePathConstMeta =>
+      const TaskConstMeta(debugName: 'mcp_validate_path', argNames: ['path']);
 
   @override
-  BigInt crateApiLcm({required BigInt a, required BigInt b}) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(a);
-          final arg1 = cst_encode_u_64(b);
-          return wire.wire__crate__api__lcm(arg0, arg1);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_u_64,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiLcmConstMeta,
-        argValues: [a, b],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiLcmConstMeta =>
-      const TaskConstMeta(debugName: 'lcm', argNames: ['a', 'b']);
-
-  @override
-  Future<CalculusResult> crateApiLineIntegral({
-    required String expression,
-    required String xParam,
-    required String yParam,
-    required String tVar,
-    required double tMin,
-    required double tMax,
-    required int numIntervals,
+  Future<void> crateApiMcpWriteFile({
+    required String path,
+    required String content,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(xParam);
-          final arg2 = cst_encode_String(yParam);
-          final arg3 = cst_encode_String(tVar);
-          final arg4 = cst_encode_f_64(tMin);
-          final arg5 = cst_encode_f_64(tMax);
-          final arg6 = cst_encode_u_32(numIntervals);
-          return wire.wire__crate__api__line_integral(
+          final arg0 = cst_encode_String(path);
+          final arg1 = cst_encode_String(content);
+          return wire.wire__crate__api__mcp_write_file(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiMcpWriteFileConstMeta,
+        argValues: [path, content],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMcpWriteFileConstMeta => const TaskConstMeta(
+    debugName: 'mcp_write_file',
+    argNames: ['path', 'content'],
+  );
+
+  @override
+  Future<void> crateApiPinStreamNode({
+    required String id,
+    required bool pinned,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(id);
+          final arg1 = cst_encode_bool(pinned);
+          return wire.wire__crate__api__pin_stream_node(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiPinStreamNodeConstMeta,
+        argValues: [id, pinned],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiPinStreamNodeConstMeta => const TaskConstMeta(
+    debugName: 'pin_stream_node',
+    argNames: ['id', 'pinned'],
+  );
+
+  @override
+  Future<void> crateApiRemoveGraphNode({required String nodeId}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(nodeId);
+          return wire.wire__crate__api__remove_graph_node(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiRemoveGraphNodeConstMeta,
+        argValues: [nodeId],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiRemoveGraphNodeConstMeta =>
+      const TaskConstMeta(debugName: 'remove_graph_node', argNames: ['nodeId']);
+
+  @override
+  Future<void> crateApiRemoveStreamEdge({
+    required String fromId,
+    required String toId,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(fromId);
+          final arg1 = cst_encode_String(toId);
+          return wire.wire__crate__api__remove_stream_edge(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiRemoveStreamEdgeConstMeta,
+        argValues: [fromId, toId],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiRemoveStreamEdgeConstMeta => const TaskConstMeta(
+    debugName: 'remove_stream_edge',
+    argNames: ['fromId', 'toId'],
+  );
+
+  @override
+  Future<void> crateApiRemoveStreamNode({required String id}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(id);
+          return wire.wire__crate__api__remove_stream_node(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiRemoveStreamNodeConstMeta,
+        argValues: [id],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiRemoveStreamNodeConstMeta =>
+      const TaskConstMeta(debugName: 'remove_stream_node', argNames: ['id']);
+
+  @override
+  Future<List<SimilarityResult>> crateApiSemanticSearch({
+    required String queryText,
+    required List<EmbeddingEntry> entries,
+    required BigInt topK,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_String(queryText);
+          final arg1 = cst_encode_list_embedding_entry(entries);
+          final arg2 = cst_encode_usize(topK);
+          return wire.wire__crate__api__semantic_search(
             port_,
             arg0,
             arg1,
             arg2,
-            arg3,
-            arg4,
-            arg5,
-            arg6,
           );
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_calculus_result,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_list_similarity_result,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiLineIntegralConstMeta,
-        argValues: [expression, xParam, yParam, tVar, tMin, tMax, numIntervals],
+        constMeta: kCrateApiSemanticSearchConstMeta,
+        argValues: [queryText, entries, topK],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiLineIntegralConstMeta => const TaskConstMeta(
-    debugName: 'line_integral',
-    argNames: [
-      'expression',
-      'xParam',
-      'yParam',
-      'tVar',
-      'tMin',
-      'tMax',
-      'numIntervals',
-    ],
+  TaskConstMeta get kCrateApiSemanticSearchConstMeta => const TaskConstMeta(
+    debugName: 'semantic_search',
+    argNames: ['queryText', 'entries', 'topK'],
   );
 
   @override
-  Future<RegressionResult> crateApiLinearRegression({
-    required List<double> xData,
-    required List<double> yData,
+  Future<void> crateApiSetStreamNodePosition({
+    required String id,
+    required double x,
+    required double y,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(xData);
-          final arg1 = cst_encode_list_prim_f_64_loose(yData);
-          return wire.wire__crate__api__linear_regression(port_, arg0, arg1);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_regression_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiLinearRegressionConstMeta,
-        argValues: [xData, yData],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiLinearRegressionConstMeta => const TaskConstMeta(
-    debugName: 'linear_regression',
-    argNames: ['xData', 'yData'],
-  );
-
-  @override
-  DiscreteResult crateApiListDivisors({required BigInt n}) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(n);
-          return wire.wire__crate__api__list_divisors(arg0);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiListDivisorsConstMeta,
-        argValues: [n],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiListDivisorsConstMeta =>
-      const TaskConstMeta(debugName: 'list_divisors', argNames: ['n']);
-
-  @override
-  Future<HypothesisTestResult> crateApiMannWhitneyU({
-    required List<double> data1,
-    required List<double> data2,
-    required double alpha,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(data1);
-          final arg1 = cst_encode_list_prim_f_64_loose(data2);
-          final arg2 = cst_encode_f_64(alpha);
-          return wire.wire__crate__api__mann_whitney_u(port_, arg0, arg1, arg2);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_hypothesis_test_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiMannWhitneyUConstMeta,
-        argValues: [data1, data2, alpha],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiMannWhitneyUConstMeta => const TaskConstMeta(
-    debugName: 'mann_whitney_u',
-    argNames: ['data1', 'data2', 'alpha'],
-  );
-
-  @override
-  Future<MatrixDecomposition> crateApiMatrixDecomposition({
-    required List<double> data,
-    required BigInt rows,
-    required BigInt cols,
-    required String decompositionType,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(data);
-          final arg1 = cst_encode_usize(rows);
-          final arg2 = cst_encode_usize(cols);
-          final arg3 = cst_encode_String(decompositionType);
-          return wire.wire__crate__api__matrix_decomposition(
+          final arg0 = cst_encode_String(id);
+          final arg1 = cst_encode_f_32(x);
+          final arg2 = cst_encode_f_32(y);
+          return wire.wire__crate__api__set_stream_node_position(
             port_,
             arg0,
             arg1,
             arg2,
-            arg3,
           );
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_matrix_decomposition,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiMatrixDecompositionConstMeta,
-        argValues: [data, rows, cols, decompositionType],
+        constMeta: kCrateApiSetStreamNodePositionConstMeta,
+        argValues: [id, x, y],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMatrixDecompositionConstMeta =>
+  TaskConstMeta get kCrateApiSetStreamNodePositionConstMeta =>
       const TaskConstMeta(
-        debugName: 'matrix_decomposition',
-        argNames: ['data', 'rows', 'cols', 'decompositionType'],
+        debugName: 'set_stream_node_position',
+        argNames: ['id', 'x', 'y'],
       );
 
   @override
-  Future<MatrixResult> crateApiMatrixOperation({
-    required List<double> aData,
-    required BigInt aRows,
-    required BigInt aCols,
-    Float64List? bData,
-    BigInt? bRows,
-    BigInt? bCols,
-    required String operation,
+  Future<void> crateApiStartGraphStream() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          return wire.wire__crate__api__start_graph_stream(port_);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiStartGraphStreamConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiStartGraphStreamConstMeta =>
+      const TaskConstMeta(debugName: 'start_graph_stream', argNames: []);
+
+  @override
+  void crateApiStopGraphStream() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__stop_graph_stream();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiStopGraphStreamConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiStopGraphStreamConstMeta =>
+      const TaskConstMeta(debugName: 'stop_graph_stream', argNames: []);
+
+  @override
+  void crateApiUnloadModel() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__unload_model();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiUnloadModelConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiUnloadModelConstMeta =>
+      const TaskConstMeta(debugName: 'unload_model', argNames: []);
+
+  @override
+  Future<void> crateApiUpdateGraphViewport({
+    required double x,
+    required double y,
+    required double width,
+    required double height,
+    required double scale,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(aData);
-          final arg1 = cst_encode_usize(aRows);
-          final arg2 = cst_encode_usize(aCols);
-          final arg3 = cst_encode_opt_list_prim_f_64_strict(bData);
-          final arg4 = cst_encode_opt_box_autoadd_usize(bRows);
-          final arg5 = cst_encode_opt_box_autoadd_usize(bCols);
-          final arg6 = cst_encode_String(operation);
-          return wire.wire__crate__api__matrix_operation(
+          final arg0 = cst_encode_f_32(x);
+          final arg1 = cst_encode_f_32(y);
+          final arg2 = cst_encode_f_32(width);
+          final arg3 = cst_encode_f_32(height);
+          final arg4 = cst_encode_f_32(scale);
+          return wire.wire__crate__api__update_graph_viewport(
             port_,
             arg0,
             arg1,
             arg2,
             arg3,
             arg4,
-            arg5,
-            arg6,
           );
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_matrix_result,
-          decodeErrorData: null,
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_AnyhowException,
         ),
-        constMeta: kCrateApiMatrixOperationConstMeta,
-        argValues: [aData, aRows, aCols, bData, bRows, bCols, operation],
+        constMeta: kCrateApiUpdateGraphViewportConstMeta,
+        argValues: [x, y, width, height, scale],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMatrixOperationConstMeta => const TaskConstMeta(
-    debugName: 'matrix_operation',
-    argNames: [
-      'aData',
-      'aRows',
-      'aCols',
-      'bData',
-      'bRows',
-      'bCols',
-      'operation',
-    ],
-  );
-
-  @override
-  Future<MatrixResult> crateApiMatrixProperties({
-    required List<double> data,
-    required BigInt rows,
-    required BigInt cols,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(data);
-          final arg1 = cst_encode_usize(rows);
-          final arg2 = cst_encode_usize(cols);
-          return wire.wire__crate__api__matrix_properties(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_matrix_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiMatrixPropertiesConstMeta,
-        argValues: [data, rows, cols],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiMatrixPropertiesConstMeta => const TaskConstMeta(
-    debugName: 'matrix_properties',
-    argNames: ['data', 'rows', 'cols'],
-  );
-
-  @override
-  Future<MatrixResult> crateApiMatrixRref({
-    required List<double> data,
-    required BigInt rows,
-    required BigInt cols,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(data);
-          final arg1 = cst_encode_usize(rows);
-          final arg2 = cst_encode_usize(cols);
-          return wire.wire__crate__api__matrix_rref(port_, arg0, arg1, arg2);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_matrix_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiMatrixRrefConstMeta,
-        argValues: [data, rows, cols],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiMatrixRrefConstMeta => const TaskConstMeta(
-    debugName: 'matrix_rref',
-    argNames: ['data', 'rows', 'cols'],
-  );
-
-  @override
-  Future<CalculusResult> crateApiMixedPartialDerivative({
-    required String expression,
-    required String var1,
-    required String var2,
-    required List<(String, double)> point,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(var1);
-          final arg2 = cst_encode_String(var2);
-          final arg3 = cst_encode_list_record_string_f_64(point);
-          return wire.wire__crate__api__mixed_partial_derivative(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_calculus_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiMixedPartialDerivativeConstMeta,
-        argValues: [expression, var1, var2, point],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiMixedPartialDerivativeConstMeta =>
+  TaskConstMeta get kCrateApiUpdateGraphViewportConstMeta =>
       const TaskConstMeta(
-        debugName: 'mixed_partial_derivative',
-        argNames: ['expression', 'var1', 'var2', 'point'],
+        debugName: 'update_graph_viewport',
+        argNames: ['x', 'y', 'width', 'height', 'scale'],
       );
 
-  @override
-  DiscreteResult crateApiModAdd({
-    required BigInt a,
-    required BigInt b,
-    required BigInt m,
-  }) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(a);
-          final arg1 = cst_encode_u_64(b);
-          final arg2 = cst_encode_u_64(m);
-          return wire.wire__crate__api__mod_add(arg0, arg1, arg2);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiModAddConstMeta,
-        argValues: [a, b, m],
-        apiImpl: this,
-      ),
-    );
+  @protected
+  AnyhowException dco_decode_AnyhowException(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return AnyhowException(raw as String);
   }
-
-  TaskConstMeta get kCrateApiModAddConstMeta =>
-      const TaskConstMeta(debugName: 'mod_add', argNames: ['a', 'b', 'm']);
-
-  @override
-  DiscreteResult crateApiModDivide({
-    required BigInt a,
-    required BigInt b,
-    required BigInt m,
-  }) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(a);
-          final arg1 = cst_encode_u_64(b);
-          final arg2 = cst_encode_u_64(m);
-          return wire.wire__crate__api__mod_divide(arg0, arg1, arg2);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiModDivideConstMeta,
-        argValues: [a, b, m],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiModDivideConstMeta =>
-      const TaskConstMeta(debugName: 'mod_divide', argNames: ['a', 'b', 'm']);
-
-  @override
-  DiscreteResult crateApiModInverse({required BigInt a, required BigInt m}) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(a);
-          final arg1 = cst_encode_u_64(m);
-          return wire.wire__crate__api__mod_inverse(arg0, arg1);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiModInverseConstMeta,
-        argValues: [a, m],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiModInverseConstMeta =>
-      const TaskConstMeta(debugName: 'mod_inverse', argNames: ['a', 'm']);
-
-  @override
-  DiscreteResult crateApiModMultiply({
-    required BigInt a,
-    required BigInt b,
-    required BigInt m,
-  }) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(a);
-          final arg1 = cst_encode_u_64(b);
-          final arg2 = cst_encode_u_64(m);
-          return wire.wire__crate__api__mod_multiply(arg0, arg1, arg2);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiModMultiplyConstMeta,
-        argValues: [a, b, m],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiModMultiplyConstMeta =>
-      const TaskConstMeta(debugName: 'mod_multiply', argNames: ['a', 'b', 'm']);
-
-  @override
-  DiscreteResult crateApiModPow({
-    required BigInt base,
-    required BigInt exp,
-    required BigInt modulus,
-  }) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(base);
-          final arg1 = cst_encode_u_64(exp);
-          final arg2 = cst_encode_u_64(modulus);
-          return wire.wire__crate__api__mod_pow(arg0, arg1, arg2);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiModPowConstMeta,
-        argValues: [base, exp, modulus],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiModPowConstMeta => const TaskConstMeta(
-    debugName: 'mod_pow',
-    argNames: ['base', 'exp', 'modulus'],
-  );
-
-  @override
-  DiscreteResult crateApiModSub({
-    required BigInt a,
-    required BigInt b,
-    required BigInt m,
-  }) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(a);
-          final arg1 = cst_encode_u_64(b);
-          final arg2 = cst_encode_u_64(m);
-          return wire.wire__crate__api__mod_sub(arg0, arg1, arg2);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiModSubConstMeta,
-        argValues: [a, b, m],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiModSubConstMeta =>
-      const TaskConstMeta(debugName: 'mod_sub', argNames: ['a', 'b', 'm']);
-
-  @override
-  List<String> crateApiParseFormula({required String formula}) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_String(formula);
-          return wire.wire__crate__api__parse_formula(arg0);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_list_String,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiParseFormulaConstMeta,
-        argValues: [formula],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiParseFormulaConstMeta =>
-      const TaskConstMeta(debugName: 'parse_formula', argNames: ['formula']);
-
-  @override
-  Future<CalculusResult> crateApiPartialDerivative({
-    required String expression,
-    required String variable,
-    required List<(String, double)> point,
-    required int order,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(variable);
-          final arg2 = cst_encode_list_record_string_f_64(point);
-          final arg3 = cst_encode_u_32(order);
-          return wire.wire__crate__api__partial_derivative(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_calculus_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiPartialDerivativeConstMeta,
-        argValues: [expression, variable, point, order],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiPartialDerivativeConstMeta => const TaskConstMeta(
-    debugName: 'partial_derivative',
-    argNames: ['expression', 'variable', 'point', 'order'],
-  );
-
-  @override
-  DiscreteResult crateApiPermutations({required BigInt n, required BigInt r}) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(n);
-          final arg1 = cst_encode_u_64(r);
-          return wire.wire__crate__api__permutations(arg0, arg1);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiPermutationsConstMeta,
-        argValues: [n, r],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiPermutationsConstMeta =>
-      const TaskConstMeta(debugName: 'permutations', argNames: ['n', 'r']);
-
-  @override
-  Future<RegressionResult> crateApiPolynomialRegression({
-    required List<double> xData,
-    required List<double> yData,
-    required BigInt degree,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(xData);
-          final arg1 = cst_encode_list_prim_f_64_loose(yData);
-          final arg2 = cst_encode_usize(degree);
-          return wire.wire__crate__api__polynomial_regression(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_regression_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiPolynomialRegressionConstMeta,
-        argValues: [xData, yData, degree],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiPolynomialRegressionConstMeta =>
-      const TaskConstMeta(
-        debugName: 'polynomial_regression',
-        argNames: ['xData', 'yData', 'degree'],
-      );
-
-  @override
-  DiscreteResult crateApiPrimeFactors({required BigInt n}) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final arg0 = cst_encode_u_64(n);
-          return wire.wire__crate__api__prime_factors(arg0);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiPrimeFactorsConstMeta,
-        argValues: [n],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiPrimeFactorsConstMeta =>
-      const TaskConstMeta(debugName: 'prime_factors', argNames: ['n']);
-
-  @override
-  Future<DiscreteResult> crateApiSievePrimes({required BigInt n}) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_u_64(n);
-          return wire.wire__crate__api__sieve_primes(port_, arg0);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_discrete_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiSievePrimesConstMeta,
-        argValues: [n],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiSievePrimesConstMeta =>
-      const TaskConstMeta(debugName: 'sieve_primes', argNames: ['n']);
-
-  @override
-  Future<SolveResult> crateApiSolveEquation({
-    required String expression,
-    required String variable,
-    required double initialGuess,
-    required double tolerance,
-    required int maxIterations,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(variable);
-          final arg2 = cst_encode_f_64(initialGuess);
-          final arg3 = cst_encode_f_64(tolerance);
-          final arg4 = cst_encode_u_32(maxIterations);
-          return wire.wire__crate__api__solve_equation(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-            arg4,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_solve_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiSolveEquationConstMeta,
-        argValues: [
-          expression,
-          variable,
-          initialGuess,
-          tolerance,
-          maxIterations,
-        ],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiSolveEquationConstMeta => const TaskConstMeta(
-    debugName: 'solve_equation',
-    argNames: [
-      'expression',
-      'variable',
-      'initialGuess',
-      'tolerance',
-      'maxIterations',
-    ],
-  );
-
-  @override
-  Future<CalculusResult> crateApiSymbolicDifferentiate({
-    required String expression,
-    required String variable,
-    required int order,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(variable);
-          final arg2 = cst_encode_u_32(order);
-          return wire.wire__crate__api__symbolic_differentiate(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_calculus_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiSymbolicDifferentiateConstMeta,
-        argValues: [expression, variable, order],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiSymbolicDifferentiateConstMeta =>
-      const TaskConstMeta(
-        debugName: 'symbolic_differentiate',
-        argNames: ['expression', 'variable', 'order'],
-      );
-
-  @override
-  Future<List<CalculusResult>> crateApiSymbolicGradient({
-    required String expression,
-    required List<String> variables,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_list_String(variables);
-          return wire.wire__crate__api__symbolic_gradient(port_, arg0, arg1);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_list_calculus_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiSymbolicGradientConstMeta,
-        argValues: [expression, variables],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiSymbolicGradientConstMeta => const TaskConstMeta(
-    debugName: 'symbolic_gradient',
-    argNames: ['expression', 'variables'],
-  );
-
-  @override
-  Future<CalculusResult> crateApiSymbolicIntegrate({
-    required String expression,
-    required List<String> variables,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_list_String(variables);
-          return wire.wire__crate__api__symbolic_integrate(port_, arg0, arg1);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_calculus_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiSymbolicIntegrateConstMeta,
-        argValues: [expression, variables],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiSymbolicIntegrateConstMeta => const TaskConstMeta(
-    debugName: 'symbolic_integrate',
-    argNames: ['expression', 'variables'],
-  );
-
-  @override
-  Future<HypothesisTestResult> crateApiTTest({
-    required List<double> data,
-    required double hypothesizedMean,
-    required double alpha,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(data);
-          final arg1 = cst_encode_f_64(hypothesizedMean);
-          final arg2 = cst_encode_f_64(alpha);
-          return wire.wire__crate__api__t_test(port_, arg0, arg1, arg2);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_hypothesis_test_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiTTestConstMeta,
-        argValues: [data, hypothesizedMean, alpha],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiTTestConstMeta => const TaskConstMeta(
-    debugName: 't_test',
-    argNames: ['data', 'hypothesizedMean', 'alpha'],
-  );
-
-  @override
-  Future<Float64List> crateApiTaylorCoefficients({
-    required String expression,
-    required String variable,
-    required double around,
-    required int numTerms,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(variable);
-          final arg2 = cst_encode_f_64(around);
-          final arg3 = cst_encode_u_32(numTerms);
-          return wire.wire__crate__api__taylor_coefficients(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_list_prim_f_64_strict,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiTaylorCoefficientsConstMeta,
-        argValues: [expression, variable, around, numTerms],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiTaylorCoefficientsConstMeta => const TaskConstMeta(
-    debugName: 'taylor_coefficients',
-    argNames: ['expression', 'variable', 'around', 'numTerms'],
-  );
-
-  @override
-  Future<CalculusResult> crateApiTripleIntegral({
-    required String expression,
-    required String xVar,
-    required String yVar,
-    required String zVar,
-    required double xMin,
-    required double xMax,
-    required double yMin,
-    required double yMax,
-    required double zMin,
-    required double zMax,
-    required int numIntervals,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_String(expression);
-          final arg1 = cst_encode_String(xVar);
-          final arg2 = cst_encode_String(yVar);
-          final arg3 = cst_encode_String(zVar);
-          final arg4 = cst_encode_f_64(xMin);
-          final arg5 = cst_encode_f_64(xMax);
-          final arg6 = cst_encode_f_64(yMin);
-          final arg7 = cst_encode_f_64(yMax);
-          final arg8 = cst_encode_f_64(zMin);
-          final arg9 = cst_encode_f_64(zMax);
-          final arg10 = cst_encode_u_32(numIntervals);
-          return wire.wire__crate__api__triple_integral(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-            arg4,
-            arg5,
-            arg6,
-            arg7,
-            arg8,
-            arg9,
-            arg10,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_calculus_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiTripleIntegralConstMeta,
-        argValues: [
-          expression,
-          xVar,
-          yVar,
-          zVar,
-          xMin,
-          xMax,
-          yMin,
-          yMax,
-          zMin,
-          zMax,
-          numIntervals,
-        ],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiTripleIntegralConstMeta => const TaskConstMeta(
-    debugName: 'triple_integral',
-    argNames: [
-      'expression',
-      'xVar',
-      'yVar',
-      'zVar',
-      'xMin',
-      'xMax',
-      'yMin',
-      'yMax',
-      'zMin',
-      'zMax',
-      'numIntervals',
-    ],
-  );
-
-  @override
-  Future<HypothesisTestResult> crateApiTwoSampleTTest({
-    required List<double> data1,
-    required List<double> data2,
-    required double alpha,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(data1);
-          final arg1 = cst_encode_list_prim_f_64_loose(data2);
-          final arg2 = cst_encode_f_64(alpha);
-          return wire.wire__crate__api__two_sample_t_test(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_hypothesis_test_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiTwoSampleTTestConstMeta,
-        argValues: [data1, data2, alpha],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiTwoSampleTTestConstMeta => const TaskConstMeta(
-    debugName: 'two_sample_t_test',
-    argNames: ['data1', 'data2', 'alpha'],
-  );
-
-  @override
-  Future<HypothesisTestResult> crateApiTwoSampleZTest({
-    required List<double> data1,
-    required List<double> data2,
-    required double std1,
-    required double std2,
-    required double alpha,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(data1);
-          final arg1 = cst_encode_list_prim_f_64_loose(data2);
-          final arg2 = cst_encode_f_64(std1);
-          final arg3 = cst_encode_f_64(std2);
-          final arg4 = cst_encode_f_64(alpha);
-          return wire.wire__crate__api__two_sample_z_test(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-            arg4,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_hypothesis_test_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiTwoSampleZTestConstMeta,
-        argValues: [data1, data2, std1, std2, alpha],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiTwoSampleZTestConstMeta => const TaskConstMeta(
-    debugName: 'two_sample_z_test',
-    argNames: ['data1', 'data2', 'std1', 'std2', 'alpha'],
-  );
-
-  @override
-  Future<HypothesisTestResult> crateApiZTest({
-    required List<double> data,
-    required double hypothesizedMean,
-    required double populationStd,
-    required double alpha,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final arg0 = cst_encode_list_prim_f_64_loose(data);
-          final arg1 = cst_encode_f_64(hypothesizedMean);
-          final arg2 = cst_encode_f_64(populationStd);
-          final arg3 = cst_encode_f_64(alpha);
-          return wire.wire__crate__api__z_test(port_, arg0, arg1, arg2, arg3);
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_hypothesis_test_result,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiZTestConstMeta,
-        argValues: [data, hypothesizedMean, populationStd, alpha],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiZTestConstMeta => const TaskConstMeta(
-    debugName: 'z_test',
-    argNames: ['data', 'hypothesizedMean', 'populationStd', 'alpha'],
-  );
 
   @protected
   String dco_decode_String(dynamic raw) {
@@ -3075,15 +1960,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  bool dco_decode_box_autoadd_bool(dynamic raw) {
+  double dco_decode_box_autoadd_f_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return raw as bool;
+    return raw as double;
   }
 
   @protected
-  double dco_decode_box_autoadd_f_64(dynamic raw) {
+  int dco_decode_box_autoadd_i_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return raw as double;
+    return raw as int;
+  }
+
+  @protected
+  MCPToolCall dco_decode_box_autoadd_mcp_tool_call(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_mcp_tool_call(raw);
+  }
+
+  @protected
+  int dco_decode_box_autoadd_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
   }
 
   @protected
@@ -3093,166 +1990,131 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  CalculusResult dco_decode_calculus_result(dynamic raw) {
+  ClusterAssignment dco_decode_cluster_assignment(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return ClusterAssignment(
+      id: dco_decode_String(arr[0]),
+      clusterId: dco_decode_usize(arr[1]),
+      color: dco_decode_String(arr[2]),
+    );
+  }
+
+  @protected
+  ClusterInfo dco_decode_cluster_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 4)
       throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
-    return CalculusResult(
-      success: dco_decode_bool(arr[0]),
-      value: dco_decode_f_64(arr[1]),
-      symbolic: dco_decode_opt_String(arr[2]),
-      error: dco_decode_opt_String(arr[3]),
+    return ClusterInfo(
+      id: dco_decode_usize(arr[0]),
+      size: dco_decode_usize(arr[1]),
+      color: dco_decode_String(arr[2]),
+      centroid: dco_decode_opt_list_prim_f_32_strict(arr[3]),
     );
   }
 
   @protected
-  ComplexResult dco_decode_complex_result(dynamic raw) {
+  ClusteringResult dco_decode_clustering_result(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 9)
-      throw Exception('unexpected arr length: expect 9 but see ${arr.length}');
-    return ComplexResult(
-      success: dco_decode_bool(arr[0]),
-      real: dco_decode_f_64(arr[1]),
-      imag: dco_decode_f_64(arr[2]),
-      magnitude: dco_decode_f_64(arr[3]),
-      angleRad: dco_decode_f_64(arr[4]),
-      angleDeg: dco_decode_f_64(arr[5]),
-      formattedRect: dco_decode_String(arr[6]),
-      formattedPolar: dco_decode_String(arr[7]),
-      error: dco_decode_opt_String(arr[8]),
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return ClusteringResult(
+      assignments: dco_decode_list_cluster_assignment(arr[0]),
+      clusters: dco_decode_list_cluster_info(arr[1]),
+      k: dco_decode_usize(arr[2]),
     );
   }
 
   @protected
-  ConfidenceIntervalResult dco_decode_confidence_interval_result(dynamic raw) {
+  EmbeddingCluster dco_decode_embedding_cluster(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 6)
-      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
-    return ConfidenceIntervalResult(
-      success: dco_decode_bool(arr[0]),
-      lower: dco_decode_f_64(arr[1]),
-      upper: dco_decode_f_64(arr[2]),
-      center: dco_decode_f_64(arr[3]),
-      marginOfError: dco_decode_f_64(arr[4]),
-      error: dco_decode_opt_String(arr[5]),
-    );
+    if (arr.length != 1)
+      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    return EmbeddingCluster(ids: dco_decode_list_String(arr[0]));
   }
 
   @protected
-  CorrelationResult dco_decode_correlation_result(dynamic raw) {
+  EmbeddingEntry dco_decode_embedding_entry(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 5)
-      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
-    return CorrelationResult(
-      success: dco_decode_bool(arr[0]),
-      correlation: dco_decode_f_64(arr[1]),
-      covariance: dco_decode_f_64(arr[2]),
-      pValue: dco_decode_f_64(arr[3]),
-      error: dco_decode_opt_String(arr[4]),
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return EmbeddingEntry(
+      id: dco_decode_String(arr[0]),
+      vector: dco_decode_list_prim_f_32_strict(arr[1]),
+      textPreview: dco_decode_opt_String(arr[2]),
     );
   }
 
   @protected
-  DiscreteResult dco_decode_discrete_result(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    final arr = raw as List<dynamic>;
-    if (arr.length != 6)
-      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
-    return DiscreteResult(
-      success: dco_decode_bool(arr[0]),
-      value: dco_decode_u_64(arr[1]),
-      bigValue: dco_decode_opt_String(arr[2]),
-      values: dco_decode_list_prim_u_64_strict(arr[3]),
-      boolResult: dco_decode_opt_box_autoadd_bool(arr[4]),
-      error: dco_decode_opt_String(arr[5]),
-    );
-  }
-
-  @protected
-  DistributionResult dco_decode_distribution_result(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    final arr = raw as List<dynamic>;
-    if (arr.length != 7)
-      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
-    return DistributionResult(
-      success: dco_decode_bool(arr[0]),
-      pdf: dco_decode_f_64(arr[1]),
-      cdf: dco_decode_f_64(arr[2]),
-      mean: dco_decode_f_64(arr[3]),
-      variance: dco_decode_f_64(arr[4]),
-      stdDev: dco_decode_f_64(arr[5]),
-      error: dco_decode_opt_String(arr[6]),
-    );
-  }
-
-  @protected
-  ExpressionResult dco_decode_expression_result(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
-    return ExpressionResult(
-      success: dco_decode_bool(arr[0]),
-      value: dco_decode_f_64(arr[1]),
-      error: dco_decode_opt_String(arr[2]),
-      formatted: dco_decode_String(arr[3]),
-    );
-  }
-
-  @protected
-  double dco_decode_f_64(dynamic raw) {
+  double dco_decode_f_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as double;
   }
 
   @protected
-  GraphPoint dco_decode_graph_point(dynamic raw) {
+  GraphEdge dco_decode_graph_edge(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 3)
-      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
-    return GraphPoint(
-      x: dco_decode_f_64(arr[0]),
-      y: dco_decode_f_64(arr[1]),
-      valid: dco_decode_bool(arr[2]),
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return GraphEdge(
+      source: dco_decode_String(arr[0]),
+      target: dco_decode_String(arr[1]),
+      weight: dco_decode_f_32(arr[2]),
+      edgeType: dco_decode_String(arr[3]),
     );
   }
 
   @protected
-  GraphResult dco_decode_graph_result(dynamic raw) {
+  GraphNode dco_decode_graph_node(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 7)
       throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
-    return GraphResult(
-      success: dco_decode_bool(arr[0]),
-      points: dco_decode_list_graph_point(arr[1]),
-      xMin: dco_decode_f_64(arr[2]),
-      xMax: dco_decode_f_64(arr[3]),
-      yMin: dco_decode_f_64(arr[4]),
-      yMax: dco_decode_f_64(arr[5]),
-      error: dco_decode_opt_String(arr[6]),
+    return GraphNode(
+      id: dco_decode_String(arr[0]),
+      label: dco_decode_String(arr[1]),
+      nodeType: dco_decode_String(arr[2]),
+      x: dco_decode_f_32(arr[3]),
+      y: dco_decode_f_32(arr[4]),
+      color: dco_decode_opt_String(arr[5]),
+      metadata: dco_decode_opt_String(arr[6]),
     );
   }
 
   @protected
-  HypothesisTestResult dco_decode_hypothesis_test_result(dynamic raw) {
+  GraphState dco_decode_graph_state(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 7)
-      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
-    return HypothesisTestResult(
-      success: dco_decode_bool(arr[0]),
-      testStatistic: dco_decode_f_64(arr[1]),
-      pValue: dco_decode_f_64(arr[2]),
-      criticalValue: dco_decode_f_64(arr[3]),
-      rejectNull: dco_decode_bool(arr[4]),
-      confidenceInterval: dco_decode_record_f_64_f_64(arr[5]),
-      error: dco_decode_opt_String(arr[6]),
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return GraphState(
+      nodes: dco_decode_list_graph_node(arr[0]),
+      edges: dco_decode_list_graph_edge(arr[1]),
+    );
+  }
+
+  @protected
+  int dco_decode_i_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
+  KnowledgeGraphAnalysis dco_decode_knowledge_graph_analysis(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return KnowledgeGraphAnalysis(
+      clustering: dco_decode_clustering_result(arr[0]),
+      semanticEdges: dco_decode_semantic_edge_result(arr[1]),
     );
   }
 
@@ -3263,47 +2125,69 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  List<CalculusResult> dco_decode_list_calculus_result(dynamic raw) {
+  List<ClusterAssignment> dco_decode_list_cluster_assignment(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return (raw as List<dynamic>).map(dco_decode_calculus_result).toList();
+    return (raw as List<dynamic>).map(dco_decode_cluster_assignment).toList();
   }
 
   @protected
-  List<GraphPoint> dco_decode_list_graph_point(dynamic raw) {
+  List<ClusterInfo> dco_decode_list_cluster_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return (raw as List<dynamic>).map(dco_decode_graph_point).toList();
+    return (raw as List<dynamic>).map(dco_decode_cluster_info).toList();
   }
 
   @protected
-  List<Float64List> dco_decode_list_list_prim_f_64_strict(dynamic raw) {
+  List<EmbeddingCluster> dco_decode_list_embedding_cluster(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return (raw as List<dynamic>)
-        .map(dco_decode_list_prim_f_64_strict)
-        .toList();
+    return (raw as List<dynamic>).map(dco_decode_embedding_cluster).toList();
   }
 
   @protected
-  List<MatrixResult> dco_decode_list_matrix_result(dynamic raw) {
+  List<EmbeddingEntry> dco_decode_list_embedding_entry(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return (raw as List<dynamic>).map(dco_decode_matrix_result).toList();
+    return (raw as List<dynamic>).map(dco_decode_embedding_entry).toList();
   }
 
   @protected
-  List<double> dco_decode_list_prim_f_64_loose(dynamic raw) {
+  List<GraphEdge> dco_decode_list_graph_edge(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_graph_edge).toList();
+  }
+
+  @protected
+  List<GraphNode> dco_decode_list_graph_node(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_graph_node).toList();
+  }
+
+  @protected
+  List<MCPParameter> dco_decode_list_mcp_parameter(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_mcp_parameter).toList();
+  }
+
+  @protected
+  List<MCPTool> dco_decode_list_mcp_tool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_mcp_tool).toList();
+  }
+
+  @protected
+  List<NodePosition> dco_decode_list_node_position(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_node_position).toList();
+  }
+
+  @protected
+  List<double> dco_decode_list_prim_f_32_loose(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as List<double>;
   }
 
   @protected
-  Float64List dco_decode_list_prim_f_64_strict(dynamic raw) {
+  Float32List dco_decode_list_prim_f_32_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return raw as Float64List;
-  }
-
-  @protected
-  Uint64List dco_decode_list_prim_u_64_strict(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return dcoDecodeUint64List(raw);
+    return raw as Float32List;
   }
 
   @protected
@@ -3313,51 +2197,88 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  List<(double, double)> dco_decode_list_record_f_64_f_64(dynamic raw) {
+  List<(String, String)> dco_decode_list_record_string_string(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return (raw as List<dynamic>).map(dco_decode_record_f_64_f_64).toList();
+    return (raw as List<dynamic>).map(dco_decode_record_string_string).toList();
   }
 
   @protected
-  List<(String, double)> dco_decode_list_record_string_f_64(dynamic raw) {
+  List<SemanticEdge> dco_decode_list_semantic_edge(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return (raw as List<dynamic>).map(dco_decode_record_string_f_64).toList();
+    return (raw as List<dynamic>).map(dco_decode_semantic_edge).toList();
   }
 
   @protected
-  List<UnitResult> dco_decode_list_unit_result(dynamic raw) {
+  List<SimilarityResult> dco_decode_list_similarity_result(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return (raw as List<dynamic>).map(dco_decode_unit_result).toList();
+    return (raw as List<dynamic>).map(dco_decode_similarity_result).toList();
   }
 
   @protected
-  MatrixDecomposition dco_decode_matrix_decomposition(dynamic raw) {
+  MCPParamType dco_decode_mcp_param_type(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return MCPParamType.values[raw as int];
+  }
+
+  @protected
+  MCPParameter dco_decode_mcp_parameter(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 5)
-      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
-    return MatrixDecomposition(
-      success: dco_decode_bool(arr[0]),
-      decompositionType: dco_decode_String(arr[1]),
-      matrices: dco_decode_list_matrix_result(arr[2]),
-      labels: dco_decode_list_String(arr[3]),
-      error: dco_decode_opt_String(arr[4]),
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return MCPParameter(
+      name: dco_decode_String(arr[0]),
+      description: dco_decode_String(arr[1]),
+      paramType: dco_decode_mcp_param_type(arr[2]),
+      required_: dco_decode_bool(arr[3]),
     );
   }
 
   @protected
-  MatrixResult dco_decode_matrix_result(dynamic raw) {
+  MCPTool dco_decode_mcp_tool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return MCPTool.values[raw as int];
+  }
+
+  @protected
+  MCPToolCall dco_decode_mcp_tool_call(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return MCPToolCall(
+      tool: dco_decode_String(arr[0]),
+      parametersJson: dco_decode_String(arr[1]),
+      description: dco_decode_String(arr[2]),
+    );
+  }
+
+  @protected
+  MCPToolResult dco_decode_mcp_tool_result(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return MCPToolResult(
+      success: dco_decode_bool(arr[0]),
+      result: dco_decode_String(arr[1]),
+      tool: dco_decode_String(arr[2]),
+    );
+  }
+
+  @protected
+  NodePosition dco_decode_node_position(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 6)
       throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
-    return MatrixResult(
-      success: dco_decode_bool(arr[0]),
-      data: dco_decode_list_prim_f_64_strict(arr[1]),
-      rows: dco_decode_usize(arr[2]),
-      cols: dco_decode_usize(arr[3]),
-      scalar: dco_decode_opt_box_autoadd_f_64(arr[4]),
-      error: dco_decode_opt_String(arr[5]),
+    return NodePosition(
+      id: dco_decode_String(arr[0]),
+      x: dco_decode_f_32(arr[1]),
+      y: dco_decode_f_32(arr[2]),
+      radius: dco_decode_f_32(arr[3]),
+      color: dco_decode_u_32(arr[4]),
+      nodeType: dco_decode_String(arr[5]),
     );
   }
 
@@ -3368,15 +2289,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  bool? dco_decode_opt_box_autoadd_bool(dynamic raw) {
+  double? dco_decode_opt_box_autoadd_f_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return raw == null ? null : dco_decode_box_autoadd_bool(raw);
+    return raw == null ? null : dco_decode_box_autoadd_f_32(raw);
   }
 
   @protected
-  double? dco_decode_opt_box_autoadd_f_64(dynamic raw) {
+  int? dco_decode_opt_box_autoadd_i_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return raw == null ? null : dco_decode_box_autoadd_f_64(raw);
+    return raw == null ? null : dco_decode_box_autoadd_i_32(raw);
+  }
+
+  @protected
+  int? dco_decode_opt_box_autoadd_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_u_32(raw);
   }
 
   @protected
@@ -3386,97 +2313,97 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Float64List? dco_decode_opt_list_prim_f_64_strict(dynamic raw) {
+  List<String>? dco_decode_opt_list_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return raw == null ? null : dco_decode_list_prim_f_64_strict(raw);
+    return raw == null ? null : dco_decode_list_String(raw);
   }
 
   @protected
-  (double, double) dco_decode_record_f_64_f_64(dynamic raw) {
+  Float32List? dco_decode_opt_list_prim_f_32_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    final arr = raw as List<dynamic>;
-    if (arr.length != 2) {
-      throw Exception('Expected 2 elements, got ${arr.length}');
-    }
-    return (dco_decode_f_64(arr[0]), dco_decode_f_64(arr[1]));
+    return raw == null ? null : dco_decode_list_prim_f_32_strict(raw);
   }
 
   @protected
-  (List<(double, double)>, List<(double, double)>)
-  dco_decode_record_list_record_f_64_f_64_list_record_f_64_f_64(dynamic raw) {
+  List<(String, String)>? dco_decode_opt_list_record_string_string(
+    dynamic raw,
+  ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    final arr = raw as List<dynamic>;
-    if (arr.length != 2) {
-      throw Exception('Expected 2 elements, got ${arr.length}');
-    }
-    return (
-      dco_decode_list_record_f_64_f_64(arr[0]),
-      dco_decode_list_record_f_64_f_64(arr[1]),
-    );
+    return raw == null ? null : dco_decode_list_record_string_string(raw);
   }
 
   @protected
-  (String, double) dco_decode_record_string_f_64(dynamic raw) {
+  (String, String) dco_decode_record_string_string(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 2) {
       throw Exception('Expected 2 elements, got ${arr.length}');
     }
-    return (dco_decode_String(arr[0]), dco_decode_f_64(arr[1]));
+    return (dco_decode_String(arr[0]), dco_decode_String(arr[1]));
   }
 
   @protected
-  RegressionResult dco_decode_regression_result(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    final arr = raw as List<dynamic>;
-    if (arr.length != 5)
-      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
-    return RegressionResult(
-      success: dco_decode_bool(arr[0]),
-      coefficients: dco_decode_list_prim_f_64_strict(arr[1]),
-      rSquared: dco_decode_f_64(arr[2]),
-      residuals: dco_decode_list_prim_f_64_strict(arr[3]),
-      error: dco_decode_opt_String(arr[4]),
-    );
-  }
-
-  @protected
-  SolveResult dco_decode_solve_result(dynamic raw) {
+  SemanticEdge dco_decode_semantic_edge(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 4)
       throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
-    return SolveResult(
-      success: dco_decode_bool(arr[0]),
-      roots: dco_decode_list_prim_f_64_strict(arr[1]),
-      iterations: dco_decode_usize(arr[2]),
-      error: dco_decode_opt_String(arr[3]),
+    return SemanticEdge(
+      source: dco_decode_String(arr[0]),
+      target: dco_decode_String(arr[1]),
+      similarity: dco_decode_f_32(arr[2]),
+      isGhost: dco_decode_bool(arr[3]),
     );
   }
 
   @protected
-  StatisticsResult dco_decode_statistics_result(dynamic raw) {
+  SemanticEdgeResult dco_decode_semantic_edge_result(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return SemanticEdgeResult(
+      edges: dco_decode_list_semantic_edge(arr[0]),
+      count: dco_decode_usize(arr[1]),
+    );
+  }
+
+  @protected
+  SimilarityResult dco_decode_similarity_result(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 3)
       throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
-    return StatisticsResult(
-      success: dco_decode_bool(arr[0]),
-      values: dco_decode_list_record_string_f_64(arr[1]),
-      error: dco_decode_opt_String(arr[2]),
+    return SimilarityResult(
+      id: dco_decode_String(arr[0]),
+      score: dco_decode_f_32(arr[1]),
+      textPreview: dco_decode_opt_String(arr[2]),
     );
+  }
+
+  @protected
+  StreamGraphStats dco_decode_stream_graph_stats(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return StreamGraphStats(
+      nodeCount: dco_decode_usize(arr[0]),
+      edgeCount: dco_decode_usize(arr[1]),
+      visibleCount: dco_decode_usize(arr[2]),
+    );
+  }
+
+  @protected
+  TaskCategory dco_decode_task_category(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return TaskCategory.values[raw as int];
   }
 
   @protected
   int dco_decode_u_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
-  }
-
-  @protected
-  BigInt dco_decode_u_64(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return dcoDecodeU64(raw);
   }
 
   @protected
@@ -3492,25 +2419,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  UnitResult dco_decode_unit_result(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    final arr = raw as List<dynamic>;
-    if (arr.length != 6)
-      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
-    return UnitResult(
-      success: dco_decode_bool(arr[0]),
-      value: dco_decode_f_64(arr[1]),
-      fromUnit: dco_decode_String(arr[2]),
-      toUnit: dco_decode_String(arr[3]),
-      formula: dco_decode_String(arr[4]),
-      error: dco_decode_opt_String(arr[5]),
-    );
-  }
-
-  @protected
   BigInt dco_decode_usize(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dcoDecodeU64(raw);
+  }
+
+  @protected
+  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final inner = sse_decode_String(deserializer);
+    return AnyhowException(inner);
   }
 
   @protected
@@ -3527,15 +2445,29 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  bool sse_decode_box_autoadd_bool(SseDeserializer deserializer) {
+  double sse_decode_box_autoadd_f_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return (sse_decode_bool(deserializer));
+    return (sse_decode_f_32(deserializer));
   }
 
   @protected
-  double sse_decode_box_autoadd_f_64(SseDeserializer deserializer) {
+  int sse_decode_box_autoadd_i_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return (sse_decode_f_64(deserializer));
+    return (sse_decode_i_32(deserializer));
+  }
+
+  @protected
+  MCPToolCall sse_decode_box_autoadd_mcp_tool_call(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_mcp_tool_call(deserializer));
+  }
+
+  @protected
+  int sse_decode_box_autoadd_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_u_32(deserializer));
   }
 
   @protected
@@ -3545,198 +2477,134 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  CalculusResult sse_decode_calculus_result(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_success = sse_decode_bool(deserializer);
-    final var_value = sse_decode_f_64(deserializer);
-    final var_symbolic = sse_decode_opt_String(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    return CalculusResult(
-      success: var_success,
-      value: var_value,
-      symbolic: var_symbolic,
-      error: var_error,
-    );
-  }
-
-  @protected
-  ComplexResult sse_decode_complex_result(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_success = sse_decode_bool(deserializer);
-    final var_real = sse_decode_f_64(deserializer);
-    final var_imag = sse_decode_f_64(deserializer);
-    final var_magnitude = sse_decode_f_64(deserializer);
-    final var_angleRad = sse_decode_f_64(deserializer);
-    final var_angleDeg = sse_decode_f_64(deserializer);
-    final var_formattedRect = sse_decode_String(deserializer);
-    final var_formattedPolar = sse_decode_String(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    return ComplexResult(
-      success: var_success,
-      real: var_real,
-      imag: var_imag,
-      magnitude: var_magnitude,
-      angleRad: var_angleRad,
-      angleDeg: var_angleDeg,
-      formattedRect: var_formattedRect,
-      formattedPolar: var_formattedPolar,
-      error: var_error,
-    );
-  }
-
-  @protected
-  ConfidenceIntervalResult sse_decode_confidence_interval_result(
+  ClusterAssignment sse_decode_cluster_assignment(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_success = sse_decode_bool(deserializer);
-    final var_lower = sse_decode_f_64(deserializer);
-    final var_upper = sse_decode_f_64(deserializer);
-    final var_center = sse_decode_f_64(deserializer);
-    final var_marginOfError = sse_decode_f_64(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    return ConfidenceIntervalResult(
-      success: var_success,
-      lower: var_lower,
-      upper: var_upper,
-      center: var_center,
-      marginOfError: var_marginOfError,
-      error: var_error,
+    final var_id = sse_decode_String(deserializer);
+    final var_clusterId = sse_decode_usize(deserializer);
+    final var_color = sse_decode_String(deserializer);
+    return ClusterAssignment(
+      id: var_id,
+      clusterId: var_clusterId,
+      color: var_color,
     );
   }
 
   @protected
-  CorrelationResult sse_decode_correlation_result(
+  ClusterInfo sse_decode_cluster_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_id = sse_decode_usize(deserializer);
+    final var_size = sse_decode_usize(deserializer);
+    final var_color = sse_decode_String(deserializer);
+    final var_centroid = sse_decode_opt_list_prim_f_32_strict(deserializer);
+    return ClusterInfo(
+      id: var_id,
+      size: var_size,
+      color: var_color,
+      centroid: var_centroid,
+    );
+  }
+
+  @protected
+  ClusteringResult sse_decode_clustering_result(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_assignments = sse_decode_list_cluster_assignment(deserializer);
+    final var_clusters = sse_decode_list_cluster_info(deserializer);
+    final var_k = sse_decode_usize(deserializer);
+    return ClusteringResult(
+      assignments: var_assignments,
+      clusters: var_clusters,
+      k: var_k,
+    );
+  }
+
+  @protected
+  EmbeddingCluster sse_decode_embedding_cluster(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_ids = sse_decode_list_String(deserializer);
+    return EmbeddingCluster(ids: var_ids);
+  }
+
+  @protected
+  EmbeddingEntry sse_decode_embedding_entry(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_id = sse_decode_String(deserializer);
+    final var_vector = sse_decode_list_prim_f_32_strict(deserializer);
+    final var_textPreview = sse_decode_opt_String(deserializer);
+    return EmbeddingEntry(
+      id: var_id,
+      vector: var_vector,
+      textPreview: var_textPreview,
+    );
+  }
+
+  @protected
+  double sse_decode_f_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getFloat32();
+  }
+
+  @protected
+  GraphEdge sse_decode_graph_edge(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_source = sse_decode_String(deserializer);
+    final var_target = sse_decode_String(deserializer);
+    final var_weight = sse_decode_f_32(deserializer);
+    final var_edgeType = sse_decode_String(deserializer);
+    return GraphEdge(
+      source: var_source,
+      target: var_target,
+      weight: var_weight,
+      edgeType: var_edgeType,
+    );
+  }
+
+  @protected
+  GraphNode sse_decode_graph_node(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_id = sse_decode_String(deserializer);
+    final var_label = sse_decode_String(deserializer);
+    final var_nodeType = sse_decode_String(deserializer);
+    final var_x = sse_decode_f_32(deserializer);
+    final var_y = sse_decode_f_32(deserializer);
+    final var_color = sse_decode_opt_String(deserializer);
+    final var_metadata = sse_decode_opt_String(deserializer);
+    return GraphNode(
+      id: var_id,
+      label: var_label,
+      nodeType: var_nodeType,
+      x: var_x,
+      y: var_y,
+      color: var_color,
+      metadata: var_metadata,
+    );
+  }
+
+  @protected
+  GraphState sse_decode_graph_state(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_nodes = sse_decode_list_graph_node(deserializer);
+    final var_edges = sse_decode_list_graph_edge(deserializer);
+    return GraphState(nodes: var_nodes, edges: var_edges);
+  }
+
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getInt32();
+  }
+
+  @protected
+  KnowledgeGraphAnalysis sse_decode_knowledge_graph_analysis(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_success = sse_decode_bool(deserializer);
-    final var_correlation = sse_decode_f_64(deserializer);
-    final var_covariance = sse_decode_f_64(deserializer);
-    final var_pValue = sse_decode_f_64(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    return CorrelationResult(
-      success: var_success,
-      correlation: var_correlation,
-      covariance: var_covariance,
-      pValue: var_pValue,
-      error: var_error,
-    );
-  }
-
-  @protected
-  DiscreteResult sse_decode_discrete_result(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_success = sse_decode_bool(deserializer);
-    final var_value = sse_decode_u_64(deserializer);
-    final var_bigValue = sse_decode_opt_String(deserializer);
-    final var_values = sse_decode_list_prim_u_64_strict(deserializer);
-    final var_boolResult = sse_decode_opt_box_autoadd_bool(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    return DiscreteResult(
-      success: var_success,
-      value: var_value,
-      bigValue: var_bigValue,
-      values: var_values,
-      boolResult: var_boolResult,
-      error: var_error,
-    );
-  }
-
-  @protected
-  DistributionResult sse_decode_distribution_result(
-    SseDeserializer deserializer,
-  ) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_success = sse_decode_bool(deserializer);
-    final var_pdf = sse_decode_f_64(deserializer);
-    final var_cdf = sse_decode_f_64(deserializer);
-    final var_mean = sse_decode_f_64(deserializer);
-    final var_variance = sse_decode_f_64(deserializer);
-    final var_stdDev = sse_decode_f_64(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    return DistributionResult(
-      success: var_success,
-      pdf: var_pdf,
-      cdf: var_cdf,
-      mean: var_mean,
-      variance: var_variance,
-      stdDev: var_stdDev,
-      error: var_error,
-    );
-  }
-
-  @protected
-  ExpressionResult sse_decode_expression_result(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_success = sse_decode_bool(deserializer);
-    final var_value = sse_decode_f_64(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    final var_formatted = sse_decode_String(deserializer);
-    return ExpressionResult(
-      success: var_success,
-      value: var_value,
-      error: var_error,
-      formatted: var_formatted,
-    );
-  }
-
-  @protected
-  double sse_decode_f_64(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getFloat64();
-  }
-
-  @protected
-  GraphPoint sse_decode_graph_point(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_x = sse_decode_f_64(deserializer);
-    final var_y = sse_decode_f_64(deserializer);
-    final var_valid = sse_decode_bool(deserializer);
-    return GraphPoint(x: var_x, y: var_y, valid: var_valid);
-  }
-
-  @protected
-  GraphResult sse_decode_graph_result(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_success = sse_decode_bool(deserializer);
-    final var_points = sse_decode_list_graph_point(deserializer);
-    final var_xMin = sse_decode_f_64(deserializer);
-    final var_xMax = sse_decode_f_64(deserializer);
-    final var_yMin = sse_decode_f_64(deserializer);
-    final var_yMax = sse_decode_f_64(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    return GraphResult(
-      success: var_success,
-      points: var_points,
-      xMin: var_xMin,
-      xMax: var_xMax,
-      yMin: var_yMin,
-      yMax: var_yMax,
-      error: var_error,
-    );
-  }
-
-  @protected
-  HypothesisTestResult sse_decode_hypothesis_test_result(
-    SseDeserializer deserializer,
-  ) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_success = sse_decode_bool(deserializer);
-    final var_testStatistic = sse_decode_f_64(deserializer);
-    final var_pValue = sse_decode_f_64(deserializer);
-    final var_criticalValue = sse_decode_f_64(deserializer);
-    final var_rejectNull = sse_decode_bool(deserializer);
-    final var_confidenceInterval = sse_decode_record_f_64_f_64(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    return HypothesisTestResult(
-      success: var_success,
-      testStatistic: var_testStatistic,
-      pValue: var_pValue,
-      criticalValue: var_criticalValue,
-      rejectNull: var_rejectNull,
-      confidenceInterval: var_confidenceInterval,
-      error: var_error,
+    final var_clustering = sse_decode_clustering_result(deserializer);
+    final var_semanticEdges = sse_decode_semantic_edge_result(deserializer);
+    return KnowledgeGraphAnalysis(
+      clustering: var_clustering,
+      semanticEdges: var_semanticEdges,
     );
   }
 
@@ -3753,78 +2621,135 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  List<CalculusResult> sse_decode_list_calculus_result(
+  List<ClusterAssignment> sse_decode_list_cluster_assignment(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     final len_ = sse_decode_i_32(deserializer);
-    final ans_ = <CalculusResult>[];
+    final ans_ = <ClusterAssignment>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
-      ans_.add(sse_decode_calculus_result(deserializer));
+      ans_.add(sse_decode_cluster_assignment(deserializer));
     }
     return ans_;
   }
 
   @protected
-  List<GraphPoint> sse_decode_list_graph_point(SseDeserializer deserializer) {
+  List<ClusterInfo> sse_decode_list_cluster_info(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     final len_ = sse_decode_i_32(deserializer);
-    final ans_ = <GraphPoint>[];
+    final ans_ = <ClusterInfo>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
-      ans_.add(sse_decode_graph_point(deserializer));
+      ans_.add(sse_decode_cluster_info(deserializer));
     }
     return ans_;
   }
 
   @protected
-  List<Float64List> sse_decode_list_list_prim_f_64_strict(
+  List<EmbeddingCluster> sse_decode_list_embedding_cluster(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     final len_ = sse_decode_i_32(deserializer);
-    final ans_ = <Float64List>[];
+    final ans_ = <EmbeddingCluster>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
-      ans_.add(sse_decode_list_prim_f_64_strict(deserializer));
+      ans_.add(sse_decode_embedding_cluster(deserializer));
     }
     return ans_;
   }
 
   @protected
-  List<MatrixResult> sse_decode_list_matrix_result(
+  List<EmbeddingEntry> sse_decode_list_embedding_entry(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     final len_ = sse_decode_i_32(deserializer);
-    final ans_ = <MatrixResult>[];
+    final ans_ = <EmbeddingEntry>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
-      ans_.add(sse_decode_matrix_result(deserializer));
+      ans_.add(sse_decode_embedding_entry(deserializer));
     }
     return ans_;
   }
 
   @protected
-  List<double> sse_decode_list_prim_f_64_loose(SseDeserializer deserializer) {
+  List<GraphEdge> sse_decode_list_graph_edge(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
+
     final len_ = sse_decode_i_32(deserializer);
-    return deserializer.buffer.getFloat64List(len_);
+    final ans_ = <GraphEdge>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_graph_edge(deserializer));
+    }
+    return ans_;
   }
 
   @protected
-  Float64List sse_decode_list_prim_f_64_strict(SseDeserializer deserializer) {
+  List<GraphNode> sse_decode_list_graph_node(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
+
     final len_ = sse_decode_i_32(deserializer);
-    return deserializer.buffer.getFloat64List(len_);
+    final ans_ = <GraphNode>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_graph_node(deserializer));
+    }
+    return ans_;
   }
 
   @protected
-  Uint64List sse_decode_list_prim_u_64_strict(SseDeserializer deserializer) {
+  List<MCPParameter> sse_decode_list_mcp_parameter(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    final len_ = sse_decode_i_32(deserializer);
+    final ans_ = <MCPParameter>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_mcp_parameter(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<MCPTool> sse_decode_list_mcp_tool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    final len_ = sse_decode_i_32(deserializer);
+    final ans_ = <MCPTool>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_mcp_tool(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<NodePosition> sse_decode_list_node_position(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    final len_ = sse_decode_i_32(deserializer);
+    final ans_ = <NodePosition>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_node_position(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<double> sse_decode_list_prim_f_32_loose(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     final len_ = sse_decode_i_32(deserializer);
-    return deserializer.buffer.getUint64List(len_);
+    return deserializer.buffer.getFloat32List(len_);
+  }
+
+  @protected
+  Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getFloat32List(len_);
   }
 
   @protected
@@ -3835,80 +2760,118 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  List<(double, double)> sse_decode_list_record_f_64_f_64(
+  List<(String, String)> sse_decode_list_record_string_string(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     final len_ = sse_decode_i_32(deserializer);
-    final ans_ = <(double, double)>[];
+    final ans_ = <(String, String)>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
-      ans_.add(sse_decode_record_f_64_f_64(deserializer));
+      ans_.add(sse_decode_record_string_string(deserializer));
     }
     return ans_;
   }
 
   @protected
-  List<(String, double)> sse_decode_list_record_string_f_64(
+  List<SemanticEdge> sse_decode_list_semantic_edge(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     final len_ = sse_decode_i_32(deserializer);
-    final ans_ = <(String, double)>[];
+    final ans_ = <SemanticEdge>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
-      ans_.add(sse_decode_record_string_f_64(deserializer));
+      ans_.add(sse_decode_semantic_edge(deserializer));
     }
     return ans_;
   }
 
   @protected
-  List<UnitResult> sse_decode_list_unit_result(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-
-    final len_ = sse_decode_i_32(deserializer);
-    final ans_ = <UnitResult>[];
-    for (var idx_ = 0; idx_ < len_; ++idx_) {
-      ans_.add(sse_decode_unit_result(deserializer));
-    }
-    return ans_;
-  }
-
-  @protected
-  MatrixDecomposition sse_decode_matrix_decomposition(
+  List<SimilarityResult> sse_decode_list_similarity_result(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_success = sse_decode_bool(deserializer);
-    final var_decompositionType = sse_decode_String(deserializer);
-    final var_matrices = sse_decode_list_matrix_result(deserializer);
-    final var_labels = sse_decode_list_String(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    return MatrixDecomposition(
-      success: var_success,
-      decompositionType: var_decompositionType,
-      matrices: var_matrices,
-      labels: var_labels,
-      error: var_error,
+
+    final len_ = sse_decode_i_32(deserializer);
+    final ans_ = <SimilarityResult>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_similarity_result(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  MCPParamType sse_decode_mcp_param_type(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final inner = sse_decode_i_32(deserializer);
+    return MCPParamType.values[inner];
+  }
+
+  @protected
+  MCPParameter sse_decode_mcp_parameter(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_name = sse_decode_String(deserializer);
+    final var_description = sse_decode_String(deserializer);
+    final var_paramType = sse_decode_mcp_param_type(deserializer);
+    final var_required_ = sse_decode_bool(deserializer);
+    return MCPParameter(
+      name: var_name,
+      description: var_description,
+      paramType: var_paramType,
+      required_: var_required_,
     );
   }
 
   @protected
-  MatrixResult sse_decode_matrix_result(SseDeserializer deserializer) {
+  MCPTool sse_decode_mcp_tool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final inner = sse_decode_i_32(deserializer);
+    return MCPTool.values[inner];
+  }
+
+  @protected
+  MCPToolCall sse_decode_mcp_tool_call(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_tool = sse_decode_String(deserializer);
+    final var_parametersJson = sse_decode_String(deserializer);
+    final var_description = sse_decode_String(deserializer);
+    return MCPToolCall(
+      tool: var_tool,
+      parametersJson: var_parametersJson,
+      description: var_description,
+    );
+  }
+
+  @protected
+  MCPToolResult sse_decode_mcp_tool_result(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     final var_success = sse_decode_bool(deserializer);
-    final var_data = sse_decode_list_prim_f_64_strict(deserializer);
-    final var_rows = sse_decode_usize(deserializer);
-    final var_cols = sse_decode_usize(deserializer);
-    final var_scalar = sse_decode_opt_box_autoadd_f_64(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    return MatrixResult(
+    final var_result = sse_decode_String(deserializer);
+    final var_tool = sse_decode_String(deserializer);
+    return MCPToolResult(
       success: var_success,
-      data: var_data,
-      rows: var_rows,
-      cols: var_cols,
-      scalar: var_scalar,
-      error: var_error,
+      result: var_result,
+      tool: var_tool,
+    );
+  }
+
+  @protected
+  NodePosition sse_decode_node_position(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_id = sse_decode_String(deserializer);
+    final var_x = sse_decode_f_32(deserializer);
+    final var_y = sse_decode_f_32(deserializer);
+    final var_radius = sse_decode_f_32(deserializer);
+    final var_color = sse_decode_u_32(deserializer);
+    final var_nodeType = sse_decode_String(deserializer);
+    return NodePosition(
+      id: var_id,
+      x: var_x,
+      y: var_y,
+      radius: var_radius,
+      color: var_color,
+      nodeType: var_nodeType,
     );
   }
 
@@ -3924,22 +2887,33 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer) {
+  double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     if (sse_decode_bool(deserializer)) {
-      return (sse_decode_box_autoadd_bool(deserializer));
+      return (sse_decode_box_autoadd_f_32(deserializer));
     } else {
       return null;
     }
   }
 
   @protected
-  double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer) {
+  int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     if (sse_decode_bool(deserializer)) {
-      return (sse_decode_box_autoadd_f_64(deserializer));
+      return (sse_decode_box_autoadd_i_32(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_u_32(deserializer));
     } else {
       return null;
     }
@@ -3957,100 +2931,114 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Float64List? sse_decode_opt_list_prim_f_64_strict(
-    SseDeserializer deserializer,
-  ) {
+  List<String>? sse_decode_opt_list_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     if (sse_decode_bool(deserializer)) {
-      return (sse_decode_list_prim_f_64_strict(deserializer));
+      return (sse_decode_list_String(deserializer));
     } else {
       return null;
     }
   }
 
   @protected
-  (double, double) sse_decode_record_f_64_f_64(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_field0 = sse_decode_f_64(deserializer);
-    final var_field1 = sse_decode_f_64(deserializer);
-    return (var_field0, var_field1);
-  }
-
-  @protected
-  (List<(double, double)>, List<(double, double)>)
-  sse_decode_record_list_record_f_64_f_64_list_record_f_64_f_64(
+  Float32List? sse_decode_opt_list_prim_f_32_strict(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_field0 = sse_decode_list_record_f_64_f_64(deserializer);
-    final var_field1 = sse_decode_list_record_f_64_f_64(deserializer);
-    return (var_field0, var_field1);
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_list_prim_f_32_strict(deserializer));
+    } else {
+      return null;
+    }
   }
 
   @protected
-  (String, double) sse_decode_record_string_f_64(SseDeserializer deserializer) {
+  List<(String, String)>? sse_decode_opt_list_record_string_string(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_list_record_string_string(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  (String, String) sse_decode_record_string_string(
+    SseDeserializer deserializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     final var_field0 = sse_decode_String(deserializer);
-    final var_field1 = sse_decode_f_64(deserializer);
+    final var_field1 = sse_decode_String(deserializer);
     return (var_field0, var_field1);
   }
 
   @protected
-  RegressionResult sse_decode_regression_result(SseDeserializer deserializer) {
+  SemanticEdge sse_decode_semantic_edge(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_success = sse_decode_bool(deserializer);
-    final var_coefficients = sse_decode_list_prim_f_64_strict(deserializer);
-    final var_rSquared = sse_decode_f_64(deserializer);
-    final var_residuals = sse_decode_list_prim_f_64_strict(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    return RegressionResult(
-      success: var_success,
-      coefficients: var_coefficients,
-      rSquared: var_rSquared,
-      residuals: var_residuals,
-      error: var_error,
+    final var_source = sse_decode_String(deserializer);
+    final var_target = sse_decode_String(deserializer);
+    final var_similarity = sse_decode_f_32(deserializer);
+    final var_isGhost = sse_decode_bool(deserializer);
+    return SemanticEdge(
+      source: var_source,
+      target: var_target,
+      similarity: var_similarity,
+      isGhost: var_isGhost,
     );
   }
 
   @protected
-  SolveResult sse_decode_solve_result(SseDeserializer deserializer) {
+  SemanticEdgeResult sse_decode_semantic_edge_result(
+    SseDeserializer deserializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_success = sse_decode_bool(deserializer);
-    final var_roots = sse_decode_list_prim_f_64_strict(deserializer);
-    final var_iterations = sse_decode_usize(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    return SolveResult(
-      success: var_success,
-      roots: var_roots,
-      iterations: var_iterations,
-      error: var_error,
+    final var_edges = sse_decode_list_semantic_edge(deserializer);
+    final var_count = sse_decode_usize(deserializer);
+    return SemanticEdgeResult(edges: var_edges, count: var_count);
+  }
+
+  @protected
+  SimilarityResult sse_decode_similarity_result(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_id = sse_decode_String(deserializer);
+    final var_score = sse_decode_f_32(deserializer);
+    final var_textPreview = sse_decode_opt_String(deserializer);
+    return SimilarityResult(
+      id: var_id,
+      score: var_score,
+      textPreview: var_textPreview,
     );
   }
 
   @protected
-  StatisticsResult sse_decode_statistics_result(SseDeserializer deserializer) {
+  StreamGraphStats sse_decode_stream_graph_stats(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_success = sse_decode_bool(deserializer);
-    final var_values = sse_decode_list_record_string_f_64(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    return StatisticsResult(
-      success: var_success,
-      values: var_values,
-      error: var_error,
+    final var_nodeCount = sse_decode_usize(deserializer);
+    final var_edgeCount = sse_decode_usize(deserializer);
+    final var_visibleCount = sse_decode_usize(deserializer);
+    return StreamGraphStats(
+      nodeCount: var_nodeCount,
+      edgeCount: var_edgeCount,
+      visibleCount: var_visibleCount,
     );
+  }
+
+  @protected
+  TaskCategory sse_decode_task_category(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final inner = sse_decode_i_32(deserializer);
+    return TaskCategory.values[inner];
   }
 
   @protected
   int sse_decode_u_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getUint32();
-  }
-
-  @protected
-  BigInt sse_decode_u_64(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getBigUint64();
   }
 
   @protected
@@ -4065,34 +3053,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  UnitResult sse_decode_unit_result(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    final var_success = sse_decode_bool(deserializer);
-    final var_value = sse_decode_f_64(deserializer);
-    final var_fromUnit = sse_decode_String(deserializer);
-    final var_toUnit = sse_decode_String(deserializer);
-    final var_formula = sse_decode_String(deserializer);
-    final var_error = sse_decode_opt_String(deserializer);
-    return UnitResult(
-      success: var_success,
-      value: var_value,
-      fromUnit: var_fromUnit,
-      toUnit: var_toUnit,
-      formula: var_formula,
-      error: var_error,
-    );
-  }
-
-  @protected
   BigInt sse_decode_usize(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getBigUint64();
-  }
-
-  @protected
-  int sse_decode_i_32(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getInt32();
   }
 
   @protected
@@ -4102,9 +3065,33 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  double cst_encode_f_64(double raw) {
+  double cst_encode_f_32(double raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw;
+  }
+
+  @protected
+  int cst_encode_i_32(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw;
+  }
+
+  @protected
+  int cst_encode_mcp_param_type(MCPParamType raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_mcp_tool(MCPTool raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_task_category(TaskCategory raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
   }
 
   @protected
@@ -4126,6 +3113,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_AnyhowException(
+    AnyhowException self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.message, serializer);
+  }
+
+  @protected
   void sse_encode_String(String self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_list_prim_u_8_strict(utf8.encoder.convert(self), serializer);
@@ -4138,15 +3134,30 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer) {
+  void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self, serializer);
+    sse_encode_f_32(self, serializer);
   }
 
   @protected
-  void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer) {
+  void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_f_64(self, serializer);
+    sse_encode_i_32(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_mcp_tool_call(
+    MCPToolCall self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_mcp_tool_call(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_32(self, serializer);
   }
 
   @protected
@@ -4156,138 +3167,104 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_calculus_result(
-    CalculusResult self,
+  void sse_encode_cluster_assignment(
+    ClusterAssignment self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self.success, serializer);
-    sse_encode_f_64(self.value, serializer);
-    sse_encode_opt_String(self.symbolic, serializer);
-    sse_encode_opt_String(self.error, serializer);
+    sse_encode_String(self.id, serializer);
+    sse_encode_usize(self.clusterId, serializer);
+    sse_encode_String(self.color, serializer);
   }
 
   @protected
-  void sse_encode_complex_result(ComplexResult self, SseSerializer serializer) {
+  void sse_encode_cluster_info(ClusterInfo self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self.success, serializer);
-    sse_encode_f_64(self.real, serializer);
-    sse_encode_f_64(self.imag, serializer);
-    sse_encode_f_64(self.magnitude, serializer);
-    sse_encode_f_64(self.angleRad, serializer);
-    sse_encode_f_64(self.angleDeg, serializer);
-    sse_encode_String(self.formattedRect, serializer);
-    sse_encode_String(self.formattedPolar, serializer);
-    sse_encode_opt_String(self.error, serializer);
+    sse_encode_usize(self.id, serializer);
+    sse_encode_usize(self.size, serializer);
+    sse_encode_String(self.color, serializer);
+    sse_encode_opt_list_prim_f_32_strict(self.centroid, serializer);
   }
 
   @protected
-  void sse_encode_confidence_interval_result(
-    ConfidenceIntervalResult self,
+  void sse_encode_clustering_result(
+    ClusteringResult self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self.success, serializer);
-    sse_encode_f_64(self.lower, serializer);
-    sse_encode_f_64(self.upper, serializer);
-    sse_encode_f_64(self.center, serializer);
-    sse_encode_f_64(self.marginOfError, serializer);
-    sse_encode_opt_String(self.error, serializer);
+    sse_encode_list_cluster_assignment(self.assignments, serializer);
+    sse_encode_list_cluster_info(self.clusters, serializer);
+    sse_encode_usize(self.k, serializer);
   }
 
   @protected
-  void sse_encode_correlation_result(
-    CorrelationResult self,
+  void sse_encode_embedding_cluster(
+    EmbeddingCluster self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self.success, serializer);
-    sse_encode_f_64(self.correlation, serializer);
-    sse_encode_f_64(self.covariance, serializer);
-    sse_encode_f_64(self.pValue, serializer);
-    sse_encode_opt_String(self.error, serializer);
+    sse_encode_list_String(self.ids, serializer);
   }
 
   @protected
-  void sse_encode_discrete_result(
-    DiscreteResult self,
+  void sse_encode_embedding_entry(
+    EmbeddingEntry self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self.success, serializer);
-    sse_encode_u_64(self.value, serializer);
-    sse_encode_opt_String(self.bigValue, serializer);
-    sse_encode_list_prim_u_64_strict(self.values, serializer);
-    sse_encode_opt_box_autoadd_bool(self.boolResult, serializer);
-    sse_encode_opt_String(self.error, serializer);
+    sse_encode_String(self.id, serializer);
+    sse_encode_list_prim_f_32_strict(self.vector, serializer);
+    sse_encode_opt_String(self.textPreview, serializer);
   }
 
   @protected
-  void sse_encode_distribution_result(
-    DistributionResult self,
+  void sse_encode_f_32(double self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putFloat32(self);
+  }
+
+  @protected
+  void sse_encode_graph_edge(GraphEdge self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.source, serializer);
+    sse_encode_String(self.target, serializer);
+    sse_encode_f_32(self.weight, serializer);
+    sse_encode_String(self.edgeType, serializer);
+  }
+
+  @protected
+  void sse_encode_graph_node(GraphNode self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.id, serializer);
+    sse_encode_String(self.label, serializer);
+    sse_encode_String(self.nodeType, serializer);
+    sse_encode_f_32(self.x, serializer);
+    sse_encode_f_32(self.y, serializer);
+    sse_encode_opt_String(self.color, serializer);
+    sse_encode_opt_String(self.metadata, serializer);
+  }
+
+  @protected
+  void sse_encode_graph_state(GraphState self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_graph_node(self.nodes, serializer);
+    sse_encode_list_graph_edge(self.edges, serializer);
+  }
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putInt32(self);
+  }
+
+  @protected
+  void sse_encode_knowledge_graph_analysis(
+    KnowledgeGraphAnalysis self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self.success, serializer);
-    sse_encode_f_64(self.pdf, serializer);
-    sse_encode_f_64(self.cdf, serializer);
-    sse_encode_f_64(self.mean, serializer);
-    sse_encode_f_64(self.variance, serializer);
-    sse_encode_f_64(self.stdDev, serializer);
-    sse_encode_opt_String(self.error, serializer);
-  }
-
-  @protected
-  void sse_encode_expression_result(
-    ExpressionResult self,
-    SseSerializer serializer,
-  ) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self.success, serializer);
-    sse_encode_f_64(self.value, serializer);
-    sse_encode_opt_String(self.error, serializer);
-    sse_encode_String(self.formatted, serializer);
-  }
-
-  @protected
-  void sse_encode_f_64(double self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putFloat64(self);
-  }
-
-  @protected
-  void sse_encode_graph_point(GraphPoint self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_f_64(self.x, serializer);
-    sse_encode_f_64(self.y, serializer);
-    sse_encode_bool(self.valid, serializer);
-  }
-
-  @protected
-  void sse_encode_graph_result(GraphResult self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self.success, serializer);
-    sse_encode_list_graph_point(self.points, serializer);
-    sse_encode_f_64(self.xMin, serializer);
-    sse_encode_f_64(self.xMax, serializer);
-    sse_encode_f_64(self.yMin, serializer);
-    sse_encode_f_64(self.yMax, serializer);
-    sse_encode_opt_String(self.error, serializer);
-  }
-
-  @protected
-  void sse_encode_hypothesis_test_result(
-    HypothesisTestResult self,
-    SseSerializer serializer,
-  ) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self.success, serializer);
-    sse_encode_f_64(self.testStatistic, serializer);
-    sse_encode_f_64(self.pValue, serializer);
-    sse_encode_f_64(self.criticalValue, serializer);
-    sse_encode_bool(self.rejectNull, serializer);
-    sse_encode_record_f_64_f_64(self.confidenceInterval, serializer);
-    sse_encode_opt_String(self.error, serializer);
+    sse_encode_clustering_result(self.clustering, serializer);
+    sse_encode_semantic_edge_result(self.semanticEdges, serializer);
   }
 
   @protected
@@ -4300,83 +3277,130 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_list_calculus_result(
-    List<CalculusResult> self,
+  void sse_encode_list_cluster_assignment(
+    List<ClusterAssignment> self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
-      sse_encode_calculus_result(item, serializer);
+      sse_encode_cluster_assignment(item, serializer);
     }
   }
 
   @protected
-  void sse_encode_list_graph_point(
-    List<GraphPoint> self,
+  void sse_encode_list_cluster_info(
+    List<ClusterInfo> self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
-      sse_encode_graph_point(item, serializer);
+      sse_encode_cluster_info(item, serializer);
     }
   }
 
   @protected
-  void sse_encode_list_list_prim_f_64_strict(
-    List<Float64List> self,
+  void sse_encode_list_embedding_cluster(
+    List<EmbeddingCluster> self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
-      sse_encode_list_prim_f_64_strict(item, serializer);
+      sse_encode_embedding_cluster(item, serializer);
     }
   }
 
   @protected
-  void sse_encode_list_matrix_result(
-    List<MatrixResult> self,
+  void sse_encode_list_embedding_entry(
+    List<EmbeddingEntry> self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
-      sse_encode_matrix_result(item, serializer);
+      sse_encode_embedding_entry(item, serializer);
     }
   }
 
   @protected
-  void sse_encode_list_prim_f_64_loose(
+  void sse_encode_list_graph_edge(
+    List<GraphEdge> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_graph_edge(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_graph_node(
+    List<GraphNode> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_graph_node(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_mcp_parameter(
+    List<MCPParameter> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_mcp_parameter(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_mcp_tool(List<MCPTool> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_mcp_tool(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_node_position(
+    List<NodePosition> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_node_position(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_prim_f_32_loose(
     List<double> self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
-    serializer.buffer.putFloat64List(
-      self is Float64List ? self : Float64List.fromList(self),
+    serializer.buffer.putFloat32List(
+      self is Float32List ? self : Float32List.fromList(self),
     );
   }
 
   @protected
-  void sse_encode_list_prim_f_64_strict(
-    Float64List self,
+  void sse_encode_list_prim_f_32_strict(
+    Float32List self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
-    serializer.buffer.putFloat64List(self);
-  }
-
-  @protected
-  void sse_encode_list_prim_u_64_strict(
-    Uint64List self,
-    SseSerializer serializer,
-  ) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_i_32(self.length, serializer);
-    serializer.buffer.putUint64List(self);
+    serializer.buffer.putFloat32List(self);
   }
 
   @protected
@@ -4390,63 +3414,90 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_list_record_f_64_f_64(
-    List<(double, double)> self,
+  void sse_encode_list_record_string_string(
+    List<(String, String)> self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
-      sse_encode_record_f_64_f_64(item, serializer);
+      sse_encode_record_string_string(item, serializer);
     }
   }
 
   @protected
-  void sse_encode_list_record_string_f_64(
-    List<(String, double)> self,
+  void sse_encode_list_semantic_edge(
+    List<SemanticEdge> self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
-      sse_encode_record_string_f_64(item, serializer);
+      sse_encode_semantic_edge(item, serializer);
     }
   }
 
   @protected
-  void sse_encode_list_unit_result(
-    List<UnitResult> self,
+  void sse_encode_list_similarity_result(
+    List<SimilarityResult> self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
-      sse_encode_unit_result(item, serializer);
+      sse_encode_similarity_result(item, serializer);
     }
   }
 
   @protected
-  void sse_encode_matrix_decomposition(
-    MatrixDecomposition self,
+  void sse_encode_mcp_param_type(MCPParamType self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_mcp_parameter(MCPParameter self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_String(self.description, serializer);
+    sse_encode_mcp_param_type(self.paramType, serializer);
+    sse_encode_bool(self.required_, serializer);
+  }
+
+  @protected
+  void sse_encode_mcp_tool(MCPTool self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_mcp_tool_call(MCPToolCall self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.tool, serializer);
+    sse_encode_String(self.parametersJson, serializer);
+    sse_encode_String(self.description, serializer);
+  }
+
+  @protected
+  void sse_encode_mcp_tool_result(
+    MCPToolResult self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_bool(self.success, serializer);
-    sse_encode_String(self.decompositionType, serializer);
-    sse_encode_list_matrix_result(self.matrices, serializer);
-    sse_encode_list_String(self.labels, serializer);
-    sse_encode_opt_String(self.error, serializer);
+    sse_encode_String(self.result, serializer);
+    sse_encode_String(self.tool, serializer);
   }
 
   @protected
-  void sse_encode_matrix_result(MatrixResult self, SseSerializer serializer) {
+  void sse_encode_node_position(NodePosition self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self.success, serializer);
-    sse_encode_list_prim_f_64_strict(self.data, serializer);
-    sse_encode_usize(self.rows, serializer);
-    sse_encode_usize(self.cols, serializer);
-    sse_encode_opt_box_autoadd_f_64(self.scalar, serializer);
-    sse_encode_opt_String(self.error, serializer);
+    sse_encode_String(self.id, serializer);
+    sse_encode_f_32(self.x, serializer);
+    sse_encode_f_32(self.y, serializer);
+    sse_encode_f_32(self.radius, serializer);
+    sse_encode_u_32(self.color, serializer);
+    sse_encode_String(self.nodeType, serializer);
   }
 
   @protected
@@ -4460,22 +3511,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer) {
+  void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     sse_encode_bool(self != null, serializer);
     if (self != null) {
-      sse_encode_box_autoadd_bool(self, serializer);
+      sse_encode_box_autoadd_f_32(self, serializer);
     }
   }
 
   @protected
-  void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer) {
+  void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     sse_encode_bool(self != null, serializer);
     if (self != null) {
-      sse_encode_box_autoadd_f_64(self, serializer);
+      sse_encode_box_autoadd_i_32(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_u_32(self, serializer);
     }
   }
 
@@ -4493,91 +3554,105 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_opt_list_prim_f_64_strict(
-    Float64List? self,
+  void sse_encode_opt_list_String(
+    List<String>? self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     sse_encode_bool(self != null, serializer);
     if (self != null) {
-      sse_encode_list_prim_f_64_strict(self, serializer);
+      sse_encode_list_String(self, serializer);
     }
   }
 
   @protected
-  void sse_encode_record_f_64_f_64(
-    (double, double) self,
+  void sse_encode_opt_list_prim_f_32_strict(
+    Float32List? self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_f_64(self.$1, serializer);
-    sse_encode_f_64(self.$2, serializer);
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_list_prim_f_32_strict(self, serializer);
+    }
   }
 
   @protected
-  void sse_encode_record_list_record_f_64_f_64_list_record_f_64_f_64(
-    (List<(double, double)>, List<(double, double)>) self,
+  void sse_encode_opt_list_record_string_string(
+    List<(String, String)>? self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_list_record_f_64_f_64(self.$1, serializer);
-    sse_encode_list_record_f_64_f_64(self.$2, serializer);
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_list_record_string_string(self, serializer);
+    }
   }
 
   @protected
-  void sse_encode_record_string_f_64(
-    (String, double) self,
+  void sse_encode_record_string_string(
+    (String, String) self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.$1, serializer);
-    sse_encode_f_64(self.$2, serializer);
+    sse_encode_String(self.$2, serializer);
   }
 
   @protected
-  void sse_encode_regression_result(
-    RegressionResult self,
+  void sse_encode_semantic_edge(SemanticEdge self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.source, serializer);
+    sse_encode_String(self.target, serializer);
+    sse_encode_f_32(self.similarity, serializer);
+    sse_encode_bool(self.isGhost, serializer);
+  }
+
+  @protected
+  void sse_encode_semantic_edge_result(
+    SemanticEdgeResult self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self.success, serializer);
-    sse_encode_list_prim_f_64_strict(self.coefficients, serializer);
-    sse_encode_f_64(self.rSquared, serializer);
-    sse_encode_list_prim_f_64_strict(self.residuals, serializer);
-    sse_encode_opt_String(self.error, serializer);
+    sse_encode_list_semantic_edge(self.edges, serializer);
+    sse_encode_usize(self.count, serializer);
   }
 
   @protected
-  void sse_encode_solve_result(SolveResult self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self.success, serializer);
-    sse_encode_list_prim_f_64_strict(self.roots, serializer);
-    sse_encode_usize(self.iterations, serializer);
-    sse_encode_opt_String(self.error, serializer);
-  }
-
-  @protected
-  void sse_encode_statistics_result(
-    StatisticsResult self,
+  void sse_encode_similarity_result(
+    SimilarityResult self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self.success, serializer);
-    sse_encode_list_record_string_f_64(self.values, serializer);
-    sse_encode_opt_String(self.error, serializer);
+    sse_encode_String(self.id, serializer);
+    sse_encode_f_32(self.score, serializer);
+    sse_encode_opt_String(self.textPreview, serializer);
+  }
+
+  @protected
+  void sse_encode_stream_graph_stats(
+    StreamGraphStats self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(self.nodeCount, serializer);
+    sse_encode_usize(self.edgeCount, serializer);
+    sse_encode_usize(self.visibleCount, serializer);
+  }
+
+  @protected
+  void sse_encode_task_category(TaskCategory self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
   }
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putUint32(self);
-  }
-
-  @protected
-  void sse_encode_u_64(BigInt self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putBigUint64(self);
   }
 
   @protected
@@ -4592,25 +3667,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_unit_result(UnitResult self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_bool(self.success, serializer);
-    sse_encode_f_64(self.value, serializer);
-    sse_encode_String(self.fromUnit, serializer);
-    sse_encode_String(self.toUnit, serializer);
-    sse_encode_String(self.formula, serializer);
-    sse_encode_opt_String(self.error, serializer);
-  }
-
-  @protected
   void sse_encode_usize(BigInt self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putBigUint64(self);
-  }
-
-  @protected
-  void sse_encode_i_32(int self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putInt32(self);
   }
 }
