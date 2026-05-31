@@ -1322,6 +1322,10 @@ class _HypothesisCalculatorState extends State<_HypothesisCalculator> {
     't_one_sample': 'T-Test (One Sample)',
     't_two_sample': 'T-Test (Two Sample)',
     't_paired': 'T-Test (Paired)',
+    'f_test': 'F-Test (Variances)',
+    'mann_whitney': 'Mann-Whitney U Test',
+    'binomial': 'Binomial Test',
+    'durbin_watson': 'Durbin-Watson Test',
     'chi_square_gof': 'Chi-Square (Goodness of Fit)',
     'chi_square_ind': 'Chi-Square (Independence)',
     'anova_one_way': 'ANOVA (One-Way)',
@@ -1353,6 +1357,8 @@ class _HypothesisCalculatorState extends State<_HypothesisCalculator> {
       'confidence_level',
       'successes',
       'trials',
+      'expected_p',
+      'residuals_data',
     ];
     for (final p in params) {
       _controllers[p] = TextEditingController();
@@ -1365,6 +1371,7 @@ class _HypothesisCalculatorState extends State<_HypothesisCalculator> {
     _controllers['sample_size']!.text = '30';
     _controllers['successes']!.text = '45';
     _controllers['trials']!.text = '100';
+    _controllers['expected_p']!.text = '0.5';
   }
 
   @override
@@ -1439,11 +1446,25 @@ class _HypothesisCalculatorState extends State<_HypothesisCalculator> {
         ]);
 
       case 't_paired':
+      case 'f_test':
+      case 'mann_whitney':
         widgets.add(
           _buildMultiField('sample1_data', 'Sample 1 Data (comma-separated)'),
         );
         widgets.add(
           _buildMultiField('sample2_data', 'Sample 2 Data (comma-separated)'),
+        );
+
+      case 'binomial':
+        widgets.addAll([
+          _buildField('successes', 'Number of Successes (x)'),
+          _buildField('trials', 'Number of Trials (n)'),
+          _buildField('expected_p', 'Expected Proportion (p₀)'),
+        ]);
+
+      case 'durbin_watson':
+        widgets.add(
+          _buildMultiField('residuals_data', 'Residuals Data (comma-separated)'),
         );
 
       case 'chi_square_gof':
@@ -1516,7 +1537,7 @@ class _HypothesisCalculatorState extends State<_HypothesisCalculator> {
     );
   }
 
-  void _compute() {
+  Future<void> _compute() async {
     setState(() {
       _isComputing = true;
       _result = '';
@@ -1549,6 +1570,14 @@ class _HypothesisCalculatorState extends State<_HypothesisCalculator> {
           resultText = _chiSquareIndependence(alpha);
         case 'anova_one_way':
           resultText = _anovaOneWay(alpha);
+        case 'f_test':
+          resultText = await _fTest(alpha);
+        case 'mann_whitney':
+          resultText = await _mannWhitneyU(alpha);
+        case 'binomial':
+          resultText = await _binomialTest(alpha);
+        case 'durbin_watson':
+          resultText = await _durbinWatsonTest();
         default:
           throw Exception('Unknown test type');
       }
@@ -1983,6 +2012,101 @@ P-Value: ${_formatNumber(pValue)}
 Critical Value: ${_formatNumber(criticalValue)}
 
 Decision: ${reject ? 'REJECT H₀' : 'FAIL TO REJECT H₀'}
+''';
+  }
+
+  Future<String> _fTest(double alpha) async {
+    final d1 = _parseData(_controllers['sample1_data']!.text);
+    final d2 = _parseData(_controllers['sample2_data']!.text);
+    if (d1.length < 2 || d2.length < 2) throw Exception('Need at least 2 samples per group');
+
+    final result = await MathService.instance.fTest(d1, d2, alpha);
+    return '''
+F-TEST FOR VARIANCES
+════════════════════
+
+Hypotheses:
+  H₀: Ratio of variances is 1
+  H₁: Ratio of variances is not 1
+
+Test Statistic:
+  F = ${_formatNumber(result.statistic)}
+
+P-Value: ${_formatNumber(result.pValue)}
+Critical Values: ${_formatNumber(result.criticalValue)}
+Significance Level: α = $alpha
+
+Decision: ${result.rejectNull ? 'REJECT H₀' : 'FAIL TO REJECT H₀'}
+''';
+  }
+
+  Future<String> _mannWhitneyU(double alpha) async {
+    final d1 = _parseData(_controllers['sample1_data']!.text);
+    final d2 = _parseData(_controllers['sample2_data']!.text);
+    if (d1.isEmpty || d2.isEmpty) throw Exception('Samples cannot be empty');
+
+    final result = await MathService.instance.mannWhitneyU(d1, d2, alpha);
+    return '''
+MANN-WHITNEY U TEST
+═══════════════════
+
+Hypotheses:
+  H₀: Distributions are the same
+  H₁: Distributions are different
+
+Test Statistic:
+  U = ${_formatNumber(result.statistic)}
+
+P-Value: ${_formatNumber(result.pValue)}
+Significance Level: α = $alpha
+
+Decision: ${result.rejectNull ? 'REJECT H₀' : 'FAIL TO REJECT H₀'}
+''';
+  }
+
+  Future<String> _binomialTest(double alpha) async {
+    final successes = int.parse(_controllers['successes']!.text);
+    final trials = int.parse(_controllers['trials']!.text);
+    final expectedP = double.parse(_controllers['expected_p']!.text);
+
+    if (expectedP <= 0 || expectedP >= 1) throw Exception('Probability must be between 0 and 1');
+
+    final result = await MathService.instance.binomialTest(successes, trials, expectedP, alpha);
+    return '''
+BINOMIAL TEST
+═════════════
+
+Hypotheses:
+  H₀: Probability of success = $expectedP
+  H₁: Probability of success ≠ $expectedP
+
+Input:
+  Successes (x) = $successes
+  Trials (n) = $trials
+
+P-Value: ${_formatNumber(result.pValue)}
+Significance Level: α = $alpha
+
+Decision: ${result.rejectNull ? 'REJECT H₀' : 'FAIL TO REJECT H₀'}
+''';
+  }
+
+  Future<String> _durbinWatsonTest() async {
+    final res = _parseData(_controllers['residuals_data']!.text);
+    if (res.length < 2) throw Exception('Need at least 2 residuals');
+
+    final result = await MathService.instance.durbinWatsonTest(res);
+    return '''
+DURBIN-WATSON TEST (Autocorrelation)
+════════════════════════════════════
+
+Test Statistic (d):
+  d = ${_formatNumber(result.statistic)}
+
+Interpretation:
+  Values of d near 2 indicate NO autocorrelation.
+  Values towards 0 indicate positive autocorrelation.
+  Values towards 4 indicate negative autocorrelation.
 ''';
   }
 
