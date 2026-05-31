@@ -12,22 +12,35 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.9.0+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
-[![Version](https://img.shields.io/badge/Version-0.8.10%2B8010--beta-orange)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-0.8.25%2B80250--beta-orange)](CHANGELOG.md)
 
-[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.8.10%2B8010/Kivixa-Setup-0.8.10.exe)
+**Install on Windows with winget (recommended):**
 
-[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.10%2B8010/Kivixa-Android-0.8.10-arm64.apk)
-[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.10%2B8010/Kivixa-Android-0.8.10-armv7.apk)
-[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.10%2B8010/Kivixa-Android-0.8.10-x86_64.apk)
+<p align="center">
+  <code>winget install Kivixa</code>
+</p>
 
-**F-Droid Repository:**
+[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.8.25%2B80250/Kivixa-Setup-0.8.25.exe)
+
+[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.25%2B80250/Kivixa-Android-0.8.25-arm64.apk)
+[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.25%2B80250/Kivixa-Android-0.8.25-armv7.apk)
+[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.8.25%2B80250/Kivixa-Android-0.8.25-x86_64.apk)
+
+**F-Droid Repository (step-by-step):**
+
+1. Install F-Droid from https://f-droid.org/.
+2. Open the F-Droid app.
+3. Go to **Settings**.
+4. Tap **Repositories**.
+5. Tap the **+** icon at the bottom.
+6. Choose one method:
+  - **Scan QR code** and scan the QR code below.
+  - **Enter repository URL manually** and enter: `https://990aa.github.io/kivixa/repo/`
 
 [![F-Droid Repo](https://img.shields.io/badge/F--Droid-Add%20Repo-F5BB00?logo=fdroid)](https://990aa.github.io/kivixa/repo/)
 <details>
-<summary>Scan QR Code to add F-Droid repo</summary>
+<summary>F-Droid repository QR code</summary>
 <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://990aa.github.io/kivixa/repo" alt="F-Droid Repo QR Code" width="200">
-
-*Scan with F-Droid app to auto-add the repository*
 </details>
 
 </div>
@@ -645,11 +658,11 @@ The installer includes a custom uninstaller that allows users to optionally wipe
 
 | Platform | Status | Notes |
 |----------|--------|-------|
-|  **Windows** | Stable | Fully tested and optimized |
-|  **macOS** | - | Requires macOS |
-|  **Linux** | - | Requires Linux |
-|  **Android** | Stable | Android 7.0 (API 24)+ |
-|  **iOS** | - | Requires iOS |
+|  **Windows** | Stable | Builds and releases are fully stable, tested and downloadable |
+|  **Android** | Stable | Builds and releases are fully stable, tested and downloadable |
+|  **Linux** | Distributed | Builds work and are distributed, can be installed directly |
+|  **macOS** | Distributed | Builds work and are distributed, but cannot be installed directly due to strict Apple Store rules |
+|  **iOS** | Distributed | Builds work and are distributed, but cannot be installed directly due to strict Apple Store rules |
 
 ---
 
@@ -679,11 +692,11 @@ Open to contributions from the community! Whether you're fixing bugs, adding fea
    ```
 3. **Make your changes** and commit
    ```bash
-   git commit -m 'Add amazing feature'
+   git commit -m 'Add new feature'
    ```
 4. **Push to your branch**
    ```bash
-   git push origin feature/amazing-feature
+   git push origin feature/new-feature
    ```
 5. **Open a Pull Request**
 
