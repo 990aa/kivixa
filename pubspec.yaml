@@ -40,10 +40,10 @@ dependencies:
   flutter_svg: ^2.0.0+1
   defer_pointer: ^0.0.2
   permission_handler: ^12.0.0+1
-  record: ^6.1.2
+  record: ^7.0.0
   speech_to_text: ^7.0.0
   flutter_tts: ^4.2.2
-  saver_gallery: ^4.0.0
+  saver_gallery: ^5.1.0
   animations: ^2.2.0
   flutter_quill: ^11.1.0
   window_manager: ^0.5.1
