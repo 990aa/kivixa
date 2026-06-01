@@ -1364,8 +1364,8 @@ class _ModularArithmeticCalculatorState
   }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: RichText(
+      padding = const EdgeInsets.symmetric(vertical: 2),
+      child = RichText(
         text: TextSpan(
           style: DefaultTextStyle.of(context).style,
           children: [
@@ -1400,7 +1400,7 @@ class _SequenceCalculatorState extends State<_SequenceCalculator> {
   var _result = '';
   var _isComputing = false;
 
-  final Map<String, Map<String, String>> _categories = {
+  final _categories = <String, Map<String, String>>{
     'Classical': {
       'arithmetic': 'Arithmetic',
       'geometric': 'Geometric',
@@ -1496,7 +1496,7 @@ class _SequenceCalculatorState extends State<_SequenceCalculator> {
               labelText: 'Category',
               border: OutlineInputBorder(),
             ),
-            value: _category,
+            initialValue: _category,
             items: _categories.keys.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
             onChanged: (v) {
               if (v != null) {
@@ -1514,7 +1514,7 @@ class _SequenceCalculatorState extends State<_SequenceCalculator> {
               labelText: 'Sequence Type',
               border: OutlineInputBorder(),
             ),
-            value: _seqType,
+            initialValue: _seqType,
             items: _categories[_category]!.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
             onChanged: (v) => setState(() => _seqType = v!),
           ),
