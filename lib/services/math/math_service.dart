@@ -937,6 +937,201 @@ class MathService {
     List<String> variables,
     List<double> values,
   ) {
+    double xMax,
+    double yMin,
+    double yMax,
+    double zMin,
+    double zMax, {
+    int numIntervals = 20,
+  }) async {
+    _ensureInitialized();
+    return await math_api.tripleIntegral(
+      expression: expression,
+      xVar: xVar,
+      yVar: yVar,
+      zVar: zVar,
+      xMin: xMin,
+      xMax: xMax,
+      yMin: yMin,
+      yMax: yMax,
+      zMin: zMin,
+      zMax: zMax,
+      numIntervals: numIntervals,
+    );
+  }
+
+  /// Compute line integral along a parameterized path
+  Future<CalculusResult> lineIntegral(
+    String expression,
+    String xParam,
+    String yParam,
+    String tVar,
+    double tMin,
+    double tMax, {
+    int numIntervals = 100,
+  }) async {
+    _ensureInitialized();
+    return await math_api.lineIntegral(
+      expression: expression,
+      xParam: xParam,
+      yParam: yParam,
+      tVar: tVar,
+      tMin: tMin,
+      tMax: tMax,
+      numIntervals: numIntervals,
+    );
+  }
+
+  // Graphing
+
+  /// Evaluate graph points
+  Future<GraphResult> evaluateGraphPoints(
+    String expression,
+    String variable,
+    List<double> xValues,
+  ) async {
+    _ensureInitialized();
+    return await math_api.evaluateGraphPoints(
+      expression: expression,
+      variable: variable,
+      xValues: xValues,
+    );
+  }
+
+  /// Generate x range
+  Float64List generateXRange(double start, double end, int numPoints) {
+    _ensureInitialized();
+    return math_api.generateXRange(
+      start: start,
+      end: end,
+      numPoints: BigInt.from(numPoints),
+    );
+  }
+
+  /// Find graph roots
+  Future<Float64List> findGraphRoots(
+    String expression,
+    String variable,
+    double xMin,
+    double xMax,
+    int numSamples,
+  ) async {
+    _ensureInitialized();
+    return math_api.findGraphRoots(
+      expression: expression,
+      variable: variable,
+      xMin: xMin,
+      xMax: xMax,
+      numSamples: BigInt.from(numSamples),
+    );
+  }
+
+  /// Find local extrema (maxima/minima) in a range
+  Future<(List<(double, double)>, List<(double, double)>)> findExtrema(
+    String expression,
+    String variable,
+    double xMin,
+    double xMax,
+    int numSamples,
+  ) async {
+    _ensureInitialized();
+    return math_api.findExtrema(
+      expression: expression,
+      variable: variable,
+      xMin: xMin,
+      xMax: xMax,
+      numSamples: BigInt.from(numSamples),
+    );
+  }
+
+  /// Compute derivative graph
+  Future<GraphResult> derivativeGraph(
+    String expression,
+    String variable,
+    List<double> xValues,
+  ) async {
+    _ensureInitialized();
+    return await math_api.derivativeGraph(
+      expression: expression,
+      variable: variable,
+      xValues: xValues,
+    );
+  }
+
+  /// Compute integral graph (cumulative)
+  Future<GraphResult> integralGraph(
+    String expression,
+    String variable,
+    List<double> xValues,
+    double initialValue,
+  ) async {
+    _ensureInitialized();
+    return await math_api.integralGraph(
+      expression: expression,
+      variable: variable,
+      xValues: xValues,
+      initialValue: initialValue,
+    );
+  }
+
+  // Complex Numbers
+
+  /// Complex number operation
+  ComplexResult complexOperation({
+    required double aReal,
+    required double aImag,
+    required double bReal,
+    required double bImag,
+    required String operation,
+  }) {
+    _ensureInitialized();
+    return math_api.complexOperation(
+      aReal: aReal,
+      aImag: aImag,
+      bReal: bReal,
+      bImag: bImag,
+      operation: operation,
+    );
+  }
+
+  // Unit Conversion
+
+  /// Convert units
+  UnitResult convertUnit(double value, String fromUnit, String toUnit) {
+    _ensureInitialized();
+    return math_api.convertUnit(
+      value: value,
+      fromUnit: fromUnit,
+      toUnit: toUnit,
+    );
+  }
+
+  /// Get unit categories
+  List<String> getUnitCategories() {
+    _ensureInitialized();
+    return math_api.getUnitCategories();
+  }
+
+  /// Get units for category
+  List<String> getUnitsForCategory(String category) {
+    _ensureInitialized();
+    return math_api.getUnitsForCategory(category: category);
+  }
+
+  // Formulas
+
+  /// Parse formula to extract variables
+  List<String> parseFormula(String formula) {
+    _ensureInitialized();
+    return math_api.parseFormula(formula: formula);
+  }
+
+  /// Evaluate formula with variables
+  ExpressionResult evaluateFormula(
+    String formula,
+    List<String> variables,
+    List<double> values,
+  ) {
     _ensureInitialized();
     return math_api.evaluateFormula(
       formula: formula,
@@ -944,4 +1139,46 @@ class MathService {
       values: values,
     );
   }
+
+  /// Advanced regression
+  Future<RegressionResult> advancedRegression(
+    List<double> x,
+    List<double> y,
+    String regType,
+  ) async {
+    _ensureInitialized();
+    return await math_api.advancedRegression(xData: x, yData: y, regType: regType);
+  }
+
+  // ADVANCED COMBINATORICS
+  DiscreteResult multinomialCoefficient(int n, List<int> k) {
+    _ensureInitialized();
+    return math_api.multinomialCoefficient(n: BigInt.from(n), k: k.map((e) => BigInt.from(e)).toList());
+  }
+
+  DiscreteResult pigeonholePrinciple(int items, int containers) {
+    _ensureInitialized();
+    return math_api.pigeonholePrinciple(items: BigInt.from(items), containers: BigInt.from(containers));
+  }
+
+  DiscreteResult integerPartitions(int n) {
+    _ensureInitialized();
+    return math_api.integerPartitions(n: BigInt.from(n));
+  }
+
+  DiscreteResult bellNumber(int n) {
+    _ensureInitialized();
+    return math_api.bellNumber(n: BigInt.from(n));
+  }
+
+  DiscreteResult stirlingSecond(int n, int k) {
+    _ensureInitialized();
+    return math_api.stirlingSecond(n: BigInt.from(n), k: BigInt.from(k));
+  }
+
+  DiscreteResult derangements(int n) {
+    _ensureInitialized();
+    return math_api.derangements(n: BigInt.from(n));
+  }
 }
+

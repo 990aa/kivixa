@@ -213,7 +213,7 @@ class _DerivativeCalculatorState extends State<_DerivativeCalculator> {
         }
 
         setState(() {
-          _result = 'f$primeSymbol($variable) = ${result.symbolicValue ?? ""}';
+          _result = 'f$primeSymbol($variable) = ${result.expression ?? ""}';
           _isComputing = false;
         });
       } else {
@@ -246,7 +246,6 @@ class _DerivativeCalculatorState extends State<_DerivativeCalculator> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
           Text(
             'Differentiation',
             style: Theme.of(context).textTheme.titleSmall,

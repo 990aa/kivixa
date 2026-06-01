@@ -767,3 +767,39 @@ ExpressionResult evaluateFormula({
   variables: variables,
   values: values,
 );
+
+/// Perform advanced regression (e.g., Logistic, Ridge, Lasso, Elastic Net, Decision Tree, Random Forest)
+Future<RegressionResult> advancedRegression({
+  required List<double> xData,
+  required List<double> yData,
+  required String regType,
+}) => MathRustLib.instance.api.crateApiAdvancedRegression(
+  xData: xData,
+  yData: yData,
+  regType: regType,
+);
+
+Future<DiscreteResult> multinomialCoefficient({
+  required BigInt n,
+  required Uint64List k,
+}) => MathRustLib.instance.api.crateApiMultinomialCoefficient(n: n, k: k);
+
+Future<DiscreteResult> pigeonholePrinciple({
+  required BigInt items,
+  required BigInt containers,
+}) => MathRustLib.instance.api.crateApiPigeonholePrinciple(
+  items: items,
+  containers: containers,
+);
+
+Future<DiscreteResult> integerPartitions({required BigInt n}) =>
+    MathRustLib.instance.api.crateApiIntegerPartitions(n: n);
+
+Future<DiscreteResult> bellNumber({required BigInt n}) =>
+    MathRustLib.instance.api.crateApiBellNumber(n: n);
+
+Future<DiscreteResult> stirlingSecond({required BigInt n, required BigInt k}) =>
+    MathRustLib.instance.api.crateApiStirlingSecond(n: n, k: k);
+
+Future<DiscreteResult> derangements({required BigInt n}) =>
+    MathRustLib.instance.api.crateApiDerangements(n: n);

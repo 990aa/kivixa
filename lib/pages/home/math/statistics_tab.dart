@@ -2030,7 +2030,7 @@ Hypotheses:
   H₁: Ratio of variances is not 1
 
 Test Statistic:
-  F = ${_formatNumber(result.statistic)}
+  F = ${_formatNumber(result.testStatistic)}
 
 P-Value: ${_formatNumber(result.pValue)}
 Critical Values: ${_formatNumber(result.criticalValue)}
@@ -2055,7 +2055,7 @@ Hypotheses:
   H₁: Distributions are different
 
 Test Statistic:
-  U = ${_formatNumber(result.statistic)}
+  U = ${_formatNumber(result.testStatistic)}
 
 P-Value: ${_formatNumber(result.pValue)}
 Significance Level: α = $alpha
@@ -2101,7 +2101,7 @@ DURBIN-WATSON TEST (Autocorrelation)
 ════════════════════════════════════
 
 Test Statistic (d):
-  d = ${_formatNumber(result.statistic)}
+  d = ${_formatNumber(result.testStatistic)}
 
 Interpretation:
   Values of d near 2 indicate NO autocorrelation.
