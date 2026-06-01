@@ -213,7 +213,7 @@ class _DerivativeCalculatorState extends State<_DerivativeCalculator> {
         }
 
         setState(() {
-          _result = 'f$primeSymbol($variable) = ${result.expression ?? ""}';
+          _result = 'f$primeSymbol($variable) = ${result.symbolic ?? ""}';
           _isComputing = false;
         });
       } else {

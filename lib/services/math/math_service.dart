@@ -958,7 +958,7 @@ class MathService {
   // ADVANCED COMBINATORICS
   Future<DiscreteResult> multinomialCoefficient(int n, List<int> k) async {
     _ensureInitialized();
-    return await math_api.multinomialCoefficient(n: BigInt.from(n), k: k.map((e) => BigInt.from(e)).toList());
+    return await math_api.multinomialCoefficient(n: BigInt.from(n), k: Uint64List.fromList(k));
   }
 
   Future<DiscreteResult> pigeonholePrinciple(int items, int containers) async {

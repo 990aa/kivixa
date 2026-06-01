@@ -74,6 +74,26 @@ String _formatBigInt(BigInt n) {
   return '${str[0]}.${str.substring(1, math.min(6, str.length))}e$exp';
 }
 
+class _NumberTheoryCalculator extends StatelessWidget {
+  const _NumberTheoryCalculator();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SingleChildScrollView(
+      child: Column(
+        children: [
+          _PrimeCalculator(),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(height: 32),
+          ),
+          _FactorCalculator(),
+        ],
+      ),
+    );
+  }
+}
+
 // PRIME CALCULATOR
 
 class _PrimeCalculator extends StatefulWidget {
@@ -176,7 +196,7 @@ class _PrimeCalculatorState extends State<_PrimeCalculator> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,7 +456,7 @@ class _FactorCalculatorState extends State<_FactorCalculator> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
