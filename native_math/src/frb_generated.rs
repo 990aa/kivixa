@@ -38,7 +38,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.12.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1871710083;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 532595140;
 
 // Section: executor
 
@@ -46,6 +46,37 @@ flutter_rust_bridge::frb_generated_default_handler!();
 
 // Section: wire_funcs
 
+fn wire__crate__api__advanced_regression_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    x_data: impl CstDecode<Vec<f64>>,
+    y_data: impl CstDecode<Vec<f64>>,
+    reg_type: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "advanced_regression",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_x_data = x_data.cst_decode();
+            let api_y_data = y_data.cst_decode();
+            let api_reg_type = reg_type.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, ()>(
+                    (move || async move {
+                        let output_ok = Result::<_, ()>::Ok(
+                            crate::api::advanced_regression(api_x_data, api_y_data, api_reg_type)
+                                .await,
+                        )?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__anova_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     groups: impl CstDecode<Vec<Vec<f64>>>,
@@ -69,6 +100,27 @@ fn wire__crate__api__anova_impl(
                     })()
                     .await,
                 )
+            }
+        },
+    )
+}
+fn wire__crate__api__bell_number_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    n: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "bell_number",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_n = n.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(crate::api::bell_number(api_n))?;
+                    Ok(output_ok)
+                })())
             }
         },
     )
@@ -490,6 +542,27 @@ fn wire__crate__api__correlation_covariance_impl(
                     })()
                     .await,
                 )
+            }
+        },
+    )
+}
+fn wire__crate__api__derangements_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    n: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "derangements",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_n = n.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(crate::api::derangements(api_n))?;
+                    Ok(output_ok)
+                })())
             }
         },
     )
@@ -1239,6 +1312,27 @@ fn wire__crate__api__init_app_impl(port_: flutter_rust_bridge::for_generated::Me
         },
     )
 }
+fn wire__crate__api__integer_partitions_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    n: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "integer_partitions",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_n = n.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(crate::api::integer_partitions(api_n))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__api__integral_graph_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     expression: impl CstDecode<String>,
@@ -1811,6 +1905,30 @@ fn wire__crate__api__mod_sub_impl(
         },
     )
 }
+fn wire__crate__api__multinomial_coefficient_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    n: impl CstDecode<u64>,
+    k: impl CstDecode<Vec<u64>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "multinomial_coefficient",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_n = n.cst_decode();
+            let api_k = k.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::multinomial_coefficient(api_n, api_k))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__api__parse_formula_impl(
     formula: impl CstDecode<String>,
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -1884,6 +2002,32 @@ fn wire__crate__api__permutations_impl(
                 let output_ok = Result::<_, ()>::Ok(crate::api::permutations(api_n, api_r))?;
                 Ok(output_ok)
             })())
+        },
+    )
+}
+fn wire__crate__api__pigeonhole_principle_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    items: impl CstDecode<u64>,
+    containers: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "pigeonhole_principle",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_items = items.cst_decode();
+            let api_containers = containers.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(crate::api::pigeonhole_principle(
+                        api_items,
+                        api_containers,
+                    ))?;
+                    Ok(output_ok)
+                })())
+            }
         },
     )
 }
@@ -1997,6 +2141,29 @@ fn wire__crate__api__solve_equation_impl(
                     })()
                     .await,
                 )
+            }
+        },
+    )
+}
+fn wire__crate__api__stirling_second_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    n: impl CstDecode<u64>,
+    k: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "stirling_second",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_n = n.cst_decode();
+            let api_k = k.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(crate::api::stirling_second(api_n, api_k))?;
+                    Ok(output_ok)
+                })())
             }
         },
     )
@@ -4457,12 +4624,27 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__advanced_regression(
+        port_: i64,
+        x_data: *mut wire_cst_list_prim_f_64_loose,
+        y_data: *mut wire_cst_list_prim_f_64_loose,
+        reg_type: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__api__advanced_regression_impl(port_, x_data, y_data, reg_type)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__anova(
         port_: i64,
         groups: *mut wire_cst_list_list_prim_f_64_strict,
         alpha: f64,
     ) {
         wire__crate__api__anova_impl(port_, groups, alpha)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__bell_number(port_: i64, n: u64) {
+        wire__crate__api__bell_number_impl(port_, n)
     }
 
     #[unsafe(no_mangle)]
@@ -4608,6 +4790,11 @@ mod io {
         y: *mut wire_cst_list_prim_f_64_loose,
     ) {
         wire__crate__api__correlation_covariance_impl(port_, x, y)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__derangements(port_: i64, n: u64) {
+        wire__crate__api__derangements_impl(port_, n)
     }
 
     #[unsafe(no_mangle)]
@@ -4873,6 +5060,11 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__integer_partitions(port_: i64, n: u64) {
+        wire__crate__api__integer_partitions_impl(port_, n)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__integral_graph(
         port_: i64,
         expression: *mut wire_cst_list_prim_u_8_strict,
@@ -5078,6 +5270,15 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__multinomial_coefficient(
+        port_: i64,
+        n: u64,
+        k: *mut wire_cst_list_prim_u_64_strict,
+    ) {
+        wire__crate__api__multinomial_coefficient_impl(port_, n, k)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_kivixa_wire__crate__api__parse_formula(
         formula: *mut wire_cst_list_prim_u_8_strict,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -5101,6 +5302,15 @@ mod io {
         r: u64,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__api__permutations_impl(n, r)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__pigeonhole_principle(
+        port_: i64,
+        items: u64,
+        containers: u64,
+    ) {
+        wire__crate__api__pigeonhole_principle_impl(port_, items, containers)
     }
 
     #[unsafe(no_mangle)]
@@ -5142,6 +5352,11 @@ mod io {
             tolerance,
             max_iterations,
         )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_kivixa_wire__crate__api__stirling_second(port_: i64, n: u64, k: u64) {
+        wire__crate__api__stirling_second_impl(port_, n, k)
     }
 
     #[unsafe(no_mangle)]
@@ -6310,12 +6525,30 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__advanced_regression(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        x_data: Box<[f64]>,
+        y_data: Box<[f64]>,
+        reg_type: String,
+    ) {
+        wire__crate__api__advanced_regression_impl(port_, x_data, y_data, reg_type)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__anova(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         groups: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
         alpha: f64,
     ) {
         wire__crate__api__anova_impl(port_, groups, alpha)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__bell_number(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        n: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__bell_number_impl(port_, n)
     }
 
     #[wasm_bindgen]
@@ -6461,6 +6694,14 @@ mod web {
         y: Box<[f64]>,
     ) {
         wire__crate__api__correlation_covariance_impl(port_, x, y)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__derangements(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        n: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__derangements_impl(port_, n)
     }
 
     #[wasm_bindgen]
@@ -6726,6 +6967,14 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__integer_partitions(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        n: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__integer_partitions_impl(port_, n)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__integral_graph(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         expression: String,
@@ -6931,6 +7180,15 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__api__multinomial_coefficient(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        n: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        k: Box<[u64]>,
+    ) {
+        wire__crate__api__multinomial_coefficient_impl(port_, n, k)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__api__parse_formula(
         formula: String,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -6954,6 +7212,15 @@ mod web {
         r: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
         wire__crate__api__permutations_impl(n, r)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__pigeonhole_principle(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        items: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        containers: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__pigeonhole_principle_impl(port_, items, containers)
     }
 
     #[wasm_bindgen]
@@ -6998,6 +7265,15 @@ mod web {
             tolerance,
             max_iterations,
         )
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__api__stirling_second(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        n: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        k: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__api__stirling_second_impl(port_, n, k)
     }
 
     #[wasm_bindgen]

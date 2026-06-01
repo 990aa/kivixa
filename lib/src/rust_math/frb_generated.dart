@@ -77,7 +77,7 @@ class MathRustLib
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => -1871710083;
+  int get rustContentHash => 532595140;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -89,10 +89,18 @@ class MathRustLib
 }
 
 abstract class MathRustLibApi extends BaseApi {
+  Future<RegressionResult> crateApiAdvancedRegression({
+    required List<double> xData,
+    required List<double> yData,
+    required String regType,
+  });
+
   Future<HypothesisTestResult> crateApiAnova({
     required List<Float64List> groups,
     required double alpha,
   });
+
+  Future<DiscreteResult> crateApiBellNumber({required BigInt n});
 
   Future<HypothesisTestResult> crateApiBinomialTest({
     required BigInt successes,
@@ -174,6 +182,8 @@ abstract class MathRustLibApi extends BaseApi {
     required List<double> x,
     required List<double> y,
   });
+
+  Future<DiscreteResult> crateApiDerangements({required BigInt n});
 
   Future<GraphResult> crateApiDerivativeGraph({
     required String expression,
@@ -304,6 +314,8 @@ abstract class MathRustLibApi extends BaseApi {
 
   Future<void> crateApiInitApp();
 
+  Future<DiscreteResult> crateApiIntegerPartitions({required BigInt n});
+
   Future<GraphResult> crateApiIntegralGraph({
     required String expression,
     required String variable,
@@ -416,6 +428,11 @@ abstract class MathRustLibApi extends BaseApi {
     required BigInt m,
   });
 
+  Future<DiscreteResult> crateApiMultinomialCoefficient({
+    required BigInt n,
+    required Uint64List k,
+  });
+
   List<String> crateApiParseFormula({required String formula});
 
   Future<CalculusResult> crateApiPartialDerivative({
@@ -426,6 +443,11 @@ abstract class MathRustLibApi extends BaseApi {
   });
 
   DiscreteResult crateApiPermutations({required BigInt n, required BigInt r});
+
+  Future<DiscreteResult> crateApiPigeonholePrinciple({
+    required BigInt items,
+    required BigInt containers,
+  });
 
   Future<RegressionResult> crateApiPolynomialRegression({
     required List<double> xData,
@@ -443,6 +465,11 @@ abstract class MathRustLibApi extends BaseApi {
     required double initialGuess,
     required double tolerance,
     required int maxIterations,
+  });
+
+  Future<DiscreteResult> crateApiStirlingSecond({
+    required BigInt n,
+    required BigInt k,
   });
 
   Future<CalculusResult> crateApiSymbolicDifferentiate({
@@ -520,6 +547,41 @@ class MathRustLibApiImpl extends MathRustLibApiImplPlatform
   });
 
   @override
+  Future<RegressionResult> crateApiAdvancedRegression({
+    required List<double> xData,
+    required List<double> yData,
+    required String regType,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_list_prim_f_64_loose(xData);
+          final arg1 = cst_encode_list_prim_f_64_loose(yData);
+          final arg2 = cst_encode_String(regType);
+          return wire.wire__crate__api__advanced_regression(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_regression_result,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiAdvancedRegressionConstMeta,
+        argValues: [xData, yData, regType],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiAdvancedRegressionConstMeta => const TaskConstMeta(
+    debugName: 'advanced_regression',
+    argNames: ['xData', 'yData', 'regType'],
+  );
+
+  @override
   Future<HypothesisTestResult> crateApiAnova({
     required List<Float64List> groups,
     required double alpha,
@@ -544,6 +606,28 @@ class MathRustLibApiImpl extends MathRustLibApiImplPlatform
 
   TaskConstMeta get kCrateApiAnovaConstMeta =>
       const TaskConstMeta(debugName: 'anova', argNames: ['groups', 'alpha']);
+
+  @override
+  Future<DiscreteResult> crateApiBellNumber({required BigInt n}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_u_64(n);
+          return wire.wire__crate__api__bell_number(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_discrete_result,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiBellNumberConstMeta,
+        argValues: [n],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiBellNumberConstMeta =>
+      const TaskConstMeta(debugName: 'bell_number', argNames: ['n']);
 
   @override
   Future<HypothesisTestResult> crateApiBinomialTest({
@@ -1026,6 +1110,28 @@ class MathRustLibApiImpl extends MathRustLibApiImplPlatform
         debugName: 'correlation_covariance',
         argNames: ['x', 'y'],
       );
+
+  @override
+  Future<DiscreteResult> crateApiDerangements({required BigInt n}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_u_64(n);
+          return wire.wire__crate__api__derangements(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_discrete_result,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiDerangementsConstMeta,
+        argValues: [n],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiDerangementsConstMeta =>
+      const TaskConstMeta(debugName: 'derangements', argNames: ['n']);
 
   @override
   Future<GraphResult> crateApiDerivativeGraph({
@@ -1855,6 +1961,28 @@ class MathRustLibApiImpl extends MathRustLibApiImplPlatform
       const TaskConstMeta(debugName: 'init_app', argNames: []);
 
   @override
+  Future<DiscreteResult> crateApiIntegerPartitions({required BigInt n}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_u_64(n);
+          return wire.wire__crate__api__integer_partitions(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_discrete_result,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiIntegerPartitionsConstMeta,
+        argValues: [n],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiIntegerPartitionsConstMeta =>
+      const TaskConstMeta(debugName: 'integer_partitions', argNames: ['n']);
+
+  @override
   Future<GraphResult> crateApiIntegralGraph({
     required String expression,
     required String variable,
@@ -2499,6 +2627,39 @@ class MathRustLibApiImpl extends MathRustLibApiImplPlatform
       const TaskConstMeta(debugName: 'mod_sub', argNames: ['a', 'b', 'm']);
 
   @override
+  Future<DiscreteResult> crateApiMultinomialCoefficient({
+    required BigInt n,
+    required Uint64List k,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_u_64(n);
+          final arg1 = cst_encode_list_prim_u_64_strict(k);
+          return wire.wire__crate__api__multinomial_coefficient(
+            port_,
+            arg0,
+            arg1,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_discrete_result,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMultinomialCoefficientConstMeta,
+        argValues: [n, k],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMultinomialCoefficientConstMeta =>
+      const TaskConstMeta(
+        debugName: 'multinomial_coefficient',
+        argNames: ['n', 'k'],
+      );
+
+  @override
   List<String> crateApiParseFormula({required String formula}) {
     return handler.executeSync(
       SyncTask(
@@ -2580,6 +2741,35 @@ class MathRustLibApiImpl extends MathRustLibApiImplPlatform
 
   TaskConstMeta get kCrateApiPermutationsConstMeta =>
       const TaskConstMeta(debugName: 'permutations', argNames: ['n', 'r']);
+
+  @override
+  Future<DiscreteResult> crateApiPigeonholePrinciple({
+    required BigInt items,
+    required BigInt containers,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_u_64(items);
+          final arg1 = cst_encode_u_64(containers);
+          return wire.wire__crate__api__pigeonhole_principle(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_discrete_result,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiPigeonholePrincipleConstMeta,
+        argValues: [items, containers],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiPigeonholePrincipleConstMeta =>
+      const TaskConstMeta(
+        debugName: 'pigeonhole_principle',
+        argNames: ['items', 'containers'],
+      );
 
   @override
   Future<RegressionResult> crateApiPolynomialRegression({
@@ -2713,6 +2903,32 @@ class MathRustLibApiImpl extends MathRustLibApiImplPlatform
       'maxIterations',
     ],
   );
+
+  @override
+  Future<DiscreteResult> crateApiStirlingSecond({
+    required BigInt n,
+    required BigInt k,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final arg0 = cst_encode_u_64(n);
+          final arg1 = cst_encode_u_64(k);
+          return wire.wire__crate__api__stirling_second(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_discrete_result,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiStirlingSecondConstMeta,
+        argValues: [n, k],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiStirlingSecondConstMeta =>
+      const TaskConstMeta(debugName: 'stirling_second', argNames: ['n', 'k']);
 
   @override
   Future<CalculusResult> crateApiSymbolicDifferentiate({

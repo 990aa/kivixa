@@ -1039,6 +1039,42 @@ class MathRustLibWire implements BaseWire {
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
       .asFunction<void Function(DartPostCObjectFnType)>();
 
+  void wire__crate__api__advanced_regression(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> x_data,
+    ffi.Pointer<wire_cst_list_prim_f_64_loose> y_data,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> reg_type,
+  ) {
+    return _wire__crate__api__advanced_regression(
+      port_,
+      x_data,
+      y_data,
+      reg_type,
+    );
+  }
+
+  late final _wire__crate__api__advanced_regressionPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__advanced_regression');
+  late final _wire__crate__api__advanced_regression =
+      _wire__crate__api__advanced_regressionPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              ffi.Pointer<wire_cst_list_prim_f_64_loose>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
   void wire__crate__api__anova(
     int port_,
     ffi.Pointer<wire_cst_list_list_prim_f_64_strict> groups,
@@ -1065,6 +1101,17 @@ class MathRustLibWire implements BaseWire {
           double,
         )
       >();
+
+  void wire__crate__api__bell_number(int port_, int n) {
+    return _wire__crate__api__bell_number(port_, n);
+  }
+
+  late final _wire__crate__api__bell_numberPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+        'frbgen_kivixa_wire__crate__api__bell_number',
+      );
+  late final _wire__crate__api__bell_number = _wire__crate__api__bell_numberPtr
+      .asFunction<void Function(int, int)>();
 
   void wire__crate__api__binomial_test(
     int port_,
@@ -1477,6 +1524,17 @@ class MathRustLibWire implements BaseWire {
               ffi.Pointer<wire_cst_list_prim_f_64_loose>,
             )
           >();
+
+  void wire__crate__api__derangements(int port_, int n) {
+    return _wire__crate__api__derangements(port_, n);
+  }
+
+  late final _wire__crate__api__derangementsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+        'frbgen_kivixa_wire__crate__api__derangements',
+      );
+  late final _wire__crate__api__derangements =
+      _wire__crate__api__derangementsPtr.asFunction<void Function(int, int)>();
 
   void wire__crate__api__derivative_graph(
     int port_,
@@ -2202,6 +2260,18 @@ class MathRustLibWire implements BaseWire {
   late final _wire__crate__api__init_app = _wire__crate__api__init_appPtr
       .asFunction<void Function(int)>();
 
+  void wire__crate__api__integer_partitions(int port_, int n) {
+    return _wire__crate__api__integer_partitions(port_, n);
+  }
+
+  late final _wire__crate__api__integer_partitionsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+        'frbgen_kivixa_wire__crate__api__integer_partitions',
+      );
+  late final _wire__crate__api__integer_partitions =
+      _wire__crate__api__integer_partitionsPtr
+          .asFunction<void Function(int, int)>();
+
   void wire__crate__api__integral_graph(
     int port_,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> expression,
@@ -2714,6 +2784,30 @@ class MathRustLibWire implements BaseWire {
   late final _wire__crate__api__mod_sub = _wire__crate__api__mod_subPtr
       .asFunction<WireSyncRust2DartDco Function(int, int, int)>();
 
+  void wire__crate__api__multinomial_coefficient(
+    int port_,
+    int n,
+    ffi.Pointer<wire_cst_list_prim_u_64_strict> k,
+  ) {
+    return _wire__crate__api__multinomial_coefficient(port_, n, k);
+  }
+
+  late final _wire__crate__api__multinomial_coefficientPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_list_prim_u_64_strict>,
+          )
+        >
+      >('frbgen_kivixa_wire__crate__api__multinomial_coefficient');
+  late final _wire__crate__api__multinomial_coefficient =
+      _wire__crate__api__multinomial_coefficientPtr
+          .asFunction<
+            void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_64_strict>)
+          >();
+
   WireSyncRust2DartDco wire__crate__api__parse_formula(
     ffi.Pointer<wire_cst_list_prim_u_8_strict> formula,
   ) {
@@ -2789,6 +2883,22 @@ class MathRustLibWire implements BaseWire {
   late final _wire__crate__api__permutations =
       _wire__crate__api__permutationsPtr
           .asFunction<WireSyncRust2DartDco Function(int, int)>();
+
+  void wire__crate__api__pigeonhole_principle(
+    int port_,
+    int items,
+    int containers,
+  ) {
+    return _wire__crate__api__pigeonhole_principle(port_, items, containers);
+  }
+
+  late final _wire__crate__api__pigeonhole_principlePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint64)>
+      >('frbgen_kivixa_wire__crate__api__pigeonhole_principle');
+  late final _wire__crate__api__pigeonhole_principle =
+      _wire__crate__api__pigeonhole_principlePtr
+          .asFunction<void Function(int, int, int)>();
 
   void wire__crate__api__polynomial_regression(
     int port_,
@@ -2892,6 +3002,18 @@ class MathRustLibWire implements BaseWire {
               int,
             )
           >();
+
+  void wire__crate__api__stirling_second(int port_, int n, int k) {
+    return _wire__crate__api__stirling_second(port_, n, k);
+  }
+
+  late final _wire__crate__api__stirling_secondPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint64)>
+      >('frbgen_kivixa_wire__crate__api__stirling_second');
+  late final _wire__crate__api__stirling_second =
+      _wire__crate__api__stirling_secondPtr
+          .asFunction<void Function(int, int, int)>();
 
   void wire__crate__api__symbolic_differentiate(
     int port_,
@@ -3468,20 +3590,6 @@ typedef DartDartPostCObjectFnTypeFunction =
 typedef DartPostCObjectFnType =
     ffi.Pointer<ffi.NativeFunction<DartPostCObjectFnTypeFunction>>;
 
-final class wire_cst_list_prim_f_64_strict extends ffi.Struct {
-  external ffi.Pointer<ffi.Double> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_list_list_prim_f_64_strict extends ffi.Struct {
-  external ffi.Pointer<ffi.Pointer<wire_cst_list_prim_f_64_strict>> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
 final class wire_cst_list_prim_f_64_loose extends ffi.Struct {
   external ffi.Pointer<ffi.Double> ptr;
 
@@ -3491,6 +3599,20 @@ final class wire_cst_list_prim_f_64_loose extends ffi.Struct {
 
 final class wire_cst_list_prim_u_8_strict extends ffi.Struct {
   external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_prim_f_64_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Double> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_list_prim_f_64_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Pointer<wire_cst_list_prim_f_64_strict>> ptr;
 
   @ffi.Int32()
   external int len;
@@ -3512,6 +3634,13 @@ final class wire_cst_record_string_f_64 extends ffi.Struct {
 
 final class wire_cst_list_record_string_f_64 extends ffi.Struct {
   external ffi.Pointer<wire_cst_record_string_f_64> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_prim_u_64_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint64> ptr;
 
   @ffi.Int32()
   external int len;
@@ -3573,13 +3702,6 @@ final class wire_cst_matrix_result extends ffi.Struct {
 
 final class wire_cst_list_matrix_result extends ffi.Struct {
   external ffi.Pointer<wire_cst_matrix_result> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_list_prim_u_64_strict extends ffi.Struct {
-  external ffi.Pointer<ffi.Uint64> ptr;
 
   @ffi.Int32()
   external int len;

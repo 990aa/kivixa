@@ -938,11 +938,26 @@ abstract class MathRustLibApiImplPlatform extends BaseApiImpl<MathRustLibWire> {
 class MathRustLibWire implements BaseWire {
   MathRustLibWire.fromExternalLibrary(ExternalLibrary lib);
 
+  void wire__crate__api__advanced_regression(
+    NativePortType port_,
+    JSAny x_data,
+    JSAny y_data,
+    String reg_type,
+  ) => wasmModule.wire__crate__api__advanced_regression(
+    port_,
+    x_data,
+    y_data,
+    reg_type,
+  );
+
   void wire__crate__api__anova(
     NativePortType port_,
     JSAny groups,
     double alpha,
   ) => wasmModule.wire__crate__api__anova(port_, groups, alpha);
+
+  void wire__crate__api__bell_number(NativePortType port_, JSAny n) =>
+      wasmModule.wire__crate__api__bell_number(port_, n);
 
   void wire__crate__api__binomial_test(
     NativePortType port_,
@@ -1073,6 +1088,9 @@ class MathRustLibWire implements BaseWire {
     JSAny x,
     JSAny y,
   ) => wasmModule.wire__crate__api__correlation_covariance(port_, x, y);
+
+  void wire__crate__api__derangements(NativePortType port_, JSAny n) =>
+      wasmModule.wire__crate__api__derangements(port_, n);
 
   void wire__crate__api__derivative_graph(
     NativePortType port_,
@@ -1314,6 +1332,9 @@ class MathRustLibWire implements BaseWire {
   void wire__crate__api__init_app(NativePortType port_) =>
       wasmModule.wire__crate__api__init_app(port_);
 
+  void wire__crate__api__integer_partitions(NativePortType port_, JSAny n) =>
+      wasmModule.wire__crate__api__integer_partitions(port_, n);
+
   void wire__crate__api__integral_graph(
     NativePortType port_,
     String expression,
@@ -1479,6 +1500,12 @@ class MathRustLibWire implements BaseWire {
   wire__crate__api__mod_sub(JSAny a, JSAny b, JSAny m) =>
       wasmModule.wire__crate__api__mod_sub(a, b, m);
 
+  void wire__crate__api__multinomial_coefficient(
+    NativePortType port_,
+    JSAny n,
+    JSAny k,
+  ) => wasmModule.wire__crate__api__multinomial_coefficient(port_, n, k);
+
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__parse_formula(String formula) =>
       wasmModule.wire__crate__api__parse_formula(formula);
@@ -1500,6 +1527,16 @@ class MathRustLibWire implements BaseWire {
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__permutations(JSAny n, JSAny r) =>
       wasmModule.wire__crate__api__permutations(n, r);
+
+  void wire__crate__api__pigeonhole_principle(
+    NativePortType port_,
+    JSAny items,
+    JSAny containers,
+  ) => wasmModule.wire__crate__api__pigeonhole_principle(
+    port_,
+    items,
+    containers,
+  );
 
   void wire__crate__api__polynomial_regression(
     NativePortType port_,
@@ -1535,6 +1572,12 @@ class MathRustLibWire implements BaseWire {
     tolerance,
     max_iterations,
   );
+
+  void wire__crate__api__stirling_second(
+    NativePortType port_,
+    JSAny n,
+    JSAny k,
+  ) => wasmModule.wire__crate__api__stirling_second(port_, n, k);
 
   void wire__crate__api__symbolic_differentiate(
     NativePortType port_,
@@ -1671,11 +1714,20 @@ external MathRustLibWasmModule get wasmModule;
 @JS()
 @anonymous
 extension type MathRustLibWasmModule._(JSObject _) implements JSObject {
+  external void wire__crate__api__advanced_regression(
+    NativePortType port_,
+    JSAny x_data,
+    JSAny y_data,
+    String reg_type,
+  );
+
   external void wire__crate__api__anova(
     NativePortType port_,
     JSAny groups,
     double alpha,
   );
+
+  external void wire__crate__api__bell_number(NativePortType port_, JSAny n);
 
   external void wire__crate__api__binomial_test(
     NativePortType port_,
@@ -1765,6 +1817,8 @@ extension type MathRustLibWasmModule._(JSObject _) implements JSObject {
     JSAny x,
     JSAny y,
   );
+
+  external void wire__crate__api__derangements(NativePortType port_, JSAny n);
 
   external void wire__crate__api__derivative_graph(
     NativePortType port_,
@@ -1920,6 +1974,11 @@ extension type MathRustLibWasmModule._(JSObject _) implements JSObject {
 
   external void wire__crate__api__init_app(NativePortType port_);
 
+  external void wire__crate__api__integer_partitions(
+    NativePortType port_,
+    JSAny n,
+  );
+
   external void wire__crate__api__integral_graph(
     NativePortType port_,
     String expression,
@@ -2032,6 +2091,12 @@ extension type MathRustLibWasmModule._(JSObject _) implements JSObject {
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__mod_sub(JSAny a, JSAny b, JSAny m);
 
+  external void wire__crate__api__multinomial_coefficient(
+    NativePortType port_,
+    JSAny n,
+    JSAny k,
+  );
+
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__parse_formula(String formula);
 
@@ -2045,6 +2110,12 @@ extension type MathRustLibWasmModule._(JSObject _) implements JSObject {
 
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__api__permutations(JSAny n, JSAny r);
+
+  external void wire__crate__api__pigeonhole_principle(
+    NativePortType port_,
+    JSAny items,
+    JSAny containers,
+  );
 
   external void wire__crate__api__polynomial_regression(
     NativePortType port_,
@@ -2065,6 +2136,12 @@ extension type MathRustLibWasmModule._(JSObject _) implements JSObject {
     double initial_guess,
     double tolerance,
     int max_iterations,
+  );
+
+  external void wire__crate__api__stirling_second(
+    NativePortType port_,
+    JSAny n,
+    JSAny k,
   );
 
   external void wire__crate__api__symbolic_differentiate(
