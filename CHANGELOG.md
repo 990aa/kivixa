@@ -1,4 +1,4 @@
-# Changelog
+﻿# Changelog
 
 All notable changes to the Kivixa project will be documented in this file.
 
@@ -148,7 +148,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Calculus Tab**: 
     - Numerical derivatives (first, second, nth order)
     - Definite and indefinite integrals
-    - **Partial Derivatives**: Compute partial derivatives with respect to multiple variables (∂f/∂x, ∂f/∂y, etc.)
+    - **Partial Derivatives**: Compute partial derivatives with respect to multiple variables (âˆ‚f/âˆ‚x, âˆ‚f/âˆ‚y, etc.)
     - **Multiple Integrals**: Double and triple integrals over rectangular regions
     - Limits with left/right-sided approach
     - Taylor series expansion
@@ -161,7 +161,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       - **Chi-squared test** for categorical data
       - **ANOVA** (Analysis of Variance) for comparing multiple group means
     - Confidence intervals for mean, proportion, and variance
-    - Linear and polynomial regression with R², slope, intercept
+    - Linear and polynomial regression with RÂ², slope, intercept
   - **Discrete Tab**: Combinatorics (permutations, combinations, factorials), number theory (GCD, LCM, primality), modular arithmetic
   - **Graphing Tab**: 2D function plotting, parametric curves, polar coordinates, implicit functions
   - **Tools Tab**: Number system conversion (binary, octal, decimal, hex), constants reference, formula library
@@ -781,5 +781,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Statistics Engine Migration**: Transitioned front-end Flutter statistics computations to the Rust `native_math` backend for improved performance and consistency.
+- **Regression Expansion**: Added 17 new advanced regression models to Statistics module including Logistic, Ridge, Lasso, Elastic Net, Decision Tree, Random Forest, and more. Offloaded implementations to native Rust backend for maximum performance.
+- **Combinatorics Expansion**: Added advanced combinatorics (Stirling numbers, Partitions, Derangements) support in the Discrete math module.
 
 ---
