@@ -18,7 +18,7 @@ class _MathDiscreteTabState extends State<MathDiscreteTab>
   @override
   void initState() {
     super.initState();
-    _subTabController = TabController(length: 5, vsync: this);
+    _subTabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -35,8 +35,7 @@ class _MathDiscreteTabState extends State<MathDiscreteTab>
           controller: _subTabController,
           isScrollable: true,
           tabs: const [
-            Tab(text: 'Primes'),
-            Tab(text: 'Factors'),
+            Tab(text: 'Number Theory'),
             Tab(text: 'Modular'),
             Tab(text: 'Combinatorics'),
             Tab(text: 'Sequences'),
@@ -46,8 +45,7 @@ class _MathDiscreteTabState extends State<MathDiscreteTab>
           child: TabBarView(
             controller: _subTabController,
             children: const [
-              _PrimeCalculator(),
-              _FactorCalculator(),
+              _NumberTheoryCalculator(),
               _ModularArithmeticCalculator(),
               _CombinatoricsCalculator(),
               _SequenceCalculator(),
@@ -822,265 +820,6 @@ class _CombinatoricsCalculatorState extends State<_CombinatoricsCalculator> {
   }
 }
 
-// SEQUENCE CALCULATOR
-
-class _SequenceCalculator extends StatefulWidget {
-  const _SequenceCalculator();
-
-  @override
-  State<_SequenceCalculator> createState() => _SequenceCalculatorState();
-}
-
-class _SequenceCalculatorState extends State<_SequenceCalculator> {
-  var _sequence = 'fibonacci';
-  final _nCtrl = TextEditingController(text: '20');
-  List<String> _result = [];
-  var _isComputing = false;
-  var _error = '';
-
-  @override
-  void dispose() {
-    _nCtrl.dispose();
-    super.dispose();
-  }
-
-  List<BigInt> _fibonacci(int n) {
-    if (n <= 0) return [];
-    if (n == 1) return [BigInt.zero];
-    final seq = <BigInt>[BigInt.zero, BigInt.one];
-    for (var i = 2; i < n; i++) {
-      seq.add(seq[i - 1] + seq[i - 2]);
-    }
-    return seq;
-  }
-
-  List<BigInt> _catalan(int n) {
-    if (n <= 0) return [];
-    // C(n) = C(2n, n) / (n + 1)
-    final seq = <BigInt>[BigInt.one];
-    for (var i = 1; i < n; i++) {
-      // C(i) = C(i-1) * 2*(2*i - 1) / (i + 1)
-      seq.add(seq[i - 1] * BigInt.from(2 * (2 * i - 1)) ~/ BigInt.from(i + 1));
-    }
-    return seq;
-  }
-
-  List<BigInt> _bell(int n) {
-    if (n <= 0) return [];
-    // Bell numbers using Bell triangle
-    final bell = List<List<BigInt>>.generate(
-      n,
-      (_) => List<BigInt>.filled(n, BigInt.zero),
-    );
-    bell[0][0] = BigInt.one;
-
-    for (var i = 1; i < n; i++) {
-      bell[i][0] = bell[i - 1][i - 1];
-      for (var j = 1; j <= i; j++) {
-        bell[i][j] = bell[i - 1][j - 1] + bell[i][j - 1];
-      }
-    }
-
-    return List.generate(n, (i) => bell[i][0]);
-  }
-
-  List<int> _eulerTotient(int n) {
-    // φ(n) using formula: n * product(1 - 1/p) for all prime factors p of n
-    final result = <int>[];
-    for (var i = 1; i <= n; i++) {
-      var phi = i;
-      var temp = i;
-
-      // Find all prime factors
-      for (var p = 2; p * p <= temp; p++) {
-        if (temp % p == 0) {
-          while (temp % p == 0) temp ~/= p;
-          phi -= phi ~/ p;
-        }
-      }
-      if (temp > 1) phi -= phi ~/ temp;
-
-      result.add(phi);
-    }
-    return result;
-  }
-
-  Future<void> _generate() async {
-    setState(() {
-      _isComputing = true;
-      _result = [];
-      _error = '';
-    });
-
-    try {
-      final n = int.parse(_nCtrl.text);
-
-      if (n <= 0) {
-        setState(() {
-          _error = 'Error: Must be positive';
-          _isComputing = false;
-        });
-        return;
-      }
-      if (n > 100) {
-        setState(() {
-          _error = 'Error: Max 100 terms';
-          _isComputing = false;
-        });
-        return;
-      }
-
-      List<String> result;
-
-      switch (_sequence) {
-        case 'fibonacci':
-          result = _fibonacci(n).map((b) => _formatBigInt(b)).toList();
-        case 'catalan':
-          result = _catalan(n).map((b) => _formatBigInt(b)).toList();
-        case 'bell':
-          result = _bell(n).map((b) => _formatBigInt(b)).toList();
-        case 'euler_totient':
-          result = _eulerTotient(
-            n,
-          ).asMap().entries.map((e) => 'φ(${e.key + 1}) = ${e.value}').toList();
-        default:
-          result = [];
-      }
-
-      setState(() {
-        _result = result;
-        _isComputing = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = 'Error: Invalid number';
-        _isComputing = false;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Number Sequences',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 16),
-
-          DropdownButtonFormField<String>(
-            initialValue: _sequence,
-            decoration: const InputDecoration(
-              labelText: 'Sequence',
-              border: OutlineInputBorder(),
-            ),
-            items: const [
-              DropdownMenuItem(value: 'fibonacci', child: Text('Fibonacci')),
-              DropdownMenuItem(
-                value: 'catalan',
-                child: Text('Catalan Numbers'),
-              ),
-              DropdownMenuItem(value: 'bell', child: Text('Bell Numbers')),
-              DropdownMenuItem(
-                value: 'euler_totient',
-                child: Text("Euler's Totient"),
-              ),
-            ],
-            onChanged: (v) => setState(() => _sequence = v ?? 'fibonacci'),
-          ),
-          const SizedBox(height: 16),
-
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _nCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Number of terms',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-              const SizedBox(width: 16),
-              FilledButton(
-                onPressed: _isComputing ? null : _generate,
-                child: _isComputing
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Generate'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          if (_error.isNotEmpty)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.errorContainer.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                _error,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            ),
-
-          if (_result.isNotEmpty)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              constraints: const BoxConstraints(maxHeight: 300),
-              child: SingleChildScrollView(
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _result.asMap().entries.map((e) {
-                    final showIndex = _sequence != 'euler_totient';
-                    return Chip(
-                      avatar: showIndex
-                          ? CircleAvatar(
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.primary,
-                              foregroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onPrimary,
-                              child: Text(
-                                '${e.key}',
-                                style: const TextStyle(fontSize: 10),
-                              ),
-                            )
-                          : null,
-                      label: Text(e.value),
-                      visualDensity: VisualDensity.compact,
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-// MODULAR ARITHMETIC CALCULATOR
 
 class _ModularArithmeticCalculator extends StatefulWidget {
   const _ModularArithmeticCalculator();
@@ -1363,9 +1102,10 @@ class _ModularArithmeticCalculatorState
     );
   }
 
+  Widget _referenceItem(String name, String formula) {
     return Padding(
-      padding = const EdgeInsets.symmetric(vertical: 2),
-      child = RichText(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: RichText(
         text: TextSpan(
           style: DefaultTextStyle.of(context).style,
           children: [
