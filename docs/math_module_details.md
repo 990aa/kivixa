@@ -54,7 +54,7 @@ Comprehensive support for data analysis and continuous/discrete probability dist
 Robust tools for discrete structures, sequences, and number theory.
 - **Modular Arithmetic:** Addition, subtraction, multiplication, exponentiation, and multiplicative inverses over a modulus.
 - **Primes & Factors:** Prime checking, Sieve of Eratosthenes generation, GCD/LCM, and prime factorization.
-- **Combinatorics:** Permutations, Combinations, and factorials.
+- **Combinatorics:** Permutations and Combinations (with and without repetition), Factorials, Stirling numbers of the 1st and 2nd kind, Integer Partitions, and Derangements.
 - **Sequence Generators:** 
   - **Classical:** Arithmetic, Geometric, Triangular, Polygonal.
   - **Number-Theoretic:** Mersenne, Lucas, Pell.
