@@ -724,18 +724,22 @@ pub fn multinomial_coefficient(n: u64, k: &[u64]) -> DiscreteResult {
     if sum_k != n {
         return DiscreteResult::error("Sum of k elements must equal n");
     }
-    
+
     // n! / (k1! * k2! * ... )
     let mut num = BigUint::one();
-    for i in 1..=n { num *= BigUint::from(i); }
-    
+    for i in 1..=n {
+        num *= BigUint::from(i);
+    }
+
     let mut den = BigUint::one();
     for &ki in k {
         let mut k_fact = BigUint::one();
-        for i in 1..=ki { k_fact *= BigUint::from(i); }
+        for i in 1..=ki {
+            k_fact *= BigUint::from(i);
+        }
         den *= k_fact;
     }
-    
+
     DiscreteResult::big(num / den)
 }
 
@@ -744,7 +748,7 @@ pub fn pigeonhole_principle(items: u64, containers: u64) -> DiscreteResult {
     if containers == 0 {
         return DiscreteResult::error("Containers cannot be zero");
     }
-    let res = (items + containers - 1) / containers;
+    let res = items.div_ceil(containers);
     DiscreteResult::value(res)
 }
 
@@ -771,7 +775,9 @@ pub fn bell_number(n: u64) -> DiscreteResult {
         return DiscreteResult::error("n is too large for Bell number calculation");
     }
     let n_usize = n as usize;
-    if n_usize == 0 { return DiscreteResult::value(1); }
+    if n_usize == 0 {
+        return DiscreteResult::value(1);
+    }
     let mut bell = vec![vec![BigUint::zero(); n_usize]; n_usize];
     bell[0][0] = BigUint::one();
     for i in 1..n_usize {
@@ -787,14 +793,20 @@ pub fn bell_number(n: u64) -> DiscreteResult {
 
 /// Stirling numbers of the second kind S(n, k)
 pub fn stirling_second(n: u64, k: u64) -> DiscreteResult {
-    if k > n { return DiscreteResult::value(0); }
-    if k == 0 { return DiscreteResult::value(if n == 0 { 1 } else { 0 }); }
-    
+    if k > n {
+        return DiscreteResult::value(0);
+    }
+    if k == 0 {
+        return DiscreteResult::value(if n == 0 { 1 } else { 0 });
+    }
+
     let mut s = vec![vec![BigUint::zero(); (k + 1) as usize]; (n + 1) as usize];
     s[0][0] = BigUint::one();
     for i in 1..=n as usize {
         for j in 1..=k as usize {
-            if j > i { break; }
+            if j > i {
+                break;
+            }
             let term = s[i - 1][j].clone() * BigUint::from(j) + s[i - 1][j - 1].clone();
             s[i][j] = term;
         }
@@ -804,13 +816,17 @@ pub fn stirling_second(n: u64, k: u64) -> DiscreteResult {
 
 /// Derangements !n - permutations with no fixed points
 pub fn derangements(n: u64) -> DiscreteResult {
-    if n == 0 { return DiscreteResult::value(1); }
-    if n == 1 { return DiscreteResult::value(0); }
-    
+    if n == 0 {
+        return DiscreteResult::value(1);
+    }
+    if n == 1 {
+        return DiscreteResult::value(0);
+    }
+
     let mut d0 = BigUint::one(); // !0 = 1
     let mut d1 = BigUint::zero(); // !1 = 0
     let mut current = BigUint::zero();
-    
+
     for i in 2..=n {
         current = BigUint::from(i - 1) * (&d0 + &d1);
         d0 = d1;
@@ -818,4 +834,3 @@ pub fn derangements(n: u64) -> DiscreteResult {
     }
     DiscreteResult::big(current)
 }
-

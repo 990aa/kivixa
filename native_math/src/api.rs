@@ -502,7 +502,6 @@ pub async fn correlation_covariance(x: Vec<f64>, y: Vec<f64>) -> statistics::Cor
 }
 
 /// Advanced Hypothesis Tests
-
 pub async fn f_test(data1: Vec<f64>, data2: Vec<f64>, alpha: f64) -> HypothesisTestResult {
     tokio::task::spawn_blocking(move || statistics::f_test(&data1, &data2, alpha))
         .await
@@ -892,11 +891,12 @@ pub async fn advanced_regression(
     y_data: Vec<f64>,
     reg_type: String,
 ) -> RegressionResult {
-    tokio::task::spawn_blocking(move || statistics::advanced_regression(&x_data, &y_data, &reg_type))
-        .await
-        .unwrap_or_else(|_| RegressionResult::error("Task panicked"))
+    tokio::task::spawn_blocking(move || {
+        statistics::advanced_regression(&x_data, &y_data, &reg_type)
+    })
+    .await
+    .unwrap_or_else(|_| RegressionResult::error("Task panicked"))
 }
-
 
 pub fn multinomial_coefficient(n: u64, k: Vec<u64>) -> DiscreteResult {
     discrete::multinomial_coefficient(n, &k)
@@ -921,4 +921,3 @@ pub fn stirling_second(n: u64, k: u64) -> DiscreteResult {
 pub fn derangements(n: u64) -> DiscreteResult {
     discrete::derangements(n)
 }
-
