@@ -885,3 +885,40 @@ pub fn init_app() {
         .build_global()
         .ok();
 }
+
+/// Perform advanced regression (e.g., Logistic, Ridge, Lasso, Elastic Net, Decision Tree, Random Forest)
+pub async fn advanced_regression(
+    x_data: Vec<f64>,
+    y_data: Vec<f64>,
+    reg_type: String,
+) -> RegressionResult {
+    tokio::task::spawn_blocking(move || statistics::advanced_regression(&x_data, &y_data, &reg_type))
+        .await
+        .unwrap_or_else(|_| RegressionResult::error("Task panicked"))
+}
+
+
+pub fn multinomial_coefficient(n: u64, k: Vec<u64>) -> DiscreteResult {
+    discrete::multinomial_coefficient(n, &k)
+}
+
+pub fn pigeonhole_principle(items: u64, containers: u64) -> DiscreteResult {
+    discrete::pigeonhole_principle(items, containers)
+}
+
+pub fn integer_partitions(n: u64) -> DiscreteResult {
+    discrete::integer_partitions(n)
+}
+
+pub fn bell_number(n: u64) -> DiscreteResult {
+    discrete::bell_number(n)
+}
+
+pub fn stirling_second(n: u64, k: u64) -> DiscreteResult {
+    discrete::stirling_second(n, k)
+}
+
+pub fn derangements(n: u64) -> DiscreteResult {
+    discrete::derangements(n)
+}
+

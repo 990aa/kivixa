@@ -715,3 +715,107 @@ pub fn euler_sequence(n: u32) -> Vec<f64> {
     }
     e
 }
+
+// ADVANCED COMBINATORICS
+
+/// Multinomial coefficients: n! / (r1! * r2! * ...)
+pub fn multinomial_coefficient(n: u64, k: &[u64]) -> DiscreteResult {
+    let sum_k: u64 = k.iter().sum();
+    if sum_k != n {
+        return DiscreteResult::error("Sum of k elements must equal n");
+    }
+    
+    // n! / (k1! * k2! * ... )
+    let mut num = BigUint::one();
+    for i in 1..=n { num *= BigUint::from(i); }
+    
+    let mut den = BigUint::one();
+    for &ki in k {
+        let mut k_fact = BigUint::one();
+        for i in 1..=ki { k_fact *= BigUint::from(i); }
+        den *= k_fact;
+    }
+    
+    DiscreteResult::big(num / den)
+}
+
+/// Pigeonhole principle calculation: ceil(n/m)
+pub fn pigeonhole_principle(items: u64, containers: u64) -> DiscreteResult {
+    if containers == 0 {
+        return DiscreteResult::error("Containers cannot be zero");
+    }
+    let res = (items + containers - 1) / containers;
+    DiscreteResult::value(res)
+}
+
+/// Integer partitions: P(n) - number of ways to write n as a sum of positive integers
+pub fn integer_partitions(n: u64) -> DiscreteResult {
+    if n > 1000 {
+        return DiscreteResult::error("n is too large for partition calculation");
+    }
+    let n_usize = n as usize;
+    let mut p = vec![BigUint::zero(); n_usize + 1];
+    p[0] = BigUint::one();
+    for i in 1..=n_usize {
+        for j in i..=n_usize {
+            let p_j_minus_i = p[j - i].clone();
+            p[j] += p_j_minus_i;
+        }
+    }
+    DiscreteResult::big(p[n_usize].clone())
+}
+
+/// Set partitions (Bell number) - B(n)
+pub fn bell_number(n: u64) -> DiscreteResult {
+    if n > 500 {
+        return DiscreteResult::error("n is too large for Bell number calculation");
+    }
+    let n_usize = n as usize;
+    if n_usize == 0 { return DiscreteResult::value(1); }
+    let mut bell = vec![vec![BigUint::zero(); n_usize]; n_usize];
+    bell[0][0] = BigUint::one();
+    for i in 1..n_usize {
+        bell[i][0] = bell[i - 1][i - 1].clone();
+        for j in 1..=i {
+            let a = bell[i - 1][j - 1].clone();
+            let b = bell[i][j - 1].clone();
+            bell[i][j] = a + b;
+        }
+    }
+    DiscreteResult::big(bell[n_usize - 1][n_usize - 1].clone())
+}
+
+/// Stirling numbers of the second kind S(n, k)
+pub fn stirling_second(n: u64, k: u64) -> DiscreteResult {
+    if k > n { return DiscreteResult::value(0); }
+    if k == 0 { return DiscreteResult::value(if n == 0 { 1 } else { 0 }); }
+    
+    let mut s = vec![vec![BigUint::zero(); (k + 1) as usize]; (n + 1) as usize];
+    s[0][0] = BigUint::one();
+    for i in 1..=n as usize {
+        for j in 1..=k as usize {
+            if j > i { break; }
+            let term = s[i - 1][j].clone() * BigUint::from(j) + s[i - 1][j - 1].clone();
+            s[i][j] = term;
+        }
+    }
+    DiscreteResult::big(s[n as usize][k as usize].clone())
+}
+
+/// Derangements !n - permutations with no fixed points
+pub fn derangements(n: u64) -> DiscreteResult {
+    if n == 0 { return DiscreteResult::value(1); }
+    if n == 1 { return DiscreteResult::value(0); }
+    
+    let mut d0 = BigUint::one(); // !0 = 1
+    let mut d1 = BigUint::zero(); // !1 = 0
+    let mut current = BigUint::zero();
+    
+    for i in 2..=n {
+        current = BigUint::from(i - 1) * (&d0 + &d1);
+        d0 = d1;
+        d1 = current.clone();
+    }
+    DiscreteResult::big(current)
+}
+
