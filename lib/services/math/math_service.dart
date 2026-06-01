@@ -937,7 +937,6 @@ class MathService {
     List<String> variables,
     List<double> values,
   ) {
-    double xMax,
     _ensureInitialized();
     return math_api.evaluateFormula(
       formula: formula,
