@@ -1,19 +1,19 @@
-name: PR Update
+name: Pull request update
 
 on:
   push:
     branches: [main]
-  workflow_dispatch: # Allows manual trigger from the Actions tab
+  workflow_dispatch: # Allows manual triggers from the Actions tab
 
 jobs:
   autoupdate:
     runs-on: ubuntu-latest
     permissions:
-      contents: write       # Required to merge main into PR branches
-      pull-requests: write  # Required to view and update open PRs
+      contents: write       # Required to push merge commits to PR branches
+      pull-requests: write  # Required to read and update open PRs
     steps:
-      - name: Auto-update ALL open PRs
-        uses: chinthakagodawita/autoupdate@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_READY_STATE: "all" # Updates both standard and Draft PRs
+      - name: Auto-update all open PRs (including bots)
+        uses: chrisebale/autoupdate@v2
+        with:
+          # Uses the default GITHUB_TOKEN to perform the updates
+          token: ${{ secrets.GITHUB_TOKEN }}
