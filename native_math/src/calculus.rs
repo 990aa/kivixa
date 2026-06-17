@@ -99,6 +99,53 @@ fn eval_at(expr: &str, var: &str, val: f64) -> Result<f64, String> {
         .map_err(|e| format!("Eval error: {:?}", e))
 }
 
+use crate::symbolic;
+
+/// Symbolic differentiation
+pub fn symbolic_differentiate(expression: &str, variable: &str, order: u32) -> CalculusResult {
+    if order == 0 {
+        return CalculusResult::symbolic(expression);
+    }
+    match symbolic::parse(expression) {
+        Ok(mut expr) => {
+            for _ in 0..order {
+                expr = expr.differentiate(variable).simplify();
+            }
+            CalculusResult::symbolic(&expr.to_string())
+        }
+        Err(e) => CalculusResult::error(&format!("Symbolic Parse Error: {}", e)),
+    }
+}
+
+/// Symbolic gradient vector
+pub fn symbolic_gradient(expression: &str, variables: &[&str]) -> Vec<CalculusResult> {
+    variables
+        .iter()
+        .map(|var| symbolic_differentiate(expression, var, 1))
+        .collect()
+}
+
+/// Symbolic indefinite integration
+pub fn symbolic_integrate(expression: &str, variables: &[&str]) -> CalculusResult {
+    if variables.is_empty() {
+        return CalculusResult::symbolic(expression);
+    }
+    match symbolic::parse(expression) {
+        Ok(mut expr) => {
+            for var in variables {
+                match expr.integrate(var) {
+                    Ok(integrated) => expr = integrated.simplify(),
+                    Err(e) => {
+                        return CalculusResult::error(&format!("Symbolic Integration Error: {}", e))
+                    }
+                }
+            }
+            CalculusResult::symbolic(&expr.to_string())
+        }
+        Err(e) => CalculusResult::error(&format!("Symbolic Parse Error: {}", e)),
+    }
+}
+
 /// Numerical differentiation using central difference
 pub fn differentiate(
     expression: &str,

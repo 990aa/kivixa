@@ -356,6 +356,39 @@ pub async fn line_integral(
     .unwrap_or_else(|_| CalculusResult::error("Task panicked"))
 }
 
+/// Symbolic differentiation
+pub async fn symbolic_differentiate(
+    expression: String,
+    variable: String,
+    order: u32,
+) -> CalculusResult {
+    tokio::task::spawn_blocking(move || {
+        calculus::symbolic_differentiate(&expression, &variable, order)
+    })
+    .await
+    .unwrap_or_else(|_| CalculusResult::error("Task panicked"))
+}
+
+/// Symbolic gradient vector
+pub async fn symbolic_gradient(expression: String, variables: Vec<String>) -> Vec<CalculusResult> {
+    tokio::task::spawn_blocking(move || {
+        let var_refs: Vec<&str> = variables.iter().map(|s| s.as_str()).collect();
+        calculus::symbolic_gradient(&expression, &var_refs)
+    })
+    .await
+    .unwrap_or_else(|_| vec![])
+}
+
+/// Symbolic indefinite integration
+pub async fn symbolic_integrate(expression: String, variables: Vec<String>) -> CalculusResult {
+    tokio::task::spawn_blocking(move || {
+        let var_refs: Vec<&str> = variables.iter().map(|s| s.as_str()).collect();
+        calculus::symbolic_integrate(&expression, &var_refs)
+    })
+    .await
+    .unwrap_or_else(|_| CalculusResult::error("Task panicked"))
+}
+
 // Statistics & Probability
 
 /// Compute descriptive statistics from a dataset
@@ -466,6 +499,38 @@ pub async fn correlation_covariance(x: Vec<f64>, y: Vec<f64>) -> statistics::Cor
     tokio::task::spawn_blocking(move || statistics::correlation_covariance(&x, &y))
         .await
         .unwrap_or_else(|_| statistics::CorrelationResult::error("Task panicked"))
+}
+
+/// Advanced Hypothesis Tests
+pub async fn f_test(data1: Vec<f64>, data2: Vec<f64>, alpha: f64) -> HypothesisTestResult {
+    tokio::task::spawn_blocking(move || statistics::f_test(&data1, &data2, alpha))
+        .await
+        .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
+}
+
+pub async fn mann_whitney_u(data1: Vec<f64>, data2: Vec<f64>, alpha: f64) -> HypothesisTestResult {
+    tokio::task::spawn_blocking(move || statistics::mann_whitney_u(&data1, &data2, alpha))
+        .await
+        .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
+}
+
+pub async fn binomial_test(
+    successes: u64,
+    trials: u64,
+    expected_p: f64,
+    alpha: f64,
+) -> HypothesisTestResult {
+    tokio::task::spawn_blocking(move || {
+        statistics::binomial_test(successes, trials, expected_p, alpha)
+    })
+    .await
+    .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
+}
+
+pub async fn durbin_watson_test(residuals: Vec<f64>) -> HypothesisTestResult {
+    tokio::task::spawn_blocking(move || statistics::durbin_watson_test(&residuals))
+        .await
+        .unwrap_or_else(|_| HypothesisTestResult::error("Task panicked"))
 }
 
 /// Confidence interval for mean
@@ -613,10 +678,70 @@ pub fn catalan(n: u64) -> DiscreteResult {
     discrete::catalan(n)
 }
 
-/// Check if perfect number
+/// Check if number is perfect (sum of proper divisors equals number)
 #[frb(sync)]
 pub fn is_perfect(n: u64) -> DiscreteResult {
     discrete::is_perfect(n)
+}
+
+/// Generate a classical sequence (arithmetic, geometric, triangular, polygonal)
+pub async fn generate_classical_sequence(
+    seq_type: String,
+    a: f64,
+    d_or_r: f64,
+    n: u32,
+    s: u64,
+) -> Vec<String> {
+    tokio::task::spawn_blocking(move || match seq_type.as_str() {
+        "arithmetic" => discrete::arithmetic_sequence(a, d_or_r, n)
+            .into_iter()
+            .map(|v| v.to_string())
+            .collect(),
+        "geometric" => discrete::geometric_sequence(a, d_or_r, n)
+            .into_iter()
+            .map(|v| v.to_string())
+            .collect(),
+        "triangular" => discrete::triangular_sequence(n),
+        "polygonal" => discrete::polygonal_sequence(s, n),
+        _ => vec![],
+    })
+    .await
+    .unwrap_or_else(|_| vec![])
+}
+
+/// Generate a number-theoretic sequence (mersenne, lucas, pell)
+pub async fn generate_number_theoretic_sequence(seq_type: String, n: u32) -> Vec<String> {
+    tokio::task::spawn_blocking(move || match seq_type.as_str() {
+        "mersenne" => discrete::mersenne_sequence(n),
+        "lucas" => discrete::lucas_sequence(n),
+        "pell" => discrete::pell_sequence(n),
+        _ => vec![],
+    })
+    .await
+    .unwrap_or_else(|_| vec![])
+}
+
+/// Generate a combinatorial sequence (stirling1_row, partition)
+pub async fn generate_combinatorial_sequence(seq_type: String, n: u32) -> Vec<String> {
+    tokio::task::spawn_blocking(move || match seq_type.as_str() {
+        "stirling1_row" => discrete::stirling1_row(n),
+        "partition" => discrete::partition_sequence(n),
+        _ => vec![],
+    })
+    .await
+    .unwrap_or_else(|_| vec![])
+}
+
+/// Generate an analytical sequence (harmonic, bernoulli, euler)
+pub async fn generate_analytical_sequence(seq_type: String, n: u32) -> Vec<f64> {
+    tokio::task::spawn_blocking(move || match seq_type.as_str() {
+        "harmonic" => discrete::harmonic_sequence(n),
+        "bernoulli" => discrete::bernoulli_sequence(n),
+        "euler" => discrete::euler_sequence(n),
+        _ => vec![],
+    })
+    .await
+    .unwrap_or_else(|_| vec![])
 }
 
 // Unit Conversion
@@ -758,4 +883,41 @@ pub fn init_app() {
         .num_threads(num_cpus::get().max(2))
         .build_global()
         .ok();
+}
+
+/// Perform advanced regression (e.g., Logistic, Ridge, Lasso, Elastic Net, Decision Tree, Random Forest)
+pub async fn advanced_regression(
+    x_data: Vec<f64>,
+    y_data: Vec<f64>,
+    reg_type: String,
+) -> RegressionResult {
+    tokio::task::spawn_blocking(move || {
+        statistics::advanced_regression(&x_data, &y_data, &reg_type)
+    })
+    .await
+    .unwrap_or_else(|_| RegressionResult::error("Task panicked"))
+}
+
+pub fn multinomial_coefficient(n: u64, k: Vec<u64>) -> DiscreteResult {
+    discrete::multinomial_coefficient(n, &k)
+}
+
+pub fn pigeonhole_principle(items: u64, containers: u64) -> DiscreteResult {
+    discrete::pigeonhole_principle(items, containers)
+}
+
+pub fn integer_partitions(n: u64) -> DiscreteResult {
+    discrete::integer_partitions(n)
+}
+
+pub fn bell_number(n: u64) -> DiscreteResult {
+    discrete::bell_number(n)
+}
+
+pub fn stirling_second(n: u64, k: u64) -> DiscreteResult {
+    discrete::stirling_second(n, k)
+}
+
+pub fn derangements(n: u64) -> DiscreteResult {
+    discrete::derangements(n)
 }

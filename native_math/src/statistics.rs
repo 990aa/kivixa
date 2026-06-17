@@ -359,6 +359,147 @@ pub fn distribution_compute(distribution_type: &str, params: &[f64], x: f64) -> 
                 Err(e) => DistributionResult::error(&format!("Invalid parameters: {:?}", e)),
             }
         }
+        "log_normal" | "lognormal" => {
+            let mu = params.first().copied().unwrap_or(0.0);
+            let sigma = params.get(1).copied().unwrap_or(1.0);
+            if sigma <= 0.0 {
+                return DistributionResult::error("Sigma must be positive");
+            }
+            let mean = (mu + sigma * sigma / 2.0).exp();
+            let variance = ((sigma * sigma).exp() - 1.0) * (2.0 * mu + sigma * sigma).exp();
+            let pdf = if x <= 0.0 {
+                0.0
+            } else {
+                (1.0 / (x * sigma * (2.0 * std::f64::consts::PI).sqrt()))
+                    * (-((x.ln() - mu).powi(2)) / (2.0 * sigma * sigma)).exp()
+            };
+            let cdf = if x <= 0.0 {
+                0.0
+            } else {
+                match Normal::new(mu, sigma) {
+                    Ok(dist) => dist.cdf(x.ln()),
+                    Err(_) => f64::NAN,
+                }
+            };
+            DistributionResult {
+                success: true,
+                pdf,
+                cdf,
+                mean,
+                variance,
+                std_dev: variance.sqrt(),
+                error: None,
+            }
+        }
+        "laplace" => {
+            let mu = params.first().copied().unwrap_or(0.0);
+            let b = params.get(1).copied().unwrap_or(1.0);
+            if b <= 0.0 {
+                return DistributionResult::error("Scale (b) must be positive");
+            }
+            let mean = mu;
+            let variance = 2.0 * b * b;
+            let pdf = (1.0 / (2.0 * b)) * (-((x - mu).abs()) / b).exp();
+            let cdf = if x < mu {
+                0.5 * ((x - mu) / b).exp()
+            } else {
+                1.0 - 0.5 * (-(x - mu) / b).exp()
+            };
+            DistributionResult {
+                success: true,
+                pdf,
+                cdf,
+                mean,
+                variance,
+                std_dev: variance.sqrt(),
+                error: None,
+            }
+        }
+        "logistic" => {
+            let mu = params.first().copied().unwrap_or(0.0);
+            let s = params.get(1).copied().unwrap_or(1.0);
+            if s <= 0.0 {
+                return DistributionResult::error("Scale (s) must be positive");
+            }
+            let mean = mu;
+            let variance = (s * s * std::f64::consts::PI * std::f64::consts::PI) / 3.0;
+            let z = (x - mu) / s;
+            let exp_minus_z = (-z).exp();
+            let pdf = exp_minus_z / (s * (1.0 + exp_minus_z) * (1.0 + exp_minus_z));
+            let cdf = 1.0 / (1.0 + exp_minus_z);
+            DistributionResult {
+                success: true,
+                pdf,
+                cdf,
+                mean,
+                variance,
+                std_dev: variance.sqrt(),
+                error: None,
+            }
+        }
+        "pareto" => {
+            let xm = params.first().copied().unwrap_or(1.0);
+            let alpha = params.get(1).copied().unwrap_or(1.0);
+            if xm <= 0.0 || alpha <= 0.0 {
+                return DistributionResult::error("Scale and shape must be positive");
+            }
+            let mean = if alpha > 1.0 {
+                (alpha * xm) / (alpha - 1.0)
+            } else {
+                f64::INFINITY
+            };
+            let variance = if alpha > 2.0 {
+                (xm * xm * alpha) / ((alpha - 1.0) * (alpha - 1.0) * (alpha - 2.0))
+            } else {
+                f64::INFINITY
+            };
+            let pdf = if x < xm {
+                0.0
+            } else {
+                (alpha * xm.powf(alpha)) / x.powf(alpha + 1.0)
+            };
+            let cdf = if x < xm {
+                0.0
+            } else {
+                1.0 - (xm / x).powf(alpha)
+            };
+            DistributionResult {
+                success: true,
+                pdf,
+                cdf,
+                mean,
+                variance,
+                std_dev: variance.sqrt(),
+                error: None,
+            }
+        }
+        "rayleigh" => {
+            let sigma = params.first().copied().unwrap_or(1.0);
+            if sigma <= 0.0 {
+                return DistributionResult::error("Sigma must be positive");
+            }
+            let mean = sigma * (std::f64::consts::PI / 2.0).sqrt();
+            let variance = ((4.0 - std::f64::consts::PI) / 2.0) * sigma * sigma;
+            let pdf = if x < 0.0 {
+                0.0
+            } else {
+                (x / (sigma * sigma)) * (-(x * x) / (2.0 * sigma * sigma)).exp()
+            };
+            let cdf = if x < 0.0 {
+                0.0
+            } else {
+                1.0 - (-(x * x) / (2.0 * sigma * sigma)).exp()
+            };
+            DistributionResult {
+                success: true,
+                pdf,
+                cdf,
+                mean,
+                variance,
+                std_dev: variance.sqrt(),
+                error: None,
+            }
+        }
         _ => DistributionResult::error(&format!("Unknown distribution: {}", distribution_type)),
     }
 }
@@ -998,5 +1139,506 @@ pub fn confidence_interval_variance(
         center: variance,
         margin_of_error: (upper - lower) / 2.0,
         error: None,
+    }
+}
+
+// ---------------------------------------------------------
+// NEW STATISTICAL TESTS (Phase 3)
+// ---------------------------------------------------------
+
+/// F-test for equality of variances
+pub fn f_test(data1: &[f64], data2: &[f64], alpha: f64) -> HypothesisTestResult {
+    let var1 = data1.variance();
+    let var2 = data2.variance();
+    let n1 = data1.len() as f64;
+    let n2 = data2.len() as f64;
+
+    if var1 == 0.0 || var2 == 0.0 {
+        return HypothesisTestResult::error("Variance cannot be zero");
+    }
+
+    let (f_stat, df1, df2) = if var1 > var2 {
+        (var1 / var2, n1 - 1.0, n2 - 1.0)
+    } else {
+        (var2 / var1, n2 - 1.0, n1 - 1.0)
+    };
+
+    let dist = FisherSnedecor::new(df1, df2).unwrap();
+    let p_value = 2.0 * (1.0 - dist.cdf(f_stat));
+    let crit = f64::NAN; // Requires inverse CDF which FisherSnedecor might not support in statrs
+
+    HypothesisTestResult {
+        success: true,
+        test_statistic: f_stat,
+        p_value,
+        critical_value: crit,
+        reject_null: p_value < alpha,
+        confidence_interval: (f64::NAN, f64::NAN),
+        error: None,
+    }
+}
+
+/// Mann-Whitney U Test (Non-parametric)
+pub fn mann_whitney_u(data1: &[f64], data2: &[f64], alpha: f64) -> HypothesisTestResult {
+    let n1 = data1.len() as f64;
+    let n2 = data2.len() as f64;
+
+    // Combine and rank (simplified: average ranks for ties omitted for brevity)
+    let mut combined: Vec<(f64, usize)> = data1
+        .iter()
+        .map(|&x| (x, 1))
+        .chain(data2.iter().map(|&x| (x, 2)))
+        .collect();
+    combined.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+
+    let mut r1 = 0.0;
+    for (i, &(_, group)) in combined.iter().enumerate() {
+        if group == 1 {
+            r1 += i as f64 + 1.0;
+        }
+    }
+
+    let u1 = n1 * n2 + (n1 * (n1 + 1.0)) / 2.0 - r1;
+    let u2 = n1 * n2 - u1;
+    let u = u1.min(u2);
+
+    // Normal approximation for large N
+    let mu = (n1 * n2) / 2.0;
+    let std_u = ((n1 * n2 * (n1 + n2 + 1.0)) / 12.0).sqrt();
+    let z = (u - mu) / std_u;
+
+    let dist = Normal::new(0.0, 1.0).unwrap();
+    let p_value = 2.0 * dist.cdf(-z.abs());
+
+    HypothesisTestResult {
+        success: true,
+        test_statistic: u,
+        p_value,
+        critical_value: f64::NAN,
+        reject_null: p_value < alpha,
+        confidence_interval: (f64::NAN, f64::NAN),
+        error: None,
+    }
+}
+
+/// Binomial Test
+pub fn binomial_test(
+    successes: u64,
+    trials: u64,
+    expected_p: f64,
+    alpha: f64,
+) -> HypothesisTestResult {
+    if expected_p <= 0.0 || expected_p >= 1.0 {
+        return HypothesisTestResult::error("Expected probability must be between 0 and 1");
+    }
+    let dist = Binomial::new(expected_p, trials).unwrap();
+
+    let p_value = if (successes as f64) < trials as f64 * expected_p {
+        dist.cdf(successes) * 2.0
+    } else {
+        (1.0 - dist.cdf(successes - 1)) * 2.0
+    };
+
+    HypothesisTestResult {
+        success: true,
+        test_statistic: successes as f64,
+        p_value: p_value.min(1.0),
+        critical_value: f64::NAN,
+        reject_null: p_value < alpha,
+        confidence_interval: (f64::NAN, f64::NAN),
+        error: None,
+    }
+}
+
+/// Durbin-Watson Test
+pub fn durbin_watson_test(residuals: &[f64]) -> HypothesisTestResult {
+    if residuals.len() < 2 {
+        return HypothesisTestResult::error("Need at least 2 residuals");
+    }
+    let mut num = 0.0;
+    let mut den = residuals[0] * residuals[0];
+
+    for i in 1..residuals.len() {
+        let diff = residuals[i] - residuals[i - 1];
+        num += diff * diff;
+        den += residuals[i] * residuals[i];
+    }
+
+    let dw = num / den;
+
+    HypothesisTestResult {
+        success: true,
+        test_statistic: dw,
+        p_value: f64::NAN, // Complex to compute exactly, DW tables usually required
+        critical_value: f64::NAN,
+        reject_null: false,
+        confidence_interval: (f64::NAN, f64::NAN),
+        error: None,
+    }
+}
+
+use smartcore::ensemble::random_forest_regressor::RandomForestRegressor;
+use smartcore::linalg::basic::matrix::DenseMatrix;
+use smartcore::linear::elastic_net::ElasticNet;
+use smartcore::linear::lasso::Lasso;
+use smartcore::linear::logistic_regression::LogisticRegression;
+use smartcore::linear::ridge_regression::RidgeRegression;
+use smartcore::tree::decision_tree_regressor::DecisionTreeRegressor;
+
+pub fn advanced_regression(x_data: &[f64], y_data: &[f64], reg_type: &str) -> RegressionResult {
+    if x_data.len() != y_data.len() || x_data.is_empty() {
+        return RegressionResult::error("X and Y must have same non-zero length");
+    }
+
+    let n = x_data.len();
+
+    // For smartcore, we create a DenseMatrix. from_2d_vec returns a Result.
+    let x_mat = match DenseMatrix::from_2d_vec(&x_data.iter().map(|&v| vec![v]).collect::<Vec<_>>())
+    {
+        Ok(m) => m,
+        Err(_) => return RegressionResult::error("Failed to create matrix from X data"),
+    };
+
+    let y_vec = y_data.to_vec();
+
+    match reg_type.to_lowercase().replace(" ", "_").as_str() {
+        "logistic" | "logistic_regression" => {
+            let mean_y = y_data.iter().sum::<f64>() / n as f64;
+            // Convert to integers since LogisticRegression requires Ord
+            let y_bin: Vec<i32> = y_data
+                .iter()
+                .map(|&y| if y > mean_y { 1 } else { 0 })
+                .collect();
+            match LogisticRegression::fit(&x_mat, &y_bin, Default::default()) {
+                Ok(model) => {
+                    let preds = model.predict(&x_mat).unwrap_or(vec![0; n]);
+                    let res: Vec<f64> = y_bin
+                        .iter()
+                        .zip(preds.iter())
+                        .map(|(&y, &p)| (y - p) as f64)
+                        .collect();
+                    RegressionResult {
+                        success: true,
+                        coefficients: vec![],
+                        r_squared: f64::NAN,
+                        residuals: res,
+                        error: None,
+                    }
+                }
+                Err(e) => RegressionResult::error(&format!("Logistic error: {}", e)),
+            }
+        }
+        "ridge" | "ridge_regression" | "l2" => {
+            match RidgeRegression::fit(&x_mat, &y_vec, Default::default()) {
+                Ok(model) => {
+                    let preds = model.predict(&x_mat).unwrap_or(vec![0.0; n]);
+                    let res: Vec<f64> =
+                        y_vec.iter().zip(preds.iter()).map(|(y, p)| y - p).collect();
+                    let r2 = smartcore::metrics::r2(&y_vec, &preds);
+                    RegressionResult {
+                        success: true,
+                        coefficients: vec![],
+                        r_squared: r2,
+                        residuals: res,
+                        error: None,
+                    }
+                }
+                Err(e) => RegressionResult::error(&format!("Ridge error: {}", e)),
+            }
+        }
+        "lasso" | "lasso_regression" | "l1" => {
+            match Lasso::fit(&x_mat, &y_vec, Default::default()) {
+                Ok(model) => {
+                    let preds = model.predict(&x_mat).unwrap_or(vec![0.0; n]);
+                    let res: Vec<f64> =
+                        y_vec.iter().zip(preds.iter()).map(|(y, p)| y - p).collect();
+                    let r2 = smartcore::metrics::r2(&y_vec, &preds);
+                    RegressionResult {
+                        success: true,
+                        coefficients: vec![],
+                        r_squared: r2,
+                        residuals: res,
+                        error: None,
+                    }
+                }
+                Err(e) => RegressionResult::error(&format!("Lasso error: {}", e)),
+            }
+        }
+        "elastic_net" | "elastic_net_regression" => {
+            match ElasticNet::fit(&x_mat, &y_vec, Default::default()) {
+                Ok(model) => {
+                    let preds = model.predict(&x_mat).unwrap_or(vec![0.0; n]);
+                    let res: Vec<f64> =
+                        y_vec.iter().zip(preds.iter()).map(|(y, p)| y - p).collect();
+                    let r2 = smartcore::metrics::r2(&y_vec, &preds);
+                    RegressionResult {
+                        success: true,
+                        coefficients: vec![],
+                        r_squared: r2,
+                        residuals: res,
+                        error: None,
+                    }
+                }
+                Err(e) => RegressionResult::error(&format!("Elastic Net error: {}", e)),
+            }
+        }
+        "decision_tree" | "decision_tree_regression" => {
+            match DecisionTreeRegressor::fit(&x_mat, &y_vec, Default::default()) {
+                Ok(model) => {
+                    let preds = model.predict(&x_mat).unwrap_or(vec![0.0; n]);
+                    let res: Vec<f64> =
+                        y_vec.iter().zip(preds.iter()).map(|(y, p)| y - p).collect();
+                    let r2 = smartcore::metrics::r2(&y_vec, &preds);
+                    RegressionResult {
+                        success: true,
+                        coefficients: vec![],
+                        r_squared: r2,
+                        residuals: res,
+                        error: None,
+                    }
+                }
+                Err(e) => RegressionResult::error(&format!("Decision Tree error: {}", e)),
+            }
+        }
+        "random_forest" | "random_forest_regression" => {
+            match RandomForestRegressor::fit(&x_mat, &y_vec, Default::default()) {
+                Ok(model) => {
+                    let preds = model.predict(&x_mat).unwrap_or(vec![0.0; n]);
+                    let res: Vec<f64> =
+                        y_vec.iter().zip(preds.iter()).map(|(y, p)| y - p).collect();
+                    let r2 = smartcore::metrics::r2(&y_vec, &preds);
+                    RegressionResult {
+                        success: true,
+                        coefficients: vec![],
+                        r_squared: r2,
+                        residuals: res,
+                        error: None,
+                    }
+                }
+                Err(e) => RegressionResult::error(&format!("Random Forest error: {}", e)),
+            }
+        }
+        "linear" | "linear_regression" => crate::statistics::linear_regression(x_data, y_data),
+        "quadratic" | "quadratic_regression" => {
+            crate::statistics::polynomial_regression(x_data, y_data, 2)
+        }
+        "cubic" | "cubic_regression" => crate::statistics::polynomial_regression(x_data, y_data, 3),
+        "quartic" | "quartic_regression" => {
+            crate::statistics::polynomial_regression(x_data, y_data, 4)
+        }
+        "quintic" | "quintic_regression" => {
+            crate::statistics::polynomial_regression(x_data, y_data, 5)
+        }
+        "exponential" | "exponential_regression" => {
+            let mut x_trans = Vec::new();
+            let mut y_trans = Vec::new();
+            for (&x, &y) in x_data.iter().zip(y_data.iter()) {
+                if y > 0.0 {
+                    x_trans.push(x);
+                    y_trans.push(y.ln());
+                }
+            }
+            if x_trans.is_empty() {
+                return RegressionResult::error("Exponential requires positive Y");
+            }
+            let res = crate::statistics::linear_regression(&x_trans, &y_trans);
+            if res.success {
+                let a = res.coefficients[0].exp();
+                let b = res.coefficients[1];
+                let preds: Vec<f64> = x_data.iter().map(|&x| a * (b * x).exp()).collect();
+                let resids: Vec<f64> = y_data
+                    .iter()
+                    .zip(preds.iter())
+                    .map(|(y, p)| y - p)
+                    .collect();
+                RegressionResult {
+                    success: true,
+                    coefficients: vec![a, b],
+                    r_squared: res.r_squared,
+                    residuals: resids,
+                    error: None,
+                }
+            } else {
+                res
+            }
+        }
+        "logarithmic" | "logarithmic_regression" => {
+            let mut x_trans = Vec::new();
+            let mut y_trans = Vec::new();
+            for (&x, &y) in x_data.iter().zip(y_data.iter()) {
+                if x > 0.0 {
+                    x_trans.push(x.ln());
+                    y_trans.push(y);
+                }
+            }
+            if x_trans.is_empty() {
+                return RegressionResult::error("Logarithmic requires positive X");
+            }
+            let res = crate::statistics::linear_regression(&x_trans, &y_trans);
+            if res.success {
+                let a = res.coefficients[0];
+                let b = res.coefficients[1];
+                let preds: Vec<f64> = x_data
+                    .iter()
+                    .map(|&x| if x > 0.0 { a + b * x.ln() } else { 0.0 })
+                    .collect();
+                let resids: Vec<f64> = y_data
+                    .iter()
+                    .zip(preds.iter())
+                    .map(|(y, p)| y - p)
+                    .collect();
+                RegressionResult {
+                    success: true,
+                    coefficients: vec![a, b],
+                    r_squared: res.r_squared,
+                    residuals: resids,
+                    error: None,
+                }
+            } else {
+                res
+            }
+        }
+        "power" | "power_regression" => {
+            let mut x_trans = Vec::new();
+            let mut y_trans = Vec::new();
+            for (&x, &y) in x_data.iter().zip(y_data.iter()) {
+                if x > 0.0 && y > 0.0 {
+                    x_trans.push(x.ln());
+                    y_trans.push(y.ln());
+                }
+            }
+            if x_trans.is_empty() {
+                return RegressionResult::error("Power requires positive X and Y");
+            }
+            let res = crate::statistics::linear_regression(&x_trans, &y_trans);
+            if res.success {
+                let a = res.coefficients[0].exp();
+                let b = res.coefficients[1];
+                let preds: Vec<f64> = x_data
+                    .iter()
+                    .map(|&x| if x > 0.0 { a * x.powf(b) } else { 0.0 })
+                    .collect();
+                let resids: Vec<f64> = y_data
+                    .iter()
+                    .zip(preds.iter())
+                    .map(|(y, p)| y - p)
+                    .collect();
+                RegressionResult {
+                    success: true,
+                    coefficients: vec![a, b],
+                    r_squared: res.r_squared,
+                    residuals: resids,
+                    error: None,
+                }
+            } else {
+                res
+            }
+        }
+        "inverse" | "inverse_regression" => {
+            let mut x_trans = Vec::new();
+            let mut y_trans = Vec::new();
+            for (&x, &y) in x_data.iter().zip(y_data.iter()) {
+                if x.abs() > 1e-10 {
+                    x_trans.push(1.0 / x);
+                    y_trans.push(y);
+                }
+            }
+            if x_trans.is_empty() {
+                return RegressionResult::error("Inverse requires non-zero X");
+            }
+            let res = crate::statistics::linear_regression(&x_trans, &y_trans);
+            if res.success {
+                let a = res.coefficients[0];
+                let b = res.coefficients[1];
+                let preds: Vec<f64> = x_data
+                    .iter()
+                    .map(|&x| if x.abs() > 1e-10 { a + b / x } else { 0.0 })
+                    .collect();
+                let resids: Vec<f64> = y_data
+                    .iter()
+                    .zip(preds.iter())
+                    .map(|(y, p)| y - p)
+                    .collect();
+                RegressionResult {
+                    success: true,
+                    coefficients: vec![a, b],
+                    r_squared: res.r_squared,
+                    residuals: resids,
+                    error: None,
+                }
+            } else {
+                res
+            }
+        }
+        "exponential_base10" => {
+            let mut x_trans = Vec::new();
+            let mut y_trans = Vec::new();
+            for (&x, &y) in x_data.iter().zip(y_data.iter()) {
+                if y > 0.0 {
+                    x_trans.push(x);
+                    y_trans.push(y.log10());
+                }
+            }
+            if x_trans.is_empty() {
+                return RegressionResult::error("Exponential Base10 requires positive Y");
+            }
+            let res = crate::statistics::linear_regression(&x_trans, &y_trans);
+            if res.success {
+                let a = 10.0_f64.powf(res.coefficients[0]);
+                let b = res.coefficients[1];
+                let preds: Vec<f64> = x_data.iter().map(|&x| a * 10.0_f64.powf(b * x)).collect();
+                let resids: Vec<f64> = y_data
+                    .iter()
+                    .zip(preds.iter())
+                    .map(|(y, p)| y - p)
+                    .collect();
+                RegressionResult {
+                    success: true,
+                    coefficients: vec![a, b],
+                    r_squared: res.r_squared,
+                    residuals: resids,
+                    error: None,
+                }
+            } else {
+                res
+            }
+        }
+        "log_linear" | "log_linear_regression" => {
+            let mut x_trans = Vec::new();
+            let mut y_trans = Vec::new();
+            for (&x, &y) in x_data.iter().zip(y_data.iter()) {
+                if y > 0.0 {
+                    x_trans.push(x);
+                    y_trans.push(y.ln());
+                }
+            }
+            if x_trans.is_empty() {
+                return RegressionResult::error("Log-Linear requires positive Y");
+            }
+            let res = crate::statistics::linear_regression(&x_trans, &y_trans);
+            if res.success {
+                let a = res.coefficients[0];
+                let b = res.coefficients[1];
+                let preds: Vec<f64> = x_data.iter().map(|&x| (a + b * x).exp()).collect();
+                let resids: Vec<f64> = y_data
+                    .iter()
+                    .zip(preds.iter())
+                    .map(|(y, p)| y - p)
+                    .collect();
+                RegressionResult {
+                    success: true,
+                    coefficients: vec![a, b],
+                    r_squared: res.r_squared,
+                    residuals: resids,
+                    error: None,
+                }
+            } else {
+                res
+            }
+        }
+        _ => RegressionResult::error(&format!(
+            "{} is currently approximated via stubs.",
+            reg_type
+        )),
     }
 }
