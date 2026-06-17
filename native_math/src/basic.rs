@@ -50,15 +50,24 @@ pub fn evaluate_expression(expression: &str) -> ExpressionResult {
             "sin" => Some(args.first()?.sin()),
             "cos" => Some(args.first()?.cos()),
             "tan" => Some(args.first()?.tan()),
+            "sec" => Some(1.0 / args.first()?.cos()),
+            "csc" => Some(1.0 / args.first()?.sin()),
+            "cot" => Some(1.0 / args.first()?.tan()),
             "asin" => Some(args.first()?.asin()),
             "acos" => Some(args.first()?.acos()),
             "atan" => Some(args.first()?.atan()),
             "atan2" => Some(args.first()?.atan2(*args.get(1)?)),
+            "asec" => Some((1.0 / args.first()?).acos()),
+            "acsc" => Some((1.0 / args.first()?).asin()),
+            "acot" => Some((1.0 / args.first()?).atan()),
 
             // Trigonometric (degrees)
             "sind" => Some(args.first()?.to_radians().sin()),
             "cosd" => Some(args.first()?.to_radians().cos()),
             "tand" => Some(args.first()?.to_radians().tan()),
+            "secd" => Some(1.0 / args.first()?.to_radians().cos()),
+            "cscd" => Some(1.0 / args.first()?.to_radians().sin()),
+            "cotd" => Some(1.0 / args.first()?.to_radians().tan()),
 
             // Hyperbolic
             "sinh" => Some(args.first()?.sinh()),
@@ -100,6 +109,13 @@ pub fn evaluate_expression(expression: &str) -> ExpressionResult {
             "e" => Some(std::f64::consts::E),
             "tau" => Some(std::f64::consts::TAU),
             "phi" => Some(1.618033988749895), // Golden ratio
+            "c" => Some(299792458.0),
+            "G" => Some(6.67430e-11),
+            "h" => Some(6.62607015e-34),
+            "kB" => Some(1.380649e-23),
+            "NA" => Some(6.02214076e23),
+            "R" => Some(8.314462618),
+            "g" => Some(9.80665),
 
             // Factorial (for small numbers)
             "fact" | "factorial" => {
@@ -115,18 +131,193 @@ pub fn evaluate_expression(expression: &str) -> ExpressionResult {
         }
     };
 
-    // Clean expression
-    let expr = expression
-        .replace("×", "*")
-        .replace("÷", "/")
-        .replace("−", "-")
-        .replace("π", "pi()")
-        .replace("√", "sqrt");
+    let expr = preprocess_expression(expression);
 
     match fasteval::ez_eval(&expr, &mut ns) {
         Ok(val) => ExpressionResult::ok(val),
         Err(e) => ExpressionResult::error(&format!("Evaluation error: {}", e)),
     }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+enum Token {
+    Number(String),
+    FuncConst(String),
+    Op(char),
+}
+
+fn tokenize(mut s: &str) -> Vec<Token> {
+    let mut tokens = Vec::new();
+    let funcs_and_consts = [
+        "asin",
+        "acos",
+        "atan",
+        "asec",
+        "acsc",
+        "acot",
+        "sind",
+        "cosd",
+        "tand",
+        "secd",
+        "cscd",
+        "cotd",
+        "sinh",
+        "cosh",
+        "tanh",
+        "asinh",
+        "acosh",
+        "atanh",
+        "sin",
+        "cos",
+        "tan",
+        "sec",
+        "csc",
+        "cot",
+        "log2",
+        "logb",
+        "log",
+        "ln",
+        "exp",
+        "pow",
+        "sqrt",
+        "cbrt",
+        "root",
+        "floor",
+        "ceil",
+        "round",
+        "trunc",
+        "frac",
+        "abs",
+        "sign",
+        "min",
+        "max",
+        "clamp",
+        "factorial",
+        "fact",
+        "pi",
+        "tau",
+        "phi",
+        "kB",
+        "NA",
+        "e",
+        "c",
+        "G",
+        "h",
+        "R",
+        "g",
+    ];
+
+    while !s.is_empty() {
+        s = s.trim_start();
+        if s.is_empty() {
+            break;
+        }
+
+        let c = s.chars().next().unwrap();
+
+        if c.is_ascii_digit() || c == '.' {
+            let end = s
+                .find(|c: char| !c.is_ascii_digit() && c != '.')
+                .unwrap_or(s.len());
+            tokens.push(Token::Number(s[..end].to_string()));
+            s = &s[end..];
+        } else if c.is_alphabetic() {
+            let mut matched = false;
+            for fc in funcs_and_consts.iter() {
+                if s.starts_with(fc) {
+                    tokens.push(Token::FuncConst(fc.to_string()));
+                    s = &s[fc.len()..];
+                    matched = true;
+                    break;
+                }
+            }
+            if !matched {
+                tokens.push(Token::FuncConst(s[..1].to_string()));
+                s = &s[1..];
+            }
+        } else {
+            tokens.push(Token::Op(c));
+            s = &s[c.len_utf8()..];
+        }
+    }
+    tokens
+}
+
+fn preprocess_expression(expr: &str) -> String {
+    let clean_expr = expr
+        .replace("×", "*")
+        .replace("÷", "/")
+        .replace("−", "-")
+        .replace("π", "pi")
+        .replace("√", "sqrt");
+
+    let tokens = tokenize(&clean_expr);
+    let mut result = String::new();
+    let mut open_brackets = 0;
+
+    for i in 0..tokens.len() {
+        let t = &tokens[i];
+
+        if let Token::Op('(') = t {
+            open_brackets += 1;
+        }
+        if let Token::Op(')') = t {
+            open_brackets -= 1;
+        }
+
+        if i > 0 {
+            let prev = &tokens[i - 1];
+            let needs_mult = match (prev, t) {
+                (Token::Number(_), Token::FuncConst(_)) => true,
+                (Token::Number(_), Token::Op('(')) => true,
+                (Token::Op(')'), Token::Number(_)) => true,
+                (Token::Op(')'), Token::FuncConst(_)) => true,
+                (Token::Op(')'), Token::Op('(')) => true,
+                (Token::FuncConst(f1), Token::FuncConst(_)) => is_constant_name(f1),
+                (Token::FuncConst(f1), Token::Number(_)) => is_constant_name(f1),
+                (Token::FuncConst(f1), Token::Op('(')) if is_constant_name(f1) => {
+                    let next_next_is_close = if i + 1 < tokens.len() {
+                        matches!(tokens[i + 1], Token::Op(')'))
+                    } else {
+                        false
+                    };
+                    !next_next_is_close
+                }
+                _ => false,
+            };
+            if needs_mult {
+                result.push('*');
+            }
+        }
+
+        match t {
+            Token::Number(n) => result.push_str(n),
+            Token::FuncConst(f) => {
+                if is_constant_name(f) {
+                    result.push_str(f);
+                    let next_is_paren = if i + 1 < tokens.len() {
+                        matches!(tokens[i + 1], Token::Op('('))
+                    } else {
+                        false
+                    };
+                    if !next_is_paren {
+                        result.push_str("()");
+                    }
+                } else {
+                    result.push_str(f);
+                }
+            }
+            Token::Op(c) => result.push(*c),
+        }
+    }
+
+    if open_brackets > 0 {
+        for _ in 0..open_brackets {
+            result.push(')');
+        }
+    }
+
+    result
 }
 
 /// Convert between number systems
@@ -211,13 +402,22 @@ fn is_function_name(name: &str) -> bool {
         "sin"
             | "cos"
             | "tan"
+            | "sec"
+            | "csc"
+            | "cot"
             | "asin"
             | "acos"
             | "atan"
             | "atan2"
+            | "asec"
+            | "acsc"
+            | "acot"
             | "sind"
             | "cosd"
             | "tand"
+            | "secd"
+            | "cscd"
+            | "cotd"
             | "sinh"
             | "cosh"
             | "tanh"
@@ -249,7 +449,10 @@ fn is_function_name(name: &str) -> bool {
 }
 
 fn is_constant_name(name: &str) -> bool {
-    matches!(name.to_lowercase().as_str(), "pi" | "e" | "tau" | "phi")
+    matches!(
+        name,
+        "pi" | "e" | "tau" | "phi" | "c" | "G" | "h" | "kB" | "NA" | "R" | "g"
+    )
 }
 
 /// Evaluate a formula with given variable values

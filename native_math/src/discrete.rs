@@ -548,3 +548,289 @@ pub fn is_perfect(n: u64) -> DiscreteResult {
     let sum = sum_divisors(n);
     DiscreteResult::bool_val(sum.value - n == n)
 }
+
+// Classical Sequences
+
+pub fn arithmetic_sequence(a: f64, d: f64, n: u32) -> Vec<f64> {
+    (0..n).map(|i| a + (i as f64) * d).collect()
+}
+
+pub fn geometric_sequence(a: f64, r: f64, n: u32) -> Vec<f64> {
+    (0..n).map(|i| a * r.powi(i as i32)).collect()
+}
+
+pub fn triangular_sequence(n: u32) -> Vec<String> {
+    (1..=n)
+        .map(|i| {
+            let i_u = i as u64;
+            let v = i_u * (i_u + 1) / 2;
+            v.to_string()
+        })
+        .collect()
+}
+
+pub fn polygonal_sequence(s: u64, n: u32) -> Vec<String> {
+    if s < 3 {
+        return vec![];
+    }
+    (1..=n)
+        .map(|i| {
+            let i = i as u64;
+            let v = (s - 2) * i * (i - 1) / 2 + i;
+            v.to_string()
+        })
+        .collect()
+}
+
+// Number-Theoretic Sequences
+
+pub fn mersenne_sequence(n: u32) -> Vec<String> {
+    (1..=n)
+        .map(|i| {
+            let mut m = BigUint::one() << (i as usize);
+            m -= BigUint::one();
+            m.to_string()
+        })
+        .collect()
+}
+
+pub fn lucas_sequence(n: u32) -> Vec<String> {
+    if n == 0 {
+        return vec![];
+    }
+    let mut seq = vec![BigUint::from(2u32)];
+    if n == 1 {
+        return seq.into_iter().map(|b| b.to_string()).collect();
+    }
+    seq.push(BigUint::one());
+    for i in 2..n {
+        let next = &seq[i as usize - 1] + &seq[i as usize - 2];
+        seq.push(next);
+    }
+    seq.into_iter().map(|b| b.to_string()).collect()
+}
+
+pub fn pell_sequence(n: u32) -> Vec<String> {
+    if n == 0 {
+        return vec![];
+    }
+    let mut seq = vec![BigUint::zero()];
+    if n == 1 {
+        return seq.into_iter().map(|b| b.to_string()).collect();
+    }
+    seq.push(BigUint::one());
+    for i in 2..n {
+        let next = 2u32 * &seq[i as usize - 1] + &seq[i as usize - 2];
+        seq.push(next);
+    }
+    seq.into_iter().map(|b| b.to_string()).collect()
+}
+
+// Combinatorial Sequences
+
+pub fn stirling1(n: u32, k: u32) -> BigUint {
+    if k > n {
+        return BigUint::zero();
+    }
+    if k == 0 {
+        return if n == 0 {
+            BigUint::one()
+        } else {
+            BigUint::zero()
+        };
+    }
+    if k == n {
+        return BigUint::one();
+    }
+
+    let mut prev = vec![BigUint::zero(); (k + 1) as usize];
+    prev[0] = BigUint::one();
+    for i in 1..=n {
+        let mut curr = vec![BigUint::zero(); (k + 1) as usize];
+        for j in 1..=k.min(i) {
+            let mult = BigUint::from(i - 1);
+            curr[j as usize] = &prev[(j - 1) as usize] + &prev[j as usize] * mult;
+        }
+        prev = curr;
+    }
+    prev[k as usize].clone()
+}
+
+pub fn stirling1_row(n: u32) -> Vec<String> {
+    (0..=n).map(|k| stirling1(n, k).to_string()).collect()
+}
+
+pub fn partition_sequence(n: u32) -> Vec<String> {
+    let mut p = vec![BigUint::zero(); (n + 1) as usize];
+    p[0] = BigUint::one();
+    for i in 1..=n {
+        for j in i..=n {
+            let val = p[(j - i) as usize].clone();
+            p[j as usize] += val;
+        }
+    }
+    p[1..].iter().map(|v| v.to_string()).collect()
+}
+
+// Analytical Sequences
+
+pub fn harmonic_sequence(n: u32) -> Vec<f64> {
+    let mut sum = 0.0;
+    let mut seq = Vec::new();
+    for i in 1..=n {
+        sum += 1.0 / (i as f64);
+        seq.push(sum);
+    }
+    seq
+}
+
+// Generating Bernoulli numbers B_n up to n.
+pub fn bernoulli_sequence(n: u32) -> Vec<f64> {
+    let mut b = vec![0.0; (n + 1) as usize];
+    b[0] = 1.0;
+    for m in 1..=n {
+        b[m as usize] = 0.0;
+        for k in 0..m {
+            let num = combinations(m as u64 + 1, k as u64).value as f64;
+            b[m as usize] -= num * b[k as usize];
+        }
+        b[m as usize] /= m as f64 + 1.0;
+    }
+    b
+}
+
+pub fn euler_sequence(n: u32) -> Vec<f64> {
+    let mut e = vec![0.0; (n + 1) as usize];
+    e[0] = 1.0;
+    for m in 1..=n {
+        if m % 2 != 0 {
+            e[m as usize] = 0.0;
+        } else {
+            e[m as usize] = 0.0;
+            for k in (0..m).step_by(2) {
+                let num = combinations(m as u64, k as u64).value as f64;
+                e[m as usize] -= num * e[k as usize];
+            }
+        }
+    }
+    e
+}
+
+// ADVANCED COMBINATORICS
+
+/// Multinomial coefficients: n! / (r1! * r2! * ...)
+pub fn multinomial_coefficient(n: u64, k: &[u64]) -> DiscreteResult {
+    let sum_k: u64 = k.iter().sum();
+    if sum_k != n {
+        return DiscreteResult::error("Sum of k elements must equal n");
+    }
+
+    // n! / (k1! * k2! * ... )
+    let mut num = BigUint::one();
+    for i in 1..=n {
+        num *= BigUint::from(i);
+    }
+
+    let mut den = BigUint::one();
+    for &ki in k {
+        let mut k_fact = BigUint::one();
+        for i in 1..=ki {
+            k_fact *= BigUint::from(i);
+        }
+        den *= k_fact;
+    }
+
+    DiscreteResult::big(num / den)
+}
+
+/// Pigeonhole principle calculation: ceil(n/m)
+pub fn pigeonhole_principle(items: u64, containers: u64) -> DiscreteResult {
+    if containers == 0 {
+        return DiscreteResult::error("Containers cannot be zero");
+    }
+    let res = items.div_ceil(containers);
+    DiscreteResult::value(res)
+}
+
+/// Integer partitions: P(n) - number of ways to write n as a sum of positive integers
+pub fn integer_partitions(n: u64) -> DiscreteResult {
+    if n > 1000 {
+        return DiscreteResult::error("n is too large for partition calculation");
+    }
+    let n_usize = n as usize;
+    let mut p = vec![BigUint::zero(); n_usize + 1];
+    p[0] = BigUint::one();
+    for i in 1..=n_usize {
+        for j in i..=n_usize {
+            let p_j_minus_i = p[j - i].clone();
+            p[j] += p_j_minus_i;
+        }
+    }
+    DiscreteResult::big(p[n_usize].clone())
+}
+
+/// Set partitions (Bell number) - B(n)
+pub fn bell_number(n: u64) -> DiscreteResult {
+    if n > 500 {
+        return DiscreteResult::error("n is too large for Bell number calculation");
+    }
+    let n_usize = n as usize;
+    if n_usize == 0 {
+        return DiscreteResult::value(1);
+    }
+    let mut bell = vec![vec![BigUint::zero(); n_usize]; n_usize];
+    bell[0][0] = BigUint::one();
+    for i in 1..n_usize {
+        bell[i][0] = bell[i - 1][i - 1].clone();
+        for j in 1..=i {
+            let a = bell[i - 1][j - 1].clone();
+            let b = bell[i][j - 1].clone();
+            bell[i][j] = a + b;
+        }
+    }
+    DiscreteResult::big(bell[n_usize - 1][n_usize - 1].clone())
+}
+
+/// Stirling numbers of the second kind S(n, k)
+pub fn stirling_second(n: u64, k: u64) -> DiscreteResult {
+    if k > n {
+        return DiscreteResult::value(0);
+    }
+    if k == 0 {
+        return DiscreteResult::value(if n == 0 { 1 } else { 0 });
+    }
+
+    let mut s = vec![vec![BigUint::zero(); (k + 1) as usize]; (n + 1) as usize];
+    s[0][0] = BigUint::one();
+    for i in 1..=n as usize {
+        for j in 1..=k as usize {
+            if j > i {
+                break;
+            }
+            let term = s[i - 1][j].clone() * BigUint::from(j) + s[i - 1][j - 1].clone();
+            s[i][j] = term;
+        }
+    }
+    DiscreteResult::big(s[n as usize][k as usize].clone())
+}
+
+/// Derangements !n - permutations with no fixed points
+pub fn derangements(n: u64) -> DiscreteResult {
+    if n == 0 {
+        return DiscreteResult::value(1);
+    }
+    if n == 1 {
+        return DiscreteResult::value(0);
+    }
+
+    let mut d0 = BigUint::one(); // !0 = 1
+    let mut d1 = BigUint::zero(); // !1 = 0
+    let mut current = BigUint::zero();
+
+    for i in 2..=n {
+        current = BigUint::from(i - 1) * (&d0 + &d1);
+        d0 = d1;
+        d1 = current.clone();
+    }
+    DiscreteResult::big(current)
+}
