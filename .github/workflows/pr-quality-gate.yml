@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VERSION: "3.44.0"
+  FLUTTER_VERSION: "3.44.2"
 
 jobs:
   resolve-target:
@@ -130,7 +130,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          xargs -r dart format --set-exit-if-changed --output=none < changed_dart_files.txt
+          tr -d '\r' < changed_dart_files.txt | tr '\n' '\0' | xargs -0 -r dart format --set-exit-if-changed
 
       - name: Analyze Flutter/Dart code (fatal warnings and infos)
         run: flutter analyze --fatal-infos --fatal-warnings
@@ -357,6 +357,13 @@ jobs:
     needs: [resolve-target, path-filter]
     if: ${{ needs.path-filter.outputs.dart_other == 'true' || needs.path-filter.outputs.native == 'true' || needs.path-filter.outputs.native_audio == 'true' || needs.path-filter.outputs.native_math == 'true' }}
     steps:
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
       - name: Checkout code
         uses: actions/checkout@v6
         with:
@@ -398,6 +405,7 @@ jobs:
           NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           API_LEVEL=23
           export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
+          export CXX_aarch64_linux_android="/aarch64-linux-android-clang++"
           export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           cargo build --release --target aarch64-linux-android
@@ -419,6 +427,7 @@ jobs:
           NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           API_LEVEL=23
           export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
+          export CXX_aarch64_linux_android="/aarch64-linux-android-clang++"
           export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           cargo build --release --target aarch64-linux-android
@@ -436,6 +445,7 @@ jobs:
           NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           API_LEVEL=23
           export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
+          export CXX_aarch64_linux_android="/aarch64-linux-android-clang++"
           export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           cargo build --release --target aarch64-linux-android
