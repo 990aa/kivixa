@@ -21,6 +21,7 @@ pub mod discrete;
 pub mod graphing;
 pub mod matrix;
 pub mod statistics;
+pub mod symbolic;
 pub mod units;
 
 #[cfg(test)]
