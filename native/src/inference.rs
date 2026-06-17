@@ -10,7 +10,7 @@ use llama_cpp_2::context::params::LlamaContextParams;
 use llama_cpp_2::llama_backend::LlamaBackend;
 use llama_cpp_2::llama_batch::LlamaBatch;
 use llama_cpp_2::model::params::LlamaModelParams;
-use llama_cpp_2::model::{AddBos, LlamaChatMessage, LlamaModel, Special};
+use llama_cpp_2::model::{AddBos, LlamaChatMessage, LlamaModel};
 use llama_cpp_2::sampling::LlamaSampler;
 use llama_cpp_2::token::data_array::LlamaTokenDataArray;
 use parking_lot::Mutex;
@@ -416,12 +416,12 @@ fn generate_text_with_options(
     }
 
     // Convert tokens back to text
-    let output = output_tokens
-        .iter()
-        .map(|t| state.model.token_to_str(*t, Special::Tokenize))
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| anyhow!("Failed to detokenize: {:?}", e))?
-        .join("");
+    let mut builder = Vec::new();
+    for t in &output_tokens {
+        let piece = state.model.token_to_piece_bytes(*t, 8, true, None).map_err(|e| anyhow!("Failed to detokenize: {:?}", e))?;
+        builder.extend_from_slice(&piece);
+    }
+    let output = String::from_utf8_lossy(&builder).into_owned();
 
     Ok(output)
 }
@@ -732,12 +732,12 @@ fn generate_from_context(
             .map_err(|e| anyhow!("Failed to decode generated vision token: {:?}", e))?;
     }
 
-    let output = output_tokens
-        .iter()
-        .map(|t| state.model.token_to_str(*t, Special::Tokenize))
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| anyhow!("Failed to detokenize vision response: {:?}", e))?
-        .join("");
+    let mut builder = Vec::new();
+    for t in &output_tokens {
+        let piece = state.model.token_to_piece_bytes(*t, 8, true, None).map_err(|e| anyhow!("Failed to detokenize vision response: {:?}", e))?;
+        builder.extend_from_slice(&piece);
+    }
+    let output = String::from_utf8_lossy(&builder).into_owned();
 
     Ok(output)
 }
@@ -1229,3 +1229,4 @@ mod tests {
             .all(|(_, content)| !content.contains(crate::mcp::MCP_MODE_SENTINEL)));
     }
 }
+
