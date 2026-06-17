@@ -1,4 +1,4 @@
-﻿# Changelog
+# Changelog
 
 All notable changes to the Kivixa project will be documented in this file.
 
@@ -783,5 +783,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Statistics Engine Migration**: Transitioned front-end Flutter statistics computations to the Rust `native_math` backend for improved performance and consistency.
 - **Regression Expansion**: Added 17 new advanced regression models to Statistics module including Logistic, Ridge, Lasso, Elastic Net, Decision Tree, Random Forest, and more. Offloaded implementations to native Rust backend for maximum performance.
 - **Combinatorics Expansion**: Added advanced combinatorics (Stirling numbers, Partitions, Derangements) support in the Discrete math module.
+
+---
+## [0.10.1] - 2026-06-17
+
 
 ---
