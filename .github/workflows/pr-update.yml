@@ -1,0 +1,14 @@
+name: Pull request update
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    autoupdate:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            pull-requests: write
+        steps:
+            - uses: castastrophe/actions-pr-auto-update@v3
