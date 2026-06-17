@@ -3,19 +3,17 @@ name: PR Update
 on:
   push:
     branches: [main]
-  workflow_dispatch: # Allows you to manually trigger it from the "Actions" tab
+  workflow_dispatch: # Allows manual trigger from the Actions tab
 
 jobs:
   autoupdate:
     runs-on: ubuntu-latest
     permissions:
-      contents: write       # Needed to push the merge commit to the PR branches
-      pull-requests: write  # Needed to look up and update open PRs
+      contents: write       # Required to merge main into PR branches
+      pull-requests: write  # Required to view and update open PRs
     steps:
-      - name: Auto-update open PRs
-        uses: castastrophe/actions-pr-auto-update@v3
-        with:
-          # Uses GitHub's native "Update with merge commit" API behavior
-          update_method: merge 
-          # Ensure Draft PRs are not ignored
-          include_drafts: true 
+      - name: Auto-update ALL open PRs
+        uses: chinthakagodawita/autoupdate@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_READY_STATE: "all" # Updates both standard and Draft PRs
