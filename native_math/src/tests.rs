@@ -220,6 +220,15 @@ mod calculus_tests {
     }
 
     #[test]
+    fn test_differentiate_arbitrary_order() {
+        // d⁴/dx⁴(x^4) should be 24.
+        let result = differentiate("x^4", "x", 2.0, 4);
+        assert!(result.success);
+        // Numerical differences get less precise, so tolerance is wider
+        assert!((result.value - 24.0).abs() < 2.0);
+    }
+
+    #[test]
     fn test_integrate() {
         // ∫₀¹ x² dx = 1/3
         let result = integrate("x^2", "x", 0.0, 1.0, 100);
@@ -351,6 +360,32 @@ mod statistics_tests {
         // PDF at mean of standard normal
         assert!((result.pdf - 0.3989).abs() < 0.001);
         assert!((result.cdf - 0.5).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_new_distributions() {
+        let result = distribution_compute("log_normal", &[0.0, 1.0], 1.0);
+        assert!(result.success);
+        assert!((result.pdf - 0.3989).abs() < 0.001); // same as standard normal at x=1 since ln(1)=0
+
+        let result = distribution_compute("laplace", &[0.0, 1.0], 0.0);
+        assert!(result.success);
+        assert!((result.pdf - 0.5).abs() < 0.001);
+        assert!((result.cdf - 0.5).abs() < 1e-6);
+
+        let result = distribution_compute("logistic", &[0.0, 1.0], 0.0);
+        assert!(result.success);
+        assert!((result.pdf - 0.25).abs() < 0.001);
+        assert!((result.cdf - 0.5).abs() < 1e-6);
+
+        let result = distribution_compute("pareto", &[1.0, 3.0], 2.0);
+        assert!(result.success);
+        assert!((result.pdf - 0.1875).abs() < 0.001); // 3/16
+        assert!((result.cdf - 0.875).abs() < 1e-6); // 7/8
+
+        let result = distribution_compute("rayleigh", &[1.0], 1.0);
+        assert!(result.success);
+        assert!((result.pdf - 0.6065).abs() < 0.001); // e^(-0.5)
     }
 
     #[test]

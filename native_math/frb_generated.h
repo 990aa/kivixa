@@ -14,16 +14,6 @@ void store_dart_post_cobject(DartPostCObjectFnType ptr);
 // EXTRA END
 typedef struct _Dart_Handle* Dart_Handle;
 
-typedef struct wire_cst_list_prim_f_64_strict {
-  double *ptr;
-  int32_t len;
-} wire_cst_list_prim_f_64_strict;
-
-typedef struct wire_cst_list_list_prim_f_64_strict {
-  struct wire_cst_list_prim_f_64_strict **ptr;
-  int32_t len;
-} wire_cst_list_list_prim_f_64_strict;
-
 typedef struct wire_cst_list_prim_f_64_loose {
   double *ptr;
   int32_t len;
@@ -33,6 +23,16 @@ typedef struct wire_cst_list_prim_u_8_strict {
   uint8_t *ptr;
   int32_t len;
 } wire_cst_list_prim_u_8_strict;
+
+typedef struct wire_cst_list_prim_f_64_strict {
+  double *ptr;
+  int32_t len;
+} wire_cst_list_prim_f_64_strict;
+
+typedef struct wire_cst_list_list_prim_f_64_strict {
+  struct wire_cst_list_prim_f_64_strict **ptr;
+  int32_t len;
+} wire_cst_list_list_prim_f_64_strict;
 
 typedef struct wire_cst_list_String {
   struct wire_cst_list_prim_u_8_strict **ptr;
@@ -48,6 +48,23 @@ typedef struct wire_cst_list_record_string_f_64 {
   struct wire_cst_record_string_f_64 *ptr;
   int32_t len;
 } wire_cst_list_record_string_f_64;
+
+typedef struct wire_cst_list_prim_u_64_strict {
+  uint64_t *ptr;
+  int32_t len;
+} wire_cst_list_prim_u_64_strict;
+
+typedef struct wire_cst_calculus_result {
+  bool success;
+  double value;
+  struct wire_cst_list_prim_u_8_strict *symbolic;
+  struct wire_cst_list_prim_u_8_strict *error;
+} wire_cst_calculus_result;
+
+typedef struct wire_cst_list_calculus_result {
+  struct wire_cst_calculus_result *ptr;
+  int32_t len;
+} wire_cst_list_calculus_result;
 
 typedef struct wire_cst_graph_point {
   double x;
@@ -74,11 +91,6 @@ typedef struct wire_cst_list_matrix_result {
   int32_t len;
 } wire_cst_list_matrix_result;
 
-typedef struct wire_cst_list_prim_u_64_strict {
-  uint64_t *ptr;
-  int32_t len;
-} wire_cst_list_prim_u_64_strict;
-
 typedef struct wire_cst_record_f_64_f_64 {
   double field0;
   double field1;
@@ -102,13 +114,6 @@ typedef struct wire_cst_list_unit_result {
   struct wire_cst_unit_result *ptr;
   int32_t len;
 } wire_cst_list_unit_result;
-
-typedef struct wire_cst_calculus_result {
-  bool success;
-  double value;
-  struct wire_cst_list_prim_u_8_strict *symbolic;
-  struct wire_cst_list_prim_u_8_strict *error;
-} wire_cst_calculus_result;
 
 typedef struct wire_cst_complex_result {
   bool success;
@@ -219,9 +224,22 @@ typedef struct wire_cst_statistics_result {
   struct wire_cst_list_prim_u_8_strict *error;
 } wire_cst_statistics_result;
 
+void frbgen_kivixa_wire__crate__api__advanced_regression(int64_t port_,
+                                                         struct wire_cst_list_prim_f_64_loose *x_data,
+                                                         struct wire_cst_list_prim_f_64_loose *y_data,
+                                                         struct wire_cst_list_prim_u_8_strict *reg_type);
+
 void frbgen_kivixa_wire__crate__api__anova(int64_t port_,
                                            struct wire_cst_list_list_prim_f_64_strict *groups,
                                            double alpha);
+
+void frbgen_kivixa_wire__crate__api__bell_number(int64_t port_, uint64_t n);
+
+void frbgen_kivixa_wire__crate__api__binomial_test(int64_t port_,
+                                                   uint64_t successes,
+                                                   uint64_t trials,
+                                                   double expected_p,
+                                                   double alpha);
 
 WireSyncRust2DartDco frbgen_kivixa_wire__crate__api__catalan(uint64_t n);
 
@@ -279,6 +297,8 @@ void frbgen_kivixa_wire__crate__api__correlation_covariance(int64_t port_,
                                                             struct wire_cst_list_prim_f_64_loose *x,
                                                             struct wire_cst_list_prim_f_64_loose *y);
 
+void frbgen_kivixa_wire__crate__api__derangements(int64_t port_, uint64_t n);
+
 void frbgen_kivixa_wire__crate__api__derivative_graph(int64_t port_,
                                                       struct wire_cst_list_prim_u_8_strict *expression,
                                                       struct wire_cst_list_prim_u_8_strict *variable,
@@ -305,6 +325,9 @@ void frbgen_kivixa_wire__crate__api__double_integral(int64_t port_,
                                                      double y_max,
                                                      uint32_t num_intervals);
 
+void frbgen_kivixa_wire__crate__api__durbin_watson_test(int64_t port_,
+                                                        struct wire_cst_list_prim_f_64_loose *residuals);
+
 WireSyncRust2DartDco frbgen_kivixa_wire__crate__api__euler_totient(uint64_t n);
 
 WireSyncRust2DartDco frbgen_kivixa_wire__crate__api__evaluate_expression(struct wire_cst_list_prim_u_8_strict *expression);
@@ -317,6 +340,11 @@ void frbgen_kivixa_wire__crate__api__evaluate_graph_points(int64_t port_,
                                                            struct wire_cst_list_prim_u_8_strict *expression,
                                                            struct wire_cst_list_prim_u_8_strict *variable,
                                                            struct wire_cst_list_prim_f_64_loose *x_values);
+
+void frbgen_kivixa_wire__crate__api__f_test(int64_t port_,
+                                            struct wire_cst_list_prim_f_64_loose *data1,
+                                            struct wire_cst_list_prim_f_64_loose *data2,
+                                            double alpha);
 
 WireSyncRust2DartDco frbgen_kivixa_wire__crate__api__factorial(uint64_t n);
 
@@ -345,6 +373,25 @@ void frbgen_kivixa_wire__crate__api__find_roots_in_interval(int64_t port_,
 
 WireSyncRust2DartDco frbgen_kivixa_wire__crate__api__gcd(uint64_t a, uint64_t b);
 
+void frbgen_kivixa_wire__crate__api__generate_analytical_sequence(int64_t port_,
+                                                                  struct wire_cst_list_prim_u_8_strict *seq_type,
+                                                                  uint32_t n);
+
+void frbgen_kivixa_wire__crate__api__generate_classical_sequence(int64_t port_,
+                                                                 struct wire_cst_list_prim_u_8_strict *seq_type,
+                                                                 double a,
+                                                                 double d_or_r,
+                                                                 uint32_t n,
+                                                                 uint64_t s);
+
+void frbgen_kivixa_wire__crate__api__generate_combinatorial_sequence(int64_t port_,
+                                                                     struct wire_cst_list_prim_u_8_strict *seq_type,
+                                                                     uint32_t n);
+
+void frbgen_kivixa_wire__crate__api__generate_number_theoretic_sequence(int64_t port_,
+                                                                        struct wire_cst_list_prim_u_8_strict *seq_type,
+                                                                        uint32_t n);
+
 WireSyncRust2DartDco frbgen_kivixa_wire__crate__api__generate_x_range(double start,
                                                                       double end,
                                                                       uintptr_t num_points);
@@ -361,6 +408,8 @@ void frbgen_kivixa_wire__crate__api__gradient(int64_t port_,
                                               struct wire_cst_list_record_string_f_64 *point);
 
 void frbgen_kivixa_wire__crate__api__init_app(int64_t port_);
+
+void frbgen_kivixa_wire__crate__api__integer_partitions(int64_t port_, uint64_t n);
 
 void frbgen_kivixa_wire__crate__api__integral_graph(int64_t port_,
                                                     struct wire_cst_list_prim_u_8_strict *expression,
@@ -395,6 +444,11 @@ void frbgen_kivixa_wire__crate__api__linear_regression(int64_t port_,
                                                        struct wire_cst_list_prim_f_64_loose *y_data);
 
 WireSyncRust2DartDco frbgen_kivixa_wire__crate__api__list_divisors(uint64_t n);
+
+void frbgen_kivixa_wire__crate__api__mann_whitney_u(int64_t port_,
+                                                    struct wire_cst_list_prim_f_64_loose *data1,
+                                                    struct wire_cst_list_prim_f_64_loose *data2,
+                                                    double alpha);
 
 void frbgen_kivixa_wire__crate__api__matrix_decomposition(int64_t port_,
                                                           struct wire_cst_list_prim_f_64_loose *data,
@@ -443,6 +497,10 @@ WireSyncRust2DartDco frbgen_kivixa_wire__crate__api__mod_pow(uint64_t base,
 
 WireSyncRust2DartDco frbgen_kivixa_wire__crate__api__mod_sub(uint64_t a, uint64_t b, uint64_t m);
 
+void frbgen_kivixa_wire__crate__api__multinomial_coefficient(int64_t port_,
+                                                             uint64_t n,
+                                                             struct wire_cst_list_prim_u_64_strict *k);
+
 WireSyncRust2DartDco frbgen_kivixa_wire__crate__api__parse_formula(struct wire_cst_list_prim_u_8_strict *formula);
 
 void frbgen_kivixa_wire__crate__api__partial_derivative(int64_t port_,
@@ -452,6 +510,10 @@ void frbgen_kivixa_wire__crate__api__partial_derivative(int64_t port_,
                                                         uint32_t order);
 
 WireSyncRust2DartDco frbgen_kivixa_wire__crate__api__permutations(uint64_t n, uint64_t r);
+
+void frbgen_kivixa_wire__crate__api__pigeonhole_principle(int64_t port_,
+                                                          uint64_t items,
+                                                          uint64_t containers);
 
 void frbgen_kivixa_wire__crate__api__polynomial_regression(int64_t port_,
                                                            struct wire_cst_list_prim_f_64_loose *x_data,
@@ -468,6 +530,21 @@ void frbgen_kivixa_wire__crate__api__solve_equation(int64_t port_,
                                                     double initial_guess,
                                                     double tolerance,
                                                     uint32_t max_iterations);
+
+void frbgen_kivixa_wire__crate__api__stirling_second(int64_t port_, uint64_t n, uint64_t k);
+
+void frbgen_kivixa_wire__crate__api__symbolic_differentiate(int64_t port_,
+                                                            struct wire_cst_list_prim_u_8_strict *expression,
+                                                            struct wire_cst_list_prim_u_8_strict *variable,
+                                                            uint32_t order);
+
+void frbgen_kivixa_wire__crate__api__symbolic_gradient(int64_t port_,
+                                                       struct wire_cst_list_prim_u_8_strict *expression,
+                                                       struct wire_cst_list_String *variables);
+
+void frbgen_kivixa_wire__crate__api__symbolic_integrate(int64_t port_,
+                                                        struct wire_cst_list_prim_u_8_strict *expression,
+                                                        struct wire_cst_list_String *variables);
 
 void frbgen_kivixa_wire__crate__api__t_test(int64_t port_,
                                             struct wire_cst_list_prim_f_64_loose *data,
@@ -519,6 +596,8 @@ uintptr_t *frbgen_kivixa_cst_new_box_autoadd_usize(uintptr_t value);
 
 struct wire_cst_list_String *frbgen_kivixa_cst_new_list_String(int32_t len);
 
+struct wire_cst_list_calculus_result *frbgen_kivixa_cst_new_list_calculus_result(int32_t len);
+
 struct wire_cst_list_graph_point *frbgen_kivixa_cst_new_list_graph_point(int32_t len);
 
 struct wire_cst_list_list_prim_f_64_strict *frbgen_kivixa_cst_new_list_list_prim_f_64_strict(int32_t len);
@@ -544,6 +623,7 @@ static int64_t dummy_method_to_enforce_bundling(void) {
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_cst_new_box_autoadd_f_64);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_cst_new_box_autoadd_usize);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_cst_new_list_String);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_cst_new_list_calculus_result);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_cst_new_list_graph_point);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_cst_new_list_list_prim_f_64_strict);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_cst_new_list_matrix_result);
@@ -554,7 +634,10 @@ static int64_t dummy_method_to_enforce_bundling(void) {
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_cst_new_list_record_f_64_f_64);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_cst_new_list_record_string_f_64);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_cst_new_list_unit_result);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__advanced_regression);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__anova);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__bell_number);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__binomial_test);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__catalan);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__chi_squared_test);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__combinations);
@@ -569,26 +652,34 @@ static int64_t dummy_method_to_enforce_bundling(void) {
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__convert_to_all_units);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__convert_unit);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__correlation_covariance);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__derangements);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__derivative_graph);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__differentiate);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__distribution_compute);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__double_integral);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__durbin_watson_test);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__euler_totient);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__evaluate_expression);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__evaluate_formula);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__evaluate_graph_points);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__f_test);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__factorial);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__fibonacci);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__find_extrema);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__find_graph_roots);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__find_roots_in_interval);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__gcd);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__generate_analytical_sequence);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__generate_classical_sequence);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__generate_combinatorial_sequence);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__generate_number_theoretic_sequence);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__generate_x_range);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__get_constant);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__get_unit_categories);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__get_units_for_category);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__gradient);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__init_app);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__integer_partitions);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__integral_graph);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__integrate);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__is_perfect);
@@ -597,6 +688,7 @@ static int64_t dummy_method_to_enforce_bundling(void) {
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__line_integral);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__linear_regression);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__list_divisors);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__mann_whitney_u);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__matrix_decomposition);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__matrix_operation);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__matrix_properties);
@@ -608,13 +700,19 @@ static int64_t dummy_method_to_enforce_bundling(void) {
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__mod_multiply);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__mod_pow);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__mod_sub);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__multinomial_coefficient);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__parse_formula);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__partial_derivative);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__permutations);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__pigeonhole_principle);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__polynomial_regression);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__prime_factors);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__sieve_primes);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__solve_equation);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__stirling_second);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__symbolic_differentiate);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__symbolic_gradient);
+    dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__symbolic_integrate);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__t_test);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__taylor_coefficients);
     dummy_var ^= ((int64_t) (void*) frbgen_kivixa_wire__crate__api__triple_integral);

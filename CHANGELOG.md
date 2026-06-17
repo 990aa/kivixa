@@ -148,7 +148,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Calculus Tab**: 
     - Numerical derivatives (first, second, nth order)
     - Definite and indefinite integrals
-    - **Partial Derivatives**: Compute partial derivatives with respect to multiple variables (∂f/∂x, ∂f/∂y, etc.)
+    - **Partial Derivatives**: Compute partial derivatives with respect to multiple variables (âˆ‚f/âˆ‚x, âˆ‚f/âˆ‚y, etc.)
     - **Multiple Integrals**: Double and triple integrals over rectangular regions
     - Limits with left/right-sided approach
     - Taylor series expansion
@@ -161,7 +161,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       - **Chi-squared test** for categorical data
       - **ANOVA** (Analysis of Variance) for comparing multiple group means
     - Confidence intervals for mean, proportion, and variance
-    - Linear and polynomial regression with R², slope, intercept
+    - Linear and polynomial regression with RÂ², slope, intercept
   - **Discrete Tab**: Combinatorics (permutations, combinations, factorials), number theory (GCD, LCM, primality), modular arithmetic
   - **Graphing Tab**: 2D function plotting, parametric curves, polar coordinates, implicit functions
   - **Tools Tab**: Number system conversion (binary, octal, decimal, hex), constants reference, formula library
@@ -751,8 +751,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Reordered "Delete Data on Uninstall" to be placed just above the "Clear App Data" setting and just below the "Open Kivixa Folder" setting.
   
 ---
-## [0.8.34] - 2026-05-16
 
+
+## [0.9.0] - 2026-05-22
+
+### Added
+- **Timer Seconds Input**: Added support to specify minutes and seconds when creating Custom Quick Presets and Custom Routine Blocks.
+- **Background Timer Sync**: Chained routine timers now run seamlessly in the background and accurately update Android notifications when the app is backgrounded.
+- **Completion Sounds**: Timers now play the user's chosen notification audio upon completion, smoothly handling foreground media and background native audio states.
+- **Math Auto-Closing Brackets**: Math expressions automatically close unclosed brackets before evaluation.
+- **Extended Trigonometry**: Added support for all reciprocal trig (`sec`, `csc`, `cot`) and inverse trig functions (`asin`, `acos`, `atan`, `asec`, `acsc`, `acot`).
+- **Implicit Math Operations**: The backend engine now intelligently infers multiplication (e.g., `2(3+1)` becomes `2*(3+1)`) and constant combinations (e.g., `hc` evaluates as `h*c`).
+- **New Math Constants**: Replaced generic numbers with extensive scientific constants including Speed of Light (`c`), Gravitational Constant (`G`), Planck Constant (`h`), Boltzmann (`kB`), Avogadro (`NA`), and Gas Constant (`R`).
+- **Detailed Unit Testing**: Integrated comprehensive background service tests covering timer serialization, background syncing, and calculation integrity.
+
+### Changed
+- **Redesigned Math Interface**: Totally revamped the General Calculator layout. Placed Backspace/Clear adjacent to the input field, clearly grouped trigonometric, logarithmic, and mathematical features, and optimized the layout for maximum operational UX.
+
+---
+## [0.10.0] - 2026-05-31
+
+### Added
+- **Arbitrary Order Derivatives**: Math module now supports any positive integer order for computing standard derivatives and partial derivatives in the calculus section.
+- **New Statistical Distributions**: Added support for evaluating PDF, CDF, mean, and variance of Log-Normal, Laplace, Logistic, Pareto, and Rayleigh distributions.
+- **Math Module Documentation**: Added comprehensive documentation describing the complete suite of math capabilities in `docs/math_module_details.md`.
+- **Symbolic Calculus**: Added support for symbolic differentiation and integration, returning algebraic expressions (e.g. `2x` for `x^2`).
+- **Advanced Statistical Tests**: Added F-Test for Variances, Mann-Whitney U Test, Binomial Test, and Durbin-Watson Test to the Hypothesis tab.
+- **Discrete Sequence Generators**: New sequence generation tool supporting Classical (Arithmetic, Geometric, Triangular, Polygonal), Number-Theoretic (Mersenne, Lucas, Pell), Combinatorial (Stirling, Partition), and Analytical (Harmonic, Bernoulli, Euler) sequences.
+
+### Changed
+- **Statistics Engine Migration**: Transitioned front-end Flutter statistics computations to the Rust `native_math` backend for improved performance and consistency.
+- **Regression Expansion**: Added 17 new advanced regression models to Statistics module including Logistic, Ridge, Lasso, Elastic Net, Decision Tree, Random Forest, and more. Offloaded implementations to native Rust backend for maximum performance.
+- **Combinatorics Expansion**: Added advanced combinatorics (Stirling numbers, Partitions, Derangements) support in the Discrete math module.
+
+---
+## [0.10.1] - 2026-06-17
 
 
 ---

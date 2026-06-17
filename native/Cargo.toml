@@ -78,5 +78,5 @@ codegen-units = 1
 opt-level = 3
 strip = true
 
-[patch.crates-io]
-llama-cpp-sys-2 = { path = "vendor/llama-cpp-sys-2" }
+# [patch.crates-io]
+# llama-cpp-sys-2 = { path = "vendor/llama-cpp-sys-2" }
