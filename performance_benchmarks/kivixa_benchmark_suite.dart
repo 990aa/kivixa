@@ -49,9 +49,11 @@ Future<List<double>> _time(
     results.add(sw.elapsedMicroseconds / 1000.0);
   }
   // ignore: avoid_print
-  print('[$label] ${results.length} samples, '
-      'avg=${_avg(results).toStringAsFixed(2)} ms, '
-      'p95=${BenchmarkResults.percentile(results, 95).toStringAsFixed(2)} ms');
+  print(
+    '[$label] ${results.length} samples, '
+    'avg=${_avg(results).toStringAsFixed(2)} ms, '
+    'p95=${BenchmarkResults.percentile(results, 95).toStringAsFixed(2)} ms',
+  );
   return results;
 }
 
@@ -102,7 +104,8 @@ Future<double> _measureSleepWakeCycle() async {
 
 void main() {
   final results = BenchmarkResults(
-    deviceInfo: '${Platform.operatingSystem} ${Platform.operatingSystemVersion}',
+    deviceInfo:
+        '${Platform.operatingSystem} ${Platform.operatingSystemVersion}',
   );
 
   // ── Startup time ──────────────────────────────────────────────────────────
@@ -209,29 +212,36 @@ void main() {
 
   // ── Memory section tracking ───────────────────────────────────────────────
   group('Section Manager Overhead', () {
-    test('registering and unregistering 100 sections is sub-millisecond', () async {
-      final samples = await _time('section_register_100', 10, () async {
-        final callbacks = <String, void Function(bool)>{};
-        // Register 100 sections
-        for (var i = 0; i < 100; i++) {
-          callbacks['section_$i'] = (_) {};
-        }
-        // Unregister
-        callbacks.clear();
-      });
+    test(
+      'registering and unregistering 100 sections is sub-millisecond',
+      () async {
+        final samples = await _time('section_register_100', 10, () async {
+          final callbacks = <String, void Function(bool)>{};
+          // Register 100 sections
+          for (var i = 0; i < 100; i++) {
+            callbacks['section_$i'] = (_) {};
+          }
+          // Unregister
+          callbacks.clear();
+        });
 
-      final avg = _avg(samples);
-      results.addMetric(
-        PerformanceMetric(
-          type: MetricType.navigationTime,
-          name: 'section_register_100_avg_ms',
-          value: avg,
-        ),
-      );
+        final avg = _avg(samples);
+        results.addMetric(
+          PerformanceMetric(
+            type: MetricType.navigationTime,
+            name: 'section_register_100_avg_ms',
+            value: avg,
+          ),
+        );
 
-      expect(avg, lessThan(1.0),
-          reason: 'Section map ops took ${avg.toStringAsFixed(3)} ms — too slow');
-    });
+        expect(
+          avg,
+          lessThan(1.0),
+          reason:
+              'Section map ops took ${avg.toStringAsFixed(3)} ms — too slow',
+        );
+      },
+    );
   });
 
   // ── State serialisation ───────────────────────────────────────────────────
@@ -256,9 +266,12 @@ void main() {
         ),
       );
 
-      expect(p99, lessThan(5.0),
-          reason:
-              'State serialisation p99 ${p99.toStringAsFixed(2)} ms — exceeds 5 ms budget');
+      expect(
+        p99,
+        lessThan(5.0),
+        reason:
+            'State serialisation p99 ${p99.toStringAsFixed(2)} ms — exceeds 5 ms budget',
+      );
     });
   });
 

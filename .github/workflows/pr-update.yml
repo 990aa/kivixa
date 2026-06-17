@@ -1,0 +1,19 @@
+name: PR Update
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # Allows manual trigger from the Actions tab
+
+jobs:
+  autoupdate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # Required to merge main into PR branches
+      pull-requests: write  # Required to view and update open PRs
+    steps:
+      - name: Auto-update ALL open PRs
+        uses: docker://chinthakagodawita/autoupdate-action:v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_READY_STATE: "all" # Updates both standard and Draft PRs
