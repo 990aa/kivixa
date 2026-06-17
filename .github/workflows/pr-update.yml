@@ -1,14 +1,21 @@
-name: Pull request update
+name: PR Update
 
 on:
-    push:
-        branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch: # Allows you to manually trigger it from the "Actions" tab
 
 jobs:
-    autoupdate:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            pull-requests: write
-        steps:
-            - uses: castastrophe/actions-pr-auto-update@v3
+  autoupdate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # Needed to push the merge commit to the PR branches
+      pull-requests: write  # Needed to look up and update open PRs
+    steps:
+      - name: Auto-update open PRs
+        uses: castastrophe/actions-pr-auto-update@v3
+        with:
+          # Uses GitHub's native "Update with merge commit" API behavior
+          update_method: merge 
+          # Ensure Draft PRs are not ignored
+          include_drafts: true 
