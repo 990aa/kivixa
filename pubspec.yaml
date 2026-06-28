@@ -115,7 +115,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
 
-  msix: ^3.16.7        
+  msix: ^3.18.0        
 
   icons_launcher: ^3.0.0
   simplytranslate: ^2.0.1
