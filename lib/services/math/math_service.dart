@@ -187,6 +187,27 @@ class MathService {
     return math_api.permutations(n: BigInt.from(n), r: BigInt.from(r));
   }
 
+  /// Calculate combinations with repetition C_R(n, r) = C(n + r - 1, r)
+  DiscreteResult combinationsWithRepetition(int n, int r) {
+    _ensureInitialized();
+    if (r == 0) return DiscreteResult(success: true, value: BigInt.one, values: Uint64List(0));
+    if (n == 0) return DiscreteResult(success: true, value: BigInt.zero, values: Uint64List(0));
+    return math_api.combinations(n: BigInt.from(n + r - 1), r: BigInt.from(r));
+  }
+
+  /// Calculate permutations with repetition P_R(n, r) = n^r
+  DiscreteResult permutationsWithRepetition(int n, int r) {
+    _ensureInitialized();
+    if (r == 0) return DiscreteResult(success: true, value: BigInt.one, values: Uint64List(0));
+    if (n == 0) return DiscreteResult(success: true, value: BigInt.zero, values: Uint64List(0));
+    BigInt result = BigInt.one;
+    final base = BigInt.from(n);
+    for (var i = 0; i < r; i++) {
+      result *= base;
+    }
+    return DiscreteResult(success: true, value: result, values: Uint64List(0));
+  }
+
   /// Get prime factors
   DiscreteResult primeFactors(int n) {
     _ensureInitialized();

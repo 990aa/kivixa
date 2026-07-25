@@ -660,10 +660,21 @@ class _CombinatoricsCalculatorState extends State<_CombinatoricsCalculator> {
 
       final comb = _combination(n, r);
       final perm = _permutation(n, r);
+      final combRep = (n == 0 && r > 0) ? BigInt.zero : (r == 0 ? BigInt.one : _combination(n + r - 1, r));
+      BigInt permRep = BigInt.one;
+      if (r > 0) {
+        final base = BigInt.from(n);
+        for (var i = 0; i < r; i++) {
+          permRep *= base;
+        }
+      }
 
       setState(() {
         _result =
-            'C($n,$r) = ${_formatBigInt(comb)}\nP($n,$r) = ${_formatBigInt(perm)}';
+            'C($n,$r) = ${_formatBigInt(comb)}\n'
+            'P($n,$r) = ${_formatBigInt(perm)}\n'
+            'C_R($n,$r) = ${_formatBigInt(combRep)} (with repetition)\n'
+            'P_R($n,$r) = ${_formatBigInt(permRep)} (with repetition)';
         _isComputing = false;
       });
     } catch (e) {

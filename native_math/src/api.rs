@@ -599,6 +599,18 @@ pub fn permutations(n: u64, r: u64) -> DiscreteResult {
     discrete::permutations(n, r)
 }
 
+/// Compute combinations with repetition C_R(n, r)
+#[frb(sync)]
+pub fn combinations_with_repetition(n: u64, r: u64) -> DiscreteResult {
+    discrete::combinations_with_repetition(n, r)
+}
+
+/// Compute permutations with repetition P_R(n, r)
+#[frb(sync)]
+pub fn permutations_with_repetition(n: u64, r: u64) -> DiscreteResult {
+    discrete::permutations_with_repetition(n, r)
+}
+
 /// Compute factorial
 #[frb(sync)]
 pub fn factorial(n: u64) -> DiscreteResult {

@@ -198,6 +198,33 @@ pub fn permutations(n: u64, k: u64) -> DiscreteResult {
     DiscreteResult::big(result)
 }
 
+/// Combinations with repetition C_R(n, r) = C(n + r - 1, r)
+pub fn combinations_with_repetition(n: u64, r: u64) -> DiscreteResult {
+    if r == 0 {
+        return DiscreteResult::value(1);
+    }
+    if n == 0 {
+        return DiscreteResult::value(0);
+    }
+    combinations(n + r - 1, r)
+}
+
+/// Permutations with repetition P_R(n, r) = n^r
+pub fn permutations_with_repetition(n: u64, r: u64) -> DiscreteResult {
+    if r == 0 {
+        return DiscreteResult::value(1);
+    }
+    if n == 0 {
+        return DiscreteResult::value(0);
+    }
+    let base = BigUint::from(n);
+    let mut result = BigUint::one();
+    for _ in 0..r {
+        result *= &base;
+    }
+    DiscreteResult::big(result)
+}
+
 /// Greatest Common Divisor using Euclidean algorithm
 pub fn gcd(a: u64, b: u64) -> u64 {
     if b == 0 {

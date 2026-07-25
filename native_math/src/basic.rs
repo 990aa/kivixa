@@ -243,6 +243,114 @@ fn tokenize(mut s: &str) -> Vec<Token> {
     tokens
 }
 
+fn convert_power_operators(expr: &str) -> String {
+    let mut s = expr.to_string();
+    let mut iterations = 0;
+    while let Some(idx) = s.find('^') {
+        if iterations > 50 {
+            break;
+        }
+        iterations += 1;
+
+        // Find left operand starting before idx
+        let bytes = s.as_bytes();
+        let mut left_end = idx;
+        while left_end > 0 && (bytes[left_end - 1] as char).is_whitespace() {
+            left_end -= 1;
+        }
+        if left_end == 0 {
+            break;
+        }
+
+        let mut left_start = left_end;
+        if bytes[left_end - 1] == b')' {
+            let mut depth = 0;
+            for i in (0..left_end).rev() {
+                if bytes[i] == b')' {
+                    depth += 1;
+                } else if bytes[i] == b'(' {
+                    depth -= 1;
+                    if depth == 0 {
+                        left_start = i;
+                        // Check if there is an identifier before ( e.g. sin(x)
+                        while left_start > 0 && (bytes[left_start - 1].is_ascii_alphanumeric() || bytes[left_start - 1] == b'_') {
+                            left_start -= 1;
+                        }
+                        break;
+                    }
+                }
+            }
+        } else {
+            while left_start > 0 && (bytes[left_start - 1].is_ascii_alphanumeric() || bytes[left_start - 1] == b'.' || bytes[left_start - 1] == b'_') {
+                left_start -= 1;
+            }
+        }
+
+        if left_start == left_end {
+            break;
+        }
+        let left_str = s[left_start..left_end].trim();
+
+        // Find right operand starting after idx
+        let mut right_start = idx + 1;
+        while right_start < s.len() && (bytes[right_start] as char).is_whitespace() {
+            right_start += 1;
+        }
+        if right_start >= s.len() {
+            break;
+        }
+
+        let mut right_end = right_start;
+        // Handle optional sign like -2
+        if (bytes[right_end] == b'+' || bytes[right_end] == b'-') && right_end + 1 < s.len() {
+            right_end += 1;
+        }
+
+        if bytes[right_end] == b'(' {
+            let mut depth = 0;
+            for i in right_end..s.len() {
+                if bytes[i] == b'(' {
+                    depth += 1;
+                } else if bytes[i] == b')' {
+                    depth -= 1;
+                    if depth == 0 {
+                        right_end = i + 1;
+                        break;
+                    }
+                }
+            }
+        } else {
+            while right_end < s.len() && (bytes[right_end].is_ascii_alphanumeric() || bytes[right_end] == b'.' || bytes[right_end] == b'_') {
+                right_end += 1;
+            }
+            // If right_end is at '(', it's a function call like sqrt(x)
+            if right_end < s.len() && bytes[right_end] == b'(' {
+                let mut depth = 0;
+                for i in right_end..s.len() {
+                    if bytes[i] == b'(' {
+                        depth += 1;
+                    } else if bytes[i] == b')' {
+                        depth -= 1;
+                        if depth == 0 {
+                            right_end = i + 1;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if right_start == right_end {
+            break;
+        }
+        let right_str = s[right_start..right_end].trim();
+
+        let replacement = format!("pow({},{})", left_str, right_str);
+        s = format!("{}{}{}", &s[..left_start], replacement, &s[right_end..]);
+    }
+    s
+}
+
 fn preprocess_expression(expr: &str) -> String {
     let clean_expr = expr
         .replace("×", "*")
@@ -251,7 +359,8 @@ fn preprocess_expression(expr: &str) -> String {
         .replace("π", "pi")
         .replace("√", "sqrt");
 
-    let tokens = tokenize(&clean_expr);
+    let pow_expr = convert_power_operators(&clean_expr);
+    let tokens = tokenize(&pow_expr);
     let mut result = String::new();
     let mut open_brackets = 0;
 

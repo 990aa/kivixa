@@ -82,6 +82,14 @@ mod basic_tests {
         assert!(!result.success);
         assert!(result.error.is_some());
     }
+
+    #[test]
+    fn test_doc_example_eval() {
+        // sin(pi/2) + ln(e^2) * 4 should evaluate precisely to 9.0
+        let result = evaluate_expression("sin(pi/2) + ln(e^2) * 4");
+        assert!(result.success, "Evaluation failed: {:?}", result.error);
+        assert!((result.value - 9.0).abs() < 1e-10, "Expected 9.0, got {}", result.value);
+    }
 }
 
 #[cfg(test)]
@@ -578,6 +586,19 @@ mod discrete_tests {
         let result = permutations(5, 2);
         assert!(result.success);
         assert_eq!(result.value, 20);
+    }
+
+    #[test]
+    fn test_repetition_combinatorics() {
+        // C_R(5, 3) = C(5+3-1, 3) = C(7, 3) = 35
+        let result = combinations_with_repetition(5, 3);
+        assert!(result.success);
+        assert_eq!(result.value, 35);
+
+        // P_R(5, 3) = 5^3 = 125
+        let result = permutations_with_repetition(5, 3);
+        assert!(result.success);
+        assert_eq!(result.value, 125);
     }
 
     #[test]
