@@ -192,6 +192,9 @@ class EditorState extends State<Editor> {
   /// Whether the options sidebar (background pattern, line height etc) is visible on the right.
   var isOptionsSidebarVisible = false;
 
+  /// Flag to prevent double execution during back pop.
+  var _isExiting = false;
+
   @override
   void initState() {
     DynamicMaterialApp.addFullscreenListener(_setState);
@@ -268,7 +271,13 @@ class EditorState extends State<Editor> {
       await saveToFile();
       Whiteboard.needsToAutoClearWhiteboard = false;
     } else {
-      setState(() {});
+      final fullPath = coreInfo.filePath + Editor.extension;
+      if (!FileManager.doesFileExist(fullPath)) {
+        savingState.value = SavingState.waitingToSave;
+        await saveToFile();
+      } else {
+        setState(() {});
+      }
     }
   }
 
@@ -944,16 +953,18 @@ class EditorState extends State<Editor> {
   Future<void> saveToFile() async {
     if (coreInfo.readOnly) return;
 
+    final targetPath = coreInfo.filePath + Editor.extension;
+
     switch (savingState.value) {
       case SavingState.saved:
-        // avoid saving if nothing has changed
-        return;
+        if (FileManager.doesFileExist(targetPath)) {
+          return;
+        }
+        savingState.value = SavingState.saving;
       case SavingState.saving:
-        // avoid saving if already saving
         log.warning('saveToFile() called while already saving');
         return;
       case SavingState.waitingToSave:
-        // continue
         _delayedSaveTimer?.cancel();
         savingState.value = SavingState.saving;
     }
@@ -995,44 +1006,48 @@ class EditorState extends State<Editor> {
     }
 
     if (!mounted) return;
-    final screenshotter = ScreenshotController();
-    final page = coreInfo.pages.first;
-    final previewHeight = page.previewHeight(lineHeight: coreInfo.lineHeight);
-    final thumbnailSize = Size(720, 720 * previewHeight / page.size.width);
-    final thumbnail = await screenshotter.captureFromWidget(
-      Theme(
-        data: ThemeData(
-          brightness: Brightness.light,
-          colorScheme: const ColorScheme.light(
-            primary: EditorExporter.primaryColor,
-            secondary: EditorExporter.secondaryColor,
+    try {
+      final screenshotter = ScreenshotController();
+      final page = coreInfo.pages.first;
+      final previewHeight = page.previewHeight(lineHeight: coreInfo.lineHeight);
+      final thumbnailSize = Size(720, 720 * previewHeight / page.size.width);
+      final thumbnail = await screenshotter.captureFromWidget(
+        Theme(
+          data: ThemeData(
+            brightness: Brightness.light,
+            colorScheme: const ColorScheme.light(
+              primary: EditorExporter.primaryColor,
+              secondary: EditorExporter.secondaryColor,
+            ),
           ),
-        ),
-        child: Localizations.override(
-          context: context,
-          child: SizedBox(
-            width: thumbnailSize.width,
-            height: thumbnailSize.height,
-            child: FittedBox(
-              child: pagePreviewBuilder(
-                context,
-                pageIndex: 0,
-                previewHeight: previewHeight,
+          child: Localizations.override(
+            context: context,
+            child: SizedBox(
+              width: thumbnailSize.width,
+              height: thumbnailSize.height,
+              child: FittedBox(
+                child: pagePreviewBuilder(
+                  context,
+                  pageIndex: 0,
+                  previewHeight: previewHeight,
+                ),
               ),
             ),
           ),
         ),
-      ),
-      pixelRatio: 1,
-      context: context,
-      targetSize: thumbnailSize,
-    );
-    await FileManager.writeFile(
-      // Note that this ends with .kvx.p
-      '$filePath.p',
-      thumbnail,
-      awaitWrite: true,
-    );
+        pixelRatio: 1,
+        context: context,
+        targetSize: thumbnailSize,
+      );
+      await FileManager.writeFile(
+        // Note that this ends with .kvx.p
+        '$filePath.p',
+        thumbnail,
+        awaitWrite: true,
+      );
+    } catch (e) {
+      log.warning('Failed to generate thumbnail for $filePath: $e');
+    }
   }
 
   late final _filenameFormKey = GlobalKey<FormState>();
@@ -1793,20 +1808,31 @@ class EditorState extends State<Editor> {
     return ValueListenableBuilder(
       valueListenable: savingState,
       builder: (context, savingState, child) {
-        // don't allow user to go back until saving is done
         return PopScope(
-          canPop: savingState == SavingState.saved,
-          onPopInvokedWithResult: (didPop, _) {
-            switch (savingState) {
-              case SavingState.waitingToSave:
-                assert(!didPop);
-                saveToFile(); // trigger save now
-                snackBarNeedsToSaveBeforeExiting();
-              case SavingState.saving:
-                assert(!didPop);
-                snackBarNeedsToSaveBeforeExiting();
-              case SavingState.saved:
-                break;
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+            if (_isExiting) return;
+            _isExiting = true;
+
+            try {
+              if (_renameTimer?.isActive ?? false) {
+                _renameTimer!.cancel();
+                await _renameFileNow();
+              }
+
+              final filePath = coreInfo.filePath + Editor.extension;
+              if (savingState != SavingState.saved ||
+                  !FileManager.doesFileExist(filePath)) {
+                this.savingState.value = SavingState.waitingToSave;
+                await saveToFile();
+              }
+            } catch (e) {
+              log.severe('Failed to save file before popping: $e', e);
+            } finally {
+              if (context.mounted) {
+                Navigator.of(context).pop(result);
+              }
             }
           },
           child: child!,
@@ -2329,20 +2355,13 @@ class EditorState extends State<Editor> {
 
   @override
   void dispose() {
-    (() async {
-      if (_renameTimer?.isActive ?? false) {
-        _renameTimer!.cancel();
-        await _renameFileNow();
-        filenameTextEditingController.dispose();
-      }
-      await saveToFile();
-    })();
-
-    DynamicMaterialApp.removeFullscreenListener(_setState);
-
+    _renameTimer?.cancel();
     _delayedSaveTimer?.cancel();
     _watchServerTimer?.cancel();
     _lastSeenPointerCountTimer?.cancel();
+
+    filenameTextEditingController.dispose();
+    DynamicMaterialApp.removeFullscreenListener(_setState);
 
     _removeKeybindings();
 

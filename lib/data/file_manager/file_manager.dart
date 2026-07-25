@@ -114,6 +114,8 @@ class FileManager {
   static Future<void> watchRootDirectory() async {
     final rootDir = Directory(documentsDirectory);
     await rootDir.create(recursive: true);
+    final String normDocDir = _sanitisePath(documentsDirectory);
+
     rootDir.watch(recursive: true).listen((FileSystemEvent event) {
       final type =
           event.type == FileSystemEvent.create ||
@@ -121,9 +123,20 @@ class FileManager {
               event.type == FileSystemEvent.move
           ? FileOperationType.write
           : FileOperationType.delete;
-      final String path = event.path
-          .replaceAll('\\', '/')
-          .replaceFirst(documentsDirectory, '');
+
+      String eventPath = event.path.replaceAll('\\', '/');
+
+      if (Platform.isAndroid) {
+        if (eventPath.startsWith('/data/data/') &&
+            normDocDir.startsWith('/data/user/0/')) {
+          eventPath = eventPath.replaceFirst('/data/data/', '/data/user/0/');
+        } else if (eventPath.startsWith('/data/user/0/') &&
+            normDocDir.startsWith('/data/data/')) {
+          eventPath = eventPath.replaceFirst('/data/user/0/', '/data/data/');
+        }
+      }
+
+      final String path = eventPath.replaceFirst(normDocDir, '');
       broadcastFileWrite(type, path);
     });
   }
