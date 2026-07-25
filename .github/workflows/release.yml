@@ -41,7 +41,7 @@ permissions:
   contents: read
 
 env:
-  FLUTTER_VERSION: '3.44.2'
+  FLUTTER_VERSION: '3.44.8'
 
 jobs:
   # JOB 1: Build Android APKs (with Rust native libs)
