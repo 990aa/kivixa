@@ -20,34 +20,34 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 # Flutter Rust Bridge for Dart interop
-flutter_rust_bridge = "=2.12.0"
+flutter_rust_bridge = "=2.13.0"
 
 # Error handling
-anyhow = "1.0"
+anyhow = "1.0.104"
 
 # Llama.cpp bindings for Phi-4 inference
 # Default: CPU mode (no GPU features) - safe for all platforms
-llama-cpp-2 = { version = "0.1.130", default-features = false, features = ["mtmd"] }
+llama-cpp-2 = { version = "0.1.156", default-features = false, features = ["mtmd"] }
 
 # Force-directed graph simulation for knowledge graph
-fdg-sim = "0.9"
+fdg-sim = "0.9.1"
 
 # Serialization for graph data
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
 
 # Logging
-log = "0.4"
-env_logger = "0.11"
+log = "0.4.34"
+env_logger = "0.11.11"
 
 # Thread-safe primitives
-parking_lot = "0.12"
+parking_lot = "0.12.5"
 
 # Lazy statics
-once_cell = "1.21"
+once_cell = "1.21.4"
 
 # Async runtime (for streaming responses)
-tokio = { version = "1", features = ["rt-multi-thread", "sync"] }
+tokio = { version = "1.53.1", features = ["rt-multi-thread", "sync"] }
 
 # ============================================================================
 # Platform-Specific GPU Backends (Hybrid Performance Strategy)
@@ -56,18 +56,18 @@ tokio = { version = "1", features = ["rt-multi-thread", "sync"] }
 # Windows/Linux: CPU mode only (AVX2 auto-detected, no SDK required)
 # llama.cpp is highly optimized for CPUs - 10-15 tokens/sec on modern CPUs
 [target.'cfg(any(target_os = "windows", target_os = "linux"))'.dependencies]
-llama-cpp-sys-2 = { version = "0.1.130", default-features = false, features = ["mtmd"] }
+llama-cpp-sys-2 = { version = "0.1.156", default-features = false, features = ["mtmd"] }
 
 # Android: Vulkan for GPU acceleration (NDK includes Vulkan headers)
 [target.'cfg(target_os = "android")'.dependencies]
-llama-cpp-sys-2 = { version = "0.1.130", features = ["mtmd"] }
+llama-cpp-sys-2 = { version = "0.1.156", features = ["mtmd"] }
 
 # macOS/iOS: Metal for Apple Silicon GPU acceleration
 [target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
-llama-cpp-sys-2 = { version = "0.1.130", features = ["metal", "mtmd"] }
+llama-cpp-sys-2 = { version = "0.1.156", features = ["metal", "mtmd"] }
 
 [build-dependencies]
-cc = "1.2"
+cc = "1.4.5"
 
 [dev-dependencies]
 tempfile = "3.27"
