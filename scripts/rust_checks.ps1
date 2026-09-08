@@ -1,7 +1,3 @@
-# rust_checks.ps1
-# Comprehensive Rust quality and security checks
-# Runs various cargo tools to ensure code quality
-
 param(
     [Parameter(Position = 0)]
     [string]$CratePath = "",
@@ -163,6 +159,26 @@ Write-Host "Started at: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" -ForegroundCo
 Push-Location $targetDir
 
 try {
+    # Ensure cmake is available on PATH for native build scripts (e.g. llama-cpp-sys-2)
+    if (-not (Test-CommandExists "cmake")) {
+        $cmakeCandidates = @(
+            "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe",
+            "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe",
+            "C:\Program Files\Microsoft Visual Studio\18\Insiders\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe",
+            "$env:LOCALAPPDATA\Android\Sdk\cmake\3.22.1\bin\cmake.exe",
+            "$env:LOCALAPPDATA\Android\Sdk\cmake\4.1.2\bin\cmake.exe"
+        )
+        foreach ($c in $cmakeCandidates) {
+            if (Test-Path $c) {
+                $cmakeDir = Split-Path $c -Parent
+                $env:PATH = "$cmakeDir;$($env:PATH)"
+                $env:CMAKE = $c
+                Write-Info "Found CMake at: $c"
+                break
+            }
+        }
+    }
+
     # ═══════════════════════════════════════════════════════════════
     # CORE CHECKS (always run)
     # ═══════════════════════════════════════════════════════════════
