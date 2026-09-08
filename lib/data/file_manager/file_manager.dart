@@ -263,7 +263,7 @@ class FileManager {
           await SaverGallery.saveImage(
             Uint8List.fromList(bytes),
             fileName: fileName,
-            androidRelativePath: 'Pictures/kivixa',
+            albumPath: 'Pictures/kivixa',
             skipIfExists: true,
           );
         }

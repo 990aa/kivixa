@@ -246,10 +246,11 @@ class _SyncfusionCalendarPageState extends State<SyncfusionCalendarPage>
         event: existingEvent,
         initialDate: initialDate ?? _selectedDate,
         onSave: (event) async {
-          if (existingEvent != null) {
+          final oldEvent = existingEvent;
+          if (oldEvent != null) {
             await CalendarStorage.updateEvent(event);
             await NotificationService.instance.cancelEventNotifications(
-              existingEvent,
+              oldEvent,
             );
           } else {
             await CalendarStorage.addEvent(event);

@@ -150,15 +150,24 @@ class DynamicMaterialAppState extends State<DynamicMaterialApp>
 
     // Try and use device's accent color, or fall back to defaultSwatch
     return DynamicColorBuilder(
-      builder: (ColorScheme? lightColorScheme, ColorScheme? darkColorScheme) {
-        lightColorScheme ??= ColorScheme.fromSeed(
-          brightness: Brightness.light,
-          seedColor: widget.defaultSwatch,
-        );
-        darkColorScheme ??= ColorScheme.fromSeed(
-          brightness: Brightness.dark,
-          seedColor: widget.defaultSwatch,
-        );
+      builder: (dynamic lightDynamic, dynamic darkDynamic) {
+        final Color? lightPrimary =
+            lightDynamic != null ? (lightDynamic.primary as Color?) : null;
+        final Color? darkPrimary =
+            darkDynamic != null ? (darkDynamic.primary as Color?) : null;
+
+        final lightColorScheme = (lightDynamic is ColorScheme)
+            ? lightDynamic
+            : ColorScheme.fromSeed(
+                brightness: Brightness.light,
+                seedColor: lightPrimary ?? widget.defaultSwatch,
+              );
+        final darkColorScheme = (darkDynamic is ColorScheme)
+            ? darkDynamic
+            : ColorScheme.fromSeed(
+                brightness: Brightness.dark,
+                seedColor: darkPrimary ?? widget.defaultSwatch,
+              );
 
         return ExplicitlyThemedApp(
           title: widget.title,
