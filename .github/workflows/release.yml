@@ -3,7 +3,7 @@
 # Triggered by pushing a version tag or manually
 #
 # This workflow:
-# 1. Builds Rust native libraries for Android and Windows
+# 1. Builds Rust native libraries for Android and Windows (IN PARALLEL)
 # 2. Builds Android APKs (arm64, armv7, x86_64)
 # 3. Builds Windows installer with code signing
 # 4. Builds Windows MSIX package with code signing (failsafe)
@@ -11,8 +11,6 @@
 # 6. Updates F-Droid repository (gh-pages)
 #
 # Note: README.md is updated locally by scripts/release.ps1 before tagging
- 
-
 
 name: Build and Release (Windows + Android)
 
@@ -20,7 +18,7 @@ on:
   push:
     tags:
       - 'v*'
-  
+
   # Manual trigger for testing
   workflow_dispatch:
     inputs:
@@ -45,14 +43,13 @@ env:
 
 jobs:
   # JOB 1: Build Android APKs (with Rust native libs)
-  
   build-android:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
       build_number: ${{ steps.version.outputs.build_number }}
       tag_name: ${{ steps.version.outputs.tag_name }}
-    
+
     steps:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
@@ -64,6 +61,7 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
+
       - name: Checkout code
         uses: actions/checkout@v6
         with:
@@ -86,7 +84,7 @@ jobs:
             BUILD_NUMBER=$(echo $TAG | grep -oP '\+\K\d+' || echo "")
             TAG_NAME=${GITHUB_REF#refs/tags/}
           fi
-          
+
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
@@ -140,56 +138,56 @@ jobs:
           # Build kivixa_native for Android
           echo "=== Building kivixa_native for Android ==="
           cd native
-          
+
           NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           API_LEVEL=23
-          
+
           # arm64-v8a
           echo "Building aarch64-linux-android..."
           export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           cargo build --release --target aarch64-linux-android
-          
+
           # armv7-linux-androideabi
           echo "Building armv7-linux-androideabi..."
           export CC_armv7_linux_androideabi="${NDK_BIN}/armv7a-linux-androideabi${API_LEVEL}-clang"
           export AR_armv7_linux_androideabi="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="${NDK_BIN}/armv7a-linux-androideabi${API_LEVEL}-clang"
           cargo build --release --target armv7-linux-androideabi
-          
+
           # x86_64-linux-android
           echo "Building x86_64-linux-android..."
           export CC_x86_64_linux_android="${NDK_BIN}/x86_64-linux-android${API_LEVEL}-clang"
           export AR_x86_64_linux_android="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="${NDK_BIN}/x86_64-linux-android${API_LEVEL}-clang"
           cargo build --release --target x86_64-linux-android
-          
+
           cd ..
-          
+
           # Copy to jniLibs (main app)
           mkdir -p android/app/src/main/jniLibs/arm64-v8a
           mkdir -p android/app/src/main/jniLibs/armeabi-v7a
           mkdir -p android/app/src/main/jniLibs/x86_64
-          
+
           cp native/target/aarch64-linux-android/release/libkivixa_native.so android/app/src/main/jniLibs/arm64-v8a/
           cp native/target/armv7-linux-androideabi/release/libkivixa_native.so android/app/src/main/jniLibs/armeabi-v7a/
           cp native/target/x86_64-linux-android/release/libkivixa_native.so android/app/src/main/jniLibs/x86_64/
-          
+
           # Copy to rust_builder jniLibs (for Flutter plugin detection)
           mkdir -p rust_builder/android/src/main/jniLibs/arm64-v8a
           mkdir -p rust_builder/android/src/main/jniLibs/armeabi-v7a
           mkdir -p rust_builder/android/src/main/jniLibs/x86_64
-          
+
           cp native/target/aarch64-linux-android/release/libkivixa_native.so rust_builder/android/src/main/jniLibs/arm64-v8a/
           cp native/target/armv7-linux-androideabi/release/libkivixa_native.so rust_builder/android/src/main/jniLibs/armeabi-v7a/
           cp native/target/x86_64-linux-android/release/libkivixa_native.so rust_builder/android/src/main/jniLibs/x86_64/
-          
+
           # Copy libc++_shared.so from NDK (required for C++ dependencies like llama.cpp)
           NDK_LIBCPP_ARM64="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so"
           NDK_LIBCPP_ARMV7="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/arm-linux-androideabi/libc++_shared.so"
           NDK_LIBCPP_X86_64="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so"
-          
+
           if [ -f "$NDK_LIBCPP_ARM64" ]; then
             cp "$NDK_LIBCPP_ARM64" android/app/src/main/jniLibs/arm64-v8a/
             cp "$NDK_LIBCPP_ARM64" rust_builder/android/src/main/jniLibs/arm64-v8a/
@@ -202,20 +200,20 @@ jobs:
             cp "$NDK_LIBCPP_X86_64" android/app/src/main/jniLibs/x86_64/
             cp "$NDK_LIBCPP_X86_64" rust_builder/android/src/main/jniLibs/x86_64/
           fi
-          
+
           # Also copy to build output directories (fallback locations Flutter might check)
           mkdir -p build/native_assets/android_arm64-v8a
           mkdir -p build/native_assets/android_armeabi-v7a
           mkdir -p build/native_assets/android_x86_64
-          
+
           cp native/target/aarch64-linux-android/release/libkivixa_native.so build/native_assets/android_arm64-v8a/
           cp native/target/armv7-linux-androideabi/release/libkivixa_native.so build/native_assets/android_armeabi-v7a/
           cp native/target/x86_64-linux-android/release/libkivixa_native.so build/native_assets/android_x86_64/
-          
+
           echo "kivixa_native libraries copied to all jniLibs locations"
           ls -la android/app/src/main/jniLibs/arm64-v8a/
           ls -la rust_builder/android/src/main/jniLibs/arm64-v8a/
-          
+
           # Verify libraries are valid ELF files and check dependencies
           echo "=== Verifying library integrity ==="
           file android/app/src/main/jniLibs/arm64-v8a/libkivixa_native.so
@@ -229,43 +227,43 @@ jobs:
           # Build kivixa_math for Android
           echo "=== Building kivixa_math for Android ==="
           cd native_math
-          
+
           NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           API_LEVEL=23
-          
+
           # arm64-v8a
           echo "Building aarch64-linux-android..."
           export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           cargo build --release --target aarch64-linux-android
-          
+
           # armv7-linux-androideabi
           echo "Building armv7-linux-androideabi..."
           export CC_armv7_linux_androideabi="${NDK_BIN}/armv7a-linux-androideabi${API_LEVEL}-clang"
           export AR_armv7_linux_androideabi="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="${NDK_BIN}/armv7a-linux-androideabi${API_LEVEL}-clang"
           cargo build --release --target armv7-linux-androideabi
-          
+
           # x86_64-linux-android
           echo "Building x86_64-linux-android..."
           export CC_x86_64_linux_android="${NDK_BIN}/x86_64-linux-android${API_LEVEL}-clang"
           export AR_x86_64_linux_android="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="${NDK_BIN}/x86_64-linux-android${API_LEVEL}-clang"
           cargo build --release --target x86_64-linux-android
-          
+
           cd ..
-          
+
           # Copy to jniLibs (main app)
           cp native_math/target/aarch64-linux-android/release/libkivixa_math.so android/app/src/main/jniLibs/arm64-v8a/
           cp native_math/target/armv7-linux-androideabi/release/libkivixa_math.so android/app/src/main/jniLibs/armeabi-v7a/
           cp native_math/target/x86_64-linux-android/release/libkivixa_math.so android/app/src/main/jniLibs/x86_64/
-          
+
           # Copy to rust_builder jniLibs (for Flutter plugin detection)
           cp native_math/target/aarch64-linux-android/release/libkivixa_math.so rust_builder/android/src/main/jniLibs/arm64-v8a/
           cp native_math/target/armv7-linux-androideabi/release/libkivixa_math.so rust_builder/android/src/main/jniLibs/armeabi-v7a/
           cp native_math/target/x86_64-linux-android/release/libkivixa_math.so rust_builder/android/src/main/jniLibs/x86_64/
-          
+
           echo "kivixa_math libraries copied to all jniLibs locations"
           ls -la android/app/src/main/jniLibs/arm64-v8a/
           ls -la android/app/src/main/jniLibs/armeabi-v7a/
@@ -279,43 +277,43 @@ jobs:
           # Build kivixa_audio for Android
           echo "=== Building kivixa_audio for Android ==="
           cd native_audio
-          
+
           NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           API_LEVEL=23
-          
+
           # arm64-v8a
           echo "Building aarch64-linux-android..."
           export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           cargo build --release --target aarch64-linux-android
-          
+
           # armv7-linux-androideabi
           echo "Building armv7-linux-androideabi..."
           export CC_armv7_linux_androideabi="${NDK_BIN}/armv7a-linux-androideabi${API_LEVEL}-clang"
           export AR_armv7_linux_androideabi="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="${NDK_BIN}/armv7a-linux-androideabi${API_LEVEL}-clang"
           cargo build --release --target armv7-linux-androideabi
-          
+
           # x86_64-linux-android
           echo "Building x86_64-linux-android..."
           export CC_x86_64_linux_android="${NDK_BIN}/x86_64-linux-android${API_LEVEL}-clang"
           export AR_x86_64_linux_android="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="${NDK_BIN}/x86_64-linux-android${API_LEVEL}-clang"
           cargo build --release --target x86_64-linux-android
-          
+
           cd ..
-          
+
           # Copy to jniLibs (main app)
           cp native_audio/target/aarch64-linux-android/release/libkivixa_audio.so android/app/src/main/jniLibs/arm64-v8a/
           cp native_audio/target/armv7-linux-androideabi/release/libkivixa_audio.so android/app/src/main/jniLibs/armeabi-v7a/
           cp native_audio/target/x86_64-linux-android/release/libkivixa_audio.so android/app/src/main/jniLibs/x86_64/
-          
+
           # Copy to rust_builder jniLibs (for Flutter plugin detection)
           cp native_audio/target/aarch64-linux-android/release/libkivixa_audio.so rust_builder/android/src/main/jniLibs/arm64-v8a/
           cp native_audio/target/armv7-linux-androideabi/release/libkivixa_audio.so rust_builder/android/src/main/jniLibs/armeabi-v7a/
           cp native_audio/target/x86_64-linux-android/release/libkivixa_audio.so rust_builder/android/src/main/jniLibs/x86_64/
-          
+
           echo "kivixa_audio libraries copied to all jniLibs locations"
           ls -la android/app/src/main/jniLibs/arm64-v8a/
           ls -la android/app/src/main/jniLibs/armeabi-v7a/
@@ -360,11 +358,11 @@ jobs:
       - name: Verify native libraries in APKs
         run: |
           echo "=== Verifying native libraries are included in APKs ==="
-          
+
           # Check arm64 APK
           echo "--- arm64 APK contents ---"
           unzip -l artifacts/Kivixa-Android-*-arm64.apk | grep -E "\.so$" || true
-          
+
           # Verify required libraries exist
           REQUIRED_LIBS="libkivixa_native.so libkivixa_math.so libkivixa_audio.so"
           for LIB in $REQUIRED_LIBS; do
@@ -375,16 +373,16 @@ jobs:
               exit 1
             fi
           done
-          
+
           # Extract and check library dependencies
           mkdir -p /tmp/apk_check
           unzip -o artifacts/Kivixa-Android-*-arm64.apk "lib/arm64-v8a/*.so" -d /tmp/apk_check || true
-          
+
           if [ -f "/tmp/apk_check/lib/arm64-v8a/libkivixa_native.so" ]; then
             echo "=== libkivixa_native.so dependencies ==="
             readelf -d /tmp/apk_check/lib/arm64-v8a/libkivixa_native.so | grep NEEDED || echo "No NEEDED entries found"
           fi
-          
+
           rm -rf /tmp/apk_check
 
       - name: Upload Android artifacts
@@ -394,26 +392,47 @@ jobs:
           path: artifacts/*.apk
           retention-days: 5
 
-   
-
-  # JOB 2: Build Windows Installer (with Rust native libs)
-   
-
+  # JOB 2: Build Windows Installer (with Rust native libs) - RUNS IN PARALLEL WITH ANDROID
   build-windows:
     runs-on: windows-latest
-    needs: build-android
-    
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      build_number: ${{ steps.version.outputs.build_number }}
+      tag_name: ${{ steps.version.outputs.tag_name }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
           submodules: recursive
 
+      - name: Extract version from tag
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $version = "${{ github.event.inputs.test_version }}"
+            $buildNumber = ""
+            $tagName = "v$version"
+            Write-Host "Using workflow_dispatch test version: $version"
+          } else {
+            $tag = "${{ github.ref }}".Replace("refs/tags/v", "")
+            $parts = $tag.Split("+")
+            $version = $parts[0]
+            $buildNumber = if ($parts.Length -gt 1) { $parts[1] } else { "" }
+            $tagName = "${{ github.ref }}".Replace("refs/tags/", "")
+          }
+
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "build_number=$buildNumber" >> $env:GITHUB_OUTPUT
+          echo "tag_name=$tagName" >> $env:GITHUB_OUTPUT
+          Write-Host "Extracted version: $version, build: $buildNumber, tag: $tagName"
+
       - name: Sync pubspec.yaml version with tag
         shell: pwsh
         run: |
-          $version = "${{ needs.build-android.outputs.version }}"
-          $build = "${{ needs.build-android.outputs.build_number }}"
+          $version = "${{ steps.version.outputs.version }}"
+          $build = "${{ steps.version.outputs.build_number }}"
           if ($build) {
             $fullVersion = "${version}+${build}"
           } else {
@@ -449,20 +468,20 @@ jobs:
           Set-Location native
           cargo build --release --target x86_64-pc-windows-msvc
           Set-Location ..
-          
+
           # Create all output directories (Debug, Release, Profile, rust_builder)
           New-Item -ItemType Directory -Force -Path "build/windows/x64/runner/Debug" | Out-Null
           New-Item -ItemType Directory -Force -Path "build/windows/x64/runner/Release" | Out-Null
           New-Item -ItemType Directory -Force -Path "build/windows/x64/runner/Profile" | Out-Null
           New-Item -ItemType Directory -Force -Path "rust_builder/target/x86_64-pc-windows-msvc/release" | Out-Null
-          
+
           # Copy DLL to all locations
           $dllSource = "native/target/x86_64-pc-windows-msvc/release/kivixa_native.dll"
           Copy-Item $dllSource "build/windows/x64/runner/Debug/" -Force
           Copy-Item $dllSource "build/windows/x64/runner/Release/" -Force
           Copy-Item $dllSource "build/windows/x64/runner/Profile/" -Force
           Copy-Item $dllSource "rust_builder/target/x86_64-pc-windows-msvc/release/" -Force
-          
+
           Write-Host "kivixa_native.dll copied to all Windows locations"
 
       - name: Build Rust math library for Windows
@@ -472,13 +491,13 @@ jobs:
           Set-Location native_math
           cargo build --release --target x86_64-pc-windows-msvc
           Set-Location ..
-          
+
           # Copy DLL to all locations
           $dllSource = "native_math/target/x86_64-pc-windows-msvc/release/kivixa_math.dll"
           Copy-Item $dllSource "build/windows/x64/runner/Debug/" -Force
           Copy-Item $dllSource "build/windows/x64/runner/Release/" -Force
           Copy-Item $dllSource "build/windows/x64/runner/Profile/" -Force
-          
+
           Write-Host "kivixa_math.dll copied to all Windows locations"
           Get-ChildItem "build/windows/x64/runner/Release/*.dll"
 
@@ -489,14 +508,14 @@ jobs:
           Set-Location native_audio
           cargo build --release --target x86_64-pc-windows-msvc
           Set-Location ..
-          
+
           # Copy DLL to all locations
           $dllSource = "native_audio/target/x86_64-pc-windows-msvc/release/kivixa_audio.dll"
           Copy-Item $dllSource "build/windows/x64/runner/Debug/" -Force
           Copy-Item $dllSource "build/windows/x64/runner/Release/" -Force
           Copy-Item $dllSource "build/windows/x64/runner/Profile/" -Force
           Copy-Item $dllSource "rust_builder/target/x86_64-pc-windows-msvc/release/" -Force
-          
+
           Write-Host "kivixa_audio.dll copied to all Windows locations"
           Get-ChildItem "build/windows/x64/runner/Release/*.dll"
 
@@ -510,21 +529,21 @@ jobs:
       # MSIX BUILD STEP (Safe & Isolated)
       - name: Build and Sign MSIX
         id: build_msix
-        continue-on-error: true # <--- PREVENTS WORKFLOW FAILURE IF MSIX FAILS
+        continue-on-error: true
         shell: pwsh
         run: |
           Write-Host "=== Starting MSIX Build ===" -ForegroundColor Cyan
-          
+
           # Translate Version (e.g., 0.1.7+1007 -> 0.1.7.1007)
-          $rawVersion = "${{ needs.build-android.outputs.version }}"
-          $buildNum = "${{ needs.build-android.outputs.build_number }}"
+          $rawVersion = "${{ steps.version.outputs.version }}"
+          $buildNum = "${{ steps.version.outputs.build_number }}"
           if ([string]::IsNullOrWhiteSpace($buildNum)) { $buildNum = "0" }
           $msixVersion = "$rawVersion.$buildNum"
           Write-Host "Translated MSIX Version: $msixVersion"
-          
+
           $cert = "windows\certificate.pfx"
           $password = "${{ secrets.WINDOWS_CERT_PASSWORD }}"
-          
+
           if (Test-Path $cert) {
             flutter pub run msix:create -v `
               --version $msixVersion `
@@ -534,7 +553,7 @@ jobs:
             Write-Host "Warning: Certificate not found. Building unsigned MSIX for testing."
             flutter pub run msix:create -v --version $msixVersion
           }
-          
+
           Write-Host "=== MSIX Build Completed ===" -ForegroundColor Green
 
       - name: Upload MSIX Artifact
@@ -550,7 +569,7 @@ jobs:
         run: |
           Write-Host "=== Verifying Rust DLLs ===" -ForegroundColor Cyan
           $releaseDir = "build/windows/x64/runner/Release"
-          
+
           $requiredDlls = @("kivixa_native.dll", "kivixa_math.dll", "kivixa_audio.dll")
           foreach ($dll in $requiredDlls) {
             $dllPath = Join-Path $releaseDir $dll
@@ -560,7 +579,7 @@ jobs:
               Write-Host "[MISSING] $dll - Build may fail!" -ForegroundColor Red
             }
           }
-          
+
           Write-Host "`nAll files in Release directory:"
           Get-ChildItem $releaseDir | Format-Table Name, Length
 
@@ -570,17 +589,17 @@ jobs:
           $cert = "windows\certificate.pfx"
           $exe = "build\windows\x64\runner\Release\kivixa.exe"
           $password = "${{ secrets.WINDOWS_CERT_PASSWORD }}"
-          
+
           if (-not (Test-Path $cert)) {
             Write-Host "Warning: Certificate not found, skipping signing"
             exit 0
           }
-          
+
           # Find signtool
-          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue | 
-                      Sort-Object { [version]($_.Directory.Parent.Name) } -Descending | 
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue |
+                      Sort-Object { [version]($_.Directory.Parent.Name) } -Descending |
                       Select-Object -First 1 -ExpandProperty FullName
-          
+
           if ($signtool -and (Test-Path $exe)) {
             & $signtool sign /f $cert /p $password /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 $exe
             Write-Host "Signed $exe successfully" -ForegroundColor Green
@@ -598,33 +617,29 @@ jobs:
           $dir = "windows\installer\Evergreen Bootstrapper"
           New-Item -ItemType Directory -Force -Path $dir
           Write-Host "Downloading WebView2 Bootstrapper..."
-          # Official Microsoft Download Link for the Evergreen Bootstrapper
           Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "$dir\MicrosoftEdgeWebview2Setup.exe"
           Write-Host "Download Complete."
 
       - name: Build Windows Installer
         shell: pwsh
         run: |
-          $version = "${{ needs.build-android.outputs.version }}"
+          $version = "${{ steps.version.outputs.version }}"
           $issPath = "windows\installer\kivixa-installer.iss"
-          
+
           # Create output directory explicitly
           $outDir = Join-Path $pwd "build_windows_installer"
           New-Item -ItemType Directory -Force -Path $outDir | Out-Null
-          
+
           Write-Host "Building installer for version $version..."
           Write-Host "Output Directory: $outDir"
-          
-          # RUN ISCC WITH OVERRIDES
-          # /O = Force output path to our build folder
-          # /F = Force filename to 'Kivixa-Setup-<version>'
+
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /O"$outDir" /F"Kivixa-Setup-$version" "$issPath"
-          
+
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Inno Setup failed with exit code $LASTEXITCODE" -ForegroundColor Red
             exit 1
           }
-          
+
           Write-Host "=== Installer built ===" -ForegroundColor Green
           Get-ChildItem "build_windows_installer\*.exe"
 
@@ -633,15 +648,15 @@ jobs:
         run: |
           $cert = "windows\certificate.pfx"
           $password = "${{ secrets.WINDOWS_CERT_PASSWORD }}"
-          $version = "${{ needs.build-android.outputs.version }}"
-          
+          $version = "${{ steps.version.outputs.version }}"
+
           $installer = Get-ChildItem "build_windows_installer\Kivixa-Setup-*.exe" | Select-Object -First 1
-          
+
           if ($installer -and (Test-Path $cert)) {
-            $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue | 
-                        Sort-Object { [version]($_.Directory.Parent.Name) } -Descending | 
+            $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue |
+                        Sort-Object { [version]($_.Directory.Parent.Name) } -Descending |
                         Select-Object -First 1 -ExpandProperty FullName
-            
+
             if ($signtool) {
               & $signtool sign /f $cert /p $password /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 $installer.FullName
               Write-Host "Signed installer: $($installer.Name)" -ForegroundColor Green
@@ -655,11 +670,7 @@ jobs:
           path: build_windows_installer/Kivixa-Setup-*.exe
           retention-days: 5
 
-   
-
   # JOB 3: Create GitHub Release
-   
-
   release:
     runs-on: ubuntu-latest
     needs: [build-android, build-windows]
@@ -668,7 +679,7 @@ jobs:
       contents: write
     outputs:
       release_url: ${{ steps.create_release.outputs.url }}
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -686,7 +697,7 @@ jobs:
           path: release-artifacts
 
       - name: Download MSIX artifacts
-        continue-on-error: true 
+        continue-on-error: true
         uses: actions/download-artifact@v8
         with:
           name: windows-msix
@@ -717,24 +728,24 @@ jobs:
           tag_name: ${{ needs.build-android.outputs.tag_name }}
           body: |
             ## Kivixa v${{ needs.build-android.outputs.version }}
-            
+
             ${{ steps.changelog.outputs.content }}
-            
+
             ---
-            
+
             ### Downloads
-            
+
             **Windows:**
             - `Kivixa-Setup-${{ needs.build-android.outputs.version }}.exe` - Windows Installer
             - `kivixa.msix` - Modern Windows Package
-            
+
             **Android:**
             - `Kivixa-Android-${{ needs.build-android.outputs.version }}-arm64.apk` - ARM64 (most modern devices)
             - `Kivixa-Android-${{ needs.build-android.outputs.version }}-armv7.apk` - ARMv7 (older devices)
             - `Kivixa-Android-${{ needs.build-android.outputs.version }}-x86_64.apk` - x86_64 (emulators)
-            
+
             ---
-            
+
             ### Alternative Downloads
             - **F-Droid**: Add our repo at `https://990aa.github.io/kivixa/repo`
           files: release-artifacts/*
@@ -743,18 +754,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-   
-
   # JOB 4: Update F-Droid Repository (gh-pages)
-   
-
   fdroid:
     runs-on: ubuntu-latest
     needs: [build-android, release]
     if: github.event_name != 'workflow_dispatch' || github.event.inputs.skip_fdroid != 'true'
     permissions:
       contents: write
-    
+
     steps:
       - name: Checkout gh-pages branch
         uses: actions/checkout@v6
@@ -782,14 +789,14 @@ jobs:
       - name: Setup and Publish F-Droid Repo
         run: |
           VERSION=${{ needs.build-android.outputs.version }}
-          
+
           # --- 1. PREPARE DIRECTORIES ---
           mkdir -p repo
           mkdir -p archive
           mkdir -p repo/icons
           mkdir -p archive/icons
           mkdir -p metadata/com.a990aa.kivixa/en-US
-          
+
           # --- 2. COPY APKs ---
           cp fdroid-apks/*.apk repo/
           cp -f icon.png repo/icons/icon.png
@@ -808,8 +815,8 @@ jobs:
               fi
             done
           done
-          
-          # --- 3. CREATE METADATA (Flush to left to avoid weird spaces) ---
+
+          # --- 3. CREATE METADATA ---
           cat > metadata/com.a990aa.kivixa/en-US/full_description.txt << 'DESCEOF'
           Kivixa is a privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
 
@@ -822,7 +829,7 @@ jobs:
           - Focus tools including Pomodoro and custom productivity timers
           - High-performance math tools powered by a Rust backend
           DESCEOF
-          
+
           cat > metadata/com.a990aa.kivixa/en-US/short_description.txt << 'DESCEOF'
           A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
           DESCEOF
@@ -837,14 +844,14 @@ jobs:
           Name: Kivixa
           Summary: A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
           METAEOF
-          
+
           # --- 4. HANDLE KEYSTORE (CRITICAL) ---
           if [ ! -f keystore.p12 ]; then
             echo "Keystore missing. Initializing fresh keys..."
             rm -f config.yml
             fdroid init --verbose
           fi
-          
+
           # --- 5. UPDATE CONFIG WITHOUT DROPPING EXISTING SIGNING FIELDS ---
           python - << 'PYCFG'
           from pathlib import Path
@@ -873,43 +880,38 @@ jobs:
               yaml.dump(data, fp)
           PYCFG
 
-          
           # --- 6. UPDATE REPO (GENERATE INDEX) ---
           echo "Running F-Droid Update..."
           fdroid update --create-metadata --verbose --pretty
-          
+
           # --- 7. PUBLISH TO GITHUB (PUSH) ---
           echo "Starting Git Publish..."
-          
+
           # Configure Git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           # Add .nojekyll to ensure links work
           touch .nojekyll
-          
+
           # Stage only expected F-Droid publishing assets.
           git add .nojekyll README.md index.html config.yml icon.png keystore.p12 metadata repo archive
-          
+
           # Debug: Show what we are about to commit
           echo "Files staged for commit:"
           git status --short
-          
+
           # Commit and Push
           git commit -m "Update F-Droid repo for v$VERSION" || echo "No changes to commit"
           git push origin gh-pages
-          
+
           echo "SUCCESS: Repo updated and pushed!"
 
-   
-
   # JOB 5: Publish to Winget
-   
-
   winget:
     runs-on: ubuntu-latest
-    needs: release # Ensures Winget waits for the GitHub Release to finish
-    if: github.event_name != 'workflow_dispatch' # Prevents accidental triggers during manual testing
+    needs: release
+    if: github.event_name != 'workflow_dispatch'
     steps:
       - name: Submit Winget Package Update
         uses: vedantmgoyal9/winget-releaser@main
