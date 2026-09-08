@@ -104,8 +104,8 @@ impl AudioRingBuffer {
     /// Number of samples (not bytes) written
     pub fn write_bytes(&mut self, bytes: &[u8]) -> usize {
         let mut written = 0;
-        for chunk in bytes.chunks_exact(2) {
-            let sample = i16::from_le_bytes([chunk[0], chunk[1]]);
+        for chunk in bytes.as_chunks::<2>().0 {
+            let sample = i16::from_le_bytes(*chunk);
             let normalized = sample as f32 / 32768.0;
             self.buffer[self.write_pos] = normalized;
             self.write_pos = (self.write_pos + 1) % self.capacity;

@@ -333,7 +333,7 @@ fn run_physics_step() {
 
     // Calculate forces
     let mut forces: HashMap<String, (f32, f32)> = HashMap::new();
-    for (id, _) in nodes.iter() {
+    for id in nodes.keys() {
         forces.insert(id.clone(), (0.0, 0.0));
     }
 

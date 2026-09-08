@@ -212,7 +212,7 @@ pub fn get_graph_state() -> Result<GraphState> {
     let mut nodes = Vec::new();
     let mut edges = Vec::new();
 
-    for (_, node_data) in state.nodes_data.iter() {
+    for node_data in state.nodes_data.values() {
         nodes.push(node_data.clone());
     }
 
