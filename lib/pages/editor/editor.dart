@@ -83,7 +83,7 @@ class Editor extends StatefulWidget {
   /// The old file extension used by the app.
   /// Files with this extension are
   /// encoded in JSON format.
-  static const extensionOldJson = '.kvx';
+  static const extensionOldJson = '.kvx1';
 
   static const double gapBetweenPages = 16;
 

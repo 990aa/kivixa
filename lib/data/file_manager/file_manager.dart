@@ -208,15 +208,17 @@ class FileManager {
 
     final file = getFile(filePath);
     await _createFileDirectory(filePath);
+    final oldJsonPath = filePath.endsWith(Editor.extension) &&
+            Editor.extension != Editor.extensionOldJson
+        ? '${filePath.substring(0, filePath.length - Editor.extension.length)}'
+            '${Editor.extensionOldJson}'
+        : null;
     Future writeFuture = Future.wait([
       file.writeAsBytes(toWrite).then((file) async {
         if (lastModified != null) await file.setLastModified(lastModified);
       }),
-      if (filePath.endsWith(Editor.extension))
-        getFile(
-          '${filePath.substring(0, filePath.length - Editor.extension.length)}'
-          '${Editor.extensionOldJson}',
-        ).delete().catchError(
+      if (oldJsonPath != null && oldJsonPath != filePath)
+        getFile(oldJsonPath).delete().catchError(
           (_) => File(''),
           test: (e) => e is PathNotFoundException || e is PathAccessException,
         ),
@@ -224,11 +226,8 @@ class FileManager {
 
     void afterWrite() {
       broadcastFileWrite(FileOperationType.write, filePath);
-      if (filePath.endsWith(Editor.extension)) {
-        _removeReferences(
-          '${filePath.substring(0, filePath.length - Editor.extension.length)}'
-          '${Editor.extensionOldJson}',
-        );
+      if (oldJsonPath != null && oldJsonPath != filePath) {
+        _removeReferences(oldJsonPath);
       }
     }
 
