@@ -13,7 +13,7 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v10
+      - uses: actions/stale@v11
         with:
           stale-issue-message: "This issue is stale because it has been open for 30 days with no activity. Comment or remove the stale label within 5 days to keep it open."
           close-issue-message: "Closing this issue because it has been stale for 5 more days with no activity."
