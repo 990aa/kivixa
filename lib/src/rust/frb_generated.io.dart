@@ -15,1172 +15,641 @@ import 'mcp.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
 import 'streaming.dart';
 
-abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
-  RustLibApiImplPlatform({
-    required super.handler,
-    required super.wire,
-    required super.generalizedFrbRustBinding,
-    required super.portManager,
-  });
 
-  @protected
-  AnyhowException dco_decode_AnyhowException(dynamic raw);
 
-  @protected
-  String dco_decode_String(dynamic raw);
 
-  @protected
-  bool dco_decode_bool(dynamic raw);
+                abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
+                  RustLibApiImplPlatform({
+                    required super.handler,
+                    required super.wire,
+                    required super.generalizedFrbRustBinding,
+                    required super.portManager,
+                  });
 
-  @protected
-  double dco_decode_box_autoadd_f_32(dynamic raw);
+                  
 
-  @protected
-  int dco_decode_box_autoadd_i_32(dynamic raw);
+                  @protected AnyhowException dco_decode_AnyhowException(dynamic raw);
 
-  @protected
-  MCPToolCall dco_decode_box_autoadd_mcp_tool_call(dynamic raw);
+@protected String dco_decode_String(dynamic raw);
 
-  @protected
-  int dco_decode_box_autoadd_u_32(dynamic raw);
+@protected bool dco_decode_bool(dynamic raw);
 
-  @protected
-  BigInt dco_decode_box_autoadd_usize(dynamic raw);
+@protected double dco_decode_box_autoadd_f_32(dynamic raw);
 
-  @protected
-  ClusterAssignment dco_decode_cluster_assignment(dynamic raw);
+@protected int dco_decode_box_autoadd_i_32(dynamic raw);
 
-  @protected
-  ClusterInfo dco_decode_cluster_info(dynamic raw);
+@protected MCPToolCall dco_decode_box_autoadd_mcp_tool_call(dynamic raw);
 
-  @protected
-  ClusteringResult dco_decode_clustering_result(dynamic raw);
+@protected int dco_decode_box_autoadd_u_32(dynamic raw);
 
-  @protected
-  EmbeddingCluster dco_decode_embedding_cluster(dynamic raw);
+@protected BigInt dco_decode_box_autoadd_usize(dynamic raw);
 
-  @protected
-  EmbeddingEntry dco_decode_embedding_entry(dynamic raw);
+@protected ClusterAssignment dco_decode_cluster_assignment(dynamic raw);
 
-  @protected
-  double dco_decode_f_32(dynamic raw);
+@protected ClusterInfo dco_decode_cluster_info(dynamic raw);
 
-  @protected
-  GraphEdge dco_decode_graph_edge(dynamic raw);
+@protected ClusteringResult dco_decode_clustering_result(dynamic raw);
 
-  @protected
-  GraphNode dco_decode_graph_node(dynamic raw);
+@protected EmbeddingCluster dco_decode_embedding_cluster(dynamic raw);
 
-  @protected
-  GraphState dco_decode_graph_state(dynamic raw);
+@protected EmbeddingEntry dco_decode_embedding_entry(dynamic raw);
 
-  @protected
-  int dco_decode_i_32(dynamic raw);
+@protected double dco_decode_f_32(dynamic raw);
 
-  @protected
-  KnowledgeGraphAnalysis dco_decode_knowledge_graph_analysis(dynamic raw);
+@protected GraphEdge dco_decode_graph_edge(dynamic raw);
 
-  @protected
-  List<String> dco_decode_list_String(dynamic raw);
+@protected GraphNode dco_decode_graph_node(dynamic raw);
 
-  @protected
-  List<ClusterAssignment> dco_decode_list_cluster_assignment(dynamic raw);
+@protected GraphState dco_decode_graph_state(dynamic raw);
 
-  @protected
-  List<ClusterInfo> dco_decode_list_cluster_info(dynamic raw);
+@protected int dco_decode_i_32(dynamic raw);
 
-  @protected
-  List<EmbeddingCluster> dco_decode_list_embedding_cluster(dynamic raw);
+@protected KnowledgeGraphAnalysis dco_decode_knowledge_graph_analysis(dynamic raw);
 
-  @protected
-  List<EmbeddingEntry> dco_decode_list_embedding_entry(dynamic raw);
+@protected List<String> dco_decode_list_String(dynamic raw);
 
-  @protected
-  List<GraphEdge> dco_decode_list_graph_edge(dynamic raw);
+@protected List<ClusterAssignment> dco_decode_list_cluster_assignment(dynamic raw);
 
-  @protected
-  List<GraphNode> dco_decode_list_graph_node(dynamic raw);
+@protected List<ClusterInfo> dco_decode_list_cluster_info(dynamic raw);
 
-  @protected
-  List<MCPParameter> dco_decode_list_mcp_parameter(dynamic raw);
+@protected List<EmbeddingCluster> dco_decode_list_embedding_cluster(dynamic raw);
 
-  @protected
-  List<MCPTool> dco_decode_list_mcp_tool(dynamic raw);
+@protected List<EmbeddingEntry> dco_decode_list_embedding_entry(dynamic raw);
 
-  @protected
-  List<NodePosition> dco_decode_list_node_position(dynamic raw);
+@protected List<GraphEdge> dco_decode_list_graph_edge(dynamic raw);
 
-  @protected
-  List<double> dco_decode_list_prim_f_32_loose(dynamic raw);
+@protected List<GraphNode> dco_decode_list_graph_node(dynamic raw);
 
-  @protected
-  Float32List dco_decode_list_prim_f_32_strict(dynamic raw);
+@protected List<MCPParameter> dco_decode_list_mcp_parameter(dynamic raw);
 
-  @protected
-  Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+@protected List<MCPTool> dco_decode_list_mcp_tool(dynamic raw);
 
-  @protected
-  List<(String, String)> dco_decode_list_record_string_string(dynamic raw);
+@protected List<NodePosition> dco_decode_list_node_position(dynamic raw);
 
-  @protected
-  List<SemanticEdge> dco_decode_list_semantic_edge(dynamic raw);
+@protected List<double> dco_decode_list_prim_f_32_loose(dynamic raw);
 
-  @protected
-  List<SimilarityResult> dco_decode_list_similarity_result(dynamic raw);
+@protected Float32List dco_decode_list_prim_f_32_strict(dynamic raw);
 
-  @protected
-  MCPParamType dco_decode_mcp_param_type(dynamic raw);
+@protected Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
-  @protected
-  MCPParameter dco_decode_mcp_parameter(dynamic raw);
+@protected List<(String,String)> dco_decode_list_record_string_string(dynamic raw);
 
-  @protected
-  MCPTool dco_decode_mcp_tool(dynamic raw);
+@protected List<SemanticEdge> dco_decode_list_semantic_edge(dynamic raw);
 
-  @protected
-  MCPToolCall dco_decode_mcp_tool_call(dynamic raw);
+@protected List<SimilarityResult> dco_decode_list_similarity_result(dynamic raw);
 
-  @protected
-  MCPToolResult dco_decode_mcp_tool_result(dynamic raw);
+@protected MCPParamType dco_decode_mcp_param_type(dynamic raw);
 
-  @protected
-  NodePosition dco_decode_node_position(dynamic raw);
+@protected MCPParameter dco_decode_mcp_parameter(dynamic raw);
 
-  @protected
-  String? dco_decode_opt_String(dynamic raw);
+@protected MCPTool dco_decode_mcp_tool(dynamic raw);
 
-  @protected
-  double? dco_decode_opt_box_autoadd_f_32(dynamic raw);
+@protected MCPToolCall dco_decode_mcp_tool_call(dynamic raw);
 
-  @protected
-  int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
+@protected MCPToolResult dco_decode_mcp_tool_result(dynamic raw);
 
-  @protected
-  int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
+@protected NodePosition dco_decode_node_position(dynamic raw);
 
-  @protected
-  BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw);
+@protected String? dco_decode_opt_String(dynamic raw);
 
-  @protected
-  List<String>? dco_decode_opt_list_String(dynamic raw);
+@protected double? dco_decode_opt_box_autoadd_f_32(dynamic raw);
 
-  @protected
-  Float32List? dco_decode_opt_list_prim_f_32_strict(dynamic raw);
+@protected int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
 
-  @protected
-  List<(String, String)>? dco_decode_opt_list_record_string_string(dynamic raw);
+@protected int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
 
-  @protected
-  (String, String) dco_decode_record_string_string(dynamic raw);
+@protected BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw);
 
-  @protected
-  SemanticEdge dco_decode_semantic_edge(dynamic raw);
+@protected List<String>? dco_decode_opt_list_String(dynamic raw);
 
-  @protected
-  SemanticEdgeResult dco_decode_semantic_edge_result(dynamic raw);
+@protected Float32List? dco_decode_opt_list_prim_f_32_strict(dynamic raw);
 
-  @protected
-  SimilarityResult dco_decode_similarity_result(dynamic raw);
+@protected List<(String,String)>? dco_decode_opt_list_record_string_string(dynamic raw);
 
-  @protected
-  StreamGraphStats dco_decode_stream_graph_stats(dynamic raw);
+@protected (String,String) dco_decode_record_string_string(dynamic raw);
 
-  @protected
-  TaskCategory dco_decode_task_category(dynamic raw);
+@protected SemanticEdge dco_decode_semantic_edge(dynamic raw);
 
-  @protected
-  int dco_decode_u_32(dynamic raw);
+@protected SemanticEdgeResult dco_decode_semantic_edge_result(dynamic raw);
 
-  @protected
-  int dco_decode_u_8(dynamic raw);
+@protected SimilarityResult dco_decode_similarity_result(dynamic raw);
 
-  @protected
-  void dco_decode_unit(dynamic raw);
+@protected StreamGraphStats dco_decode_stream_graph_stats(dynamic raw);
 
-  @protected
-  BigInt dco_decode_usize(dynamic raw);
+@protected TaskCategory dco_decode_task_category(dynamic raw);
 
-  @protected
-  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+@protected int dco_decode_u_32(dynamic raw);
 
-  @protected
-  String sse_decode_String(SseDeserializer deserializer);
+@protected int dco_decode_u_8(dynamic raw);
 
-  @protected
-  bool sse_decode_bool(SseDeserializer deserializer);
+@protected void dco_decode_unit(dynamic raw);
 
-  @protected
-  double sse_decode_box_autoadd_f_32(SseDeserializer deserializer);
+@protected BigInt dco_decode_usize(dynamic raw);
 
-  @protected
-  int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
+@protected AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
-  @protected
-  MCPToolCall sse_decode_box_autoadd_mcp_tool_call(
-    SseDeserializer deserializer,
-  );
+@protected String sse_decode_String(SseDeserializer deserializer);
 
-  @protected
-  int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
+@protected bool sse_decode_bool(SseDeserializer deserializer);
 
-  @protected
-  BigInt sse_decode_box_autoadd_usize(SseDeserializer deserializer);
+@protected double sse_decode_box_autoadd_f_32(SseDeserializer deserializer);
 
-  @protected
-  ClusterAssignment sse_decode_cluster_assignment(SseDeserializer deserializer);
+@protected int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
 
-  @protected
-  ClusterInfo sse_decode_cluster_info(SseDeserializer deserializer);
+@protected MCPToolCall sse_decode_box_autoadd_mcp_tool_call(SseDeserializer deserializer);
 
-  @protected
-  ClusteringResult sse_decode_clustering_result(SseDeserializer deserializer);
+@protected int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
 
-  @protected
-  EmbeddingCluster sse_decode_embedding_cluster(SseDeserializer deserializer);
+@protected BigInt sse_decode_box_autoadd_usize(SseDeserializer deserializer);
 
-  @protected
-  EmbeddingEntry sse_decode_embedding_entry(SseDeserializer deserializer);
+@protected ClusterAssignment sse_decode_cluster_assignment(SseDeserializer deserializer);
 
-  @protected
-  double sse_decode_f_32(SseDeserializer deserializer);
+@protected ClusterInfo sse_decode_cluster_info(SseDeserializer deserializer);
 
-  @protected
-  GraphEdge sse_decode_graph_edge(SseDeserializer deserializer);
+@protected ClusteringResult sse_decode_clustering_result(SseDeserializer deserializer);
 
-  @protected
-  GraphNode sse_decode_graph_node(SseDeserializer deserializer);
+@protected EmbeddingCluster sse_decode_embedding_cluster(SseDeserializer deserializer);
 
-  @protected
-  GraphState sse_decode_graph_state(SseDeserializer deserializer);
+@protected EmbeddingEntry sse_decode_embedding_entry(SseDeserializer deserializer);
 
-  @protected
-  int sse_decode_i_32(SseDeserializer deserializer);
+@protected double sse_decode_f_32(SseDeserializer deserializer);
 
-  @protected
-  KnowledgeGraphAnalysis sse_decode_knowledge_graph_analysis(
-    SseDeserializer deserializer,
-  );
+@protected GraphEdge sse_decode_graph_edge(SseDeserializer deserializer);
 
-  @protected
-  List<String> sse_decode_list_String(SseDeserializer deserializer);
+@protected GraphNode sse_decode_graph_node(SseDeserializer deserializer);
 
-  @protected
-  List<ClusterAssignment> sse_decode_list_cluster_assignment(
-    SseDeserializer deserializer,
-  );
+@protected GraphState sse_decode_graph_state(SseDeserializer deserializer);
 
-  @protected
-  List<ClusterInfo> sse_decode_list_cluster_info(SseDeserializer deserializer);
+@protected int sse_decode_i_32(SseDeserializer deserializer);
 
-  @protected
-  List<EmbeddingCluster> sse_decode_list_embedding_cluster(
-    SseDeserializer deserializer,
-  );
+@protected KnowledgeGraphAnalysis sse_decode_knowledge_graph_analysis(SseDeserializer deserializer);
 
-  @protected
-  List<EmbeddingEntry> sse_decode_list_embedding_entry(
-    SseDeserializer deserializer,
-  );
+@protected List<String> sse_decode_list_String(SseDeserializer deserializer);
 
-  @protected
-  List<GraphEdge> sse_decode_list_graph_edge(SseDeserializer deserializer);
+@protected List<ClusterAssignment> sse_decode_list_cluster_assignment(SseDeserializer deserializer);
 
-  @protected
-  List<GraphNode> sse_decode_list_graph_node(SseDeserializer deserializer);
+@protected List<ClusterInfo> sse_decode_list_cluster_info(SseDeserializer deserializer);
 
-  @protected
-  List<MCPParameter> sse_decode_list_mcp_parameter(
-    SseDeserializer deserializer,
-  );
+@protected List<EmbeddingCluster> sse_decode_list_embedding_cluster(SseDeserializer deserializer);
 
-  @protected
-  List<MCPTool> sse_decode_list_mcp_tool(SseDeserializer deserializer);
+@protected List<EmbeddingEntry> sse_decode_list_embedding_entry(SseDeserializer deserializer);
 
-  @protected
-  List<NodePosition> sse_decode_list_node_position(
-    SseDeserializer deserializer,
-  );
+@protected List<GraphEdge> sse_decode_list_graph_edge(SseDeserializer deserializer);
 
-  @protected
-  List<double> sse_decode_list_prim_f_32_loose(SseDeserializer deserializer);
+@protected List<GraphNode> sse_decode_list_graph_node(SseDeserializer deserializer);
 
-  @protected
-  Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer);
+@protected List<MCPParameter> sse_decode_list_mcp_parameter(SseDeserializer deserializer);
 
-  @protected
-  Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+@protected List<MCPTool> sse_decode_list_mcp_tool(SseDeserializer deserializer);
 
-  @protected
-  List<(String, String)> sse_decode_list_record_string_string(
-    SseDeserializer deserializer,
-  );
+@protected List<NodePosition> sse_decode_list_node_position(SseDeserializer deserializer);
 
-  @protected
-  List<SemanticEdge> sse_decode_list_semantic_edge(
-    SseDeserializer deserializer,
-  );
+@protected List<double> sse_decode_list_prim_f_32_loose(SseDeserializer deserializer);
 
-  @protected
-  List<SimilarityResult> sse_decode_list_similarity_result(
-    SseDeserializer deserializer,
-  );
+@protected Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer);
 
-  @protected
-  MCPParamType sse_decode_mcp_param_type(SseDeserializer deserializer);
+@protected Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
-  @protected
-  MCPParameter sse_decode_mcp_parameter(SseDeserializer deserializer);
+@protected List<(String,String)> sse_decode_list_record_string_string(SseDeserializer deserializer);
 
-  @protected
-  MCPTool sse_decode_mcp_tool(SseDeserializer deserializer);
+@protected List<SemanticEdge> sse_decode_list_semantic_edge(SseDeserializer deserializer);
 
-  @protected
-  MCPToolCall sse_decode_mcp_tool_call(SseDeserializer deserializer);
+@protected List<SimilarityResult> sse_decode_list_similarity_result(SseDeserializer deserializer);
 
-  @protected
-  MCPToolResult sse_decode_mcp_tool_result(SseDeserializer deserializer);
+@protected MCPParamType sse_decode_mcp_param_type(SseDeserializer deserializer);
 
-  @protected
-  NodePosition sse_decode_node_position(SseDeserializer deserializer);
+@protected MCPParameter sse_decode_mcp_parameter(SseDeserializer deserializer);
 
-  @protected
-  String? sse_decode_opt_String(SseDeserializer deserializer);
+@protected MCPTool sse_decode_mcp_tool(SseDeserializer deserializer);
 
-  @protected
-  double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer);
+@protected MCPToolCall sse_decode_mcp_tool_call(SseDeserializer deserializer);
 
-  @protected
-  int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
+@protected MCPToolResult sse_decode_mcp_tool_result(SseDeserializer deserializer);
 
-  @protected
-  int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
+@protected NodePosition sse_decode_node_position(SseDeserializer deserializer);
 
-  @protected
-  BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer);
+@protected String? sse_decode_opt_String(SseDeserializer deserializer);
 
-  @protected
-  List<String>? sse_decode_opt_list_String(SseDeserializer deserializer);
+@protected double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer);
 
-  @protected
-  Float32List? sse_decode_opt_list_prim_f_32_strict(
-    SseDeserializer deserializer,
-  );
+@protected int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
 
-  @protected
-  List<(String, String)>? sse_decode_opt_list_record_string_string(
-    SseDeserializer deserializer,
-  );
+@protected int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
 
-  @protected
-  (String, String) sse_decode_record_string_string(
-    SseDeserializer deserializer,
-  );
+@protected BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer);
 
-  @protected
-  SemanticEdge sse_decode_semantic_edge(SseDeserializer deserializer);
+@protected List<String>? sse_decode_opt_list_String(SseDeserializer deserializer);
 
-  @protected
-  SemanticEdgeResult sse_decode_semantic_edge_result(
-    SseDeserializer deserializer,
-  );
+@protected Float32List? sse_decode_opt_list_prim_f_32_strict(SseDeserializer deserializer);
 
-  @protected
-  SimilarityResult sse_decode_similarity_result(SseDeserializer deserializer);
+@protected List<(String,String)>? sse_decode_opt_list_record_string_string(SseDeserializer deserializer);
 
-  @protected
-  StreamGraphStats sse_decode_stream_graph_stats(SseDeserializer deserializer);
+@protected (String,String) sse_decode_record_string_string(SseDeserializer deserializer);
 
-  @protected
-  TaskCategory sse_decode_task_category(SseDeserializer deserializer);
+@protected SemanticEdge sse_decode_semantic_edge(SseDeserializer deserializer);
 
-  @protected
-  int sse_decode_u_32(SseDeserializer deserializer);
+@protected SemanticEdgeResult sse_decode_semantic_edge_result(SseDeserializer deserializer);
 
-  @protected
-  int sse_decode_u_8(SseDeserializer deserializer);
+@protected SimilarityResult sse_decode_similarity_result(SseDeserializer deserializer);
 
-  @protected
-  void sse_decode_unit(SseDeserializer deserializer);
+@protected StreamGraphStats sse_decode_stream_graph_stats(SseDeserializer deserializer);
 
-  @protected
-  BigInt sse_decode_usize(SseDeserializer deserializer);
+@protected TaskCategory sse_decode_task_category(SseDeserializer deserializer);
 
-  @protected
-  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_AnyhowException(
-    AnyhowException raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    throw UnimplementedError();
-  }
+@protected int sse_decode_u_32(SseDeserializer deserializer);
 
-  @protected
-  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_String(String raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return cst_encode_list_prim_u_8_strict(utf8.encoder.convert(raw));
-  }
-
-  @protected
-  ffi.Pointer<ffi.Float> cst_encode_box_autoadd_f_32(double raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return wire.cst_new_box_autoadd_f_32(cst_encode_f_32(raw));
-  }
-
-  @protected
-  ffi.Pointer<ffi.Int32> cst_encode_box_autoadd_i_32(int raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return wire.cst_new_box_autoadd_i_32(cst_encode_i_32(raw));
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_mcp_tool_call> cst_encode_box_autoadd_mcp_tool_call(
-    MCPToolCall raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ptr = wire.cst_new_box_autoadd_mcp_tool_call();
-    cst_api_fill_to_wire_mcp_tool_call(raw, ptr.ref);
-    return ptr;
-  }
-
-  @protected
-  ffi.Pointer<ffi.Uint32> cst_encode_box_autoadd_u_32(int raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return wire.cst_new_box_autoadd_u_32(cst_encode_u_32(raw));
-  }
-
-  @protected
-  ffi.Pointer<ffi.UintPtr> cst_encode_box_autoadd_usize(BigInt raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return wire.cst_new_box_autoadd_usize(cst_encode_usize(raw));
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_String> cst_encode_list_String(List<String> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_String(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      ans.ref.ptr[i] = cst_encode_String(raw[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_cluster_assignment>
-  cst_encode_list_cluster_assignment(List<ClusterAssignment> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_cluster_assignment(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_cluster_assignment(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_cluster_info> cst_encode_list_cluster_info(
-    List<ClusterInfo> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_cluster_info(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_cluster_info(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_embedding_cluster>
-  cst_encode_list_embedding_cluster(List<EmbeddingCluster> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_embedding_cluster(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_embedding_cluster(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_embedding_entry> cst_encode_list_embedding_entry(
-    List<EmbeddingEntry> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_embedding_entry(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_embedding_entry(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_graph_edge> cst_encode_list_graph_edge(
-    List<GraphEdge> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_graph_edge(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_graph_edge(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_graph_node> cst_encode_list_graph_node(
-    List<GraphNode> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_graph_node(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_graph_node(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_mcp_parameter> cst_encode_list_mcp_parameter(
-    List<MCPParameter> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_mcp_parameter(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_mcp_parameter(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_mcp_tool> cst_encode_list_mcp_tool(
-    List<MCPTool> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_mcp_tool(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      ans.ref.ptr[i] = cst_encode_mcp_tool(raw[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_node_position> cst_encode_list_node_position(
-    List<NodePosition> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_node_position(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_node_position(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_f_32_loose> cst_encode_list_prim_f_32_loose(
-    List<double> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_f_32_loose(raw.length);
-    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_f_32_strict> cst_encode_list_prim_f_32_strict(
-    Float32List raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_f_32_strict(raw.length);
-    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(
-    Uint8List raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_u_8_strict(raw.length);
-    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_record_string_string>
-  cst_encode_list_record_string_string(List<(String, String)> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_record_string_string(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_record_string_string(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_semantic_edge> cst_encode_list_semantic_edge(
-    List<SemanticEdge> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_semantic_edge(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_semantic_edge(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_similarity_result>
-  cst_encode_list_similarity_result(List<SimilarityResult> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_similarity_result(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_similarity_result(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_opt_String(
-    String? raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_String(raw);
-  }
-
-  @protected
-  ffi.Pointer<ffi.Float> cst_encode_opt_box_autoadd_f_32(double? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_f_32(raw);
-  }
-
-  @protected
-  ffi.Pointer<ffi.Int32> cst_encode_opt_box_autoadd_i_32(int? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_i_32(raw);
-  }
-
-  @protected
-  ffi.Pointer<ffi.Uint32> cst_encode_opt_box_autoadd_u_32(int? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_u_32(raw);
-  }
-
-  @protected
-  ffi.Pointer<ffi.UintPtr> cst_encode_opt_box_autoadd_usize(BigInt? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_usize(raw);
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_String> cst_encode_opt_list_String(
-    List<String>? raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_list_String(raw);
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_f_32_strict>
-  cst_encode_opt_list_prim_f_32_strict(Float32List? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_list_prim_f_32_strict(raw);
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_record_string_string>
-  cst_encode_opt_list_record_string_string(List<(String, String)>? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null
-        ? ffi.nullptr
-        : cst_encode_list_record_string_string(raw);
-  }
-
-  @protected
-  int cst_encode_usize(BigInt raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.toSigned(64).toInt();
-  }
-
-  @protected
-  void cst_api_fill_to_wire_box_autoadd_mcp_tool_call(
-    MCPToolCall apiObj,
-    ffi.Pointer<wire_cst_mcp_tool_call> wireObj,
-  ) {
-    cst_api_fill_to_wire_mcp_tool_call(apiObj, wireObj.ref);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_cluster_assignment(
-    ClusterAssignment apiObj,
-    wire_cst_cluster_assignment wireObj,
-  ) {
-    wireObj.id = cst_encode_String(apiObj.id);
-    wireObj.cluster_id = cst_encode_usize(apiObj.clusterId);
-    wireObj.color = cst_encode_String(apiObj.color);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_cluster_info(
-    ClusterInfo apiObj,
-    wire_cst_cluster_info wireObj,
-  ) {
-    wireObj.id = cst_encode_usize(apiObj.id);
-    wireObj.size = cst_encode_usize(apiObj.size);
-    wireObj.color = cst_encode_String(apiObj.color);
-    wireObj.centroid = cst_encode_opt_list_prim_f_32_strict(apiObj.centroid);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_clustering_result(
-    ClusteringResult apiObj,
-    wire_cst_clustering_result wireObj,
-  ) {
-    wireObj.assignments = cst_encode_list_cluster_assignment(
-      apiObj.assignments,
-    );
-    wireObj.clusters = cst_encode_list_cluster_info(apiObj.clusters);
-    wireObj.k = cst_encode_usize(apiObj.k);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_embedding_cluster(
-    EmbeddingCluster apiObj,
-    wire_cst_embedding_cluster wireObj,
-  ) {
-    wireObj.ids = cst_encode_list_String(apiObj.ids);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_embedding_entry(
-    EmbeddingEntry apiObj,
-    wire_cst_embedding_entry wireObj,
-  ) {
-    wireObj.id = cst_encode_String(apiObj.id);
-    wireObj.vector = cst_encode_list_prim_f_32_strict(apiObj.vector);
-    wireObj.text_preview = cst_encode_opt_String(apiObj.textPreview);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_graph_edge(
-    GraphEdge apiObj,
-    wire_cst_graph_edge wireObj,
-  ) {
-    wireObj.source = cst_encode_String(apiObj.source);
-    wireObj.target = cst_encode_String(apiObj.target);
-    wireObj.weight = cst_encode_f_32(apiObj.weight);
-    wireObj.edge_type = cst_encode_String(apiObj.edgeType);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_graph_node(
-    GraphNode apiObj,
-    wire_cst_graph_node wireObj,
-  ) {
-    wireObj.id = cst_encode_String(apiObj.id);
-    wireObj.label = cst_encode_String(apiObj.label);
-    wireObj.node_type = cst_encode_String(apiObj.nodeType);
-    wireObj.x = cst_encode_f_32(apiObj.x);
-    wireObj.y = cst_encode_f_32(apiObj.y);
-    wireObj.color = cst_encode_opt_String(apiObj.color);
-    wireObj.metadata = cst_encode_opt_String(apiObj.metadata);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_graph_state(
-    GraphState apiObj,
-    wire_cst_graph_state wireObj,
-  ) {
-    wireObj.nodes = cst_encode_list_graph_node(apiObj.nodes);
-    wireObj.edges = cst_encode_list_graph_edge(apiObj.edges);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_knowledge_graph_analysis(
-    KnowledgeGraphAnalysis apiObj,
-    wire_cst_knowledge_graph_analysis wireObj,
-  ) {
-    cst_api_fill_to_wire_clustering_result(
-      apiObj.clustering,
-      wireObj.clustering,
-    );
-    cst_api_fill_to_wire_semantic_edge_result(
-      apiObj.semanticEdges,
-      wireObj.semantic_edges,
-    );
-  }
-
-  @protected
-  void cst_api_fill_to_wire_mcp_parameter(
-    MCPParameter apiObj,
-    wire_cst_mcp_parameter wireObj,
-  ) {
-    wireObj.name = cst_encode_String(apiObj.name);
-    wireObj.description = cst_encode_String(apiObj.description);
-    wireObj.param_type = cst_encode_mcp_param_type(apiObj.paramType);
-    wireObj.required = cst_encode_bool(apiObj.required_);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_mcp_tool_call(
-    MCPToolCall apiObj,
-    wire_cst_mcp_tool_call wireObj,
-  ) {
-    wireObj.tool = cst_encode_String(apiObj.tool);
-    wireObj.parameters_json = cst_encode_String(apiObj.parametersJson);
-    wireObj.description = cst_encode_String(apiObj.description);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_mcp_tool_result(
-    MCPToolResult apiObj,
-    wire_cst_mcp_tool_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.result = cst_encode_String(apiObj.result);
-    wireObj.tool = cst_encode_String(apiObj.tool);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_node_position(
-    NodePosition apiObj,
-    wire_cst_node_position wireObj,
-  ) {
-    wireObj.id = cst_encode_String(apiObj.id);
-    wireObj.x = cst_encode_f_32(apiObj.x);
-    wireObj.y = cst_encode_f_32(apiObj.y);
-    wireObj.radius = cst_encode_f_32(apiObj.radius);
-    wireObj.color = cst_encode_u_32(apiObj.color);
-    wireObj.node_type = cst_encode_String(apiObj.nodeType);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_record_string_string(
-    (String, String) apiObj,
-    wire_cst_record_string_string wireObj,
-  ) {
-    wireObj.field0 = cst_encode_String(apiObj.$1);
-    wireObj.field1 = cst_encode_String(apiObj.$2);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_semantic_edge(
-    SemanticEdge apiObj,
-    wire_cst_semantic_edge wireObj,
-  ) {
-    wireObj.source = cst_encode_String(apiObj.source);
-    wireObj.target = cst_encode_String(apiObj.target);
-    wireObj.similarity = cst_encode_f_32(apiObj.similarity);
-    wireObj.is_ghost = cst_encode_bool(apiObj.isGhost);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_semantic_edge_result(
-    SemanticEdgeResult apiObj,
-    wire_cst_semantic_edge_result wireObj,
-  ) {
-    wireObj.edges = cst_encode_list_semantic_edge(apiObj.edges);
-    wireObj.count = cst_encode_usize(apiObj.count);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_similarity_result(
-    SimilarityResult apiObj,
-    wire_cst_similarity_result wireObj,
-  ) {
-    wireObj.id = cst_encode_String(apiObj.id);
-    wireObj.score = cst_encode_f_32(apiObj.score);
-    wireObj.text_preview = cst_encode_opt_String(apiObj.textPreview);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_stream_graph_stats(
-    StreamGraphStats apiObj,
-    wire_cst_stream_graph_stats wireObj,
-  ) {
-    wireObj.node_count = cst_encode_usize(apiObj.nodeCount);
-    wireObj.edge_count = cst_encode_usize(apiObj.edgeCount);
-    wireObj.visible_count = cst_encode_usize(apiObj.visibleCount);
-  }
-
-  @protected
-  bool cst_encode_bool(bool raw);
-
-  @protected
-  double cst_encode_f_32(double raw);
-
-  @protected
-  int cst_encode_i_32(int raw);
-
-  @protected
-  int cst_encode_mcp_param_type(MCPParamType raw);
-
-  @protected
-  int cst_encode_mcp_tool(MCPTool raw);
-
-  @protected
-  int cst_encode_task_category(TaskCategory raw);
-
-  @protected
-  int cst_encode_u_32(int raw);
-
-  @protected
-  int cst_encode_u_8(int raw);
-
-  @protected
-  void cst_encode_unit(void raw);
-
-  @protected
-  void sse_encode_AnyhowException(
-    AnyhowException self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_String(String self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_box_autoadd_mcp_tool_call(
-    MCPToolCall self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_box_autoadd_usize(BigInt self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_cluster_assignment(
-    ClusterAssignment self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_cluster_info(ClusterInfo self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_clustering_result(
-    ClusteringResult self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_embedding_cluster(
-    EmbeddingCluster self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_embedding_entry(
-    EmbeddingEntry self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_f_32(double self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_graph_edge(GraphEdge self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_graph_node(GraphNode self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_graph_state(GraphState self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_i_32(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_knowledge_graph_analysis(
-    KnowledgeGraphAnalysis self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_String(List<String> self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_list_cluster_assignment(
-    List<ClusterAssignment> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_cluster_info(
-    List<ClusterInfo> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_embedding_cluster(
-    List<EmbeddingCluster> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_embedding_entry(
-    List<EmbeddingEntry> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_graph_edge(
-    List<GraphEdge> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_graph_node(
-    List<GraphNode> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_mcp_parameter(
-    List<MCPParameter> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_mcp_tool(List<MCPTool> self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_list_node_position(
-    List<NodePosition> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_f_32_loose(
-    List<double> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_f_32_strict(
-    Float32List self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_u_8_strict(
-    Uint8List self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_record_string_string(
-    List<(String, String)> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_semantic_edge(
-    List<SemanticEdge> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_similarity_result(
-    List<SimilarityResult> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_mcp_param_type(MCPParamType self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_mcp_parameter(MCPParameter self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_mcp_tool(MCPTool self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_mcp_tool_call(MCPToolCall self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_mcp_tool_result(MCPToolResult self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_node_position(NodePosition self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_String(String? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_box_autoadd_usize(BigInt? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_list_String(List<String>? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_list_prim_f_32_strict(
-    Float32List? self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_opt_list_record_string_string(
-    List<(String, String)>? self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_record_string_string(
-    (String, String) self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_semantic_edge(SemanticEdge self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_semantic_edge_result(
-    SemanticEdgeResult self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_similarity_result(
-    SimilarityResult self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_stream_graph_stats(
-    StreamGraphStats self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_task_category(TaskCategory self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_u_32(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_u_8(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_unit(void self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_usize(BigInt self, SseSerializer serializer);
-}
+@protected int sse_decode_u_8(SseDeserializer deserializer);
+
+@protected void sse_decode_unit(SseDeserializer deserializer);
+
+@protected BigInt sse_decode_usize(SseDeserializer deserializer);
+
+@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_AnyhowException(AnyhowException raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+throw UnimplementedError(); }
+
+@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_String(String raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return cst_encode_list_prim_u_8_strict(utf8.encoder.convert(raw)); }
+
+@protected ffi.Pointer<ffi.Float> cst_encode_box_autoadd_f_32(double raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return wire.cst_new_box_autoadd_f_32(cst_encode_f_32(raw)); }
+
+@protected ffi.Pointer<ffi.Int32> cst_encode_box_autoadd_i_32(int raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return wire.cst_new_box_autoadd_i_32(cst_encode_i_32(raw)); }
+
+@protected ffi.Pointer<wire_cst_mcp_tool_call> cst_encode_box_autoadd_mcp_tool_call(MCPToolCall raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ptr = wire.cst_new_box_autoadd_mcp_tool_call();
+                    cst_api_fill_to_wire_mcp_tool_call(raw, ptr.ref);
+                    return ptr; }
+
+@protected ffi.Pointer<ffi.Uint32> cst_encode_box_autoadd_u_32(int raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return wire.cst_new_box_autoadd_u_32(cst_encode_u_32(raw)); }
+
+@protected ffi.Pointer<ffi.UintPtr> cst_encode_box_autoadd_usize(BigInt raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return wire.cst_new_box_autoadd_usize(cst_encode_usize(raw)); }
+
+@protected ffi.Pointer<wire_cst_list_String> cst_encode_list_String(List<String> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_String(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    ans.ref.ptr[i] = cst_encode_String(raw[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_cluster_assignment> cst_encode_list_cluster_assignment(List<ClusterAssignment> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_cluster_assignment(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_cluster_assignment(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_cluster_info> cst_encode_list_cluster_info(List<ClusterInfo> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_cluster_info(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_cluster_info(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_embedding_cluster> cst_encode_list_embedding_cluster(List<EmbeddingCluster> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_embedding_cluster(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_embedding_cluster(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_embedding_entry> cst_encode_list_embedding_entry(List<EmbeddingEntry> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_embedding_entry(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_embedding_entry(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_graph_edge> cst_encode_list_graph_edge(List<GraphEdge> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_graph_edge(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_graph_edge(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_graph_node> cst_encode_list_graph_node(List<GraphNode> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_graph_node(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_graph_node(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_mcp_parameter> cst_encode_list_mcp_parameter(List<MCPParameter> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_mcp_parameter(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_mcp_parameter(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_mcp_tool> cst_encode_list_mcp_tool(List<MCPTool> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_mcp_tool(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    ans.ref.ptr[i] = cst_encode_mcp_tool(raw[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_node_position> cst_encode_list_node_position(List<NodePosition> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_node_position(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_node_position(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_prim_f_32_loose> cst_encode_list_prim_f_32_loose(List<double> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_prim_f_32_loose(raw.length);
+                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+                return ans; }
+
+@protected ffi.Pointer<wire_cst_list_prim_f_32_strict> cst_encode_list_prim_f_32_strict(Float32List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_prim_f_32_strict(raw.length);
+                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+                return ans; }
+
+@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(Uint8List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_prim_u_8_strict(raw.length);
+                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+                return ans; }
+
+@protected ffi.Pointer<wire_cst_list_record_string_string> cst_encode_list_record_string_string(List<(String,String)> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_record_string_string(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_record_string_string(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_semantic_edge> cst_encode_list_semantic_edge(List<SemanticEdge> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_semantic_edge(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_semantic_edge(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_similarity_result> cst_encode_list_similarity_result(List<SimilarityResult> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_similarity_result(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_similarity_result(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_opt_String(String? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_String(raw); }
+
+@protected ffi.Pointer<ffi.Float> cst_encode_opt_box_autoadd_f_32(double? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_box_autoadd_f_32(raw); }
+
+@protected ffi.Pointer<ffi.Int32> cst_encode_opt_box_autoadd_i_32(int? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_box_autoadd_i_32(raw); }
+
+@protected ffi.Pointer<ffi.Uint32> cst_encode_opt_box_autoadd_u_32(int? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_box_autoadd_u_32(raw); }
+
+@protected ffi.Pointer<ffi.UintPtr> cst_encode_opt_box_autoadd_usize(BigInt? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_box_autoadd_usize(raw); }
+
+@protected ffi.Pointer<wire_cst_list_String> cst_encode_opt_list_String(List<String>? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_list_String(raw); }
+
+@protected ffi.Pointer<wire_cst_list_prim_f_32_strict> cst_encode_opt_list_prim_f_32_strict(Float32List? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_list_prim_f_32_strict(raw); }
+
+@protected ffi.Pointer<wire_cst_list_record_string_string> cst_encode_opt_list_record_string_string(List<(String,String)>? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_list_record_string_string(raw); }
+
+@protected int cst_encode_usize(BigInt raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw.toSigned(64).toInt(); }
+
+@protected void cst_api_fill_to_wire_box_autoadd_mcp_tool_call(MCPToolCall apiObj, ffi.Pointer<wire_cst_mcp_tool_call> wireObj){ cst_api_fill_to_wire_mcp_tool_call(apiObj, wireObj.ref); }
+
+@protected void cst_api_fill_to_wire_cluster_assignment(ClusterAssignment apiObj, wire_cst_cluster_assignment wireObj){ wireObj.id = cst_encode_String(apiObj.id);
+wireObj.cluster_id = cst_encode_usize(apiObj.clusterId);
+wireObj.color = cst_encode_String(apiObj.color); }
+
+@protected void cst_api_fill_to_wire_cluster_info(ClusterInfo apiObj, wire_cst_cluster_info wireObj){ wireObj.id = cst_encode_usize(apiObj.id);
+wireObj.size = cst_encode_usize(apiObj.size);
+wireObj.color = cst_encode_String(apiObj.color);
+wireObj.centroid = cst_encode_opt_list_prim_f_32_strict(apiObj.centroid); }
+
+@protected void cst_api_fill_to_wire_clustering_result(ClusteringResult apiObj, wire_cst_clustering_result wireObj){ wireObj.assignments = cst_encode_list_cluster_assignment(apiObj.assignments);
+wireObj.clusters = cst_encode_list_cluster_info(apiObj.clusters);
+wireObj.k = cst_encode_usize(apiObj.k); }
+
+@protected void cst_api_fill_to_wire_embedding_cluster(EmbeddingCluster apiObj, wire_cst_embedding_cluster wireObj){ wireObj.ids = cst_encode_list_String(apiObj.ids); }
+
+@protected void cst_api_fill_to_wire_embedding_entry(EmbeddingEntry apiObj, wire_cst_embedding_entry wireObj){ wireObj.id = cst_encode_String(apiObj.id);
+wireObj.vector = cst_encode_list_prim_f_32_strict(apiObj.vector);
+wireObj.text_preview = cst_encode_opt_String(apiObj.textPreview); }
+
+@protected void cst_api_fill_to_wire_graph_edge(GraphEdge apiObj, wire_cst_graph_edge wireObj){ wireObj.source = cst_encode_String(apiObj.source);
+wireObj.target = cst_encode_String(apiObj.target);
+wireObj.weight = cst_encode_f_32(apiObj.weight);
+wireObj.edge_type = cst_encode_String(apiObj.edgeType); }
+
+@protected void cst_api_fill_to_wire_graph_node(GraphNode apiObj, wire_cst_graph_node wireObj){ wireObj.id = cst_encode_String(apiObj.id);
+wireObj.label = cst_encode_String(apiObj.label);
+wireObj.node_type = cst_encode_String(apiObj.nodeType);
+wireObj.x = cst_encode_f_32(apiObj.x);
+wireObj.y = cst_encode_f_32(apiObj.y);
+wireObj.color = cst_encode_opt_String(apiObj.color);
+wireObj.metadata = cst_encode_opt_String(apiObj.metadata); }
+
+@protected void cst_api_fill_to_wire_graph_state(GraphState apiObj, wire_cst_graph_state wireObj){ wireObj.nodes = cst_encode_list_graph_node(apiObj.nodes);
+wireObj.edges = cst_encode_list_graph_edge(apiObj.edges); }
+
+@protected void cst_api_fill_to_wire_knowledge_graph_analysis(KnowledgeGraphAnalysis apiObj, wire_cst_knowledge_graph_analysis wireObj){ cst_api_fill_to_wire_clustering_result(apiObj.clustering, wireObj.clustering);
+cst_api_fill_to_wire_semantic_edge_result(apiObj.semanticEdges, wireObj.semantic_edges); }
+
+@protected void cst_api_fill_to_wire_mcp_parameter(MCPParameter apiObj, wire_cst_mcp_parameter wireObj){ wireObj.name = cst_encode_String(apiObj.name);
+wireObj.description = cst_encode_String(apiObj.description);
+wireObj.param_type = cst_encode_mcp_param_type(apiObj.paramType);
+wireObj.required = cst_encode_bool(apiObj.required_); }
+
+@protected void cst_api_fill_to_wire_mcp_tool_call(MCPToolCall apiObj, wire_cst_mcp_tool_call wireObj){ wireObj.tool = cst_encode_String(apiObj.tool);
+wireObj.parameters_json = cst_encode_String(apiObj.parametersJson);
+wireObj.description = cst_encode_String(apiObj.description); }
+
+@protected void cst_api_fill_to_wire_mcp_tool_result(MCPToolResult apiObj, wire_cst_mcp_tool_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.result = cst_encode_String(apiObj.result);
+wireObj.tool = cst_encode_String(apiObj.tool); }
+
+@protected void cst_api_fill_to_wire_node_position(NodePosition apiObj, wire_cst_node_position wireObj){ wireObj.id = cst_encode_String(apiObj.id);
+wireObj.x = cst_encode_f_32(apiObj.x);
+wireObj.y = cst_encode_f_32(apiObj.y);
+wireObj.radius = cst_encode_f_32(apiObj.radius);
+wireObj.color = cst_encode_u_32(apiObj.color);
+wireObj.node_type = cst_encode_String(apiObj.nodeType); }
+
+@protected void cst_api_fill_to_wire_record_string_string((String,String) apiObj, wire_cst_record_string_string wireObj){ wireObj.field0 = cst_encode_String(apiObj.$1);
+wireObj.field1 = cst_encode_String(apiObj.$2); }
+
+@protected void cst_api_fill_to_wire_semantic_edge(SemanticEdge apiObj, wire_cst_semantic_edge wireObj){ wireObj.source = cst_encode_String(apiObj.source);
+wireObj.target = cst_encode_String(apiObj.target);
+wireObj.similarity = cst_encode_f_32(apiObj.similarity);
+wireObj.is_ghost = cst_encode_bool(apiObj.isGhost); }
+
+@protected void cst_api_fill_to_wire_semantic_edge_result(SemanticEdgeResult apiObj, wire_cst_semantic_edge_result wireObj){ wireObj.edges = cst_encode_list_semantic_edge(apiObj.edges);
+wireObj.count = cst_encode_usize(apiObj.count); }
+
+@protected void cst_api_fill_to_wire_similarity_result(SimilarityResult apiObj, wire_cst_similarity_result wireObj){ wireObj.id = cst_encode_String(apiObj.id);
+wireObj.score = cst_encode_f_32(apiObj.score);
+wireObj.text_preview = cst_encode_opt_String(apiObj.textPreview); }
+
+@protected void cst_api_fill_to_wire_stream_graph_stats(StreamGraphStats apiObj, wire_cst_stream_graph_stats wireObj){ wireObj.node_count = cst_encode_usize(apiObj.nodeCount);
+wireObj.edge_count = cst_encode_usize(apiObj.edgeCount);
+wireObj.visible_count = cst_encode_usize(apiObj.visibleCount); }
+
+@protected bool cst_encode_bool(bool raw);
+
+@protected double cst_encode_f_32(double raw);
+
+@protected int cst_encode_i_32(int raw);
+
+@protected int cst_encode_mcp_param_type(MCPParamType raw);
+
+@protected int cst_encode_mcp_tool(MCPTool raw);
+
+@protected int cst_encode_task_category(TaskCategory raw);
+
+@protected int cst_encode_u_32(int raw);
+
+@protected int cst_encode_u_8(int raw);
+
+@protected void cst_encode_unit(void raw);
+
+@protected void sse_encode_AnyhowException(AnyhowException self, SseSerializer serializer);
+
+@protected void sse_encode_String(String self, SseSerializer serializer);
+
+@protected void sse_encode_bool(bool self, SseSerializer serializer);
+
+@protected void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer);
+
+@protected void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
+
+@protected void sse_encode_box_autoadd_mcp_tool_call(MCPToolCall self, SseSerializer serializer);
+
+@protected void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
+
+@protected void sse_encode_box_autoadd_usize(BigInt self, SseSerializer serializer);
+
+@protected void sse_encode_cluster_assignment(ClusterAssignment self, SseSerializer serializer);
+
+@protected void sse_encode_cluster_info(ClusterInfo self, SseSerializer serializer);
+
+@protected void sse_encode_clustering_result(ClusteringResult self, SseSerializer serializer);
+
+@protected void sse_encode_embedding_cluster(EmbeddingCluster self, SseSerializer serializer);
+
+@protected void sse_encode_embedding_entry(EmbeddingEntry self, SseSerializer serializer);
+
+@protected void sse_encode_f_32(double self, SseSerializer serializer);
+
+@protected void sse_encode_graph_edge(GraphEdge self, SseSerializer serializer);
+
+@protected void sse_encode_graph_node(GraphNode self, SseSerializer serializer);
+
+@protected void sse_encode_graph_state(GraphState self, SseSerializer serializer);
+
+@protected void sse_encode_i_32(int self, SseSerializer serializer);
+
+@protected void sse_encode_knowledge_graph_analysis(KnowledgeGraphAnalysis self, SseSerializer serializer);
+
+@protected void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+@protected void sse_encode_list_cluster_assignment(List<ClusterAssignment> self, SseSerializer serializer);
+
+@protected void sse_encode_list_cluster_info(List<ClusterInfo> self, SseSerializer serializer);
+
+@protected void sse_encode_list_embedding_cluster(List<EmbeddingCluster> self, SseSerializer serializer);
+
+@protected void sse_encode_list_embedding_entry(List<EmbeddingEntry> self, SseSerializer serializer);
+
+@protected void sse_encode_list_graph_edge(List<GraphEdge> self, SseSerializer serializer);
+
+@protected void sse_encode_list_graph_node(List<GraphNode> self, SseSerializer serializer);
+
+@protected void sse_encode_list_mcp_parameter(List<MCPParameter> self, SseSerializer serializer);
+
+@protected void sse_encode_list_mcp_tool(List<MCPTool> self, SseSerializer serializer);
+
+@protected void sse_encode_list_node_position(List<NodePosition> self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_f_32_loose(List<double> self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_f_32_strict(Float32List self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_u_8_strict(Uint8List self, SseSerializer serializer);
+
+@protected void sse_encode_list_record_string_string(List<(String,String)> self, SseSerializer serializer);
+
+@protected void sse_encode_list_semantic_edge(List<SemanticEdge> self, SseSerializer serializer);
+
+@protected void sse_encode_list_similarity_result(List<SimilarityResult> self, SseSerializer serializer);
+
+@protected void sse_encode_mcp_param_type(MCPParamType self, SseSerializer serializer);
+
+@protected void sse_encode_mcp_parameter(MCPParameter self, SseSerializer serializer);
+
+@protected void sse_encode_mcp_tool(MCPTool self, SseSerializer serializer);
+
+@protected void sse_encode_mcp_tool_call(MCPToolCall self, SseSerializer serializer);
+
+@protected void sse_encode_mcp_tool_result(MCPToolResult self, SseSerializer serializer);
+
+@protected void sse_encode_node_position(NodePosition self, SseSerializer serializer);
+
+@protected void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_box_autoadd_usize(BigInt? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_list_String(List<String>? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_list_prim_f_32_strict(Float32List? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_list_record_string_string(List<(String,String)>? self, SseSerializer serializer);
+
+@protected void sse_encode_record_string_string((String,String) self, SseSerializer serializer);
+
+@protected void sse_encode_semantic_edge(SemanticEdge self, SseSerializer serializer);
+
+@protected void sse_encode_semantic_edge_result(SemanticEdgeResult self, SseSerializer serializer);
+
+@protected void sse_encode_similarity_result(SimilarityResult self, SseSerializer serializer);
+
+@protected void sse_encode_stream_graph_stats(StreamGraphStats self, SseSerializer serializer);
+
+@protected void sse_encode_task_category(TaskCategory self, SseSerializer serializer);
+
+@protected void sse_encode_u_32(int self, SseSerializer serializer);
+
+@protected void sse_encode_u_8(int self, SseSerializer serializer);
+
+@protected void sse_encode_unit(void self, SseSerializer serializer);
+
+@protected void sse_encode_usize(BigInt self, SseSerializer serializer);
+                }
+                
+
 
 // Section: wire_class
 
@@ -1188,13 +657,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 // AUTO GENERATED FILE, DO NOT EDIT.
 //
 // Generated by `package:ffigen`.
-// ignore_for_file: type=lint, unused_import
+// ignore_for_file: type=lint, unused_import, unused_element, deprecated_member_use_from_same_package
 
 /// generated by flutter_rust_bridge
 class RustLibWire implements BaseWire {
-  factory RustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
-      RustLibWire(lib.ffiDynamicLibrary);
 
+            factory RustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
+              RustLibWire(lib.ffiDynamicLibrary);
+        
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
   _lookup;
@@ -1207,6 +677,308 @@ class RustLibWire implements BaseWire {
   RustLibWire.fromLookup(
     ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) lookup,
   ) : _lookup = lookup;
+
+  ffi.Pointer<ffi.Float> cst_new_box_autoadd_f_32(double value) {
+    return _cst_new_box_autoadd_f_32(value);
+  }
+
+  late final _cst_new_box_autoadd_f_32Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Float> Function(ffi.Float)>>(
+        'frbgen_kivixa_cst_new_box_autoadd_f_32',
+      );
+  late final _cst_new_box_autoadd_f_32 = _cst_new_box_autoadd_f_32Ptr
+      .asFunction<ffi.Pointer<ffi.Float> Function(double)>();
+
+  ffi.Pointer<ffi.Int32> cst_new_box_autoadd_i_32(int value) {
+    return _cst_new_box_autoadd_i_32(value);
+  }
+
+  late final _cst_new_box_autoadd_i_32Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Int32> Function(ffi.Int32)>>(
+        'frbgen_kivixa_cst_new_box_autoadd_i_32',
+      );
+  late final _cst_new_box_autoadd_i_32 = _cst_new_box_autoadd_i_32Ptr
+      .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
+
+  ffi.Pointer<wire_cst_mcp_tool_call> cst_new_box_autoadd_mcp_tool_call() {
+    return _cst_new_box_autoadd_mcp_tool_call();
+  }
+
+  late final _cst_new_box_autoadd_mcp_tool_callPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_mcp_tool_call> Function()>
+      >('frbgen_kivixa_cst_new_box_autoadd_mcp_tool_call');
+  late final _cst_new_box_autoadd_mcp_tool_call =
+      _cst_new_box_autoadd_mcp_tool_callPtr
+          .asFunction<ffi.Pointer<wire_cst_mcp_tool_call> Function()>();
+
+  ffi.Pointer<ffi.Uint32> cst_new_box_autoadd_u_32(int value) {
+    return _cst_new_box_autoadd_u_32(value);
+  }
+
+  late final _cst_new_box_autoadd_u_32Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint32> Function(ffi.Uint32)>>(
+        'frbgen_kivixa_cst_new_box_autoadd_u_32',
+      );
+  late final _cst_new_box_autoadd_u_32 = _cst_new_box_autoadd_u_32Ptr
+      .asFunction<ffi.Pointer<ffi.Uint32> Function(int)>();
+
+  ffi.Pointer<ffi.UintPtr> cst_new_box_autoadd_usize(int value) {
+    return _cst_new_box_autoadd_usize(value);
+  }
+
+  late final _cst_new_box_autoadd_usizePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.UintPtr> Function(ffi.UintPtr)>
+      >('frbgen_kivixa_cst_new_box_autoadd_usize');
+  late final _cst_new_box_autoadd_usize = _cst_new_box_autoadd_usizePtr
+      .asFunction<ffi.Pointer<ffi.UintPtr> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_String> cst_new_list_String(int len) {
+    return _cst_new_list_String(len);
+  }
+
+  late final _cst_new_list_StringPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_String> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_String');
+  late final _cst_new_list_String = _cst_new_list_StringPtr
+      .asFunction<ffi.Pointer<wire_cst_list_String> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_cluster_assignment> cst_new_list_cluster_assignment(
+    int len,
+  ) {
+    return _cst_new_list_cluster_assignment(len);
+  }
+
+  late final _cst_new_list_cluster_assignmentPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_cluster_assignment> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_cluster_assignment');
+  late final _cst_new_list_cluster_assignment =
+      _cst_new_list_cluster_assignmentPtr
+          .asFunction<
+            ffi.Pointer<wire_cst_list_cluster_assignment> Function(int)
+          >();
+
+  ffi.Pointer<wire_cst_list_cluster_info> cst_new_list_cluster_info(int len) {
+    return _cst_new_list_cluster_info(len);
+  }
+
+  late final _cst_new_list_cluster_infoPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_cluster_info> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_cluster_info');
+  late final _cst_new_list_cluster_info = _cst_new_list_cluster_infoPtr
+      .asFunction<ffi.Pointer<wire_cst_list_cluster_info> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_embedding_cluster> cst_new_list_embedding_cluster(
+    int len,
+  ) {
+    return _cst_new_list_embedding_cluster(len);
+  }
+
+  late final _cst_new_list_embedding_clusterPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_embedding_cluster> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_embedding_cluster');
+  late final _cst_new_list_embedding_cluster =
+      _cst_new_list_embedding_clusterPtr
+          .asFunction<
+            ffi.Pointer<wire_cst_list_embedding_cluster> Function(int)
+          >();
+
+  ffi.Pointer<wire_cst_list_embedding_entry> cst_new_list_embedding_entry(
+    int len,
+  ) {
+    return _cst_new_list_embedding_entry(len);
+  }
+
+  late final _cst_new_list_embedding_entryPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_embedding_entry> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_embedding_entry');
+  late final _cst_new_list_embedding_entry = _cst_new_list_embedding_entryPtr
+      .asFunction<ffi.Pointer<wire_cst_list_embedding_entry> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_graph_edge> cst_new_list_graph_edge(int len) {
+    return _cst_new_list_graph_edge(len);
+  }
+
+  late final _cst_new_list_graph_edgePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_graph_edge> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_graph_edge');
+  late final _cst_new_list_graph_edge = _cst_new_list_graph_edgePtr
+      .asFunction<ffi.Pointer<wire_cst_list_graph_edge> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_graph_node> cst_new_list_graph_node(int len) {
+    return _cst_new_list_graph_node(len);
+  }
+
+  late final _cst_new_list_graph_nodePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_graph_node> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_graph_node');
+  late final _cst_new_list_graph_node = _cst_new_list_graph_nodePtr
+      .asFunction<ffi.Pointer<wire_cst_list_graph_node> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_mcp_parameter> cst_new_list_mcp_parameter(int len) {
+    return _cst_new_list_mcp_parameter(len);
+  }
+
+  late final _cst_new_list_mcp_parameterPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_mcp_parameter> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_mcp_parameter');
+  late final _cst_new_list_mcp_parameter = _cst_new_list_mcp_parameterPtr
+      .asFunction<ffi.Pointer<wire_cst_list_mcp_parameter> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_mcp_tool> cst_new_list_mcp_tool(int len) {
+    return _cst_new_list_mcp_tool(len);
+  }
+
+  late final _cst_new_list_mcp_toolPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_mcp_tool> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_mcp_tool');
+  late final _cst_new_list_mcp_tool = _cst_new_list_mcp_toolPtr
+      .asFunction<ffi.Pointer<wire_cst_list_mcp_tool> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_node_position> cst_new_list_node_position(int len) {
+    return _cst_new_list_node_position(len);
+  }
+
+  late final _cst_new_list_node_positionPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_node_position> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_node_position');
+  late final _cst_new_list_node_position = _cst_new_list_node_positionPtr
+      .asFunction<ffi.Pointer<wire_cst_list_node_position> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_prim_f_32_loose> cst_new_list_prim_f_32_loose(
+    int len,
+  ) {
+    return _cst_new_list_prim_f_32_loose(len);
+  }
+
+  late final _cst_new_list_prim_f_32_loosePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_prim_f_32_loose> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_prim_f_32_loose');
+  late final _cst_new_list_prim_f_32_loose = _cst_new_list_prim_f_32_loosePtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_f_32_loose> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_prim_f_32_strict> cst_new_list_prim_f_32_strict(
+    int len,
+  ) {
+    return _cst_new_list_prim_f_32_strict(len);
+  }
+
+  late final _cst_new_list_prim_f_32_strictPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_prim_f_32_strict> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_prim_f_32_strict');
+  late final _cst_new_list_prim_f_32_strict = _cst_new_list_prim_f_32_strictPtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_f_32_strict> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_new_list_prim_u_8_strict(
+    int len,
+  ) {
+    return _cst_new_list_prim_u_8_strict(len);
+  }
+
+  late final _cst_new_list_prim_u_8_strictPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_prim_u_8_strict');
+  late final _cst_new_list_prim_u_8_strict = _cst_new_list_prim_u_8_strictPtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_record_string_string>
+  cst_new_list_record_string_string(int len) {
+    return _cst_new_list_record_string_string(len);
+  }
+
+  late final _cst_new_list_record_string_stringPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_record_string_string> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_record_string_string');
+  late final _cst_new_list_record_string_string =
+      _cst_new_list_record_string_stringPtr
+          .asFunction<
+            ffi.Pointer<wire_cst_list_record_string_string> Function(int)
+          >();
+
+  ffi.Pointer<wire_cst_list_semantic_edge> cst_new_list_semantic_edge(int len) {
+    return _cst_new_list_semantic_edge(len);
+  }
+
+  late final _cst_new_list_semantic_edgePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_semantic_edge> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_semantic_edge');
+  late final _cst_new_list_semantic_edge = _cst_new_list_semantic_edgePtr
+      .asFunction<ffi.Pointer<wire_cst_list_semantic_edge> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_similarity_result> cst_new_list_similarity_result(
+    int len,
+  ) {
+    return _cst_new_list_similarity_result(len);
+  }
+
+  late final _cst_new_list_similarity_resultPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_similarity_result> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_similarity_result');
+  late final _cst_new_list_similarity_result =
+      _cst_new_list_similarity_resultPtr
+          .asFunction<
+            ffi.Pointer<wire_cst_list_similarity_result> Function(int)
+          >();
+
+  int dummy_method_to_enforce_bundling() {
+    return _dummy_method_to_enforce_bundling();
+  }
+
+  late final _dummy_method_to_enforce_bundlingPtr =
+      _lookup<ffi.NativeFunction<ffi.Int64 Function()>>(
+        'dummy_method_to_enforce_bundling',
+      );
+  late final _dummy_method_to_enforce_bundling =
+      _dummy_method_to_enforce_bundlingPtr.asFunction<int Function()>();
 
   void store_dart_post_cobject(DartPostCObjectFnType ptr) {
     return _store_dart_post_cobject(ptr);
@@ -2577,324 +2349,118 @@ class RustLibWire implements BaseWire {
           .asFunction<
             void Function(int, double, double, double, double, double)
           >();
-
-  ffi.Pointer<ffi.Float> cst_new_box_autoadd_f_32(double value) {
-    return _cst_new_box_autoadd_f_32(value);
-  }
-
-  late final _cst_new_box_autoadd_f_32Ptr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Float> Function(ffi.Float)>>(
-        'frbgen_kivixa_cst_new_box_autoadd_f_32',
-      );
-  late final _cst_new_box_autoadd_f_32 = _cst_new_box_autoadd_f_32Ptr
-      .asFunction<ffi.Pointer<ffi.Float> Function(double)>();
-
-  ffi.Pointer<ffi.Int32> cst_new_box_autoadd_i_32(int value) {
-    return _cst_new_box_autoadd_i_32(value);
-  }
-
-  late final _cst_new_box_autoadd_i_32Ptr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Int32> Function(ffi.Int32)>>(
-        'frbgen_kivixa_cst_new_box_autoadd_i_32',
-      );
-  late final _cst_new_box_autoadd_i_32 = _cst_new_box_autoadd_i_32Ptr
-      .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
-
-  ffi.Pointer<wire_cst_mcp_tool_call> cst_new_box_autoadd_mcp_tool_call() {
-    return _cst_new_box_autoadd_mcp_tool_call();
-  }
-
-  late final _cst_new_box_autoadd_mcp_tool_callPtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<wire_cst_mcp_tool_call> Function()>
-      >('frbgen_kivixa_cst_new_box_autoadd_mcp_tool_call');
-  late final _cst_new_box_autoadd_mcp_tool_call =
-      _cst_new_box_autoadd_mcp_tool_callPtr
-          .asFunction<ffi.Pointer<wire_cst_mcp_tool_call> Function()>();
-
-  ffi.Pointer<ffi.Uint32> cst_new_box_autoadd_u_32(int value) {
-    return _cst_new_box_autoadd_u_32(value);
-  }
-
-  late final _cst_new_box_autoadd_u_32Ptr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint32> Function(ffi.Uint32)>>(
-        'frbgen_kivixa_cst_new_box_autoadd_u_32',
-      );
-  late final _cst_new_box_autoadd_u_32 = _cst_new_box_autoadd_u_32Ptr
-      .asFunction<ffi.Pointer<ffi.Uint32> Function(int)>();
-
-  ffi.Pointer<ffi.UintPtr> cst_new_box_autoadd_usize(int value) {
-    return _cst_new_box_autoadd_usize(value);
-  }
-
-  late final _cst_new_box_autoadd_usizePtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.UintPtr> Function(ffi.UintPtr)>
-      >('frbgen_kivixa_cst_new_box_autoadd_usize');
-  late final _cst_new_box_autoadd_usize = _cst_new_box_autoadd_usizePtr
-      .asFunction<ffi.Pointer<ffi.UintPtr> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_String> cst_new_list_String(int len) {
-    return _cst_new_list_String(len);
-  }
-
-  late final _cst_new_list_StringPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_String> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_String');
-  late final _cst_new_list_String = _cst_new_list_StringPtr
-      .asFunction<ffi.Pointer<wire_cst_list_String> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_cluster_assignment> cst_new_list_cluster_assignment(
-    int len,
-  ) {
-    return _cst_new_list_cluster_assignment(len);
-  }
-
-  late final _cst_new_list_cluster_assignmentPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_cluster_assignment> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_cluster_assignment');
-  late final _cst_new_list_cluster_assignment =
-      _cst_new_list_cluster_assignmentPtr
-          .asFunction<
-            ffi.Pointer<wire_cst_list_cluster_assignment> Function(int)
-          >();
-
-  ffi.Pointer<wire_cst_list_cluster_info> cst_new_list_cluster_info(int len) {
-    return _cst_new_list_cluster_info(len);
-  }
-
-  late final _cst_new_list_cluster_infoPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_cluster_info> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_cluster_info');
-  late final _cst_new_list_cluster_info = _cst_new_list_cluster_infoPtr
-      .asFunction<ffi.Pointer<wire_cst_list_cluster_info> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_embedding_cluster> cst_new_list_embedding_cluster(
-    int len,
-  ) {
-    return _cst_new_list_embedding_cluster(len);
-  }
-
-  late final _cst_new_list_embedding_clusterPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_embedding_cluster> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_embedding_cluster');
-  late final _cst_new_list_embedding_cluster =
-      _cst_new_list_embedding_clusterPtr
-          .asFunction<
-            ffi.Pointer<wire_cst_list_embedding_cluster> Function(int)
-          >();
-
-  ffi.Pointer<wire_cst_list_embedding_entry> cst_new_list_embedding_entry(
-    int len,
-  ) {
-    return _cst_new_list_embedding_entry(len);
-  }
-
-  late final _cst_new_list_embedding_entryPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_embedding_entry> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_embedding_entry');
-  late final _cst_new_list_embedding_entry = _cst_new_list_embedding_entryPtr
-      .asFunction<ffi.Pointer<wire_cst_list_embedding_entry> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_graph_edge> cst_new_list_graph_edge(int len) {
-    return _cst_new_list_graph_edge(len);
-  }
-
-  late final _cst_new_list_graph_edgePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_graph_edge> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_graph_edge');
-  late final _cst_new_list_graph_edge = _cst_new_list_graph_edgePtr
-      .asFunction<ffi.Pointer<wire_cst_list_graph_edge> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_graph_node> cst_new_list_graph_node(int len) {
-    return _cst_new_list_graph_node(len);
-  }
-
-  late final _cst_new_list_graph_nodePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_graph_node> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_graph_node');
-  late final _cst_new_list_graph_node = _cst_new_list_graph_nodePtr
-      .asFunction<ffi.Pointer<wire_cst_list_graph_node> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_mcp_parameter> cst_new_list_mcp_parameter(int len) {
-    return _cst_new_list_mcp_parameter(len);
-  }
-
-  late final _cst_new_list_mcp_parameterPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_mcp_parameter> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_mcp_parameter');
-  late final _cst_new_list_mcp_parameter = _cst_new_list_mcp_parameterPtr
-      .asFunction<ffi.Pointer<wire_cst_list_mcp_parameter> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_mcp_tool> cst_new_list_mcp_tool(int len) {
-    return _cst_new_list_mcp_tool(len);
-  }
-
-  late final _cst_new_list_mcp_toolPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_mcp_tool> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_mcp_tool');
-  late final _cst_new_list_mcp_tool = _cst_new_list_mcp_toolPtr
-      .asFunction<ffi.Pointer<wire_cst_list_mcp_tool> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_node_position> cst_new_list_node_position(int len) {
-    return _cst_new_list_node_position(len);
-  }
-
-  late final _cst_new_list_node_positionPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_node_position> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_node_position');
-  late final _cst_new_list_node_position = _cst_new_list_node_positionPtr
-      .asFunction<ffi.Pointer<wire_cst_list_node_position> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_prim_f_32_loose> cst_new_list_prim_f_32_loose(
-    int len,
-  ) {
-    return _cst_new_list_prim_f_32_loose(len);
-  }
-
-  late final _cst_new_list_prim_f_32_loosePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_prim_f_32_loose> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_prim_f_32_loose');
-  late final _cst_new_list_prim_f_32_loose = _cst_new_list_prim_f_32_loosePtr
-      .asFunction<ffi.Pointer<wire_cst_list_prim_f_32_loose> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_prim_f_32_strict> cst_new_list_prim_f_32_strict(
-    int len,
-  ) {
-    return _cst_new_list_prim_f_32_strict(len);
-  }
-
-  late final _cst_new_list_prim_f_32_strictPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_prim_f_32_strict> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_prim_f_32_strict');
-  late final _cst_new_list_prim_f_32_strict = _cst_new_list_prim_f_32_strictPtr
-      .asFunction<ffi.Pointer<wire_cst_list_prim_f_32_strict> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_new_list_prim_u_8_strict(
-    int len,
-  ) {
-    return _cst_new_list_prim_u_8_strict(len);
-  }
-
-  late final _cst_new_list_prim_u_8_strictPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_prim_u_8_strict');
-  late final _cst_new_list_prim_u_8_strict = _cst_new_list_prim_u_8_strictPtr
-      .asFunction<ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_record_string_string>
-  cst_new_list_record_string_string(int len) {
-    return _cst_new_list_record_string_string(len);
-  }
-
-  late final _cst_new_list_record_string_stringPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_record_string_string> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_record_string_string');
-  late final _cst_new_list_record_string_string =
-      _cst_new_list_record_string_stringPtr
-          .asFunction<
-            ffi.Pointer<wire_cst_list_record_string_string> Function(int)
-          >();
-
-  ffi.Pointer<wire_cst_list_semantic_edge> cst_new_list_semantic_edge(int len) {
-    return _cst_new_list_semantic_edge(len);
-  }
-
-  late final _cst_new_list_semantic_edgePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_semantic_edge> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_semantic_edge');
-  late final _cst_new_list_semantic_edge = _cst_new_list_semantic_edgePtr
-      .asFunction<ffi.Pointer<wire_cst_list_semantic_edge> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_similarity_result> cst_new_list_similarity_result(
-    int len,
-  ) {
-    return _cst_new_list_similarity_result(len);
-  }
-
-  late final _cst_new_list_similarity_resultPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_similarity_result> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_similarity_result');
-  late final _cst_new_list_similarity_result =
-      _cst_new_list_similarity_resultPtr
-          .asFunction<
-            ffi.Pointer<wire_cst_list_similarity_result> Function(int)
-          >();
-
-  int dummy_method_to_enforce_bundling() {
-    return _dummy_method_to_enforce_bundling();
-  }
-
-  late final _dummy_method_to_enforce_bundlingPtr =
-      _lookup<ffi.NativeFunction<ffi.Int64 Function()>>(
-        'dummy_method_to_enforce_bundling',
-      );
-  late final _dummy_method_to_enforce_bundling =
-      _dummy_method_to_enforce_bundlingPtr.asFunction<int Function()>();
 }
+
+
 
 typedef DartPort = ffi.Int64;
 typedef DartDartPort = int;
-typedef DartPostCObjectFnTypeFunction =
-    ffi.Bool Function(DartPort port_id, ffi.Pointer<ffi.Void> message);
-typedef DartDartPostCObjectFnTypeFunction =
-    bool Function(DartDartPort port_id, ffi.Pointer<ffi.Void> message);
 typedef DartPostCObjectFnType =
     ffi.Pointer<ffi.NativeFunction<DartPostCObjectFnTypeFunction>>;
+typedef DartPostCObjectFnTypeFunction = ffi.Bool Function(
+  DartPort port_id,
+  ffi.Pointer<ffi.Void> message,
+);
+typedef DartDartPostCObjectFnTypeFunction = bool Function(
+  DartDartPort port_id,
+  ffi.Pointer<ffi.Void> message,
+);
 
-final class wire_cst_list_prim_u_8_strict extends ffi.Struct {
-  external ffi.Pointer<ffi.Uint8> ptr;
 
-  @ffi.Int32()
-  external int len;
+) => $allocator<WireSyncRust2DartSse>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+
+
+final class wire_cst_cluster_assignment extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> id;
+
+  @ffi.UintPtr()
+  external int cluster_id;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> color;
+
+  static ffi.Pointer<wire_cst_cluster_assignment> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> id,
+    required int cluster_id,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> color,
+  }) => $allocator<wire_cst_cluster_assignment>()
+    ..ref.id = id
+    ..ref.cluster_id = cluster_id
+    ..ref.color = color;
+}
+
+final class wire_cst_cluster_info extends ffi.Struct {
+  @ffi.UintPtr()
+  external int id;
+
+  @ffi.UintPtr()
+  external int size;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> color;
+
+  external ffi.Pointer<wire_cst_list_prim_f_32_strict> centroid;
+
+  static ffi.Pointer<wire_cst_cluster_info> $allocate(
+    ffi.Allocator $allocator, {
+    required int id,
+    required int size,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> color,
+    required ffi.Pointer<wire_cst_list_prim_f_32_strict> centroid,
+  }) => $allocator<wire_cst_cluster_info>()
+    ..ref.id = id
+    ..ref.size = size
+    ..ref.color = color
+    ..ref.centroid = centroid;
+}
+
+final class wire_cst_clustering_result extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_cluster_assignment> assignments;
+
+  external ffi.Pointer<wire_cst_list_cluster_info> clusters;
+
+  @ffi.UintPtr()
+  external int k;
+
+  static ffi.Pointer<wire_cst_clustering_result> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_cluster_assignment> assignments,
+    required ffi.Pointer<wire_cst_list_cluster_info> clusters,
+    required int k,
+  }) => $allocator<wire_cst_clustering_result>()
+    ..ref.assignments = assignments
+    ..ref.clusters = clusters
+    ..ref.k = k;
+}
+
+final class wire_cst_embedding_cluster extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_String> ids;
+
+  static ffi.Pointer<wire_cst_embedding_cluster> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_String> ids,
+  }) => $allocator<wire_cst_embedding_cluster>()..ref.ids = ids;
+}
+
+final class wire_cst_embedding_entry extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> id;
+
+  external ffi.Pointer<wire_cst_list_prim_f_32_strict> vector;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> text_preview;
+
+  static ffi.Pointer<wire_cst_embedding_entry> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> id,
+    required ffi.Pointer<wire_cst_list_prim_f_32_strict> vector,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> text_preview,
+  }) => $allocator<wire_cst_embedding_entry>()
+    ..ref.id = id
+    ..ref.vector = vector
+    ..ref.text_preview = text_preview;
 }
 
 final class wire_cst_graph_edge extends ffi.Struct {
@@ -2906,13 +2472,18 @@ final class wire_cst_graph_edge extends ffi.Struct {
   external double weight;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> edge_type;
-}
 
-final class wire_cst_list_graph_edge extends ffi.Struct {
-  external ffi.Pointer<wire_cst_graph_edge> ptr;
-
-  @ffi.Int32()
-  external int len;
+  static ffi.Pointer<wire_cst_graph_edge> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> source,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> target,
+    required double weight,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> edge_type,
+  }) => $allocator<wire_cst_graph_edge>()
+    ..ref.source = source
+    ..ref.target = target
+    ..ref.weight = weight
+    ..ref.edge_type = edge_type;
 }
 
 final class wire_cst_graph_node extends ffi.Struct {
@@ -2931,48 +2502,44 @@ final class wire_cst_graph_node extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> color;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> metadata;
+
+  static ffi.Pointer<wire_cst_graph_node> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> id,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> label,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> node_type,
+    required double x,
+    required double y,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> color,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> metadata,
+  }) => $allocator<wire_cst_graph_node>()
+    ..ref.id = id
+    ..ref.label = label
+    ..ref.node_type = node_type
+    ..ref.x = x
+    ..ref.y = y
+    ..ref.color = color
+    ..ref.metadata = metadata;
 }
 
-final class wire_cst_list_graph_node extends ffi.Struct {
-  external ffi.Pointer<wire_cst_graph_node> ptr;
+final class wire_cst_graph_state extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_graph_node> nodes;
 
-  @ffi.Int32()
-  external int len;
+  external ffi.Pointer<wire_cst_list_graph_edge> edges;
+
+  static ffi.Pointer<wire_cst_graph_state> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_graph_node> nodes,
+    required ffi.Pointer<wire_cst_list_graph_edge> edges,
+  }) => $allocator<wire_cst_graph_state>()
+    ..ref.nodes = nodes
+    ..ref.edges = edges;
 }
 
-final class wire_cst_list_prim_f_32_strict extends ffi.Struct {
-  external ffi.Pointer<ffi.Float> ptr;
+final class wire_cst_knowledge_graph_analysis extends ffi.Struct {
+  external wire_cst_clustering_result clustering;
 
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_embedding_entry extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> id;
-
-  external ffi.Pointer<wire_cst_list_prim_f_32_strict> vector;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> text_preview;
-}
-
-final class wire_cst_list_embedding_entry extends ffi.Struct {
-  external ffi.Pointer<wire_cst_embedding_entry> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_record_string_string extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field0;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field1;
-}
-
-final class wire_cst_list_record_string_string extends ffi.Struct {
-  external ffi.Pointer<wire_cst_record_string_string> ptr;
-
-  @ffi.Int32()
-  external int len;
+  external wire_cst_semantic_edge_result semantic_edges;
 }
 
 final class wire_cst_list_String extends ffi.Struct {
@@ -2980,30 +2547,14 @@ final class wire_cst_list_String extends ffi.Struct {
 
   @ffi.Int32()
   external int len;
-}
 
-final class wire_cst_list_prim_f_32_loose extends ffi.Struct {
-  external ffi.Pointer<ffi.Float> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_mcp_tool_call extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> tool;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> parameters_json;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> description;
-}
-
-final class wire_cst_cluster_assignment extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> id;
-
-  @ffi.UintPtr()
-  external int cluster_id;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> color;
+  static ffi.Pointer<wire_cst_list_String> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<ffi.Pointer<wire_cst_list_prim_u_8_strict>> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_String>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
 }
 
 final class wire_cst_list_cluster_assignment extends ffi.Struct {
@@ -3011,18 +2562,14 @@ final class wire_cst_list_cluster_assignment extends ffi.Struct {
 
   @ffi.Int32()
   external int len;
-}
 
-final class wire_cst_cluster_info extends ffi.Struct {
-  @ffi.UintPtr()
-  external int id;
-
-  @ffi.UintPtr()
-  external int size;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> color;
-
-  external ffi.Pointer<wire_cst_list_prim_f_32_strict> centroid;
+  static ffi.Pointer<wire_cst_list_cluster_assignment> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_cluster_assignment> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_cluster_assignment>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
 }
 
 final class wire_cst_list_cluster_info extends ffi.Struct {
@@ -3030,10 +2577,14 @@ final class wire_cst_list_cluster_info extends ffi.Struct {
 
   @ffi.Int32()
   external int len;
-}
 
-final class wire_cst_embedding_cluster extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_String> ids;
+  static ffi.Pointer<wire_cst_list_cluster_info> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_cluster_info> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_cluster_info>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
 }
 
 final class wire_cst_list_embedding_cluster extends ffi.Struct {
@@ -3041,6 +2592,194 @@ final class wire_cst_list_embedding_cluster extends ffi.Struct {
 
   @ffi.Int32()
   external int len;
+
+  static ffi.Pointer<wire_cst_list_embedding_cluster> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_embedding_cluster> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_embedding_cluster>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_embedding_entry extends ffi.Struct {
+  external ffi.Pointer<wire_cst_embedding_entry> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_embedding_entry> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_embedding_entry> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_embedding_entry>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_graph_edge extends ffi.Struct {
+  external ffi.Pointer<wire_cst_graph_edge> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_graph_edge> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_graph_edge> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_graph_edge>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_graph_node extends ffi.Struct {
+  external ffi.Pointer<wire_cst_graph_node> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_graph_node> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_graph_node> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_graph_node>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_mcp_parameter extends ffi.Struct {
+  external ffi.Pointer<wire_cst_mcp_parameter> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_mcp_parameter> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_mcp_parameter> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_mcp_parameter>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_mcp_tool extends ffi.Struct {
+  external ffi.Pointer<ffi.Int32> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_mcp_tool> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<ffi.Int32> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_mcp_tool>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_node_position extends ffi.Struct {
+  external ffi.Pointer<wire_cst_node_position> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_node_position> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_node_position> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_node_position>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_prim_f_32_loose extends ffi.Struct {
+  external ffi.Pointer<ffi.Float> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_prim_f_32_loose> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<ffi.Float> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_prim_f_32_loose>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_prim_f_32_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Float> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_prim_f_32_strict> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<ffi.Float> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_prim_f_32_strict>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_prim_u_8_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_prim_u_8_strict> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<ffi.Uint8> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_prim_u_8_strict>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_record_string_string extends ffi.Struct {
+  external ffi.Pointer<wire_cst_record_string_string> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_record_string_string> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_record_string_string> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_record_string_string>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_semantic_edge extends ffi.Struct {
+  external ffi.Pointer<wire_cst_semantic_edge> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_semantic_edge> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_semantic_edge> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_semantic_edge>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_similarity_result extends ffi.Struct {
+  external ffi.Pointer<wire_cst_similarity_result> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_similarity_result> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_similarity_result> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_similarity_result>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
 }
 
 final class wire_cst_mcp_parameter extends ffi.Struct {
@@ -3053,20 +2792,55 @@ final class wire_cst_mcp_parameter extends ffi.Struct {
 
   @ffi.Bool()
   external bool required;
+
+  static ffi.Pointer<wire_cst_mcp_parameter> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> description,
+    required int param_type,
+    required bool required,
+  }) => $allocator<wire_cst_mcp_parameter>()
+    ..ref.name = name
+    ..ref.description = description
+    ..ref.param_type = param_type
+    ..ref.required = required;
 }
 
-final class wire_cst_list_mcp_parameter extends ffi.Struct {
-  external ffi.Pointer<wire_cst_mcp_parameter> ptr;
+final class wire_cst_mcp_tool_call extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> tool;
 
-  @ffi.Int32()
-  external int len;
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> parameters_json;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> description;
+
+  static ffi.Pointer<wire_cst_mcp_tool_call> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> tool,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> parameters_json,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> description,
+  }) => $allocator<wire_cst_mcp_tool_call>()
+    ..ref.tool = tool
+    ..ref.parameters_json = parameters_json
+    ..ref.description = description;
 }
 
-final class wire_cst_list_mcp_tool extends ffi.Struct {
-  external ffi.Pointer<ffi.Int32> ptr;
+final class wire_cst_mcp_tool_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
 
-  @ffi.Int32()
-  external int len;
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> result;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> tool;
+
+  static ffi.Pointer<wire_cst_mcp_tool_result> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> result,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> tool,
+  }) => $allocator<wire_cst_mcp_tool_result>()
+    ..ref.success = success
+    ..ref.result = result
+    ..ref.tool = tool;
 }
 
 final class wire_cst_node_position extends ffi.Struct {
@@ -3085,13 +2859,36 @@ final class wire_cst_node_position extends ffi.Struct {
   external int color;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> node_type;
+
+  static ffi.Pointer<wire_cst_node_position> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> id,
+    required double x,
+    required double y,
+    required double radius,
+    required int color,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> node_type,
+  }) => $allocator<wire_cst_node_position>()
+    ..ref.id = id
+    ..ref.x = x
+    ..ref.y = y
+    ..ref.radius = radius
+    ..ref.color = color
+    ..ref.node_type = node_type;
 }
 
-final class wire_cst_list_node_position extends ffi.Struct {
-  external ffi.Pointer<wire_cst_node_position> ptr;
+final class wire_cst_record_string_string extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field0;
 
-  @ffi.Int32()
-  external int len;
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field1;
+
+  static ffi.Pointer<wire_cst_record_string_string> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> field0,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> field1,
+  }) => $allocator<wire_cst_record_string_string>()
+    ..ref.field0 = field0
+    ..ref.field1 = field1;
 }
 
 final class wire_cst_semantic_edge extends ffi.Struct {
@@ -3104,13 +2901,33 @@ final class wire_cst_semantic_edge extends ffi.Struct {
 
   @ffi.Bool()
   external bool is_ghost;
+
+  static ffi.Pointer<wire_cst_semantic_edge> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> source,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> target,
+    required double similarity,
+    required bool is_ghost,
+  }) => $allocator<wire_cst_semantic_edge>()
+    ..ref.source = source
+    ..ref.target = target
+    ..ref.similarity = similarity
+    ..ref.is_ghost = is_ghost;
 }
 
-final class wire_cst_list_semantic_edge extends ffi.Struct {
-  external ffi.Pointer<wire_cst_semantic_edge> ptr;
+final class wire_cst_semantic_edge_result extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_semantic_edge> edges;
 
-  @ffi.Int32()
-  external int len;
+  @ffi.UintPtr()
+  external int count;
+
+  static ffi.Pointer<wire_cst_semantic_edge_result> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_semantic_edge> edges,
+    required int count,
+  }) => $allocator<wire_cst_semantic_edge_result>()
+    ..ref.edges = edges
+    ..ref.count = count;
 }
 
 final class wire_cst_similarity_result extends ffi.Struct {
@@ -3120,50 +2937,16 @@ final class wire_cst_similarity_result extends ffi.Struct {
   external double score;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> text_preview;
-}
 
-final class wire_cst_list_similarity_result extends ffi.Struct {
-  external ffi.Pointer<wire_cst_similarity_result> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_clustering_result extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_cluster_assignment> assignments;
-
-  external ffi.Pointer<wire_cst_list_cluster_info> clusters;
-
-  @ffi.UintPtr()
-  external int k;
-}
-
-final class wire_cst_graph_state extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_graph_node> nodes;
-
-  external ffi.Pointer<wire_cst_list_graph_edge> edges;
-}
-
-final class wire_cst_semantic_edge_result extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_semantic_edge> edges;
-
-  @ffi.UintPtr()
-  external int count;
-}
-
-final class wire_cst_knowledge_graph_analysis extends ffi.Struct {
-  external wire_cst_clustering_result clustering;
-
-  external wire_cst_semantic_edge_result semantic_edges;
-}
-
-final class wire_cst_mcp_tool_result extends ffi.Struct {
-  @ffi.Bool()
-  external bool success;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> result;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> tool;
+  static ffi.Pointer<wire_cst_similarity_result> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> id,
+    required double score,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> text_preview,
+  }) => $allocator<wire_cst_similarity_result>()
+    ..ref.id = id
+    ..ref.score = score
+    ..ref.text_preview = text_preview;
 }
 
 final class wire_cst_stream_graph_stats extends ffi.Struct {
@@ -3175,4 +2958,14 @@ final class wire_cst_stream_graph_stats extends ffi.Struct {
 
   @ffi.UintPtr()
   external int visible_count;
+
+  static ffi.Pointer<wire_cst_stream_graph_stats> $allocate(
+    ffi.Allocator $allocator, {
+    required int node_count,
+    required int edge_count,
+    required int visible_count,
+  }) => $allocator<wire_cst_stream_graph_stats>()
+    ..ref.node_count = node_count
+    ..ref.edge_count = edge_count
+    ..ref.visible_count = visible_count;
 }

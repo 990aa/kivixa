@@ -32,3 +32,38 @@ foreach ($cfg in $configs) {
   Write-Host "Running codegen for $cfg..."
   flutter_rust_bridge_codegen generate --config-file $cfg
 }
+
+# Post-process generated files to fix FRB 2.12.0 WireSyncRust2DartSse truncation bug
+$ioFiles = @(
+  "lib/src/rust/frb_generated.io.dart",
+  "lib/src/rust_math/frb_generated.io.dart",
+  "lib/src/rust_audio/frb_generated.io.dart"
+)
+
+$wireSyncReplacement = @"
+final class WireSyncRust2DartSse extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<WireSyncRust2DartSse> `$allocate(
+    ffi.Allocator `$allocator, {
+    required ffi.Pointer<ffi.Uint8> ptr,
+    required int len,
+  }) => `$allocator<WireSyncRust2DartSse>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+"@
+
+foreach ($file in $ioFiles) {
+  if (Test-Path $file) {
+    $content = Get-Content $file -Raw
+    if ($content -match '\)\s*=>\s*\$allocator<WireSyncRust2DartSse>\(\)\r?\n\s*\.\.ref\.ptr\s*=\s*ptr\r?\n\s*\.\.ref\.len\s*=\s*len;\r?\n}') {
+      $content = $content -replace '\)\s*=>\s*\$allocator<WireSyncRust2DartSse>\(\)\r?\n\s*\.\.ref\.ptr\s*=\s*ptr\r?\n\s*\.\.ref\.len\s*=\s*len;\r?\n}', $wireSyncReplacement
+      [System.IO.File]::WriteAllText((Resolve-Path $file).Path, $content)
+      Write-Host "Fixed WireSyncRust2DartSse in $file"
+    }
+  }
+}

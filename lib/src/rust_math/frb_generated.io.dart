@@ -18,963 +18,532 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
 import 'statistics.dart';
 import 'units.dart';
 
-abstract class MathRustLibApiImplPlatform extends BaseApiImpl<MathRustLibWire> {
-  MathRustLibApiImplPlatform({
-    required super.handler,
-    required super.wire,
-    required super.generalizedFrbRustBinding,
-    required super.portManager,
-  });
 
-  @protected
-  String dco_decode_String(dynamic raw);
 
-  @protected
-  bool dco_decode_bool(dynamic raw);
 
-  @protected
-  bool dco_decode_box_autoadd_bool(dynamic raw);
+                abstract class MathRustLibApiImplPlatform extends BaseApiImpl<MathRustLibWire> {
+                  MathRustLibApiImplPlatform({
+                    required super.handler,
+                    required super.wire,
+                    required super.generalizedFrbRustBinding,
+                    required super.portManager,
+                  });
 
-  @protected
-  double dco_decode_box_autoadd_f_64(dynamic raw);
+                  
 
-  @protected
-  BigInt dco_decode_box_autoadd_usize(dynamic raw);
+                  @protected String dco_decode_String(dynamic raw);
 
-  @protected
-  CalculusResult dco_decode_calculus_result(dynamic raw);
+@protected bool dco_decode_bool(dynamic raw);
 
-  @protected
-  ComplexResult dco_decode_complex_result(dynamic raw);
+@protected bool dco_decode_box_autoadd_bool(dynamic raw);
 
-  @protected
-  ConfidenceIntervalResult dco_decode_confidence_interval_result(dynamic raw);
+@protected double dco_decode_box_autoadd_f_64(dynamic raw);
 
-  @protected
-  CorrelationResult dco_decode_correlation_result(dynamic raw);
+@protected BigInt dco_decode_box_autoadd_usize(dynamic raw);
 
-  @protected
-  DiscreteResult dco_decode_discrete_result(dynamic raw);
+@protected CalculusResult dco_decode_calculus_result(dynamic raw);
 
-  @protected
-  DistributionResult dco_decode_distribution_result(dynamic raw);
+@protected ComplexResult dco_decode_complex_result(dynamic raw);
 
-  @protected
-  ExpressionResult dco_decode_expression_result(dynamic raw);
+@protected ConfidenceIntervalResult dco_decode_confidence_interval_result(dynamic raw);
 
-  @protected
-  double dco_decode_f_64(dynamic raw);
+@protected CorrelationResult dco_decode_correlation_result(dynamic raw);
 
-  @protected
-  GraphPoint dco_decode_graph_point(dynamic raw);
+@protected DiscreteResult dco_decode_discrete_result(dynamic raw);
 
-  @protected
-  GraphResult dco_decode_graph_result(dynamic raw);
+@protected DistributionResult dco_decode_distribution_result(dynamic raw);
 
-  @protected
-  HypothesisTestResult dco_decode_hypothesis_test_result(dynamic raw);
+@protected ExpressionResult dco_decode_expression_result(dynamic raw);
 
-  @protected
-  List<String> dco_decode_list_String(dynamic raw);
+@protected double dco_decode_f_64(dynamic raw);
 
-  @protected
-  List<GraphPoint> dco_decode_list_graph_point(dynamic raw);
+@protected GraphPoint dco_decode_graph_point(dynamic raw);
 
-  @protected
-  List<Float64List> dco_decode_list_list_prim_f_64_strict(dynamic raw);
+@protected GraphResult dco_decode_graph_result(dynamic raw);
 
-  @protected
-  List<MatrixResult> dco_decode_list_matrix_result(dynamic raw);
+@protected HypothesisTestResult dco_decode_hypothesis_test_result(dynamic raw);
 
-  @protected
-  List<double> dco_decode_list_prim_f_64_loose(dynamic raw);
+@protected List<String> dco_decode_list_String(dynamic raw);
 
-  @protected
-  Float64List dco_decode_list_prim_f_64_strict(dynamic raw);
+@protected List<GraphPoint> dco_decode_list_graph_point(dynamic raw);
 
-  @protected
-  Uint64List dco_decode_list_prim_u_64_strict(dynamic raw);
+@protected List<Float64List> dco_decode_list_list_prim_f_64_strict(dynamic raw);
 
-  @protected
-  Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+@protected List<MatrixResult> dco_decode_list_matrix_result(dynamic raw);
 
-  @protected
-  List<(double, double)> dco_decode_list_record_f_64_f_64(dynamic raw);
+@protected List<double> dco_decode_list_prim_f_64_loose(dynamic raw);
 
-  @protected
-  List<(String, double)> dco_decode_list_record_string_f_64(dynamic raw);
+@protected Float64List dco_decode_list_prim_f_64_strict(dynamic raw);
 
-  @protected
-  List<UnitResult> dco_decode_list_unit_result(dynamic raw);
+@protected Uint64List dco_decode_list_prim_u_64_strict(dynamic raw);
 
-  @protected
-  MatrixDecomposition dco_decode_matrix_decomposition(dynamic raw);
+@protected Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
-  @protected
-  MatrixResult dco_decode_matrix_result(dynamic raw);
+@protected List<(double,double)> dco_decode_list_record_f_64_f_64(dynamic raw);
 
-  @protected
-  String? dco_decode_opt_String(dynamic raw);
+@protected List<(String,double)> dco_decode_list_record_string_f_64(dynamic raw);
 
-  @protected
-  bool? dco_decode_opt_box_autoadd_bool(dynamic raw);
+@protected List<UnitResult> dco_decode_list_unit_result(dynamic raw);
 
-  @protected
-  double? dco_decode_opt_box_autoadd_f_64(dynamic raw);
+@protected MatrixDecomposition dco_decode_matrix_decomposition(dynamic raw);
 
-  @protected
-  BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw);
+@protected MatrixResult dco_decode_matrix_result(dynamic raw);
 
-  @protected
-  Float64List? dco_decode_opt_list_prim_f_64_strict(dynamic raw);
+@protected String? dco_decode_opt_String(dynamic raw);
 
-  @protected
-  (double, double) dco_decode_record_f_64_f_64(dynamic raw);
+@protected bool? dco_decode_opt_box_autoadd_bool(dynamic raw);
 
-  @protected
-  (List<(double, double)>, List<(double, double)>)
-  dco_decode_record_list_record_f_64_f_64_list_record_f_64_f_64(dynamic raw);
+@protected double? dco_decode_opt_box_autoadd_f_64(dynamic raw);
 
-  @protected
-  (String, double) dco_decode_record_string_f_64(dynamic raw);
+@protected BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw);
 
-  @protected
-  RegressionResult dco_decode_regression_result(dynamic raw);
+@protected Float64List? dco_decode_opt_list_prim_f_64_strict(dynamic raw);
 
-  @protected
-  SolveResult dco_decode_solve_result(dynamic raw);
+@protected (double,double) dco_decode_record_f_64_f_64(dynamic raw);
 
-  @protected
-  StatisticsResult dco_decode_statistics_result(dynamic raw);
+@protected (List<(double,double)>,List<(double,double)>) dco_decode_record_list_record_f_64_f_64_list_record_f_64_f_64(dynamic raw);
 
-  @protected
-  int dco_decode_u_32(dynamic raw);
+@protected (String,double) dco_decode_record_string_f_64(dynamic raw);
 
-  @protected
-  BigInt dco_decode_u_64(dynamic raw);
+@protected RegressionResult dco_decode_regression_result(dynamic raw);
 
-  @protected
-  int dco_decode_u_8(dynamic raw);
+@protected SolveResult dco_decode_solve_result(dynamic raw);
 
-  @protected
-  void dco_decode_unit(dynamic raw);
+@protected StatisticsResult dco_decode_statistics_result(dynamic raw);
 
-  @protected
-  UnitResult dco_decode_unit_result(dynamic raw);
+@protected int dco_decode_u_32(dynamic raw);
 
-  @protected
-  BigInt dco_decode_usize(dynamic raw);
+@protected BigInt dco_decode_u_64(dynamic raw);
 
-  @protected
-  String sse_decode_String(SseDeserializer deserializer);
+@protected int dco_decode_u_8(dynamic raw);
 
-  @protected
-  bool sse_decode_bool(SseDeserializer deserializer);
+@protected void dco_decode_unit(dynamic raw);
 
-  @protected
-  bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
+@protected UnitResult dco_decode_unit_result(dynamic raw);
 
-  @protected
-  double sse_decode_box_autoadd_f_64(SseDeserializer deserializer);
+@protected BigInt dco_decode_usize(dynamic raw);
 
-  @protected
-  BigInt sse_decode_box_autoadd_usize(SseDeserializer deserializer);
+@protected String sse_decode_String(SseDeserializer deserializer);
 
-  @protected
-  CalculusResult sse_decode_calculus_result(SseDeserializer deserializer);
+@protected bool sse_decode_bool(SseDeserializer deserializer);
 
-  @protected
-  ComplexResult sse_decode_complex_result(SseDeserializer deserializer);
+@protected bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
 
-  @protected
-  ConfidenceIntervalResult sse_decode_confidence_interval_result(
-    SseDeserializer deserializer,
-  );
+@protected double sse_decode_box_autoadd_f_64(SseDeserializer deserializer);
 
-  @protected
-  CorrelationResult sse_decode_correlation_result(SseDeserializer deserializer);
+@protected BigInt sse_decode_box_autoadd_usize(SseDeserializer deserializer);
 
-  @protected
-  DiscreteResult sse_decode_discrete_result(SseDeserializer deserializer);
+@protected CalculusResult sse_decode_calculus_result(SseDeserializer deserializer);
 
-  @protected
-  DistributionResult sse_decode_distribution_result(
-    SseDeserializer deserializer,
-  );
+@protected ComplexResult sse_decode_complex_result(SseDeserializer deserializer);
 
-  @protected
-  ExpressionResult sse_decode_expression_result(SseDeserializer deserializer);
+@protected ConfidenceIntervalResult sse_decode_confidence_interval_result(SseDeserializer deserializer);
 
-  @protected
-  double sse_decode_f_64(SseDeserializer deserializer);
+@protected CorrelationResult sse_decode_correlation_result(SseDeserializer deserializer);
 
-  @protected
-  GraphPoint sse_decode_graph_point(SseDeserializer deserializer);
+@protected DiscreteResult sse_decode_discrete_result(SseDeserializer deserializer);
 
-  @protected
-  GraphResult sse_decode_graph_result(SseDeserializer deserializer);
+@protected DistributionResult sse_decode_distribution_result(SseDeserializer deserializer);
 
-  @protected
-  HypothesisTestResult sse_decode_hypothesis_test_result(
-    SseDeserializer deserializer,
-  );
+@protected ExpressionResult sse_decode_expression_result(SseDeserializer deserializer);
 
-  @protected
-  List<String> sse_decode_list_String(SseDeserializer deserializer);
+@protected double sse_decode_f_64(SseDeserializer deserializer);
 
-  @protected
-  List<GraphPoint> sse_decode_list_graph_point(SseDeserializer deserializer);
+@protected GraphPoint sse_decode_graph_point(SseDeserializer deserializer);
 
-  @protected
-  List<Float64List> sse_decode_list_list_prim_f_64_strict(
-    SseDeserializer deserializer,
-  );
+@protected GraphResult sse_decode_graph_result(SseDeserializer deserializer);
 
-  @protected
-  List<MatrixResult> sse_decode_list_matrix_result(
-    SseDeserializer deserializer,
-  );
+@protected HypothesisTestResult sse_decode_hypothesis_test_result(SseDeserializer deserializer);
 
-  @protected
-  List<double> sse_decode_list_prim_f_64_loose(SseDeserializer deserializer);
+@protected List<String> sse_decode_list_String(SseDeserializer deserializer);
 
-  @protected
-  Float64List sse_decode_list_prim_f_64_strict(SseDeserializer deserializer);
+@protected List<GraphPoint> sse_decode_list_graph_point(SseDeserializer deserializer);
 
-  @protected
-  Uint64List sse_decode_list_prim_u_64_strict(SseDeserializer deserializer);
+@protected List<Float64List> sse_decode_list_list_prim_f_64_strict(SseDeserializer deserializer);
 
-  @protected
-  Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+@protected List<MatrixResult> sse_decode_list_matrix_result(SseDeserializer deserializer);
 
-  @protected
-  List<(double, double)> sse_decode_list_record_f_64_f_64(
-    SseDeserializer deserializer,
-  );
+@protected List<double> sse_decode_list_prim_f_64_loose(SseDeserializer deserializer);
 
-  @protected
-  List<(String, double)> sse_decode_list_record_string_f_64(
-    SseDeserializer deserializer,
-  );
+@protected Float64List sse_decode_list_prim_f_64_strict(SseDeserializer deserializer);
 
-  @protected
-  List<UnitResult> sse_decode_list_unit_result(SseDeserializer deserializer);
+@protected Uint64List sse_decode_list_prim_u_64_strict(SseDeserializer deserializer);
 
-  @protected
-  MatrixDecomposition sse_decode_matrix_decomposition(
-    SseDeserializer deserializer,
-  );
+@protected Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
-  @protected
-  MatrixResult sse_decode_matrix_result(SseDeserializer deserializer);
+@protected List<(double,double)> sse_decode_list_record_f_64_f_64(SseDeserializer deserializer);
 
-  @protected
-  String? sse_decode_opt_String(SseDeserializer deserializer);
+@protected List<(String,double)> sse_decode_list_record_string_f_64(SseDeserializer deserializer);
 
-  @protected
-  bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer);
+@protected List<UnitResult> sse_decode_list_unit_result(SseDeserializer deserializer);
 
-  @protected
-  double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer);
+@protected MatrixDecomposition sse_decode_matrix_decomposition(SseDeserializer deserializer);
 
-  @protected
-  BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer);
+@protected MatrixResult sse_decode_matrix_result(SseDeserializer deserializer);
 
-  @protected
-  Float64List? sse_decode_opt_list_prim_f_64_strict(
-    SseDeserializer deserializer,
-  );
+@protected String? sse_decode_opt_String(SseDeserializer deserializer);
 
-  @protected
-  (double, double) sse_decode_record_f_64_f_64(SseDeserializer deserializer);
+@protected bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer);
 
-  @protected
-  (List<(double, double)>, List<(double, double)>)
-  sse_decode_record_list_record_f_64_f_64_list_record_f_64_f_64(
-    SseDeserializer deserializer,
-  );
+@protected double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer);
 
-  @protected
-  (String, double) sse_decode_record_string_f_64(SseDeserializer deserializer);
+@protected BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer);
 
-  @protected
-  RegressionResult sse_decode_regression_result(SseDeserializer deserializer);
+@protected Float64List? sse_decode_opt_list_prim_f_64_strict(SseDeserializer deserializer);
 
-  @protected
-  SolveResult sse_decode_solve_result(SseDeserializer deserializer);
+@protected (double,double) sse_decode_record_f_64_f_64(SseDeserializer deserializer);
 
-  @protected
-  StatisticsResult sse_decode_statistics_result(SseDeserializer deserializer);
-
-  @protected
-  int sse_decode_u_32(SseDeserializer deserializer);
-
-  @protected
-  BigInt sse_decode_u_64(SseDeserializer deserializer);
-
-  @protected
-  int sse_decode_u_8(SseDeserializer deserializer);
-
-  @protected
-  void sse_decode_unit(SseDeserializer deserializer);
-
-  @protected
-  UnitResult sse_decode_unit_result(SseDeserializer deserializer);
-
-  @protected
-  BigInt sse_decode_usize(SseDeserializer deserializer);
-
-  @protected
-  int sse_decode_i_32(SseDeserializer deserializer);
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_String(String raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return cst_encode_list_prim_u_8_strict(utf8.encoder.convert(raw));
-  }
-
-  @protected
-  ffi.Pointer<ffi.Bool> cst_encode_box_autoadd_bool(bool raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return wire.cst_new_box_autoadd_bool(cst_encode_bool(raw));
-  }
-
-  @protected
-  ffi.Pointer<ffi.Double> cst_encode_box_autoadd_f_64(double raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return wire.cst_new_box_autoadd_f_64(cst_encode_f_64(raw));
-  }
-
-  @protected
-  ffi.Pointer<ffi.UintPtr> cst_encode_box_autoadd_usize(BigInt raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return wire.cst_new_box_autoadd_usize(cst_encode_usize(raw));
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_String> cst_encode_list_String(List<String> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_String(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      ans.ref.ptr[i] = cst_encode_String(raw[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_graph_point> cst_encode_list_graph_point(
-    List<GraphPoint> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_graph_point(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_graph_point(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_list_prim_f_64_strict>
-  cst_encode_list_list_prim_f_64_strict(List<Float64List> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_list_prim_f_64_strict(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      ans.ref.ptr[i] = cst_encode_list_prim_f_64_strict(raw[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_matrix_result> cst_encode_list_matrix_result(
-    List<MatrixResult> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_matrix_result(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_matrix_result(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_f_64_loose> cst_encode_list_prim_f_64_loose(
-    List<double> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_f_64_loose(raw.length);
-    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_f_64_strict> cst_encode_list_prim_f_64_strict(
-    Float64List raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_f_64_strict(raw.length);
-    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_u_64_strict> cst_encode_list_prim_u_64_strict(
-    Uint64List raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_u_64_strict(raw.length);
-    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw.inner);
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(
-    Uint8List raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_u_8_strict(raw.length);
-    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_record_f_64_f_64> cst_encode_list_record_f_64_f_64(
-    List<(double, double)> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_record_f_64_f_64(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_record_f_64_f_64(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_record_string_f_64>
-  cst_encode_list_record_string_f_64(List<(String, double)> raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_record_string_f_64(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_record_string_f_64(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_unit_result> cst_encode_list_unit_result(
-    List<UnitResult> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_unit_result(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_unit_result(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_opt_String(
-    String? raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_String(raw);
-  }
-
-  @protected
-  ffi.Pointer<ffi.Bool> cst_encode_opt_box_autoadd_bool(bool? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_bool(raw);
-  }
-
-  @protected
-  ffi.Pointer<ffi.Double> cst_encode_opt_box_autoadd_f_64(double? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_f_64(raw);
-  }
-
-  @protected
-  ffi.Pointer<ffi.UintPtr> cst_encode_opt_box_autoadd_usize(BigInt? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_usize(raw);
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_prim_f_64_strict>
-  cst_encode_opt_list_prim_f_64_strict(Float64List? raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw == null ? ffi.nullptr : cst_encode_list_prim_f_64_strict(raw);
-  }
-
-  @protected
-  int cst_encode_u_64(BigInt raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.toSigned(64).toInt();
-  }
-
-  @protected
-  int cst_encode_usize(BigInt raw) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    return raw.toSigned(64).toInt();
-  }
-
-  @protected
-  void cst_api_fill_to_wire_calculus_result(
-    CalculusResult apiObj,
-    wire_cst_calculus_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.value = cst_encode_f_64(apiObj.value);
-    wireObj.symbolic = cst_encode_opt_String(apiObj.symbolic);
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_complex_result(
-    ComplexResult apiObj,
-    wire_cst_complex_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.real = cst_encode_f_64(apiObj.real);
-    wireObj.imag = cst_encode_f_64(apiObj.imag);
-    wireObj.magnitude = cst_encode_f_64(apiObj.magnitude);
-    wireObj.angle_rad = cst_encode_f_64(apiObj.angleRad);
-    wireObj.angle_deg = cst_encode_f_64(apiObj.angleDeg);
-    wireObj.formatted_rect = cst_encode_String(apiObj.formattedRect);
-    wireObj.formatted_polar = cst_encode_String(apiObj.formattedPolar);
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_confidence_interval_result(
-    ConfidenceIntervalResult apiObj,
-    wire_cst_confidence_interval_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.lower = cst_encode_f_64(apiObj.lower);
-    wireObj.upper = cst_encode_f_64(apiObj.upper);
-    wireObj.center = cst_encode_f_64(apiObj.center);
-    wireObj.margin_of_error = cst_encode_f_64(apiObj.marginOfError);
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_correlation_result(
-    CorrelationResult apiObj,
-    wire_cst_correlation_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.correlation = cst_encode_f_64(apiObj.correlation);
-    wireObj.covariance = cst_encode_f_64(apiObj.covariance);
-    wireObj.p_value = cst_encode_f_64(apiObj.pValue);
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_discrete_result(
-    DiscreteResult apiObj,
-    wire_cst_discrete_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.value = cst_encode_u_64(apiObj.value);
-    wireObj.big_value = cst_encode_opt_String(apiObj.bigValue);
-    wireObj.values = cst_encode_list_prim_u_64_strict(apiObj.values);
-    wireObj.bool_result = cst_encode_opt_box_autoadd_bool(apiObj.boolResult);
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_distribution_result(
-    DistributionResult apiObj,
-    wire_cst_distribution_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.pdf = cst_encode_f_64(apiObj.pdf);
-    wireObj.cdf = cst_encode_f_64(apiObj.cdf);
-    wireObj.mean = cst_encode_f_64(apiObj.mean);
-    wireObj.variance = cst_encode_f_64(apiObj.variance);
-    wireObj.std_dev = cst_encode_f_64(apiObj.stdDev);
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_expression_result(
-    ExpressionResult apiObj,
-    wire_cst_expression_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.value = cst_encode_f_64(apiObj.value);
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-    wireObj.formatted = cst_encode_String(apiObj.formatted);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_graph_point(
-    GraphPoint apiObj,
-    wire_cst_graph_point wireObj,
-  ) {
-    wireObj.x = cst_encode_f_64(apiObj.x);
-    wireObj.y = cst_encode_f_64(apiObj.y);
-    wireObj.valid = cst_encode_bool(apiObj.valid);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_graph_result(
-    GraphResult apiObj,
-    wire_cst_graph_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.points = cst_encode_list_graph_point(apiObj.points);
-    wireObj.x_min = cst_encode_f_64(apiObj.xMin);
-    wireObj.x_max = cst_encode_f_64(apiObj.xMax);
-    wireObj.y_min = cst_encode_f_64(apiObj.yMin);
-    wireObj.y_max = cst_encode_f_64(apiObj.yMax);
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_hypothesis_test_result(
-    HypothesisTestResult apiObj,
-    wire_cst_hypothesis_test_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.test_statistic = cst_encode_f_64(apiObj.testStatistic);
-    wireObj.p_value = cst_encode_f_64(apiObj.pValue);
-    wireObj.critical_value = cst_encode_f_64(apiObj.criticalValue);
-    wireObj.reject_null = cst_encode_bool(apiObj.rejectNull);
-    cst_api_fill_to_wire_record_f_64_f_64(
-      apiObj.confidenceInterval,
-      wireObj.confidence_interval,
-    );
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_matrix_decomposition(
-    MatrixDecomposition apiObj,
-    wire_cst_matrix_decomposition wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.decomposition_type = cst_encode_String(apiObj.decompositionType);
-    wireObj.matrices = cst_encode_list_matrix_result(apiObj.matrices);
-    wireObj.labels = cst_encode_list_String(apiObj.labels);
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_matrix_result(
-    MatrixResult apiObj,
-    wire_cst_matrix_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.data = cst_encode_list_prim_f_64_strict(apiObj.data);
-    wireObj.rows = cst_encode_usize(apiObj.rows);
-    wireObj.cols = cst_encode_usize(apiObj.cols);
-    wireObj.scalar = cst_encode_opt_box_autoadd_f_64(apiObj.scalar);
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_record_f_64_f_64(
-    (double, double) apiObj,
-    wire_cst_record_f_64_f_64 wireObj,
-  ) {
-    wireObj.field0 = cst_encode_f_64(apiObj.$1);
-    wireObj.field1 = cst_encode_f_64(apiObj.$2);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_record_list_record_f_64_f_64_list_record_f_64_f_64(
-    (List<(double, double)>, List<(double, double)>) apiObj,
-    wire_cst_record_list_record_f_64_f_64_list_record_f_64_f_64 wireObj,
-  ) {
-    wireObj.field0 = cst_encode_list_record_f_64_f_64(apiObj.$1);
-    wireObj.field1 = cst_encode_list_record_f_64_f_64(apiObj.$2);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_record_string_f_64(
-    (String, double) apiObj,
-    wire_cst_record_string_f_64 wireObj,
-  ) {
-    wireObj.field0 = cst_encode_String(apiObj.$1);
-    wireObj.field1 = cst_encode_f_64(apiObj.$2);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_regression_result(
-    RegressionResult apiObj,
-    wire_cst_regression_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.coefficients = cst_encode_list_prim_f_64_strict(
-      apiObj.coefficients,
-    );
-    wireObj.r_squared = cst_encode_f_64(apiObj.rSquared);
-    wireObj.residuals = cst_encode_list_prim_f_64_strict(apiObj.residuals);
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_solve_result(
-    SolveResult apiObj,
-    wire_cst_solve_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.roots = cst_encode_list_prim_f_64_strict(apiObj.roots);
-    wireObj.iterations = cst_encode_usize(apiObj.iterations);
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_statistics_result(
-    StatisticsResult apiObj,
-    wire_cst_statistics_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.values = cst_encode_list_record_string_f_64(apiObj.values);
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_unit_result(
-    UnitResult apiObj,
-    wire_cst_unit_result wireObj,
-  ) {
-    wireObj.success = cst_encode_bool(apiObj.success);
-    wireObj.value = cst_encode_f_64(apiObj.value);
-    wireObj.from_unit = cst_encode_String(apiObj.fromUnit);
-    wireObj.to_unit = cst_encode_String(apiObj.toUnit);
-    wireObj.formula = cst_encode_String(apiObj.formula);
-    wireObj.error = cst_encode_opt_String(apiObj.error);
-  }
-
-  @protected
-  bool cst_encode_bool(bool raw);
-
-  @protected
-  double cst_encode_f_64(double raw);
-
-  @protected
-  int cst_encode_u_32(int raw);
-
-  @protected
-  int cst_encode_u_8(int raw);
-
-  @protected
-  void cst_encode_unit(void raw);
-
-  @protected
-  void sse_encode_String(String self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_box_autoadd_usize(BigInt self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_calculus_result(
-    CalculusResult self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_complex_result(ComplexResult self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_confidence_interval_result(
-    ConfidenceIntervalResult self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_correlation_result(
-    CorrelationResult self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_discrete_result(
-    DiscreteResult self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_distribution_result(
-    DistributionResult self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_expression_result(
-    ExpressionResult self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_f_64(double self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_graph_point(GraphPoint self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_graph_result(GraphResult self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_hypothesis_test_result(
-    HypothesisTestResult self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_String(List<String> self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_list_graph_point(
-    List<GraphPoint> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_list_prim_f_64_strict(
-    List<Float64List> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_matrix_result(
-    List<MatrixResult> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_f_64_loose(
-    List<double> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_f_64_strict(
-    Float64List self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_u_64_strict(
-    Uint64List self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_prim_u_8_strict(
-    Uint8List self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_record_f_64_f_64(
-    List<(double, double)> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_record_string_f_64(
-    List<(String, double)> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_unit_result(
-    List<UnitResult> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_matrix_decomposition(
-    MatrixDecomposition self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_matrix_result(MatrixResult self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_String(String? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_box_autoadd_usize(BigInt? self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_opt_list_prim_f_64_strict(
-    Float64List? self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_record_f_64_f_64(
-    (double, double) self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_record_list_record_f_64_f_64_list_record_f_64_f_64(
-    (List<(double, double)>, List<(double, double)>) self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_record_string_f_64(
-    (String, double) self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_regression_result(
-    RegressionResult self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_solve_result(SolveResult self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_statistics_result(
-    StatisticsResult self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_u_32(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_u_64(BigInt self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_u_8(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_unit(void self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_unit_result(UnitResult self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_usize(BigInt self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_i_32(int self, SseSerializer serializer);
-}
+@protected (List<(double,double)>,List<(double,double)>) sse_decode_record_list_record_f_64_f_64_list_record_f_64_f_64(SseDeserializer deserializer);
+
+@protected (String,double) sse_decode_record_string_f_64(SseDeserializer deserializer);
+
+@protected RegressionResult sse_decode_regression_result(SseDeserializer deserializer);
+
+@protected SolveResult sse_decode_solve_result(SseDeserializer deserializer);
+
+@protected StatisticsResult sse_decode_statistics_result(SseDeserializer deserializer);
+
+@protected int sse_decode_u_32(SseDeserializer deserializer);
+
+@protected BigInt sse_decode_u_64(SseDeserializer deserializer);
+
+@protected int sse_decode_u_8(SseDeserializer deserializer);
+
+@protected void sse_decode_unit(SseDeserializer deserializer);
+
+@protected UnitResult sse_decode_unit_result(SseDeserializer deserializer);
+
+@protected BigInt sse_decode_usize(SseDeserializer deserializer);
+
+@protected int sse_decode_i_32(SseDeserializer deserializer);
+
+@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_String(String raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return cst_encode_list_prim_u_8_strict(utf8.encoder.convert(raw)); }
+
+@protected ffi.Pointer<ffi.Bool> cst_encode_box_autoadd_bool(bool raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return wire.cst_new_box_autoadd_bool(cst_encode_bool(raw)); }
+
+@protected ffi.Pointer<ffi.Double> cst_encode_box_autoadd_f_64(double raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return wire.cst_new_box_autoadd_f_64(cst_encode_f_64(raw)); }
+
+@protected ffi.Pointer<ffi.UintPtr> cst_encode_box_autoadd_usize(BigInt raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return wire.cst_new_box_autoadd_usize(cst_encode_usize(raw)); }
+
+@protected ffi.Pointer<wire_cst_list_String> cst_encode_list_String(List<String> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_String(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    ans.ref.ptr[i] = cst_encode_String(raw[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_graph_point> cst_encode_list_graph_point(List<GraphPoint> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_graph_point(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_graph_point(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_list_prim_f_64_strict> cst_encode_list_list_prim_f_64_strict(List<Float64List> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_list_prim_f_64_strict(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    ans.ref.ptr[i] = cst_encode_list_prim_f_64_strict(raw[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_matrix_result> cst_encode_list_matrix_result(List<MatrixResult> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_matrix_result(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_matrix_result(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_prim_f_64_loose> cst_encode_list_prim_f_64_loose(List<double> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_prim_f_64_loose(raw.length);
+                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+                return ans; }
+
+@protected ffi.Pointer<wire_cst_list_prim_f_64_strict> cst_encode_list_prim_f_64_strict(Float64List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_prim_f_64_strict(raw.length);
+                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+                return ans; }
+
+@protected ffi.Pointer<wire_cst_list_prim_u_64_strict> cst_encode_list_prim_u_64_strict(Uint64List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_prim_u_64_strict(raw.length);
+                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw.inner);
+                return ans; }
+
+@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(Uint8List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_prim_u_8_strict(raw.length);
+                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+                return ans; }
+
+@protected ffi.Pointer<wire_cst_list_record_f_64_f_64> cst_encode_list_record_f_64_f_64(List<(double,double)> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_record_f_64_f_64(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_record_f_64_f_64(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_record_string_f_64> cst_encode_list_record_string_f_64(List<(String,double)> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_record_string_f_64(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_record_string_f_64(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_unit_result> cst_encode_list_unit_result(List<UnitResult> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+final ans = wire.cst_new_list_unit_result(raw.length);
+                for (var i = 0; i < raw.length; ++i) {
+                    cst_api_fill_to_wire_unit_result(raw[i], ans.ref.ptr[i]);
+                }
+                return ans;
+                 }
+
+@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_opt_String(String? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_String(raw); }
+
+@protected ffi.Pointer<ffi.Bool> cst_encode_opt_box_autoadd_bool(bool? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_box_autoadd_bool(raw); }
+
+@protected ffi.Pointer<ffi.Double> cst_encode_opt_box_autoadd_f_64(double? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_box_autoadd_f_64(raw); }
+
+@protected ffi.Pointer<ffi.UintPtr> cst_encode_opt_box_autoadd_usize(BigInt? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_box_autoadd_usize(raw); }
+
+@protected ffi.Pointer<wire_cst_list_prim_f_64_strict> cst_encode_opt_list_prim_f_64_strict(Float64List? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw == null ? ffi.nullptr : cst_encode_list_prim_f_64_strict(raw); }
+
+@protected int cst_encode_u_64(BigInt raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw.toSigned(64).toInt(); }
+
+@protected int cst_encode_usize(BigInt raw){ // Codec=Cst (C-struct based), see doc to use other codecs
+return raw.toSigned(64).toInt(); }
+
+@protected void cst_api_fill_to_wire_calculus_result(CalculusResult apiObj, wire_cst_calculus_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.value = cst_encode_f_64(apiObj.value);
+wireObj.symbolic = cst_encode_opt_String(apiObj.symbolic);
+wireObj.error = cst_encode_opt_String(apiObj.error); }
+
+@protected void cst_api_fill_to_wire_complex_result(ComplexResult apiObj, wire_cst_complex_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.real = cst_encode_f_64(apiObj.real);
+wireObj.imag = cst_encode_f_64(apiObj.imag);
+wireObj.magnitude = cst_encode_f_64(apiObj.magnitude);
+wireObj.angle_rad = cst_encode_f_64(apiObj.angleRad);
+wireObj.angle_deg = cst_encode_f_64(apiObj.angleDeg);
+wireObj.formatted_rect = cst_encode_String(apiObj.formattedRect);
+wireObj.formatted_polar = cst_encode_String(apiObj.formattedPolar);
+wireObj.error = cst_encode_opt_String(apiObj.error); }
+
+@protected void cst_api_fill_to_wire_confidence_interval_result(ConfidenceIntervalResult apiObj, wire_cst_confidence_interval_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.lower = cst_encode_f_64(apiObj.lower);
+wireObj.upper = cst_encode_f_64(apiObj.upper);
+wireObj.center = cst_encode_f_64(apiObj.center);
+wireObj.margin_of_error = cst_encode_f_64(apiObj.marginOfError);
+wireObj.error = cst_encode_opt_String(apiObj.error); }
+
+@protected void cst_api_fill_to_wire_correlation_result(CorrelationResult apiObj, wire_cst_correlation_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.correlation = cst_encode_f_64(apiObj.correlation);
+wireObj.covariance = cst_encode_f_64(apiObj.covariance);
+wireObj.p_value = cst_encode_f_64(apiObj.pValue);
+wireObj.error = cst_encode_opt_String(apiObj.error); }
+
+@protected void cst_api_fill_to_wire_discrete_result(DiscreteResult apiObj, wire_cst_discrete_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.value = cst_encode_u_64(apiObj.value);
+wireObj.big_value = cst_encode_opt_String(apiObj.bigValue);
+wireObj.values = cst_encode_list_prim_u_64_strict(apiObj.values);
+wireObj.bool_result = cst_encode_opt_box_autoadd_bool(apiObj.boolResult);
+wireObj.error = cst_encode_opt_String(apiObj.error); }
+
+@protected void cst_api_fill_to_wire_distribution_result(DistributionResult apiObj, wire_cst_distribution_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.pdf = cst_encode_f_64(apiObj.pdf);
+wireObj.cdf = cst_encode_f_64(apiObj.cdf);
+wireObj.mean = cst_encode_f_64(apiObj.mean);
+wireObj.variance = cst_encode_f_64(apiObj.variance);
+wireObj.std_dev = cst_encode_f_64(apiObj.stdDev);
+wireObj.error = cst_encode_opt_String(apiObj.error); }
+
+@protected void cst_api_fill_to_wire_expression_result(ExpressionResult apiObj, wire_cst_expression_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.value = cst_encode_f_64(apiObj.value);
+wireObj.error = cst_encode_opt_String(apiObj.error);
+wireObj.formatted = cst_encode_String(apiObj.formatted); }
+
+@protected void cst_api_fill_to_wire_graph_point(GraphPoint apiObj, wire_cst_graph_point wireObj){ wireObj.x = cst_encode_f_64(apiObj.x);
+wireObj.y = cst_encode_f_64(apiObj.y);
+wireObj.valid = cst_encode_bool(apiObj.valid); }
+
+@protected void cst_api_fill_to_wire_graph_result(GraphResult apiObj, wire_cst_graph_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.points = cst_encode_list_graph_point(apiObj.points);
+wireObj.x_min = cst_encode_f_64(apiObj.xMin);
+wireObj.x_max = cst_encode_f_64(apiObj.xMax);
+wireObj.y_min = cst_encode_f_64(apiObj.yMin);
+wireObj.y_max = cst_encode_f_64(apiObj.yMax);
+wireObj.error = cst_encode_opt_String(apiObj.error); }
+
+@protected void cst_api_fill_to_wire_hypothesis_test_result(HypothesisTestResult apiObj, wire_cst_hypothesis_test_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.test_statistic = cst_encode_f_64(apiObj.testStatistic);
+wireObj.p_value = cst_encode_f_64(apiObj.pValue);
+wireObj.critical_value = cst_encode_f_64(apiObj.criticalValue);
+wireObj.reject_null = cst_encode_bool(apiObj.rejectNull);
+cst_api_fill_to_wire_record_f_64_f_64(apiObj.confidenceInterval, wireObj.confidence_interval);
+wireObj.error = cst_encode_opt_String(apiObj.error); }
+
+@protected void cst_api_fill_to_wire_matrix_decomposition(MatrixDecomposition apiObj, wire_cst_matrix_decomposition wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.decomposition_type = cst_encode_String(apiObj.decompositionType);
+wireObj.matrices = cst_encode_list_matrix_result(apiObj.matrices);
+wireObj.labels = cst_encode_list_String(apiObj.labels);
+wireObj.error = cst_encode_opt_String(apiObj.error); }
+
+@protected void cst_api_fill_to_wire_matrix_result(MatrixResult apiObj, wire_cst_matrix_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.data = cst_encode_list_prim_f_64_strict(apiObj.data);
+wireObj.rows = cst_encode_usize(apiObj.rows);
+wireObj.cols = cst_encode_usize(apiObj.cols);
+wireObj.scalar = cst_encode_opt_box_autoadd_f_64(apiObj.scalar);
+wireObj.error = cst_encode_opt_String(apiObj.error); }
+
+@protected void cst_api_fill_to_wire_record_f_64_f_64((double,double) apiObj, wire_cst_record_f_64_f_64 wireObj){ wireObj.field0 = cst_encode_f_64(apiObj.$1);
+wireObj.field1 = cst_encode_f_64(apiObj.$2); }
+
+@protected void cst_api_fill_to_wire_record_list_record_f_64_f_64_list_record_f_64_f_64((List<(double,double)>,List<(double,double)>) apiObj, wire_cst_record_list_record_f_64_f_64_list_record_f_64_f_64 wireObj){ wireObj.field0 = cst_encode_list_record_f_64_f_64(apiObj.$1);
+wireObj.field1 = cst_encode_list_record_f_64_f_64(apiObj.$2); }
+
+@protected void cst_api_fill_to_wire_record_string_f_64((String,double) apiObj, wire_cst_record_string_f_64 wireObj){ wireObj.field0 = cst_encode_String(apiObj.$1);
+wireObj.field1 = cst_encode_f_64(apiObj.$2); }
+
+@protected void cst_api_fill_to_wire_regression_result(RegressionResult apiObj, wire_cst_regression_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.coefficients = cst_encode_list_prim_f_64_strict(apiObj.coefficients);
+wireObj.r_squared = cst_encode_f_64(apiObj.rSquared);
+wireObj.residuals = cst_encode_list_prim_f_64_strict(apiObj.residuals);
+wireObj.error = cst_encode_opt_String(apiObj.error); }
+
+@protected void cst_api_fill_to_wire_solve_result(SolveResult apiObj, wire_cst_solve_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.roots = cst_encode_list_prim_f_64_strict(apiObj.roots);
+wireObj.iterations = cst_encode_usize(apiObj.iterations);
+wireObj.error = cst_encode_opt_String(apiObj.error); }
+
+@protected void cst_api_fill_to_wire_statistics_result(StatisticsResult apiObj, wire_cst_statistics_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.values = cst_encode_list_record_string_f_64(apiObj.values);
+wireObj.error = cst_encode_opt_String(apiObj.error); }
+
+@protected void cst_api_fill_to_wire_unit_result(UnitResult apiObj, wire_cst_unit_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
+wireObj.value = cst_encode_f_64(apiObj.value);
+wireObj.from_unit = cst_encode_String(apiObj.fromUnit);
+wireObj.to_unit = cst_encode_String(apiObj.toUnit);
+wireObj.formula = cst_encode_String(apiObj.formula);
+wireObj.error = cst_encode_opt_String(apiObj.error); }
+
+@protected bool cst_encode_bool(bool raw);
+
+@protected double cst_encode_f_64(double raw);
+
+@protected int cst_encode_u_32(int raw);
+
+@protected int cst_encode_u_8(int raw);
+
+@protected void cst_encode_unit(void raw);
+
+@protected void sse_encode_String(String self, SseSerializer serializer);
+
+@protected void sse_encode_bool(bool self, SseSerializer serializer);
+
+@protected void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
+
+@protected void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer);
+
+@protected void sse_encode_box_autoadd_usize(BigInt self, SseSerializer serializer);
+
+@protected void sse_encode_calculus_result(CalculusResult self, SseSerializer serializer);
+
+@protected void sse_encode_complex_result(ComplexResult self, SseSerializer serializer);
+
+@protected void sse_encode_confidence_interval_result(ConfidenceIntervalResult self, SseSerializer serializer);
+
+@protected void sse_encode_correlation_result(CorrelationResult self, SseSerializer serializer);
+
+@protected void sse_encode_discrete_result(DiscreteResult self, SseSerializer serializer);
+
+@protected void sse_encode_distribution_result(DistributionResult self, SseSerializer serializer);
+
+@protected void sse_encode_expression_result(ExpressionResult self, SseSerializer serializer);
+
+@protected void sse_encode_f_64(double self, SseSerializer serializer);
+
+@protected void sse_encode_graph_point(GraphPoint self, SseSerializer serializer);
+
+@protected void sse_encode_graph_result(GraphResult self, SseSerializer serializer);
+
+@protected void sse_encode_hypothesis_test_result(HypothesisTestResult self, SseSerializer serializer);
+
+@protected void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+@protected void sse_encode_list_graph_point(List<GraphPoint> self, SseSerializer serializer);
+
+@protected void sse_encode_list_list_prim_f_64_strict(List<Float64List> self, SseSerializer serializer);
+
+@protected void sse_encode_list_matrix_result(List<MatrixResult> self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_f_64_loose(List<double> self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_f_64_strict(Float64List self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_u_64_strict(Uint64List self, SseSerializer serializer);
+
+@protected void sse_encode_list_prim_u_8_strict(Uint8List self, SseSerializer serializer);
+
+@protected void sse_encode_list_record_f_64_f_64(List<(double,double)> self, SseSerializer serializer);
+
+@protected void sse_encode_list_record_string_f_64(List<(String,double)> self, SseSerializer serializer);
+
+@protected void sse_encode_list_unit_result(List<UnitResult> self, SseSerializer serializer);
+
+@protected void sse_encode_matrix_decomposition(MatrixDecomposition self, SseSerializer serializer);
+
+@protected void sse_encode_matrix_result(MatrixResult self, SseSerializer serializer);
+
+@protected void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_box_autoadd_usize(BigInt? self, SseSerializer serializer);
+
+@protected void sse_encode_opt_list_prim_f_64_strict(Float64List? self, SseSerializer serializer);
+
+@protected void sse_encode_record_f_64_f_64((double,double) self, SseSerializer serializer);
+
+@protected void sse_encode_record_list_record_f_64_f_64_list_record_f_64_f_64((List<(double,double)>,List<(double,double)>) self, SseSerializer serializer);
+
+@protected void sse_encode_record_string_f_64((String,double) self, SseSerializer serializer);
+
+@protected void sse_encode_regression_result(RegressionResult self, SseSerializer serializer);
+
+@protected void sse_encode_solve_result(SolveResult self, SseSerializer serializer);
+
+@protected void sse_encode_statistics_result(StatisticsResult self, SseSerializer serializer);
+
+@protected void sse_encode_u_32(int self, SseSerializer serializer);
+
+@protected void sse_encode_u_64(BigInt self, SseSerializer serializer);
+
+@protected void sse_encode_u_8(int self, SseSerializer serializer);
+
+@protected void sse_encode_unit(void self, SseSerializer serializer);
+
+@protected void sse_encode_unit_result(UnitResult self, SseSerializer serializer);
+
+@protected void sse_encode_usize(BigInt self, SseSerializer serializer);
+
+@protected void sse_encode_i_32(int self, SseSerializer serializer);
+                }
+                
+
 
 // Section: wire_class
 
@@ -982,13 +551,14 @@ abstract class MathRustLibApiImplPlatform extends BaseApiImpl<MathRustLibWire> {
 // AUTO GENERATED FILE, DO NOT EDIT.
 //
 // Generated by `package:ffigen`.
-// ignore_for_file: type=lint, unused_import
+// ignore_for_file: type=lint, unused_import, unused_element, deprecated_member_use_from_same_package
 
 /// generated by flutter_rust_bridge
 class MathRustLibWire implements BaseWire {
-  factory MathRustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
-      MathRustLibWire(lib.ffiDynamicLibrary);
 
+            factory MathRustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
+              MathRustLibWire(lib.ffiDynamicLibrary);
+        
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
   _lookup;
@@ -1001,6 +571,212 @@ class MathRustLibWire implements BaseWire {
   MathRustLibWire.fromLookup(
     ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) lookup,
   ) : _lookup = lookup;
+
+  ffi.Pointer<ffi.Bool> cst_new_box_autoadd_bool(bool value) {
+    return _cst_new_box_autoadd_bool(value);
+  }
+
+  late final _cst_new_box_autoadd_boolPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Bool> Function(ffi.Bool)>>(
+        'frbgen_kivixa_cst_new_box_autoadd_bool',
+      );
+  late final _cst_new_box_autoadd_bool = _cst_new_box_autoadd_boolPtr
+      .asFunction<ffi.Pointer<ffi.Bool> Function(bool)>();
+
+  ffi.Pointer<ffi.Double> cst_new_box_autoadd_f_64(double value) {
+    return _cst_new_box_autoadd_f_64(value);
+  }
+
+  late final _cst_new_box_autoadd_f_64Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Double> Function(ffi.Double)>>(
+        'frbgen_kivixa_cst_new_box_autoadd_f_64',
+      );
+  late final _cst_new_box_autoadd_f_64 = _cst_new_box_autoadd_f_64Ptr
+      .asFunction<ffi.Pointer<ffi.Double> Function(double)>();
+
+  ffi.Pointer<ffi.UintPtr> cst_new_box_autoadd_usize(int value) {
+    return _cst_new_box_autoadd_usize(value);
+  }
+
+  late final _cst_new_box_autoadd_usizePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.UintPtr> Function(ffi.UintPtr)>
+      >('frbgen_kivixa_cst_new_box_autoadd_usize');
+  late final _cst_new_box_autoadd_usize = _cst_new_box_autoadd_usizePtr
+      .asFunction<ffi.Pointer<ffi.UintPtr> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_String> cst_new_list_String(int len) {
+    return _cst_new_list_String(len);
+  }
+
+  late final _cst_new_list_StringPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_String> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_String');
+  late final _cst_new_list_String = _cst_new_list_StringPtr
+      .asFunction<ffi.Pointer<wire_cst_list_String> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_graph_point> cst_new_list_graph_point(int len) {
+    return _cst_new_list_graph_point(len);
+  }
+
+  late final _cst_new_list_graph_pointPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_graph_point> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_graph_point');
+  late final _cst_new_list_graph_point = _cst_new_list_graph_pointPtr
+      .asFunction<ffi.Pointer<wire_cst_list_graph_point> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_list_prim_f_64_strict>
+  cst_new_list_list_prim_f_64_strict(int len) {
+    return _cst_new_list_list_prim_f_64_strict(len);
+  }
+
+  late final _cst_new_list_list_prim_f_64_strictPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_list_prim_f_64_strict> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_list_prim_f_64_strict');
+  late final _cst_new_list_list_prim_f_64_strict =
+      _cst_new_list_list_prim_f_64_strictPtr
+          .asFunction<
+            ffi.Pointer<wire_cst_list_list_prim_f_64_strict> Function(int)
+          >();
+
+  ffi.Pointer<wire_cst_list_matrix_result> cst_new_list_matrix_result(int len) {
+    return _cst_new_list_matrix_result(len);
+  }
+
+  late final _cst_new_list_matrix_resultPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_matrix_result> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_matrix_result');
+  late final _cst_new_list_matrix_result = _cst_new_list_matrix_resultPtr
+      .asFunction<ffi.Pointer<wire_cst_list_matrix_result> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_prim_f_64_loose> cst_new_list_prim_f_64_loose(
+    int len,
+  ) {
+    return _cst_new_list_prim_f_64_loose(len);
+  }
+
+  late final _cst_new_list_prim_f_64_loosePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_prim_f_64_loose> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_prim_f_64_loose');
+  late final _cst_new_list_prim_f_64_loose = _cst_new_list_prim_f_64_loosePtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_f_64_loose> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_prim_f_64_strict> cst_new_list_prim_f_64_strict(
+    int len,
+  ) {
+    return _cst_new_list_prim_f_64_strict(len);
+  }
+
+  late final _cst_new_list_prim_f_64_strictPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_prim_f_64_strict> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_prim_f_64_strict');
+  late final _cst_new_list_prim_f_64_strict = _cst_new_list_prim_f_64_strictPtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_f_64_strict> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_prim_u_64_strict> cst_new_list_prim_u_64_strict(
+    int len,
+  ) {
+    return _cst_new_list_prim_u_64_strict(len);
+  }
+
+  late final _cst_new_list_prim_u_64_strictPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_prim_u_64_strict> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_prim_u_64_strict');
+  late final _cst_new_list_prim_u_64_strict = _cst_new_list_prim_u_64_strictPtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_u_64_strict> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_new_list_prim_u_8_strict(
+    int len,
+  ) {
+    return _cst_new_list_prim_u_8_strict(len);
+  }
+
+  late final _cst_new_list_prim_u_8_strictPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_prim_u_8_strict');
+  late final _cst_new_list_prim_u_8_strict = _cst_new_list_prim_u_8_strictPtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_record_f_64_f_64> cst_new_list_record_f_64_f_64(
+    int len,
+  ) {
+    return _cst_new_list_record_f_64_f_64(len);
+  }
+
+  late final _cst_new_list_record_f_64_f_64Ptr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_record_f_64_f_64> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_record_f_64_f_64');
+  late final _cst_new_list_record_f_64_f_64 = _cst_new_list_record_f_64_f_64Ptr
+      .asFunction<ffi.Pointer<wire_cst_list_record_f_64_f_64> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_record_string_f_64> cst_new_list_record_string_f_64(
+    int len,
+  ) {
+    return _cst_new_list_record_string_f_64(len);
+  }
+
+  late final _cst_new_list_record_string_f_64Ptr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_record_string_f_64> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_record_string_f_64');
+  late final _cst_new_list_record_string_f_64 =
+      _cst_new_list_record_string_f_64Ptr
+          .asFunction<
+            ffi.Pointer<wire_cst_list_record_string_f_64> Function(int)
+          >();
+
+  ffi.Pointer<wire_cst_list_unit_result> cst_new_list_unit_result(int len) {
+    return _cst_new_list_unit_result(len);
+  }
+
+  late final _cst_new_list_unit_resultPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_unit_result> Function(ffi.Int32)
+        >
+      >('frbgen_kivixa_cst_new_list_unit_result');
+  late final _cst_new_list_unit_result = _cst_new_list_unit_resultPtr
+      .asFunction<ffi.Pointer<wire_cst_list_unit_result> Function(int)>();
+
+  int dummy_method_to_enforce_bundling() {
+    return _dummy_method_to_enforce_bundling();
+  }
+
+  late final _dummy_method_to_enforce_bundlingPtr =
+      _lookup<ffi.NativeFunction<ffi.Int64 Function()>>(
+        'dummy_method_to_enforce_bundling',
+      );
+  late final _dummy_method_to_enforce_bundling =
+      _dummy_method_to_enforce_bundlingPtr.asFunction<int Function()>();
 
   void store_dart_post_cobject(DartPostCObjectFnType ptr) {
     return _store_dart_post_cobject(ptr);
@@ -2879,358 +2655,30 @@ class MathRustLibWire implements BaseWire {
           double,
         )
       >();
-
-  ffi.Pointer<ffi.Bool> cst_new_box_autoadd_bool(bool value) {
-    return _cst_new_box_autoadd_bool(value);
-  }
-
-  late final _cst_new_box_autoadd_boolPtr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Bool> Function(ffi.Bool)>>(
-        'frbgen_kivixa_cst_new_box_autoadd_bool',
-      );
-  late final _cst_new_box_autoadd_bool = _cst_new_box_autoadd_boolPtr
-      .asFunction<ffi.Pointer<ffi.Bool> Function(bool)>();
-
-  ffi.Pointer<ffi.Double> cst_new_box_autoadd_f_64(double value) {
-    return _cst_new_box_autoadd_f_64(value);
-  }
-
-  late final _cst_new_box_autoadd_f_64Ptr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Double> Function(ffi.Double)>>(
-        'frbgen_kivixa_cst_new_box_autoadd_f_64',
-      );
-  late final _cst_new_box_autoadd_f_64 = _cst_new_box_autoadd_f_64Ptr
-      .asFunction<ffi.Pointer<ffi.Double> Function(double)>();
-
-  ffi.Pointer<ffi.UintPtr> cst_new_box_autoadd_usize(int value) {
-    return _cst_new_box_autoadd_usize(value);
-  }
-
-  late final _cst_new_box_autoadd_usizePtr =
-      _lookup<
-        ffi.NativeFunction<ffi.Pointer<ffi.UintPtr> Function(ffi.UintPtr)>
-      >('frbgen_kivixa_cst_new_box_autoadd_usize');
-  late final _cst_new_box_autoadd_usize = _cst_new_box_autoadd_usizePtr
-      .asFunction<ffi.Pointer<ffi.UintPtr> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_String> cst_new_list_String(int len) {
-    return _cst_new_list_String(len);
-  }
-
-  late final _cst_new_list_StringPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_String> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_String');
-  late final _cst_new_list_String = _cst_new_list_StringPtr
-      .asFunction<ffi.Pointer<wire_cst_list_String> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_graph_point> cst_new_list_graph_point(int len) {
-    return _cst_new_list_graph_point(len);
-  }
-
-  late final _cst_new_list_graph_pointPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_graph_point> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_graph_point');
-  late final _cst_new_list_graph_point = _cst_new_list_graph_pointPtr
-      .asFunction<ffi.Pointer<wire_cst_list_graph_point> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_list_prim_f_64_strict>
-  cst_new_list_list_prim_f_64_strict(int len) {
-    return _cst_new_list_list_prim_f_64_strict(len);
-  }
-
-  late final _cst_new_list_list_prim_f_64_strictPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_list_prim_f_64_strict> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_list_prim_f_64_strict');
-  late final _cst_new_list_list_prim_f_64_strict =
-      _cst_new_list_list_prim_f_64_strictPtr
-          .asFunction<
-            ffi.Pointer<wire_cst_list_list_prim_f_64_strict> Function(int)
-          >();
-
-  ffi.Pointer<wire_cst_list_matrix_result> cst_new_list_matrix_result(int len) {
-    return _cst_new_list_matrix_result(len);
-  }
-
-  late final _cst_new_list_matrix_resultPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_matrix_result> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_matrix_result');
-  late final _cst_new_list_matrix_result = _cst_new_list_matrix_resultPtr
-      .asFunction<ffi.Pointer<wire_cst_list_matrix_result> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_prim_f_64_loose> cst_new_list_prim_f_64_loose(
-    int len,
-  ) {
-    return _cst_new_list_prim_f_64_loose(len);
-  }
-
-  late final _cst_new_list_prim_f_64_loosePtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_prim_f_64_loose> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_prim_f_64_loose');
-  late final _cst_new_list_prim_f_64_loose = _cst_new_list_prim_f_64_loosePtr
-      .asFunction<ffi.Pointer<wire_cst_list_prim_f_64_loose> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_prim_f_64_strict> cst_new_list_prim_f_64_strict(
-    int len,
-  ) {
-    return _cst_new_list_prim_f_64_strict(len);
-  }
-
-  late final _cst_new_list_prim_f_64_strictPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_prim_f_64_strict> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_prim_f_64_strict');
-  late final _cst_new_list_prim_f_64_strict = _cst_new_list_prim_f_64_strictPtr
-      .asFunction<ffi.Pointer<wire_cst_list_prim_f_64_strict> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_prim_u_64_strict> cst_new_list_prim_u_64_strict(
-    int len,
-  ) {
-    return _cst_new_list_prim_u_64_strict(len);
-  }
-
-  late final _cst_new_list_prim_u_64_strictPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_prim_u_64_strict> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_prim_u_64_strict');
-  late final _cst_new_list_prim_u_64_strict = _cst_new_list_prim_u_64_strictPtr
-      .asFunction<ffi.Pointer<wire_cst_list_prim_u_64_strict> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_new_list_prim_u_8_strict(
-    int len,
-  ) {
-    return _cst_new_list_prim_u_8_strict(len);
-  }
-
-  late final _cst_new_list_prim_u_8_strictPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_prim_u_8_strict');
-  late final _cst_new_list_prim_u_8_strict = _cst_new_list_prim_u_8_strictPtr
-      .asFunction<ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_record_f_64_f_64> cst_new_list_record_f_64_f_64(
-    int len,
-  ) {
-    return _cst_new_list_record_f_64_f_64(len);
-  }
-
-  late final _cst_new_list_record_f_64_f_64Ptr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_record_f_64_f_64> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_record_f_64_f_64');
-  late final _cst_new_list_record_f_64_f_64 = _cst_new_list_record_f_64_f_64Ptr
-      .asFunction<ffi.Pointer<wire_cst_list_record_f_64_f_64> Function(int)>();
-
-  ffi.Pointer<wire_cst_list_record_string_f_64> cst_new_list_record_string_f_64(
-    int len,
-  ) {
-    return _cst_new_list_record_string_f_64(len);
-  }
-
-  late final _cst_new_list_record_string_f_64Ptr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_record_string_f_64> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_record_string_f_64');
-  late final _cst_new_list_record_string_f_64 =
-      _cst_new_list_record_string_f_64Ptr
-          .asFunction<
-            ffi.Pointer<wire_cst_list_record_string_f_64> Function(int)
-          >();
-
-  ffi.Pointer<wire_cst_list_unit_result> cst_new_list_unit_result(int len) {
-    return _cst_new_list_unit_result(len);
-  }
-
-  late final _cst_new_list_unit_resultPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_unit_result> Function(ffi.Int32)
-        >
-      >('frbgen_kivixa_cst_new_list_unit_result');
-  late final _cst_new_list_unit_result = _cst_new_list_unit_resultPtr
-      .asFunction<ffi.Pointer<wire_cst_list_unit_result> Function(int)>();
-
-  int dummy_method_to_enforce_bundling() {
-    return _dummy_method_to_enforce_bundling();
-  }
-
-  late final _dummy_method_to_enforce_bundlingPtr =
-      _lookup<ffi.NativeFunction<ffi.Int64 Function()>>(
-        'dummy_method_to_enforce_bundling',
-      );
-  late final _dummy_method_to_enforce_bundling =
-      _dummy_method_to_enforce_bundlingPtr.asFunction<int Function()>();
 }
+
+
 
 typedef DartPort = ffi.Int64;
 typedef DartDartPort = int;
-typedef DartPostCObjectFnTypeFunction =
-    ffi.Bool Function(DartPort port_id, ffi.Pointer<ffi.Void> message);
-typedef DartDartPostCObjectFnTypeFunction =
-    bool Function(DartDartPort port_id, ffi.Pointer<ffi.Void> message);
 typedef DartPostCObjectFnType =
     ffi.Pointer<ffi.NativeFunction<DartPostCObjectFnTypeFunction>>;
+typedef DartPostCObjectFnTypeFunction = ffi.Bool Function(
+  DartPort port_id,
+  ffi.Pointer<ffi.Void> message,
+);
+typedef DartDartPostCObjectFnTypeFunction = bool Function(
+  DartDartPort port_id,
+  ffi.Pointer<ffi.Void> message,
+);
 
-final class wire_cst_list_prim_f_64_strict extends ffi.Struct {
-  external ffi.Pointer<ffi.Double> ptr;
 
-  @ffi.Int32()
-  external int len;
+) => $allocator<WireSyncRust2DartSse>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
 }
 
-final class wire_cst_list_list_prim_f_64_strict extends ffi.Struct {
-  external ffi.Pointer<ffi.Pointer<wire_cst_list_prim_f_64_strict>> ptr;
 
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_list_prim_f_64_loose extends ffi.Struct {
-  external ffi.Pointer<ffi.Double> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_list_prim_u_8_strict extends ffi.Struct {
-  external ffi.Pointer<ffi.Uint8> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_list_String extends ffi.Struct {
-  external ffi.Pointer<ffi.Pointer<wire_cst_list_prim_u_8_strict>> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_record_string_f_64 extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field0;
-
-  @ffi.Double()
-  external double field1;
-}
-
-final class wire_cst_list_record_string_f_64 extends ffi.Struct {
-  external ffi.Pointer<wire_cst_record_string_f_64> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_graph_point extends ffi.Struct {
-  @ffi.Double()
-  external double x;
-
-  @ffi.Double()
-  external double y;
-
-  @ffi.Bool()
-  external bool valid;
-}
-
-final class wire_cst_list_graph_point extends ffi.Struct {
-  external ffi.Pointer<wire_cst_graph_point> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_matrix_result extends ffi.Struct {
-  @ffi.Bool()
-  external bool success;
-
-  external ffi.Pointer<wire_cst_list_prim_f_64_strict> data;
-
-  @ffi.UintPtr()
-  external int rows;
-
-  @ffi.UintPtr()
-  external int cols;
-
-  external ffi.Pointer<ffi.Double> scalar;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
-}
-
-final class wire_cst_list_matrix_result extends ffi.Struct {
-  external ffi.Pointer<wire_cst_matrix_result> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_list_prim_u_64_strict extends ffi.Struct {
-  external ffi.Pointer<ffi.Uint64> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_record_f_64_f_64 extends ffi.Struct {
-  @ffi.Double()
-  external double field0;
-
-  @ffi.Double()
-  external double field1;
-}
-
-final class wire_cst_list_record_f_64_f_64 extends ffi.Struct {
-  external ffi.Pointer<wire_cst_record_f_64_f_64> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_unit_result extends ffi.Struct {
-  @ffi.Bool()
-  external bool success;
-
-  @ffi.Double()
-  external double value;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> from_unit;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> to_unit;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> formula;
-
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
-}
-
-final class wire_cst_list_unit_result extends ffi.Struct {
-  external ffi.Pointer<wire_cst_unit_result> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
 
 final class wire_cst_calculus_result extends ffi.Struct {
   @ffi.Bool()
@@ -3242,6 +2690,18 @@ final class wire_cst_calculus_result extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> symbolic;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+
+  static ffi.Pointer<wire_cst_calculus_result> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required double value,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> symbolic,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> error,
+  }) => $allocator<wire_cst_calculus_result>()
+    ..ref.success = success
+    ..ref.value = value
+    ..ref.symbolic = symbolic
+    ..ref.error = error;
 }
 
 final class wire_cst_complex_result extends ffi.Struct {
@@ -3268,6 +2728,28 @@ final class wire_cst_complex_result extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> formatted_polar;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+
+  static ffi.Pointer<wire_cst_complex_result> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required double real,
+    required double imag,
+    required double magnitude,
+    required double angle_rad,
+    required double angle_deg,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> formatted_rect,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> formatted_polar,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> error,
+  }) => $allocator<wire_cst_complex_result>()
+    ..ref.success = success
+    ..ref.real = real
+    ..ref.imag = imag
+    ..ref.magnitude = magnitude
+    ..ref.angle_rad = angle_rad
+    ..ref.angle_deg = angle_deg
+    ..ref.formatted_rect = formatted_rect
+    ..ref.formatted_polar = formatted_polar
+    ..ref.error = error;
 }
 
 final class wire_cst_confidence_interval_result extends ffi.Struct {
@@ -3287,6 +2769,22 @@ final class wire_cst_confidence_interval_result extends ffi.Struct {
   external double margin_of_error;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+
+  static ffi.Pointer<wire_cst_confidence_interval_result> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required double lower,
+    required double upper,
+    required double center,
+    required double margin_of_error,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> error,
+  }) => $allocator<wire_cst_confidence_interval_result>()
+    ..ref.success = success
+    ..ref.lower = lower
+    ..ref.upper = upper
+    ..ref.center = center
+    ..ref.margin_of_error = margin_of_error
+    ..ref.error = error;
 }
 
 final class wire_cst_correlation_result extends ffi.Struct {
@@ -3303,6 +2801,20 @@ final class wire_cst_correlation_result extends ffi.Struct {
   external double p_value;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+
+  static ffi.Pointer<wire_cst_correlation_result> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required double correlation,
+    required double covariance,
+    required double p_value,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> error,
+  }) => $allocator<wire_cst_correlation_result>()
+    ..ref.success = success
+    ..ref.correlation = correlation
+    ..ref.covariance = covariance
+    ..ref.p_value = p_value
+    ..ref.error = error;
 }
 
 final class wire_cst_discrete_result extends ffi.Struct {
@@ -3319,6 +2831,22 @@ final class wire_cst_discrete_result extends ffi.Struct {
   external ffi.Pointer<ffi.Bool> bool_result;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+
+  static ffi.Pointer<wire_cst_discrete_result> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required int value,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> big_value,
+    required ffi.Pointer<wire_cst_list_prim_u_64_strict> values,
+    required ffi.Pointer<ffi.Bool> bool_result,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> error,
+  }) => $allocator<wire_cst_discrete_result>()
+    ..ref.success = success
+    ..ref.value = value
+    ..ref.big_value = big_value
+    ..ref.values = values
+    ..ref.bool_result = bool_result
+    ..ref.error = error;
 }
 
 final class wire_cst_distribution_result extends ffi.Struct {
@@ -3341,6 +2869,24 @@ final class wire_cst_distribution_result extends ffi.Struct {
   external double std_dev;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+
+  static ffi.Pointer<wire_cst_distribution_result> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required double pdf,
+    required double cdf,
+    required double mean,
+    required double variance,
+    required double std_dev,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> error,
+  }) => $allocator<wire_cst_distribution_result>()
+    ..ref.success = success
+    ..ref.pdf = pdf
+    ..ref.cdf = cdf
+    ..ref.mean = mean
+    ..ref.variance = variance
+    ..ref.std_dev = std_dev
+    ..ref.error = error;
 }
 
 final class wire_cst_expression_result extends ffi.Struct {
@@ -3353,6 +2899,39 @@ final class wire_cst_expression_result extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> formatted;
+
+  static ffi.Pointer<wire_cst_expression_result> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required double value,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> error,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> formatted,
+  }) => $allocator<wire_cst_expression_result>()
+    ..ref.success = success
+    ..ref.value = value
+    ..ref.error = error
+    ..ref.formatted = formatted;
+}
+
+final class wire_cst_graph_point extends ffi.Struct {
+  @ffi.Double()
+  external double x;
+
+  @ffi.Double()
+  external double y;
+
+  @ffi.Bool()
+  external bool valid;
+
+  static ffi.Pointer<wire_cst_graph_point> $allocate(
+    ffi.Allocator $allocator, {
+    required double x,
+    required double y,
+    required bool valid,
+  }) => $allocator<wire_cst_graph_point>()
+    ..ref.x = x
+    ..ref.y = y
+    ..ref.valid = valid;
 }
 
 final class wire_cst_graph_result extends ffi.Struct {
@@ -3374,6 +2953,24 @@ final class wire_cst_graph_result extends ffi.Struct {
   external double y_max;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+
+  static ffi.Pointer<wire_cst_graph_result> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required ffi.Pointer<wire_cst_list_graph_point> points,
+    required double x_min,
+    required double x_max,
+    required double y_min,
+    required double y_max,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> error,
+  }) => $allocator<wire_cst_graph_result>()
+    ..ref.success = success
+    ..ref.points = points
+    ..ref.x_min = x_min
+    ..ref.x_max = x_max
+    ..ref.y_min = y_min
+    ..ref.y_max = y_max
+    ..ref.error = error;
 }
 
 final class wire_cst_hypothesis_test_result extends ffi.Struct {
@@ -3397,6 +2994,171 @@ final class wire_cst_hypothesis_test_result extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
 }
 
+final class wire_cst_list_String extends ffi.Struct {
+  external ffi.Pointer<ffi.Pointer<wire_cst_list_prim_u_8_strict>> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_String> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<ffi.Pointer<wire_cst_list_prim_u_8_strict>> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_String>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_graph_point extends ffi.Struct {
+  external ffi.Pointer<wire_cst_graph_point> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_graph_point> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_graph_point> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_graph_point>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_list_prim_f_64_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Pointer<wire_cst_list_prim_f_64_strict>> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_list_prim_f_64_strict> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<ffi.Pointer<wire_cst_list_prim_f_64_strict>> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_list_prim_f_64_strict>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_matrix_result extends ffi.Struct {
+  external ffi.Pointer<wire_cst_matrix_result> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_matrix_result> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_matrix_result> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_matrix_result>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_prim_f_64_loose extends ffi.Struct {
+  external ffi.Pointer<ffi.Double> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_prim_f_64_loose> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<ffi.Double> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_prim_f_64_loose>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_prim_f_64_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Double> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_prim_f_64_strict> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<ffi.Double> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_prim_f_64_strict>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_prim_u_64_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint64> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_prim_u_64_strict> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<ffi.Uint64> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_prim_u_64_strict>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_prim_u_8_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_prim_u_8_strict> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<ffi.Uint8> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_prim_u_8_strict>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_record_f_64_f_64 extends ffi.Struct {
+  external ffi.Pointer<wire_cst_record_f_64_f_64> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_record_f_64_f_64> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_record_f_64_f_64> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_record_f_64_f_64>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_record_string_f_64 extends ffi.Struct {
+  external ffi.Pointer<wire_cst_record_string_f_64> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_record_string_f_64> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_record_string_f_64> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_record_string_f_64>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
+final class wire_cst_list_unit_result extends ffi.Struct {
+  external ffi.Pointer<wire_cst_unit_result> ptr;
+
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<wire_cst_list_unit_result> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_unit_result> ptr,
+    required int len,
+  }) => $allocator<wire_cst_list_unit_result>()
+    ..ref.ptr = ptr
+    ..ref.len = len;
+}
+
 final class wire_cst_matrix_decomposition extends ffi.Struct {
   @ffi.Bool()
   external bool success;
@@ -3408,6 +3170,69 @@ final class wire_cst_matrix_decomposition extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_String> labels;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+
+  static ffi.Pointer<wire_cst_matrix_decomposition> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> decomposition_type,
+    required ffi.Pointer<wire_cst_list_matrix_result> matrices,
+    required ffi.Pointer<wire_cst_list_String> labels,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> error,
+  }) => $allocator<wire_cst_matrix_decomposition>()
+    ..ref.success = success
+    ..ref.decomposition_type = decomposition_type
+    ..ref.matrices = matrices
+    ..ref.labels = labels
+    ..ref.error = error;
+}
+
+final class wire_cst_matrix_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  external ffi.Pointer<wire_cst_list_prim_f_64_strict> data;
+
+  @ffi.UintPtr()
+  external int rows;
+
+  @ffi.UintPtr()
+  external int cols;
+
+  external ffi.Pointer<ffi.Double> scalar;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+
+  static ffi.Pointer<wire_cst_matrix_result> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required ffi.Pointer<wire_cst_list_prim_f_64_strict> data,
+    required int rows,
+    required int cols,
+    required ffi.Pointer<ffi.Double> scalar,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> error,
+  }) => $allocator<wire_cst_matrix_result>()
+    ..ref.success = success
+    ..ref.data = data
+    ..ref.rows = rows
+    ..ref.cols = cols
+    ..ref.scalar = scalar
+    ..ref.error = error;
+}
+
+final class wire_cst_record_f_64_f_64 extends ffi.Struct {
+  @ffi.Double()
+  external double field0;
+
+  @ffi.Double()
+  external double field1;
+
+  static ffi.Pointer<wire_cst_record_f_64_f_64> $allocate(
+    ffi.Allocator $allocator, {
+    required double field0,
+    required double field1,
+  }) => $allocator<wire_cst_record_f_64_f_64>()
+    ..ref.field0 = field0
+    ..ref.field1 = field1;
 }
 
 final class wire_cst_record_list_record_f_64_f_64_list_record_f_64_f_64
@@ -3415,6 +3240,33 @@ final class wire_cst_record_list_record_f_64_f_64_list_record_f_64_f_64
   external ffi.Pointer<wire_cst_list_record_f_64_f_64> field0;
 
   external ffi.Pointer<wire_cst_list_record_f_64_f_64> field1;
+
+  static ffi.Pointer<
+    wire_cst_record_list_record_f_64_f_64_list_record_f_64_f_64
+  >
+  $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_record_f_64_f_64> field0,
+    required ffi.Pointer<wire_cst_list_record_f_64_f_64> field1,
+  }) =>
+      $allocator<wire_cst_record_list_record_f_64_f_64_list_record_f_64_f_64>()
+        ..ref.field0 = field0
+        ..ref.field1 = field1;
+}
+
+final class wire_cst_record_string_f_64 extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field0;
+
+  @ffi.Double()
+  external double field1;
+
+  static ffi.Pointer<wire_cst_record_string_f_64> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> field0,
+    required double field1,
+  }) => $allocator<wire_cst_record_string_f_64>()
+    ..ref.field0 = field0
+    ..ref.field1 = field1;
 }
 
 final class wire_cst_regression_result extends ffi.Struct {
@@ -3429,6 +3281,20 @@ final class wire_cst_regression_result extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_f_64_strict> residuals;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+
+  static ffi.Pointer<wire_cst_regression_result> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required ffi.Pointer<wire_cst_list_prim_f_64_strict> coefficients,
+    required double r_squared,
+    required ffi.Pointer<wire_cst_list_prim_f_64_strict> residuals,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> error,
+  }) => $allocator<wire_cst_regression_result>()
+    ..ref.success = success
+    ..ref.coefficients = coefficients
+    ..ref.r_squared = r_squared
+    ..ref.residuals = residuals
+    ..ref.error = error;
 }
 
 final class wire_cst_solve_result extends ffi.Struct {
@@ -3441,6 +3307,18 @@ final class wire_cst_solve_result extends ffi.Struct {
   external int iterations;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+
+  static ffi.Pointer<wire_cst_solve_result> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required ffi.Pointer<wire_cst_list_prim_f_64_strict> roots,
+    required int iterations,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> error,
+  }) => $allocator<wire_cst_solve_result>()
+    ..ref.success = success
+    ..ref.roots = roots
+    ..ref.iterations = iterations
+    ..ref.error = error;
 }
 
 final class wire_cst_statistics_result extends ffi.Struct {
@@ -3450,4 +3328,46 @@ final class wire_cst_statistics_result extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_record_string_f_64> values;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+
+  static ffi.Pointer<wire_cst_statistics_result> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required ffi.Pointer<wire_cst_list_record_string_f_64> values,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> error,
+  }) => $allocator<wire_cst_statistics_result>()
+    ..ref.success = success
+    ..ref.values = values
+    ..ref.error = error;
+}
+
+final class wire_cst_unit_result extends ffi.Struct {
+  @ffi.Bool()
+  external bool success;
+
+  @ffi.Double()
+  external double value;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> from_unit;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> to_unit;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> formula;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> error;
+
+  static ffi.Pointer<wire_cst_unit_result> $allocate(
+    ffi.Allocator $allocator, {
+    required bool success,
+    required double value,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> from_unit,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> to_unit,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> formula,
+    required ffi.Pointer<wire_cst_list_prim_u_8_strict> error,
+  }) => $allocator<wire_cst_unit_result>()
+    ..ref.success = success
+    ..ref.value = value
+    ..ref.from_unit = from_unit
+    ..ref.to_unit = to_unit
+    ..ref.formula = formula
+    ..ref.error = error;
 }
