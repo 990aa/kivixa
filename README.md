@@ -2,7 +2,7 @@
 
 This branch publishes the signed F-Droid repository for Kivixa.
 
-- Repository URL: https://990aa.github.io/kivixa/repo
+- Repository URL: https://990aa.github.io/Kivixa/repo
 - App ID: com.a990aa.kivixa
 - Repo name in F-Droid: Kivixa
 
