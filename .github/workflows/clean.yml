@@ -11,15 +11,41 @@ on:
         options:
           - 'by_status'
           - 'oldest_10_runs'
-      status_filter:
-        description: 'If filtering by status, choose which ones to delete'
+      status_failure:
+        description: 'status:failure'
         required: false
-        type: choice
-        default: 'failed'
-        options:
-          - 'failed'
-          - 'action_required'
-          - 'cancelled'
+        type: boolean
+        default: false
+      status_cancelled:
+        description: 'status:cancelled'
+        required: false
+        type: boolean
+        default: false
+      status_skipped:
+        description: 'status:skipped'
+        required: false
+        type: boolean
+        default: false
+      status_neutral:
+        description: 'status:neutral'
+        required: false
+        type: boolean
+        default: false
+      status_timed_out:
+        description: 'status:timed_out'
+        required: false
+        type: boolean
+        default: false
+      status_action_required:
+        description: 'status:action_required'
+        required: false
+        type: boolean
+        default: false
+      status_stale:
+        description: 'status:stale'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   delete-runs:
@@ -33,24 +59,50 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           FILTER_TYPE: ${{ inputs.filter_type }}
-          STATUS_FILTER: ${{ inputs.status_filter }}
+          STATUS_FAILURE: ${{ inputs.status_failure }}
+          STATUS_CANCELLED: ${{ inputs.status_cancelled }}
+          STATUS_SKIPPED: ${{ inputs.status_skipped }}
+          STATUS_NEUTRAL: ${{ inputs.status_neutral }}
+          STATUS_TIMED_OUT: ${{ inputs.status_timed_out }}
+          STATUS_ACTION_REQUIRED: ${{ inputs.status_action_required }}
+          STATUS_STALE: ${{ inputs.status_stale }}
         run: |
           if [ "$FILTER_TYPE" = "by_status" ]; then
-            echo "Searching for runs with status: $STATUS_FILTER..."
-            
-            # Fetch all matching run IDs using pagination
-            RUN_IDS=$(gh api "/repos/$REPO/actions/runs?status=$STATUS_FILTER&per_page=100" --paginate --jq '.workflow_runs[].id')
-            
-            if [ -z "$RUN_IDS" ]; then
-              echo "No runs found matching status: $STATUS_FILTER"
+            selected_statuses=()
+            [ "$STATUS_FAILURE" = "true" ] && selected_statuses+=("failure")
+            [ "$STATUS_CANCELLED" = "true" ] && selected_statuses+=("cancelled")
+            [ "$STATUS_SKIPPED" = "true" ] && selected_statuses+=("skipped")
+            [ "$STATUS_NEUTRAL" = "true" ] && selected_statuses+=("neutral")
+            [ "$STATUS_TIMED_OUT" = "true" ] && selected_statuses+=("timed_out")
+            [ "$STATUS_ACTION_REQUIRED" = "true" ] && selected_statuses+=("action_required")
+            [ "$STATUS_STALE" = "true" ] && selected_statuses+=("stale")
+
+            if [ "${#selected_statuses[@]}" -eq 0 ]; then
+              echo "::error::Select at least one status to delete."
+              exit 1
+            fi
+
+            echo "Searching for runs with statuses: ${selected_statuses[*]}..."
+            RUN_IDS_FILE=$(mktemp)
+            trap 'rm -f "$RUN_IDS_FILE"' EXIT
+
+            for status_filter in "${selected_statuses[@]}"; do
+              gh api "/repos/$REPO/actions/runs?status=completed&per_page=100" \
+                --paginate \
+                --jq ".workflow_runs[] | select(.conclusion == \"$status_filter\") | .id" >> "$RUN_IDS_FILE"
+            done
+
+            sort -u "$RUN_IDS_FILE" -o "$RUN_IDS_FILE"
+            if [ ! -s "$RUN_IDS_FILE" ]; then
+              echo "No runs found matching statuses: ${selected_statuses[*]}"
               exit 0
             fi
             
             echo "Found runs to delete. Starting deletion..."
-            for run_id in $RUN_IDS; do
+            while IFS= read -r run_id; do
               echo "Deleting run ID: $run_id"
               gh api -X DELETE "/repos/$REPO/actions/runs/$run_id" --silent || true
-            done
+            done < "$RUN_IDS_FILE"
 
           elif [ "$FILTER_TYPE" = "oldest_10_runs" ]; then
             echo "Fetching the oldest 10 runs..."
