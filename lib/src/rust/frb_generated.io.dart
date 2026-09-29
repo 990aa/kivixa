@@ -15,641 +15,1172 @@ import 'mcp.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
 import 'streaming.dart';
 
+abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
+  RustLibApiImplPlatform({
+    required super.handler,
+    required super.wire,
+    required super.generalizedFrbRustBinding,
+    required super.portManager,
+  });
 
+  @protected
+  AnyhowException dco_decode_AnyhowException(dynamic raw);
 
+  @protected
+  String dco_decode_String(dynamic raw);
 
-                abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
-                  RustLibApiImplPlatform({
-                    required super.handler,
-                    required super.wire,
-                    required super.generalizedFrbRustBinding,
-                    required super.portManager,
-                  });
+  @protected
+  bool dco_decode_bool(dynamic raw);
 
-                  
+  @protected
+  double dco_decode_box_autoadd_f_32(dynamic raw);
 
-                  @protected AnyhowException dco_decode_AnyhowException(dynamic raw);
+  @protected
+  int dco_decode_box_autoadd_i_32(dynamic raw);
 
-@protected String dco_decode_String(dynamic raw);
+  @protected
+  MCPToolCall dco_decode_box_autoadd_mcp_tool_call(dynamic raw);
 
-@protected bool dco_decode_bool(dynamic raw);
+  @protected
+  int dco_decode_box_autoadd_u_32(dynamic raw);
 
-@protected double dco_decode_box_autoadd_f_32(dynamic raw);
+  @protected
+  BigInt dco_decode_box_autoadd_usize(dynamic raw);
 
-@protected int dco_decode_box_autoadd_i_32(dynamic raw);
+  @protected
+  ClusterAssignment dco_decode_cluster_assignment(dynamic raw);
 
-@protected MCPToolCall dco_decode_box_autoadd_mcp_tool_call(dynamic raw);
+  @protected
+  ClusterInfo dco_decode_cluster_info(dynamic raw);
 
-@protected int dco_decode_box_autoadd_u_32(dynamic raw);
+  @protected
+  ClusteringResult dco_decode_clustering_result(dynamic raw);
 
-@protected BigInt dco_decode_box_autoadd_usize(dynamic raw);
+  @protected
+  EmbeddingCluster dco_decode_embedding_cluster(dynamic raw);
 
-@protected ClusterAssignment dco_decode_cluster_assignment(dynamic raw);
+  @protected
+  EmbeddingEntry dco_decode_embedding_entry(dynamic raw);
 
-@protected ClusterInfo dco_decode_cluster_info(dynamic raw);
+  @protected
+  double dco_decode_f_32(dynamic raw);
 
-@protected ClusteringResult dco_decode_clustering_result(dynamic raw);
+  @protected
+  GraphEdge dco_decode_graph_edge(dynamic raw);
 
-@protected EmbeddingCluster dco_decode_embedding_cluster(dynamic raw);
+  @protected
+  GraphNode dco_decode_graph_node(dynamic raw);
 
-@protected EmbeddingEntry dco_decode_embedding_entry(dynamic raw);
+  @protected
+  GraphState dco_decode_graph_state(dynamic raw);
 
-@protected double dco_decode_f_32(dynamic raw);
+  @protected
+  int dco_decode_i_32(dynamic raw);
 
-@protected GraphEdge dco_decode_graph_edge(dynamic raw);
+  @protected
+  KnowledgeGraphAnalysis dco_decode_knowledge_graph_analysis(dynamic raw);
 
-@protected GraphNode dco_decode_graph_node(dynamic raw);
+  @protected
+  List<String> dco_decode_list_String(dynamic raw);
 
-@protected GraphState dco_decode_graph_state(dynamic raw);
+  @protected
+  List<ClusterAssignment> dco_decode_list_cluster_assignment(dynamic raw);
 
-@protected int dco_decode_i_32(dynamic raw);
+  @protected
+  List<ClusterInfo> dco_decode_list_cluster_info(dynamic raw);
 
-@protected KnowledgeGraphAnalysis dco_decode_knowledge_graph_analysis(dynamic raw);
+  @protected
+  List<EmbeddingCluster> dco_decode_list_embedding_cluster(dynamic raw);
 
-@protected List<String> dco_decode_list_String(dynamic raw);
+  @protected
+  List<EmbeddingEntry> dco_decode_list_embedding_entry(dynamic raw);
 
-@protected List<ClusterAssignment> dco_decode_list_cluster_assignment(dynamic raw);
+  @protected
+  List<GraphEdge> dco_decode_list_graph_edge(dynamic raw);
 
-@protected List<ClusterInfo> dco_decode_list_cluster_info(dynamic raw);
+  @protected
+  List<GraphNode> dco_decode_list_graph_node(dynamic raw);
 
-@protected List<EmbeddingCluster> dco_decode_list_embedding_cluster(dynamic raw);
+  @protected
+  List<MCPParameter> dco_decode_list_mcp_parameter(dynamic raw);
 
-@protected List<EmbeddingEntry> dco_decode_list_embedding_entry(dynamic raw);
+  @protected
+  List<MCPTool> dco_decode_list_mcp_tool(dynamic raw);
 
-@protected List<GraphEdge> dco_decode_list_graph_edge(dynamic raw);
+  @protected
+  List<NodePosition> dco_decode_list_node_position(dynamic raw);
 
-@protected List<GraphNode> dco_decode_list_graph_node(dynamic raw);
+  @protected
+  List<double> dco_decode_list_prim_f_32_loose(dynamic raw);
 
-@protected List<MCPParameter> dco_decode_list_mcp_parameter(dynamic raw);
+  @protected
+  Float32List dco_decode_list_prim_f_32_strict(dynamic raw);
 
-@protected List<MCPTool> dco_decode_list_mcp_tool(dynamic raw);
+  @protected
+  Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
-@protected List<NodePosition> dco_decode_list_node_position(dynamic raw);
+  @protected
+  List<(String, String)> dco_decode_list_record_string_string(dynamic raw);
 
-@protected List<double> dco_decode_list_prim_f_32_loose(dynamic raw);
+  @protected
+  List<SemanticEdge> dco_decode_list_semantic_edge(dynamic raw);
 
-@protected Float32List dco_decode_list_prim_f_32_strict(dynamic raw);
+  @protected
+  List<SimilarityResult> dco_decode_list_similarity_result(dynamic raw);
 
-@protected Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+  @protected
+  MCPParamType dco_decode_mcp_param_type(dynamic raw);
 
-@protected List<(String,String)> dco_decode_list_record_string_string(dynamic raw);
+  @protected
+  MCPParameter dco_decode_mcp_parameter(dynamic raw);
 
-@protected List<SemanticEdge> dco_decode_list_semantic_edge(dynamic raw);
+  @protected
+  MCPTool dco_decode_mcp_tool(dynamic raw);
 
-@protected List<SimilarityResult> dco_decode_list_similarity_result(dynamic raw);
+  @protected
+  MCPToolCall dco_decode_mcp_tool_call(dynamic raw);
 
-@protected MCPParamType dco_decode_mcp_param_type(dynamic raw);
+  @protected
+  MCPToolResult dco_decode_mcp_tool_result(dynamic raw);
 
-@protected MCPParameter dco_decode_mcp_parameter(dynamic raw);
+  @protected
+  NodePosition dco_decode_node_position(dynamic raw);
 
-@protected MCPTool dco_decode_mcp_tool(dynamic raw);
+  @protected
+  String? dco_decode_opt_String(dynamic raw);
 
-@protected MCPToolCall dco_decode_mcp_tool_call(dynamic raw);
+  @protected
+  double? dco_decode_opt_box_autoadd_f_32(dynamic raw);
 
-@protected MCPToolResult dco_decode_mcp_tool_result(dynamic raw);
+  @protected
+  int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
 
-@protected NodePosition dco_decode_node_position(dynamic raw);
+  @protected
+  int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
 
-@protected String? dco_decode_opt_String(dynamic raw);
+  @protected
+  BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw);
 
-@protected double? dco_decode_opt_box_autoadd_f_32(dynamic raw);
+  @protected
+  List<String>? dco_decode_opt_list_String(dynamic raw);
 
-@protected int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
+  @protected
+  Float32List? dco_decode_opt_list_prim_f_32_strict(dynamic raw);
 
-@protected int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
+  @protected
+  List<(String, String)>? dco_decode_opt_list_record_string_string(dynamic raw);
 
-@protected BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw);
+  @protected
+  (String, String) dco_decode_record_string_string(dynamic raw);
 
-@protected List<String>? dco_decode_opt_list_String(dynamic raw);
+  @protected
+  SemanticEdge dco_decode_semantic_edge(dynamic raw);
 
-@protected Float32List? dco_decode_opt_list_prim_f_32_strict(dynamic raw);
+  @protected
+  SemanticEdgeResult dco_decode_semantic_edge_result(dynamic raw);
 
-@protected List<(String,String)>? dco_decode_opt_list_record_string_string(dynamic raw);
+  @protected
+  SimilarityResult dco_decode_similarity_result(dynamic raw);
 
-@protected (String,String) dco_decode_record_string_string(dynamic raw);
+  @protected
+  StreamGraphStats dco_decode_stream_graph_stats(dynamic raw);
 
-@protected SemanticEdge dco_decode_semantic_edge(dynamic raw);
+  @protected
+  TaskCategory dco_decode_task_category(dynamic raw);
 
-@protected SemanticEdgeResult dco_decode_semantic_edge_result(dynamic raw);
+  @protected
+  int dco_decode_u_32(dynamic raw);
 
-@protected SimilarityResult dco_decode_similarity_result(dynamic raw);
+  @protected
+  int dco_decode_u_8(dynamic raw);
 
-@protected StreamGraphStats dco_decode_stream_graph_stats(dynamic raw);
+  @protected
+  void dco_decode_unit(dynamic raw);
 
-@protected TaskCategory dco_decode_task_category(dynamic raw);
+  @protected
+  BigInt dco_decode_usize(dynamic raw);
 
-@protected int dco_decode_u_32(dynamic raw);
+  @protected
+  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
-@protected int dco_decode_u_8(dynamic raw);
+  @protected
+  String sse_decode_String(SseDeserializer deserializer);
 
-@protected void dco_decode_unit(dynamic raw);
+  @protected
+  bool sse_decode_bool(SseDeserializer deserializer);
 
-@protected BigInt dco_decode_usize(dynamic raw);
+  @protected
+  double sse_decode_box_autoadd_f_32(SseDeserializer deserializer);
 
-@protected AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+  @protected
+  int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
 
-@protected String sse_decode_String(SseDeserializer deserializer);
+  @protected
+  MCPToolCall sse_decode_box_autoadd_mcp_tool_call(
+    SseDeserializer deserializer,
+  );
 
-@protected bool sse_decode_bool(SseDeserializer deserializer);
+  @protected
+  int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
 
-@protected double sse_decode_box_autoadd_f_32(SseDeserializer deserializer);
+  @protected
+  BigInt sse_decode_box_autoadd_usize(SseDeserializer deserializer);
 
-@protected int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
+  @protected
+  ClusterAssignment sse_decode_cluster_assignment(SseDeserializer deserializer);
 
-@protected MCPToolCall sse_decode_box_autoadd_mcp_tool_call(SseDeserializer deserializer);
+  @protected
+  ClusterInfo sse_decode_cluster_info(SseDeserializer deserializer);
 
-@protected int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
+  @protected
+  ClusteringResult sse_decode_clustering_result(SseDeserializer deserializer);
 
-@protected BigInt sse_decode_box_autoadd_usize(SseDeserializer deserializer);
+  @protected
+  EmbeddingCluster sse_decode_embedding_cluster(SseDeserializer deserializer);
 
-@protected ClusterAssignment sse_decode_cluster_assignment(SseDeserializer deserializer);
+  @protected
+  EmbeddingEntry sse_decode_embedding_entry(SseDeserializer deserializer);
 
-@protected ClusterInfo sse_decode_cluster_info(SseDeserializer deserializer);
+  @protected
+  double sse_decode_f_32(SseDeserializer deserializer);
 
-@protected ClusteringResult sse_decode_clustering_result(SseDeserializer deserializer);
+  @protected
+  GraphEdge sse_decode_graph_edge(SseDeserializer deserializer);
 
-@protected EmbeddingCluster sse_decode_embedding_cluster(SseDeserializer deserializer);
+  @protected
+  GraphNode sse_decode_graph_node(SseDeserializer deserializer);
 
-@protected EmbeddingEntry sse_decode_embedding_entry(SseDeserializer deserializer);
+  @protected
+  GraphState sse_decode_graph_state(SseDeserializer deserializer);
 
-@protected double sse_decode_f_32(SseDeserializer deserializer);
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer);
 
-@protected GraphEdge sse_decode_graph_edge(SseDeserializer deserializer);
+  @protected
+  KnowledgeGraphAnalysis sse_decode_knowledge_graph_analysis(
+    SseDeserializer deserializer,
+  );
 
-@protected GraphNode sse_decode_graph_node(SseDeserializer deserializer);
+  @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer);
 
-@protected GraphState sse_decode_graph_state(SseDeserializer deserializer);
+  @protected
+  List<ClusterAssignment> sse_decode_list_cluster_assignment(
+    SseDeserializer deserializer,
+  );
 
-@protected int sse_decode_i_32(SseDeserializer deserializer);
+  @protected
+  List<ClusterInfo> sse_decode_list_cluster_info(SseDeserializer deserializer);
 
-@protected KnowledgeGraphAnalysis sse_decode_knowledge_graph_analysis(SseDeserializer deserializer);
+  @protected
+  List<EmbeddingCluster> sse_decode_list_embedding_cluster(
+    SseDeserializer deserializer,
+  );
 
-@protected List<String> sse_decode_list_String(SseDeserializer deserializer);
+  @protected
+  List<EmbeddingEntry> sse_decode_list_embedding_entry(
+    SseDeserializer deserializer,
+  );
 
-@protected List<ClusterAssignment> sse_decode_list_cluster_assignment(SseDeserializer deserializer);
+  @protected
+  List<GraphEdge> sse_decode_list_graph_edge(SseDeserializer deserializer);
 
-@protected List<ClusterInfo> sse_decode_list_cluster_info(SseDeserializer deserializer);
+  @protected
+  List<GraphNode> sse_decode_list_graph_node(SseDeserializer deserializer);
 
-@protected List<EmbeddingCluster> sse_decode_list_embedding_cluster(SseDeserializer deserializer);
+  @protected
+  List<MCPParameter> sse_decode_list_mcp_parameter(
+    SseDeserializer deserializer,
+  );
 
-@protected List<EmbeddingEntry> sse_decode_list_embedding_entry(SseDeserializer deserializer);
+  @protected
+  List<MCPTool> sse_decode_list_mcp_tool(SseDeserializer deserializer);
 
-@protected List<GraphEdge> sse_decode_list_graph_edge(SseDeserializer deserializer);
+  @protected
+  List<NodePosition> sse_decode_list_node_position(
+    SseDeserializer deserializer,
+  );
 
-@protected List<GraphNode> sse_decode_list_graph_node(SseDeserializer deserializer);
+  @protected
+  List<double> sse_decode_list_prim_f_32_loose(SseDeserializer deserializer);
 
-@protected List<MCPParameter> sse_decode_list_mcp_parameter(SseDeserializer deserializer);
+  @protected
+  Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer);
 
-@protected List<MCPTool> sse_decode_list_mcp_tool(SseDeserializer deserializer);
+  @protected
+  Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
-@protected List<NodePosition> sse_decode_list_node_position(SseDeserializer deserializer);
+  @protected
+  List<(String, String)> sse_decode_list_record_string_string(
+    SseDeserializer deserializer,
+  );
 
-@protected List<double> sse_decode_list_prim_f_32_loose(SseDeserializer deserializer);
+  @protected
+  List<SemanticEdge> sse_decode_list_semantic_edge(
+    SseDeserializer deserializer,
+  );
 
-@protected Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer);
+  @protected
+  List<SimilarityResult> sse_decode_list_similarity_result(
+    SseDeserializer deserializer,
+  );
 
-@protected Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+  @protected
+  MCPParamType sse_decode_mcp_param_type(SseDeserializer deserializer);
 
-@protected List<(String,String)> sse_decode_list_record_string_string(SseDeserializer deserializer);
+  @protected
+  MCPParameter sse_decode_mcp_parameter(SseDeserializer deserializer);
 
-@protected List<SemanticEdge> sse_decode_list_semantic_edge(SseDeserializer deserializer);
+  @protected
+  MCPTool sse_decode_mcp_tool(SseDeserializer deserializer);
 
-@protected List<SimilarityResult> sse_decode_list_similarity_result(SseDeserializer deserializer);
+  @protected
+  MCPToolCall sse_decode_mcp_tool_call(SseDeserializer deserializer);
 
-@protected MCPParamType sse_decode_mcp_param_type(SseDeserializer deserializer);
+  @protected
+  MCPToolResult sse_decode_mcp_tool_result(SseDeserializer deserializer);
 
-@protected MCPParameter sse_decode_mcp_parameter(SseDeserializer deserializer);
+  @protected
+  NodePosition sse_decode_node_position(SseDeserializer deserializer);
 
-@protected MCPTool sse_decode_mcp_tool(SseDeserializer deserializer);
+  @protected
+  String? sse_decode_opt_String(SseDeserializer deserializer);
 
-@protected MCPToolCall sse_decode_mcp_tool_call(SseDeserializer deserializer);
+  @protected
+  double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer);
 
-@protected MCPToolResult sse_decode_mcp_tool_result(SseDeserializer deserializer);
+  @protected
+  int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
 
-@protected NodePosition sse_decode_node_position(SseDeserializer deserializer);
+  @protected
+  int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
 
-@protected String? sse_decode_opt_String(SseDeserializer deserializer);
+  @protected
+  BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer);
 
-@protected double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer);
+  @protected
+  List<String>? sse_decode_opt_list_String(SseDeserializer deserializer);
 
-@protected int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
+  @protected
+  Float32List? sse_decode_opt_list_prim_f_32_strict(
+    SseDeserializer deserializer,
+  );
 
-@protected int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
+  @protected
+  List<(String, String)>? sse_decode_opt_list_record_string_string(
+    SseDeserializer deserializer,
+  );
 
-@protected BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer);
+  @protected
+  (String, String) sse_decode_record_string_string(
+    SseDeserializer deserializer,
+  );
 
-@protected List<String>? sse_decode_opt_list_String(SseDeserializer deserializer);
+  @protected
+  SemanticEdge sse_decode_semantic_edge(SseDeserializer deserializer);
 
-@protected Float32List? sse_decode_opt_list_prim_f_32_strict(SseDeserializer deserializer);
+  @protected
+  SemanticEdgeResult sse_decode_semantic_edge_result(
+    SseDeserializer deserializer,
+  );
 
-@protected List<(String,String)>? sse_decode_opt_list_record_string_string(SseDeserializer deserializer);
+  @protected
+  SimilarityResult sse_decode_similarity_result(SseDeserializer deserializer);
 
-@protected (String,String) sse_decode_record_string_string(SseDeserializer deserializer);
+  @protected
+  StreamGraphStats sse_decode_stream_graph_stats(SseDeserializer deserializer);
 
-@protected SemanticEdge sse_decode_semantic_edge(SseDeserializer deserializer);
+  @protected
+  TaskCategory sse_decode_task_category(SseDeserializer deserializer);
 
-@protected SemanticEdgeResult sse_decode_semantic_edge_result(SseDeserializer deserializer);
+  @protected
+  int sse_decode_u_32(SseDeserializer deserializer);
 
-@protected SimilarityResult sse_decode_similarity_result(SseDeserializer deserializer);
+  @protected
+  int sse_decode_u_8(SseDeserializer deserializer);
 
-@protected StreamGraphStats sse_decode_stream_graph_stats(SseDeserializer deserializer);
+  @protected
+  void sse_decode_unit(SseDeserializer deserializer);
 
-@protected TaskCategory sse_decode_task_category(SseDeserializer deserializer);
+  @protected
+  BigInt sse_decode_usize(SseDeserializer deserializer);
 
-@protected int sse_decode_u_32(SseDeserializer deserializer);
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_AnyhowException(
+    AnyhowException raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    throw UnimplementedError();
+  }
 
-@protected int sse_decode_u_8(SseDeserializer deserializer);
-
-@protected void sse_decode_unit(SseDeserializer deserializer);
-
-@protected BigInt sse_decode_usize(SseDeserializer deserializer);
-
-@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_AnyhowException(AnyhowException raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-throw UnimplementedError(); }
-
-@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_String(String raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return cst_encode_list_prim_u_8_strict(utf8.encoder.convert(raw)); }
-
-@protected ffi.Pointer<ffi.Float> cst_encode_box_autoadd_f_32(double raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return wire.cst_new_box_autoadd_f_32(cst_encode_f_32(raw)); }
-
-@protected ffi.Pointer<ffi.Int32> cst_encode_box_autoadd_i_32(int raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return wire.cst_new_box_autoadd_i_32(cst_encode_i_32(raw)); }
-
-@protected ffi.Pointer<wire_cst_mcp_tool_call> cst_encode_box_autoadd_mcp_tool_call(MCPToolCall raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ptr = wire.cst_new_box_autoadd_mcp_tool_call();
-                    cst_api_fill_to_wire_mcp_tool_call(raw, ptr.ref);
-                    return ptr; }
-
-@protected ffi.Pointer<ffi.Uint32> cst_encode_box_autoadd_u_32(int raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return wire.cst_new_box_autoadd_u_32(cst_encode_u_32(raw)); }
-
-@protected ffi.Pointer<ffi.UintPtr> cst_encode_box_autoadd_usize(BigInt raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return wire.cst_new_box_autoadd_usize(cst_encode_usize(raw)); }
-
-@protected ffi.Pointer<wire_cst_list_String> cst_encode_list_String(List<String> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_String(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    ans.ref.ptr[i] = cst_encode_String(raw[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_cluster_assignment> cst_encode_list_cluster_assignment(List<ClusterAssignment> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_cluster_assignment(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_cluster_assignment(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_cluster_info> cst_encode_list_cluster_info(List<ClusterInfo> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_cluster_info(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_cluster_info(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_embedding_cluster> cst_encode_list_embedding_cluster(List<EmbeddingCluster> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_embedding_cluster(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_embedding_cluster(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_embedding_entry> cst_encode_list_embedding_entry(List<EmbeddingEntry> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_embedding_entry(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_embedding_entry(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_graph_edge> cst_encode_list_graph_edge(List<GraphEdge> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_graph_edge(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_graph_edge(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_graph_node> cst_encode_list_graph_node(List<GraphNode> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_graph_node(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_graph_node(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_mcp_parameter> cst_encode_list_mcp_parameter(List<MCPParameter> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_mcp_parameter(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_mcp_parameter(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_mcp_tool> cst_encode_list_mcp_tool(List<MCPTool> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_mcp_tool(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    ans.ref.ptr[i] = cst_encode_mcp_tool(raw[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_node_position> cst_encode_list_node_position(List<NodePosition> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_node_position(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_node_position(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_prim_f_32_loose> cst_encode_list_prim_f_32_loose(List<double> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_prim_f_32_loose(raw.length);
-                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-                return ans; }
-
-@protected ffi.Pointer<wire_cst_list_prim_f_32_strict> cst_encode_list_prim_f_32_strict(Float32List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_prim_f_32_strict(raw.length);
-                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-                return ans; }
-
-@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(Uint8List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_prim_u_8_strict(raw.length);
-                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-                return ans; }
-
-@protected ffi.Pointer<wire_cst_list_record_string_string> cst_encode_list_record_string_string(List<(String,String)> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_record_string_string(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_record_string_string(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_semantic_edge> cst_encode_list_semantic_edge(List<SemanticEdge> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_semantic_edge(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_semantic_edge(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_similarity_result> cst_encode_list_similarity_result(List<SimilarityResult> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_similarity_result(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_similarity_result(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_opt_String(String? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw == null ? ffi.nullptr : cst_encode_String(raw); }
-
-@protected ffi.Pointer<ffi.Float> cst_encode_opt_box_autoadd_f_32(double? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw == null ? ffi.nullptr : cst_encode_box_autoadd_f_32(raw); }
-
-@protected ffi.Pointer<ffi.Int32> cst_encode_opt_box_autoadd_i_32(int? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw == null ? ffi.nullptr : cst_encode_box_autoadd_i_32(raw); }
-
-@protected ffi.Pointer<ffi.Uint32> cst_encode_opt_box_autoadd_u_32(int? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw == null ? ffi.nullptr : cst_encode_box_autoadd_u_32(raw); }
-
-@protected ffi.Pointer<ffi.UintPtr> cst_encode_opt_box_autoadd_usize(BigInt? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw == null ? ffi.nullptr : cst_encode_box_autoadd_usize(raw); }
-
-@protected ffi.Pointer<wire_cst_list_String> cst_encode_opt_list_String(List<String>? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw == null ? ffi.nullptr : cst_encode_list_String(raw); }
-
-@protected ffi.Pointer<wire_cst_list_prim_f_32_strict> cst_encode_opt_list_prim_f_32_strict(Float32List? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw == null ? ffi.nullptr : cst_encode_list_prim_f_32_strict(raw); }
-
-@protected ffi.Pointer<wire_cst_list_record_string_string> cst_encode_opt_list_record_string_string(List<(String,String)>? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw == null ? ffi.nullptr : cst_encode_list_record_string_string(raw); }
-
-@protected int cst_encode_usize(BigInt raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw.toSigned(64).toInt(); }
-
-@protected void cst_api_fill_to_wire_box_autoadd_mcp_tool_call(MCPToolCall apiObj, ffi.Pointer<wire_cst_mcp_tool_call> wireObj){ cst_api_fill_to_wire_mcp_tool_call(apiObj, wireObj.ref); }
-
-@protected void cst_api_fill_to_wire_cluster_assignment(ClusterAssignment apiObj, wire_cst_cluster_assignment wireObj){ wireObj.id = cst_encode_String(apiObj.id);
-wireObj.cluster_id = cst_encode_usize(apiObj.clusterId);
-wireObj.color = cst_encode_String(apiObj.color); }
-
-@protected void cst_api_fill_to_wire_cluster_info(ClusterInfo apiObj, wire_cst_cluster_info wireObj){ wireObj.id = cst_encode_usize(apiObj.id);
-wireObj.size = cst_encode_usize(apiObj.size);
-wireObj.color = cst_encode_String(apiObj.color);
-wireObj.centroid = cst_encode_opt_list_prim_f_32_strict(apiObj.centroid); }
-
-@protected void cst_api_fill_to_wire_clustering_result(ClusteringResult apiObj, wire_cst_clustering_result wireObj){ wireObj.assignments = cst_encode_list_cluster_assignment(apiObj.assignments);
-wireObj.clusters = cst_encode_list_cluster_info(apiObj.clusters);
-wireObj.k = cst_encode_usize(apiObj.k); }
-
-@protected void cst_api_fill_to_wire_embedding_cluster(EmbeddingCluster apiObj, wire_cst_embedding_cluster wireObj){ wireObj.ids = cst_encode_list_String(apiObj.ids); }
-
-@protected void cst_api_fill_to_wire_embedding_entry(EmbeddingEntry apiObj, wire_cst_embedding_entry wireObj){ wireObj.id = cst_encode_String(apiObj.id);
-wireObj.vector = cst_encode_list_prim_f_32_strict(apiObj.vector);
-wireObj.text_preview = cst_encode_opt_String(apiObj.textPreview); }
-
-@protected void cst_api_fill_to_wire_graph_edge(GraphEdge apiObj, wire_cst_graph_edge wireObj){ wireObj.source = cst_encode_String(apiObj.source);
-wireObj.target = cst_encode_String(apiObj.target);
-wireObj.weight = cst_encode_f_32(apiObj.weight);
-wireObj.edge_type = cst_encode_String(apiObj.edgeType); }
-
-@protected void cst_api_fill_to_wire_graph_node(GraphNode apiObj, wire_cst_graph_node wireObj){ wireObj.id = cst_encode_String(apiObj.id);
-wireObj.label = cst_encode_String(apiObj.label);
-wireObj.node_type = cst_encode_String(apiObj.nodeType);
-wireObj.x = cst_encode_f_32(apiObj.x);
-wireObj.y = cst_encode_f_32(apiObj.y);
-wireObj.color = cst_encode_opt_String(apiObj.color);
-wireObj.metadata = cst_encode_opt_String(apiObj.metadata); }
-
-@protected void cst_api_fill_to_wire_graph_state(GraphState apiObj, wire_cst_graph_state wireObj){ wireObj.nodes = cst_encode_list_graph_node(apiObj.nodes);
-wireObj.edges = cst_encode_list_graph_edge(apiObj.edges); }
-
-@protected void cst_api_fill_to_wire_knowledge_graph_analysis(KnowledgeGraphAnalysis apiObj, wire_cst_knowledge_graph_analysis wireObj){ cst_api_fill_to_wire_clustering_result(apiObj.clustering, wireObj.clustering);
-cst_api_fill_to_wire_semantic_edge_result(apiObj.semanticEdges, wireObj.semantic_edges); }
-
-@protected void cst_api_fill_to_wire_mcp_parameter(MCPParameter apiObj, wire_cst_mcp_parameter wireObj){ wireObj.name = cst_encode_String(apiObj.name);
-wireObj.description = cst_encode_String(apiObj.description);
-wireObj.param_type = cst_encode_mcp_param_type(apiObj.paramType);
-wireObj.required = cst_encode_bool(apiObj.required_); }
-
-@protected void cst_api_fill_to_wire_mcp_tool_call(MCPToolCall apiObj, wire_cst_mcp_tool_call wireObj){ wireObj.tool = cst_encode_String(apiObj.tool);
-wireObj.parameters_json = cst_encode_String(apiObj.parametersJson);
-wireObj.description = cst_encode_String(apiObj.description); }
-
-@protected void cst_api_fill_to_wire_mcp_tool_result(MCPToolResult apiObj, wire_cst_mcp_tool_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.result = cst_encode_String(apiObj.result);
-wireObj.tool = cst_encode_String(apiObj.tool); }
-
-@protected void cst_api_fill_to_wire_node_position(NodePosition apiObj, wire_cst_node_position wireObj){ wireObj.id = cst_encode_String(apiObj.id);
-wireObj.x = cst_encode_f_32(apiObj.x);
-wireObj.y = cst_encode_f_32(apiObj.y);
-wireObj.radius = cst_encode_f_32(apiObj.radius);
-wireObj.color = cst_encode_u_32(apiObj.color);
-wireObj.node_type = cst_encode_String(apiObj.nodeType); }
-
-@protected void cst_api_fill_to_wire_record_string_string((String,String) apiObj, wire_cst_record_string_string wireObj){ wireObj.field0 = cst_encode_String(apiObj.$1);
-wireObj.field1 = cst_encode_String(apiObj.$2); }
-
-@protected void cst_api_fill_to_wire_semantic_edge(SemanticEdge apiObj, wire_cst_semantic_edge wireObj){ wireObj.source = cst_encode_String(apiObj.source);
-wireObj.target = cst_encode_String(apiObj.target);
-wireObj.similarity = cst_encode_f_32(apiObj.similarity);
-wireObj.is_ghost = cst_encode_bool(apiObj.isGhost); }
-
-@protected void cst_api_fill_to_wire_semantic_edge_result(SemanticEdgeResult apiObj, wire_cst_semantic_edge_result wireObj){ wireObj.edges = cst_encode_list_semantic_edge(apiObj.edges);
-wireObj.count = cst_encode_usize(apiObj.count); }
-
-@protected void cst_api_fill_to_wire_similarity_result(SimilarityResult apiObj, wire_cst_similarity_result wireObj){ wireObj.id = cst_encode_String(apiObj.id);
-wireObj.score = cst_encode_f_32(apiObj.score);
-wireObj.text_preview = cst_encode_opt_String(apiObj.textPreview); }
-
-@protected void cst_api_fill_to_wire_stream_graph_stats(StreamGraphStats apiObj, wire_cst_stream_graph_stats wireObj){ wireObj.node_count = cst_encode_usize(apiObj.nodeCount);
-wireObj.edge_count = cst_encode_usize(apiObj.edgeCount);
-wireObj.visible_count = cst_encode_usize(apiObj.visibleCount); }
-
-@protected bool cst_encode_bool(bool raw);
-
-@protected double cst_encode_f_32(double raw);
-
-@protected int cst_encode_i_32(int raw);
-
-@protected int cst_encode_mcp_param_type(MCPParamType raw);
-
-@protected int cst_encode_mcp_tool(MCPTool raw);
-
-@protected int cst_encode_task_category(TaskCategory raw);
-
-@protected int cst_encode_u_32(int raw);
-
-@protected int cst_encode_u_8(int raw);
-
-@protected void cst_encode_unit(void raw);
-
-@protected void sse_encode_AnyhowException(AnyhowException self, SseSerializer serializer);
-
-@protected void sse_encode_String(String self, SseSerializer serializer);
-
-@protected void sse_encode_bool(bool self, SseSerializer serializer);
-
-@protected void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer);
-
-@protected void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
-
-@protected void sse_encode_box_autoadd_mcp_tool_call(MCPToolCall self, SseSerializer serializer);
-
-@protected void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
-
-@protected void sse_encode_box_autoadd_usize(BigInt self, SseSerializer serializer);
-
-@protected void sse_encode_cluster_assignment(ClusterAssignment self, SseSerializer serializer);
-
-@protected void sse_encode_cluster_info(ClusterInfo self, SseSerializer serializer);
-
-@protected void sse_encode_clustering_result(ClusteringResult self, SseSerializer serializer);
-
-@protected void sse_encode_embedding_cluster(EmbeddingCluster self, SseSerializer serializer);
-
-@protected void sse_encode_embedding_entry(EmbeddingEntry self, SseSerializer serializer);
-
-@protected void sse_encode_f_32(double self, SseSerializer serializer);
-
-@protected void sse_encode_graph_edge(GraphEdge self, SseSerializer serializer);
-
-@protected void sse_encode_graph_node(GraphNode self, SseSerializer serializer);
-
-@protected void sse_encode_graph_state(GraphState self, SseSerializer serializer);
-
-@protected void sse_encode_i_32(int self, SseSerializer serializer);
-
-@protected void sse_encode_knowledge_graph_analysis(KnowledgeGraphAnalysis self, SseSerializer serializer);
-
-@protected void sse_encode_list_String(List<String> self, SseSerializer serializer);
-
-@protected void sse_encode_list_cluster_assignment(List<ClusterAssignment> self, SseSerializer serializer);
-
-@protected void sse_encode_list_cluster_info(List<ClusterInfo> self, SseSerializer serializer);
-
-@protected void sse_encode_list_embedding_cluster(List<EmbeddingCluster> self, SseSerializer serializer);
-
-@protected void sse_encode_list_embedding_entry(List<EmbeddingEntry> self, SseSerializer serializer);
-
-@protected void sse_encode_list_graph_edge(List<GraphEdge> self, SseSerializer serializer);
-
-@protected void sse_encode_list_graph_node(List<GraphNode> self, SseSerializer serializer);
-
-@protected void sse_encode_list_mcp_parameter(List<MCPParameter> self, SseSerializer serializer);
-
-@protected void sse_encode_list_mcp_tool(List<MCPTool> self, SseSerializer serializer);
-
-@protected void sse_encode_list_node_position(List<NodePosition> self, SseSerializer serializer);
-
-@protected void sse_encode_list_prim_f_32_loose(List<double> self, SseSerializer serializer);
-
-@protected void sse_encode_list_prim_f_32_strict(Float32List self, SseSerializer serializer);
-
-@protected void sse_encode_list_prim_u_8_strict(Uint8List self, SseSerializer serializer);
-
-@protected void sse_encode_list_record_string_string(List<(String,String)> self, SseSerializer serializer);
-
-@protected void sse_encode_list_semantic_edge(List<SemanticEdge> self, SseSerializer serializer);
-
-@protected void sse_encode_list_similarity_result(List<SimilarityResult> self, SseSerializer serializer);
-
-@protected void sse_encode_mcp_param_type(MCPParamType self, SseSerializer serializer);
-
-@protected void sse_encode_mcp_parameter(MCPParameter self, SseSerializer serializer);
-
-@protected void sse_encode_mcp_tool(MCPTool self, SseSerializer serializer);
-
-@protected void sse_encode_mcp_tool_call(MCPToolCall self, SseSerializer serializer);
-
-@protected void sse_encode_mcp_tool_result(MCPToolResult self, SseSerializer serializer);
-
-@protected void sse_encode_node_position(NodePosition self, SseSerializer serializer);
-
-@protected void sse_encode_opt_String(String? self, SseSerializer serializer);
-
-@protected void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer);
-
-@protected void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);
-
-@protected void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
-
-@protected void sse_encode_opt_box_autoadd_usize(BigInt? self, SseSerializer serializer);
-
-@protected void sse_encode_opt_list_String(List<String>? self, SseSerializer serializer);
-
-@protected void sse_encode_opt_list_prim_f_32_strict(Float32List? self, SseSerializer serializer);
-
-@protected void sse_encode_opt_list_record_string_string(List<(String,String)>? self, SseSerializer serializer);
-
-@protected void sse_encode_record_string_string((String,String) self, SseSerializer serializer);
-
-@protected void sse_encode_semantic_edge(SemanticEdge self, SseSerializer serializer);
-
-@protected void sse_encode_semantic_edge_result(SemanticEdgeResult self, SseSerializer serializer);
-
-@protected void sse_encode_similarity_result(SimilarityResult self, SseSerializer serializer);
-
-@protected void sse_encode_stream_graph_stats(StreamGraphStats self, SseSerializer serializer);
-
-@protected void sse_encode_task_category(TaskCategory self, SseSerializer serializer);
-
-@protected void sse_encode_u_32(int self, SseSerializer serializer);
-
-@protected void sse_encode_u_8(int self, SseSerializer serializer);
-
-@protected void sse_encode_unit(void self, SseSerializer serializer);
-
-@protected void sse_encode_usize(BigInt self, SseSerializer serializer);
-                }
-                
-
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_String(String raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_list_prim_u_8_strict(utf8.encoder.convert(raw));
+  }
+
+  @protected
+  ffi.Pointer<ffi.Float> cst_encode_box_autoadd_f_32(double raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_f_32(cst_encode_f_32(raw));
+  }
+
+  @protected
+  ffi.Pointer<ffi.Int32> cst_encode_box_autoadd_i_32(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_i_32(cst_encode_i_32(raw));
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_mcp_tool_call> cst_encode_box_autoadd_mcp_tool_call(
+    MCPToolCall raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_mcp_tool_call();
+    cst_api_fill_to_wire_mcp_tool_call(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<ffi.Uint32> cst_encode_box_autoadd_u_32(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_u_32(cst_encode_u_32(raw));
+  }
+
+  @protected
+  ffi.Pointer<ffi.UintPtr> cst_encode_box_autoadd_usize(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_usize(cst_encode_usize(raw));
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_String> cst_encode_list_String(List<String> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_String(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      ans.ref.ptr[i] = cst_encode_String(raw[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_cluster_assignment>
+  cst_encode_list_cluster_assignment(List<ClusterAssignment> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_cluster_assignment(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_cluster_assignment(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_cluster_info> cst_encode_list_cluster_info(
+    List<ClusterInfo> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_cluster_info(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_cluster_info(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_embedding_cluster>
+  cst_encode_list_embedding_cluster(List<EmbeddingCluster> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_embedding_cluster(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_embedding_cluster(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_embedding_entry> cst_encode_list_embedding_entry(
+    List<EmbeddingEntry> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_embedding_entry(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_embedding_entry(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_graph_edge> cst_encode_list_graph_edge(
+    List<GraphEdge> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_graph_edge(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_graph_edge(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_graph_node> cst_encode_list_graph_node(
+    List<GraphNode> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_graph_node(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_graph_node(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_mcp_parameter> cst_encode_list_mcp_parameter(
+    List<MCPParameter> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_mcp_parameter(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_mcp_parameter(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_mcp_tool> cst_encode_list_mcp_tool(
+    List<MCPTool> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_mcp_tool(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      ans.ref.ptr[i] = cst_encode_mcp_tool(raw[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_node_position> cst_encode_list_node_position(
+    List<NodePosition> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_node_position(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_node_position(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_f_32_loose> cst_encode_list_prim_f_32_loose(
+    List<double> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_f_32_loose(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_f_32_strict> cst_encode_list_prim_f_32_strict(
+    Float32List raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_f_32_strict(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(
+    Uint8List raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_u_8_strict(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_record_string_string>
+  cst_encode_list_record_string_string(List<(String, String)> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_record_string_string(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_record_string_string(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_semantic_edge> cst_encode_list_semantic_edge(
+    List<SemanticEdge> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_semantic_edge(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_semantic_edge(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_similarity_result>
+  cst_encode_list_similarity_result(List<SimilarityResult> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_similarity_result(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_similarity_result(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_opt_String(
+    String? raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_String(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Float> cst_encode_opt_box_autoadd_f_32(double? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_f_32(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Int32> cst_encode_opt_box_autoadd_i_32(int? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_i_32(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Uint32> cst_encode_opt_box_autoadd_u_32(int? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_u_32(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.UintPtr> cst_encode_opt_box_autoadd_usize(BigInt? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_usize(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_String> cst_encode_opt_list_String(
+    List<String>? raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_list_String(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_f_32_strict>
+  cst_encode_opt_list_prim_f_32_strict(Float32List? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_list_prim_f_32_strict(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_record_string_string>
+  cst_encode_opt_list_record_string_string(List<(String, String)>? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null
+        ? ffi.nullptr
+        : cst_encode_list_record_string_string(raw);
+  }
+
+  @protected
+  int cst_encode_usize(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.toSigned(64).toInt();
+  }
+
+  @protected
+  void cst_api_fill_to_wire_box_autoadd_mcp_tool_call(
+    MCPToolCall apiObj,
+    ffi.Pointer<wire_cst_mcp_tool_call> wireObj,
+  ) {
+    cst_api_fill_to_wire_mcp_tool_call(apiObj, wireObj.ref);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_cluster_assignment(
+    ClusterAssignment apiObj,
+    wire_cst_cluster_assignment wireObj,
+  ) {
+    wireObj.id = cst_encode_String(apiObj.id);
+    wireObj.cluster_id = cst_encode_usize(apiObj.clusterId);
+    wireObj.color = cst_encode_String(apiObj.color);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_cluster_info(
+    ClusterInfo apiObj,
+    wire_cst_cluster_info wireObj,
+  ) {
+    wireObj.id = cst_encode_usize(apiObj.id);
+    wireObj.size = cst_encode_usize(apiObj.size);
+    wireObj.color = cst_encode_String(apiObj.color);
+    wireObj.centroid = cst_encode_opt_list_prim_f_32_strict(apiObj.centroid);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_clustering_result(
+    ClusteringResult apiObj,
+    wire_cst_clustering_result wireObj,
+  ) {
+    wireObj.assignments = cst_encode_list_cluster_assignment(
+      apiObj.assignments,
+    );
+    wireObj.clusters = cst_encode_list_cluster_info(apiObj.clusters);
+    wireObj.k = cst_encode_usize(apiObj.k);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_embedding_cluster(
+    EmbeddingCluster apiObj,
+    wire_cst_embedding_cluster wireObj,
+  ) {
+    wireObj.ids = cst_encode_list_String(apiObj.ids);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_embedding_entry(
+    EmbeddingEntry apiObj,
+    wire_cst_embedding_entry wireObj,
+  ) {
+    wireObj.id = cst_encode_String(apiObj.id);
+    wireObj.vector = cst_encode_list_prim_f_32_strict(apiObj.vector);
+    wireObj.text_preview = cst_encode_opt_String(apiObj.textPreview);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_graph_edge(
+    GraphEdge apiObj,
+    wire_cst_graph_edge wireObj,
+  ) {
+    wireObj.source = cst_encode_String(apiObj.source);
+    wireObj.target = cst_encode_String(apiObj.target);
+    wireObj.weight = cst_encode_f_32(apiObj.weight);
+    wireObj.edge_type = cst_encode_String(apiObj.edgeType);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_graph_node(
+    GraphNode apiObj,
+    wire_cst_graph_node wireObj,
+  ) {
+    wireObj.id = cst_encode_String(apiObj.id);
+    wireObj.label = cst_encode_String(apiObj.label);
+    wireObj.node_type = cst_encode_String(apiObj.nodeType);
+    wireObj.x = cst_encode_f_32(apiObj.x);
+    wireObj.y = cst_encode_f_32(apiObj.y);
+    wireObj.color = cst_encode_opt_String(apiObj.color);
+    wireObj.metadata = cst_encode_opt_String(apiObj.metadata);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_graph_state(
+    GraphState apiObj,
+    wire_cst_graph_state wireObj,
+  ) {
+    wireObj.nodes = cst_encode_list_graph_node(apiObj.nodes);
+    wireObj.edges = cst_encode_list_graph_edge(apiObj.edges);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_knowledge_graph_analysis(
+    KnowledgeGraphAnalysis apiObj,
+    wire_cst_knowledge_graph_analysis wireObj,
+  ) {
+    cst_api_fill_to_wire_clustering_result(
+      apiObj.clustering,
+      wireObj.clustering,
+    );
+    cst_api_fill_to_wire_semantic_edge_result(
+      apiObj.semanticEdges,
+      wireObj.semantic_edges,
+    );
+  }
+
+  @protected
+  void cst_api_fill_to_wire_mcp_parameter(
+    MCPParameter apiObj,
+    wire_cst_mcp_parameter wireObj,
+  ) {
+    wireObj.name = cst_encode_String(apiObj.name);
+    wireObj.description = cst_encode_String(apiObj.description);
+    wireObj.param_type = cst_encode_mcp_param_type(apiObj.paramType);
+    wireObj.required = cst_encode_bool(apiObj.required_);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_mcp_tool_call(
+    MCPToolCall apiObj,
+    wire_cst_mcp_tool_call wireObj,
+  ) {
+    wireObj.tool = cst_encode_String(apiObj.tool);
+    wireObj.parameters_json = cst_encode_String(apiObj.parametersJson);
+    wireObj.description = cst_encode_String(apiObj.description);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_mcp_tool_result(
+    MCPToolResult apiObj,
+    wire_cst_mcp_tool_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.result = cst_encode_String(apiObj.result);
+    wireObj.tool = cst_encode_String(apiObj.tool);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_node_position(
+    NodePosition apiObj,
+    wire_cst_node_position wireObj,
+  ) {
+    wireObj.id = cst_encode_String(apiObj.id);
+    wireObj.x = cst_encode_f_32(apiObj.x);
+    wireObj.y = cst_encode_f_32(apiObj.y);
+    wireObj.radius = cst_encode_f_32(apiObj.radius);
+    wireObj.color = cst_encode_u_32(apiObj.color);
+    wireObj.node_type = cst_encode_String(apiObj.nodeType);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_record_string_string(
+    (String, String) apiObj,
+    wire_cst_record_string_string wireObj,
+  ) {
+    wireObj.field0 = cst_encode_String(apiObj.$1);
+    wireObj.field1 = cst_encode_String(apiObj.$2);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_semantic_edge(
+    SemanticEdge apiObj,
+    wire_cst_semantic_edge wireObj,
+  ) {
+    wireObj.source = cst_encode_String(apiObj.source);
+    wireObj.target = cst_encode_String(apiObj.target);
+    wireObj.similarity = cst_encode_f_32(apiObj.similarity);
+    wireObj.is_ghost = cst_encode_bool(apiObj.isGhost);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_semantic_edge_result(
+    SemanticEdgeResult apiObj,
+    wire_cst_semantic_edge_result wireObj,
+  ) {
+    wireObj.edges = cst_encode_list_semantic_edge(apiObj.edges);
+    wireObj.count = cst_encode_usize(apiObj.count);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_similarity_result(
+    SimilarityResult apiObj,
+    wire_cst_similarity_result wireObj,
+  ) {
+    wireObj.id = cst_encode_String(apiObj.id);
+    wireObj.score = cst_encode_f_32(apiObj.score);
+    wireObj.text_preview = cst_encode_opt_String(apiObj.textPreview);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_stream_graph_stats(
+    StreamGraphStats apiObj,
+    wire_cst_stream_graph_stats wireObj,
+  ) {
+    wireObj.node_count = cst_encode_usize(apiObj.nodeCount);
+    wireObj.edge_count = cst_encode_usize(apiObj.edgeCount);
+    wireObj.visible_count = cst_encode_usize(apiObj.visibleCount);
+  }
+
+  @protected
+  bool cst_encode_bool(bool raw);
+
+  @protected
+  double cst_encode_f_32(double raw);
+
+  @protected
+  int cst_encode_i_32(int raw);
+
+  @protected
+  int cst_encode_mcp_param_type(MCPParamType raw);
+
+  @protected
+  int cst_encode_mcp_tool(MCPTool raw);
+
+  @protected
+  int cst_encode_task_category(TaskCategory raw);
+
+  @protected
+  int cst_encode_u_32(int raw);
+
+  @protected
+  int cst_encode_u_8(int raw);
+
+  @protected
+  void cst_encode_unit(void raw);
+
+  @protected
+  void sse_encode_AnyhowException(
+    AnyhowException self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_String(String self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_mcp_tool_call(
+    MCPToolCall self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_usize(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_cluster_assignment(
+    ClusterAssignment self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_cluster_info(ClusterInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_clustering_result(
+    ClusteringResult self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_embedding_cluster(
+    EmbeddingCluster self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_embedding_entry(
+    EmbeddingEntry self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_f_32(double self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_graph_edge(GraphEdge self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_graph_node(GraphNode self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_graph_state(GraphState self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_knowledge_graph_analysis(
+    KnowledgeGraphAnalysis self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_cluster_assignment(
+    List<ClusterAssignment> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_cluster_info(
+    List<ClusterInfo> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_embedding_cluster(
+    List<EmbeddingCluster> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_embedding_entry(
+    List<EmbeddingEntry> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_graph_edge(
+    List<GraphEdge> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_graph_node(
+    List<GraphNode> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_mcp_parameter(
+    List<MCPParameter> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_mcp_tool(List<MCPTool> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_node_position(
+    List<NodePosition> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_prim_f_32_loose(
+    List<double> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_prim_f_32_strict(
+    Float32List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_prim_u_8_strict(
+    Uint8List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_record_string_string(
+    List<(String, String)> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_semantic_edge(
+    List<SemanticEdge> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_similarity_result(
+    List<SimilarityResult> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_mcp_param_type(MCPParamType self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_mcp_parameter(MCPParameter self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_mcp_tool(MCPTool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_mcp_tool_call(MCPToolCall self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_mcp_tool_result(MCPToolResult self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_node_position(NodePosition self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_usize(BigInt? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_list_String(List<String>? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_list_prim_f_32_strict(
+    Float32List? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_list_record_string_string(
+    List<(String, String)>? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_record_string_string(
+    (String, String) self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_semantic_edge(SemanticEdge self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_semantic_edge_result(
+    SemanticEdgeResult self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_similarity_result(
+    SimilarityResult self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_stream_graph_stats(
+    StreamGraphStats self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_task_category(TaskCategory self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_u_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_u_8(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_unit(void self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_usize(BigInt self, SseSerializer serializer);
+}
 
 // Section: wire_class
 
@@ -661,10 +1192,9 @@ wireObj.visible_count = cst_encode_usize(apiObj.visibleCount); }
 
 /// generated by flutter_rust_bridge
 class RustLibWire implements BaseWire {
+  factory RustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
+      RustLibWire(lib.ffiDynamicLibrary);
 
-            factory RustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
-              RustLibWire(lib.ffiDynamicLibrary);
-        
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
   _lookup;
@@ -2351,28 +2881,29 @@ class RustLibWire implements BaseWire {
           >();
 }
 
-
-
 typedef DartPort = ffi.Int64;
 typedef DartDartPort = int;
 typedef DartPostCObjectFnType =
     ffi.Pointer<ffi.NativeFunction<DartPostCObjectFnTypeFunction>>;
-typedef DartPostCObjectFnTypeFunction = ffi.Bool Function(
-  DartPort port_id,
-  ffi.Pointer<ffi.Void> message,
-);
-typedef DartDartPostCObjectFnTypeFunction = bool Function(
-  DartDartPort port_id,
-  ffi.Pointer<ffi.Void> message,
-);
+typedef DartPostCObjectFnTypeFunction =
+    ffi.Bool Function(DartPort port_id, ffi.Pointer<ffi.Void> message);
+typedef DartDartPostCObjectFnTypeFunction =
+    bool Function(DartDartPort port_id, ffi.Pointer<ffi.Void> message);
 
+final class WireSyncRust2DartSse extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
 
-) => $allocator<WireSyncRust2DartSse>()
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<WireSyncRust2DartSse> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<ffi.Uint8> ptr,
+    required int len,
+  }) => $allocator<WireSyncRust2DartSse>()
     ..ref.ptr = ptr
     ..ref.len = len;
 }
-
-
 
 final class wire_cst_cluster_assignment extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> id;

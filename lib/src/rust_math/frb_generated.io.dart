@@ -18,532 +18,963 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
 import 'statistics.dart';
 import 'units.dart';
 
+abstract class MathRustLibApiImplPlatform extends BaseApiImpl<MathRustLibWire> {
+  MathRustLibApiImplPlatform({
+    required super.handler,
+    required super.wire,
+    required super.generalizedFrbRustBinding,
+    required super.portManager,
+  });
 
+  @protected
+  String dco_decode_String(dynamic raw);
 
+  @protected
+  bool dco_decode_bool(dynamic raw);
 
-                abstract class MathRustLibApiImplPlatform extends BaseApiImpl<MathRustLibWire> {
-                  MathRustLibApiImplPlatform({
-                    required super.handler,
-                    required super.wire,
-                    required super.generalizedFrbRustBinding,
-                    required super.portManager,
-                  });
+  @protected
+  bool dco_decode_box_autoadd_bool(dynamic raw);
 
-                  
+  @protected
+  double dco_decode_box_autoadd_f_64(dynamic raw);
 
-                  @protected String dco_decode_String(dynamic raw);
+  @protected
+  BigInt dco_decode_box_autoadd_usize(dynamic raw);
 
-@protected bool dco_decode_bool(dynamic raw);
+  @protected
+  CalculusResult dco_decode_calculus_result(dynamic raw);
 
-@protected bool dco_decode_box_autoadd_bool(dynamic raw);
+  @protected
+  ComplexResult dco_decode_complex_result(dynamic raw);
 
-@protected double dco_decode_box_autoadd_f_64(dynamic raw);
+  @protected
+  ConfidenceIntervalResult dco_decode_confidence_interval_result(dynamic raw);
 
-@protected BigInt dco_decode_box_autoadd_usize(dynamic raw);
+  @protected
+  CorrelationResult dco_decode_correlation_result(dynamic raw);
 
-@protected CalculusResult dco_decode_calculus_result(dynamic raw);
+  @protected
+  DiscreteResult dco_decode_discrete_result(dynamic raw);
 
-@protected ComplexResult dco_decode_complex_result(dynamic raw);
+  @protected
+  DistributionResult dco_decode_distribution_result(dynamic raw);
 
-@protected ConfidenceIntervalResult dco_decode_confidence_interval_result(dynamic raw);
+  @protected
+  ExpressionResult dco_decode_expression_result(dynamic raw);
 
-@protected CorrelationResult dco_decode_correlation_result(dynamic raw);
+  @protected
+  double dco_decode_f_64(dynamic raw);
 
-@protected DiscreteResult dco_decode_discrete_result(dynamic raw);
+  @protected
+  GraphPoint dco_decode_graph_point(dynamic raw);
 
-@protected DistributionResult dco_decode_distribution_result(dynamic raw);
+  @protected
+  GraphResult dco_decode_graph_result(dynamic raw);
 
-@protected ExpressionResult dco_decode_expression_result(dynamic raw);
+  @protected
+  HypothesisTestResult dco_decode_hypothesis_test_result(dynamic raw);
 
-@protected double dco_decode_f_64(dynamic raw);
+  @protected
+  List<String> dco_decode_list_String(dynamic raw);
 
-@protected GraphPoint dco_decode_graph_point(dynamic raw);
+  @protected
+  List<GraphPoint> dco_decode_list_graph_point(dynamic raw);
 
-@protected GraphResult dco_decode_graph_result(dynamic raw);
+  @protected
+  List<Float64List> dco_decode_list_list_prim_f_64_strict(dynamic raw);
 
-@protected HypothesisTestResult dco_decode_hypothesis_test_result(dynamic raw);
+  @protected
+  List<MatrixResult> dco_decode_list_matrix_result(dynamic raw);
 
-@protected List<String> dco_decode_list_String(dynamic raw);
+  @protected
+  List<double> dco_decode_list_prim_f_64_loose(dynamic raw);
 
-@protected List<GraphPoint> dco_decode_list_graph_point(dynamic raw);
+  @protected
+  Float64List dco_decode_list_prim_f_64_strict(dynamic raw);
 
-@protected List<Float64List> dco_decode_list_list_prim_f_64_strict(dynamic raw);
+  @protected
+  Uint64List dco_decode_list_prim_u_64_strict(dynamic raw);
 
-@protected List<MatrixResult> dco_decode_list_matrix_result(dynamic raw);
+  @protected
+  Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
-@protected List<double> dco_decode_list_prim_f_64_loose(dynamic raw);
+  @protected
+  List<(double, double)> dco_decode_list_record_f_64_f_64(dynamic raw);
 
-@protected Float64List dco_decode_list_prim_f_64_strict(dynamic raw);
+  @protected
+  List<(String, double)> dco_decode_list_record_string_f_64(dynamic raw);
 
-@protected Uint64List dco_decode_list_prim_u_64_strict(dynamic raw);
+  @protected
+  List<UnitResult> dco_decode_list_unit_result(dynamic raw);
 
-@protected Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+  @protected
+  MatrixDecomposition dco_decode_matrix_decomposition(dynamic raw);
 
-@protected List<(double,double)> dco_decode_list_record_f_64_f_64(dynamic raw);
+  @protected
+  MatrixResult dco_decode_matrix_result(dynamic raw);
 
-@protected List<(String,double)> dco_decode_list_record_string_f_64(dynamic raw);
+  @protected
+  String? dco_decode_opt_String(dynamic raw);
 
-@protected List<UnitResult> dco_decode_list_unit_result(dynamic raw);
+  @protected
+  bool? dco_decode_opt_box_autoadd_bool(dynamic raw);
 
-@protected MatrixDecomposition dco_decode_matrix_decomposition(dynamic raw);
+  @protected
+  double? dco_decode_opt_box_autoadd_f_64(dynamic raw);
 
-@protected MatrixResult dco_decode_matrix_result(dynamic raw);
+  @protected
+  BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw);
 
-@protected String? dco_decode_opt_String(dynamic raw);
+  @protected
+  Float64List? dco_decode_opt_list_prim_f_64_strict(dynamic raw);
 
-@protected bool? dco_decode_opt_box_autoadd_bool(dynamic raw);
+  @protected
+  (double, double) dco_decode_record_f_64_f_64(dynamic raw);
 
-@protected double? dco_decode_opt_box_autoadd_f_64(dynamic raw);
+  @protected
+  (List<(double, double)>, List<(double, double)>)
+  dco_decode_record_list_record_f_64_f_64_list_record_f_64_f_64(dynamic raw);
 
-@protected BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw);
+  @protected
+  (String, double) dco_decode_record_string_f_64(dynamic raw);
 
-@protected Float64List? dco_decode_opt_list_prim_f_64_strict(dynamic raw);
+  @protected
+  RegressionResult dco_decode_regression_result(dynamic raw);
 
-@protected (double,double) dco_decode_record_f_64_f_64(dynamic raw);
+  @protected
+  SolveResult dco_decode_solve_result(dynamic raw);
 
-@protected (List<(double,double)>,List<(double,double)>) dco_decode_record_list_record_f_64_f_64_list_record_f_64_f_64(dynamic raw);
+  @protected
+  StatisticsResult dco_decode_statistics_result(dynamic raw);
 
-@protected (String,double) dco_decode_record_string_f_64(dynamic raw);
+  @protected
+  int dco_decode_u_32(dynamic raw);
 
-@protected RegressionResult dco_decode_regression_result(dynamic raw);
+  @protected
+  BigInt dco_decode_u_64(dynamic raw);
 
-@protected SolveResult dco_decode_solve_result(dynamic raw);
+  @protected
+  int dco_decode_u_8(dynamic raw);
 
-@protected StatisticsResult dco_decode_statistics_result(dynamic raw);
+  @protected
+  void dco_decode_unit(dynamic raw);
 
-@protected int dco_decode_u_32(dynamic raw);
+  @protected
+  UnitResult dco_decode_unit_result(dynamic raw);
 
-@protected BigInt dco_decode_u_64(dynamic raw);
+  @protected
+  BigInt dco_decode_usize(dynamic raw);
 
-@protected int dco_decode_u_8(dynamic raw);
+  @protected
+  String sse_decode_String(SseDeserializer deserializer);
 
-@protected void dco_decode_unit(dynamic raw);
+  @protected
+  bool sse_decode_bool(SseDeserializer deserializer);
 
-@protected UnitResult dco_decode_unit_result(dynamic raw);
+  @protected
+  bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
 
-@protected BigInt dco_decode_usize(dynamic raw);
+  @protected
+  double sse_decode_box_autoadd_f_64(SseDeserializer deserializer);
 
-@protected String sse_decode_String(SseDeserializer deserializer);
+  @protected
+  BigInt sse_decode_box_autoadd_usize(SseDeserializer deserializer);
 
-@protected bool sse_decode_bool(SseDeserializer deserializer);
+  @protected
+  CalculusResult sse_decode_calculus_result(SseDeserializer deserializer);
 
-@protected bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
+  @protected
+  ComplexResult sse_decode_complex_result(SseDeserializer deserializer);
 
-@protected double sse_decode_box_autoadd_f_64(SseDeserializer deserializer);
+  @protected
+  ConfidenceIntervalResult sse_decode_confidence_interval_result(
+    SseDeserializer deserializer,
+  );
 
-@protected BigInt sse_decode_box_autoadd_usize(SseDeserializer deserializer);
+  @protected
+  CorrelationResult sse_decode_correlation_result(SseDeserializer deserializer);
 
-@protected CalculusResult sse_decode_calculus_result(SseDeserializer deserializer);
+  @protected
+  DiscreteResult sse_decode_discrete_result(SseDeserializer deserializer);
 
-@protected ComplexResult sse_decode_complex_result(SseDeserializer deserializer);
+  @protected
+  DistributionResult sse_decode_distribution_result(
+    SseDeserializer deserializer,
+  );
 
-@protected ConfidenceIntervalResult sse_decode_confidence_interval_result(SseDeserializer deserializer);
+  @protected
+  ExpressionResult sse_decode_expression_result(SseDeserializer deserializer);
 
-@protected CorrelationResult sse_decode_correlation_result(SseDeserializer deserializer);
+  @protected
+  double sse_decode_f_64(SseDeserializer deserializer);
 
-@protected DiscreteResult sse_decode_discrete_result(SseDeserializer deserializer);
+  @protected
+  GraphPoint sse_decode_graph_point(SseDeserializer deserializer);
 
-@protected DistributionResult sse_decode_distribution_result(SseDeserializer deserializer);
+  @protected
+  GraphResult sse_decode_graph_result(SseDeserializer deserializer);
 
-@protected ExpressionResult sse_decode_expression_result(SseDeserializer deserializer);
+  @protected
+  HypothesisTestResult sse_decode_hypothesis_test_result(
+    SseDeserializer deserializer,
+  );
 
-@protected double sse_decode_f_64(SseDeserializer deserializer);
+  @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer);
 
-@protected GraphPoint sse_decode_graph_point(SseDeserializer deserializer);
+  @protected
+  List<GraphPoint> sse_decode_list_graph_point(SseDeserializer deserializer);
 
-@protected GraphResult sse_decode_graph_result(SseDeserializer deserializer);
+  @protected
+  List<Float64List> sse_decode_list_list_prim_f_64_strict(
+    SseDeserializer deserializer,
+  );
 
-@protected HypothesisTestResult sse_decode_hypothesis_test_result(SseDeserializer deserializer);
+  @protected
+  List<MatrixResult> sse_decode_list_matrix_result(
+    SseDeserializer deserializer,
+  );
 
-@protected List<String> sse_decode_list_String(SseDeserializer deserializer);
+  @protected
+  List<double> sse_decode_list_prim_f_64_loose(SseDeserializer deserializer);
 
-@protected List<GraphPoint> sse_decode_list_graph_point(SseDeserializer deserializer);
+  @protected
+  Float64List sse_decode_list_prim_f_64_strict(SseDeserializer deserializer);
 
-@protected List<Float64List> sse_decode_list_list_prim_f_64_strict(SseDeserializer deserializer);
+  @protected
+  Uint64List sse_decode_list_prim_u_64_strict(SseDeserializer deserializer);
 
-@protected List<MatrixResult> sse_decode_list_matrix_result(SseDeserializer deserializer);
+  @protected
+  Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
-@protected List<double> sse_decode_list_prim_f_64_loose(SseDeserializer deserializer);
+  @protected
+  List<(double, double)> sse_decode_list_record_f_64_f_64(
+    SseDeserializer deserializer,
+  );
 
-@protected Float64List sse_decode_list_prim_f_64_strict(SseDeserializer deserializer);
+  @protected
+  List<(String, double)> sse_decode_list_record_string_f_64(
+    SseDeserializer deserializer,
+  );
 
-@protected Uint64List sse_decode_list_prim_u_64_strict(SseDeserializer deserializer);
+  @protected
+  List<UnitResult> sse_decode_list_unit_result(SseDeserializer deserializer);
 
-@protected Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+  @protected
+  MatrixDecomposition sse_decode_matrix_decomposition(
+    SseDeserializer deserializer,
+  );
 
-@protected List<(double,double)> sse_decode_list_record_f_64_f_64(SseDeserializer deserializer);
+  @protected
+  MatrixResult sse_decode_matrix_result(SseDeserializer deserializer);
 
-@protected List<(String,double)> sse_decode_list_record_string_f_64(SseDeserializer deserializer);
+  @protected
+  String? sse_decode_opt_String(SseDeserializer deserializer);
 
-@protected List<UnitResult> sse_decode_list_unit_result(SseDeserializer deserializer);
+  @protected
+  bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer);
 
-@protected MatrixDecomposition sse_decode_matrix_decomposition(SseDeserializer deserializer);
+  @protected
+  double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer);
 
-@protected MatrixResult sse_decode_matrix_result(SseDeserializer deserializer);
+  @protected
+  BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer);
 
-@protected String? sse_decode_opt_String(SseDeserializer deserializer);
+  @protected
+  Float64List? sse_decode_opt_list_prim_f_64_strict(
+    SseDeserializer deserializer,
+  );
 
-@protected bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer);
+  @protected
+  (double, double) sse_decode_record_f_64_f_64(SseDeserializer deserializer);
 
-@protected double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer);
+  @protected
+  (List<(double, double)>, List<(double, double)>)
+  sse_decode_record_list_record_f_64_f_64_list_record_f_64_f_64(
+    SseDeserializer deserializer,
+  );
 
-@protected BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer);
+  @protected
+  (String, double) sse_decode_record_string_f_64(SseDeserializer deserializer);
 
-@protected Float64List? sse_decode_opt_list_prim_f_64_strict(SseDeserializer deserializer);
+  @protected
+  RegressionResult sse_decode_regression_result(SseDeserializer deserializer);
 
-@protected (double,double) sse_decode_record_f_64_f_64(SseDeserializer deserializer);
+  @protected
+  SolveResult sse_decode_solve_result(SseDeserializer deserializer);
 
-@protected (List<(double,double)>,List<(double,double)>) sse_decode_record_list_record_f_64_f_64_list_record_f_64_f_64(SseDeserializer deserializer);
-
-@protected (String,double) sse_decode_record_string_f_64(SseDeserializer deserializer);
-
-@protected RegressionResult sse_decode_regression_result(SseDeserializer deserializer);
-
-@protected SolveResult sse_decode_solve_result(SseDeserializer deserializer);
-
-@protected StatisticsResult sse_decode_statistics_result(SseDeserializer deserializer);
-
-@protected int sse_decode_u_32(SseDeserializer deserializer);
-
-@protected BigInt sse_decode_u_64(SseDeserializer deserializer);
-
-@protected int sse_decode_u_8(SseDeserializer deserializer);
-
-@protected void sse_decode_unit(SseDeserializer deserializer);
-
-@protected UnitResult sse_decode_unit_result(SseDeserializer deserializer);
-
-@protected BigInt sse_decode_usize(SseDeserializer deserializer);
-
-@protected int sse_decode_i_32(SseDeserializer deserializer);
-
-@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_String(String raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return cst_encode_list_prim_u_8_strict(utf8.encoder.convert(raw)); }
-
-@protected ffi.Pointer<ffi.Bool> cst_encode_box_autoadd_bool(bool raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return wire.cst_new_box_autoadd_bool(cst_encode_bool(raw)); }
-
-@protected ffi.Pointer<ffi.Double> cst_encode_box_autoadd_f_64(double raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return wire.cst_new_box_autoadd_f_64(cst_encode_f_64(raw)); }
-
-@protected ffi.Pointer<ffi.UintPtr> cst_encode_box_autoadd_usize(BigInt raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return wire.cst_new_box_autoadd_usize(cst_encode_usize(raw)); }
-
-@protected ffi.Pointer<wire_cst_list_String> cst_encode_list_String(List<String> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_String(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    ans.ref.ptr[i] = cst_encode_String(raw[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_graph_point> cst_encode_list_graph_point(List<GraphPoint> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_graph_point(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_graph_point(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_list_prim_f_64_strict> cst_encode_list_list_prim_f_64_strict(List<Float64List> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_list_prim_f_64_strict(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    ans.ref.ptr[i] = cst_encode_list_prim_f_64_strict(raw[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_matrix_result> cst_encode_list_matrix_result(List<MatrixResult> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_matrix_result(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_matrix_result(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_prim_f_64_loose> cst_encode_list_prim_f_64_loose(List<double> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_prim_f_64_loose(raw.length);
-                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-                return ans; }
-
-@protected ffi.Pointer<wire_cst_list_prim_f_64_strict> cst_encode_list_prim_f_64_strict(Float64List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_prim_f_64_strict(raw.length);
-                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-                return ans; }
-
-@protected ffi.Pointer<wire_cst_list_prim_u_64_strict> cst_encode_list_prim_u_64_strict(Uint64List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_prim_u_64_strict(raw.length);
-                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw.inner);
-                return ans; }
-
-@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(Uint8List raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_prim_u_8_strict(raw.length);
-                ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
-                return ans; }
-
-@protected ffi.Pointer<wire_cst_list_record_f_64_f_64> cst_encode_list_record_f_64_f_64(List<(double,double)> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_record_f_64_f_64(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_record_f_64_f_64(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_record_string_f_64> cst_encode_list_record_string_f_64(List<(String,double)> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_record_string_f_64(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_record_string_f_64(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_unit_result> cst_encode_list_unit_result(List<UnitResult> raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-final ans = wire.cst_new_list_unit_result(raw.length);
-                for (var i = 0; i < raw.length; ++i) {
-                    cst_api_fill_to_wire_unit_result(raw[i], ans.ref.ptr[i]);
-                }
-                return ans;
-                 }
-
-@protected ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_opt_String(String? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw == null ? ffi.nullptr : cst_encode_String(raw); }
-
-@protected ffi.Pointer<ffi.Bool> cst_encode_opt_box_autoadd_bool(bool? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw == null ? ffi.nullptr : cst_encode_box_autoadd_bool(raw); }
-
-@protected ffi.Pointer<ffi.Double> cst_encode_opt_box_autoadd_f_64(double? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw == null ? ffi.nullptr : cst_encode_box_autoadd_f_64(raw); }
-
-@protected ffi.Pointer<ffi.UintPtr> cst_encode_opt_box_autoadd_usize(BigInt? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw == null ? ffi.nullptr : cst_encode_box_autoadd_usize(raw); }
-
-@protected ffi.Pointer<wire_cst_list_prim_f_64_strict> cst_encode_opt_list_prim_f_64_strict(Float64List? raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw == null ? ffi.nullptr : cst_encode_list_prim_f_64_strict(raw); }
-
-@protected int cst_encode_u_64(BigInt raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw.toSigned(64).toInt(); }
-
-@protected int cst_encode_usize(BigInt raw){ // Codec=Cst (C-struct based), see doc to use other codecs
-return raw.toSigned(64).toInt(); }
-
-@protected void cst_api_fill_to_wire_calculus_result(CalculusResult apiObj, wire_cst_calculus_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.value = cst_encode_f_64(apiObj.value);
-wireObj.symbolic = cst_encode_opt_String(apiObj.symbolic);
-wireObj.error = cst_encode_opt_String(apiObj.error); }
-
-@protected void cst_api_fill_to_wire_complex_result(ComplexResult apiObj, wire_cst_complex_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.real = cst_encode_f_64(apiObj.real);
-wireObj.imag = cst_encode_f_64(apiObj.imag);
-wireObj.magnitude = cst_encode_f_64(apiObj.magnitude);
-wireObj.angle_rad = cst_encode_f_64(apiObj.angleRad);
-wireObj.angle_deg = cst_encode_f_64(apiObj.angleDeg);
-wireObj.formatted_rect = cst_encode_String(apiObj.formattedRect);
-wireObj.formatted_polar = cst_encode_String(apiObj.formattedPolar);
-wireObj.error = cst_encode_opt_String(apiObj.error); }
-
-@protected void cst_api_fill_to_wire_confidence_interval_result(ConfidenceIntervalResult apiObj, wire_cst_confidence_interval_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.lower = cst_encode_f_64(apiObj.lower);
-wireObj.upper = cst_encode_f_64(apiObj.upper);
-wireObj.center = cst_encode_f_64(apiObj.center);
-wireObj.margin_of_error = cst_encode_f_64(apiObj.marginOfError);
-wireObj.error = cst_encode_opt_String(apiObj.error); }
-
-@protected void cst_api_fill_to_wire_correlation_result(CorrelationResult apiObj, wire_cst_correlation_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.correlation = cst_encode_f_64(apiObj.correlation);
-wireObj.covariance = cst_encode_f_64(apiObj.covariance);
-wireObj.p_value = cst_encode_f_64(apiObj.pValue);
-wireObj.error = cst_encode_opt_String(apiObj.error); }
-
-@protected void cst_api_fill_to_wire_discrete_result(DiscreteResult apiObj, wire_cst_discrete_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.value = cst_encode_u_64(apiObj.value);
-wireObj.big_value = cst_encode_opt_String(apiObj.bigValue);
-wireObj.values = cst_encode_list_prim_u_64_strict(apiObj.values);
-wireObj.bool_result = cst_encode_opt_box_autoadd_bool(apiObj.boolResult);
-wireObj.error = cst_encode_opt_String(apiObj.error); }
-
-@protected void cst_api_fill_to_wire_distribution_result(DistributionResult apiObj, wire_cst_distribution_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.pdf = cst_encode_f_64(apiObj.pdf);
-wireObj.cdf = cst_encode_f_64(apiObj.cdf);
-wireObj.mean = cst_encode_f_64(apiObj.mean);
-wireObj.variance = cst_encode_f_64(apiObj.variance);
-wireObj.std_dev = cst_encode_f_64(apiObj.stdDev);
-wireObj.error = cst_encode_opt_String(apiObj.error); }
-
-@protected void cst_api_fill_to_wire_expression_result(ExpressionResult apiObj, wire_cst_expression_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.value = cst_encode_f_64(apiObj.value);
-wireObj.error = cst_encode_opt_String(apiObj.error);
-wireObj.formatted = cst_encode_String(apiObj.formatted); }
-
-@protected void cst_api_fill_to_wire_graph_point(GraphPoint apiObj, wire_cst_graph_point wireObj){ wireObj.x = cst_encode_f_64(apiObj.x);
-wireObj.y = cst_encode_f_64(apiObj.y);
-wireObj.valid = cst_encode_bool(apiObj.valid); }
-
-@protected void cst_api_fill_to_wire_graph_result(GraphResult apiObj, wire_cst_graph_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.points = cst_encode_list_graph_point(apiObj.points);
-wireObj.x_min = cst_encode_f_64(apiObj.xMin);
-wireObj.x_max = cst_encode_f_64(apiObj.xMax);
-wireObj.y_min = cst_encode_f_64(apiObj.yMin);
-wireObj.y_max = cst_encode_f_64(apiObj.yMax);
-wireObj.error = cst_encode_opt_String(apiObj.error); }
-
-@protected void cst_api_fill_to_wire_hypothesis_test_result(HypothesisTestResult apiObj, wire_cst_hypothesis_test_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.test_statistic = cst_encode_f_64(apiObj.testStatistic);
-wireObj.p_value = cst_encode_f_64(apiObj.pValue);
-wireObj.critical_value = cst_encode_f_64(apiObj.criticalValue);
-wireObj.reject_null = cst_encode_bool(apiObj.rejectNull);
-cst_api_fill_to_wire_record_f_64_f_64(apiObj.confidenceInterval, wireObj.confidence_interval);
-wireObj.error = cst_encode_opt_String(apiObj.error); }
-
-@protected void cst_api_fill_to_wire_matrix_decomposition(MatrixDecomposition apiObj, wire_cst_matrix_decomposition wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.decomposition_type = cst_encode_String(apiObj.decompositionType);
-wireObj.matrices = cst_encode_list_matrix_result(apiObj.matrices);
-wireObj.labels = cst_encode_list_String(apiObj.labels);
-wireObj.error = cst_encode_opt_String(apiObj.error); }
-
-@protected void cst_api_fill_to_wire_matrix_result(MatrixResult apiObj, wire_cst_matrix_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.data = cst_encode_list_prim_f_64_strict(apiObj.data);
-wireObj.rows = cst_encode_usize(apiObj.rows);
-wireObj.cols = cst_encode_usize(apiObj.cols);
-wireObj.scalar = cst_encode_opt_box_autoadd_f_64(apiObj.scalar);
-wireObj.error = cst_encode_opt_String(apiObj.error); }
-
-@protected void cst_api_fill_to_wire_record_f_64_f_64((double,double) apiObj, wire_cst_record_f_64_f_64 wireObj){ wireObj.field0 = cst_encode_f_64(apiObj.$1);
-wireObj.field1 = cst_encode_f_64(apiObj.$2); }
-
-@protected void cst_api_fill_to_wire_record_list_record_f_64_f_64_list_record_f_64_f_64((List<(double,double)>,List<(double,double)>) apiObj, wire_cst_record_list_record_f_64_f_64_list_record_f_64_f_64 wireObj){ wireObj.field0 = cst_encode_list_record_f_64_f_64(apiObj.$1);
-wireObj.field1 = cst_encode_list_record_f_64_f_64(apiObj.$2); }
-
-@protected void cst_api_fill_to_wire_record_string_f_64((String,double) apiObj, wire_cst_record_string_f_64 wireObj){ wireObj.field0 = cst_encode_String(apiObj.$1);
-wireObj.field1 = cst_encode_f_64(apiObj.$2); }
-
-@protected void cst_api_fill_to_wire_regression_result(RegressionResult apiObj, wire_cst_regression_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.coefficients = cst_encode_list_prim_f_64_strict(apiObj.coefficients);
-wireObj.r_squared = cst_encode_f_64(apiObj.rSquared);
-wireObj.residuals = cst_encode_list_prim_f_64_strict(apiObj.residuals);
-wireObj.error = cst_encode_opt_String(apiObj.error); }
-
-@protected void cst_api_fill_to_wire_solve_result(SolveResult apiObj, wire_cst_solve_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.roots = cst_encode_list_prim_f_64_strict(apiObj.roots);
-wireObj.iterations = cst_encode_usize(apiObj.iterations);
-wireObj.error = cst_encode_opt_String(apiObj.error); }
-
-@protected void cst_api_fill_to_wire_statistics_result(StatisticsResult apiObj, wire_cst_statistics_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.values = cst_encode_list_record_string_f_64(apiObj.values);
-wireObj.error = cst_encode_opt_String(apiObj.error); }
-
-@protected void cst_api_fill_to_wire_unit_result(UnitResult apiObj, wire_cst_unit_result wireObj){ wireObj.success = cst_encode_bool(apiObj.success);
-wireObj.value = cst_encode_f_64(apiObj.value);
-wireObj.from_unit = cst_encode_String(apiObj.fromUnit);
-wireObj.to_unit = cst_encode_String(apiObj.toUnit);
-wireObj.formula = cst_encode_String(apiObj.formula);
-wireObj.error = cst_encode_opt_String(apiObj.error); }
-
-@protected bool cst_encode_bool(bool raw);
-
-@protected double cst_encode_f_64(double raw);
-
-@protected int cst_encode_u_32(int raw);
-
-@protected int cst_encode_u_8(int raw);
-
-@protected void cst_encode_unit(void raw);
-
-@protected void sse_encode_String(String self, SseSerializer serializer);
-
-@protected void sse_encode_bool(bool self, SseSerializer serializer);
-
-@protected void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
-
-@protected void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer);
-
-@protected void sse_encode_box_autoadd_usize(BigInt self, SseSerializer serializer);
-
-@protected void sse_encode_calculus_result(CalculusResult self, SseSerializer serializer);
-
-@protected void sse_encode_complex_result(ComplexResult self, SseSerializer serializer);
-
-@protected void sse_encode_confidence_interval_result(ConfidenceIntervalResult self, SseSerializer serializer);
-
-@protected void sse_encode_correlation_result(CorrelationResult self, SseSerializer serializer);
-
-@protected void sse_encode_discrete_result(DiscreteResult self, SseSerializer serializer);
-
-@protected void sse_encode_distribution_result(DistributionResult self, SseSerializer serializer);
-
-@protected void sse_encode_expression_result(ExpressionResult self, SseSerializer serializer);
-
-@protected void sse_encode_f_64(double self, SseSerializer serializer);
-
-@protected void sse_encode_graph_point(GraphPoint self, SseSerializer serializer);
-
-@protected void sse_encode_graph_result(GraphResult self, SseSerializer serializer);
-
-@protected void sse_encode_hypothesis_test_result(HypothesisTestResult self, SseSerializer serializer);
-
-@protected void sse_encode_list_String(List<String> self, SseSerializer serializer);
-
-@protected void sse_encode_list_graph_point(List<GraphPoint> self, SseSerializer serializer);
-
-@protected void sse_encode_list_list_prim_f_64_strict(List<Float64List> self, SseSerializer serializer);
-
-@protected void sse_encode_list_matrix_result(List<MatrixResult> self, SseSerializer serializer);
-
-@protected void sse_encode_list_prim_f_64_loose(List<double> self, SseSerializer serializer);
-
-@protected void sse_encode_list_prim_f_64_strict(Float64List self, SseSerializer serializer);
-
-@protected void sse_encode_list_prim_u_64_strict(Uint64List self, SseSerializer serializer);
-
-@protected void sse_encode_list_prim_u_8_strict(Uint8List self, SseSerializer serializer);
-
-@protected void sse_encode_list_record_f_64_f_64(List<(double,double)> self, SseSerializer serializer);
-
-@protected void sse_encode_list_record_string_f_64(List<(String,double)> self, SseSerializer serializer);
-
-@protected void sse_encode_list_unit_result(List<UnitResult> self, SseSerializer serializer);
-
-@protected void sse_encode_matrix_decomposition(MatrixDecomposition self, SseSerializer serializer);
-
-@protected void sse_encode_matrix_result(MatrixResult self, SseSerializer serializer);
-
-@protected void sse_encode_opt_String(String? self, SseSerializer serializer);
-
-@protected void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer);
-
-@protected void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer);
-
-@protected void sse_encode_opt_box_autoadd_usize(BigInt? self, SseSerializer serializer);
-
-@protected void sse_encode_opt_list_prim_f_64_strict(Float64List? self, SseSerializer serializer);
-
-@protected void sse_encode_record_f_64_f_64((double,double) self, SseSerializer serializer);
-
-@protected void sse_encode_record_list_record_f_64_f_64_list_record_f_64_f_64((List<(double,double)>,List<(double,double)>) self, SseSerializer serializer);
-
-@protected void sse_encode_record_string_f_64((String,double) self, SseSerializer serializer);
-
-@protected void sse_encode_regression_result(RegressionResult self, SseSerializer serializer);
-
-@protected void sse_encode_solve_result(SolveResult self, SseSerializer serializer);
-
-@protected void sse_encode_statistics_result(StatisticsResult self, SseSerializer serializer);
-
-@protected void sse_encode_u_32(int self, SseSerializer serializer);
-
-@protected void sse_encode_u_64(BigInt self, SseSerializer serializer);
-
-@protected void sse_encode_u_8(int self, SseSerializer serializer);
-
-@protected void sse_encode_unit(void self, SseSerializer serializer);
-
-@protected void sse_encode_unit_result(UnitResult self, SseSerializer serializer);
-
-@protected void sse_encode_usize(BigInt self, SseSerializer serializer);
-
-@protected void sse_encode_i_32(int self, SseSerializer serializer);
-                }
-                
-
+  @protected
+  StatisticsResult sse_decode_statistics_result(SseDeserializer deserializer);
+
+  @protected
+  int sse_decode_u_32(SseDeserializer deserializer);
+
+  @protected
+  BigInt sse_decode_u_64(SseDeserializer deserializer);
+
+  @protected
+  int sse_decode_u_8(SseDeserializer deserializer);
+
+  @protected
+  void sse_decode_unit(SseDeserializer deserializer);
+
+  @protected
+  UnitResult sse_decode_unit_result(SseDeserializer deserializer);
+
+  @protected
+  BigInt sse_decode_usize(SseDeserializer deserializer);
+
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer);
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_String(String raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_list_prim_u_8_strict(utf8.encoder.convert(raw));
+  }
+
+  @protected
+  ffi.Pointer<ffi.Bool> cst_encode_box_autoadd_bool(bool raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_bool(cst_encode_bool(raw));
+  }
+
+  @protected
+  ffi.Pointer<ffi.Double> cst_encode_box_autoadd_f_64(double raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_f_64(cst_encode_f_64(raw));
+  }
+
+  @protected
+  ffi.Pointer<ffi.UintPtr> cst_encode_box_autoadd_usize(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_usize(cst_encode_usize(raw));
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_String> cst_encode_list_String(List<String> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_String(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      ans.ref.ptr[i] = cst_encode_String(raw[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_graph_point> cst_encode_list_graph_point(
+    List<GraphPoint> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_graph_point(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_graph_point(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_list_prim_f_64_strict>
+  cst_encode_list_list_prim_f_64_strict(List<Float64List> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_list_prim_f_64_strict(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      ans.ref.ptr[i] = cst_encode_list_prim_f_64_strict(raw[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_matrix_result> cst_encode_list_matrix_result(
+    List<MatrixResult> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_matrix_result(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_matrix_result(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_f_64_loose> cst_encode_list_prim_f_64_loose(
+    List<double> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_f_64_loose(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_f_64_strict> cst_encode_list_prim_f_64_strict(
+    Float64List raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_f_64_strict(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_64_strict> cst_encode_list_prim_u_64_strict(
+    Uint64List raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_u_64_strict(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw.inner);
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(
+    Uint8List raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_u_8_strict(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_record_f_64_f_64> cst_encode_list_record_f_64_f_64(
+    List<(double, double)> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_record_f_64_f_64(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_record_f_64_f_64(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_record_string_f_64>
+  cst_encode_list_record_string_f_64(List<(String, double)> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_record_string_f_64(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_record_string_f_64(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_unit_result> cst_encode_list_unit_result(
+    List<UnitResult> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_unit_result(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_unit_result(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_opt_String(
+    String? raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_String(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Bool> cst_encode_opt_box_autoadd_bool(bool? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_bool(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Double> cst_encode_opt_box_autoadd_f_64(double? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_f_64(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.UintPtr> cst_encode_opt_box_autoadd_usize(BigInt? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_usize(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_f_64_strict>
+  cst_encode_opt_list_prim_f_64_strict(Float64List? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_list_prim_f_64_strict(raw);
+  }
+
+  @protected
+  int cst_encode_u_64(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.toSigned(64).toInt();
+  }
+
+  @protected
+  int cst_encode_usize(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.toSigned(64).toInt();
+  }
+
+  @protected
+  void cst_api_fill_to_wire_calculus_result(
+    CalculusResult apiObj,
+    wire_cst_calculus_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.value = cst_encode_f_64(apiObj.value);
+    wireObj.symbolic = cst_encode_opt_String(apiObj.symbolic);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_complex_result(
+    ComplexResult apiObj,
+    wire_cst_complex_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.real = cst_encode_f_64(apiObj.real);
+    wireObj.imag = cst_encode_f_64(apiObj.imag);
+    wireObj.magnitude = cst_encode_f_64(apiObj.magnitude);
+    wireObj.angle_rad = cst_encode_f_64(apiObj.angleRad);
+    wireObj.angle_deg = cst_encode_f_64(apiObj.angleDeg);
+    wireObj.formatted_rect = cst_encode_String(apiObj.formattedRect);
+    wireObj.formatted_polar = cst_encode_String(apiObj.formattedPolar);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_confidence_interval_result(
+    ConfidenceIntervalResult apiObj,
+    wire_cst_confidence_interval_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.lower = cst_encode_f_64(apiObj.lower);
+    wireObj.upper = cst_encode_f_64(apiObj.upper);
+    wireObj.center = cst_encode_f_64(apiObj.center);
+    wireObj.margin_of_error = cst_encode_f_64(apiObj.marginOfError);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_correlation_result(
+    CorrelationResult apiObj,
+    wire_cst_correlation_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.correlation = cst_encode_f_64(apiObj.correlation);
+    wireObj.covariance = cst_encode_f_64(apiObj.covariance);
+    wireObj.p_value = cst_encode_f_64(apiObj.pValue);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_discrete_result(
+    DiscreteResult apiObj,
+    wire_cst_discrete_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.value = cst_encode_u_64(apiObj.value);
+    wireObj.big_value = cst_encode_opt_String(apiObj.bigValue);
+    wireObj.values = cst_encode_list_prim_u_64_strict(apiObj.values);
+    wireObj.bool_result = cst_encode_opt_box_autoadd_bool(apiObj.boolResult);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_distribution_result(
+    DistributionResult apiObj,
+    wire_cst_distribution_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.pdf = cst_encode_f_64(apiObj.pdf);
+    wireObj.cdf = cst_encode_f_64(apiObj.cdf);
+    wireObj.mean = cst_encode_f_64(apiObj.mean);
+    wireObj.variance = cst_encode_f_64(apiObj.variance);
+    wireObj.std_dev = cst_encode_f_64(apiObj.stdDev);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_expression_result(
+    ExpressionResult apiObj,
+    wire_cst_expression_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.value = cst_encode_f_64(apiObj.value);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+    wireObj.formatted = cst_encode_String(apiObj.formatted);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_graph_point(
+    GraphPoint apiObj,
+    wire_cst_graph_point wireObj,
+  ) {
+    wireObj.x = cst_encode_f_64(apiObj.x);
+    wireObj.y = cst_encode_f_64(apiObj.y);
+    wireObj.valid = cst_encode_bool(apiObj.valid);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_graph_result(
+    GraphResult apiObj,
+    wire_cst_graph_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.points = cst_encode_list_graph_point(apiObj.points);
+    wireObj.x_min = cst_encode_f_64(apiObj.xMin);
+    wireObj.x_max = cst_encode_f_64(apiObj.xMax);
+    wireObj.y_min = cst_encode_f_64(apiObj.yMin);
+    wireObj.y_max = cst_encode_f_64(apiObj.yMax);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_hypothesis_test_result(
+    HypothesisTestResult apiObj,
+    wire_cst_hypothesis_test_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.test_statistic = cst_encode_f_64(apiObj.testStatistic);
+    wireObj.p_value = cst_encode_f_64(apiObj.pValue);
+    wireObj.critical_value = cst_encode_f_64(apiObj.criticalValue);
+    wireObj.reject_null = cst_encode_bool(apiObj.rejectNull);
+    cst_api_fill_to_wire_record_f_64_f_64(
+      apiObj.confidenceInterval,
+      wireObj.confidence_interval,
+    );
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_matrix_decomposition(
+    MatrixDecomposition apiObj,
+    wire_cst_matrix_decomposition wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.decomposition_type = cst_encode_String(apiObj.decompositionType);
+    wireObj.matrices = cst_encode_list_matrix_result(apiObj.matrices);
+    wireObj.labels = cst_encode_list_String(apiObj.labels);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_matrix_result(
+    MatrixResult apiObj,
+    wire_cst_matrix_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.data = cst_encode_list_prim_f_64_strict(apiObj.data);
+    wireObj.rows = cst_encode_usize(apiObj.rows);
+    wireObj.cols = cst_encode_usize(apiObj.cols);
+    wireObj.scalar = cst_encode_opt_box_autoadd_f_64(apiObj.scalar);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_record_f_64_f_64(
+    (double, double) apiObj,
+    wire_cst_record_f_64_f_64 wireObj,
+  ) {
+    wireObj.field0 = cst_encode_f_64(apiObj.$1);
+    wireObj.field1 = cst_encode_f_64(apiObj.$2);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_record_list_record_f_64_f_64_list_record_f_64_f_64(
+    (List<(double, double)>, List<(double, double)>) apiObj,
+    wire_cst_record_list_record_f_64_f_64_list_record_f_64_f_64 wireObj,
+  ) {
+    wireObj.field0 = cst_encode_list_record_f_64_f_64(apiObj.$1);
+    wireObj.field1 = cst_encode_list_record_f_64_f_64(apiObj.$2);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_record_string_f_64(
+    (String, double) apiObj,
+    wire_cst_record_string_f_64 wireObj,
+  ) {
+    wireObj.field0 = cst_encode_String(apiObj.$1);
+    wireObj.field1 = cst_encode_f_64(apiObj.$2);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_regression_result(
+    RegressionResult apiObj,
+    wire_cst_regression_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.coefficients = cst_encode_list_prim_f_64_strict(
+      apiObj.coefficients,
+    );
+    wireObj.r_squared = cst_encode_f_64(apiObj.rSquared);
+    wireObj.residuals = cst_encode_list_prim_f_64_strict(apiObj.residuals);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_solve_result(
+    SolveResult apiObj,
+    wire_cst_solve_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.roots = cst_encode_list_prim_f_64_strict(apiObj.roots);
+    wireObj.iterations = cst_encode_usize(apiObj.iterations);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_statistics_result(
+    StatisticsResult apiObj,
+    wire_cst_statistics_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.values = cst_encode_list_record_string_f_64(apiObj.values);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_unit_result(
+    UnitResult apiObj,
+    wire_cst_unit_result wireObj,
+  ) {
+    wireObj.success = cst_encode_bool(apiObj.success);
+    wireObj.value = cst_encode_f_64(apiObj.value);
+    wireObj.from_unit = cst_encode_String(apiObj.fromUnit);
+    wireObj.to_unit = cst_encode_String(apiObj.toUnit);
+    wireObj.formula = cst_encode_String(apiObj.formula);
+    wireObj.error = cst_encode_opt_String(apiObj.error);
+  }
+
+  @protected
+  bool cst_encode_bool(bool raw);
+
+  @protected
+  double cst_encode_f_64(double raw);
+
+  @protected
+  int cst_encode_u_32(int raw);
+
+  @protected
+  int cst_encode_u_8(int raw);
+
+  @protected
+  void cst_encode_unit(void raw);
+
+  @protected
+  void sse_encode_String(String self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_usize(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_calculus_result(
+    CalculusResult self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_complex_result(ComplexResult self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_confidence_interval_result(
+    ConfidenceIntervalResult self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_correlation_result(
+    CorrelationResult self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_discrete_result(
+    DiscreteResult self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_distribution_result(
+    DistributionResult self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_expression_result(
+    ExpressionResult self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_f_64(double self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_graph_point(GraphPoint self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_graph_result(GraphResult self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_hypothesis_test_result(
+    HypothesisTestResult self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_graph_point(
+    List<GraphPoint> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_list_prim_f_64_strict(
+    List<Float64List> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_matrix_result(
+    List<MatrixResult> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_prim_f_64_loose(
+    List<double> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_prim_f_64_strict(
+    Float64List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_prim_u_64_strict(
+    Uint64List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_prim_u_8_strict(
+    Uint8List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_record_f_64_f_64(
+    List<(double, double)> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_record_string_f_64(
+    List<(String, double)> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_unit_result(
+    List<UnitResult> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_matrix_decomposition(
+    MatrixDecomposition self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_matrix_result(MatrixResult self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_usize(BigInt? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_list_prim_f_64_strict(
+    Float64List? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_record_f_64_f_64(
+    (double, double) self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_record_list_record_f_64_f_64_list_record_f_64_f_64(
+    (List<(double, double)>, List<(double, double)>) self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_record_string_f_64(
+    (String, double) self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_regression_result(
+    RegressionResult self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_solve_result(SolveResult self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_statistics_result(
+    StatisticsResult self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_u_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_u_64(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_u_8(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_unit(void self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_unit_result(UnitResult self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_usize(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer);
+}
 
 // Section: wire_class
 
@@ -555,10 +986,9 @@ wireObj.error = cst_encode_opt_String(apiObj.error); }
 
 /// generated by flutter_rust_bridge
 class MathRustLibWire implements BaseWire {
+  factory MathRustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
+      MathRustLibWire(lib.ffiDynamicLibrary);
 
-            factory MathRustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
-              MathRustLibWire(lib.ffiDynamicLibrary);
-        
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
   _lookup;
@@ -2657,28 +3087,29 @@ class MathRustLibWire implements BaseWire {
       >();
 }
 
-
-
 typedef DartPort = ffi.Int64;
 typedef DartDartPort = int;
 typedef DartPostCObjectFnType =
     ffi.Pointer<ffi.NativeFunction<DartPostCObjectFnTypeFunction>>;
-typedef DartPostCObjectFnTypeFunction = ffi.Bool Function(
-  DartPort port_id,
-  ffi.Pointer<ffi.Void> message,
-);
-typedef DartDartPostCObjectFnTypeFunction = bool Function(
-  DartDartPort port_id,
-  ffi.Pointer<ffi.Void> message,
-);
+typedef DartPostCObjectFnTypeFunction =
+    ffi.Bool Function(DartPort port_id, ffi.Pointer<ffi.Void> message);
+typedef DartDartPostCObjectFnTypeFunction =
+    bool Function(DartDartPort port_id, ffi.Pointer<ffi.Void> message);
 
+final class WireSyncRust2DartSse extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
 
-) => $allocator<WireSyncRust2DartSse>()
+  @ffi.Int32()
+  external int len;
+
+  static ffi.Pointer<WireSyncRust2DartSse> $allocate(
+    ffi.Allocator $allocator, {
+    required ffi.Pointer<ffi.Uint8> ptr,
+    required int len,
+  }) => $allocator<WireSyncRust2DartSse>()
     ..ref.ptr = ptr
     ..ref.len = len;
 }
-
-
 
 final class wire_cst_calculus_result extends ffi.Struct {
   @ffi.Bool()
