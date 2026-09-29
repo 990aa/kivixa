@@ -769,8 +769,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Redesigned Math Interface**: Totally revamped the General Calculator layout. Placed Backspace/Clear adjacent to the input field, clearly grouped trigonometric, logarithmic, and mathematical features, and optimized the layout for maximum operational UX.
 
 ---
-## [0.9.1] - 2026-09-08
+## [0.9.2] - 2026-09-29
 
 ### Changed
 - Fix android notes disappearing issue
+- Fix android and windows builds
+
 ---
