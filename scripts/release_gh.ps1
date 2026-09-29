@@ -148,16 +148,16 @@ if (-not $DryRun) {
     $readmeContent = $readmeContent -replace '\[!\[Version\]\(https://img\.shields\.io/badge/Version-[^\)]+\)\]\(CHANGELOG\.md\)', "[![Version](https://img.shields.io/badge/Version-$version%2B$buildNumber--beta-orange)](CHANGELOG.md)"
     
     # Update Windows download link
-    $readmeContent = $readmeContent -replace '\[!\[Download Windows\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Setup-[^\)]+\.exe\)', "[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/$tagEncoded/Kivixa-Setup-$version.exe)"
+    $readmeContent = $readmeContent -replace '\[!\[Download Windows\]\([^\)]+\)\]\(https://github\.com/990aa/Kivixa/releases/download/[^/]+/Kivixa-Setup-[^\)]+\.exe\)', "[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/Kivixa/releases/download/$tagEncoded/Kivixa-Setup-$version.exe)"
     
     # Update Android ARM64 download link
-    $readmeContent = $readmeContent -replace '\[!\[Android ARM64\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+arm64[^\)]*\.apk\)', "[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/$tagEncoded/Kivixa-Android-$version-arm64.apk)"
+    $readmeContent = $readmeContent -replace '\[!\[Android ARM64\]\([^\)]+\)\]\(https://github\.com/990aa/Kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+arm64[^\)]*\.apk\)', "[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/Kivixa/releases/download/$tagEncoded/Kivixa-Android-$version-arm64.apk)"
     
     # Update Android ARMv7 download link
-    $readmeContent = $readmeContent -replace '\[!\[Android ARMv7\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+armv7[^\)]*\.apk\)', "[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/$tagEncoded/Kivixa-Android-$version-armv7.apk)"
+    $readmeContent = $readmeContent -replace '\[!\[Android ARMv7\]\([^\)]+\)\]\(https://github\.com/990aa/Kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+armv7[^\)]*\.apk\)', "[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/Kivixa/releases/download/$tagEncoded/Kivixa-Android-$version-armv7.apk)"
     
     # Update Android x86_64 download link
-    $readmeContent = $readmeContent -replace '\[!\[Android x86_64\]\([^\)]+\)\]\(https://github\.com/990aa/kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+x86_64[^\)]*\.apk\)', "[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/$tagEncoded/Kivixa-Android-$version-x86_64.apk)"
+    $readmeContent = $readmeContent -replace '\[!\[Android x86_64\]\([^\)]+\)\]\(https://github\.com/990aa/Kivixa/releases/download/[^/]+/Kivixa-Android-[^\)]+x86_64[^\)]*\.apk\)', "[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/Kivixa/releases/download/$tagEncoded/Kivixa-Android-$version-x86_64.apk)"
     
     $readmeContent | Set-Content $readmeFile -NoNewline
     Write-Host "  README.md download links updated" -ForegroundColor Green
@@ -239,7 +239,7 @@ Write-Host ""
 
 if (-not $DryRun) {
     Write-Host "  Watch progress at:" -ForegroundColor Cyan
-    Write-Host "  https://github.com/990aa/kivixa/actions" -ForegroundColor White
+    Write-Host "  https://github.com/990aa/Kivixa/actions" -ForegroundColor White
     Write-Host ""
 } else {
     Write-Host "  [DRY RUN] Would trigger workflow" -ForegroundColor Magenta
@@ -257,6 +257,6 @@ Write-Host "  Tag:     $tagName" -ForegroundColor White
 Write-Host ""
 if (-not $DryRun) {
     Write-Host "  Release URL:" -ForegroundColor Cyan
-    Write-Host "  https://github.com/990aa/kivixa/releases/tag/$tagName" -ForegroundColor White
+    Write-Host "  https://github.com/990aa/Kivixa/releases/tag/$tagName" -ForegroundColor White
 }
 Write-Host ""
