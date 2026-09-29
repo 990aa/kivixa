@@ -467,8 +467,10 @@ pub fn process_streaming_audio(
 
     // Convert bytes to f32 for VAD
     let samples: Vec<f32> = bytes
-        .chunks_exact(2)
-        .map(|chunk| i16::from_le_bytes([chunk[0], chunk[1]]) as f32 / 32768.0)
+        .as_chunks::<2>()
+        .0
+        .iter()
+        .map(|chunk| i16::from_le_bytes(*chunk) as f32 / 32768.0)
         .collect();
 
     // Run VAD

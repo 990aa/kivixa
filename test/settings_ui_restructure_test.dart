@@ -105,18 +105,27 @@ void main() {
         // Check that the stray subtitle is removed
         expect(
           settingsFile,
-          isNot(contains("const SettingsSubtitle(subtitle: 'Notifications & Sound'),")),
+          isNot(
+            contains(
+              "const SettingsSubtitle(subtitle: 'Notifications & Sound'),",
+            ),
+          ),
           reason: 'Stray Notifications & Sound subtitle should be removed',
         );
 
         // Verify that Notifications block is after Performance block
-        final performanceStart = settingsFile.indexOf('if (showPerformance) ...[');
-        final notificationsStart = settingsFile.indexOf('if (showNotifications) ...[');
+        final performanceStart = settingsFile.indexOf(
+          'if (showPerformance) ...[',
+        );
+        final notificationsStart = settingsFile.indexOf(
+          'if (showNotifications) ...[',
+        );
 
         expect(
           performanceStart < notificationsStart,
           isTrue,
-          reason: 'Notifications settings should appear after Performance settings',
+          reason:
+              'Notifications settings should appear after Performance settings',
         );
       },
     );
@@ -275,8 +284,7 @@ void main() {
       expect(
         settingsFile,
         contains("'Clear app data, reset settings, and data directory'"),
-        reason:
-            'showDataManagement description should be updated',
+        reason: 'showDataManagement description should be updated',
       );
     });
   });

@@ -43,8 +43,8 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 1. **Fork and clone the repository**
    ```bash
-   git clone https://github.com/990aa/kivixa.git
-   cd kivixa
+   git clone https://github.com/990aa/Kivixa.git
+   cd Kivixa
    ```
 
 2. **Install Flutter**
