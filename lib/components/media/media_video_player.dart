@@ -80,7 +80,8 @@ class _MediaVideoPlayerState extends State<MediaVideoPlayer>
   // - awesome_video_player on Android
 
   @override
-  String get sleepComponentId => 'media_video_player_${widget.element.path.hashCode}';
+  String get sleepComponentId =>
+      'media_video_player_${widget.element.path.hashCode}';
 
   @override
   Future<SleepState> captureState() async {

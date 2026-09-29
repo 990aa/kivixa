@@ -191,11 +191,9 @@ class _WalkieTalkieScreenState extends State<WalkieTalkieScreen>
     await _stopListening();
 
     // Add user message
-    _messages.add(ConversationMessage(
-      isUser: true,
-      text: text,
-      timestamp: DateTime.now(),
-    ));
+    _messages.add(
+      ConversationMessage(isUser: true, text: text, timestamp: DateTime.now()),
+    );
 
     // Transition to thinking phase immediately (latency masking)
     setState(() {
@@ -219,11 +217,13 @@ class _WalkieTalkieScreenState extends State<WalkieTalkieScreen>
       _thinkingController.stop();
 
       // Add AI message
-      _messages.add(ConversationMessage(
-        isUser: false,
-        text: response,
-        timestamp: DateTime.now(),
-      ));
+      _messages.add(
+        ConversationMessage(
+          isUser: false,
+          text: response,
+          timestamp: DateTime.now(),
+        ),
+      );
 
       // Speak the response
       await _playback.speak(response);
@@ -302,9 +302,7 @@ class _WalkieTalkieScreenState extends State<WalkieTalkieScreen>
                   _buildTopBar(theme, colorScheme),
 
                   // Orbs area
-                  Expanded(
-                    child: _buildOrbsArea(size, colorScheme),
-                  ),
+                  Expanded(child: _buildOrbsArea(size, colorScheme)),
 
                   // Bottom status and controls
                   _buildBottomArea(theme, colorScheme),
@@ -395,10 +393,7 @@ class _WalkieTalkieScreenState extends State<WalkieTalkieScreen>
       alignment: Alignment.center,
       children: [
         // AI Orb (center, larger)
-        Positioned(
-          top: size.height * 0.15,
-          child: _buildAiOrb(colorScheme),
-        ),
+        Positioned(top: size.height * 0.15, child: _buildAiOrb(colorScheme)),
 
         // User Orb (bottom)
         Positioned(
