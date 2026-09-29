@@ -30,7 +30,7 @@ if (-not (Get-Command "cmake" -ErrorAction SilentlyContinue)) {
 
 foreach ($cfg in $configs) {
   Write-Host "Running codegen for $cfg..."
-  flutter_rust_bridge_codegen generate --config-file $cfg
+  flutter_rust_bridge_codegen generate --config-file $cfg --no-auto-upgrade-dependency
 }
 
 # Post-process generated files to fix FRB 2.12.0 WireSyncRust2DartSse truncation bug

@@ -402,8 +402,8 @@ jobs:
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           cd native
-          NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           API_LEVEL=23
+          NDK_BIN="$(dirname "$(command -v "aarch64-linux-android${API_LEVEL}-clang")")"
           export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           export CXX_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang++"
           export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
@@ -424,8 +424,8 @@ jobs:
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           cd native_audio
-          NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           API_LEVEL=23
+          NDK_BIN="$(dirname "$(command -v "aarch64-linux-android${API_LEVEL}-clang")")"
           export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           export CXX_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang++"
           export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
@@ -442,8 +442,8 @@ jobs:
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           cd native_math
-          NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           API_LEVEL=23
+          NDK_BIN="$(dirname "$(command -v "aarch64-linux-android${API_LEVEL}-clang")")"
           export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           export CXX_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang++"
           export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
