@@ -23,12 +23,9 @@ void main() {
       },
     );
 
-    test('editor category label is renamed to Handwritten Note', () {
+    test('editor category is labeled Handwritten Note', () {
       final settings = File('lib/pages/home/settings.dart').readAsStringSync();
-      expect(
-        settings,
-        contains("SettingsSubtitle(subtitle: 'Handwritten Note')"),
-      );
+      expect(settings, contains("category: 'Handwritten Note'"));
     });
   });
 }

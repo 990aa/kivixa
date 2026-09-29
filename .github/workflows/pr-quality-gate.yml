@@ -12,17 +12,28 @@ on:
         required: false
         default: "0"
         type: string
+      workflow:
+        description: "Workflow group to run"
+        required: true
+        default: all
+        type: choice
+        options:
+          - rust
+          - flutter
+          - android
+          - windows
+          - all
 
 permissions:
   contents: read
   pull-requests: read
 
 concurrency:
-  group: pr-quality-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref_name }}-${{ inputs.pr_number || '0' }}
+  group: pr-quality-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref_name }}-${{ inputs.pr_number || '0' }}-${{ inputs.workflow || 'all' }}
   cancel-in-progress: true
 
 env:
-  FLUTTER_VERSION: "3.44.2"
+  FLUTTER_VERSION: "3.47.5"
 
 jobs:
   resolve-target:
@@ -80,6 +91,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     needs: resolve-target
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.workflow == 'flutter' || inputs.workflow == 'all' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -161,6 +173,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     needs: resolve-target
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.workflow == 'rust' || inputs.workflow == 'all' }}
     strategy:
       fail-fast: false
       matrix:
@@ -261,6 +274,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     needs: resolve-target
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.workflow == 'rust' || inputs.workflow == 'all' }}
     strategy:
       fail-fast: false
       matrix:
@@ -355,7 +369,7 @@ jobs:
     name: Build Android ARM64
     runs-on: ubuntu-latest
     needs: [resolve-target, path-filter]
-    if: ${{ needs.path-filter.outputs.dart_other == 'true' || needs.path-filter.outputs.native == 'true' || needs.path-filter.outputs.native_audio == 'true' || needs.path-filter.outputs.native_math == 'true' }}
+    if: ${{ (github.event_name != 'workflow_dispatch' || inputs.workflow == 'android' || inputs.workflow == 'all') && (needs.path-filter.outputs.dart_other == 'true' || needs.path-filter.outputs.native == 'true' || needs.path-filter.outputs.native_audio == 'true' || needs.path-filter.outputs.native_math == 'true') }}
     steps:
       - name: Free up disk space
         run: |
@@ -402,10 +416,10 @@ jobs:
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           cd native
-          NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           API_LEVEL=23
+          NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
-          export CXX_aarch64_linux_android="/aarch64-linux-android-clang++"
+          export CXX_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang++"
           export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           cargo build --release --target aarch64-linux-android
@@ -424,10 +438,10 @@ jobs:
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           cd native_audio
-          NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           API_LEVEL=23
+          NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
-          export CXX_aarch64_linux_android="/aarch64-linux-android-clang++"
+          export CXX_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang++"
           export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           cargo build --release --target aarch64-linux-android
@@ -442,10 +456,10 @@ jobs:
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           cd native_math
-          NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           API_LEVEL=23
+          NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           export CC_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
-          export CXX_aarch64_linux_android="/aarch64-linux-android-clang++"
+          export CXX_aarch64_linux_android="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang++"
           export AR_aarch64_linux_android="${NDK_BIN}/llvm-ar"
           export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${NDK_BIN}/aarch64-linux-android${API_LEVEL}-clang"
           cargo build --release --target aarch64-linux-android
@@ -463,7 +477,7 @@ jobs:
     name: Build Windows EXE
     runs-on: windows-latest
     needs: [resolve-target, path-filter]
-    if: ${{ needs.path-filter.outputs.dart_other == 'true' || needs.path-filter.outputs.native == 'true' || needs.path-filter.outputs.native_audio == 'true' || needs.path-filter.outputs.native_math == 'true' }}
+    if: ${{ (github.event_name != 'workflow_dispatch' || inputs.workflow == 'windows' || inputs.workflow == 'all') && (needs.path-filter.outputs.dart_other == 'true' || needs.path-filter.outputs.native == 'true' || needs.path-filter.outputs.native_audio == 'true' || needs.path-filter.outputs.native_math == 'true') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -517,6 +531,7 @@ jobs:
         if: ${{ needs.path-filter.outputs.dart_other == 'true' }}
         run: |
           flutter pub get
+          $env:CMAKE_CXX_FLAGS = '-D_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS'
           flutter build windows --release
 
       - name: Upload Windows Build
