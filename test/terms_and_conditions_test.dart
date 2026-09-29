@@ -127,13 +127,15 @@ void main() {
       final terms = TermsAndConditionsService.getTermsText();
 
       // Check for key sections
-      expect(terms.contains('ACCEPTANCE OF TERMS'), true);
-      expect(terms.contains('LICENSE'), true);
-      expect(terms.contains('USER DATA'), true);
-      expect(terms.contains('INTELLECTUAL PROPERTY'), true);
-      expect(terms.contains('PROHIBITED USES'), true);
-      expect(terms.contains('DISCLAIMER OF WARRANTIES'), true);
-      expect(terms.contains('LIMITATION OF LIABILITY'), true);
+      expect(terms.contains('AGREEMENT TO TERMS'), true);
+      expect(terms.contains('INTELLECTUAL PROPERTY RIGHTS'), true);
+      expect(
+        terms.contains('LOCAL-FIRST ARCHITECTURE & DATA RESPONSIBILITY'),
+        true,
+      );
+      expect(terms.contains('LOCAL AI & CONTENT DISCLAIMER'), true);
+      expect(terms.contains('PROHIBITED ACTIVITIES'), true);
+      expect(terms.contains('LIMITATION OF LIABILITY & DISCLAIMER'), true);
     });
 
     test('privacy policy contains required sections', () {

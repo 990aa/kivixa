@@ -2,18 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "kivixa",
+            "name": "Kivixa",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "kivixa (profile mode)",
+            "name": "Kivixa (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "kivixa (release mode)",
+            "name": "Kivixa (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

@@ -1,4 +1,5 @@
 #!/usr/bin/env dart
+
 // ignore_for_file: avoid_print, avoid_slow_async_io
 
 // Version Bump Script for Kivixa

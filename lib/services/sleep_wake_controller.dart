@@ -71,20 +71,27 @@ class SleepWakeController {
   final Duration idleGracePeriod;
 
   var _asleep = false;
+  var _attached = false;
   bool get isAsleep => _asleep;
 
   SleepState _savedState = {};
   Timer? _graceTimer;
 
   void attach() {
+    if (!AppLifecycleManager.instance.isInitialized) return;
+
     AppLifecycleManager.instance.registerSection(componentId, _onLifecycle);
     AppLifecycleManager.instance.activateSection(componentId);
+    _attached = true;
   }
 
   void detach() {
+    if (!_attached) return;
+
     _graceTimer?.cancel();
     AppLifecycleManager.instance.deactivateSection(componentId);
     AppLifecycleManager.instance.unregisterSection(componentId);
+    _attached = false;
   }
 
   // Called by AppLifecycleManager when app/idle state changes.
@@ -117,7 +124,9 @@ class SleepWakeController {
     _asleep = false;
     try {
       await onWake(_savedState);
-      debugPrint('☀️  [$componentId] woke — restored ${_savedState.length} keys');
+      debugPrint(
+        '☀️  [$componentId] woke — restored ${_savedState.length} keys',
+      );
     } catch (e) {
       debugPrint('⚠️  [$componentId] wake error: $e');
     }
