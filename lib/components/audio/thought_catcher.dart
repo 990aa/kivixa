@@ -204,7 +204,9 @@ class ThoughtCatcherState extends State<ThoughtCatcher>
       final note = QuickNote(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         text: finalText,
-        audioPath: recordingData != null ? 'audio_${DateTime.now().millisecondsSinceEpoch}' : null,
+        audioPath: recordingData != null
+            ? 'audio_${DateTime.now().millisecondsSinceEpoch}'
+            : null,
         duration: _recordingDuration,
         timestamp: DateTime.now(),
         tags: _extractTags(finalText),
@@ -234,7 +236,14 @@ class ThoughtCatcherState extends State<ThoughtCatcher>
     final lowerText = text.toLowerCase();
 
     // Simple keyword extraction
-    final keywords = ['todo', 'idea', 'remember', 'important', 'note', 'meeting'];
+    final keywords = [
+      'todo',
+      'idea',
+      'remember',
+      'important',
+      'note',
+      'meeting',
+    ];
     for (final keyword in keywords) {
       if (lowerText.contains(keyword)) {
         tags.add(keyword);
@@ -302,27 +311,29 @@ class ThoughtCatcherState extends State<ThoughtCatcher>
           const Positioned.fill(
             child: ColoredBox(
               color: Colors.black26,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: Center(child: CircularProgressIndicator()),
             ),
           ),
 
         // Floating thought catcher button
         Positioned(
-          right: widget.alignment == Alignment.bottomRight ||
+          right:
+              widget.alignment == Alignment.bottomRight ||
                   widget.alignment == Alignment.topRight
               ? 16
               : null,
-          left: widget.alignment == Alignment.bottomLeft ||
+          left:
+              widget.alignment == Alignment.bottomLeft ||
                   widget.alignment == Alignment.topLeft
               ? 16
               : null,
-          bottom: widget.alignment == Alignment.bottomRight ||
+          bottom:
+              widget.alignment == Alignment.bottomRight ||
                   widget.alignment == Alignment.bottomLeft
               ? 80
               : null,
-          top: widget.alignment == Alignment.topRight ||
+          top:
+              widget.alignment == Alignment.topRight ||
                   widget.alignment == Alignment.topLeft
               ? 100
               : null,
@@ -410,8 +421,9 @@ class ThoughtCatcherState extends State<ThoughtCatcher>
                       return Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.red
-                              .withValues(alpha: _pulseController.value),
+                          color: Colors.red.withValues(
+                            alpha: _pulseController.value,
+                          ),
                         ),
                       );
                     },
@@ -585,11 +597,7 @@ class _QuickNoteCard extends StatelessWidget {
               // Header with time and duration
               Row(
                 children: [
-                  Icon(
-                    Icons.lightbulb,
-                    size: 16,
-                    color: colorScheme.primary,
-                  ),
+                  Icon(Icons.lightbulb, size: 16, color: colorScheme.primary),
                   const SizedBox(width: 8),
                   Text(
                     _formatTime(note.timestamp),
@@ -631,10 +639,7 @@ class _QuickNoteCard extends StatelessWidget {
                       }
                     },
                     itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'edit',
-                        child: Text('Edit'),
-                      ),
+                      const PopupMenuItem(value: 'edit', child: Text('Edit')),
                       const PopupMenuItem(
                         value: 'delete',
                         child: Text('Delete'),
@@ -675,18 +680,11 @@ class _QuickNoteCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 const Row(
                   children: [
-                    Icon(
-                      Icons.warning_amber,
-                      size: 14,
-                      color: Colors.orange,
-                    ),
+                    Icon(Icons.warning_amber, size: 14, color: Colors.orange),
                     SizedBox(width: 4),
                     Text(
                       'Low confidence - tap to review',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.orange,
-                      ),
+                      style: TextStyle(fontSize: 11, color: Colors.orange),
                     ),
                   ],
                 ),

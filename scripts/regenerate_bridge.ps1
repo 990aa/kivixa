@@ -29,19 +29,19 @@ Write-Host "`nStep 1: Running flutter_rust_bridge_codegen..." -ForegroundColor Y
 
 # Core AI/Native Module
 Write-Host "  > Core Bindings..." -NoNewline
-flutter_rust_bridge_codegen generate
+flutter_rust_bridge_codegen generate --no-auto-upgrade-dependency
 Assert-LastExitCode "Core binding generation"
 Write-Host " Done." -ForegroundColor Green
 
 # Math Module
 Write-Host "  > Math Bindings..." -NoNewline
-flutter_rust_bridge_codegen generate --config-file flutter_rust_bridge_math.yaml
+flutter_rust_bridge_codegen generate --config-file flutter_rust_bridge_math.yaml --no-auto-upgrade-dependency
 Assert-LastExitCode "Math binding generation"
 Write-Host " Done." -ForegroundColor Green
 
 # Audio Module
 Write-Host "  > Audio Bindings..." -NoNewline
-flutter_rust_bridge_codegen generate --config-file flutter_rust_bridge_audio.yaml
+flutter_rust_bridge_codegen generate --config-file flutter_rust_bridge_audio.yaml --no-auto-upgrade-dependency
 Assert-LastExitCode "Audio binding generation"
 Write-Host " Done." -ForegroundColor Green
 
