@@ -1,0 +1,53 @@
+name: Close Conflicted Pull Requests
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  close-conflicted-prs:
+    name: Close PRs with merge conflicts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close conflicted pull requests
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          found_conflict=false
+          while IFS= read -r pr_number; do
+            [ -z "$pr_number" ] && continue
+
+            pr_json=$(gh api "/repos/$REPO/pulls/$pr_number")
+            mergeable_state=$(jq -r '.mergeable_state' <<< "$pr_json")
+            if [ "$mergeable_state" != "dirty" ]; then
+              continue
+            fi
+
+            found_conflict=true
+            title=$(jq -r '.title' <<< "$pr_json")
+            head_branch=$(jq -r '.head.ref' <<< "$pr_json")
+            base_branch=$(jq -r '.base.ref' <<< "$pr_json")
+            echo "Closing PR #$pr_number: $title ($head_branch -> $base_branch)"
+
+            gh api \
+              -X POST \
+              "/repos/$REPO/issues/$pr_number/comments" \
+              -f "body=Automatically closed because it has merge conflicts with base branch $base_branch." \
+              --silent
+            gh api \
+              -X PATCH \
+              "/repos/$REPO/pulls/$pr_number" \
+              -f state=closed \
+              --silent
+          done < <(gh api "/repos/$REPO/pulls?state=open&per_page=100" --paginate --jq '.[].number')
+
+          if [ "$found_conflict" = false ]; then
+            echo "No open pull requests currently have merge conflicts."
+          fi
