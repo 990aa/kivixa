@@ -2,17 +2,21 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kivixa/data/models/notification_settings.dart';
 import 'package:kivixa/data/notification_settings_storage.dart';
+import 'package:kivixa/services/app_lifecycle_manager.dart';
 import 'package:kivixa/services/notification_sound_catalog_service.dart';
 import 'package:kivixa/services/productivity/chained_routine_service.dart';
 import 'package:kivixa/services/productivity/multi_timer_service.dart';
 import 'package:kivixa/services/productivity/timer_context_tag.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 export 'package:kivixa/services/productivity/timer_context_tag.dart';
 
@@ -213,6 +217,13 @@ class ProductivityGoal {
   }
 }
 
+class _ResolvedAndroidSound {
+  const _ResolvedAndroidSound({required this.sound, required this.identity});
+
+  final AndroidNotificationSound? sound;
+  final String identity;
+}
+
 /// Productivity Timer Service
 /// Manages timer logic, sessions, notifications, and statistics
 class ProductivityTimerService extends ChangeNotifier {
@@ -222,10 +233,12 @@ class ProductivityTimerService extends ChangeNotifier {
   static ProductivityTimerService get instance => _instance;
 
   static const _statusNotificationId = 9001;
+  static const _completionNotificationId = 9002;
   static const _actionPause = 'productivity_pause';
   static const _actionResume = 'productivity_resume';
   static const _actionStop = 'productivity_stop';
   static const _actionDismiss = 'productivity_dismiss';
+  static var _timeZonesInitialized = false;
 
   // Timer state
   Timer? _timer;
@@ -233,11 +246,15 @@ class ProductivityTimerService extends ChangeNotifier {
   SessionType _sessionType = SessionType.focus;
   var _totalDuration = const Duration(minutes: 25);
   var _remainingTime = const Duration(minutes: 25);
+
   var _breakDuration = const Duration(minutes: 5);
   var _currentCycle = 1;
   var _totalCycles = 4;
   TimerTemplate? _activeTemplate;
   QuickPreset? _activePreset;
+  DateTime? _phaseStartTime;
+  DateTime? _phaseEndTime;
+  var _lifecycleBound = false;
 
   final _defaultQuickPresets = List<QuickPreset>.from(
     QuickPreset.defaultPresets,
@@ -256,6 +273,7 @@ class ProductivityTimerService extends ChangeNotifier {
   // Notifications
   FlutterLocalNotificationsPlugin? _notifications;
   var _notificationsInitialized = false;
+  Player? _alarmPlayer;
   var _soundEnabled = true;
   var _showPreEndWarning = true;
   var _preEndWarningMinutes = 5;
@@ -341,6 +359,8 @@ class ProductivityTimerService extends ChangeNotifier {
   bool get isPaused => _state == TimerState.paused;
   bool get isBreak => _state == TimerState.breakTime;
   bool get isIdle => _state == TimerState.idle;
+  bool get _isActivePhase =>
+      _state == TimerState.running || _state == TimerState.breakTime;
 
   /// Initialize the service
   Future<void> initialize() async {
@@ -352,6 +372,18 @@ class ProductivityTimerService extends ChangeNotifier {
     await _loadTags();
     await _loadTagMinutes();
     await _initializeNotifications();
+
+    try {
+      MediaKit.ensureInitialized();
+      _alarmPlayer = Player();
+    } catch (e) {
+      debugPrint('Failed to initialize alarm player: $e');
+    }
+
+    if (!_lifecycleBound) {
+      AppLifecycleManager.instance.addResumeListener(_handleAppResume);
+      _lifecycleBound = true;
+    }
 
     _checkDayReset();
     _initialized = true;
@@ -395,6 +427,8 @@ class ProductivityTimerService extends ChangeNotifier {
   }
 
   void _handleNotificationResponse(NotificationResponse response) {
+    _stopAlarmSound();
+
     if (response.actionId == _actionDismiss) {
       unawaited(_notifications?.cancel(response.id ?? _statusNotificationId));
       return;
@@ -412,6 +446,27 @@ class ProductivityTimerService extends ChangeNotifier {
     }
   }
 
+  Future<void> _playAlarmSound() async {
+    if (!_soundEnabled) return;
+    final settings = await NotificationSettingsStorage.loadSettings();
+    if (!settings.notificationSoundEnabled) return;
+
+    final path = await NotificationSoundCatalogService.instance
+        .localPathForReminderSound(settings.reminderSoundId);
+    if (path != null && File(path).existsSync()) {
+      try {
+        await _alarmPlayer?.open(Media(path), play: true);
+        await _alarmPlayer?.setPlaylistMode(PlaylistMode.loop);
+      } catch (e) {
+        debugPrint('Failed to play alarm: $e');
+      }
+    }
+  }
+
+  void _stopAlarmSound() {
+    _alarmPlayer?.stop();
+  }
+
   /// Show notification
   Future<void> _showNotification({
     required String title,
@@ -420,6 +475,8 @@ class ProductivityTimerService extends ChangeNotifier {
     int? notificationId,
     bool ongoing = false,
     bool longVibrationAlert = true,
+    DateTime? chronometerStart,
+    bool chronometerCountDown = false,
     String? payload,
     List<AndroidNotificationAction>? actions,
   }) async {
@@ -433,6 +490,7 @@ class ProductivityTimerService extends ChangeNotifier {
       globalSettings,
       effectivePlaySound,
     );
+    final soundIdentity = resolvedSound.identity;
     final vibrationPattern = enableVibration
         ? (longVibrationAlert
               ? _longReminderVibrationPattern()
@@ -451,10 +509,6 @@ class ProductivityTimerService extends ChangeNotifier {
       );
     }
 
-    final soundIdentity = effectivePlaySound
-        ? globalSettings.reminderSoundId
-        : 'sound_off';
-
     final androidDetails = AndroidNotificationDetails(
       _channelIdForSettings(globalSettings, soundIdentity),
       'Productivity Timer',
@@ -462,7 +516,7 @@ class ProductivityTimerService extends ChangeNotifier {
       importance: Importance.high,
       priority: Priority.high,
       playSound: effectivePlaySound,
-      sound: resolvedSound,
+      sound: resolvedSound.sound,
       audioAttributesUsage: _resolveAudioAttributesUsage(effectivePlaySound),
       enableVibration: enableVibration,
       vibrationPattern: vibrationPattern,
@@ -470,10 +524,11 @@ class ProductivityTimerService extends ChangeNotifier {
       ongoing: ongoing,
       autoCancel: !ongoing,
       onlyAlertOnce: true,
+      showWhen: chronometerStart != null,
+      when: chronometerStart?.millisecondsSinceEpoch,
+      usesChronometer: chronometerStart != null,
+      chronometerCountDown: chronometerCountDown,
       actions: effectiveActions,
-      additionalFlags: longVibrationAlert
-          ? Int32List.fromList([_androidFlagInsistent])
-          : null, // FLAG_INSISTENT
     );
 
     final soundFileName = effectivePlaySound
@@ -520,21 +575,35 @@ class ProductivityTimerService extends ChangeNotifier {
     return settings.notificationVibrationEnabled;
   }
 
-  Future<AndroidNotificationSound?> _resolveAndroidSound(
+  Future<_ResolvedAndroidSound> _resolveAndroidSound(
     NotificationSettings settings,
     bool shouldPlaySound,
   ) async {
     if (!shouldPlaySound) {
-      return null;
+      return const _ResolvedAndroidSound(sound: null, identity: 'sound_off');
     }
 
     final path = await NotificationSoundCatalogService.instance
         .localPathForReminderSound(settings.reminderSoundId);
     if (path == null || path.trim().isEmpty) {
-      return const RawResourceAndroidNotificationSound('kivixa_notification');
+      return const _ResolvedAndroidSound(
+        sound: RawResourceAndroidNotificationSound('kivixa_notification'),
+        identity: 'kivixa_notification',
+      );
     }
-
-    return UriAndroidNotificationSound(Uri.file(path).toString());
+    final file = File(path);
+    if (!file.existsSync()) {
+      return const _ResolvedAndroidSound(
+        sound: RawResourceAndroidNotificationSound('kivixa_notification'),
+        identity: 'kivixa_notification',
+      );
+    }
+    final modified = file.lastModifiedSync();
+    return _ResolvedAndroidSound(
+      sound: UriAndroidNotificationSound(Uri.file(path).toString()),
+      identity:
+          '${settings.reminderSoundId}_${modified.millisecondsSinceEpoch}',
+    );
   }
 
   AudioAttributesUsage _resolveAudioAttributesUsage(bool playSound) {
@@ -542,10 +611,6 @@ class ProductivityTimerService extends ChangeNotifier {
         ? AudioAttributesUsage.alarm
         : AudioAttributesUsage.notification;
   }
-
-  // Android Notification.FLAG_INSISTENT = 4
-  // Causes the notification sound/vibration to repeat until cancelled
-  static const _androidFlagInsistent = 4;
 
   Int64List _shortNotificationVibrationPattern() {
     return Int64List.fromList([0, 180]);
@@ -632,9 +697,128 @@ class ProductivityTimerService extends ChangeNotifier {
       body: _buildProductivityContextSummary(),
       playSound: false,
       ongoing: true,
+      chronometerStart: _phaseStartTime,
       payload: 'productivity_timer_status',
       actions: _buildStatusActions(),
     );
+  }
+
+  Future<void> _ensureTimeZonesInitialized() async {
+    if (_timeZonesInitialized) {
+      return;
+    }
+    tz.initializeTimeZones();
+    _timeZonesInitialized = true;
+  }
+
+  Future<void> _cancelScheduledCompletionNotification() async {
+    if (!_notificationsInitialized) {
+      return;
+    }
+    await _notifications?.cancel(_completionNotificationId);
+  }
+
+  ({String title, String body}) _completionNotificationContent() {
+    if (_state == TimerState.breakTime) {
+      if (_currentCycle < _totalCycles) {
+        return (
+          title: 'Break Complete!',
+          body:
+              'Ready for the next session?\n${_buildProductivityContextSummary()}',
+        );
+      }
+      return (
+        title: 'All Sessions Complete! 🎉',
+        body:
+            'Great job! You completed $_totalCycles sessions.\n${_buildProductivityContextSummary()}',
+      );
+    }
+
+    return (
+      title: 'Session Complete!',
+      body: 'Time for a break!\n${_buildProductivityContextSummary()}',
+    );
+  }
+
+  Future<void> _scheduleCurrentPhaseCompletionNotification() async {
+    if (!_notificationsInitialized || _phaseEndTime == null) {
+      return;
+    }
+
+    final scheduledTime = _phaseEndTime!;
+    if (scheduledTime.isBefore(DateTime.now())) {
+      return;
+    }
+
+    await _ensureTimeZonesInitialized();
+
+    final globalSettings = await NotificationSettingsStorage.loadSettings();
+    final effectivePlaySound =
+        _soundEnabled && _shouldPlaySound(globalSettings);
+    final enableVibration = _shouldVibrate(globalSettings);
+    final resolvedSound = await _resolveAndroidSound(
+      globalSettings,
+      effectivePlaySound,
+    );
+    final vibrationPattern = enableVibration
+        ? _longReminderVibrationPattern()
+        : null;
+
+    final androidDetails = AndroidNotificationDetails(
+      _channelIdForSettings(globalSettings, resolvedSound.identity),
+      'Productivity Timer',
+      channelDescription: 'Notifications for productivity timer',
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: effectivePlaySound,
+      sound: resolvedSound.sound,
+      audioAttributesUsage: _resolveAudioAttributesUsage(effectivePlaySound),
+      enableVibration: enableVibration,
+      vibrationPattern: vibrationPattern,
+      timeoutAfter: 60000,
+      actions: const [
+        AndroidNotificationAction(
+          _actionDismiss,
+          'Dismiss',
+          showsUserInterface: false,
+        ),
+      ],
+    );
+
+    final soundFileName = effectivePlaySound
+        ? NotificationSoundCatalogService.instance
+              .optionById(globalSettings.reminderSoundId)
+              .fileName
+        : null;
+
+    final darwinDetails = DarwinNotificationDetails(
+      sound: effectivePlaySound
+          ? (soundFileName ?? 'kivixa_notification.mp3')
+          : null,
+      presentSound: effectivePlaySound,
+    );
+
+    final details = NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
+    );
+
+    final content = _completionNotificationContent();
+
+    try {
+      await _notifications?.zonedSchedule(
+        _completionNotificationId,
+        content.title,
+        content.body,
+        tz.TZDateTime.from(scheduledTime, tz.local),
+        details,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        payload: 'productivity_timer_completion',
+      );
+    } catch (e) {
+      debugPrint('Failed to schedule completion notification: $e');
+    }
   }
 
   /// Check if we need to reset daily stats
@@ -655,6 +839,55 @@ class ProductivityTimerService extends ChangeNotifier {
       _stats.lastSessionDate = today;
       _saveStats();
     }
+  }
+
+  void _handleAppResume() {
+    if (_isActivePhase) {
+      _syncWithClock();
+    }
+  }
+
+  void _setPhaseTiming(DateTime startTime, Duration duration) {
+    _phaseStartTime = startTime;
+    _phaseEndTime = startTime.add(duration);
+    _remainingTime = duration;
+  }
+
+  void _clearPhaseTiming() {
+    _phaseStartTime = null;
+    _phaseEndTime = null;
+  }
+
+  void _syncWithClock() {
+    if (!_isActivePhase || _phaseStartTime == null) {
+      return;
+    }
+
+    _cancelScheduledCompletionNotification();
+
+    final now = DateTime.now();
+    var elapsed = now.difference(_phaseStartTime!);
+    if (elapsed.isNegative) {
+      return;
+    }
+
+    while (_isActivePhase && elapsed >= _remainingTime) {
+      elapsed -= _remainingTime;
+      _onTimerComplete(silent: true);
+    }
+
+    if (_isActivePhase) {
+      final remaining = _remainingTime - elapsed;
+      _remainingTime = remaining.isNegative ? Duration.zero : remaining;
+      final adjustedStart = now.subtract(_totalDuration - _remainingTime);
+      _phaseStartTime = adjustedStart;
+      _phaseEndTime = now.add(_remainingTime);
+      _startTimer();
+      unawaited(_showTimerStatusNotification());
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
+    }
+
+    notifyListeners();
   }
 
   // ============================================================
@@ -697,6 +930,7 @@ class ProductivityTimerService extends ChangeNotifier {
     _remainingTime = _totalDuration;
     _state = TimerState.running;
 
+    _setPhaseTiming(DateTime.now(), _remainingTime);
     _startTimer();
     notifyListeners();
 
@@ -746,19 +980,22 @@ class ProductivityTimerService extends ChangeNotifier {
   }
 
   /// Handle timer completion
-  void _onTimerComplete() {
+  void _onTimerComplete({bool silent = false}) {
     _timer?.cancel();
     unawaited(_notifications?.cancel(_statusNotificationId));
 
     if (_state == TimerState.breakTime) {
-      // Break completed
-      unawaited(
-        _showNotification(
-          title: 'Break Complete!',
-          body:
-              'Ready for the next session?\n${_buildProductivityContextSummary()}',
-        ),
-      );
+      if (!silent) {
+        unawaited(
+          _showNotification(
+            title: 'Break Complete!',
+            body:
+                'Ready for the next session?\n${_buildProductivityContextSummary()}',
+            playSound: false,
+          ),
+        );
+        _playAlarmSound();
+      }
       onBreakComplete?.call();
 
       if (_currentCycle < _totalCycles) {
@@ -771,33 +1008,46 @@ class ProductivityTimerService extends ChangeNotifier {
       } else {
         // All cycles completed
         _state = TimerState.completed;
-        unawaited(
-          _showNotification(
-            title: 'All Sessions Complete! 🎉',
-            body:
-                'Great job! You completed $_totalCycles sessions.\n${_buildProductivityContextSummary()}',
-          ),
-        );
+        _clearPhaseTiming();
+        if (!silent) {
+          unawaited(
+            _showNotification(
+              title: 'All Sessions Complete! 🎉',
+              body:
+                  'Great job! You completed $_totalCycles sessions.\n${_buildProductivityContextSummary()}',
+              playSound: false,
+            ),
+          );
+          _playAlarmSound();
+        }
       }
     } else {
       // Work session completed
       _recordSession();
-      unawaited(
-        _showNotification(
-          title: 'Session Complete!',
-          body: 'Time for a break!\n${_buildProductivityContextSummary()}',
-        ),
-      );
+      if (!silent) {
+        unawaited(
+          _showNotification(
+            title: 'Session Complete!',
+            body: 'Time for a break!\n${_buildProductivityContextSummary()}',
+            playSound: false,
+          ),
+        );
+        _playAlarmSound();
+      }
       onSessionComplete?.call();
 
       if (_autoStartBreak) {
         _startBreak();
       } else {
         _state = TimerState.idle;
+        _clearPhaseTiming();
       }
     }
 
-    unawaited(_showTimerStatusNotification());
+    if (!silent) {
+      unawaited(_showTimerStatusNotification());
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
+    }
 
     notifyListeners();
   }
@@ -815,8 +1065,10 @@ class ProductivityTimerService extends ChangeNotifier {
 
     _remainingTime = _totalDuration;
     _state = TimerState.breakTime;
+    _setPhaseTiming(DateTime.now(), _remainingTime);
     _startTimer();
     unawaited(_showTimerStatusNotification());
+    unawaited(_scheduleCurrentPhaseCompletionNotification());
     notifyListeners();
   }
 
@@ -827,8 +1079,10 @@ class ProductivityTimerService extends ChangeNotifier {
         : _totalDuration;
     _remainingTime = _totalDuration;
     _state = TimerState.running;
+    _setPhaseTiming(DateTime.now(), _remainingTime);
     _startTimer();
     unawaited(_showTimerStatusNotification());
+    unawaited(_scheduleCurrentPhaseCompletionNotification());
     notifyListeners();
   }
 
@@ -837,7 +1091,9 @@ class ProductivityTimerService extends ChangeNotifier {
     if (_state == TimerState.running || _state == TimerState.breakTime) {
       _timer?.cancel();
       _state = TimerState.paused;
+      _clearPhaseTiming();
       unawaited(_showTimerStatusNotification());
+      unawaited(_cancelScheduledCompletionNotification());
       notifyListeners();
     }
   }
@@ -848,8 +1104,10 @@ class ProductivityTimerService extends ChangeNotifier {
       _state = _remainingTime == _breakDuration
           ? TimerState.breakTime
           : TimerState.running;
+      _setPhaseTiming(DateTime.now(), _remainingTime);
       _startTimer();
       unawaited(_showTimerStatusNotification());
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
       notifyListeners();
     }
   }
@@ -860,7 +1118,9 @@ class ProductivityTimerService extends ChangeNotifier {
     _state = TimerState.idle;
     _remainingTime = _totalDuration;
     _currentCycle = 1;
+    _clearPhaseTiming();
     unawaited(_notifications?.cancel(_statusNotificationId));
+    unawaited(_cancelScheduledCompletionNotification());
     notifyListeners();
   }
 
@@ -885,6 +1145,11 @@ class ProductivityTimerService extends ChangeNotifier {
   void addTime(Duration extra) {
     _remainingTime += extra;
     _totalDuration += extra;
+    if (_isActivePhase) {
+      _setPhaseTiming(DateTime.now(), _remainingTime);
+      unawaited(_showTimerStatusNotification());
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
+    }
     notifyListeners();
   }
 

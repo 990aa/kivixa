@@ -6,7 +6,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-class MockPathProvider extends PathProviderPlatform with MockPlatformInterfaceMixin {
+class MockPathProvider extends PathProviderPlatform
+    with MockPlatformInterfaceMixin {
   final String tempPath;
   MockPathProvider(this.tempPath);
   @override
@@ -31,7 +32,9 @@ void main() {
 
   group('MediaService Optimization Tests', () {
     test('clearWebCache deletes all files', () async {
-      final cacheDir = Directory(p.join(tempDir.path, 'kivixa/assets/web_cache'));
+      final cacheDir = Directory(
+        p.join(tempDir.path, 'kivixa/assets/web_cache'),
+      );
       await cacheDir.create(recursive: true);
       await File(p.join(cacheDir.path, 'f1.cache')).writeAsString('test');
       await File(p.join(cacheDir.path, 'f2.cache')).writeAsString('test');
@@ -41,10 +44,16 @@ void main() {
     });
 
     test('getWebCacheSize returns correct total size', () async {
-      final cacheDir = Directory(p.join(tempDir.path, 'kivixa/assets/web_cache'));
+      final cacheDir = Directory(
+        p.join(tempDir.path, 'kivixa/assets/web_cache'),
+      );
       await cacheDir.create(recursive: true);
-      await File(p.join(cacheDir.path, 'f1.cache')).writeAsBytes(List.filled(100, 0));
-      await File(p.join(cacheDir.path, 'f2.cache')).writeAsBytes(List.filled(200, 0));
+      await File(
+        p.join(cacheDir.path, 'f1.cache'),
+      ).writeAsBytes(List.filled(100, 0));
+      await File(
+        p.join(cacheDir.path, 'f2.cache'),
+      ).writeAsBytes(List.filled(200, 0));
 
       final size = await MediaService.instance.getWebCacheSize();
       expect(size, 300);

@@ -13,6 +13,7 @@ use llama_cpp_2::model::params::LlamaModelParams;
 use llama_cpp_2::model::{AddBos, LlamaChatMessage, LlamaModel};
 use llama_cpp_2::sampling::LlamaSampler;
 use llama_cpp_2::token::data_array::LlamaTokenDataArray;
+use llama_cpp_2::token::LlamaToken;
 use parking_lot::Mutex;
 use std::fs;
 use std::num::NonZeroU32;
@@ -416,12 +417,7 @@ fn generate_text_with_options(
     }
 
     // Convert tokens back to text
-    let mut builder = Vec::new();
-    for t in &output_tokens {
-        let piece = state.model.token_to_piece_bytes(*t, 8, true, None).map_err(|e| anyhow!("Failed to detokenize: {:?}", e))?;
-        builder.extend_from_slice(&piece);
-    }
-    let output = String::from_utf8_lossy(&builder).into_owned();
+    let output = detokenize_tokens(&state.model, &output_tokens)?;
 
     Ok(output)
 }
@@ -675,7 +671,7 @@ fn chat_completion_with_vision(
             return Err(anyhow!("Loaded mtmd context does not support vision"));
         }
 
-        let bitmap = MtmdBitmap::from_file(&mtmd_ctx, image_path)
+        let bitmap = MtmdBitmap::from_file(&mtmd_ctx, image_path, false)
             .map_err(|e| anyhow!("Failed to load image bitmap '{}': {}", image_path, e))?;
 
         let input_text = MtmdInputText {
@@ -732,14 +728,25 @@ fn generate_from_context(
             .map_err(|e| anyhow!("Failed to decode generated vision token: {:?}", e))?;
     }
 
-    let mut builder = Vec::new();
-    for t in &output_tokens {
-        let piece = state.model.token_to_piece_bytes(*t, 8, true, None).map_err(|e| anyhow!("Failed to detokenize vision response: {:?}", e))?;
-        builder.extend_from_slice(&piece);
-    }
-    let output = String::from_utf8_lossy(&builder).into_owned();
+    let output = detokenize_tokens(&state.model, &output_tokens)?;
 
     Ok(output)
+}
+
+fn detokenize_tokens(model: &LlamaModel, tokens: &[LlamaToken]) -> Result<String> {
+    let mut all_bytes = Vec::new();
+    for token in tokens {
+        let bytes = match model.token_to_piece_bytes(*token, 8, true, None) {
+            Err(llama_cpp_2::TokenToStringError::InsufficientBufferSpace(i)) => {
+                let size = usize::try_from(-i).unwrap_or(32);
+                model.token_to_piece_bytes(*token, size, true, None)
+            }
+            x => x,
+        }
+        .map_err(|e| anyhow!("Failed to detokenize token: {:?}", e))?;
+        all_bytes.extend_from_slice(&bytes);
+    }
+    Ok(String::from_utf8_lossy(&all_bytes).into_owned())
 }
 
 /// Format messages using the GGUF model's baked chat template via llama.cpp.
@@ -1229,4 +1236,3 @@ mod tests {
             .all(|(_, content)| !content.contains(crate::mcp::MCP_MODE_SENTINEL)));
     }
 }
-
