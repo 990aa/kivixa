@@ -1,0 +1,73 @@
+name: Bulk Delete Runs (Custom Filters)
+
+on:
+  workflow_dispatch:
+    inputs:
+      filter_type:
+        description: 'Choose what to delete'
+        required: true
+        type: choice
+        default: 'by_status'
+        options:
+          - 'by_status'
+          - 'oldest_10_runs'
+      status_filter:
+        description: 'If filtering by status, choose which ones to delete'
+        required: false
+        type: choice
+        default: 'failed'
+        options:
+          - 'failed'
+          - 'action_required'
+          - 'cancelled'
+
+jobs:
+  delete-runs:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write # Required permission to delete runs
+
+    steps:
+      - name: Bulk Delete Workflow Runs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          FILTER_TYPE: ${{ inputs.filter_type }}
+          STATUS_FILTER: ${{ inputs.status_filter }}
+        run: |
+          if [ "$FILTER_TYPE" = "by_status" ]; then
+            echo "Searching for runs with status: $STATUS_FILTER..."
+            
+            # Fetch all matching run IDs using pagination
+            RUN_IDS=$(gh api "/repos/$REPO/actions/runs?status=$STATUS_FILTER&per_page=100" --paginate --jq '.workflow_runs[].id')
+            
+            if [ -z "$RUN_IDS" ]; then
+              echo "No runs found matching status: $STATUS_FILTER"
+              exit 0
+            fi
+            
+            echo "Found runs to delete. Starting deletion..."
+            for run_id in $RUN_IDS; do
+              echo "Deleting run ID: $run_id"
+              gh api -X DELETE "/repos/$REPO/actions/runs/$run_id" --silent || true
+            done
+
+          elif [ "$FILTER_TYPE" = "oldest_10_runs" ]; then
+            echo "Fetching the oldest 10 runs..."
+            
+            # Sorts by oldest created date first and takes the top 10
+            RUN_IDS=$(gh api "/repos/$REPO/actions/runs?sort=created&direction=asc&per_page=10" --jq '.workflow_runs[].id')
+            
+            if [ -z "$RUN_IDS" ]; then
+              echo "No runs found to delete."
+              exit 0
+            fi
+            
+            echo "Deleting the oldest 10 runs..."
+            for run_id in $RUN_IDS; do
+              echo "Deleting run ID: $run_id"
+              gh api -X DELETE "/repos/$REPO/actions/runs/$run_id" --silent || true
+            done
+          fi
+          
+          echo "Cleanup complete!"

@@ -221,7 +221,10 @@ class _EmbeddedFileBrowserState extends State<EmbeddedFileBrowser> {
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(vertical: 4),
-                    itemCount: (currentPath != null ? 1 : 0) + children!.directories.length + children!.files.length,
+                    itemCount:
+                        (currentPath != null ? 1 : 0) +
+                        children!.directories.length +
+                        children!.files.length,
                     itemBuilder: (context, index) {
                       int currentIndex = index;
 
