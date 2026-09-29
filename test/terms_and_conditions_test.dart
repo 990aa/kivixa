@@ -128,9 +128,12 @@ void main() {
 
       // Check for key sections
       expect(terms.contains('AGREEMENT TO TERMS'), true);
-      expect(terms.contains('LICENSE'), true);
-      expect(terms.contains('USER DATA'), true);
       expect(terms.contains('INTELLECTUAL PROPERTY RIGHTS'), true);
+      expect(
+        terms.contains('LOCAL-FIRST ARCHITECTURE & DATA RESPONSIBILITY'),
+        true,
+      );
+      expect(terms.contains('LOCAL AI & CONTENT DISCLAIMER'), true);
       expect(terms.contains('PROHIBITED ACTIVITIES'), true);
       expect(terms.contains('LIMITATION OF LIABILITY & DISCLAIMER'), true);
     });

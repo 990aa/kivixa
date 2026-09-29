@@ -30,6 +30,7 @@ class AppLifecycleManager with WidgetsBindingObserver {
   static AppLifecycleManager get instance => _instance;
 
   var _initialized = false;
+  bool get isInitialized => _initialized;
 
   // App lifecycle state
   AppLifecycleState _appState = AppLifecycleState.resumed;
