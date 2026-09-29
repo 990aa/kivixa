@@ -158,7 +158,7 @@ Future<void> appRunner(List<String> args) async {
   // This reduces startup time from ~60s to <3s.
 
   stows.customDataDir.addListener(FileManager.migrateDataDir);
-  pdfrxFlutterInitialize(dismissPdfiumWasmWarnings: true);
+  pdfrxFlutterInitialize();
 
   LicenseRegistry.addLicense(() async* {
     for (final licenseFile in const [

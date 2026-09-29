@@ -6,6 +6,12 @@ analyzer:
     - lib/i18n/strings.g.dart
     - lib/objectbox.g.dart
     - backup/
+    - build/**
+    - android/**
+    - ios/**
+    - windows/**
+    - macos/**
+    - linux/**
 
 linter:
   rules:

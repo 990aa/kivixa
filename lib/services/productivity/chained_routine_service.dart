@@ -8,15 +8,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kivixa/data/models/notification_settings.dart';
 import 'package:kivixa/data/notification_settings_storage.dart';
+import 'package:kivixa/services/app_lifecycle_manager.dart';
 import 'package:kivixa/services/notification_sound_catalog_service.dart';
 import 'package:kivixa/services/productivity/material_icon_codec.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest_all.dart' as tz_init;
+import 'package:timezone/timezone.dart' as tz;
 
 /// A single block in a routine chain
 class RoutineBlock {
   const RoutineBlock({
     required this.name,
     required this.durationMinutes,
+    this.durationSeconds = 0,
     this.icon = Icons.timer,
     this.color = Colors.blue,
     this.description,
@@ -24,15 +29,18 @@ class RoutineBlock {
 
   final String name;
   final int durationMinutes;
+  final int durationSeconds;
   final IconData icon;
   final Color color;
   final String? description;
 
-  Duration get duration => Duration(minutes: durationMinutes);
+  Duration get duration =>
+      Duration(minutes: durationMinutes, seconds: durationSeconds);
 
   Map<String, dynamic> toJson() => {
     'name': name,
     'durationMinutes': durationMinutes,
+    'durationSeconds': durationSeconds,
     'icon': icon.codePoint,
     'color': color.toARGB32(),
     'description': description,
@@ -41,6 +49,7 @@ class RoutineBlock {
     return RoutineBlock(
       name: json['name'] as String,
       durationMinutes: json['durationMinutes'] as int,
+      durationSeconds: json['durationSeconds'] as int? ?? 0,
       icon: MaterialIconCodec.fromCodePoint(
         json['icon'] as int,
         fallback: Icons.timer,
@@ -53,6 +62,7 @@ class RoutineBlock {
   RoutineBlock copyWith({
     String? name,
     int? durationMinutes,
+    int? durationSeconds,
     IconData? icon,
     Color? color,
     String? description,
@@ -60,6 +70,7 @@ class RoutineBlock {
     return RoutineBlock(
       name: name ?? this.name,
       durationMinutes: durationMinutes ?? this.durationMinutes,
+      durationSeconds: durationSeconds ?? this.durationSeconds,
       icon: icon ?? this.icon,
       color: color ?? this.color,
       description: description ?? this.description,
@@ -374,6 +385,16 @@ class ChainedRoutineService extends ChangeNotifier {
   Duration _remainingTime = Duration.zero;
   Timer? _timer;
 
+  DateTime? _phaseStartTime;
+  DateTime? _phaseEndTime;
+  var _lifecycleBound = false;
+
+  static const _statusNotificationId = 98765;
+  static const _completionNotificationId = 98766;
+  static const _actionPause = 'chained_action_pause';
+  static const _actionResume = 'chained_action_resume';
+  static const _actionStop = 'chained_action_stop';
+
   // Routine catalogs
   final _defaultRoutines = List<ChainedRoutine>.from(
     ChainedRoutine.defaultRoutines,
@@ -384,6 +405,8 @@ class ChainedRoutineService extends ChangeNotifier {
   FlutterLocalNotificationsPlugin? _notifications;
   var _initialized = false;
   var _soundEnabled = true;
+  Player? _alarmPlayer;
+  var _timeZonesInitialized = false;
 
   // PERFORMANCE: Cache SharedPreferences instance
   SharedPreferences? _prefs;
@@ -462,7 +485,12 @@ class ChainedRoutineService extends ChangeNotifier {
       const initSettings = InitializationSettings(android: androidSettings);
 
       try {
-        await _notifications?.initialize(initSettings);
+        await _notifications?.initialize(
+          initSettings,
+          onDidReceiveNotificationResponse: _onNotificationResponse,
+          onDidReceiveBackgroundNotificationResponse:
+              _onBackgroundNotificationResponse,
+        );
       } catch (e) {
         debugPrint(
           'Failed to initialize notifications for ChainedRoutineService: $e',
@@ -470,9 +498,126 @@ class ChainedRoutineService extends ChangeNotifier {
       }
     }
 
+    try {
+      MediaKit.ensureInitialized();
+      _alarmPlayer = Player();
+    } catch (e) {
+      debugPrint(
+        'Failed to initialize alarm player in ChainedRoutineService: $e',
+      );
+    }
+
     await _loadRoutines();
     await _loadSettings();
+
+    if (!_lifecycleBound) {
+      AppLifecycleManager.instance.addResumeListener(_handleAppResume);
+      _lifecycleBound = true;
+    }
+
     _initialized = true;
+  }
+
+  static void _onNotificationResponse(NotificationResponse response) {
+    instance._handleNotificationResponse(response);
+  }
+
+  @pragma('vm:entry-point')
+  static void _onBackgroundNotificationResponse(NotificationResponse response) {
+    instance._handleNotificationResponse(response);
+  }
+
+  void _handleNotificationResponse(NotificationResponse response) {
+    _stopAlarmSound();
+
+    if (response.actionId == _dismissActionId) {
+      unawaited(_notifications?.cancel(response.id ?? _statusNotificationId));
+      return;
+    }
+
+    switch (response.actionId) {
+      case _actionPause:
+        pause();
+      case _actionResume:
+        resume();
+      case _actionStop:
+        stop();
+      default:
+        break;
+    }
+  }
+
+  Future<void> _playAlarmSound() async {
+    if (!_soundEnabled) return;
+    final settings = await NotificationSettingsStorage.loadSettings();
+    if (!settings.notificationSoundEnabled) return;
+
+    final path = await NotificationSoundCatalogService.instance
+        .localPathForReminderSound(settings.reminderSoundId);
+    if (path != null && File(path).existsSync()) {
+      try {
+        await _alarmPlayer?.open(Media(path), play: true);
+        await _alarmPlayer?.setPlaylistMode(PlaylistMode.loop);
+      } catch (e) {
+        debugPrint('Failed to play alarm: $e');
+      }
+    }
+  }
+
+  void _stopAlarmSound() {
+    _alarmPlayer?.stop();
+  }
+
+  void _handleAppResume() {
+    if (_state == RoutineState.running) {
+      _syncWithClock();
+    }
+  }
+
+  void _syncWithClock() {
+    if (_state != RoutineState.running || _phaseStartTime == null) {
+      return;
+    }
+
+    // Cancel completion notification since we are back
+    _notifications?.cancel(_completionNotificationId);
+
+    final now = DateTime.now();
+    var elapsed = now.difference(_phaseStartTime!);
+    if (elapsed.isNegative) {
+      return;
+    }
+
+    while (_state == RoutineState.running && elapsed >= _remainingTime) {
+      elapsed -= _remainingTime;
+      _onBlockComplete(silent: true);
+    }
+
+    if (_state == RoutineState.running) {
+      final remaining = _remainingTime - elapsed;
+      _remainingTime = remaining.isNegative ? Duration.zero : remaining;
+      final adjustedStart = now.subtract(
+        currentBlock!.duration - _remainingTime,
+      );
+      _phaseStartTime = adjustedStart;
+      _phaseEndTime = now.add(_remainingTime);
+      _startTimer();
+      unawaited(_showTimerStatusNotification());
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
+    }
+
+    notifyListeners();
+  }
+
+  void _setPhaseTiming(DateTime startTime, Duration duration) {
+    _phaseStartTime = startTime;
+    _phaseEndTime = startTime.add(duration);
+    _remainingTime = duration;
+  }
+
+  void _clearPhaseTiming() {
+    _phaseStartTime = null;
+    _phaseEndTime = null;
   }
 
   /// Start a routine
@@ -485,15 +630,12 @@ class ChainedRoutineService extends ChangeNotifier {
     _currentRoutine = routine;
     _currentBlockIndex = 0;
     _state = RoutineState.running;
-    _remainingTime = routine.blocks.first.duration;
+    _setPhaseTiming(DateTime.now(), routine.blocks.first.duration);
     _startTimer();
     notifyListeners();
 
-    _showNotification(
-      title: '${routine.name} Started',
-      body:
-          'First: ${routine.blocks.first.name} (${routine.blocks.first.durationMinutes} min)',
-    );
+    unawaited(_showTimerStatusNotification());
+    unawaited(_scheduleCurrentPhaseCompletionNotification());
   }
 
   /// Pause the routine
@@ -501,6 +643,9 @@ class ChainedRoutineService extends ChangeNotifier {
     if (_state == RoutineState.running) {
       _timer?.cancel();
       _state = RoutineState.paused;
+      _clearPhaseTiming();
+      _notifications?.cancel(_completionNotificationId);
+      unawaited(_showTimerStatusNotification());
       notifyListeners();
     }
   }
@@ -509,7 +654,10 @@ class ChainedRoutineService extends ChangeNotifier {
   void resume() {
     if (_state == RoutineState.paused) {
       _state = RoutineState.running;
+      _setPhaseTiming(DateTime.now(), _remainingTime);
       _startTimer();
+      unawaited(_showTimerStatusNotification());
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
       notifyListeners();
     }
   }
@@ -521,6 +669,9 @@ class ChainedRoutineService extends ChangeNotifier {
     _currentBlockIndex = 0;
     _state = RoutineState.idle;
     _remainingTime = Duration.zero;
+    _clearPhaseTiming();
+    _notifications?.cancel(_completionNotificationId);
+    _notifications?.cancel(_statusNotificationId);
     notifyListeners();
   }
 
@@ -533,6 +684,11 @@ class ChainedRoutineService extends ChangeNotifier {
   /// Add extra time to current block
   void addTime(Duration extra) {
     _remainingTime += extra;
+    if (_state == RoutineState.running) {
+      _setPhaseTiming(DateTime.now(), _remainingTime);
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
+      unawaited(_showTimerStatusNotification());
+    }
     notifyListeners();
   }
 
@@ -548,39 +704,45 @@ class ChainedRoutineService extends ChangeNotifier {
     });
   }
 
-  void _onBlockComplete() {
+  void _onBlockComplete({bool silent = false}) {
     _timer?.cancel();
     final block = currentBlock;
-    if (block != null) {
-      final hasNextBlock = _currentBlockIndex < totalBlocks - 1;
-      final nextBlock = hasNextBlock
-          ? _currentRoutine!.blocks[_currentBlockIndex + 1]
-          : null;
-      _showNotification(
-        title: '${block.name} Complete!',
-        body: nextBlock != null
-            ? 'Up next: ${nextBlock.name} (${nextBlock.durationMinutes} min)'
-            : 'Routine complete!',
-      );
+    if (!silent && block != null) {
+      _playAlarmSound();
     }
-    _advanceToNextBlock();
+    _advanceToNextBlock(silent: silent);
   }
 
-  void _advanceToNextBlock() {
+  void _advanceToNextBlock({bool silent = false}) {
     _currentBlockIndex++;
     if (_currentBlockIndex >= totalBlocks) {
       _state = RoutineState.completed;
-      _showNotification(
-        title: '${_currentRoutine!.name} Complete! 🎉',
-        body: 'Great job! You completed all $totalBlocks blocks.',
-      );
+      _clearPhaseTiming();
+      _notifications?.cancel(_statusNotificationId);
+      if (!silent) {
+        _showNotification(
+          title: '${_currentRoutine!.name} Complete! 🎉',
+          body: 'Great job! You completed all $totalBlocks blocks.',
+          playSound: false,
+        );
+      }
+      if (!silent) {
+        _playAlarmSound();
+      }
       notifyListeners();
       return;
     }
 
-    _remainingTime = _currentRoutine!.blocks[_currentBlockIndex].duration;
     _state = RoutineState.running;
+    _setPhaseTiming(
+      DateTime.now(),
+      _currentRoutine!.blocks[_currentBlockIndex].duration,
+    );
     _startTimer();
+    if (!silent) {
+      unawaited(_showTimerStatusNotification());
+      unawaited(_scheduleCurrentPhaseCompletionNotification());
+    }
     notifyListeners();
   }
 
@@ -783,14 +945,19 @@ class ChainedRoutineService extends ChangeNotifier {
   Future<void> _showNotification({
     required String title,
     required String body,
+    bool playSound = true,
+    int? notificationId,
+    bool ongoing = false,
+    DateTime? chronometerStart,
+    String? payload,
+    List<AndroidNotificationAction>? actions,
   }) async {
-    if (!_soundEnabled) return;
-
     final settings = await NotificationSettingsStorage.loadSettings();
-    final playSound = _shouldPlaySound(settings);
+    final effectivePlaySound =
+        playSound && _soundEnabled && _shouldPlaySound(settings);
     final enableVibration = _shouldVibrate(settings);
-    final sound = await _resolveAndroidSound(settings, playSound);
-    final soundIdentity = !playSound
+    final sound = await _resolveAndroidSound(settings, effectivePlaySound);
+    final soundIdentity = !effectivePlaySound
         ? 'sound_off'
         : (sound is RawResourceAndroidNotificationSound
               ? 'kivixa_notification'
@@ -798,18 +965,178 @@ class ChainedRoutineService extends ChangeNotifier {
               ? settings.reminderSoundId
               : 'sound_off');
 
+    final effectiveActions = <AndroidNotificationAction>[...?actions];
+    if (!ongoing &&
+        !effectiveActions.any((action) => action.id == _dismissActionId)) {
+      effectiveActions.add(
+        const AndroidNotificationAction(
+          _dismissActionId,
+          'Dismiss',
+          showsUserInterface: false,
+        ),
+      );
+    }
+
     final androidDetails = AndroidNotificationDetails(
       _channelIdForSettings(settings, soundIdentity),
       'Chained Routines',
       channelDescription: 'Notifications for chained routine blocks',
       importance: Importance.high,
       priority: Priority.high,
-      playSound: playSound,
+      playSound: effectivePlaySound,
       sound: sound,
       enableVibration: enableVibration,
       vibrationPattern: enableVibration
           ? _longReminderVibrationPattern()
           : null,
+      timeoutAfter: ongoing ? null : 60000,
+      ongoing: ongoing,
+      autoCancel: !ongoing,
+      onlyAlertOnce: true,
+      showWhen: chronometerStart != null,
+      when: chronometerStart?.millisecondsSinceEpoch,
+      usesChronometer: chronometerStart != null,
+      chronometerCountDown: true,
+      actions: effectiveActions,
+    );
+
+    final soundFileName = effectivePlaySound
+        ? NotificationSoundCatalogService.instance
+              .optionById(settings.reminderSoundId)
+              .fileName
+        : null;
+
+    final darwinDetails = DarwinNotificationDetails(
+      sound: effectivePlaySound
+          ? (soundFileName ?? 'kivixa_notification.mp3')
+          : null,
+      presentSound: effectivePlaySound,
+    );
+
+    final details = NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
+    );
+
+    try {
+      await _notifications?.show(
+        notificationId ?? 2,
+        title,
+        body,
+        details,
+        payload: payload,
+      );
+    } catch (e) {
+      debugPrint('Failed to show notification: $e');
+    }
+  }
+
+  List<AndroidNotificationAction> _buildStatusActions() {
+    if (_state == RoutineState.paused) {
+      return const [
+        AndroidNotificationAction(_actionResume, 'Resume'),
+        AndroidNotificationAction(_actionStop, 'Stop'),
+      ];
+    }
+
+    if (_state == RoutineState.running) {
+      return const [
+        AndroidNotificationAction(_actionPause, 'Pause'),
+        AndroidNotificationAction(_actionStop, 'Stop'),
+      ];
+    }
+
+    return const [];
+  }
+
+  Future<void> _showTimerStatusNotification() async {
+    if (_state == RoutineState.idle || _state == RoutineState.completed) {
+      await _notifications?.cancel(_statusNotificationId);
+      return;
+    }
+
+    final title = switch (_state) {
+      RoutineState.running => 'Routine Running',
+      RoutineState.paused => 'Routine Paused',
+      RoutineState.idle => 'Routine',
+      RoutineState.completed => 'Routine Complete',
+      RoutineState.betweenBlocks => 'Between Blocks',
+    };
+
+    final block = currentBlock;
+    var body = '';
+    if (block != null) {
+      body = 'Current: ${block.name}';
+      final hasNextBlock = _currentBlockIndex < totalBlocks - 1;
+      if (hasNextBlock) {
+        final nextBlock = _currentRoutine!.blocks[_currentBlockIndex + 1];
+        body += ' | Next: ${nextBlock.name}';
+      }
+    }
+
+    await _showNotification(
+      title: title,
+      body: body,
+      playSound: false,
+      ongoing: true,
+      chronometerStart: _phaseStartTime,
+      payload: 'chained_routine_status',
+      actions: _buildStatusActions(),
+      notificationId: _statusNotificationId,
+    );
+  }
+
+  Future<void> _ensureTimeZonesInitialized() async {
+    if (_timeZonesInitialized) {
+      return;
+    }
+    tz_init.initializeTimeZones();
+    _timeZonesInitialized = true;
+  }
+
+  Future<void> _scheduleCurrentPhaseCompletionNotification() async {
+    if (!_initialized || _phaseEndTime == null) {
+      return;
+    }
+
+    final scheduledTime = _phaseEndTime!;
+    if (scheduledTime.isBefore(DateTime.now())) {
+      return;
+    }
+
+    await _ensureTimeZonesInitialized();
+
+    final globalSettings = await NotificationSettingsStorage.loadSettings();
+    final effectivePlaySound =
+        _soundEnabled && _shouldPlaySound(globalSettings);
+    final enableVibration = _shouldVibrate(globalSettings);
+    final resolvedSound = await _resolveAndroidSound(
+      globalSettings,
+      effectivePlaySound,
+    );
+    final vibrationPattern = enableVibration
+        ? _longReminderVibrationPattern()
+        : null;
+
+    final soundIdentity = !effectivePlaySound
+        ? 'sound_off'
+        : (resolvedSound is RawResourceAndroidNotificationSound
+              ? 'kivixa_notification'
+              : resolvedSound is UriAndroidNotificationSound
+              ? globalSettings.reminderSoundId
+              : 'sound_off');
+
+    final androidDetails = AndroidNotificationDetails(
+      _channelIdForSettings(globalSettings, soundIdentity),
+      'Chained Routines',
+      channelDescription: 'Notifications for chained routine blocks',
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: effectivePlaySound,
+      sound: resolvedSound,
+      enableVibration: enableVibration,
+      vibrationPattern: vibrationPattern,
       timeoutAfter: 60000,
       actions: const [
         AndroidNotificationAction(
@@ -820,12 +1147,50 @@ class ChainedRoutineService extends ChangeNotifier {
       ],
     );
 
-    final details = NotificationDetails(android: androidDetails);
+    final soundFileName = effectivePlaySound
+        ? NotificationSoundCatalogService.instance
+              .optionById(globalSettings.reminderSoundId)
+              .fileName
+        : null;
+
+    final darwinDetails = DarwinNotificationDetails(
+      sound: effectivePlaySound
+          ? (soundFileName ?? 'kivixa_notification.mp3')
+          : null,
+      presentSound: effectivePlaySound,
+    );
+
+    final details = NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
+    );
+
+    final block = currentBlock;
+    final title = block != null ? '${block.name} Complete!' : 'Complete!';
+    String body = 'Routine block complete!';
+    if (block != null) {
+      final hasNextBlock = _currentBlockIndex < totalBlocks - 1;
+      if (hasNextBlock) {
+        final nextBlock = _currentRoutine!.blocks[_currentBlockIndex + 1];
+        body = 'Up next: ${nextBlock.name} (${nextBlock.durationMinutes} min)';
+      } else {
+        body = 'Great job! You completed all $totalBlocks blocks.';
+      }
+    }
 
     try {
-      await _notifications?.show(2, title, body, details);
+      await _notifications?.zonedSchedule(
+        _completionNotificationId,
+        title,
+        body,
+        tz.TZDateTime.from(scheduledTime, tz.local),
+        details,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        payload: 'chained_routine_completion',
+      );
     } catch (e) {
-      debugPrint('Failed to show notification: $e');
+      debugPrint('Failed to schedule completion notification: $e');
     }
   }
 
