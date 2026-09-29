@@ -392,9 +392,13 @@ class _BrowsePageState extends State<BrowsePage> {
   /// Actually query file system for modification time (called once per file when loading)
   DateTime _computeFileModifiedTime(String filePath) {
     try {
-      // Check .kvx file first, then .md, then .kvtx
+      // Check .kvx file first, then .kvx1, then .md, then .kvtx
       if (FileManager.doesFileExist('$filePath${Editor.extension}')) {
         return FileManager.lastModified('$filePath${Editor.extension}');
+      } else if (FileManager.doesFileExist(
+        '$filePath${Editor.extensionOldJson}',
+      )) {
+        return FileManager.lastModified('$filePath${Editor.extensionOldJson}');
       } else if (FileManager.doesFileExist('$filePath.md')) {
         return FileManager.lastModified('$filePath.md');
       } else if (FileManager.doesFileExist(

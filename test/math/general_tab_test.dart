@@ -47,9 +47,11 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Should have nPr and nCr buttons
-      expect(find.text('nPr'), findsOneWidget);
-      expect(find.text('nCr'), findsOneWidget);
+      // Should have trigonometric buttons
+      expect(find.text('sin'), findsWidgets);
+      expect(find.text('cos'), findsWidgets);
+      expect(find.text('sec'), findsWidgets);
+      expect(find.text('csc'), findsWidgets);
     });
 
     testWidgets('MathGeneralTab has number buttons', (

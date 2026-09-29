@@ -148,7 +148,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Calculus Tab**: 
     - Numerical derivatives (first, second, nth order)
     - Definite and indefinite integrals
-    - **Partial Derivatives**: Compute partial derivatives with respect to multiple variables (âˆ‚f/âˆ‚x, âˆ‚f/âˆ‚y, etc.)
+    - **Partial Derivatives**: Compute partial derivatives with respect to multiple variables (∂f/∂x, ∂f/∂y, etc.)
     - **Multiple Integrals**: Double and triple integrals over rectangular regions
     - Limits with left/right-sided approach
     - Taylor series expansion
@@ -161,7 +161,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       - **Chi-squared test** for categorical data
       - **ANOVA** (Analysis of Variance) for comparing multiple group means
     - Confidence intervals for mean, proportion, and variance
-    - Linear and polynomial regression with RÂ², slope, intercept
+    - Linear and polynomial regression with R², slope, intercept
   - **Discrete Tab**: Combinatorics (permutations, combinations, factorials), number theory (GCD, LCM, primality), modular arithmetic
   - **Graphing Tab**: 2D function plotting, parametric curves, polar coordinates, implicit functions
   - **Tools Tab**: Number system conversion (binary, octal, decimal, hex), constants reference, formula library
@@ -769,23 +769,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Redesigned Math Interface**: Totally revamped the General Calculator layout. Placed Backspace/Clear adjacent to the input field, clearly grouped trigonometric, logarithmic, and mathematical features, and optimized the layout for maximum operational UX.
 
 ---
-## [0.10.0] - 2026-05-31
-
-### Added
-- **Arbitrary Order Derivatives**: Math module now supports any positive integer order for computing standard derivatives and partial derivatives in the calculus section.
-- **New Statistical Distributions**: Added support for evaluating PDF, CDF, mean, and variance of Log-Normal, Laplace, Logistic, Pareto, and Rayleigh distributions.
-- **Math Module Documentation**: Added comprehensive documentation describing the complete suite of math capabilities in `docs/math_module_details.md`.
-- **Symbolic Calculus**: Added support for symbolic differentiation and integration, returning algebraic expressions (e.g. `2x` for `x^2`).
-- **Advanced Statistical Tests**: Added F-Test for Variances, Mann-Whitney U Test, Binomial Test, and Durbin-Watson Test to the Hypothesis tab.
-- **Discrete Sequence Generators**: New sequence generation tool supporting Classical (Arithmetic, Geometric, Triangular, Polygonal), Number-Theoretic (Mersenne, Lucas, Pell), Combinatorial (Stirling, Partition), and Analytical (Harmonic, Bernoulli, Euler) sequences.
+## [0.9.2] - 2026-09-29
 
 ### Changed
-- **Statistics Engine Migration**: Transitioned front-end Flutter statistics computations to the Rust `native_math` backend for improved performance and consistency.
-- **Regression Expansion**: Added 17 new advanced regression models to Statistics module including Logistic, Ridge, Lasso, Elastic Net, Decision Tree, Random Forest, and more. Offloaded implementations to native Rust backend for maximum performance.
-- **Combinatorics Expansion**: Added advanced combinatorics (Stirling numbers, Partitions, Derangements) support in the Discrete math module.
-
----
-## [0.10.1] - 2026-06-17
-
+- Fix android notes disappearing issue
+- Fix android and windows builds
 
 ---
