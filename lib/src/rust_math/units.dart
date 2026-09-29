@@ -6,37 +6,42 @@
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:kivixa/src/rust_math/frb_generated.dart';
 
+/// Result of unit conversion
+class UnitResult {
+  final bool success;
+  final double value;
+  final String fromUnit;
+  final String toUnit;
+  final String formula;
+  final String? error;
 
-            
+  const UnitResult({
+    required this.success,
+    required this.value,
+    required this.fromUnit,
+    required this.toUnit,
+    required this.formula,
+    this.error,
+  });
 
-            
+  @override
+  int get hashCode =>
+      success.hashCode ^
+      value.hashCode ^
+      fromUnit.hashCode ^
+      toUnit.hashCode ^
+      formula.hashCode ^
+      error.hashCode;
 
-            /// Result of unit conversion
-class UnitResult  {
-                final bool success;
-final double value;
-final String fromUnit;
-final String toUnit;
-final String formula;
-final String? error;
-
-                const UnitResult({required this.success ,required this.value ,required this.fromUnit ,required this.toUnit ,required this.formula ,this.error ,});
-
-                
-                
-
-                
-        @override
-        int get hashCode => success.hashCode^value.hashCode^fromUnit.hashCode^toUnit.hashCode^formula.hashCode^error.hashCode;
-        
-
-                
-        @override
-        bool operator ==(Object other) =>
-            identical(this, other) ||
-            other is UnitResult &&
-                runtimeType == other.runtimeType
-                && success == other.success&& value == other.value&& fromUnit == other.fromUnit&& toUnit == other.toUnit&& formula == other.formula&& error == other.error;
-        
-            }
-            
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UnitResult &&
+          runtimeType == other.runtimeType &&
+          success == other.success &&
+          value == other.value &&
+          fromUnit == other.fromUnit &&
+          toUnit == other.toUnit &&
+          formula == other.formula &&
+          error == other.error;
+}

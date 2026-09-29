@@ -208,10 +208,11 @@ class FileManager {
 
     final file = getFile(filePath);
     await _createFileDirectory(filePath);
-    final oldJsonPath = filePath.endsWith(Editor.extension) &&
+    final oldJsonPath =
+        filePath.endsWith(Editor.extension) &&
             Editor.extension != Editor.extensionOldJson
         ? '${filePath.substring(0, filePath.length - Editor.extension.length)}'
-            '${Editor.extensionOldJson}'
+              '${Editor.extensionOldJson}'
         : null;
     Future writeFuture = Future.wait([
       file.writeAsBytes(toWrite).then((file) async {

@@ -24,7 +24,9 @@ void main() {
     });
 
     setUp(() async {
-      tempDocumentsDir = await Directory.systemTemp.createTemp('kivixa_hw_test_');
+      tempDocumentsDir = await Directory.systemTemp.createTemp(
+        'kivixa_hw_test_',
+      );
       await FileManager.init(
         documentsDirectory: tempDocumentsDir.path,
         shouldWatchRootDirectory: false,
@@ -46,62 +48,84 @@ void main() {
       expect(Editor.extension, isNot(equals(Editor.extensionOldJson)));
     });
 
-    test('Writing new handwritten note preserves .kvx file without self-deletion', () async {
-      const filePath = '/26-09-08 Untitled.kvx';
-      final content = utf8.encode('handwritten note bson content');
+    test(
+      'Writing new handwritten note preserves .kvx file without self-deletion',
+      () async {
+        const filePath = '/26-09-08 Untitled.kvx';
+        final content = utf8.encode('handwritten note bson content');
 
-      await FileManager.writeFile(filePath, content, awaitWrite: true);
+        await FileManager.writeFile(filePath, content, awaitWrite: true);
 
-      // Verify the .kvx file exists on disk
-      expect(FileManager.doesFileExist(filePath), isTrue);
+        // Verify the .kvx file exists on disk
+        expect(FileManager.doesFileExist(filePath), isTrue);
 
-      final readBytes = await FileManager.readFile(filePath);
-      expect(readBytes, isNotNull);
-      expect(utf8.decode(readBytes!), equals('handwritten note bson content'));
+        final readBytes = await FileManager.readFile(filePath);
+        expect(readBytes, isNotNull);
+        expect(
+          utf8.decode(readBytes!),
+          equals('handwritten note bson content'),
+        );
 
-      // Verify the note is in recentFiles
-      expect(stows.recentFiles.value, contains(filePath));
-    });
+        // Verify the note is in recentFiles
+        expect(stows.recentFiles.value, contains(filePath));
+      },
+    );
 
-    test('Writing .kvx note cleans up legacy .kvx1 without deleting the new .kvx note', () async {
-      const legacyPath = '/test_note.kvx1';
-      const newPath = '/test_note.kvx';
+    test(
+      'Writing .kvx note cleans up legacy .kvx1 without deleting the new .kvx note',
+      () async {
+        const legacyPath = '/test_note.kvx1';
+        const newPath = '/test_note.kvx';
 
-      // Pre-create the legacy file
-      final legacyFile = File('${FileManager.documentsDirectory}$legacyPath');
-      await legacyFile.create(recursive: true);
-      await legacyFile.writeAsString('old json content');
-      expect(legacyFile.existsSync(), isTrue);
+        // Pre-create the legacy file
+        final legacyFile = File('${FileManager.documentsDirectory}$legacyPath');
+        await legacyFile.create(recursive: true);
+        await legacyFile.writeAsString('old json content');
+        expect(legacyFile.existsSync(), isTrue);
 
-      // Now save new note
-      final newContent = utf8.encode('new bson content');
-      await FileManager.writeFile(newPath, newContent, awaitWrite: true);
+        // Now save new note
+        final newContent = utf8.encode('new bson content');
+        await FileManager.writeFile(newPath, newContent, awaitWrite: true);
 
-      // Legacy file must be deleted
-      expect(FileManager.doesFileExist(legacyPath), isFalse);
+        // Legacy file must be deleted
+        expect(FileManager.doesFileExist(legacyPath), isFalse);
 
-      // New file must exist and be readable
-      expect(FileManager.doesFileExist(newPath), isTrue);
-      final readBytes = await FileManager.readFile(newPath);
-      expect(readBytes, isNotNull);
-      expect(utf8.decode(readBytes!), equals('new bson content'));
-    });
+        // New file must exist and be readable
+        expect(FileManager.doesFileExist(newPath), isTrue);
+        final readBytes = await FileManager.readFile(newPath);
+        expect(readBytes, isNotNull);
+        expect(utf8.decode(readBytes!), equals('new bson content'));
+      },
+    );
 
-    test('DirectoryChildren detects .kvx and .kvx1 as handwritten file type', () async {
-      const kvxPath = '/note_a.kvx';
-      const kvx1Path = '/note_b.kvx1';
+    test(
+      'DirectoryChildren detects .kvx and .kvx1 as handwritten file type',
+      () async {
+        const kvxPath = '/note_a.kvx';
+        const kvx1Path = '/note_b.kvx1';
 
-      await FileManager.writeFile(kvxPath, utf8.encode('a'), awaitWrite: true);
+        await FileManager.writeFile(
+          kvxPath,
+          utf8.encode('a'),
+          awaitWrite: true,
+        );
 
-      final kvx1File = File('${FileManager.documentsDirectory}$kvx1Path');
-      await kvx1File.create(recursive: true);
-      await kvx1File.writeAsString('b');
+        final kvx1File = File('${FileManager.documentsDirectory}$kvx1Path');
+        await kvx1File.create(recursive: true);
+        await kvx1File.writeAsString('b');
 
-      final children = await FileManager.getChildrenOfDirectory('/');
-      expect(children, isNotNull);
-      expect(children!.files, containsAll(['note_a', 'note_b']));
-      expect(children.getFileType('note_a'), equals(KivixaFileType.handwritten));
-      expect(children.getFileType('note_b'), equals(KivixaFileType.handwritten));
-    });
+        final children = await FileManager.getChildrenOfDirectory('/');
+        expect(children, isNotNull);
+        expect(children!.files, containsAll(['note_a', 'note_b']));
+        expect(
+          children.getFileType('note_a'),
+          equals(KivixaFileType.handwritten),
+        );
+        expect(
+          children.getFileType('note_b'),
+          equals(KivixaFileType.handwritten),
+        );
+      },
+    );
   });
 }

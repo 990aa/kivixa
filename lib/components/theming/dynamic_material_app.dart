@@ -151,10 +151,12 @@ class DynamicMaterialAppState extends State<DynamicMaterialApp>
     // Try and use device's accent color, or fall back to defaultSwatch
     return DynamicColorBuilder(
       builder: (dynamic lightDynamic, dynamic darkDynamic) {
-        final Color? lightPrimary =
-            lightDynamic != null ? (lightDynamic.primary as Color?) : null;
-        final Color? darkPrimary =
-            darkDynamic != null ? (darkDynamic.primary as Color?) : null;
+        final Color? lightPrimary = lightDynamic != null
+            ? (lightDynamic.primary as Color?)
+            : null;
+        final Color? darkPrimary = darkDynamic != null
+            ? (darkDynamic.primary as Color?)
+            : null;
 
         final lightColorScheme = (lightDynamic is ColorScheme)
             ? lightDynamic
