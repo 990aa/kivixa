@@ -16,7 +16,7 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 
 1. **Do NOT** create a public GitHub issue for security vulnerabilities
 2. Email the security concern directly to the maintainers via GitHub's private vulnerability reporting feature
-3. Alternatively, open a private security advisory at: [GitHub Security Advisories](https://github.com/990aa/kivixa/security/advisories/new)
+3. Alternatively, open a private security advisory at: [GitHub Security Advisories](https://github.com/990aa/Kivixa/security/advisories/new)
 
 ### What to Include
 

@@ -72,8 +72,8 @@ class AppLifecycleManager with WidgetsBindingObserver {
     if (_initialized) return;
 
     WidgetsBinding.instance.addObserver(this);
-    _resetIdleTimer();
     _initialized = true;
+    _resetIdleTimer();
 
     debugPrint('AppLifecycleManager initialized');
   }
@@ -171,6 +171,8 @@ class AppLifecycleManager with WidgetsBindingObserver {
 
   /// Call this whenever user interacts with the app
   void onUserActivity() {
+    if (!_initialized) return;
+
     if (_isIdle) {
       _isIdle = false;
       _idleStateController.add(false);
@@ -185,6 +187,8 @@ class AppLifecycleManager with WidgetsBindingObserver {
   }
 
   void _resetIdleTimer() {
+    if (!_initialized) return;
+
     _idleTimer?.cancel();
     _idleTimer = Timer(idleTimeout, _onIdleTimeout);
   }

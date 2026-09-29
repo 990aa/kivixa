@@ -20,11 +20,11 @@
   <code>winget install Kivixa</code>
 </p>
 
-[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/kivixa/releases/download/v0.9.0%2B90000/Kivixa-Setup-0.9.0.exe)
+[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/Kivixa/releases/download/v0.9.0%2B90000/Kivixa-Setup-0.9.0.exe)
 
-[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.9.0%2B90000/Kivixa-Android-0.9.0-arm64.apk)
-[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.9.0%2B90000/Kivixa-Android-0.9.0-armv7.apk)
-[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/kivixa/releases/download/v0.9.0%2B90000/Kivixa-Android-0.9.0-x86_64.apk)
+[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/Kivixa/releases/download/v0.9.0%2B90000/Kivixa-Android-0.9.0-arm64.apk)
+[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/Kivixa/releases/download/v0.9.0%2B90000/Kivixa-Android-0.9.0-armv7.apk)
+[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/Kivixa/releases/download/v0.9.0%2B90000/Kivixa-Android-0.9.0-x86_64.apk)
 
 **F-Droid Repository (step-by-step):**
 
@@ -35,12 +35,12 @@
 5. Tap the **+** icon at the bottom.
 6. Choose one method:
   - **Scan QR code** and scan the QR code below.
-  - **Enter repository URL manually** and enter: `https://990aa.github.io/kivixa/repo/`
+  - **Enter repository URL manually** and enter: `https://990aa.github.io/Kivixa/repo/`
 
-[![F-Droid Repo](https://img.shields.io/badge/F--Droid-Add%20Repo-F5BB00?logo=fdroid)](https://990aa.github.io/kivixa/repo/)
+[![F-Droid Repo](https://img.shields.io/badge/F--Droid-Add%20Repo-F5BB00?logo=fdroid)](https://990aa.github.io/Kivixa/repo/)
 <details>
 <summary>F-Droid repository QR code</summary>
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://990aa.github.io/kivixa/repo" alt="F-Droid Repo QR Code" width="200">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://990aa.github.io/Kivixa/repo" alt="F-Droid Repo QR Code" width="200">
 </details>
 
 </div>
@@ -521,8 +521,8 @@ A fully-featured web browser built into Kivixa for seamless research and referen
 ### 1) Clone the repository
 
 ```bash
-git clone https://github.com/990aa/kivixa.git
-cd kivixa
+git clone https://github.com/990aa/Kivixa.git
+cd Kivixa
 ```
 
 ### 2) Install Flutter dependencies
@@ -739,8 +739,9 @@ We appreciate the upstream model creators and the open model packaging community
 
 ## Contact & Support
 
-- **Issues**: [GitHub Issues](https://github.com/990aa/kivixa/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/990aa/kivixa/discussions)
+
+- **Issues**: [GitHub Issues](https://github.com/990aa/Kivixa/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/990aa/Kivixa/discussions)
 
 ---
 
