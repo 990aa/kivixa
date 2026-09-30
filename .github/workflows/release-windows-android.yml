@@ -142,6 +142,9 @@ jobs:
           NDK_BIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           API_LEVEL=23
           export PATH="${NDK_BIN}:$PATH"
+          # llama-cpp-sys-2 expects this Cargo build-script variable on Android,
+          # but Cargo does not emit it when the target has no explicit features.
+          export CARGO_CFG_TARGET_FEATURE="${CARGO_CFG_TARGET_FEATURE:-}"
 
           # arm64-v8a
           echo "Building aarch64-linux-android..."
