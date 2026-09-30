@@ -15,7 +15,7 @@ This branch publishes the signed F-Droid repository for Kivixa.
 5. Tap the **+** icon at the bottom.
 6. Choose one method:
   - **Scan QR code** and scan the QR code below.
-  - **Enter repository URL manually** and enter: `https://990aa.github.io/Kivixa/repo/`
+  - **Enter repository URL manually** and enter: `https://990aa.github.io/Kivixa/repo`
 
 [![F-Droid Repo](https://img.shields.io/badge/F--Droid-Add%20Repo-F5BB00?logo=fdroid)](https://990aa.github.io/Kivixa/repo/)
 <details>
