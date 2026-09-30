@@ -50,7 +50,7 @@ sdk_path: $ANDROID_HOME
 # Canonical URL of the repositoy, needs to end in /repo. Is is used to identity
 # the repo in the client, as well.
 # repo_url: https://MyFirstFDroidRepo.org/fdroid/repo
-repo_url: https://990aa.github.io/kivixa/repo
+repo_url: https://990aa.github.io/Kivixa/repo
 
 #
 # Base URL for per-package pages on the website of this repo,
@@ -72,7 +72,7 @@ repo_description: >-
 
 # As above, but for the archive repo.
 #
-# archive_url: https://f-droid.org/archive
+archive_url: https://990aa.github.io/Kivixa/archive
 # archive_web_base_url:
 # archive_name: My First F-Droid Archive Demo
 # archive_description: >-
