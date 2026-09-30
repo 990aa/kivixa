@@ -1,4 +1,4 @@
-6# Kivixa F-Droid Repository (gh-pages)
+# Kivixa F-Droid Repository (gh-pages)
 
 This branch publishes the signed F-Droid repository for Kivixa.
 
