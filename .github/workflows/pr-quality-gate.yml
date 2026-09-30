@@ -94,7 +94,7 @@ jobs:
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.workflow == 'flutter' || inputs.workflow == 'all' }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.resolve-target.outputs.checkout_ref }}
           fetch-depth: 0
@@ -160,7 +160,7 @@ jobs:
           flutter test --no-pub --coverage --reporter expanded "${test_files[@]}"
 
       - name: Upload Flutter coverage to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           files: coverage/lcov.info
           flags: flutter_app
@@ -180,7 +180,7 @@ jobs:
         crate: [native, native_audio, native_math]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.resolve-target.outputs.checkout_ref }}
           fetch-depth: 0
@@ -261,7 +261,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Rust coverage to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           files: lcov-${{ matrix.crate }}.info
           flags: ${{ matrix.crate }}
@@ -281,7 +281,7 @@ jobs:
         crate: [native, native_audio, native_math]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.resolve-target.outputs.checkout_ref }}
           fetch-depth: 0
@@ -312,7 +312,7 @@ jobs:
       native_math: ${{ steps.set_outputs.outputs.native_math }}
       dart_other: ${{ steps.set_outputs.outputs.dart_other }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.resolve-target.outputs.checkout_ref }}
           fetch-depth: 0
@@ -379,16 +379,16 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.resolve-target.outputs.checkout_ref }}
           submodules: recursive
 
       - name: Setup Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '25'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -480,7 +480,7 @@ jobs:
     if: ${{ (github.event_name != 'workflow_dispatch' || inputs.workflow == 'windows' || inputs.workflow == 'all') && (needs.path-filter.outputs.dart_other == 'true' || needs.path-filter.outputs.native == 'true' || needs.path-filter.outputs.native_audio == 'true' || needs.path-filter.outputs.native_math == 'true') }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.resolve-target.outputs.checkout_ref }}
           submodules: recursive

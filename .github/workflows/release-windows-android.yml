@@ -63,7 +63,7 @@ jobs:
           swap-storage: true
 
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 0
@@ -105,10 +105,10 @@ jobs:
           grep "^version:" pubspec.yaml
 
       - name: Setup Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '25'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -417,7 +417,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -697,7 +697,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download Android artifacts
         uses: actions/download-artifact@v8
@@ -775,13 +775,13 @@ jobs:
 
     steps:
       - name: Checkout main repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: main-repository
           fetch-depth: 1
 
       - name: Checkout landing page
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: 990aa/Kivixa-landing-page
           token: ${{ secrets.LANDING_PAGE_PAT }}
@@ -827,7 +827,7 @@ jobs:
 
     steps:
       - name: Checkout gh-pages branch
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: gh-pages
           fetch-depth: 0
@@ -839,7 +839,7 @@ jobs:
           path: fdroid-apks
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.14'
 
