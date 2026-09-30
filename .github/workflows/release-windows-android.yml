@@ -725,12 +725,10 @@ jobs:
         id: changelog
         run: |
           VERSION=${{ needs.build-android.outputs.version }}
-          # Extract changelog section for this version
           CHANGELOG=$(awk "/## \[${VERSION}\]/{flag=1; next} /## \[/{flag=0} flag" CHANGELOG.md | head -100)
           if [ -z "$CHANGELOG" ]; then
             CHANGELOG="Release version ${VERSION}"
           fi
-          # Escape for GitHub Actions
           echo "content<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -762,7 +760,7 @@ jobs:
             ---
 
             ### Alternative Downloads
-            - **F-Droid**: Add our repo at `https://990aa.github.io/kivixa/repo`
+            - **F-Droid**: Add our repo at `https://990aa.github.io/Kivixa/repo`
           files: release-artifacts/*
           draft: false
           prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
@@ -797,30 +795,27 @@ jobs:
 
       - name: Install fdroidserver
         run: |
-          pip install fdroidserver
+          pip install fdroidserver ruamel.yaml
           sudo apt-get update
           sudo apt-get install -y apksigner
 
       - name: Setup and Publish F-Droid Repo
+        env:
+          FDROID_KEYSTORE_PASSWORD: ${{ secrets.FDROID_KEYSTORE_PASSWORD }}
         run: |
           VERSION=${{ needs.build-android.outputs.version }}
 
           # --- 1. PREPARE DIRECTORIES ---
-          mkdir -p repo
-          mkdir -p archive
-          mkdir -p repo/icons
-          mkdir -p archive/icons
-          mkdir -p metadata/com.a990aa.kivixa/en-US
+          mkdir -p repo archive repo/icons archive/icons metadata/com.a990aa.kivixa/en-US
 
           # --- 2. COPY APKs ---
           cp fdroid-apks/*.apk repo/
           cp -f icon.png repo/icons/icon.png
           cp -f icon.png archive/icons/icon.png
 
-          # Keep the published repo clean by dropping temporary artifact cache.
           rm -rf fdroid-apks tmp
 
-          # Remove legacy APKs older than 0.8.21 from both repo and archive.
+          # Remove legacy APKs older than 0.8.21 from both repo and archive
           for dir in repo archive; do
             find "$dir" -maxdepth 1 -type f -name 'Kivixa-Android-*.apk' | while IFS= read -r apk; do
               base_name=$(basename "$apk")
@@ -860,14 +855,10 @@ jobs:
           Summary: A privacy-first cross-platform productivity workspace for notes, sketching, planning, and local AI assistance.
           METAEOF
 
-          # --- 4. HANDLE KEYSTORE (CRITICAL) ---
-          if [ ! -f keystore.p12 ]; then
-            echo "Keystore missing. Initializing fresh keys..."
-            rm -f config.yml
-            fdroid init --verbose
-          fi
+          # --- 4. DECODE KEYSTORE FROM GITHUB SECRET ---
+          echo "${{ secrets.FDROID_KEYSTORE_BASE64 }}" | base64 -d > keystore.p12
 
-          # --- 5. UPDATE CONFIG WITHOUT DROPPING EXISTING SIGNING FIELDS ---
+          # --- 5. UPDATE CONFIG (SAFE FROM LEAKS) ---
           python - << 'PYCFG'
           from pathlib import Path
           from ruamel.yaml import YAML
@@ -882,7 +873,8 @@ jobs:
               if isinstance(loaded, dict):
                   data = loaded
 
-          data["repo_url"] = "https://990aa.github.io/kivixa/repo"
+          data["repo_url"] = "https://990aa.github.io/Kivixa/repo"
+          data["archive_url"] = "https://990aa.github.io/Kivixa/archive"
           data["repo_name"] = "Kivixa"
           data["repo_icon"] = "icon.png"
           data["repo_description"] = "Official F-Droid repository for the Kivixa productivity workspace."
@@ -890,33 +882,35 @@ jobs:
           data["archive_description"] = "Older versions of Kivixa kept for compatibility and rollback."
           data["archive_icon"] = "icon.png"
           data["archive_older"] = 15
+          data["keystore"] = "keystore.p12"
+          # Store environment variable references so real passwords are never saved to git
+          data["keystorepass"] = "{env: FDROID_KEYSTORE_PASSWORD}"
+          data["keypass"] = "{env: FDROID_KEYSTORE_PASSWORD}"
 
           with path.open("w", encoding="utf-8") as fp:
               yaml.dump(data, fp)
           PYCFG
 
-          # --- 6. UPDATE REPO (GENERATE INDEX) ---
+          # --- 6. UPDATE REPO (GENERATE INDEX & SIGN) ---
           echo "Running F-Droid Update..."
           fdroid update --create-metadata --verbose --pretty
 
-          # --- 7. PUBLISH TO GITHUB (PUSH) ---
-          echo "Starting Git Publish..."
+          # --- 7. CLEANUP SECRET FILE BEFORE GIT STAGING ---
+          rm -f keystore.p12
 
-          # Configure Git
+          # --- 8. PUBLISH TO GITHUB (PUSH) ---
+          echo "Starting Git Publish..."
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Add .nojekyll to ensure links work
           touch .nojekyll
 
-          # Stage only expected F-Droid publishing assets.
-          git add .nojekyll README.md index.html config.yml icon.png keystore.p12 metadata repo archive
+          # Notice keystore.p12 is omitted here!
+          git add .nojekyll README.md index.html config.yml icon.png metadata repo archive
 
-          # Debug: Show what we are about to commit
           echo "Files staged for commit:"
           git status --short
 
-          # Commit and Push
           git commit -m "Update F-Droid repo for v$VERSION" || echo "No changes to commit"
           git push origin gh-pages
 
