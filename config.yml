@@ -133,7 +133,7 @@ archive_icon: icon.png
 # The key (from the keystore defined below) to be used for signing the
 # repository itself. This is the same name you would give to keytool or
 # jarsigner using -alias. (Not needed in an unsigned repository).
-repo_keyalias: runnervmymu0l.ak4m3v4snh5uzga43viiloyuah.ex.internal.cloudapp.net
+repo_keyalias: kivixa
 
 # Optionally, the public key for the key defined by repo_keyalias above can
 # be specified here. There is no need to do this, as the public key can and
@@ -161,15 +161,15 @@ keystore: keystore.p12
 # different than the keypass below, it can be OK to store the password in this
 # file for real use. But in general, sensitive passwords should not be stored
 # in text files!
-keystorepass: 6WPPD+AhDEnLjnUzpSCCVXKa6wQ1xTCxVEpMQdaYZNg=
+keystorepass: ""
 
 # The password for keys - the same is used for each auto-generated key as well
 # as for the repository key. You should not normally store this password in a
 # file since it is a sensitive password.
-keypass: 6WPPD+AhDEnLjnUzpSCCVXKa6wQ1xTCxVEpMQdaYZNg=
+keypass: ""
 
 # The distinguished name used for all keys.
-keydname: CN=runnervmymu0l.ak4m3v4snh5uzga43viiloyuah.ex.internal.cloudapp.net, OU=F-Droid
+keydname: CN=Kivixa, OU=F-Droid
 
 # Use this to override the auto-generated key aliases with specific ones
 # for particular applications. Normally, just leave it empty.
