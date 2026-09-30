@@ -12,7 +12,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.9.0+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-View%20License-blue)](LICENSE.md)
-[![Version](https://img.shields.io/badge/Version-0.9.2%2B90020--beta-orange)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-0.9.3%2B90030--beta-orange)](CHANGELOG.md)
 
 **Install on Windows with winget (recommended):**
 
@@ -20,11 +20,11 @@
   <code>winget install Kivixa</code>
 </p>
 
-[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/Kivixa/releases/download/v0.9.2%2B90020/Kivixa-Setup-0.9.2.exe)
+[![Download Windows](https://img.shields.io/badge/Download-Windows-2ea44f?logo=windows)](https://github.com/990aa/Kivixa/releases/download/v0.9.3%2B90030/Kivixa-Setup-0.9.3.exe)
 
-[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/Kivixa/releases/download/v0.9.2%2B90020/Kivixa-Android-0.9.2-arm64.apk)
-[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/Kivixa/releases/download/v0.9.2%2B90020/Kivixa-Android-0.9.2-armv7.apk)
-[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/Kivixa/releases/download/v0.9.2%2B90020/Kivixa-Android-0.9.2-x86_64.apk)
+[![Android ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/Kivixa/releases/download/v0.9.3%2B90030/Kivixa-Android-0.9.3-arm64.apk)
+[![Android ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/Kivixa/releases/download/v0.9.3%2B90030/Kivixa-Android-0.9.3-armv7.apk)
+[![Android x86_64](https://img.shields.io/badge/Android-x86_64-3DDC84?logo=android&logoColor=white)](https://github.com/990aa/Kivixa/releases/download/v0.9.3%2B90030/Kivixa-Android-0.9.3-x86_64.apk)
 
 **F-Droid Repository (step-by-step):**
 
