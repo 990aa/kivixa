@@ -858,8 +858,9 @@ jobs:
           # --- 4. DECODE KEYSTORE FROM GITHUB SECRET ---
           echo "${{ secrets.FDROID_KEYSTORE_BASE64 }}" | base64 -d > keystore.p12
 
-          # --- 5. UPDATE CONFIG (SAFE FROM LEAKS) ---
+          # --- 5. UPDATE CONFIG FOR BUILD ---
           python - << 'PYCFG'
+          import os
           from pathlib import Path
           from ruamel.yaml import YAML
 
@@ -883,20 +884,39 @@ jobs:
           data["archive_icon"] = "icon.png"
           data["archive_older"] = 15
           data["keystore"] = "keystore.p12"
-          # Store environment variable references so real passwords are never saved to git
-          data["keystorepass"] = "{env: FDROID_KEYSTORE_PASSWORD}"
-          data["keypass"] = "{env: FDROID_KEYSTORE_PASSWORD}"
+          data["repo_keyalias"] = "kivixa"
+          data["keydname"] = "CN=Kivixa, OU=F-Droid"
+          # Inject real secret for the build step
+          data["keystorepass"] = os.environ.get("FDROID_KEYSTORE_PASSWORD", "")
+          data["keypass"] = os.environ.get("FDROID_KEYSTORE_PASSWORD", "")
 
           with path.open("w", encoding="utf-8") as fp:
               yaml.dump(data, fp)
           PYCFG
 
+          chmod 0600 config.yml
+
           # --- 6. UPDATE REPO (GENERATE INDEX & SIGN) ---
           echo "Running F-Droid Update..."
           fdroid update --create-metadata --verbose --pretty
 
-          # --- 7. CLEANUP SECRET FILE BEFORE GIT STAGING ---
+          # --- 7. CLEANUP SENSITIVE SECRETS BEFORE GIT COMMIT ---
           rm -f keystore.p12
+
+          # Wipe passwords from config.yml so nothing sensitive is saved to Git
+          python - << 'PYCLEAN'
+          from pathlib import Path
+          from ruamel.yaml import YAML
+
+          path = Path("config.yml")
+          yaml = YAML()
+          yaml.default_flow_style = False
+          data = yaml.load(path.read_text(encoding="utf-8"))
+          data["keystorepass"] = ""
+          data["keypass"] = ""
+          with path.open("w", encoding="utf-8") as fp:
+              yaml.dump(data, fp)
+          PYCLEAN
 
           # --- 8. PUBLISH TO GITHUB (PUSH) ---
           echo "Starting Git Publish..."
@@ -904,8 +924,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           touch .nojekyll
-
-          # Notice keystore.p12 is omitted here!
           git add .nojekyll README.md index.html config.yml icon.png metadata repo archive
 
           echo "Files staged for commit:"
