@@ -64,3 +64,4 @@ analyze*
 manifests/
 *.txt
 notification_sounds/
+keystore.p12
