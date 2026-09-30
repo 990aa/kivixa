@@ -614,7 +614,6 @@ This document provides detailed instructions for testing every feature of the Ne
 - Note opens in appropriate editor:
   - .kvx → Handwritten editor
   - .md → Markdown editor
-  - .kvtx → Text editor
 
 ### Test 5.5.8: Navigate Back from Note
 **Steps:**

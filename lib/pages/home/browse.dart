@@ -17,7 +17,6 @@ import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
-import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:kivixa/services/folder_color_service.dart';
 
 class BrowsePage extends StatefulWidget {
@@ -217,12 +216,6 @@ class _BrowsePageState extends State<BrowsePage> {
           // Try other extensions
           if (FileManager.doesFileExist('$filePath.md')) {
             await FileManager.deleteFile('$filePath.md');
-          } else if (FileManager.doesFileExist(
-            '$filePath${TextFileEditor.internalExtension}',
-          )) {
-            await FileManager.deleteFile(
-              '$filePath${TextFileEditor.internalExtension}',
-            );
           }
         }
       }
@@ -281,13 +274,6 @@ class _BrowsePageState extends State<BrowsePage> {
             await FileManager.moveFile(
               '$filePath.md',
               '$newFolderPath/$fileName.md',
-            );
-          } else if (FileManager.doesFileExist(
-            '$filePath${TextFileEditor.internalExtension}',
-          )) {
-            await FileManager.moveFile(
-              '$filePath${TextFileEditor.internalExtension}',
-              '$newFolderPath/$fileName${TextFileEditor.internalExtension}',
             );
           }
         }
@@ -351,10 +337,6 @@ class _BrowsePageState extends State<BrowsePage> {
         files = files.where((file) {
           return children!.isFileType(file, KivixaFileType.markdown);
         }).toList();
-      case FileFilterType.text:
-        files = files.where((file) {
-          return children!.isFileType(file, KivixaFileType.text);
-        }).toList();
       case FileFilterType.all:
     }
 
@@ -392,7 +374,7 @@ class _BrowsePageState extends State<BrowsePage> {
   /// Actually query file system for modification time (called once per file when loading)
   DateTime _computeFileModifiedTime(String filePath) {
     try {
-      // Check .kvx file first, then .kvx1, then .md, then .kvtx
+      // Check .kvx file first, then .kvx1, then .md
       if (FileManager.doesFileExist('$filePath${Editor.extension}')) {
         return FileManager.lastModified('$filePath${Editor.extension}');
       } else if (FileManager.doesFileExist(
@@ -401,12 +383,6 @@ class _BrowsePageState extends State<BrowsePage> {
         return FileManager.lastModified('$filePath${Editor.extensionOldJson}');
       } else if (FileManager.doesFileExist('$filePath.md')) {
         return FileManager.lastModified('$filePath.md');
-      } else if (FileManager.doesFileExist(
-        '$filePath${TextFileEditor.internalExtension}',
-      )) {
-        return FileManager.lastModified(
-          '$filePath${TextFileEditor.internalExtension}',
-        );
       }
     } catch (e) {
       // Ignore errors
@@ -521,19 +497,6 @@ class _BrowsePageState extends State<BrowsePage> {
                                   const SizedBox(width: 20),
                                 const SizedBox(width: 8),
                                 const Text('Markdown Notes'),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: FileFilterType.text,
-                            child: Row(
-                              children: [
-                                if (_filterType == FileFilterType.text)
-                                  const Icon(Icons.check, size: 20)
-                                else
-                                  const SizedBox(width: 20),
-                                const SizedBox(width: 8),
-                                const Text('Text Notes'),
                               ],
                             ),
                           ),
@@ -1051,6 +1014,6 @@ class _NewFolderDialogState extends State<_NewFolderDialog> {
   }
 }
 
-enum FileFilterType { all, handwritten, markdown, text }
+enum FileFilterType { all, handwritten, markdown }
 
 enum SortType { aToZ, zToA, latestFirst, oldestFirst }

@@ -289,8 +289,6 @@ class ChatAttachmentService {
       case '.yml':
       case '.toml':
       case '.xml':
-      case '.kvtx':
-        return 'text/plain';
       case '.pdf':
         return 'application/pdf';
       case '.doc':

@@ -208,20 +208,18 @@ void main() {
       final fileTypes = <String, KivixaFileType>{
         'note1': KivixaFileType.handwritten,
         'note2': KivixaFileType.markdown,
-        'note3': KivixaFileType.text,
       };
 
       final children = DirectoryChildren(
         ['folder1', 'folder2'],
-        ['note1', 'note2', 'note3'],
+        ['note1', 'note2'],
         fileTypes,
       );
 
       expect(children.directories.length, equals(2));
-      expect(children.files.length, equals(3));
+      expect(children.files.length, equals(2));
       expect(children.getFileType('note1'), equals(KivixaFileType.handwritten));
       expect(children.getFileType('note2'), equals(KivixaFileType.markdown));
-      expect(children.getFileType('note3'), equals(KivixaFileType.text));
     });
 
     test('DirectoryChildren.isFileType returns correct boolean', () {
@@ -279,10 +277,9 @@ void main() {
     });
 
     test('KivixaFileType enum has correct values', () {
-      expect(KivixaFileType.values.length, equals(3));
+      expect(KivixaFileType.values.length, equals(2));
       expect(KivixaFileType.handwritten.index, equals(0));
       expect(KivixaFileType.markdown.index, equals(1));
-      expect(KivixaFileType.text.index, equals(2));
     });
   });
 }

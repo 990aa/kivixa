@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,6 @@ import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
-import 'package:kivixa/pages/textfile/text_file_editor.dart';
 
 enum ImportedNoteType { handwritten, pdf, markdown, text, docx, unsupported }
 
@@ -43,22 +41,6 @@ String importedNoteBaseName(String filePath) {
   final lastDot = fileName.lastIndexOf('.');
   if (lastDot <= 0) return fileName;
   return fileName.substring(0, lastDot);
-}
-
-Map<String, dynamic> buildTextNotePayload({
-  required String fileName,
-  required String content,
-  DateTime? createdAt,
-}) {
-  final normalizedContent = content.endsWith('\n') ? content : '$content\n';
-  return {
-    'document': [
-      {'insert': normalizedContent},
-    ],
-    'fileName': fileName,
-    'version': 1,
-    'createdAt': (createdAt ?? DateTime.now()).toIso8601String(),
-  };
 }
 
 String _decodeDocxXmlEntities(String value) {
@@ -108,7 +90,7 @@ String extractPlainTextFromDocxBytes(Uint8List bytes) {
   return buffer.toString().replaceAll(RegExp(r'\n{3,}'), '\n\n').trimRight();
 }
 
-Future<String> importTextLikeNoteAsCopy({
+Future<String> importTextLikeMarkdownNoteAsCopy({
   required String sourcePath,
   required String destinationDir,
 }) async {
@@ -139,12 +121,10 @@ Future<String> importTextLikeNoteAsCopy({
     }(),
   };
 
-  final payload = buildTextNotePayload(fileName: baseName, content: content);
-  final encoded = utf8.encode(json.encode(payload));
-
+  final normalizedContent = content.endsWith('\n') ? content : '$content\n';
   await FileManager.writeFile(
-    '$uniqueBasePath${TextFileEditor.internalExtension}',
-    encoded,
+    '$uniqueBasePath.md',
+    utf8.encode(normalizedContent),
     awaitWrite: true,
   );
 
@@ -216,19 +196,6 @@ class _NewNoteButtonState extends State<NewNoteButton> {
           child: const Icon(Icons.draw),
           label: 'New Handwritten Note',
           onTap: _createHandwrittenNote,
-        ),
-        SpeedDialChild(
-          child: const Icon(Icons.article),
-          label: 'New Text File',
-          onTap: () async {
-            if (widget.path == null) {
-              context.push(RoutePaths.textFile);
-            } else {
-              final basePath = await FileManager.newFilePath('${widget.path}/');
-              if (!context.mounted) return;
-              context.push(RoutePaths.textFilePath(basePath));
-            }
-          },
         ),
         SpeedDialChild(
           child: const Icon(Icons.description),
@@ -318,13 +285,13 @@ class _NewNoteButtonState extends State<NewNoteButton> {
 
                 case ImportedNoteType.text:
                 case ImportedNoteType.docx:
-                  final importedPath = await importTextLikeNoteAsCopy(
+                  final importedPath = await importTextLikeMarkdownNoteAsCopy(
                     sourcePath: filePath,
                     destinationDir: destinationDir,
                   );
                   if (!context.mounted) return;
 
-                  context.push(RoutePaths.textFilePath(importedPath));
+                  context.push(RoutePaths.markdownFilePath(importedPath));
                   return;
 
                 case ImportedNoteType.unsupported:

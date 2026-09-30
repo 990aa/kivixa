@@ -8,26 +8,8 @@ void main() {
   });
 
   group('RoutePaths', () {
-    test('textFile should be /textfile', () {
-      expect(RoutePaths.textFile, '/textfile');
-    });
-
     test('splitScreen should be /split-screen', () {
       expect(RoutePaths.splitScreen, '/split-screen');
-    });
-
-    test('textFilePath should encode path correctly', () {
-      final path = RoutePaths.textFilePath('/my-document');
-      expect(path, contains('/textfile'));
-      expect(path, contains('path='));
-    });
-
-    test('textFilePath should handle special characters', () {
-      final path = RoutePaths.textFilePath('/folder/my document');
-      expect(path, contains('/textfile'));
-      expect(path, contains('path='));
-      // Should be URL encoded
-      expect(path, contains('%20').or(contains('+')));
     });
 
     test('markdownFilePath should encode path correctly', () {

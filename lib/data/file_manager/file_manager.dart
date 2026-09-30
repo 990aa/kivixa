@@ -10,7 +10,6 @@ import 'package:intl/intl.dart' show DateFormat;
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
-import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -555,7 +554,6 @@ class FileManager {
       final iskvx = entityBasename.endsWith(Editor.extension);
       final iskvx1 = entityBasename.endsWith(Editor.extensionOldJson);
       final ismd = entityBasename.endsWith('.md');
-      final iskvtx = entityBasename.endsWith(TextFileEditor.internalExtension);
 
       String? childName;
       KivixaFileType? fileType;
@@ -580,16 +578,10 @@ class FileManager {
             entityBasename.length - '.md'.length,
           );
           fileType = KivixaFileType.markdown;
-        } else if (iskvtx) {
-          childName = entityBasename.substring(
-            0,
-            entityBasename.length - TextFileEditor.internalExtension.length,
-          );
-          fileType = KivixaFileType.text;
         }
       } else {
         if (!includeAssets) {
-          final isAsset = !iskvx && !iskvx1 && !ismd && !iskvtx;
+          final isAsset = !iskvx && !iskvx1 && !ismd;
           if (isAsset) continue;
         }
         childName = entityBasename;
@@ -597,8 +589,6 @@ class FileManager {
           fileType = KivixaFileType.handwritten;
         } else if (ismd) {
           fileType = KivixaFileType.markdown;
-        } else if (iskvtx) {
-          fileType = KivixaFileType.text;
         }
       }
 
@@ -665,11 +655,6 @@ class FileManager {
         );
       } else if (filePath.endsWith('.md')) {
         normalizedPath = filePath.substring(0, filePath.length - '.md'.length);
-      } else if (filePath.endsWith(TextFileEditor.internalExtension)) {
-        normalizedPath = filePath.substring(
-          0,
-          filePath.length - TextFileEditor.internalExtension.length,
-        );
       } else {
         normalizedPath = filePath;
       }
@@ -679,8 +664,7 @@ class FileManager {
       // Check if the file actually exists
       final fileExists =
           doesFileExist('$normalizedPath${Editor.extension}') ||
-          doesFileExist('$normalizedPath.md') ||
-          doesFileExist('$normalizedPath${TextFileEditor.internalExtension}');
+          doesFileExist('$normalizedPath.md');
 
       if (fileExists && !recentFiles.contains(normalizedPath)) {
         // Only add if not already in the list (handles same base name with different extensions)
@@ -921,7 +905,6 @@ class FileManager {
 enum KivixaFileType {
   handwritten, // .kvx files
   markdown, // .md files
-  text, // .kvtx files
 }
 
 class DirectoryChildren {

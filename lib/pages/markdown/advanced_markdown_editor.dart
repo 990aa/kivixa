@@ -379,6 +379,38 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     }
   }
 
+  Future<void> _exportAsText() async {
+    final controller = _codeController;
+    if (controller == null) return;
+
+    try {
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export as Text File',
+        fileName: '$_fileName.txt',
+        type: FileType.custom,
+        allowedExtensions: ['txt'],
+      );
+
+      if (result != null) {
+        final file = File(result);
+        await file.writeAsString(controller.text);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Exported as .txt successfully')),
+          );
+        }
+      }
+    } catch (e) {
+      log.severe('Error exporting as text', e);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error exporting: $e')));
+      }
+    }
+  }
+
   void _showExportMenu() {
     showModalBottomSheet(
       context: context,
@@ -393,6 +425,15 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
               onTap: () {
                 Navigator.pop(context);
                 _exportAsMarkdown();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.article),
+              title: const Text('Export as .txt'),
+              subtitle: const Text('Plain text format'),
+              onTap: () {
+                Navigator.pop(context);
+                _exportAsText();
               },
             ),
           ],

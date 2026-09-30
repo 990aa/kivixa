@@ -22,7 +22,6 @@ import 'package:kivixa/pages/logs.dart';
 import 'package:kivixa/pages/markdown/advanced_markdown_editor.dart';
 import 'package:kivixa/pages/plugins/plugins_page.dart';
 import 'package:kivixa/pages/split_screen/split_screen_page.dart';
-import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:kivixa/services/android_back_handler.dart';
 import 'package:kivixa/services/app_lifecycle_manager.dart';
 import 'package:kivixa/services/app_lock_service.dart';
@@ -214,11 +213,6 @@ class App extends StatefulWidget {
       GoRoute(
         path: RoutePaths.logs,
         builder: (context, state) => const LogsPage(),
-      ),
-      GoRoute(
-        path: RoutePaths.textFile,
-        builder: (context, state) =>
-            TextFileEditor(filePath: state.uri.queryParameters['path']),
       ),
       GoRoute(
         path: RoutePaths.splitScreen,
