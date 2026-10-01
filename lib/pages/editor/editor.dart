@@ -45,7 +45,6 @@ import 'package:kivixa/data/tools/pencil.dart';
 import 'package:kivixa/data/tools/select.dart';
 import 'package:kivixa/data/tools/shape_pen.dart';
 import 'package:kivixa/i18n/strings.g.dart';
-import 'package:kivixa/pages/home/whiteboard.dart';
 import 'package:logging/logging.dart';
 import 'package:printing/printing.dart';
 import 'package:screenshot/screenshot.dart';
@@ -93,9 +92,7 @@ class Editor extends StatefulWidget {
     return _reservedFilePaths.any((regex) => regex.hasMatch(path));
   }
 
-  static final _reservedFilePaths = <RegExp>[
-    RegExp(RegExp.escape(Whiteboard.filePath)),
-  ];
+  static final _reservedFilePaths = <RegExp>[];
 
   /// Whether the platform can rasterize a pdf
   static var canRasterPdf = true;
@@ -258,18 +255,7 @@ class EditorState extends State<Editor> {
         ..focusNode.requestFocus();
     }
 
-    if (coreInfo.filePath == Whiteboard.filePath &&
-        stows.autoClearWhiteboardOnExit.value &&
-        Whiteboard.needsToAutoClearWhiteboard) {
-      // clear whiteboard (and add to history)
-      clearAllPages();
-
-      // save cleared whiteboard
-      await saveToFile();
-      Whiteboard.needsToAutoClearWhiteboard = false;
-    } else {
-      setState(() {});
-    }
+    setState(() {});
   }
 
   void _setState() => setState(() {});
@@ -1995,18 +1981,10 @@ class EditorState extends State<Editor> {
     final invert =
         stows.editorAutoInvert.value && brightness == Brightness.dark;
     final int currentPageIndex = this.currentPageIndex;
-    final isWhiteboard = coreInfo.filePath == Whiteboard.filePath;
-
     return EditorOptionsSidebar(
       invert: invert,
       coreInfo: coreInfo,
       currentPageIndex: currentPageIndex,
-      isWhiteboard: isWhiteboard,
-      onOrientationToggle: isWhiteboard
-          ? (newOrientation) {
-              _toggleWhiteboardOrientation(newOrientation);
-            }
-          : null,
       setBackgroundPattern: (pattern) => setState(() {
         if (coreInfo.readOnly) return;
         coreInfo.backgroundPattern = pattern;
@@ -2233,32 +2211,6 @@ class EditorState extends State<Editor> {
         ),
       );
     });
-    autosaveAfterDelay();
-  }
-
-  /// Toggles the whiteboard orientation by clearing all pages and creating
-  /// a new page with the specified orientation.
-  void _toggleWhiteboardOrientation(PageOrientation newOrientation) {
-    if (coreInfo.filePath != Whiteboard.filePath) return;
-    if (coreInfo.readOnly) return;
-
-    setState(() {
-      // Dispose all existing pages
-      for (final page in coreInfo.pages) {
-        page.dispose();
-      }
-      coreInfo.pages.clear();
-
-      // Create a fresh page with the new orientation
-      final newPage = EditorPage(orientation: newOrientation);
-      coreInfo.pages.add(newPage);
-      listenToQuillChanges(newPage.quill, 0);
-
-      // Reset history (clear both undo and redo stacks)
-      while (history.canUndo) history.undo();
-      history.clearRedo();
-    });
-
     autosaveAfterDelay();
   }
 

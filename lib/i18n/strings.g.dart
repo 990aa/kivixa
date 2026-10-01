@@ -61,7 +61,6 @@ class TranslationsHome {
 class TranslationsHomeTabs {
   String get home => 'Home';
   String get browse => 'Browse';
-  String get whiteboard => 'Whiteboard';
   String get calendar => 'Calendar';
   String get settings => 'Settings';
 }
@@ -69,7 +68,6 @@ class TranslationsHomeTabs {
 class TranslationsHomeTitles {
   String get home => 'Recent notes';
   String get browse => 'Browse';
-  String get whiteboard => 'Whiteboard';
   String get calendar => 'Calendar';
   String get settings => 'Settings';
 }
@@ -229,7 +227,6 @@ class TranslationsSettingsPrefLabels {
   String get editorAutoInvert => 'Invert notes in dark mode';
   String get preferGreyscale => 'Prefer greyscale colors';
   String get maxImageSize => 'Maximum image size';
-  String get autoClearWhiteboardOnExit => 'Auto-clear the whiteboard';
   String get disableEraserAfterUse => 'Auto-disable the eraser';
   String get hideFingerDrawingToggle => 'Hide the finger drawing toggle';
   String get editorPromptRename => 'Prompt you to rename new notes';
@@ -253,8 +250,6 @@ class TranslationsSettingsPrefDescriptions {
   String get allowInsecureConnections =>
       '(Not recommended) Allow kivixa to connect to servers with self-signed/untrusted certificates';
   String get preferGreyscale => 'For e-ink displays';
-  String get autoClearWhiteboardOnExit =>
-      'Clears the whiteboard after you exit the app';
   String get disableEraserAfterUse =>
       'Automatically switches back to the pen after using the eraser';
   String get maxImageSize => 'Larger images will be compressed';

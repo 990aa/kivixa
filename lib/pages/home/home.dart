@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kivixa/components/navbar/responsive_navbar.dart';
 
-import 'package:kivixa/components/theming/dynamic_material_app.dart';
 import 'package:kivixa/pages/home/ai_chat.dart';
 import 'package:kivixa/pages/home/browse.dart';
 import 'package:kivixa/pages/home/browser.dart';
@@ -11,7 +10,6 @@ import 'package:kivixa/pages/home/knowledge_graph.dart';
 import 'package:kivixa/pages/home/math_page.dart';
 import 'package:kivixa/pages/home/settings.dart';
 import 'package:kivixa/pages/home/syncfusion_calendar_page.dart';
-import 'package:kivixa/pages/home/whiteboard.dart';
 import 'package:kivixa/pages/project_manager/project_manager_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,7 +23,6 @@ class HomePage extends StatefulWidget {
 
   static const browseSubpage = 'browse';
   static const calendarSubpage = 'calendar';
-  static const whiteboardSubpage = 'whiteboard';
   static const projectsSubpage = 'projects';
   static const clockSubpage = 'clock';
   static const knowledgeGraphSubpage = 'knowledge-graph';
@@ -36,7 +33,6 @@ class HomePage extends StatefulWidget {
   static const List<String> subpages = [
     browseSubpage,
     calendarSubpage,
-    whiteboardSubpage,
     projectsSubpage,
     clockSubpage,
     knowledgeGraphSubpage,
@@ -50,7 +46,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   void initState() {
-    DynamicMaterialApp.addFullscreenListener(_setState);
     super.initState();
     _showDialogs();
   }
@@ -61,17 +56,12 @@ class _HomePageState extends State<HomePage> {
     // Update dialog removed - users check updates from Settings > Updates
   }
 
-  void _setState() {
-    if (mounted) setState(() {});
-  }
-
   Widget get body {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: switch (widget.subpage) {
         HomePage.browseSubpage => BrowsePage(path: widget.path),
         HomePage.calendarSubpage => const SyncfusionCalendarPage(),
-        HomePage.whiteboardSubpage => const Whiteboard(),
         HomePage.projectsSubpage => const ProjectManagerPage(),
         HomePage.clockSubpage => const ClockPage(),
         HomePage.knowledgeGraphSubpage => const KnowledgeGraphPage(),
@@ -86,12 +76,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // hide navbar in fullscreen whiteboard
-    if (widget.subpage == HomePage.whiteboardSubpage &&
-        DynamicMaterialApp.isFullscreen) {
-      return body;
-    }
-
     return ResponsiveNavbar(
       selectedIndex: HomePage.subpages.indexOf(widget.subpage),
       body: body,
@@ -100,8 +84,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    DynamicMaterialApp.removeFullscreenListener(_setState);
-
     super.dispose();
   }
 }
