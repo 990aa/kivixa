@@ -9,7 +9,7 @@ class TermsAndConditionsService {
   /// Current version of the terms and conditions
   /// Used for tracking when acceptance occurred.
   /// Version changes no longer force a blocking re-acceptance popup.
-  static const currentTermsVersion = '0.9.3';
+  static const currentTermsVersion = '0.9.4';
 
   /// Check if user has accepted terms at least once.
   static Future<bool> hasAcceptedTerms() async {
