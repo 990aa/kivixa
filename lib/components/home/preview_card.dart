@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:animations/animations.dart';
@@ -16,7 +15,6 @@ import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/i18n/strings.g.dart';
 import 'package:kivixa/pages/editor/editor.dart';
 import 'package:kivixa/pages/markdown/advanced_markdown_editor.dart';
-import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:logging/logging.dart';
 
 class PreviewCard extends StatefulWidget {
@@ -42,7 +40,6 @@ class _PreviewCardState extends State<PreviewCard> {
   final expanded = ValueNotifier(false);
   final thumbnail = _ThumbnailState();
   String? _markdownContent;
-  String? _textFileContent;
   final log = Logger('PreviewCard');
 
   // For rename functionality
@@ -61,14 +58,6 @@ class _PreviewCardState extends State<PreviewCard> {
     final mdFile = FileManager.getFile('${widget.filePath}.md');
     if (mdFile.existsSync()) {
       _loadMarkdownContent();
-    }
-
-    // Load text file content if it's a text file
-    final textFile = FileManager.getFile(
-      '${widget.filePath}${TextFileEditor.internalExtension}',
-    );
-    if (textFile.existsSync()) {
-      _loadTextFileContent();
     }
 
     super.initState();
@@ -106,60 +95,6 @@ class _PreviewCardState extends State<PreviewCard> {
       if (mounted) {
         setState(() {
           _markdownContent = null;
-        });
-      }
-    }
-  }
-
-  Future<void> _loadTextFileContent() async {
-    try {
-      final file = FileManager.getFile(
-        '${widget.filePath}${TextFileEditor.internalExtension}',
-      );
-      if (!file.existsSync()) {
-        log.warning(
-          'Text file does not exist: ${widget.filePath}${TextFileEditor.internalExtension}',
-        );
-        return;
-      }
-
-      final content = await file.readAsString();
-      if (mounted) {
-        // Try to parse JSON to get the plain text
-        try {
-          final data = json.decode(content);
-          if (data is Map && data.containsKey('document')) {
-            // Extract plain text from delta operations
-            final document = data['document'] as List;
-            final buffer = StringBuffer();
-            for (final op in document) {
-              if (op is Map && op.containsKey('insert')) {
-                final insert = op['insert'];
-                if (insert is String) {
-                  buffer.write(insert);
-                }
-              }
-            }
-            setState(() {
-              _textFileContent = buffer.toString();
-            });
-          }
-        } catch (e) {
-          // If JSON parsing fails, just show raw content
-          setState(() {
-            _textFileContent = content;
-          });
-        }
-      }
-    } catch (e, stackTrace) {
-      log.severe(
-        'Error loading text file content for ${widget.filePath}',
-        e,
-        stackTrace,
-      );
-      if (mounted) {
-        setState(() {
-          _textFileContent = null;
         });
       }
     }
@@ -204,12 +139,6 @@ class _PreviewCardState extends State<PreviewCard> {
     final mdFile = FileManager.getFile('${widget.filePath}.md');
     final isMarkdown = mdFile.existsSync();
 
-    // Check if this is a text file
-    final textFile = FileManager.getFile(
-      '${widget.filePath}${TextFileEditor.internalExtension}',
-    );
-    final isTextFile = textFile.existsSync();
-
     if (event.type == FileOperationType.delete) {
       thumbnail.image = null;
       if (isMarkdown) {
@@ -217,19 +146,11 @@ class _PreviewCardState extends State<PreviewCard> {
           _markdownContent = null;
         });
       }
-      if (isTextFile) {
-        setState(() {
-          _textFileContent = null;
-        });
-      }
     } else if (event.type == FileOperationType.write) {
       thumbnail.image?.evict();
       thumbnail.markAsChanged();
       if (isMarkdown) {
         _loadMarkdownContent();
-      }
-      if (isTextFile) {
-        _loadTextFileContent();
       }
     } else {
       throw Exception('Unknown file operation type: ${event.type}');
@@ -398,64 +319,6 @@ class _PreviewCardState extends State<PreviewCard> {
     );
   }
 
-  Widget _buildTextFilePreview(ColorScheme colorScheme) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 100, maxHeight: 200),
-      child: ClipRect(
-        child: _textFileContent == null
-            ? const _FallbackThumbnail()
-            : Container(
-                color: colorScheme.surface,
-                padding: const EdgeInsets.all(8),
-                child: SizedBox(
-                  height: 200,
-                  child: IgnorePointer(
-                    child: SingleChildScrollView(
-                      physics: const NeverScrollableScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Document icon indicator
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.article,
-                                size: 12,
-                                color: colorScheme.primary,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Text Document',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  color: colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          // Content preview
-                          Text(
-                            _textFileContent!,
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: colorScheme.onSurface,
-                              height: 1.3,
-                            ),
-                            maxLines: 12,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -486,12 +349,7 @@ class _PreviewCardState extends State<PreviewCard> {
                       children: [
                         // Preview content based on file type
                         // Check actual file since extensions are stripped
-                        if (_textFileContent != null ||
-                            FileManager.getFile(
-                              '${widget.filePath}${TextFileEditor.internalExtension}',
-                            ).existsSync())
-                          _buildTextFilePreview(colorScheme)
-                        else if (_markdownContent != null ||
+                        if (_markdownContent != null ||
                             FileManager.getFile(
                               '${widget.filePath}.md',
                             ).existsSync())
@@ -644,21 +502,13 @@ class _PreviewCardState extends State<PreviewCard> {
       builder: (context, expanded, _) {
         // Determine which editor to open based on actual file type
         // Check file types (since extensions are stripped in file lists)
-        final textFile = FileManager.getFile(
-          '${widget.filePath}${TextFileEditor.internalExtension}',
-        );
-        final isTextFile = textFile.existsSync();
-
         final mdFile = FileManager.getFile('${widget.filePath}.md');
         final isMarkdown = mdFile.existsSync();
 
         final Widget editor;
         final String routeName;
 
-        if (isTextFile) {
-          editor = TextFileEditor(filePath: widget.filePath);
-          routeName = RoutePaths.textFilePath(widget.filePath);
-        } else if (isMarkdown) {
+        if (isMarkdown) {
           editor = AdvancedMarkdownEditor(filePath: widget.filePath);
           routeName = RoutePaths.markdownFilePath(widget.filePath);
         } else {
@@ -741,21 +591,10 @@ class _PreviewCardState extends State<PreviewCard> {
       final newPath = '$directory$newName';
 
       // Check file types
-      final textFile = FileManager.getFile(
-        '${widget.filePath}${TextFileEditor.internalExtension}',
-      );
-      final isTextFile = textFile.existsSync();
-
       final mdFile = FileManager.getFile('${widget.filePath}.md');
       final isMarkdown = mdFile.existsSync();
 
-      if (isTextFile) {
-        // Rename the text file
-        await FileManager.moveFile(
-          '${widget.filePath}${TextFileEditor.internalExtension}',
-          '$newPath${TextFileEditor.internalExtension}',
-        );
-      } else if (isMarkdown) {
+      if (isMarkdown) {
         // Rename the .md file
         await FileManager.moveFile('${widget.filePath}.md', '$newPath.md');
       } else {
@@ -817,21 +656,10 @@ class _PreviewCardState extends State<PreviewCard> {
       }
 
       // Check file types
-      final textFile = FileManager.getFile(
-        '${widget.filePath}${TextFileEditor.internalExtension}',
-      );
-      final isTextFile = textFile.existsSync();
-
       final mdFile = FileManager.getFile('${widget.filePath}.md');
       final isMarkdown = mdFile.existsSync();
 
-      if (isTextFile) {
-        // Move the text file
-        await FileManager.moveFile(
-          '${widget.filePath}${TextFileEditor.internalExtension}',
-          '$newPath${TextFileEditor.internalExtension}',
-        );
-      } else if (isMarkdown) {
+      if (isMarkdown) {
         // Move the .md file
         await FileManager.moveFile('${widget.filePath}.md', '$newPath.md');
       } else {
@@ -889,20 +717,10 @@ class _PreviewCardState extends State<PreviewCard> {
   Future<void> _deleteFile() async {
     try {
       // Check file types
-      final textFile = FileManager.getFile(
-        '${widget.filePath}${TextFileEditor.internalExtension}',
-      );
-      final isTextFile = textFile.existsSync();
-
       final mdFile = FileManager.getFile('${widget.filePath}.md');
       final isMarkdown = mdFile.existsSync();
 
-      if (isTextFile) {
-        // Delete the text file
-        await FileManager.deleteFile(
-          '${widget.filePath}${TextFileEditor.internalExtension}',
-        );
-      } else if (isMarkdown) {
+      if (isMarkdown) {
         // Delete the .md file (this will also delete the .p preview)
         await FileManager.deleteFile('${widget.filePath}.md');
       } else {

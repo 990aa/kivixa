@@ -3,7 +3,6 @@ import 'package:kivixa/components/split_screen/embedded_file_browser.dart';
 import 'package:kivixa/components/split_screen/split_screen_state.dart';
 import 'package:kivixa/pages/editor/editor.dart';
 import 'package:kivixa/pages/markdown/advanced_markdown_editor.dart';
-import 'package:kivixa/pages/textfile/text_file_editor.dart';
 
 /// A wrapper widget for a single pane in the split screen
 class PaneWrapper extends StatelessWidget {
@@ -86,8 +85,6 @@ class PaneWrapper extends StatelessWidget {
         return Editor(path: filePath);
       case PaneFileType.markdown:
         return AdvancedMarkdownEditor(filePath: filePath);
-      case PaneFileType.textDocument:
-        return TextFileEditor(filePath: filePath);
       case PaneFileType.none:
         return _buildEmptyPane(context);
     }

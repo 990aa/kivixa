@@ -1,13 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/pages/editor/editor.dart';
-import 'package:kivixa/pages/textfile/text_file_editor.dart';
 
 /// Represents the type of file that can be opened in a pane
 enum PaneFileType {
   handwritten, // .kvx files
   markdown, // .md files
-  textDocument, // .kvtx files
   none, // Empty pane
 }
 
@@ -60,9 +58,6 @@ PaneFileType getFileTypeFromPath(String filePath) {
     return PaneFileType.handwritten;
   } else if (lowerPath.endsWith('.md')) {
     return PaneFileType.markdown;
-  } else if (lowerPath.endsWith('.kvtx') ||
-      lowerPath.endsWith(TextFileEditor.internalExtension)) {
-    return PaneFileType.textDocument;
   }
 
   return PaneFileType.none;
@@ -83,10 +78,6 @@ PaneFileType getFileTypeFromPathWithFileCheck(String filePath) {
       return PaneFileType.handwritten;
     } else if (FileManager.doesFileExist('$filePath.md')) {
       return PaneFileType.markdown;
-    } else if (FileManager.doesFileExist(
-      '$filePath${TextFileEditor.internalExtension}',
-    )) {
-      return PaneFileType.textDocument;
     }
   } catch (e) {
     // FileManager not initialized, fall back to none

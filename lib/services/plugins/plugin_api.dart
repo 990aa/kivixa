@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/models/calendar_event.dart';
 import 'package:kivixa/pages/editor/editor.dart';
-import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:kivixa/services/productivity/productivity_timer_service.dart';
 import 'package:logging/logging.dart';
 import 'package:lua_dardo/lua.dart';
@@ -156,14 +155,6 @@ class PluginApi {
         content = mdFile.readAsStringSync();
       }
 
-      // Try text file
-      if (content == null) {
-        final txtFile = File('$basePath${TextFileEditor.internalExtension}');
-        if (txtFile.existsSync()) {
-          content = txtFile.readAsStringSync();
-        }
-      }
-
       // Try without extension (if already has extension)
       if (content == null) {
         final directFile = File(basePath);
@@ -204,10 +195,6 @@ class PluginApi {
 
       if (File('$basePath.md').existsSync()) {
         filePath = '$basePath.md';
-      } else if (File(
-        '$basePath${TextFileEditor.internalExtension}',
-      ).existsSync()) {
-        filePath = '$basePath${TextFileEditor.internalExtension}';
       } else {
         // Default to markdown for new files
         filePath = '$basePath.md';
@@ -243,11 +230,7 @@ class PluginApi {
       bool deleted = false;
 
       // Try all extensions
-      for (final ext in [
-        '.md',
-        TextFileEditor.internalExtension,
-        Editor.extension,
-      ]) {
+      for (final ext in ['.md', Editor.extension]) {
         final file = File('$basePath$ext');
         if (file.existsSync()) {
           file.deleteSync();
@@ -287,7 +270,6 @@ class PluginApi {
 
             // Check if it's a note file
             if (!relativePath.endsWith('.md') &&
-                !relativePath.endsWith(TextFileEditor.internalExtension) &&
                 !relativePath.endsWith(Editor.extension)) {
               continue;
             }
@@ -297,11 +279,7 @@ class PluginApi {
                 relativePath.toLowerCase().contains(pattern.toLowerCase())) {
               // Remove extension for cleaner path
               var cleanPath = relativePath;
-              for (final ext in [
-                '.md',
-                TextFileEditor.internalExtension,
-                Editor.extension,
-              ]) {
+              for (final ext in ['.md', Editor.extension]) {
                 if (cleanPath.endsWith(ext)) {
                   cleanPath = cleanPath.substring(
                     0,
@@ -357,15 +335,10 @@ class PluginApi {
             if (relativePath.startsWith('.')) continue;
 
             if (relativePath.endsWith('.md') ||
-                relativePath.endsWith(TextFileEditor.internalExtension) ||
                 relativePath.endsWith(Editor.extension)) {
               final stat = entity.statSync();
               var cleanPath = relativePath;
-              for (final ext in [
-                '.md',
-                TextFileEditor.internalExtension,
-                Editor.extension,
-              ]) {
+              for (final ext in ['.md', Editor.extension]) {
                 if (cleanPath.endsWith(ext)) {
                   cleanPath = cleanPath.substring(
                     0,
@@ -426,16 +399,11 @@ class PluginApi {
             if (relativePath.startsWith('.')) continue;
 
             if (relativePath.endsWith('.md') ||
-                relativePath.endsWith(TextFileEditor.internalExtension) ||
                 relativePath.endsWith(Editor.extension)) {
               final stat = entity.statSync();
               if (stat.modified.isBefore(cutoff)) {
                 var cleanPath = relativePath;
-                for (final ext in [
-                  '.md',
-                  TextFileEditor.internalExtension,
-                  Editor.extension,
-                ]) {
+                for (final ext in ['.md', Editor.extension]) {
                   if (cleanPath.endsWith(ext)) {
                     cleanPath = cleanPath.substring(
                       0,
@@ -514,11 +482,7 @@ class PluginApi {
       bool moved = false;
 
       // Try to move files with various extensions
-      for (final ext in [
-        '.md',
-        TextFileEditor.internalExtension,
-        Editor.extension,
-      ]) {
+      for (final ext in ['.md', Editor.extension]) {
         final fromFile = File('$fromBase$ext');
         if (fromFile.existsSync()) {
           final toFile = File('$toBase$ext');
@@ -556,7 +520,6 @@ class PluginApi {
 
           if (entity is File) {
             if (relativePath.endsWith('.md') ||
-                relativePath.endsWith(TextFileEditor.internalExtension) ||
                 relativePath.endsWith(Editor.extension)) {
               noteCount++;
             }

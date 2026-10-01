@@ -377,23 +377,6 @@ void main() {
         ).delete(recursive: true);
       });
 
-      test('correctly detects .kvtx text files', () async {
-        const dirPath = '/test_file_type_kvtx';
-        final file = File(
-          '${FileManager.documentsDirectory}$dirPath/text.kvtx',
-        );
-        await file.create(recursive: true);
-
-        final children = await FileManager.getChildrenOfDirectory(dirPath);
-        expect(children, isNotNull);
-        expect(children!.files, contains('text'));
-        expect(children.isFileType('text', KivixaFileType.text), isTrue);
-
-        await Directory(
-          '${FileManager.documentsDirectory}$dirPath',
-        ).delete(recursive: true);
-      });
-
       test('handles mixed file types in same directory', () async {
         const dirPath = '/test_mixed_types';
         await File(
@@ -402,13 +385,10 @@ void main() {
         await File(
           '${FileManager.documentsDirectory}$dirPath/markdown.md',
         ).create(recursive: true);
-        await File(
-          '${FileManager.documentsDirectory}$dirPath/textfile.kvtx',
-        ).create(recursive: true);
 
         final children = await FileManager.getChildrenOfDirectory(dirPath);
         expect(children, isNotNull);
-        expect(children!.files.length, 3);
+        expect(children!.files.length, 2);
 
         expect(
           children.isFileType('handwritten', KivixaFileType.handwritten),
@@ -418,7 +398,6 @@ void main() {
           children.isFileType('markdown', KivixaFileType.markdown),
           isTrue,
         );
-        expect(children.isFileType('textfile', KivixaFileType.text), isTrue);
 
         await Directory(
           '${FileManager.documentsDirectory}$dirPath',

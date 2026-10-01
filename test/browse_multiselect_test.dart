@@ -298,11 +298,10 @@ void main() {
 
   group('FileFilterType enum', () {
     test('has correct values', () {
-      expect(FileFilterType.values.length, 4);
+      expect(FileFilterType.values.length, 3);
       expect(FileFilterType.all.index, 0);
       expect(FileFilterType.handwritten.index, 1);
       expect(FileFilterType.markdown.index, 2);
-      expect(FileFilterType.text.index, 3);
     });
   });
 

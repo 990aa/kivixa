@@ -22,7 +22,6 @@ import 'package:kivixa/components/ai/knowledge_graph_painter.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/routes.dart';
 import 'package:kivixa/pages/editor/editor.dart';
-import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:kivixa/services/sleep_wake_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -1118,9 +1117,7 @@ class _KnowledgeGraphPageState extends State<KnowledgeGraphPage>
     // Get all notes from the file system
     final allNotes = await FileManager.getAllFiles(includeExtensions: true);
     final notes = allNotes.where((f) {
-      return f.endsWith(Editor.extension) ||
-          f.endsWith('.md') ||
-          f.endsWith(TextFileEditor.internalExtension);
+      return f.endsWith(Editor.extension) || f.endsWith('.md');
     }).toList();
 
     if (!mounted) return;
@@ -1295,12 +1292,6 @@ class _KnowledgeGraphPageState extends State<KnowledgeGraphPage>
     } else if (notePath.endsWith('.md')) {
       pathWithoutExt = notePath.substring(0, notePath.length - '.md'.length);
       context.push(RoutePaths.markdownFilePath(pathWithoutExt));
-    } else if (notePath.endsWith(TextFileEditor.internalExtension)) {
-      pathWithoutExt = notePath.substring(
-        0,
-        notePath.length - TextFileEditor.internalExtension.length,
-      );
-      context.push(RoutePaths.textFilePath(pathWithoutExt));
     }
   }
 
@@ -1313,11 +1304,6 @@ class _KnowledgeGraphPageState extends State<KnowledgeGraphPage>
       name = name.substring(0, name.length - Editor.extension.length);
     } else if (name.endsWith('.md')) {
       name = name.substring(0, name.length - '.md'.length);
-    } else if (name.endsWith(TextFileEditor.internalExtension)) {
-      name = name.substring(
-        0,
-        name.length - TextFileEditor.internalExtension.length,
-      );
     }
     return name;
   }
@@ -1326,7 +1312,6 @@ class _KnowledgeGraphPageState extends State<KnowledgeGraphPage>
   String _getNoteType(String path) {
     if (path.endsWith(Editor.extension)) return 'Handwritten';
     if (path.endsWith('.md')) return 'Markdown';
-    if (path.endsWith(TextFileEditor.internalExtension)) return 'Text';
     return 'Unknown';
   }
 
@@ -1334,8 +1319,6 @@ class _KnowledgeGraphPageState extends State<KnowledgeGraphPage>
   IconData _getNoteIcon(String path) {
     if (path.endsWith(Editor.extension)) return Icons.draw;
     if (path.endsWith('.md')) return Icons.description;
-    if (path.endsWith(TextFileEditor.internalExtension))
-      return Icons.text_snippet;
     return Icons.note;
   }
 

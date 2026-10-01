@@ -12,14 +12,6 @@ void main() {
       expect(getFileTypeFromPath('/test.md'), PaneFileType.markdown);
       expect(getFileTypeFromPath('/folder/note.md'), PaneFileType.markdown);
     });
-
-    test('returns textDocument for .kvtx files', () {
-      expect(getFileTypeFromPath('/test.kvtx'), PaneFileType.textDocument);
-      expect(
-        getFileTypeFromPath('/folder/doc.kvtx'),
-        PaneFileType.textDocument,
-      );
-    });
   });
 
   group('PaneState', () {

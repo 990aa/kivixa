@@ -78,8 +78,6 @@ class _EmbeddedFileBrowserState extends State<EmbeddedFileBrowser> {
         return 'handwritten';
       case KivixaFileType.markdown:
         return 'markdown';
-      case KivixaFileType.text:
-        return 'text';
       default:
         return 'unknown';
     }

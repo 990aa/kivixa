@@ -30,7 +30,7 @@ class NotesActivityContextGateway implements ChatContextGateway {
       );
 
       final noteFiles = allFiles
-          .where((path) => path.endsWith('.md') || path.endsWith('.kvtx'))
+          .where((path) => path.endsWith('.md'))
           .toList(growable: false);
 
       if (noteFiles.isEmpty) {
@@ -136,58 +136,7 @@ class NotesActivityContextGateway implements ChatContextGateway {
       return '';
     }
 
-    if (notePath.endsWith('.kvtx')) {
-      return _extractKvtxText(raw);
-    }
-
     return raw;
-  }
-
-  String _extractKvtxText(String rawJson) {
-    try {
-      final decoded = jsonDecode(rawJson);
-
-      if (decoded is Map<String, dynamic>) {
-        final plainText = decoded['plainText'];
-        if (plainText is String && plainText.trim().isNotEmpty) {
-          return plainText;
-        }
-
-        final fromDocument = _extractTextFromDelta(decoded['document']);
-        if (fromDocument.isNotEmpty) {
-          return fromDocument;
-        }
-      }
-
-      if (decoded is List<dynamic>) {
-        final fromList = _extractTextFromDelta(decoded);
-        if (fromList.isNotEmpty) {
-          return fromList;
-        }
-      }
-    } catch (_) {
-      return rawJson;
-    }
-
-    return rawJson;
-  }
-
-  String _extractTextFromDelta(dynamic deltaCandidate) {
-    if (deltaCandidate is! List<dynamic>) {
-      return '';
-    }
-
-    final buffer = StringBuffer();
-    for (final op in deltaCandidate) {
-      if (op is Map<String, dynamic>) {
-        final insert = op['insert'];
-        if (insert is String) {
-          buffer.write(insert);
-        }
-      }
-    }
-
-    return buffer.toString().trim();
   }
 
   Iterable<String> _collectFolders(List<String> notePaths) sync* {

@@ -133,7 +133,7 @@ return result
 - Compare the numbers with your actual file count:
   1. Go to the **Browse** tab (folder icon in bottom navigation)
   2. Count the total files and folders visible
-  3. The numbers should match the count of .md, .kvx, and .kvtx files
+  3. The numbers should match the count of .md and .kvx files
 
 ---
 

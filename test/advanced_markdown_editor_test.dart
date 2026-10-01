@@ -85,6 +85,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Export as .md'), findsOneWidget);
+      expect(find.text('Export as .txt'), findsOneWidget);
     });
 
     testWidgets('should render preview without throwing', (

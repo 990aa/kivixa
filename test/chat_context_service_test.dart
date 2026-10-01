@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -33,23 +32,10 @@ void main() {
       }
     });
 
-    test('builds context with folders, markdown, and kvtx content', () async {
+    test('builds context with folders and markdown content', () async {
       final markdownFile = File('${tempRoot.path}/team/meeting.md');
       await markdownFile.parent.create(recursive: true);
       await markdownFile.writeAsString('# Meeting\n- Decision: ship v1');
-
-      final kvtxFile = File('${tempRoot.path}/journal/daily.kvtx');
-      await kvtxFile.parent.create(recursive: true);
-      await kvtxFile.writeAsString(
-        jsonEncode({
-          'document': [
-            {'insert': 'Daily note line one\n'},
-            {'insert': 'Action item line two\n'},
-          ],
-          'fileName': 'daily',
-          'version': 1,
-        }),
-      );
 
       const gateway = NotesActivityContextGateway(
         maxNotes: 5,
@@ -61,14 +47,11 @@ void main() {
 
       expect(context, contains('### Folder Structure'));
       expect(context, contains('/team/'));
-      expect(context, contains('/journal/'));
       expect(context, contains('#### /team/meeting.md'));
       expect(context, contains('Decision: ship v1'));
-      expect(context, contains('#### /journal/daily.kvtx'));
-      expect(context, contains('Action item line two'));
     });
 
-    test('returns empty string when no markdown or kvtx notes exist', () async {
+    test('returns empty string when no markdown notes exist', () async {
       const gateway = NotesActivityContextGateway();
       final context = await gateway.buildContextSnapshot();
       expect(context, isEmpty);

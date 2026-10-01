@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kivixa/components/home/new_note_button.dart';
 import 'package:kivixa/data/file_manager/file_manager.dart';
 import 'package:kivixa/data/flavor_config.dart';
-import 'package:kivixa/pages/textfile/text_file_editor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Uint8List _buildDocxBytes(String documentXml) {
@@ -80,29 +79,22 @@ void main() {
     });
 
     test(
-      'importTextLikeNoteAsCopy imports txt as editable kvtx copy',
+      'importTextLikeMarkdownNoteAsCopy imports txt as markdown copy',
       () async {
         final source = File('${tempRoot.path}/external/source-note.txt');
         await source.parent.create(recursive: true);
         const sourceContent = 'Line one\nLine two';
         await source.writeAsString(sourceContent);
 
-        final importedBasePath = await importTextLikeNoteAsCopy(
+        final importedBasePath = await importTextLikeMarkdownNoteAsCopy(
           sourcePath: source.path,
           destinationDir: '/imports/',
         );
 
-        final importedFile = FileManager.getFile(
-          '$importedBasePath${TextFileEditor.internalExtension}',
-        );
+        final importedFile = FileManager.getFile('$importedBasePath.md');
         expect(importedFile.existsSync(), isTrue);
         expect(await source.readAsString(), sourceContent);
-
-        final payload = json.decode(await importedFile.readAsString()) as Map;
-        expect(payload['fileName'], 'source-note');
-
-        final documentOps = payload['document'] as List;
-        expect((documentOps.first as Map)['insert'], '$sourceContent\n');
+        expect(await importedFile.readAsString(), '$sourceContent\n');
       },
     );
 
@@ -128,36 +120,34 @@ void main() {
       },
     );
 
-    test('importTextLikeNoteAsCopy imports docx text into kvtx copy', () async {
-      const xml =
-          '<w:document><w:body>'
-          '<w:p><w:r><w:t>Agenda</w:t></w:r></w:p>'
-          '<w:p><w:r><w:t>1. Intro</w:t></w:r><w:br/><w:r><w:t>2. Wrap-up</w:t></w:r></w:p>'
-          '</w:body></w:document>';
+    test(
+      'importTextLikeMarkdownNoteAsCopy imports docx text into markdown copy',
+      () async {
+        const xml =
+            '<w:document><w:body>'
+            '<w:p><w:r><w:t>Agenda</w:t></w:r></w:p>'
+            '<w:p><w:r><w:t>1. Intro</w:t></w:r><w:br/><w:r><w:t>2. Wrap-up</w:t></w:r></w:p>'
+            '</w:body></w:document>';
 
-      final source = File('${tempRoot.path}/external/meeting.docx');
-      await source.parent.create(recursive: true);
-      final sourceBytes = _buildDocxBytes(xml);
-      await source.writeAsBytes(sourceBytes);
+        final source = File('${tempRoot.path}/external/meeting.docx');
+        await source.parent.create(recursive: true);
+        final sourceBytes = _buildDocxBytes(xml);
+        await source.writeAsBytes(sourceBytes);
 
-      final importedBasePath = await importTextLikeNoteAsCopy(
-        sourcePath: source.path,
-        destinationDir: '/imports/',
-      );
+        final importedBasePath = await importTextLikeMarkdownNoteAsCopy(
+          sourcePath: source.path,
+          destinationDir: '/imports/',
+        );
 
-      final importedFile = FileManager.getFile(
-        '$importedBasePath${TextFileEditor.internalExtension}',
-      );
-      expect(importedFile.existsSync(), isTrue);
-      expect(await source.readAsBytes(), sourceBytes);
+        final importedFile = FileManager.getFile('$importedBasePath.md');
+        expect(importedFile.existsSync(), isTrue);
+        expect(await source.readAsBytes(), sourceBytes);
+        final importedText = await importedFile.readAsString();
 
-      final payload = json.decode(await importedFile.readAsString()) as Map;
-      final documentOps = payload['document'] as List;
-      final importedText = (documentOps.first as Map)['insert'] as String;
-
-      expect(importedText, contains('Agenda'));
-      expect(importedText, contains('1. Intro'));
-      expect(importedText, contains('2. Wrap-up'));
-    });
+        expect(importedText, contains('Agenda'));
+        expect(importedText, contains('1. Intro'));
+        expect(importedText, contains('2. Wrap-up'));
+      },
+    );
   });
 }
