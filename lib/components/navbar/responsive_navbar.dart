@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kivixa/components/canvas/save_indicator.dart';
 import 'package:kivixa/components/navbar/horizontal_navbar.dart';
 import 'package:kivixa/components/navbar/vertical_navbar.dart';
 import 'package:kivixa/data/prefs.dart';
 import 'package:kivixa/data/routes.dart';
-import 'package:kivixa/pages/home/home.dart';
-import 'package:kivixa/pages/home/whiteboard.dart';
-import 'package:path_to_regexp/path_to_regexp.dart';
 import 'package:stow_codecs/stow_codecs.dart';
 
 class ResponsiveNavbar extends StatefulWidget {
@@ -39,24 +35,6 @@ class _ResponsiveNavbarState extends State<ResponsiveNavbar> {
 
   void onDestinationSelected(int index) {
     if (index == widget.selectedIndex) return;
-
-    // if on whiteboard, check if saved
-    final whiteboardPath = pathToFunction(RoutePaths.home)({
-      'subpage': HomePage.whiteboardSubpage,
-    });
-    if (HomeRoutes.getRoute(widget.selectedIndex) == whiteboardPath) {
-      final savingState = Whiteboard.savingState;
-      switch (savingState) {
-        case null:
-        case SavingState.saved:
-          break;
-        case SavingState.waitingToSave:
-          Whiteboard.triggerSave();
-          return;
-        case SavingState.saving:
-          return;
-      }
-    }
 
     context.go(HomeRoutes.getRoute(index));
   }

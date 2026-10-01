@@ -309,7 +309,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final showWriting = _matchesSettingsSection(
       category: t.settings.prefCategories.writing,
       description: 'Writing preferences and editor behavior',
-      keywords: const ['writing', 'whiteboard', 'eraser', 'finger'],
+      keywords: const ['writing', 'eraser', 'finger'],
     );
     final showNotifications = _matchesSettingsSection(
       category: 'Notifications & Sound',
@@ -598,13 +598,6 @@ class _SettingsPageState extends State<SettingsPage> {
                           : Icons.enhance_photo_translate;
                     },
                     pref: stows.preferGreyscale,
-                  ),
-                  SettingsSwitch(
-                    title: t.settings.prefLabels.autoClearWhiteboardOnExit,
-                    subtitle:
-                        t.settings.prefDescriptions.autoClearWhiteboardOnExit,
-                    icon: Icons.layers_clear,
-                    pref: stows.autoClearWhiteboardOnExit,
                   ),
                   SettingsSwitch(
                     title: t.settings.prefLabels.disableEraserAfterUse,
@@ -1429,8 +1422,6 @@ class _ResetAllSettingsWidget extends StatelessWidget {
     stows.autoStraightenLines.value = stows.autoStraightenLines.defaultValue;
     stows.printPageIndicators.value = stows.printPageIndicators.defaultValue;
     stows.maxImageSize.value = stows.maxImageSize.defaultValue;
-    stows.autoClearWhiteboardOnExit.value =
-        stows.autoClearWhiteboardOnExit.defaultValue;
     stows.disableEraserAfterUse.value =
         stows.disableEraserAfterUse.defaultValue;
     stows.hideFingerDrawingToggle.value =

@@ -136,10 +136,7 @@ Future<void> appRunner(List<String> args) async {
         await windowManager.setTitle('Kivixa');
       }),
     ],
-    // FIX: Use edgeToEdge instead of immersiveSticky on startup.
-    // immersiveSticky hides system bars which triggers isFullscreen=true,
-    // causing the app bar to disappear in the editor/whiteboard on Android.
-    // edgeToEdge extends content behind system bars without hiding them.
+
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge),
     workerManager.init(),
     PencilShader.init(),
