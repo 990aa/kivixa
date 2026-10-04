@@ -545,7 +545,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.8.2] - 2026-04-09
 
-
 ### Added
 - Added platform speech fallback dependencies for dictation/read-aloud (`speech_to_text`, `flutter_tts`, and `record`) plus required Android/iOS microphone and speech permission metadata.
 - Added MCP regression tests for escaped multiline `args` payload parsing and Function Gemma-style direct `write_file` paragraph prompts.
@@ -786,7 +785,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## [0.10.1] - 2026-10-01
 
-### Changed
-- Version bump to 0.10.1
+### Fixed
+- Fix markdown notes interface
 
 ---

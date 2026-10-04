@@ -216,12 +216,23 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     });
   }
 
+  String _filePathWithoutMarkdownExtension(String filePath) {
+    final extension = AdvancedMarkdownEditor.extension;
+    return filePath.toLowerCase().endsWith(extension)
+        ? filePath.substring(0, filePath.length - extension.length)
+        : filePath;
+  }
+
   Future<void> _loadFile() async {
     var fileContent = '';
 
     if (widget.filePath != null) {
       try {
-        _currentFilePath = widget.filePath! + AdvancedMarkdownEditor.extension;
+        final filePathWithoutExtension = _filePathWithoutMarkdownExtension(
+          widget.filePath!,
+        );
+        _currentFilePath =
+            filePathWithoutExtension + AdvancedMarkdownEditor.extension;
         log.fine('Loading file: $_currentFilePath');
 
         try {
@@ -236,8 +247,8 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
         } catch (e) {
           log.fine('Error reading file: $e');
           _currentFilePath =
-              widget.filePath! + AdvancedMarkdownEditor.extension;
-          _fileName = _getFileNameFromPath(widget.filePath!);
+              filePathWithoutExtension + AdvancedMarkdownEditor.extension;
+          _fileName = _getFileNameFromPath(_currentFilePath!);
           log.info('Creating new markdown file: $_currentFilePath');
         }
       } catch (e) {
@@ -249,6 +260,7 @@ class _AdvancedMarkdownEditorState extends State<AdvancedMarkdownEditor>
     _initCodeController(false, fileContent);
     _updateCounts();
 
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
     });

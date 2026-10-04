@@ -205,10 +205,8 @@ class _NewNoteButtonState extends State<NewNoteButton> {
               context.push(RoutePaths.markdown);
             } else {
               final basePath = await FileManager.newFilePath('${widget.path}/');
-              // Append .md extension for markdown notes
-              final newFilePath = '$basePath.md';
               if (!context.mounted) return;
-              context.push(RoutePaths.markdownFilePath(newFilePath));
+              context.push(RoutePaths.markdownFilePath(basePath));
             }
           },
         ),
